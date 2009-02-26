@@ -4,38 +4,20 @@
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//    This file is subject to the terms of the GNU General Public License as
+//    published by the Free Software Foundation.  A copy of this license is
+//    included with this software distribution in the file COPYING.  If you
+//    do not have a copy, you may obtain a copy by writing to the Free
+//    Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//    This software is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // This software was based on hwiodrv from the FreeTV project Those portions are
 // Copyright (C) Mathias Ellinger
-//
-/////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 19 Nov 1998   Mathias Ellinger      initial version
-//
-// 24 Jul 2000   John Adcock           Original dTV Release
-//                                     Added Memory Alloc functions
-//
-// 08 Aug 2001   John Adcock           Changed functionms to support multiple cards
-//                                     Added driver version
-//                                     Changed meaning of memory access parameters
-//                                     (see note in header)
-//
-// 13 Mar 2006   Michael Lutz          Adapted for Win64 support
-//                                     Bumped minor driver version
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -44,12 +26,12 @@
 
 
 #if !defined(_W64) 
-	
-	#if (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300 
-		#define _W64 __w64 
-	#else 
-		#define _W64 
-	#endif 
+    
+    #if (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300 
+        #define _W64 __w64 
+    #else 
+        #define _W64 
+    #endif 
 #endif
 
 #if defined(_WIN64)
@@ -79,27 +61,27 @@ typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
 
 typedef struct
 {
-	DWORD dwSize;
-	DWORD dwPhysical;
+    DWORD dwSize;
+    DWORD dwPhysical;
 } TPageStruct, * PPageStruct;
 
 // keep struct size a multiple of 8, simplifies things for Itanium
 typedef struct
 {
-	ULONGLONG llPhysical;
-	DWORD dwSize;
-	DWORD dummy;
+    ULONGLONG llPhysical;
+    DWORD dwSize;
+    DWORD dummy;
 } TPageStruct64, * PPageStruct64;
 
 // keep size of TMemStruct a multiple of 8 FOR 64-bit VERSIONS
 // sizeof(void*)==8 then, so it's okay right now
 typedef struct
 {
-	DWORD dwTotalSize;
-	DWORD dwPages;
-	DWORD dwHandle;
-	DWORD dwFlags;
-	void* dwUser;
+    DWORD dwTotalSize;
+    DWORD dwPages;
+    DWORD dwHandle;
+    DWORD dwFlags;
+    void* dwUser;
 } TMemStruct, * PMemStruct;
 
 
@@ -320,9 +302,9 @@ extern "C" {
 
 typedef struct tagDSDrvParam
 {
-	DWORD_PTR    dwAddress;
-	DWORD_PTR    dwValue;
-	DWORD     dwFlags;
+    DWORD_PTR    dwAddress;
+    DWORD_PTR    dwValue;
+    DWORD     dwFlags;
 } TDSDrvParam, * PDSDrvParam;
 
 //---------------------------------------------------------------------------
@@ -332,23 +314,23 @@ typedef struct tagDSDrvParam
 
 typedef struct _PCI_COMMON_CONFIG
 {
-	USHORT  VendorID;                   // (ro)
-	USHORT  DeviceID;                   // (ro)
-	USHORT  Command;                    // Device control
-	USHORT  Status;
-	UCHAR   RevisionID;                 // (ro)
-	UCHAR   ProgIf;                     // (ro)
-	UCHAR   SubClass;                   // (ro)
-	UCHAR   BaseClass;                  // (ro)
-	UCHAR   CacheLineSize;              // (ro+)
-	UCHAR   LatencyTimer;               // (ro+)
-	UCHAR   HeaderType;                 // (ro)
-	UCHAR   BIST;                       // Built in self test
+    USHORT  VendorID;                   // (ro)
+    USHORT  DeviceID;                   // (ro)
+    USHORT  Command;                    // Device control
+    USHORT  Status;
+    UCHAR   RevisionID;                 // (ro)
+    UCHAR   ProgIf;                     // (ro)
+    UCHAR   SubClass;                   // (ro)
+    UCHAR   BaseClass;                  // (ro)
+    UCHAR   CacheLineSize;              // (ro+)
+    UCHAR   LatencyTimer;               // (ro+)
+    UCHAR   HeaderType;                 // (ro)
+    UCHAR   BIST;                       // Built in self test
 
-	union
-	{
+    union
+    {
         struct _PCI_HEADER_TYPE_0
-		{
+        {
             DWORD   BaseAddresses[6];
             DWORD   CIS;
             USHORT  SubVendorID;

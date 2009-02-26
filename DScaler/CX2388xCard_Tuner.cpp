@@ -20,40 +20,6 @@
 // others at Connexant.  Those parts are probably (c) Connexant 2002
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.9  2005/12/27 19:29:35  to_see
-// Cleanup tuner scanning loop
-//
-// Revision 1.8  2005/05/12 20:06:22  to_see
-// Moved m_TunerHauppaugeAnalog to TunerID.h for common using for BT and CX cards.
-//
-// Revision 1.7  2005/03/09 15:10:45  atnak
-// Added support for TDA8275 tuner and TDA8290.
-//
-// Revision 1.6  2005/03/09 09:49:34  atnak
-// Added a new ITuner::InitializeTuner() function for performing tuner chip
-// initializations.
-//
-// Revision 1.5  2005/03/09 09:35:16  atnak
-// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
-// non-intrusive nature.
-//
-// Revision 1.4  2005/03/06 14:05:51  to_see
-// Hauppauge Autodetection updated
-//
-// Revision 1.3  2005/01/13 19:44:17  to_see
-// Added TEA5767 autodetection
-//
-// Revision 1.2  2004/12/25 22:40:18  to_see
-// Changed the card list to an ini file
-//
-// Revision 1.1  2004/12/20 18:55:35  to_see
-// Moved tuner code to new file CX2388xCard_Tuner.cpp
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 
@@ -156,22 +122,22 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         }
     }
 
-	eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
+    eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
 
-	if (pExternalIFDemodulator != NULL)
-	{
-		// Attach the IF demodulator to the tuner.
-		m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
-		// Let the IF demodulator know of pre-initialization.
-		pExternalIFDemodulator->Init(TRUE, videoFormat);
-	}
+    if (pExternalIFDemodulator != NULL)
+    {
+        // Attach the IF demodulator to the tuner.
+        m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
+        // Let the IF demodulator know of pre-initialization.
+        pExternalIFDemodulator->Init(TRUE, videoFormat);
+    }
                 
     // Scan the I2C bus addresses for tuners
     BOOL bFoundTuner = FALSE;
 
-	// Scan the I2C bus addresses 0xC0 - 0xCF for tuners.
-	BYTE test = IsTEA5767PresentAtC0(m_I2CBus) ? 0xC2 : 0xC0;
-	for ( ; test < 0xCF; test += 0x02)
+    // Scan the I2C bus addresses 0xC0 - 0xCF for tuners.
+    BYTE test = IsTEA5767PresentAtC0(m_I2CBus) ? 0xC2 : 0xC0;
+    for ( ; test < 0xCF; test += 0x02)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
@@ -180,11 +146,11 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
             // Initialize the tuner.
             if (m_Tuner->InitializeTuner())
             {
-				bFoundTuner = TRUE;
-				int length = strlen(m_TunerType);
-				sprintf(m_TunerType + length, "@ I2C address 0x%02X", test);
-				LOG(1,"Tuner: Found at I2C address 0x%02x", test);
-				break;
+                bFoundTuner = TRUE;
+                int length = strlen(m_TunerType);
+                sprintf(m_TunerType + length, "@ I2C address 0x%02X", test);
+                LOG(1,"Tuner: Found at I2C address 0x%02x", test);
+                break;
             }
         }
     }
@@ -218,29 +184,29 @@ LPCSTR CCX2388xCard::GetTunerType()
 
 eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
 {
-	eTunerId TunerId = TUNER_ABSENT;
+    eTunerId TunerId = TUNER_ABSENT;
     TCardType* pCard = &m_CX2388xCards[CardId];
 
-	if(pCard->TunerId == TUNER_USER_SETUP)
-	{
-		return TUNER_ABSENT;
-	}
+    if(pCard->TunerId == TUNER_USER_SETUP)
+    {
+        return TUNER_ABSENT;
+    }
 
-	else if(pCard->TunerId == TUNER_AUTODETECT)
-	{
-		eTunerId Tuner = TUNER_ABSENT;
-		
-		// Read the whole EEPROM without using I2C from SRAM
-		BYTE Eeprom[256];
-		for (int i=0; i<256; i += 4)
-		{
-			// DWORD alignment needed
-			DWORD dwVal = ReadDword(MAP_EEPROM_DATA + i);
-			Eeprom[i+0] = LOBYTE(LOWORD(dwVal));
-			Eeprom[i+1] = HIBYTE(LOWORD(dwVal));
-			Eeprom[i+2] = LOBYTE(HIWORD(dwVal));
-			Eeprom[i+3] = HIBYTE(HIWORD(dwVal));
-		}
+    else if(pCard->TunerId == TUNER_AUTODETECT)
+    {
+        eTunerId Tuner = TUNER_ABSENT;
+        
+        // Read the whole EEPROM without using I2C from SRAM
+        BYTE Eeprom[256];
+        for (int i=0; i<256; i += 4)
+        {
+            // DWORD alignment needed
+            DWORD dwVal = ReadDword(MAP_EEPROM_DATA + i);
+            Eeprom[i+0] = LOBYTE(LOWORD(dwVal));
+            Eeprom[i+1] = HIBYTE(LOWORD(dwVal));
+            Eeprom[i+2] = LOBYTE(HIWORD(dwVal));
+            Eeprom[i+3] = HIBYTE(HIWORD(dwVal));
+        }
 
         // Note: string in card-ini is "Hauppauge WinTV 34xxx models"
         const char* pszCardHauppaugeAnalog = "Hauppauge WinTV 34";
@@ -250,27 +216,27 @@ eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
 
         if(strncmp(pCard->szName, pszCardHauppaugeAnalog, strlen(pszCardHauppaugeAnalog)) == 0)
         {
-			if (Eeprom[CX_EEPROM_OFFSET + 0] != 0x84 || Eeprom[CX_EEPROM_OFFSET + 2] != 0)
-			{
-				LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card fails.");
-			}
-			else
-			{
-				LOG(2, "AutoDetectTuner: Hauppauge CX2388x Card. TunerId: 0x%02X",Eeprom[CX_EEPROM_OFFSET + 9]);
-				if (Eeprom[CX_EEPROM_OFFSET + 9] < (sizeof(m_TunerHauppaugeAnalog) / sizeof(m_TunerHauppaugeAnalog[0]))) 
-				{
-					Tuner = m_TunerHauppaugeAnalog[Eeprom[CX_EEPROM_OFFSET + 9]];
-				}
-			}
-		}
+            if (Eeprom[CX_EEPROM_OFFSET + 0] != 0x84 || Eeprom[CX_EEPROM_OFFSET + 2] != 0)
+            {
+                LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card fails.");
+            }
+            else
+            {
+                LOG(2, "AutoDetectTuner: Hauppauge CX2388x Card. TunerId: 0x%02X",Eeprom[CX_EEPROM_OFFSET + 9]);
+                if (Eeprom[CX_EEPROM_OFFSET + 9] < (sizeof(m_TunerHauppaugeAnalog) / sizeof(m_TunerHauppaugeAnalog[0]))) 
+                {
+                    Tuner = m_TunerHauppaugeAnalog[Eeprom[CX_EEPROM_OFFSET + 9]];
+                }
+            }
+        }
         
-		return Tuner;
-	}
+        return Tuner;
+    }
 
-	else
-	{
-		return pCard->TunerId;
-	}
+    else
+    {
+        return pCard->TunerId;
+    }
 }
 
 #endif // WANT_CX2388X_SUPPORT

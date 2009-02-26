@@ -20,1220 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Original Release
-//                                     Translated most code from German
-//                                     Combined Header files
-//                                     Cut out all decoding
-//                                     Cut out digital hardware stuff
-//
-// 21 Dec 2000   John Adcock           Stopped Timer after ini write
-//
-// 26 Dec 2000   Eric Schmidt          Fixed remember-last-audio-input-at-start.
-//
-// 02 Jan 2001   John Adcock           Added pVBILines
-//                                     Removed bTV plug-in
-//                                     Added Scaled BOB method
-//
-// 03 Jan 2001   Michael Eskin         Added MSP muting
-//
-// 07 Jan 2001   John Adcock           Added Adaptive deinterlacing
-//                                     Changed display and handling of
-//                                     change deinterlacing method
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 20 Feb 2001   Michael Samblanet     Added bounce timer - see AspectRatio.c
-//                                     Corrected bug in SaveWindowPos - length 
-//                                     not set in placement structure
-//
-// 23 Feb 2001   Michael Samblanet     Added orbit timer, Expierementaly removed
-//                                     2 lines from WM_PAINT which should not be
-//                                     needed and may have caused flashing.
-//
-// 31 Mar 2001   Laurent Garnier       Single click replaced by double click
-//
-// 04 Apr 2001   Laurent Garnier       Automatic hide cursor
-//
-// 26 May 2001   Eric Schmidt          Added Custom Channel Order.
-//
-// 24 Jul 2001   Eric Schmidt          Added TimeShift stuff.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.401  2008/02/08 13:43:19  adcockj
-// Changes to support cmake compilation
-//
-// Revision 1.400  2007/12/14 19:31:47  adcockj
-// Fixes for Vista crashing
-// Consistent exception handling as references
-//
-// Revision 1.399  2007/10/04 20:04:47  to_see
-// Fixed crash in ScheduledRecordingDlg when StartTime changed too fast
-//
-// Revision 1.398  2007/09/16 16:49:02  robmuller
-// Keep the priority of the UI thread at the same value as the priority of the output thread.
-//
-// Revision 1.397  2007/09/16 13:38:24  robmuller
-// Fix problem introduced by last checkin.
-//
-// Revision 1.396  2007/09/16 12:23:55  robmuller
-// Remove delay when changing channels with some sources (like my card in DShow mode).
-//
-// Revision 1.395  2007/09/11 17:22:21  robmuller
-// Fix: priority class was not being set.
-// Priority class and output thread priority can now be changed in real-time.
-// Updated several priority related names.
-//
-// Revision 1.394  2007/04/08 15:24:42  robmuller
-// Improved resume after suspend.
-//
-// Revision 1.393  2007/02/21 05:18:37  robmuller
-// Write DScaler and Windows versions to log file.
-//
-// Revision 1.392  2007/02/19 17:37:44  adcockj
-// Implement DirectX as overlay fallback
-//
-// Revision 1.391  2007/02/19 14:48:50  adcockj
-// Fixed various issues with d3d9 code and settings
-//
-// Revision 1.390  2007/02/19 00:28:04  robmuller
-// New scheduling code from Radoslav Masaryk.
-//
-// Revision 1.389  2007/02/18 21:50:04  robmuller
-// Added option to not compile saa713x code.
-//
-// Revision 1.388  2007/02/18 21:32:44  robmuller
-// Added option to not compile cx2388x code.
-//
-// Revision 1.387  2006/12/20 17:43:55  adcockj
-// reorganised the handling of mce remote
-//
-// Revision 1.386  2006/12/20 17:41:15  adcockj
-// reorganised the handling of mce remote
-//
-// Revision 1.385  2006/12/20 07:45:07  adcockj
-// added DirectX code from Daniel Sabel
-//
-// Revision 1.384  2006/12/13 01:10:00  robmuller
-// Fix compile warnings with Visual Studio 2005 Express.
-//
-// Revision 1.383  2006/10/01 15:22:27  robmuller
-// Fixed: command line parameters not working anymore due to last check-in.
-//
-// Revision 1.382  2006/09/23 23:09:37  robmuller
-// Stop startup of second instance earlier.
-//
-// Revision 1.381  2005/09/24 18:40:08  dosx86
-// Changed AspectRatio to Aspect Ratio
-//
-// Revision 1.380  2005/07/17 20:39:27  dosx86
-// Uses the new time shift functions
-//
-// Revision 1.379  2005/07/11 12:49:00  laurentg
-// New menus to browse EPG at a certain day and time
-//
-// Revision 1.378  2005/03/26 18:53:22  laurentg
-// EPG code improved
-// => possibility to set the EPG channel name in the channel setup dialog box
-// => automatic loading of new data when needed
-// => OSD scrrens updated
-// => first step for programs "browser"
-//
-// Revision 1.377  2005/03/23 14:20:37  adcockj
-// Test fix for threading issues
-//
-// Revision 1.376  2005/03/21 22:39:14  laurentg
-// EPG: changes regarding OSD
-//
-// Revision 1.375  2005/03/20 22:56:18  laurentg
-// New OSD screens added for EPG
-//
-// Revision 1.374  2005/03/20 09:50:04  laurentg
-// XMLTV file import
-//
-// Revision 1.373  2005/03/11 17:16:37  adcockj
-// ifdefed out stuff that required newer sdk
-//
-// Revision 1.372  2005/03/10 17:40:37  adcockj
-// first go at adding MCE remote support
-//
-// Revision 1.371  2005/03/06 01:40:49  robmuller
-// Changed default CPU speed to 'Above 1GHz' in the General Hardware Setup dialog.
-//
-// Revision 1.370  2005/03/06 00:52:27  robmuller
-// Changed default value for 'Always on Top (Window)'.
-//
-// Revision 1.369  2005/03/04 20:40:54  laurentg
-// Change unit (1/10 sec) for the setting defining the delay between periodic stills
-//
-// Revision 1.368  2005/03/04 20:23:33  laurentg
-// Message box added when exiting and snapshots are only in memory
-//
-// Revision 1.367  2004/12/25 22:40:18  to_see
-// Changed the card list to an ini file
-//
-// Revision 1.366  2004/12/13 23:24:43  laurentg
-// Request in GUI thread regarding output thread - extended code
-//
-// Revision 1.365  2004/12/04 00:06:49  atnak
-// Got rid of warnings in VC++ .Net 2003.
-//
-// Revision 1.364  2004/11/27 00:48:37  atnak
-// Moved InitializeSAA713xCardList() up earlier to avoid memory leaks or
-// need to clean up after 'new CEventCollector()' and 'new CSettingsMaster()'
-//
-// Revision 1.363  2004/11/21 12:26:29  atnak
-// Added cautionary comment for exiting code.
-//
-// Revision 1.362  2004/11/20 14:22:46  atnak
-// Added call at startup for loading up SAA713x card database from file.
-//
-// Revision 1.361  2004/05/02 15:18:59  atnak
-// Workaround for redrawing bug over overlay surfaces on some systems
-//
-// Revision 1.360  2004/04/24 09:14:30  atnak
-// changed maximum channel enter time to 20 seconds
-//
-// Revision 1.359  2004/04/24 09:11:24  atnak
-// added channel enter time setting to advanced settings screen
-//
-// Revision 1.358  2003/11/18 16:36:33  robmuller
-// Added option to disable the keyboard lock for dialog boxes.
-//
-// Revision 1.357  2003/11/11 21:26:44  robmuller
-// Exclude some more when WANT_DSHOW_SUPPORT is not defined.
-//
-// Revision 1.356  2003/10/27 16:22:56  adcockj
-// Added preliminary support for PMS PDI Deluxe card
-//
-// Revision 1.355  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.354  2003/10/13 19:10:14  laurentg
-// Videotext renamed Teletext
-//
-// Revision 1.353  2003/10/10 11:18:59  laurentg
-// Bug fixed : access to the audio mixer
-//
-// Revision 1.352  2003/10/03 11:40:11  laurentg
-// Update the combobox in the channel toolbar when exiting the channel setup dialog box
-//
-// Revision 1.351  2003/09/27 13:38:42  adcockj
-// Restored auto format menu
-//
-// Revision 1.350  2003/09/27 12:08:58  adcockj
-// Suppress splash when first run
-//
-// Revision 1.349  2003/09/26 21:06:31  laurentg
-// Media player toolbar hidden when one skin is selected
-//
-// Revision 1.348  2003/09/13 13:59:08  laurentg
-// half height mode removed - Some menu actions like play or pause disabled
-//
-// Revision 1.347  2003/08/25 04:04:00  atnak
-// Moved the initial Mixer_Init() call to the correct place
-//
-// Revision 1.346  2003/08/24 11:22:28  atnak
-// Patched Overlay Stop/Start for indexed Start/Stop Capture states
-//
-// Revision 1.345  2003/08/16 18:40:43  laurentg
-// Disable access to the audio mixer dialog box for the movie file source
-// Display the audio mixer dialog box at first setup of a DShow capture source
-//
-// Revision 1.344  2003/08/16 09:25:10  laurentg
-// Disable access to audio mixer dialog box when the current source is a still
-//
-// Revision 1.343  2003/08/15 17:18:35  laurentg
-// Factorize treatments
-//
-// Revision 1.342  2003/08/15 16:51:11  laurentg
-// New event type EVENT_NO_VOLUME
-// Update the volume toolbar when exiting from the audio mixer setup dialog box
-//
-// Revision 1.341  2003/08/15 10:23:27  laurentg
-// Minor change to take into account new return value for Mixer_GetVolume and Mixer_GetMute
-//
-// Revision 1.340  2003/08/15 10:06:40  laurentg
-// Automatic update of the volume toolbar when updating the volume outside DScaler
-//
-// Revision 1.339  2003/08/14 19:38:14  laurentg
-// Timer for toolbar only when the toolbar is visible
-//
-// Revision 1.338  2003/08/12 19:11:33  laurentg
-// Move some methods from CDSFileSource to CDSSourceBase
-//
-// Revision 1.337  2003/08/11 23:03:44  laurentg
-// Time slider in the media player toolbar
-//
-// Revision 1.336  2003/08/09 20:18:37  laurentg
-// Automatic show/hide the toolbar when in full screen mode
-//
-// Revision 1.335  2003/08/09 15:53:39  laurentg
-// Bad refresh of the toolbar when in full screen mode corrected
-//
-// Revision 1.334  2003/08/09 13:03:09  laurentg
-// Display of the toolbar in full screen mode
-//
-// Revision 1.333  2003/08/02 12:04:13  laurentg
-// Two new settings to define how many channels to display in preview mode
-//
-// Revision 1.332  2003/07/29 13:33:06  atnak
-// Overhauled mixer code
-//
-// Revision 1.331  2003/07/24 21:15:18  laurentg
-// Hide the toolbar when starting in full screen mode
-//
-// Revision 1.330  2003/07/18 09:48:48  adcockj
-// Added Timer clean up
-//
-// Revision 1.329  2003/07/18 09:41:23  adcockj
-// Added PDI input to holo3d (doesn't yet work)
-//
-// Revision 1.328  2003/07/02 20:35:12  laurentg
-// Allow virtual screen with origin different from (0,0)
-//
-// Revision 1.327  2003/06/14 19:38:10  laurentg
-// Preview mode improved
-//
-// Revision 1.326  2003/06/14 12:05:21  laurentg
-// Restore default position (on primary monitor) for the window if the old position was on a screen which is no more active
-//
-// Revision 1.325  2003/05/31 11:38:14  laurentg
-// Load dynamic functions earlier to have splash screen on correct screen and to be able to start in full screen mode on the second monitor
-//
-// Revision 1.324  2003/04/28 12:41:19  laurentg
-// PowerStrip settings access added
-//
-// Revision 1.323  2003/04/26 19:02:38  laurentg
-// Character string settings and memory management
-//
-// Revision 1.322  2003/04/26 16:07:48  laurentg
-// Character string settings
-//
-// Revision 1.321  2003/04/16 14:38:01  atnak
-// Changed the double click hack to be less hacky
-//
-// Revision 1.320  2003/04/15 13:07:09  adcockj
-// Fixed memory leak
-//
-// Revision 1.319  2003/04/12 15:23:22  laurentg
-// Interface with PowerStrip when changing resolution (code from Olivier Borca)
-//
-// Revision 1.318  2003/03/29 13:39:33  laurentg
-// Allow the display of DScaler to monitors other than the primary
-//
-// Revision 1.317  2003/03/23 09:24:27  laurentg
-// Automatic leave preview mode when necessary
-//
-// Revision 1.316  2003/03/22 18:58:38  laurentg
-// New key to switch to or from preview mode
-// Spped up initial display of channels in preview mode
-//
-// Revision 1.315  2003/03/21 22:48:06  laurentg
-// Preview mode (multiple frames) improved
-//
-// Revision 1.314  2003/03/19 23:56:35  laurentg
-// Second step for the navigation through channels in preview mode
-//
-// Revision 1.313  2003/03/17 22:36:13  laurentg
-// First step for the navigation through channels in preview mode
-//
-// Revision 1.312  2003/03/16 18:31:25  laurentg
-// New multiple frames feature
-//
-// Revision 1.311  2003/03/08 20:50:58  laurentg
-// Updated combobox to select the usage of DScaler
-//
-// Revision 1.310  2003/02/27 01:37:51  atnak
-// Fixes skin problem introduced when paint code was changed.
-//
-// Revision 1.309  2003/02/08 13:16:47  laurentg
-// Change resolution in full screen mode slightly updated
-//
-// Revision 1.308  2003/02/07 12:46:17  laurentg
-// Change resolution correctly handled when DScaler is minimized and restored
-//
-// Revision 1.307  2003/02/07 11:28:23  laurentg
-// Keep more ids for the output reso menus (100)
-// New resolutions added (720x480 and 720x576)
-//
-// Revision 1.306  2003/02/06 12:22:56  laurentg
-// Take the refresh rate when changing resolution (choice between 60, 72, 75, 100 and 120 Hz)
-//
-// Revision 1.305  2003/02/06 09:59:40  laurentg
-// Change resolution in full screen
-//
-// Revision 1.304  2003/02/06 00:58:50  laurentg
-// Change output resolution (first step)
-//
-// Revision 1.303  2003/02/05 19:57:50  laurentg
-// New option to minimize DScaler when there is no signal and to restore it when a signal is detected
-//
-// Revision 1.302  2003/02/05 17:50:51  robmuller
-// Add the systray icon again after the task bar has been restarted.
-//
-// Revision 1.301  2003/02/05 17:21:50  robmuller
-// Hide systray menu when another window is activated.
-//
-// Revision 1.300  2003/02/05 16:40:17  laurentg
-// New option to stop capture when DScaler is minimized
-//
-// Revision 1.299  2003/02/05 15:11:39  laurentg
-// Channel name as tip for the DScaler icon in the systray (patch from Kristian Trenskow)
-//
-// Revision 1.298  2003/02/05 14:40:56  laurentg
-// DScaler in Windows system tray (patch from Kristian Trenskow)
-//
-// Revision 1.297  2003/02/05 14:26:19  laurentg
-// DScaler in systray (Patch from Kristian Trenskow)
-//
-// Revision 1.296  2003/01/27 22:06:39  laurentg
-// Forbid key O or key Shift+O as soon as one of the overscans is at its minimum or maximum
-//
-// Revision 1.295  2003/01/27 16:40:13  adcockj
-// Fixed maximize bug spotted by Atsushi
-//
-// Revision 1.294  2003/01/26 10:34:57  tobbej
-// changed statusbar updates from output thread to be thread safe (PostMessage instead of SendMessage)
-//
-// Revision 1.293  2003/01/26 03:46:30  atnak
-// Fixed no refresh after videotext setting change
-//
-// Revision 1.292  2003/01/25 12:03:45  atnak
-// Changed OSD RECT from GetDestRect() to GetDisplayAreaRect(),
-// re-implemented IDM_FAST_REPAINT
-//
-// Revision 1.291  2003/01/24 01:55:18  atnak
-// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
-// got rid of the pink overlay colorkey for Teletext.
-//
-// Revision 1.290  2003/01/18 12:10:48  laurentg
-// Avoid double display in OSD (ADJUSTDOWN_SILENT and ADJUSTUP_SILENT instead of (ADJUSTDOWN and ADJUSTUP)
-//
-// Revision 1.289  2003/01/17 17:26:52  adcockj
-// reverted writesettings change
-//
-// Revision 1.288  2003/01/17 14:40:33  adcockj
-// Write all settings on exit
-//
-// Revision 1.287  2003/01/16 22:34:21  laurentg
-// First step to add a new dialog box to adjust image size
-//
-// Revision 1.286  2003/01/16 16:55:44  adcockj
-// Added new credits dialog
-//
-// Revision 1.285  2003/01/15 15:54:22  adcockj
-// Fixed some keyboard focus issues
-//
-// Revision 1.284  2003/01/12 17:12:45  atnak
-// Added hex pages display and goto dialog
-//
-// Revision 1.283  2003/01/12 16:19:34  adcockj
-// Added SettingsGroup activity setting
-// Corrected event sequence and channel change behaviour
-//
-// Revision 1.282  2003/01/11 15:22:25  adcockj
-// Interim Checkin of setting code rewrite
-//  - Remove CSettingsGroupList class
-//  - Fixed bugs in format switching
-//  - Some new CSettingGroup code
-//
-// Revision 1.281  2003/01/10 17:37:56  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.280  2003/01/09 21:43:14  laurentg
-// Menu AspectRatio restored
-//
-// Revision 1.279  2003/01/08 22:46:57  laurentg
-// OSD display when incrementing or decrementing overscan
-//
-// Revision 1.278  2003/01/08 22:01:33  robmuller
-// Fixed problem with multi-line OSD messages at default size.
-//
-// Revision 1.277  2003/01/08 20:22:17  laurentg
-// Display the 4 values for overscan in OSD
-//
-// Revision 1.276  2003/01/07 23:27:02  laurentg
-// New overscan settings
-//
-// Revision 1.275  2003/01/07 13:40:59  robmuller
-// Added Help menu entry to the popup menu.
-//
-// Revision 1.274  2003/01/05 16:09:45  atnak
-// Updated TopText for new teletext
-//
-// Revision 1.273  2003/01/05 10:30:08  atnak
-// Added Cursor_IsOurs()  --fixes cursor hiding/changing problems
-//
-// Revision 1.272  2003/01/02 20:06:20  atnak
-// Fixed teletext menu.
-//
-// Revision 1.271  2003/01/02 19:34:09  robmuller
-// Fixed teletext menu.
-//
-// Revision 1.270  2003/01/02 18:58:15  adcockj
-// Removed comment no longer required
-//
-// Revision 1.269  2003/01/02 11:05:24  atnak
-// Added missing InitialTextPage implementation
-//
-// Revision 1.268  2003/01/01 22:01:44  atnak
-// Added OSD message for VideoText off
-//
-// Revision 1.267  2003/01/01 20:58:30  atnak
-// New code for new videotext + videotext reorganziations, + fixes
-// cursor not redrawing on Cursor_SetType()
-//
-// Revision 1.266  2002/12/15 15:19:21  adcockj
-// Fixed a crash on exit
-//
-// Revision 1.265  2002/12/09 00:32:14  atnak
-// Added new muting stuff
-//
-// Revision 1.264  2002/12/07 16:06:54  adcockj
-// Tidy up muting code
-//
-// Revision 1.263  2002/12/07 15:59:06  adcockj
-// Modified mute behaviour
-//
-// Revision 1.262  2002/12/02 17:06:15  adcockj
-// Changed Events to use messages instead of timer
-//
-// Revision 1.261  2002/11/03 06:00:29  atnak
-// Added redrawing the menu bar when it changes
-//
-// Revision 1.260  2002/10/30 13:37:52  atnak
-// Added "Single key teletext toggle" option. (Enables mixed mode menu item)
-//
-// Revision 1.259  2002/10/29 11:05:28  adcockj
-// Renamed CT2388x to CX2388x
-//
-// Revision 1.258  2002/10/27 12:18:51  laurentg
-// New setting to define the number of consecutive stills
-//
-// Revision 1.257  2002/10/27 04:28:42  atnak
-// Fixed cursor toggled hidden not showing for menus and dialogs
-//
-// Revision 1.256  2002/10/26 21:42:04  laurentg
-// Take consecutive stills
-//
-// Revision 1.255  2002/10/26 17:51:52  adcockj
-// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
-//
-// Revision 1.254  2002/10/26 16:36:41  atnak
-// Made DisableScreensaver disable monitor sleeping
-//
-// Revision 1.253  2002/10/24 12:10:39  atnak
-// Fixed up Reverse Channel Scrolling in Other Settings
-//
-// Revision 1.252  2002/10/22 18:51:37  adcockj
-// Added logging of windows messages at level 3
-//
-// Revision 1.251  2002/10/22 01:54:04  atnak
-// fixed the places where I didn't call ReleaseDC after GetDC
-//
-// Revision 1.250  2002/10/21 07:29:52  adcockj
-// Moved new scroll wheel option to end of list of settings
-//
-// Revision 1.249  2002/10/21 00:12:30  atnak
-// Added comments for lastest change
-//
-// Revision 1.248  2002/10/20 23:51:12  atnak
-// Added option to reverse mousewheel
-//
-// Revision 1.247  2002/10/20 21:51:30  laurentg
-// Don't show window border when in full screen mode
-//
-// Revision 1.246  2002/10/15 18:14:36  kooiman
-// Added 'use overlay controls' to Overlay settings dialog.
-//
-// Revision 1.245  2002/10/15 15:26:09  kooiman
-// Added include for settingsmaster.h
-//
-// Revision 1.244  2002/10/15 11:53:38  atnak
-// Added UI feedback for some videotext stuff
-//
-// Revision 1.243  2002/10/08 13:23:19  adcockj
-// Actually reverted to old minimize behaviour
-//
-// Revision 1.242  2002/10/08 12:12:35  adcockj
-// Changed minimize behaviour back to how it was
-//
-// Revision 1.241  2002/10/08 08:23:32  kooiman
-// Fixed lost border buttons.
-//
-// Revision 1.240  2002/10/07 20:34:48  kooiman
-// Fixed cursor hide problem & window region problems.
-//
-// Revision 1.239  2002/10/07 16:09:21  adcockj
-// Stop processing and release overlay on minimize
-//
-// Revision 1.238  2002/10/04 11:40:08  adcockj
-// Removed skin and toolbar create
-//
-// Revision 1.237  2002/10/02 19:31:05  adcockj
-// Removed need to get Video Input menu
-//
-// Revision 1.236  2002/10/02 18:39:23  robmuller
-// Fixed problem name issue.
-//
-// Revision 1.235  2002/09/30 16:23:44  adcockj
-// Moved number handling code out to a routine
-//
-// Revision 1.234  2002/09/29 17:52:04  adcockj
-// Try again with cursor fix
-//
-// Revision 1.233  2002/09/29 17:40:04  adcockj
-// Fix for cursor not disappearing at startup
-//
-// Revision 1.232  2002/09/29 13:56:30  adcockj
-// Fixed some cursor hide problems
-//
-// Revision 1.231  2002/09/28 18:20:28  robmuller
-// Fixed a problem caused by the renaming of a menu entry.
-// Added a check to detect this error earlier next time.
-//
-// Revision 1.230  2002/09/28 13:34:08  kooiman
-// Added sender object to events and added setting flag to treesettingsgeneric.
-//
-// Revision 1.229  2002/09/27 14:11:35  kooiman
-// Added audio standard detect event & implemented event scheduler.
-//
-// Revision 1.228  2002/09/26 16:34:19  kooiman
-// Lots of toolbar fixes &added EVENT_VOLUME support.
-//
-// Revision 1.227  2002/09/26 06:11:57  kooiman
-// Added toolbar, skin & event collector.
-//
-// Revision 1.226  2002/09/25 15:11:12  adcockj
-// Preliminary code for format specific support for settings per channel
-//
-// Revision 1.225  2002/09/24 17:21:07  tobbej
-// fixed osd flashing when changing volume
-//
-// Revision 1.224  2002/09/18 11:38:05  kooiman
-// Preparations for skinned dscaler look.
-//
-// Revision 1.223  2002/09/17 17:28:24  tobbej
-// updated crashloging to same version as in latest virtualdub
-//
-// Revision 1.222  2002/09/16 19:34:19  adcockj
-// Fix for auto format change
-//
-// Revision 1.221  2002/09/11 18:19:38  adcockj
-// Prelimainary support for CX2388x based cards
-//
-// Revision 1.220  2002/08/13 21:19:18  kooiman
-// Moved settings per channel setup before first channel change.
-//
-// Revision 1.219  2002/08/12 19:59:04  laurentg
-// Selection of video card to adjust DScaler settings
-//
-// Revision 1.218  2002/08/11 19:39:30  robmuller
-// Corrected  menu item number in GetPatternsSubmenu().
-//
-// Revision 1.217  2002/08/11 16:14:36  laurentg
-// New setting to choose between keep CPU for other applications or use full CPU for best results
-//
-// Revision 1.216  2002/08/11 13:52:02  laurentg
-// Show automatically the general hardware setup dialog box the first time DScaler is started
-//
-// Revision 1.215  2002/08/11 12:12:10  laurentg
-// Cut BT Card setup and general hardware setup in two different windows
-//
-// Revision 1.214  2002/08/09 13:33:24  laurentg
-// Processor speed and trade off settings moved from BT source settings to DScaler settings
-//
-// Revision 1.213  2002/08/08 21:16:24  kooiman
-// Add call to free memory for settings per channel.
-//
-// Revision 1.212  2002/08/08 12:23:18  kooiman
-// Added channel settings setup calls.
-//
-// Revision 1.211  2002/08/08 10:34:23  robmuller
-// Updated command line message example.
-//
-// Revision 1.210  2002/08/08 10:31:21  robmuller
-// Fixed problem when command line OSD message contains quotes.
-//
-// Revision 1.209  2002/08/07 13:13:27  robmuller
-// Press x to clear OSD.
-//
-// Revision 1.208  2002/08/07 12:43:40  robmuller
-// Send messages to the OSD with the command line.
-//
-// Revision 1.207  2002/08/05 21:01:56  laurentg
-// Square pixels mode updated
-//
-// Revision 1.206  2002/08/04 12:29:02  kooiman
-// Fixed previous channel feature.
-//
-// Revision 1.205  2002/08/02 21:59:03  laurentg
-// Hide the menu "Channels" from the menu bar when the source has no tuner or when the tuner is not the selected input
-//
-// Revision 1.204  2002/08/02 18:56:27  robmuller
-// 'EasyMove' feature added.
-//
-// Revision 1.203  2002/07/31 20:23:54  laurentg
-// no message
-//
-// Revision 1.202  2002/07/30 21:20:59  laurentg
-// Merge of menus View, AspectRatio and OSD
-//
-// Revision 1.201  2002/07/29 21:33:06  laurentg
-// "Show Video Method UI" feature restored
-//
-// Revision 1.200  2002/07/27 16:27:35  laurentg
-// Deinterlace and Settings menus updated
-//
-// Revision 1.199  2002/07/27 15:20:34  laurentg
-// Channels menu updated
-//
-// Revision 1.198  2002/07/27 13:52:06  laurentg
-// Distinguish menu entries for filter settings, video modes settings and advanced settings
-// Connect again the patterns menu
-//
-// Revision 1.197  2002/07/26 22:40:55  laurentg
-// Menus updates
-//
-// Revision 1.196  2002/07/24 21:43:15  laurentg
-// Take cyclic stills
-//
-// Revision 1.195  2002/07/20 13:07:36  laurentg
-// New setting for vertical mirror
-//
-// Revision 1.194  2002/07/20 10:33:06  laurentg
-// New settings to select the wished OSD screens
-//
-// Revision 1.193  2002/07/19 15:31:38  laurentg
-// New settings (other settings) added in the tree settings + related menu items deleted
-//
-// Revision 1.192  2002/07/19 13:02:32  laurentg
-// OSD menu simplified (one depth level less)
-//
-// Revision 1.191  2002/07/19 12:04:51  laurentg
-// Auto hide (OSD) menu deleted
-//
-// Revision 1.190  2002/07/05 20:52:54  laurentg
-// Thread priority settings
-//
-// Revision 1.189  2002/07/03 00:45:41  laurentg
-// Add a new section in the Change Settings dialog box to set the thread priorities
-//
-// Revision 1.188  2002/06/30 20:10:15  laurentg
-// Mouse wheel + CTRL key to go to previous and next playlist file
-//
-// Revision 1.187  2002/06/30 00:33:39  robmuller
-// Change volume with the mousewheel when the right mouse button is down.
-//
-// Revision 1.186  2002/06/25 22:41:29  robmuller
-// Fixed: entering digits in non-tuner mode causes weird behaviour.
-//
-// Revision 1.185  2002/06/23 20:51:13  laurentg
-// Attachment of test patterns menu restored
-//
-// Revision 1.184  2002/06/22 21:50:47  robmuller
-// Generate a valid dscaler.ini at startup.
-//
-// Revision 1.183  2002/06/22 15:06:30  laurentg
-// New vertical flip mode
-//
-// Revision 1.182  2002/06/20 20:00:37  robmuller
-// Implemented videotext search highlighting.
-//
-// Revision 1.181  2002/06/18 23:12:41  robmuller
-// Fixed: context menu not working.
-//
-// Revision 1.180  2002/06/18 19:46:06  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.179  2002/06/14 21:20:10  robmuller
-// Enter zero's to switch video input.
-// Fixed: direct switching to channel number > 99 is not possible.
-//
-// Revision 1.178  2002/06/13 12:10:21  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.177  2002/06/13 11:24:32  robmuller
-// Channel enter time is now configurable.
-//
-// Revision 1.176  2002/06/13 10:40:37  robmuller
-// Made anti plop mute delay configurable.
-//
-// Revision 1.175  2002/06/13 09:23:02  robmuller
-// Update name of the source in the context menu.
-//
-// Revision 1.174  2002/06/12 23:57:13  robmuller
-// Fixed OSD entry on context menu. Added code to prevent similar errors in the future.
-//
-// Revision 1.173  2002/06/12 20:16:33  robmuller
-// Mousewheel + shift changes volume.
-//
-// Revision 1.172  2002/06/06 21:40:00  robmuller
-// Fixed: timeshifting and VBI data decoding was not done when minimized.
-//
-// Revision 1.171  2002/06/06 18:17:31  robmuller
-// Change to prevent (un)installation with InnoSetup when DScaler is running.
-//
-// Revision 1.170  2002/06/01 22:24:36  laurentg
-// New calibration mode to compute YUV range
-//
-// Revision 1.169  2002/05/30 21:47:21  robmuller
-// Unmute sound on volume plus/minus.
-//
-// Revision 1.168  2002/05/30 19:48:04  robmuller
-// Unhide cursor when moving outside client area.
-//
-// Revision 1.167  2002/05/30 19:09:46  robmuller
-// Redraw screen after Videotext Reset.
-//
-// Revision 1.166  2002/05/30 13:06:41  robmuller
-// Removed variable bIgnoreMouse.
-//
-// Revision 1.165  2002/05/30 12:58:28  robmuller
-// Prevent bogus WM_MOUSEMOVE messages to unhide the cursor.
-//
-// Revision 1.164  2002/05/29 18:44:54  robmuller
-// Added option to disable font anti-aliasing in Teletext.
-//
-// Revision 1.163  2002/05/28 08:54:07  robmuller
-// Fixed broken OSD menu.
-// Added ASSERTs to prevent similar errors in the future.
-//
-// Revision 1.162  2002/05/27 20:17:05  robmuller
-// Patch #561180  by PietOO:
-// Autodetection of teletext code page.
-//
-// Revision 1.161  2002/05/26 10:33:35  robmuller
-// Screen redraw problem fixed.
-//
-// Revision 1.160  2002/05/26 09:21:48  robmuller
-// Patch #560680 by PietOO:
-// Added option to disable screensaver.
-//
-// Revision 1.159  2002/05/24 18:22:46  robmuller
-// Turn off VideoText when VideoText capturing is disabled.
-//
-// Revision 1.158  2002/05/24 16:49:00  robmuller
-// VideoText searching improved.
-//
-// Revision 1.157  2002/05/24 15:12:12  tobbej
-// changed timer status updates to use strncpy insted of strcpy
-//
-// Revision 1.156  2002/05/24 10:52:58  robmuller
-// Applied patch #559718 by PietOO.
-// SleepTimer implementation.
-//
-// Revision 1.155  2002/05/23 18:45:03  robmuller
-// Patch #559554 by PietOO.
-// Teletext: + text search ctrl-F & next F3
-//
-// Revision 1.154  2002/05/20 16:41:16  robmuller
-// Prevent channel changing when in videotext mode.
-//
-// Revision 1.153  2002/05/20 16:32:12  robmuller
-// Instantaneous channel switching when entering digits.
-//
-// Revision 1.152  2002/05/19 22:19:20  robmuller
-// Pause capture when minimized.
-//
-// Revision 1.151  2002/05/06 15:34:59  laurentg
-// Key <i> to show source informations through OSD
-//
-// Revision 1.150  2002/05/01 20:34:10  tobbej
-// generate crashlog if crashing in MainWndProc
-//
-// Revision 1.149  2002/04/27 16:02:59  laurentg
-// Initial source
-//
-// Revision 1.148  2002/04/24 19:10:38  tobbej
-// test of new tree based setting dialog
-//
-// Revision 1.147  2002/04/15 22:50:08  laurentg
-// Change again the available formats for still saving
-// Automatic switch to "square pixels" AR mode when needed
-//
-// Revision 1.146  2002/04/13 18:56:22  laurentg
-// Checks added to manage case where the current source is not yet defined
-//
-// Revision 1.145  2002/04/06 11:46:46  laurentg
-// Check that the current source is not NULL to avoid DScaler exits
-//
-// Revision 1.144  2002/03/24 18:56:45  adcockj
-// Fix for comamnd line ini file
-//
-// Revision 1.143  2002/03/21 10:26:57  robmuller
-// Don't show overlay adjustments dialog if the system does not support it.
-//
-// Revision 1.142  2002/03/21 08:34:07  robmuller
-// Added last line ("Program exit") to log file.
-//
-// Revision 1.141  2002/03/12 23:29:45  robmuller
-// Implemented functions VT_GetNextPage() and VT_GetPreviousPage().
-//
-// Revision 1.140  2002/03/11 22:25:56  robmuller
-// Added hand cursor.
-//
-// Revision 1.139  2002/02/28 11:27:03  temperton
-// Preserve WS_DISABLED window style in UpdateWindowState
-//
-// Revision 1.138  2002/02/27 20:47:21  laurentg
-// Still settings
-//
-// Revision 1.137  2002/02/24 19:08:37  laurentg
-// OSD text when resetting statistics
-//
-// Revision 1.136  2002/02/24 08:18:03  temperton
-// TIMER_VTFLASHER set only when displayed page contains flashed elements and only in teletext modes.
-//
-// Revision 1.135  2002/02/23 16:43:13  laurentg
-// Timer TIMER_STATUS killed when status bar is not displayed
-//
-// Revision 1.134  2002/02/23 00:37:15  laurentg
-// AR statistics included in user's action to reset statistics
-// AR statistics reseted at the startup of the decoding thread
-//
-// Revision 1.133  2002/02/19 16:03:36  tobbej
-// removed CurrentX and CurrentY
-// added new member in CSource, NotifySizeChange
-//
-// Revision 1.132  2002/02/18 23:28:05  laurentg
-// Overlay settings dialog box updated
-// New menu item to choose between DScaler overlay settings and external overlay settings
-//
-// Revision 1.131  2002/02/18 20:51:51  laurentg
-// Statistics regarding deinterlace modes now takes into account the progressive mode
-// Reset of the deinterlace statistics at each start of the decoding thread
-// Reset action now resets the deinterlace statistics too
-//
-// Revision 1.130  2002/02/17 21:41:03  laurentg
-// Action "Find and Lock Film mode" added
-//
-// Revision 1.129  2002/02/17 20:32:34  laurentg
-// Audio input display suppressed from the OSD main screen
-// GetStatus modified to display the video input name in OSD main screen even when there is no signal
-//
-// Revision 1.128  2002/02/11 21:28:19  laurentg
-// Popup menu updated
-//
-// Revision 1.127  2002/02/10 21:38:04  laurentg
-// Default value for "Autohide Cursor" is now ON
-//
-// Revision 1.126  2002/02/09 15:30:19  laurentg
-// Card calibration menus revisited.
-//
-// Revision 1.125  2002/02/09 13:08:41  laurentg
-// New menu items to access to UI for calibration and OSD settings
-//
-// Revision 1.124  2002/02/09 02:44:56  laurentg
-// Overscan now stored in a setting of the source
-//
-// Revision 1.123  2002/02/08 08:14:21  adcockj
-// Select saved channel on startup if in tuner mode
-//
-// Revision 1.122  2002/02/07 13:04:54  temperton
-// Added Spanish and Polish teletext code pages. Thanks to Jazz (stawiarz).
-//
-// Revision 1.121  2002/02/03 22:48:21  robmuller
-// Added command line parameters /driverinstall and /driveruninstall.
-//
-// Revision 1.120  2002/02/03 10:31:22  tobbej
-// fixed so its posibel to open popup menu from keyboard
-//
-// Revision 1.119  2002/02/02 01:31:18  laurentg
-// Access to the files of the playlist added in the menus
-// Save Playlist added
-// "Video Adjustments ..." restored in the popup menu
-//
-// Revision 1.118  2002/01/31 18:07:15  robmuller
-// Fixed crash when using command line parameter /c.
-//
-// Revision 1.117  2002/01/31 13:02:46  robmuller
-// Improved accuracy and reliability of the performance statistics.
-//
-// Revision 1.116  2002/01/24 00:00:13  robmuller
-// Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
-//
-// Revision 1.115  2002/01/22 14:50:10  robmuller
-// Added keyboard lock option.
-//
-// Revision 1.114  2002/01/20 10:05:02  robmuller
-// On channel setup prevent switch to tuner mode if already in tuner mode.
-//
-// Revision 1.113  2002/01/20 09:59:32  robmuller
-// In tuner mode STATUS_TEXT in statusbar shows channel number if channel name is not available.
-//
-// Revision 1.112  2002/01/19 12:53:00  temperton
-// Teletext pages updates at correct time.
-// Teletext can use variable-width font.
-//
-// Revision 1.111  2002/01/16 19:02:17  adcockj
-// Fixed window style and context menu fullscreen check
-//
-// Revision 1.110  2002/01/15 19:53:36  adcockj
-// Fix for window creep with toolbar at top or left
-//
-// Revision 1.109  2002/01/15 11:16:03  temperton
-// New teletext drawing code.
-//
-// Revision 1.108  2002/01/12 16:56:21  adcockj
-// Series of fixes to bring 4.0.0 into line with 3.1.1
-//
-// Revision 1.107  2001/12/22 13:18:04  adcockj
-// Tuner bugfixes
-//
-// Revision 1.106  2001/12/18 13:12:11  adcockj
-// Interim check-in for redesign of card specific settings
-//
-// Revision 1.105  2001/12/16 18:40:28  laurentg
-// Reset statistics
-//
-// Revision 1.104  2001/12/16 16:31:43  adcockj
-// Bug fixes
-//
-// Revision 1.103  2001/12/16 13:13:34  laurentg
-// New statistics
-//
-// Revision 1.102  2001/12/08 14:22:19  laurentg
-// Bug fix regarding Sources submenu in the right mouse menu
-//
-// Revision 1.101  2001/12/08 13:43:20  adcockj
-// Fixed logging and memory leak bugs
-//
-// Revision 1.100  2001/12/03 19:33:59  adcockj
-// Bug fixes for settings and memory
-//
-// Revision 1.99  2001/12/03 17:14:42  adcockj
-// Added command line patch from Arie van Wijngaarden
-//
-// Revision 1.98  2001/11/29 17:30:51  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.97  2001/11/29 14:04:06  adcockj
-// Added Javadoc comments
-//
-// Revision 1.96  2001/11/28 16:04:50  adcockj
-// Major reorganization of STill support
-//
-// Revision 1.95  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.94  2001/11/26 12:48:01  temperton
-// Teletext corrections
-//
-// Revision 1.93  2001/11/25 21:29:50  laurentg
-// Take still, Open file, Close file callbacks updated
-//
-// Revision 1.92  2001/11/24 22:54:25  laurentg
-// Close file added for still source
-//
-// Revision 1.91  2001/11/24 18:01:39  laurentg
-// Still source
-//
-// Revision 1.90  2001/11/23 10:47:44  adcockj
-// Added Hebrew and Hungarian codepages
-//
-// Revision 1.89  2001/11/22 13:32:03  adcockj
-// Finished changes caused by changes to TDeinterlaceInfo - Compiles
-//
-// Revision 1.88  2001/11/19 14:02:48  adcockj
-// Apply patches from Sandu Turcan
-//
-// Revision 1.87  2001/11/17 18:15:57  adcockj
-// Bugfixes (including very silly performance bug)
-//
-// Revision 1.86  2001/11/14 11:28:03  adcockj
-// Bug fixes
-//
-// Revision 1.85  2001/11/09 14:19:34  adcockj
-// Bug fixes
-//
-// Revision 1.84  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.83  2001/11/02 16:30:07  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.82  2001/11/02 10:15:20  temperton
-// Removed unnecessary painting of color key in middle part of screen in teletext mode.
-//
-// Revision 1.81  2001/10/25 12:59:48  temperton
-// Fixed problem, when DScaler hangs on exit if we forgot to stop record.
-//
-// Revision 1.80  2001/10/22 05:55:07  temperton
-// Teletext improvements
-//
-// Revision 1.79  2001/10/06 17:04:26  adcockj
-// Fixed teletext crashing problems
-//
-// Revision 1.78  2001/10/06 12:36:10  laurentg
-// New shortcut keys added to adjust left and right player cropping during calibration
-//
-// Revision 1.77  2001/10/04 12:39:16  adcockj
-// Added Teletext colour buttons to UI and switch to using accelerator rather than keyup message
-//
-// Revision 1.76  2001/09/29 10:51:09  laurentg
-// O and Shift+O to adjust specific overscan when in calibration mode
-// Enter and Backspace to show and hide calibration OSD when in calibration mode
-//
-// Revision 1.75  2001/09/21 20:47:12  laurentg
-// SaveStill modified to return the name of the written file
-// Name of the file added in the OSD text when doing a snapshot
-//
-// Revision 1.74  2001/09/21 16:43:54  adcockj
-// Teletext improvements by Mike Temperton
-//
-// Revision 1.73  2001/09/21 15:39:01  adcockj
-// Added Russian and German code pages
-// Corrected UK code page
-//
-// Revision 1.72  2001/09/11 12:03:52  adcockj
-// Updated Help menu to go to help page
-//
-// Revision 1.71  2001/09/08 19:18:46  laurentg
-// Added new specific dialog box to set the overlay settings
-//
-// Revision 1.70  2001/09/05 15:08:43  adcockj
-// Updated Loging
-//
-// Revision 1.69  2001/09/05 06:59:12  adcockj
-// Teletext fixes
-//
-// Revision 1.68  2001/09/03 13:46:06  adcockj
-// Added PAL-NC thanks to Eduardo JosÅETagle
-//
-// Revision 1.67  2001/09/02 14:17:51  adcockj
-// Improved teletext code
-//
-// Revision 1.66  2001/09/02 12:13:21  adcockj
-// Changed dscaler webiste
-// Tidied up resource spelling
-//
-// Revision 1.65  2001/08/24 21:36:46  adcockj
-// Menu bug fix
-//
-// Revision 1.64  2001/08/23 18:54:21  adcockj
-// Menu and Settings fixes
-//
-// Revision 1.63  2001/08/23 16:03:26  adcockj
-// Improvements to dynamic menus to remove requirement that they are not empty
-//
-// Revision 1.62  2001/08/21 09:39:46  adcockj
-// Added Greek teletext Codepage
-//
-// Revision 1.61  2001/08/16 21:17:34  laurentg
-// Automatic calibration improved with a fine adjustment
-//
-// Revision 1.60  2001/08/15 17:50:11  laurentg
-// UseRGB ini parameter suppressed
-// OSD screen concerning card calibration fully modified
-// Automatic calibration added (not finished)
-//
-// Revision 1.59.2.9  2001/08/24 12:35:09  adcockj
-// Menu handling changes
-//
-// Revision 1.59.2.8  2001/08/23 16:04:57  adcockj
-// Improvements to dynamic menus to remove requirement that they are not empty
-//
-// Revision 1.59.2.7  2001/08/21 09:43:01  adcockj
-// Brought branch up to date with latest code fixes
-//
-// Revision 1.59.2.6  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.59.2.5  2001/08/18 17:09:30  adcockj
-// Got to compile, still lots to do...
-//
-// Revision 1.59.2.4  2001/08/17 16:35:14  adcockj
-// Another interim check-in still doesn't compile. Getting closer ...
-//
-// Revision 1.59.2.3  2001/08/15 14:44:05  adcockj
-// Starting to put some flesh onto the new structure
-//
-// Revision 1.59.2.2  2001/08/14 16:41:36  adcockj
-// Renamed driver
-// Got to compile with new class based card
-//
-// Revision 1.59.2.1  2001/08/14 09:40:19  adcockj
-// Interim version of code for multiple card support
-//
-// Revision 1.59  2001/08/13 18:07:24  adcockj
-// Added Czech code page for teletext
-//
-// Revision 1.58  2001/08/09 22:18:23  laurentg
-// Improvments in relation with calibration
-//
-// Revision 1.57  2001/08/09 21:34:59  adcockj
-// Fixed bugs raise by Timo and Keld
-//
-// Revision 1.56  2001/08/08 18:03:20  adcockj
-// Moved status timer start till after hardware init
-//
-// Revision 1.55  2001/08/05 16:32:12  adcockj
-// Added brackets
-//
-// Revision 1.54  2001/08/03 14:36:05  adcockj
-// Added menu for sharpness filter
-//
-// Revision 1.53  2001/08/03 14:24:32  adcockj
-// added extra info to splash screen and log
-//
-// Revision 1.52  2001/08/02 16:43:05  adcockj
-// Added Debug level to LOG function
-//
-// Revision 1.51  2001/07/30 22:44:04  laurentg
-// Bug fixed concerning saturation V accelerator
-//
-// Revision 1.50  2001/07/28 13:24:40  adcockj
-// Added UI for Overlay Controls and fixed issues with SettingsDlg
-//
-// Revision 1.49  2001/07/27 16:11:32  adcockj
-// Added support for new Crash dialog
-//
-// Revision 1.48  2001/07/26 22:26:24  laurentg
-// New menu for card calibration
-//
-// Revision 1.47  2001/07/24 12:19:00  adcockj
-// Added code and tools for crash logging from VirtualDub
-//
-// Revision 1.46  2001/07/23 20:52:07  ericschmidt
-// Added TimeShift class.  Original Release.  Got record and playback code working.
-//
-// Revision 1.45  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.44  2001/07/13 18:13:24  adcockj
-// Changed Mute to not be persisted and to work properly
-//
-// Revision 1.43  2001/07/13 16:14:55  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.42  2001/07/13 07:04:43  adcockj
-// Attemp 1 at fixing MSP muting
-//
-// Revision 1.41  2001/07/12 19:28:03  adcockj
-// Limit VT display to valid pages
-//
-// Revision 1.40  2001/07/12 16:20:07  adcockj
-// Fixed typo in $Id
-//
-// Revision 1.39  2001/07/12 16:16:39  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DScaler.cpp WinMain and related UI code
@@ -1327,7 +113,7 @@ long WStyle;
 BOOL    bShowMenu=TRUE;
 HMENU   hMenu;
 HMENU   hSubMenuChannels = NULL;
-HMENU	hMenuTray;
+HMENU    hMenuTray;
 HACCEL  hAccel;
 
 char ChannelString[10] = "";
@@ -1607,31 +393,31 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
     // also used by the InnoSetup installer to prevent (un)installation when DScaler is running.
     if(CreateMutex(NULL, FALSE, "DScaler"))
-	{
-		// RM oct 1 2006
-		// Do not start if the mutex already exists.
-		// There is another similar check that tests for the dscaler window name. 
-		// This did not always work because several things happen before the window is created,
-		// sometimes there is a delay in starting up before the window is created. The user
-		// then tries to start the program a second time. This might result in corrupting the 
-		// ini file.
-		// I am uncertain what is causing the occasional delay in startup. This delay happens
-		// for example when Windows Explorer (the shell) is busy, as can be seen by a 
-		// non-responding task bar.
-		if(GetLastError() == ERROR_ALREADY_EXISTS)
-		{
-			return FALSE;
-		}
-	}
+    {
+        // RM oct 1 2006
+        // Do not start if the mutex already exists.
+        // There is another similar check that tests for the dscaler window name. 
+        // This did not always work because several things happen before the window is created,
+        // sometimes there is a delay in starting up before the window is created. The user
+        // then tries to start the program a second time. This might result in corrupting the 
+        // ini file.
+        // I am uncertain what is causing the occasional delay in startup. This delay happens
+        // for example when Windows Explorer (the shell) is busy, as can be seen by a 
+        // non-responding task bar.
+        if(GetLastError() == ERROR_ALREADY_EXISTS)
+        {
+            return FALSE;
+        }
+    }
 
     // JA 07/01/2001
     // Required to use slider control
     InitCommonControls();
 
     // setup default ini file
-	SetIniFileForSettings("");
+    SetIniFileForSettings("");
     
-	// Process the command line arguments.
+    // Process the command line arguments.
     // The following arguments are supported
     // -i<inifile>      specification of the ini file.
     // -c<channel>      the starting channel (0-x).
@@ -1716,29 +502,29 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
         }
     }
 
-	// Load up the list of SAA713x and CX2388x cards
+    // Load up the list of SAA713x and CX2388x cards
 #ifdef WANT_SAA713X_SUPPORT
-	if (!CSAA7134Card::InitializeSAA713xCardList())
-	{
-		// Caution, this code exits DScaler abruptly based on the user input.
-		// Although this is not done forcefully using a call like exit(), it
-		// should be noted that DScaler can exit here.  Any code requiring
-		// clean up should be careful about this.  Driver related and memory
-		// mapping operations should not be moved before this. --atnak 04-11-21
-		return 0;
-	}
+    if (!CSAA7134Card::InitializeSAA713xCardList())
+    {
+        // Caution, this code exits DScaler abruptly based on the user input.
+        // Although this is not done forcefully using a call like exit(), it
+        // should be noted that DScaler can exit here.  Any code requiring
+        // clean up should be careful about this.  Driver related and memory
+        // mapping operations should not be moved before this. --atnak 04-11-21
+        return 0;
+    }
 #endif
 
 #ifdef WANT_CX2388X_SUPPORT
-	if (!CCX2388xCard::InitializeCX2388xCardList())
-	{
-		// Caution, this code exits DScaler abruptly based on the user input.
-		// Although this is not done forcefully using a call like exit(), it
-		// should be noted that DScaler can exit here.  Any code requiring
-		// clean up should be careful about this.  Driver related and memory
-		// mapping operations should not be moved before this. --atnak 04-11-21
-		return 0;
-	}
+    if (!CCX2388xCard::InitializeCX2388xCardList())
+    {
+        // Caution, this code exits DScaler abruptly based on the user input.
+        // Although this is not done forcefully using a call like exit(), it
+        // should be noted that DScaler can exit here.  Any code requiring
+        // clean up should be careful about this.  Driver related and memory
+        // mapping operations should not be moved before this. --atnak 04-11-21
+        return 0;
+    }
 #endif
 
     ShowHWSetupBox =    !Setting_ReadFromIni(DScaler_GetSetting(PROCESSORSPEED))
@@ -1818,30 +604,30 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
     hWnd = CreateWindow(DSCALER_APPNAME, DSCALER_APPNAME, WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, hInstance, NULL);
     if (!hWnd) return FALSE;
-	// Always position the window to the last saved position even when starting in full screen mode
-	// to be sure to have the display on the correct screen
-	// Display in full screen mode is then done later when calling UpdateWindowState
+    // Always position the window to the last saved position even when starting in full screen mode
+    // to be sure to have the display on the correct screen
+    // Display in full screen mode is then done later when calling UpdateWindowState
     SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
 
-	// Restore the default positions for the window if the window was previously placed on a screen
-	// which is no more active
-	// The default position is on the primary monitor
-	RECT screenRect;
-	GetActiveOutput()->GetMonitorRect(hWnd, &screenRect);
-	if ( (MainWndLeft > screenRect.right)
-	  || ((MainWndLeft+MainWndWidth) < screenRect.left)
-	  || (MainWndTop > screenRect.bottom)
-	  || ((MainWndTop+MainWndHeight) < screenRect.top) )
-	{
-		Setting_SetDefault(DScaler_GetSetting(STARTLEFT));
-		Setting_SetDefault(DScaler_GetSetting(STARTTOP));
-		Setting_SetDefault(DScaler_GetSetting(STARTWIDTH));
-		Setting_SetDefault(DScaler_GetSetting(STARTHEIGHT));
-	    SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
-	}
+    // Restore the default positions for the window if the window was previously placed on a screen
+    // which is no more active
+    // The default position is on the primary monitor
+    RECT screenRect;
+    GetActiveOutput()->GetMonitorRect(hWnd, &screenRect);
+    if ( (MainWndLeft > screenRect.right)
+      || ((MainWndLeft+MainWndWidth) < screenRect.left)
+      || (MainWndTop > screenRect.bottom)
+      || ((MainWndTop+MainWndHeight) < screenRect.top) )
+    {
+        Setting_SetDefault(DScaler_GetSetting(STARTLEFT));
+        Setting_SetDefault(DScaler_GetSetting(STARTTOP));
+        Setting_SetDefault(DScaler_GetSetting(STARTWIDTH));
+        Setting_SetDefault(DScaler_GetSetting(STARTHEIGHT));
+        SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
+    }
 
-	// Show the splash screen after creating the main window
-	// to be sure to display it on the right monitor
+    // Show the splash screen after creating the main window
+    // to be sure to display it on the right monitor
     // also don't show it on the first run as that will get in the way
     // of the dialogs
     if(bDisplaySplashScreen && ShowHWSetupBox == FALSE)
@@ -1856,17 +642,17 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
         StatusBar_ShowWindow(FALSE);
     }
 
-	if (bMinToTray)
-	{
+    if (bMinToTray)
+    {
         SetTray(TRUE);
-	}
+    }
 
     // 2000-10-31 Added by Mark Rejhon
     // Now show the window, directly to maximized or windowed right away.
     // That way, if the end user has configured dTV to startup maximized,
     // it won't flash a window right before maximizing.
     UpdateWindowState();
-	CScheduledRecording::initScheduledRecordingThreadProc();
+    CScheduledRecording::initScheduledRecordingThreadProc();
 
     PostMessage(hWnd, WM_SIZE, SIZENORMAL, MAKELONG(MainWndWidth, MainWndHeight));
     if ((hAccel = LoadAccelerators(hResourceInst, MAKEINTRESOURCE(IDA_DSCALER))) == NULL)
@@ -1884,8 +670,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 #ifdef _DEBUG
     CreateDScalerPopupMenu();
 #endif
-	
-	VDCHECKPOINT;
+    
+    VDCHECKPOINT;
 
     // catch any serious errors during message handling
     while (GetMessage(&msg, NULL, 0, 0))
@@ -2277,10 +1063,10 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         switch(GetActiveOutput()->Type()) 
         {
         case IOutput::OUT_OVERLAY:
-			OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
+            OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
             break;
-        case IOutput::OUT_D3D:		
-			OffscreenHDC.BitBltRectsD3D(PaintedRects, nPaintedRects, ((CD3D9Output *)GetActiveOutput())->lpDDOSD);
+        case IOutput::OUT_D3D:        
+            OffscreenHDC.BitBltRectsD3D(PaintedRects, nPaintedRects, ((CD3D9Output *)GetActiveOutput())->lpDDOSD);
             break;
         }
     }
@@ -2363,10 +1149,10 @@ BOOL ProcessOSDMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             switch(GetActiveOutput()->Type()) 
             {
             case IOutput::OUT_OVERLAY:
-				OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
+                OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
                 break;
             case IOutput::OUT_D3D:
-				OffscreenHDC.BitBltRectsD3D(PaintedRects, nPaintedRects, ((CD3D9Output *)GetActiveOutput())->lpDDOSD);
+                OffscreenHDC.BitBltRectsD3D(PaintedRects, nPaintedRects, ((CD3D9Output *)GetActiveOutput())->lpDDOSD);
                 break;
             }            
         }
@@ -2382,17 +1168,17 @@ LRESULT CALLBACK KeyboardHookProc(int code, UINT wParam, UINT lParam)
 {
     if(code >= 0 && bKeyboardLock)
     {
-		if(!(bKeyboardLockMainWindowOnly && hWnd != GetFocus()))
-		{
-			// if it is not Ctrl+Shift+L do not pass the message to the rest of the hook chain 
-			// or the target window procedure
-			if(!((char)wParam == 'L' && GetKeyState(VK_SHIFT) < 0 && GetKeyState(VK_CONTROL) < 0))
-			{
-				return 1;
-			}
-		}
+        if(!(bKeyboardLockMainWindowOnly && hWnd != GetFocus()))
+        {
+            // if it is not Ctrl+Shift+L do not pass the message to the rest of the hook chain 
+            // or the target window procedure
+            if(!((char)wParam == 'L' && GetKeyState(VK_SHIFT) < 0 && GetKeyState(VK_CONTROL) < 0))
+            {
+                return 1;
+            }
+        }
     }
-   	return CallNextHookEx(hKeyboardHook, code, wParam, lParam);
+       return CallNextHookEx(hKeyboardHook, code, wParam, lParam);
 }
 
 
@@ -2763,11 +1549,11 @@ void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow)
     if (WindowBorder==NULL) 
     {                
         if ((szSkinName == NULL) || (szSkinName[0] == 0))
-		{
-			//Don't make the windowborder unless it is necessary
-			return;
-		}
-		WindowBorder = new CWindowBorder(hWnd, hDScalerInst, BorderGetClientRect);
+        {
+            //Don't make the windowborder unless it is necessary
+            return;
+        }
+        WindowBorder = new CWindowBorder(hWnd, hDScalerInst, BorderGetClientRect);
 
         //Test border (white)
         //WindowBorder->SolidBorder(10,10,10,10, 0xFFFFFF);        
@@ -2868,7 +1654,7 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
         if (hSkinMenu != NULL)
         {
             int num = GetMenuItemCount(hSkinMenu);
-			size_t i;
+            size_t i;
             for (i = 2; static_cast<int>(i) < num; i++)
             {
                 DeleteMenu(hSkinMenu, 2, MF_BYPOSITION);
@@ -2937,7 +1723,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     ISetting* pSetting2 = NULL;
     ISetting* pSetting3 = NULL;
     ISetting* pSetting4 = NULL;
-	TGUIRequest req;
+    TGUIRequest req;
 
     if (message == MsgWheel)
     {
@@ -3043,10 +1829,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     // the task bar has been restarted so the systray icon needs to be added again.
     {
         bIconOn = FALSE;
-	    if (bMinToTray)
-	    {
+        if (bMinToTray)
+        {
             SetTray(TRUE);
-	    }
+        }
     }
     
     if (message == IDI_TRAYICON)
@@ -3063,9 +1849,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_MUTE:
             Audio_SetUserMute(!Audio_GetUserMute());
             ShowText(hWnd, Audio_GetUserMute() ? "MUTE" : "UNMUTE");
-			break;
+            break;
 
-		case IDC_TOOLBAR_VOLUME_MUTE:
+        case IDC_TOOLBAR_VOLUME_MUTE:
             Audio_SetUserMute(lParam);
             ShowText(hWnd, lParam ? "MUTE" : "UNMUTE");
             break;
@@ -3083,7 +1869,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                     if(pSetting != NULL)
                     {
-                        pSetting->ChangeValue(ADJUSTUP);						
+                        pSetting->ChangeValue(ADJUSTUP);                        
                     }
                     else
                     {
@@ -3095,8 +1881,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     Mixer_Volume_Up();
                     sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
-                    ShowText(hWnd, Text);					
-				}
+                    ShowText(hWnd, Text);                    
+                }
             }
             break;
 
@@ -3130,7 +1916,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
 
-		case IDC_TOOLBAR_VOLUME_SLIDER:
+        case IDC_TOOLBAR_VOLUME_SLIDER:
             if (Audio_GetUserMute() == TRUE)
             {
                 Audio_SetUserMute(FALSE);
@@ -3157,8 +1943,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
                 ShowText(hWnd, Text);
             }
-			break;
-	
+            break;
+    
         case IDM_AUTO_FORMAT:
             if(Setting_GetValue(Timing_GetSetting(AUTOFORMATDETECT)))
             {
@@ -3179,64 +1965,64 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VT_PAGE_MINUS:
-			if (pMultiFrames)
-			{
-				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
-			}
-			else if (!ProcessVTMessage(hWnd, message, wParam, lParam))
-			{
-				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-			}
+            if (pMultiFrames)
+            {
+                pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
+            }
+            else if (!ProcessVTMessage(hWnd, message, wParam, lParam))
+            {
+                ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+            }
             break;
 
         case IDM_VT_PAGE_PLUS:
-			if (pMultiFrames)
-			{
-				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
-			}
-			else if (!ProcessVTMessage(hWnd, message, wParam, lParam))
-			{
-				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-			}
+            if (pMultiFrames)
+            {
+                pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
+            }
+            else if (!ProcessVTMessage(hWnd, message, wParam, lParam))
+            {
+                ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+            }
             break;
 
         case IDM_VT_PAGE_UP:
-			if (pMultiFrames)
-			{
-				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
-			}
-			else if(!ProcessVTMessage(hWnd, message, wParam, lParam))
-			{
-				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-			}
+            if (pMultiFrames)
+            {
+                pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
+            }
+            else if(!ProcessVTMessage(hWnd, message, wParam, lParam))
+            {
+                ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+            }
             break;
 
         case IDM_VT_PAGE_DOWN:
-			if (pMultiFrames)
-			{
-				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
-			}
-			else if(!ProcessVTMessage(hWnd, message, wParam, lParam))
-			{
-				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-			}
+            if (pMultiFrames)
+            {
+                pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
+            }
+            else if(!ProcessVTMessage(hWnd, message, wParam, lParam))
+            {
+                ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+            }
             break;
 
         case IDM_CHANNEL_LIST:
             if(Providers_GetCurrentSource() && Providers_GetCurrentSource()->HasTuner())
             {
-				if(!Providers_GetCurrentSource()->IsInTunerMode())
-				{
-					SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
-				}
-				if (pMultiFrames && pMultiFrames->IsActive())
-				{
-					pMultiFrames->RequestSwitch();
-				}
-				DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
-				Channels_UpdateMenu(hMenu);
-			    EventCollector->RaiseEvent(NULL, EVENT_CHANNELLIST_CHANGE, 0, 1);
-			}
+                if(!Providers_GetCurrentSource()->IsInTunerMode())
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
+                }
+                if (pMultiFrames && pMultiFrames->IsActive())
+                {
+                    pMultiFrames->RequestSwitch();
+                }
+                DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
+                Channels_UpdateMenu(hMenu);
+                EventCollector->RaiseEvent(NULL, EVENT_CHANNELLIST_CHANGE, 0, 1);
+            }
             break;
 
         case IDM_CHANNELPLUS:
@@ -3257,13 +2043,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     {
                         Channel_Decrement();
                     }
-					if (pMultiFrames && pMultiFrames->IsActive())
-					{
-						// We sleep to be sure that the channel is correctly displayed
-						// in the output thread before acknowledging the change of content
-						Sleep(250);
-						pMultiFrames->AckContentChange();
-					}
+                    if (pMultiFrames && pMultiFrames->IsActive())
+                    {
+                        // We sleep to be sure that the channel is correctly displayed
+                        // in the output thread before acknowledging the change of content
+                        Sleep(250);
+                        pMultiFrames->AckContentChange();
+                    }
                 }
             }
             // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
@@ -3284,13 +2070,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     {
                         Channel_Increment();
                     }
-					if (pMultiFrames && pMultiFrames->IsActive())
-					{
-						// We sleep to be sure that the channel is correctly displayed
-						// in the output thread before acknowledging the change of content
-						Sleep(250);
-						pMultiFrames->AckContentChange();
-					}
+                    if (pMultiFrames && pMultiFrames->IsActive())
+                    {
+                        // We sleep to be sure that the channel is correctly displayed
+                        // in the output thread before acknowledging the change of content
+                        Sleep(250);
+                        pMultiFrames->AckContentChange();
+                    }
                 }
             }
             // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
@@ -3311,34 +2097,34 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             // unknown since we have just switched channels.
             return 0;
 
-		case IDM_CHANNEL_PREVIEW:
+        case IDM_CHANNEL_PREVIEW:
             if (pMultiFrames)
-			{
-				pMultiFrames->RequestSwitch();
-			}
-			else if (Providers_GetCurrentSource() && Providers_GetCurrentSource()->IsInTunerMode())
             {
-				pMultiFrames = new CMultiFrames(PREVIEW_CHANNELS, ChannelPreviewNbCols, ChannelPreviewNbRows, Providers_GetCurrentSource());
-				pMultiFrames->RequestSwitch();
+                pMultiFrames->RequestSwitch();
             }
-			else
-			{
-				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIEW, 0);
-			}
-			break;
+            else if (Providers_GetCurrentSource() && Providers_GetCurrentSource()->IsInTunerMode())
+            {
+                pMultiFrames = new CMultiFrames(PREVIEW_CHANNELS, ChannelPreviewNbCols, ChannelPreviewNbRows, Providers_GetCurrentSource());
+                pMultiFrames->RequestSwitch();
+            }
+            else
+            {
+                SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIEW, 0);
+            }
+            break;
 
-		case IDM_CHANNEL_INDEX:
-			if (Providers_GetCurrentSource()->IsInTunerMode() && pMultiFrames && pMultiFrames->IsActive())
-			{
-				Channel_Change(lParam, 1);
-				if (pMultiFrames && pMultiFrames->IsActive())
-				{
-					// We sleep to be sure that the channel is correctly displayed
-					// in the output thread before acknowledging the change of content
-					Sleep(250);
-					pMultiFrames->AckContentChange();
-				}
-			}
+        case IDM_CHANNEL_INDEX:
+            if (Providers_GetCurrentSource()->IsInTunerMode() && pMultiFrames && pMultiFrames->IsActive())
+            {
+                Channel_Change(lParam, 1);
+                if (pMultiFrames && pMultiFrames->IsActive())
+                {
+                    // We sleep to be sure that the channel is correctly displayed
+                    // in the output thread before acknowledging the change of content
+                    Sleep(250);
+                    pMultiFrames->AckContentChange();
+                }
+            }
             // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
             // sources since the audio signal menu entries are updated and the audio signal status is 
             // unknown since we have just switched channels.
@@ -3639,62 +2425,62 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERSCAN_PLUS:
-			pSetting = Providers_GetCurrentSource()->GetTopOverscan();
-			pSetting2 = Providers_GetCurrentSource()->GetBottomOverscan();
-			pSetting3 = Providers_GetCurrentSource()->GetLeftOverscan();
-			pSetting4 = Providers_GetCurrentSource()->GetRightOverscan();
-			if ( ( (pSetting == NULL) || (pSetting->GetValue() != pSetting->GetMax()) )
-			  && ( (pSetting2 == NULL) || (pSetting2->GetValue() != pSetting2->GetMax()) )
-			  && ( (pSetting3 == NULL) || (pSetting3->GetValue() != pSetting3->GetMax()) )
-			  && ( (pSetting4 == NULL) || (pSetting4->GetValue() != pSetting4->GetMax()) ) )
-			{
-				if(pSetting != NULL)
-				{
-					pSetting->ChangeValue(ADJUSTUP_SILENT);
-				}
-				if(pSetting2 != NULL)
-				{
-					pSetting2->ChangeValue(ADJUSTUP_SILENT);
-				}
-				if(pSetting3 != NULL)
-				{
-					pSetting3->ChangeValue(ADJUSTUP_SILENT);
-				}
-				if(pSetting4 != NULL)
-				{
-					pSetting4->ChangeValue(ADJUSTUP_SILENT);
-				}
-			}
+            pSetting = Providers_GetCurrentSource()->GetTopOverscan();
+            pSetting2 = Providers_GetCurrentSource()->GetBottomOverscan();
+            pSetting3 = Providers_GetCurrentSource()->GetLeftOverscan();
+            pSetting4 = Providers_GetCurrentSource()->GetRightOverscan();
+            if ( ( (pSetting == NULL) || (pSetting->GetValue() != pSetting->GetMax()) )
+              && ( (pSetting2 == NULL) || (pSetting2->GetValue() != pSetting2->GetMax()) )
+              && ( (pSetting3 == NULL) || (pSetting3->GetValue() != pSetting3->GetMax()) )
+              && ( (pSetting4 == NULL) || (pSetting4->GetValue() != pSetting4->GetMax()) ) )
+            {
+                if(pSetting != NULL)
+                {
+                    pSetting->ChangeValue(ADJUSTUP_SILENT);
+                }
+                if(pSetting2 != NULL)
+                {
+                    pSetting2->ChangeValue(ADJUSTUP_SILENT);
+                }
+                if(pSetting3 != NULL)
+                {
+                    pSetting3->ChangeValue(ADJUSTUP_SILENT);
+                }
+                if(pSetting4 != NULL)
+                {
+                    pSetting4->ChangeValue(ADJUSTUP_SILENT);
+                }
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
             break;
 
         case IDM_OVERSCAN_MINUS:
-			pSetting = Providers_GetCurrentSource()->GetTopOverscan();
-			pSetting2 = Providers_GetCurrentSource()->GetBottomOverscan();
-			pSetting3 = Providers_GetCurrentSource()->GetLeftOverscan();
-			pSetting4 = Providers_GetCurrentSource()->GetRightOverscan();
-			if ( ( (pSetting == NULL) || (pSetting->GetValue() != pSetting->GetMin()) )
-			  && ( (pSetting2 == NULL) || (pSetting2->GetValue() != pSetting2->GetMin()) )
-			  && ( (pSetting3 == NULL) || (pSetting3->GetValue() != pSetting3->GetMin()) )
-			  && ( (pSetting4 == NULL) || (pSetting4->GetValue() != pSetting4->GetMin()) ) )
-			{
-				if(pSetting != NULL)
-				{
-					pSetting->ChangeValue(ADJUSTDOWN_SILENT);
-				}
-				if(pSetting2 != NULL)
-				{
-					pSetting2->ChangeValue(ADJUSTDOWN_SILENT);
-				}
-				if(pSetting3 != NULL)
-				{
-					pSetting3->ChangeValue(ADJUSTDOWN_SILENT);
-				}
-				if(pSetting4 != NULL)
-				{
-					pSetting4->ChangeValue(ADJUSTDOWN_SILENT);
-				}
-			}
+            pSetting = Providers_GetCurrentSource()->GetTopOverscan();
+            pSetting2 = Providers_GetCurrentSource()->GetBottomOverscan();
+            pSetting3 = Providers_GetCurrentSource()->GetLeftOverscan();
+            pSetting4 = Providers_GetCurrentSource()->GetRightOverscan();
+            if ( ( (pSetting == NULL) || (pSetting->GetValue() != pSetting->GetMin()) )
+              && ( (pSetting2 == NULL) || (pSetting2->GetValue() != pSetting2->GetMin()) )
+              && ( (pSetting3 == NULL) || (pSetting3->GetValue() != pSetting3->GetMin()) )
+              && ( (pSetting4 == NULL) || (pSetting4->GetValue() != pSetting4->GetMin()) ) )
+            {
+                if(pSetting != NULL)
+                {
+                    pSetting->ChangeValue(ADJUSTDOWN_SILENT);
+                }
+                if(pSetting2 != NULL)
+                {
+                    pSetting2->ChangeValue(ADJUSTDOWN_SILENT);
+                }
+                if(pSetting3 != NULL)
+                {
+                    pSetting3->ChangeValue(ADJUSTDOWN_SILENT);
+                }
+                if(pSetting4 != NULL)
+                {
+                    pSetting4->ChangeValue(ADJUSTDOWN_SILENT);
+                }
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
             break;
 
@@ -3707,25 +2493,25 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 ShowText(hWnd, "No Overscan Control");
             }
             else
-			{
-				strcpy(Text, "Overscan");
-				if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
-				{
-					sprintf(&Text[strlen(Text)], "\nTop %u", pSetting->GetValue());
-				}
-				if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
-				{
-					sprintf(&Text[strlen(Text)], "\nBottom %u", pSetting->GetValue());
-				}
-				if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
-				{
-					sprintf(&Text[strlen(Text)], "\nLeft %u", pSetting->GetValue());
-				}
-				if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
-				{
-					sprintf(&Text[strlen(Text)], "\nRight %u", pSetting->GetValue());
-				}
-				OSD_ShowText(Text, 0);
+            {
+                strcpy(Text, "Overscan");
+                if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
+                {
+                    sprintf(&Text[strlen(Text)], "\nTop %u", pSetting->GetValue());
+                }
+                if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
+                {
+                    sprintf(&Text[strlen(Text)], "\nBottom %u", pSetting->GetValue());
+                }
+                if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
+                {
+                    sprintf(&Text[strlen(Text)], "\nLeft %u", pSetting->GetValue());
+                }
+                if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
+                {
+                    sprintf(&Text[strlen(Text)], "\nRight %u", pSetting->GetValue());
+                }
+                OSD_ShowText(Text, 0);
             }
             break;
 
@@ -3738,17 +2524,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_END:
-			if (((CStillSource*)Providers_GetSnapshotsSource())->IsOneItemInMemory())
-			{
-				if (MessageBox(hWnd,
-							   "At least one of your snapshots is not yet saved in a file.\n"
-							   "Do you confirm that you want to exit without saving it?", 
-							   "DScaler - Unsaved Snapshots", 
-							   MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDNO)
-				{
-					break;
-				} 
-			}
+            if (((CStillSource*)Providers_GetSnapshotsSource())->IsOneItemInMemory())
+            {
+                if (MessageBox(hWnd,
+                               "At least one of your snapshots is not yet saved in a file.\n"
+                               "Do you confirm that you want to exit without saving it?", 
+                               "DScaler - Unsaved Snapshots", 
+                               MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDNO)
+                {
+                    break;
+                } 
+            }
             ShowWindow(hWnd, SW_HIDE);
             PostMessage(hWnd, WM_DESTROY, wParam, lParam);
             break;
@@ -3921,7 +2707,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_AUDIO_MIXER:
-			Mixer_SetupDlg(hWnd);
+            Mixer_SetupDlg(hWnd);
             break;
 
         case IDM_STATUSBAR:
@@ -4004,7 +2790,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_FULL_SCREEN:
             IsFullScreen_OnChange(!bIsFullScreen);
-			WorkoutOverlaySize(TRUE);
+            WorkoutOverlaySize(TRUE);
             break;
         
         case IDM_RETURN_TO_WINDOW:
@@ -4028,21 +2814,21 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_TAKESTREAMSNAP:
-			req.type = REQ_SNAPSHOT;
-			PutRequest(&req);
+            req.type = REQ_SNAPSHOT;
+            PutRequest(&req);
             break;
 
         case IDM_TAKESTILL:
-			req.type = REQ_STILL;
-			req.param1 = 1;
-			PutRequest(&req);
+            req.type = REQ_STILL;
+            req.param1 = 1;
+            PutRequest(&req);
             break;
 
         case IDM_TAKECONSECUTIVESTILL:
-			// Take cpnsecutive stills
-			req.type = REQ_STILL;
-			req.param1 = Setting_GetValue(Still_GetSetting(NBCONSECUTIVESTILLS));
-			PutRequest(&req);
+            // Take cpnsecutive stills
+            req.type = REQ_STILL;
+            req.param1 = Setting_GetValue(Still_GetSetting(NBCONSECUTIVESTILLS));
+            PutRequest(&req);
             break;
 
         case IDM_TAKECYCLICSTILL:
@@ -4050,10 +2836,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             KillTimer(hWnd, TIMER_TAKESTILL);
             if (bTakingCyclicStills)
             {
-				req.type = REQ_STILL;
-				req.param1 = 1;
-				PutRequest(&req);
-				// The setting value is changed from a number of seconds to a number of 1/10 of seconds
+                req.type = REQ_STILL;
+                req.param1 = 1;
+                PutRequest(&req);
+                // The setting value is changed from a number of seconds to a number of 1/10 of seconds
                 SetTimer(hWnd, TIMER_TAKESTILL, Setting_GetValue(Still_GetSetting(DELAYBETWEENSTILLS)) * 100, NULL);
             }
             break;
@@ -4070,10 +2856,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             TimeShiftOnOptions();
             break;
 
-		case IDM_SCHEDULE: 
-			ShowSchedRecDlg();
-			break;
-						
+        case IDM_SCHEDULE: 
+            ShowSchedRecDlg();
+            break;
+                        
         case IDM_TSRECORD:
             if (TimeShiftRecord())
             {
@@ -4334,7 +3120,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_CHARSET_TEST:
             ProcessVTMessage(hWnd, message, wParam, lParam);
             break;
-		
+        
         case IDM_SETTINGS_CHANGESETTINGS:
             CTreeSettingsDlg::ShowTreeSettingsDlg(ADVANCED_SETTINGS_MASK);
             break;
@@ -4376,14 +3162,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_SKIN_NONE:
             szSkinName[0] = 0;
-			Skin_SetMenu(hMenu, TRUE);
+            Skin_SetMenu(hMenu, TRUE);
             SetWindowBorder(hWnd, szSkinName, FALSE);
             if (ToolbarControl!=NULL)
             {
                 ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);
             }
             UpdateWindowState();
-			WorkoutOverlaySize(FALSE);
+            WorkoutOverlaySize(FALSE);
             InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDM_OUTPUTTYPE_DIRECT3D:
@@ -4418,7 +3204,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
         
-		default:
+        default:
             bDone = FALSE;
 
             if ((LOWORD(wParam)>=IDM_SKIN_FIRST) && (LOWORD(wParam)<=IDM_SKIN_LAST))
@@ -4435,21 +3221,21 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);
                 }
                 UpdateWindowState();            
-				WorkoutOverlaySize(FALSE);
+                WorkoutOverlaySize(FALSE);
                 InvalidateRect(hWnd, NULL, FALSE);
                 bDone = TRUE;
             }
 
-			if (pMultiFrames && !bDone)
-			{
-				bDone = pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
-			}
+            if (pMultiFrames && !bDone)
+            {
+                bDone = pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
+            }
             // Check whether menu ID is an aspect ratio related item
             if (!bDone)
             {
                 bDone = ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
             }
-	        if(!bDone)
+            if(!bDone)
             {
                 bDone = ProcessDeinterlaceSelection(hWnd, LOWORD(wParam));
             }
@@ -4487,23 +3273,23 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(!bDone && ToolbarControl != NULL)
             {
                 bDone = ToolbarControl->ProcessToolbar1Selection(hWnd, LOWORD(wParam));
-				if (bDone)
-				{
-					if (IsToolBarVisible())
-					{
-						SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
-					}
-					else
-					{
-						KillTimer(hWnd, TIMER_TOOLBAR);
-					}
-				}
+                if (bDone)
+                {
+                    if (IsToolBarVisible())
+                    {
+                        SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
+                    }
+                    else
+                    {
+                        KillTimer(hWnd, TIMER_TOOLBAR);
+                    }
+                }
             }
             if(!bDone)
             {
                 bDone = Providers_HandleWindowsCommands(hWnd, wParam, lParam);
             }
-	        if(!bDone)
+            if(!bDone)
             {
                 bDone = MyEPG.HandleWindowsCommands(hWnd, wParam, lParam);
             }
@@ -4591,10 +3377,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_LBUTTONDBLCLK:
-		if (bIgnoreDoubleClick == FALSE)
-		{
-	        SendMessage(hWnd, WM_COMMAND, IDM_FULL_SCREEN, 0);
-		}
+        if (bIgnoreDoubleClick == FALSE)
+        {
+            SendMessage(hWnd, WM_COMMAND, IDM_FULL_SCREEN, 0);
+        }
         return 0;
         break;
 
@@ -4609,12 +3395,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     case WM_LBUTTONDOWN:
         if (ProcessVTMessage(hWnd, message, wParam, lParam))
         {
-			bIgnoreDoubleClick = TRUE;
+            bIgnoreDoubleClick = TRUE;
         }
-		else
-		{
-			bIgnoreDoubleClick = FALSE;
-		}
+        else
+        {
+            bIgnoreDoubleClick = FALSE;
+        }
 
         if((bShowMenu == FALSE || (GetKeyState(VK_CONTROL) < 0)) && bIsFullScreen == FALSE)
         {
@@ -4655,23 +3441,23 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     Cursor_VTUpdate(newx, newy);
                 }
-				if (bIsFullScreen && ToolbarControl != NULL)
-				{
-					POINT Point;
-					Point.x = x;
-					Point.y = y;
-					if (ToolbarControl->AutomaticDisplay(Point))
-					{
-						if (IsToolBarVisible())
-						{
-							SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
-						}
-						else
-						{
-							KillTimer(hWnd, TIMER_TOOLBAR);
-						}
-					}
-				}
+                if (bIsFullScreen && ToolbarControl != NULL)
+                {
+                    POINT Point;
+                    Point.x = x;
+                    Point.y = y;
+                    if (ToolbarControl->AutomaticDisplay(Point))
+                    {
+                        if (IsToolBarVisible())
+                        {
+                            SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
+                        }
+                        else
+                        {
+                            KillTimer(hWnd, TIMER_TOOLBAR);
+                        }
+                    }
+                }
             }
         }
         return 0;
@@ -4710,12 +3496,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_KILLFOCUS:
-	    Cursor_UpdateVisibility();
+        Cursor_UpdateVisibility();
         return 0;
         break;
 
     case WM_SETFOCUS:
-	    Cursor_UpdateVisibility();
+        Cursor_UpdateVisibility();
         return 0;
         break;
 
@@ -4729,16 +3515,16 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (IsStatusBarVisible() && (Providers_GetCurrentSource() != NULL))
             {
                 if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
-	    		{
+                {
                     strcpy(Text, "Volume Mute");
-			    }
+                }
                 else if (!Providers_GetCurrentSource()->IsVideoPresent())
                 {
                     strcpy(Text, "No Video Signal Found");
                 }
                 else
                 {
-					memset(Text,0,128);
+                    memset(Text,0,128);
                     strncpy(Text, Providers_GetCurrentSource()->GetStatus(),128);
                     if(Text[0] == 0x00)
                     {
@@ -4755,35 +3541,35 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
         //-------------------------------
-		case TIMER_TOOLBAR:
+        case TIMER_TOOLBAR:
             if (IsToolBarVisible() && (Providers_GetCurrentSource() != NULL))
             {
 #ifdef WANT_DSHOW_SUPPORT
-				if (Providers_GetCurrentSource()->HasMediaControl())
-				{
-					EventCollector->RaiseEvent(NULL, EVENT_DURATION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetDuration());
-					EventCollector->RaiseEvent(NULL, EVENT_CURRENT_POSITION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetCurrentPos());
-				}
+                if (Providers_GetCurrentSource()->HasMediaControl())
+                {
+                    EventCollector->RaiseEvent(NULL, EVENT_DURATION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetDuration());
+                    EventCollector->RaiseEvent(NULL, EVENT_CURRENT_POSITION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetCurrentPos());
+                }
 #endif
-				if (Mixer_IsEnabled())
-				{
-					long val = Mixer_GetVolume();
-					if (val != -1)
-					{
-						EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, -1, val);
-					}
-					val = Mixer_GetMute();
-					if (val != -1)
-					{
-						EventCollector->RaiseEvent(NULL, EVENT_MUTE, -1, val || Audio_IsMute());
-					}
-				}
-			}
+                if (Mixer_IsEnabled())
+                {
+                    long val = Mixer_GetVolume();
+                    if (val != -1)
+                    {
+                        EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, -1, val);
+                    }
+                    val = Mixer_GetMute();
+                    if (val != -1)
+                    {
+                        EventCollector->RaiseEvent(NULL, EVENT_MUTE, -1, val || Audio_IsMute());
+                    }
+                }
+            }
             break;
         //-------------------------------
         case TIMER_KEYNUMBER:
             KillTimer(hWnd, TIMER_KEYNUMBER);
-    		i = atoi(ChannelString);
+            i = atoi(ChannelString);
             // if only zero's are entered video input is switched.
             if(i == 0)
             {
@@ -4864,17 +3650,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (Cursor_IsOurs() != FALSE)
             {
                 KillTimer(hWnd, TIMER_HIDECURSOR);
-				if (ToolbarControl != NULL) 
-				{
-					POINT Point;		
-					GetCursorPos(&Point);
-					
-					if (ToolbarControl->PtInToolbar(Point))
-					{
-						Cursor_SetVisibility(TRUE);
-						break;
-					}
-				}				
+                if (ToolbarControl != NULL) 
+                {
+                    POINT Point;        
+                    GetCursorPos(&Point);
+                    
+                    if (ToolbarControl->PtInToolbar(Point))
+                    {
+                        Cursor_SetVisibility(TRUE);
+                        break;
+                    }
+                }                
                 Cursor_SetVisibility(FALSE);
             }
             break;
@@ -4917,9 +3703,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //---------------------------------
         case TIMER_TAKESTILL:
-			req.type = REQ_STILL;
-			req.param1 = 1;
-			PutRequest(&req);
+            req.type = REQ_STILL;
+            req.param1 = 1;
+            PutRequest(&req);
             break;
         //---------------------------------
         default:
@@ -5232,13 +4018,13 @@ void SaveWindowPos(HWND hWnd)
 //---------------------------------------------------------------------------
 void SaveActualPStripTiming(HWND hPSWnd)
 {
-	ATOM pStripTimingAtom = static_cast<ATOM>(SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0));
-	if(lPStripTimingString == NULL)
-	{
-		lPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];	
-	}
-	GlobalGetAtomName(pStripTimingAtom, lPStripTimingString, PSTRIP_TIMING_STRING_SIZE);
-	GlobalDeleteAtom(pStripTimingAtom);
+    ATOM pStripTimingAtom = static_cast<ATOM>(SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0));
+    if(lPStripTimingString == NULL)
+    {
+        lPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];    
+    }
+    GlobalGetAtomName(pStripTimingAtom, lPStripTimingString, PSTRIP_TIMING_STRING_SIZE);
+    GlobalDeleteAtom(pStripTimingAtom);
 }
 
 //---------------------------------------------------------------------------
@@ -5247,8 +4033,8 @@ void MainWndOnInitBT(HWND hWnd)
     int i;
     BOOL bInitOK = FALSE;
 
-	// Initialise the PowerStrip window handler
-	hPSWnd = FindWindow("TPShidden", NULL);
+    // Initialise the PowerStrip window handler
+    hPSWnd = FindWindow("TPShidden", NULL);
 
     AddSplashTextLine("Hardware Init");
 
@@ -5288,11 +4074,11 @@ void MainWndOnInitBT(HWND hWnd)
             }
             else
             {
-				if (MessageBox(hWnd,
-							   "The overlay couldn't be created.\n"
-							   "Do you want to try DirectX?", 
-							   "DScaler - Overlay create Failed", 
-							   MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDYES)
+                if (MessageBox(hWnd,
+                               "The overlay couldn't be created.\n"
+                               "Do you want to try DirectX?", 
+                               "DScaler - Overlay create Failed", 
+                               MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDYES)
                 {
                     SetActiveOutput(IOutput::OUT_D3D);
                     if(GetActiveOutput()->InitDD(hWnd) == TRUE)
@@ -5354,11 +4140,11 @@ void MainWndOnInitBT(HWND hWnd)
             SendMessage(hWnd, WM_COMMAND, IDM_TOGGLE_MENU, 0);
         }
 
-		AddSplashTextLine("Load Toolbars");
+        AddSplashTextLine("Load Toolbars");
         if (ToolbarControl == NULL)
         {
             ToolbarControl = new CToolbarControl(WM_TOOLBARS_GETVALUE);
-			ToolbarControl->Set(hWnd, NULL);
+            ToolbarControl->Set(hWnd, NULL);
         }
 
         if (szSkinName[0] != 0)
@@ -5372,12 +4158,12 @@ void MainWndOnInitBT(HWND hWnd)
             }
         }
 
-		// We must do two calls, the first one displaying the toolbar
-		// in order to have the correct toolbar rectangle initialized,
-		// and the second to hide the toolbar if in full scrren mode
+        // We must do two calls, the first one displaying the toolbar
+        // in order to have the correct toolbar rectangle initialized,
+        // and the second to hide the toolbar if in full scrren mode
         if (ToolbarControl == NULL)
         {
-			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
+            ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
         }
 
         AddSplashTextLine("Setup Mixer");
@@ -5388,10 +4174,10 @@ void MainWndOnInitBT(HWND hWnd)
             SetTimer(hWnd, TIMER_STATUS, TIMER_STATUS_MS, NULL);
         }
 
-		if (IsToolBarVisible())
-		{
-	        SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
-		}
+        if (IsToolBarVisible())
+        {
+            SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
+        }
 
         // do final setup routines for any files
         // basically where we need the hWnd to be set
@@ -5414,16 +4200,16 @@ void MainWndOnInitBT(HWND hWnd)
         }
         Skin_SetMenu(hMenu, FALSE);
 
-		if (bIsFullScreen)
-		{
-			if(hPSWnd)
-			{
-				// Save the actual PowerStrip timing string in lPStripTimingString
-				SaveActualPStripTiming(hPSWnd);
-			}
-			OutReso_Change(hWnd, hPSWnd, FALSE, FALSE, NULL, FALSE);
-			BypassChgResoInRestore = TRUE;
-		}
+        if (bIsFullScreen)
+        {
+            if(hPSWnd)
+            {
+                // Save the actual PowerStrip timing string in lPStripTimingString
+                SaveActualPStripTiming(hPSWnd);
+            }
+            OutReso_Change(hWnd, hPSWnd, FALSE, FALSE, NULL, FALSE);
+            BypassChgResoInRestore = TRUE;
+        }
 
         bDoResize = TRUE;
 
@@ -5458,7 +4244,7 @@ void MainWndOnInitBT(HWND hWnd)
 
         AddSplashTextLine("Start Video");
         Start_Capture();
-		GetActiveOutput()->SetCurrentMonitor(hWnd);
+        GetActiveOutput()->SetCurrentMonitor(hWnd);
         
     }
     else
@@ -5625,12 +4411,12 @@ void MainWndOnDestroy()
         if(bIsFullScreen == FALSE)
         {
             LOG(1, "Try SaveWindowPos");
-			if(hPSWnd)
-			{			
-				// Save the actual PowerStrip timing string in lPStripTimingString
-				SaveActualPStripTiming(hPSWnd);
-			}
-			SaveWindowPos(hWnd);
+            if(hPSWnd)
+            {            
+                // Save the actual PowerStrip timing string in lPStripTimingString
+                SaveActualPStripTiming(hPSWnd);
+            }
+            SaveWindowPos(hWnd);
         }
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SaveWindowPos");}
@@ -5692,9 +4478,9 @@ void MainWndOnDestroy()
             delete SettingsMaster;
             SettingsMaster = NULL;
         }                
-		FreeSettings();
-		// Free of filters settings is done later when calling UnloadFilterPlugins
-		// Free of sources dependent settings is already done when calling Providers_Unload
+        FreeSettings();
+        // Free of filters settings is done later when calling UnloadFilterPlugins
+        // Free of sources dependent settings is already done when calling Providers_Unload
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free settings");}
     
@@ -5736,10 +4522,10 @@ void MainWndOnDestroy()
     {
         if(bIsFullScreen == TRUE)
         {
-			// Do this here after the ExitDD to be sure that the overlay is destroyed
+            // Do this here after the ExitDD to be sure that the overlay is destroyed
             LOG(1, "Try restore display resolution");
-			BypassChgResoInRestore = TRUE;
-			OutReso_Change(hWnd, hPSWnd, TRUE, FALSE, lPStripTimingString, TRUE);
+            BypassChgResoInRestore = TRUE;
+            OutReso_Change(hWnd, hPSWnd, TRUE, FALSE, lPStripTimingString, TRUE);
         }
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error restore display resolution");}
@@ -5860,61 +4646,61 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
         case SIZE_MAXIMIZED:
             if(bIsFullScreen == FALSE || bMinimized == TRUE)
             {
-				bCheckSignalPresent = FALSE;
-				bCheckSignalMissing = (MinimizeHandling == 2);
+                bCheckSignalPresent = FALSE;
+                bCheckSignalMissing = (MinimizeHandling == 2);
                 IsFullScreen_OnChange(TRUE);
-				if ((MinimizeHandling == 1) && bMinimized && !GetActiveOutput()->OverlayActive())
-				{
-					Overlay_Start(hWnd);
-				}
-				bMinimized = FALSE;
+                if ((MinimizeHandling == 1) && bMinimized && !GetActiveOutput()->OverlayActive())
+                {
+                    Overlay_Start(hWnd);
+                }
+                bMinimized = FALSE;
             }
             break;
         case SIZE_MINIMIZED:
-			bMinimized = TRUE;
-			if (GetActiveOutput()->OverlayActive() && (MinimizeHandling == 1))
-			{
-	            Overlay_Stop(hWnd);
-			}
+            bMinimized = TRUE;
+            if (GetActiveOutput()->OverlayActive() && (MinimizeHandling == 1))
+            {
+                Overlay_Stop(hWnd);
+            }
             if(bIsFullScreen)
-			{
-				OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, TRUE);
-			}
-			if (GetActiveOutput()->OverlayActive())
-			{
-		        GetActiveOutput()->Overlay_Update(NULL, NULL, DDOVER_HIDE);
-			}
+            {
+                OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, TRUE);
+            }
+            if (GetActiveOutput()->OverlayActive())
+            {
+                GetActiveOutput()->Overlay_Update(NULL, NULL, DDOVER_HIDE);
+            }
             if (bMinToTray)
-			{
+            {
                 ShowWindow(hWnd, SW_HIDE);
-			}
-			bCheckSignalPresent = (MinimizeHandling == 2);
-			bCheckSignalMissing = FALSE;
+            }
+            bCheckSignalPresent = (MinimizeHandling == 2);
+            bCheckSignalMissing = FALSE;
             break;
         case SIZE_RESTORED:
             bMinimized = FALSE;
-			bCheckSignalPresent = FALSE;
-			bCheckSignalMissing = (MinimizeHandling == 2);
+            bCheckSignalPresent = FALSE;
+            bCheckSignalMissing = (MinimizeHandling == 2);
             InvalidateRect(hWnd, NULL, FALSE);
-			if(bIsFullScreen)
-			{
-				if (BypassChgResoInRestore)
-				{
-					BypassChgResoInRestore = FALSE;
-				}
-				else
-				{
-					OutReso_Change(hWnd, hPSWnd, FALSE, TRUE, NULL, FALSE);
-				}
-			}
+            if(bIsFullScreen)
+            {
+                if (BypassChgResoInRestore)
+                {
+                    BypassChgResoInRestore = FALSE;
+                }
+                else
+                {
+                    OutReso_Change(hWnd, hPSWnd, FALSE, TRUE, NULL, FALSE);
+                }
+            }
             if ((MinimizeHandling == 1) && !GetActiveOutput()->OverlayActive())
-			{
+            {
                 Overlay_Start(hWnd);
-			}
-			if (GetActiveOutput()->OverlayActive())
-			{
-	            WorkoutOverlaySize(FALSE);
-			}
+            }
+            if (GetActiveOutput()->OverlayActive())
+            {
+                WorkoutOverlaySize(FALSE);
+            }
             SetMenuAnalog();
             break;
         default:
@@ -5973,7 +4759,7 @@ void SetMenuAnalog()
         pCalibration->SetMenu(hMenu);
     }
 
-	MyEPG.SetMenu(hMenu);
+    MyEPG.SetMenu(hMenu);
 
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERCHANNEL, SettingsPerChannel_IsPerChannel());
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERINPUT, SettingsPerChannel_IsPerInput());
@@ -6265,7 +5051,7 @@ void RedrawMenuBar(HMENU)
 //---------------------------------------------------------------------------
 void CleanUpMemory()
 {
-	CScheduleDlg::OnDscalerExit();
+    CScheduleDlg::OnDscalerExit();
     Mixer_Exit();
     VBI_Exit();
     OSD_Exit();
@@ -6348,12 +5134,12 @@ void UpdateWindowState()
 {
     if(bIsFullScreen == TRUE)
     {
-		RECT ScreenRect;
+        RECT ScreenRect;
         UpdateWindowRegion(hWnd, FALSE);
-		SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+        SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
         SetMenu(hWnd, NULL);
         StatusBar_ShowWindow(FALSE);
-		GetActiveOutput()->GetMonitorRect(hWnd, &ScreenRect);
+        GetActiveOutput()->GetMonitorRect(hWnd, &ScreenRect);
         SetWindowPos(hWnd,
                     bAlwaysOnTopFull?HWND_TOPMOST:HWND_NOTOPMOST,
                     ScreenRect.left,
@@ -6364,23 +5150,23 @@ void UpdateWindowState()
     }
     else
     {
-		if(bShowMenu == TRUE)
-		{
-			SetWindowLong(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
-			SetMenu(hWnd, hMenu);
-		}
-		else
-		{
-			if ((WindowBorder!=NULL) && WindowBorder->Visible())
+        if(bShowMenu == TRUE)
+        {
+            SetWindowLong(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+            SetMenu(hWnd, hMenu);
+        }
+        else
+        {
+            if ((WindowBorder!=NULL) && WindowBorder->Visible())
             {
-                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));				
+                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));                
             }
             else
             {
                 SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             }
-			SetMenu(hWnd, NULL);            
-		}
+            SetMenu(hWnd, NULL);            
+        }
         StatusBar_ShowWindow(bDisplayStatusBar);
         if (ToolbarControl!=NULL)
         {
@@ -6396,7 +5182,7 @@ void UpdateWindowState()
         SetWindowPos(hWnd,bAlwaysOnTop?HWND_TOPMOST:HWND_NOTOPMOST,
                     0,0,0,0,
                     SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_NOACTIVATE);            
-	}	
+    }    
 }
 
 HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
@@ -6420,10 +5206,10 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
                 SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             }
             LOG(2,"DScaler: Set window region (0x%08x)",hRgn);
-			if (hRgn != DScalerWindowRgn)
-			{
-				SetWindowRgn(hWnd,hRgn,TRUE);            
-			}
+            if (hRgn != DScalerWindowRgn)
+            {
+                SetWindowRgn(hWnd,hRgn,TRUE);            
+            }
             DScalerWindowRgn = hRgn;
         }
     }
@@ -6432,10 +5218,10 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
         if (DScalerWindowRgn != NULL)
         {
             LOG(2,"DScaler: Set window region (0x%08x)",NULL);
-			if (DScalerWindowRgn != NULL)
-			{
-				SetWindowRgn(hWnd,NULL,TRUE);
-			}
+            if (DScalerWindowRgn != NULL)
+            {
+                SetWindowRgn(hWnd,NULL,TRUE);
+            }
             DScalerWindowRgn = NULL;
         }
     }
@@ -6476,7 +5262,7 @@ void Cursor_SetVisibility(BOOL bVisible)
 
 void Cursor_UpdateVisibility()
 {
-    KillTimer(hWnd, TIMER_HIDECURSOR);	
+    KillTimer(hWnd, TIMER_HIDECURSOR);    
 
     if (Cursor_IsOurs() == FALSE)
     {
@@ -6781,7 +5567,7 @@ void SetTrayTip(const char* ChannelName)
     {
         nIcon.uFlags = NIF_TIP;
         sprintf(nIcon.szTip, "DScaler - %s", ChannelName);
-		SetWindowText(nIcon.hWnd, nIcon.szTip);
+        SetWindowText(nIcon.hWnd, nIcon.szTip);
         Shell_NotifyIcon(NIM_MODIFY, &nIcon);
     }
 }
@@ -6800,9 +5586,9 @@ static void Init_IconMenu()
         mInfo.hSubMenu = CreateDScalerPopupMenu();
 
         SetMenuItemInfo(hMenuTray, 2, TRUE, &mInfo);
-		
+        
         SetMenuDefaultItem(hMenuTray, 4, TRUE);
-	}
+    }
 }
 
 int On_IconHandler(WPARAM wParam, LPARAM lParam)
@@ -6833,10 +5619,10 @@ int On_IconHandler(WPARAM wParam, LPARAM lParam)
             break;
 
         case WM_RBUTTONUP:
-			if (hMenuTray==NULL)
-			{
-				Init_IconMenu();
-			}
+            if (hMenuTray==NULL)
+            {
+                Init_IconMenu();
+            }
             GetCursorPos(&mPoint);
             SetForegroundWindow(hWnd); // To correct Windows errors. See KB Q135788
             TrackPopupMenuEx(hMenuTray, TPM_RIGHTALIGN | TPM_BOTTOMALIGN | TPM_RIGHTBUTTON, mPoint.x, mPoint.y, hWnd, NULL);
@@ -6848,7 +5634,7 @@ int On_IconHandler(WPARAM wParam, LPARAM lParam)
         }
         break;
     }
-	
+    
     return 0;
 }
 
@@ -6868,14 +5654,14 @@ BOOL IsFullScreen_OnChange(long NewValue)
     {
         if(bIsFullScreen == FALSE)
         {
-			if(lPStripTimingString != NULL)
-			{
-				OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, TRUE);
-			}
-			else
-			{
-				OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, FALSE);
-			}
+            if(lPStripTimingString != NULL)
+            {
+                OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, TRUE);
+            }
+            else
+            {
+                OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, FALSE);
+            }
             SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
             if (bDisplayStatusBar == TRUE)
             {
@@ -6884,14 +5670,14 @@ BOOL IsFullScreen_OnChange(long NewValue)
         }
         else
         {
-			if(hPSWnd)
-			{
-				// Save the actual PowerStrip timing string in lPStripTimingString
-				SaveActualPStripTiming(hPSWnd);
-			}
-			SaveWindowPos(hWnd);				
+            if(hPSWnd)
+            {
+                // Save the actual PowerStrip timing string in lPStripTimingString
+                SaveActualPStripTiming(hPSWnd);
+            }
+            SaveWindowPos(hWnd);                
             KillTimer(hWnd, TIMER_STATUS);
-			OutReso_Change(hWnd, hPSWnd, FALSE, TRUE, NULL, FALSE);
+            OutReso_Change(hWnd, hPSWnd, FALSE, TRUE, NULL, FALSE);
         }
         if (WindowBorder!=NULL)
         {
@@ -6906,29 +5692,29 @@ BOOL IsFullScreen_OnChange(long NewValue)
         }
         if (ToolbarControl!=NULL)
         {            
-			ToolbarControl->Set(hWnd, NULL, 0, 1);
+            ToolbarControl->Set(hWnd, NULL, 0, 1);
         }
         
         Cursor_UpdateVisibility();
         //InvalidateRect(hWnd, NULL, FALSE);
         UpdateWindowState();
-		WorkoutOverlaySize(FALSE);
+        WorkoutOverlaySize(FALSE);
 
-		// We must do two calls, the first one displaying the toolbar
-		// in order to have the correct toolbar rectangle initialized,
-		// and the second to hide the toolbar if in full scrren mode
+        // We must do two calls, the first one displaying the toolbar
+        // in order to have the correct toolbar rectangle initialized,
+        // and the second to hide the toolbar if in full scrren mode
         if (ToolbarControl!=NULL)
         {
-			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0, 1);
+            ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0, 1);
         }
-		if (IsToolBarVisible())
-		{
-	        SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
-		}
-		else
-		{
-	        KillTimer(hWnd, TIMER_TOOLBAR);
-		}
+        if (IsToolBarVisible())
+        {
+            SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
+        }
+        else
+        {
+            KillTimer(hWnd, TIMER_TOOLBAR);
+        }
     }
     bDoResize = TRUE;
     return FALSE;
@@ -6997,7 +5783,7 @@ BOOL DisplayStatusBar_OnChange(long NewValue)
             ToolbarControl->Adjust(hWnd, TRUE, FALSE);
         }        
         UpdateWindowState();
-		WorkoutOverlaySize(TRUE);
+        WorkoutOverlaySize(TRUE);
     }
     return FALSE;
 }
@@ -7023,14 +5809,14 @@ BOOL KeyboardLock_OnChange(long NewValue)
 BOOL MinimizeHandling_OnChange(long NewValue)
 {
     MinimizeHandling = (int)NewValue;
-	if (bMinimized)
-	{
-		bCheckSignalPresent = (MinimizeHandling == 2);
-	}
-	else
-	{
-		bCheckSignalMissing = (MinimizeHandling == 2);
-	}
+    if (bMinimized)
+    {
+        bCheckSignalPresent = (MinimizeHandling == 2);
+    }
+    else
+    {
+        bCheckSignalMissing = (MinimizeHandling == 2);
+    }
     return FALSE;
 }
 
@@ -7038,20 +5824,20 @@ BOOL MinimizeHandling_OnChange(long NewValue)
 BOOL ChannelPreviewNbCols_OnChange(long NewValue)
 {
     ChannelPreviewNbCols = (int)NewValue;
-	if (pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_CHANNELS) && pMultiFrames->IsActive())
-	{
-		pMultiFrames->RequestSwitch();
-	}
+    if (pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_CHANNELS) && pMultiFrames->IsActive())
+    {
+        pMultiFrames->RequestSwitch();
+    }
     return FALSE;
 }
 
 BOOL ChannelPreviewNbRows_OnChange(long NewValue)
 {
     ChannelPreviewNbRows = (int)NewValue;
-	if (pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_CHANNELS) && pMultiFrames->IsActive())
-	{
-		pMultiFrames->RequestSwitch();
-	}
+    if (pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_CHANNELS) && pMultiFrames->IsActive())
+    {
+        pMultiFrames->RequestSwitch();
+    }
     return FALSE;
 }
 
@@ -7395,8 +6181,8 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage4()
     // PowerStrip Settings
     SETTING* OtherSettings[2] =
     {
-        &DScalerSettings[PSTRIPRESO576I			],
-        &DScalerSettings[PSTRIPRESO480I			],
+        &DScalerSettings[PSTRIPRESO576I            ],
+        &DScalerSettings[PSTRIPRESO480I            ],
     };
     return new CTreeSettingsGeneric("PowerStrip Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
 }

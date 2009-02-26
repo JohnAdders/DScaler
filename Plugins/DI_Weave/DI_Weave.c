@@ -15,30 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 30 Dec 2000   Mark Rejhon           Split into separate module
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2002/06/13 12:10:25  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.7  2001/11/22 13:32:04  adcockj
-// Finished changes caused by changes to TDeinterlaceInfo - Compiles
-//
-// Revision 1.6  2001/11/21 15:21:41  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.5  2001/07/13 16:13:33  adcockj
-// Added CVS tags and removed tabs
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Deinterlace.h"

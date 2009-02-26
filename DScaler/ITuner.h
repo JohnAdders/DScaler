@@ -20,35 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.7  2003/02/06 21:27:41  ittarnavsky
-// removed the tuner names from here
-//
-// Revision 1.6  2003/02/06 19:47:29  ittarnavsky
-// removed dependency on BT848_Defines.h, introduced new TunerID.h
-//
-// Revision 1.5  2002/10/26 15:37:57  adcockj
-// Made ITuner more abstract by removing inheritance from CI2CDevice
-// New class II2CTuner created for tuners that are controled by I2C
-//
-// Revision 1.4  2002/10/16 21:42:36  kooiman
-// Created seperate class for External IF Demodulator chips like TDA9887
-//
-// Revision 1.3  2002/10/08 20:43:16  kooiman
-// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
-//
-// Revision 1.2  2001/11/29 14:04:07  adcockj
-// Added Javadoc comments
-//
-// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
-// initial checkin of the new I2C code
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file ituner.h ituner Header

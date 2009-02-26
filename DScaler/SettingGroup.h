@@ -15,47 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//  This file is part of the SettingRepository module.  See
-//  SettingRepository.h for more information.
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.11  2005/03/17 03:55:19  atnak
-// Syncing wip.
-//
-// Revision 1.10  2005/03/05 12:15:20  atnak
-// Syncing files.
-//
-// Revision 1.9  2004/09/11 13:00:45  adcockj
-// fix compile problems with vs6
-//
-// Revision 1.8  2004/09/08 07:19:01  atnak
-// Major changes in the way operations are handled.  For better handling of
-// operations called from inside callbacks.  Plus other changes.
-//
-// Revision 1.7  2004/08/21 11:36:51  atnak
-// Removed unnecessary function define.
-//
-// Revision 1.6  2004/08/20 09:16:19  atnak
-// Fixed the anti-deadlock no-lock sanctuary for the notication callbacks.
-//
-// Revision 1.5  2004/08/20 07:30:32  atnak
-// Added title value to groups plus other changes.
-//
-// Revision 1.4  2004/08/14 13:45:23  adcockj
-// Fixes to get new settings code working under VS6
-//
-// Revision 1.3  2004/08/13 08:52:30  atnak
-// Added a function for getting a setting's title.
-//
-// Revision 1.2  2004/08/12 14:03:42  atnak
-// Added dependency mask setting and getting functions.
-//
-// Revision 1.1  2004/08/06 17:12:10  atnak
-// Setting repository initial upload.
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SETTINGGROUP_H__
 #define __SETTINGGROUP_H__
@@ -69,65 +28,65 @@
 
 enum eSettingGroupNotifyMessage
 {
-	// Notifies when the setting's value is changing.  The values
-	// of newValue and oldValue hold their respective values.  CHANGING
-	// is sent before the setting's value has actually changed, while
-	// CHANGED is sent after the change has been finalized. Returning FALSE
-	// to CHANGING prevents newValue from being used.
-	NOTIFY_VALUE_CHANGING,
-	NOTIFY_VALUE_RECHANGING,
-	NOTIFY_VALUE_CHANGED,
+    // Notifies when the setting's value is changing.  The values
+    // of newValue and oldValue hold their respective values.  CHANGING
+    // is sent before the setting's value has actually changed, while
+    // CHANGED is sent after the change has been finalized. Returning FALSE
+    // to CHANGING prevents newValue from being used.
+    NOTIFY_VALUE_CHANGING,
+    NOTIFY_VALUE_RECHANGING,
+    NOTIFY_VALUE_CHANGED,
 
-	// Similar to CHANGING/CHANGED but notifies only the first time a
-	// setting's value is loaded (or set).  The value of oldValue is
-	// undefined.  Returning FALSE to SETTING prevents newValue from
-	// being used.
-	NOTIFY_VALUE_SETTING,
-	NOTIFY_VALUE_RESETTING,
-	NOTIFY_VALUE_SET,
+    // Similar to CHANGING/CHANGED but notifies only the first time a
+    // setting's value is loaded (or set).  The value of oldValue is
+    // undefined.  Returning FALSE to SETTING prevents newValue from
+    // being used.
+    NOTIFY_VALUE_SETTING,
+    NOTIFY_VALUE_RESETTING,
+    NOTIFY_VALUE_SET,
 
-	// This is sent after all other notifications (including those of
-	// deferred operations) of a single non-deferred operation are sent.
-	// For example, in a LoadSettings() call, all CHANGING notification
-	// of every setting is sent, followed by all CHANGED notification.
-	// Finally NOTIFY_AFTER_CHANGES is sent.
-	NOTIFY_AFTER_CHANGES,
+    // This is sent after all other notifications (including those of
+    // deferred operations) of a single non-deferred operation are sent.
+    // For example, in a LoadSettings() call, all CHANGING notification
+    // of every setting is sent, followed by all CHANGED notification.
+    // Finally NOTIFY_AFTER_CHANGES is sent.
+    NOTIFY_AFTER_CHANGES,
 
-	NOTIFY_MARKER_QUEUE,
-	NOTIFY_MARKER_QUEUED,
+    NOTIFY_MARKER_QUEUE,
+    NOTIFY_MARKER_QUEUED,
 };
 
 enum eSettingGroupNotifyReply
 {
-	NOTIFY_REPLY_CONTINUE		= TRUE,
-	// Valid response only to CHANGING and SETTING.  Prevents the change
-	// from occurring.
-	NOTIFY_REPLY_DONT_CHANGE	= FALSE,
-	// Valid response only in the global notification callback.  Prevents
-	// the notification from being reported to the key.
-	NOTIFY_REPLY_DONT_NOTIFY	= 2,
+    NOTIFY_REPLY_CONTINUE        = TRUE,
+    // Valid response only to CHANGING and SETTING.  Prevents the change
+    // from occurring.
+    NOTIFY_REPLY_DONT_CHANGE    = FALSE,
+    // Valid response only in the global notification callback.  Prevents
+    // the notification from being reported to the key.
+    NOTIFY_REPLY_DONT_NOTIFY    = 2,
 };
 
 // Flags for the option parameter of functions.
 enum eSettingGroupOption
 {
-	// Notify values even when they do not change.
-	SGOF_REVISE					= 1 << 0,
-	// By default, loading functions will skip settings
-	// that are already loaded.  This forces the value
-	// to be reread from the file.
-	SGOF_RELOAD					= 1 << 1,
-	// No notifications will not be generated as a
-	// result of the operation.  This flag contradicts
-	// SGOF_REVISE.
-	SGOF_SILENT					= 1 << 2,
+    // Notify values even when they do not change.
+    SGOF_REVISE                    = 1 << 0,
+    // By default, loading functions will skip settings
+    // that are already loaded.  This forces the value
+    // to be reread from the file.
+    SGOF_RELOAD                    = 1 << 1,
+    // No notifications will not be generated as a
+    // result of the operation.  This flag contradicts
+    // SGOF_REVISE.
+    SGOF_SILENT                    = 1 << 2,
 
-	// Flags used by SettingGroupEx.
+    // Flags used by SettingGroupEx.
 
-	// This flag forces a full dependent consistency check
-	// on all settings.  This flag is used internally and
-	// setting it is not required by calling applications.
-	SGOF_FULLSYNC				= 1 << 3,
+    // This flag forces a full dependent consistency check
+    // on all settings.  This flag is used internally and
+    // setting it is not required by calling applications.
+    SGOF_FULLSYNC                = 1 << 3,
 };
 
 //
@@ -264,10 +223,10 @@ typedef class _HSETTING { } *HSETTING;
 // Every notification generated by CSettingGroup_ is first sent to
 // a global callback before being distributed to an individual key.
 typedef BOOL (*PSETTINGGROUP_NOTIFYPROC)(INT message,
-										 RCSETTINGVALUE newValue,
-										 RCSETTINGVALUE oldValue,
-										 HSETTING setting,
-										 PVOID context);
+                                         RCSETTINGVALUE newValue,
+                                         RCSETTINGVALUE oldValue,
+                                         HSETTING setting,
+                                         PVOID context);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -276,313 +235,313 @@ typedef BOOL (*PSETTINGGROUP_NOTIFYPROC)(INT message,
 class CSettingGroup_
 {
 public:
-	CSettingGroup_(IN std::string section, IN PSETTINGREPOSITORY repository);
-	virtual ~CSettingGroup_();
+    CSettingGroup_(IN std::string section, IN PSETTINGREPOSITORY repository);
+    virtual ~CSettingGroup_();
 
-	// Adds a setting to the group and associates it to the key given.
-	virtual HSETTING AddSetting(IN PSETTINGOBJECT object, IN PSETTINGKEY key = NULL);
-	// Adds a setting with a title to the group and associates it to the key given.
-	virtual HSETTING AddSetting(IN std::string title, IN PSETTINGOBJECT object, IN PSETTINGKEY key = NULL);
+    // Adds a setting to the group and associates it to the key given.
+    virtual HSETTING AddSetting(IN PSETTINGOBJECT object, IN PSETTINGKEY key = NULL);
+    // Adds a setting with a title to the group and associates it to the key given.
+    virtual HSETTING AddSetting(IN std::string title, IN PSETTINGOBJECT object, IN PSETTINGKEY key = NULL);
 
-	// Sets the callback function that will be called when a notification
-	// is generated by CSettingGroup_.  The context pointer value is not used
-	// by CSettingGroup_ directly but will be sent to all calls of the callback.
-	virtual void SetNotifyProc(IN PSETTINGGROUP_NOTIFYPROC, IN PVOID context);
-	// This function is only valid when called from inside a notification
-	// callback.  When deferring is enabled, operations of particular functions
-	// called from inside the notification callback well be deferred until after
-	// the callback has returned.
-	virtual void EnableDeferring(IN BOOL enable = TRUE);
+    // Sets the callback function that will be called when a notification
+    // is generated by CSettingGroup_.  The context pointer value is not used
+    // by CSettingGroup_ directly but will be sent to all calls of the callback.
+    virtual void SetNotifyProc(IN PSETTINGGROUP_NOTIFYPROC, IN PVOID context);
+    // This function is only valid when called from inside a notification
+    // callback.  When deferring is enabled, operations of particular functions
+    // called from inside the notification callback well be deferred until after
+    // the callback has returned.
+    virtual void EnableDeferring(IN BOOL enable = TRUE);
 
-	// Load all settings owned by this group
-	virtual void LoadSettings(IN BYTE options = 0);
-	// Save all settings owned by this group
-	virtual void SaveSettings();
+    // Load all settings owned by this group
+    virtual void LoadSettings(IN BYTE options = 0);
+    // Save all settings owned by this group
+    virtual void SaveSettings();
 
-	// Generates a NOTIFY_MARKER_QUEUE followed by a NOTIFY_MARKER_QUEUED.
-	virtual void InsertMarker(IN INT markerID);
+    // Generates a NOTIFY_MARKER_QUEUE followed by a NOTIFY_MARKER_QUEUED.
+    virtual void InsertMarker(IN INT markerID);
 
-	// Stops all notifications from being sent.
-	virtual void Silence(IN BOOL silence);
-	virtual inline BOOL IsSilent() const;
+    // Stops all notifications from being sent.
+    virtual void Silence(IN BOOL silence);
+    virtual inline BOOL IsSilent() const;
 
-	// Gets the PSETTINGKEY that is associated with the setting.
-	virtual PSETTINGKEY GetSettingKey(IN HSETTING setting);
-	// Gets the setting's title.
-	virtual std::string GetSettingTitle(IN HSETTING setting);
+    // Gets the PSETTINGKEY that is associated with the setting.
+    virtual PSETTINGKEY GetSettingKey(IN HSETTING setting);
+    // Gets the setting's title.
+    virtual std::string GetSettingTitle(IN HSETTING setting);
 
-	// Returns TRUE if CHANGING has been sent and CHANGED is pending.
-	virtual BOOL IsPendingChanged(IN HSETTING setting);
-	// Removes any CHANGED notification that is pending after a CHANGING
-	// notification has been sent.  Using this creates an exception to the
-	// rule that a CHANGED notification will be sent for every CHANGING.
-	virtual BOOL SilencePendingChanged(IN HSETTING setting);
+    // Returns TRUE if CHANGING has been sent and CHANGED is pending.
+    virtual BOOL IsPendingChanged(IN HSETTING setting);
+    // Removes any CHANGED notification that is pending after a CHANGING
+    // notification has been sent.  Using this creates an exception to the
+    // rule that a CHANGED notification will be sent for every CHANGING.
+    virtual BOOL SilencePendingChanged(IN HSETTING setting);
 
-	// Incoming link functions for CSettingKey.  Although these functions can
-	// be called directly with the value of HSETTING returned by AddSetting(),
-	// using a CSettingKey will simply the task.
-	virtual void LoadSetting(IN HSETTING setting, IN BYTE options = 0);
-	virtual void SaveSetting(IN HSETTING setting);
+    // Incoming link functions for CSettingKey.  Although these functions can
+    // be called directly with the value of HSETTING returned by AddSetting(),
+    // using a CSettingKey will simply the task.
+    virtual void LoadSetting(IN HSETTING setting, IN BYTE options = 0);
+    virtual void SaveSetting(IN HSETTING setting);
 
-	virtual void SetValue(IN HSETTING setting, IN RCSETTINGVALUE value, IN BYTE options = 0);
-	virtual CSettingValue GetValue(IN HSETTING setting);
+    virtual void SetValue(IN HSETTING setting, IN RCSETTINGVALUE value, IN BYTE options = 0);
+    virtual CSettingValue GetValue(IN HSETTING setting);
 
-	virtual void UseDefault(IN HSETTING setting, IN BYTE options = 0);
-	virtual void SetDefault(IN HSETTING setting, IN RCSETTINGVALUE value, IN BYTE options = 0);
-	virtual CSettingValue GetDefault(IN HSETTING setting);
+    virtual void UseDefault(IN HSETTING setting, IN BYTE options = 0);
+    virtual void SetDefault(IN HSETTING setting, IN RCSETTINGVALUE value, IN BYTE options = 0);
+    virtual CSettingValue GetDefault(IN HSETTING setting);
 
-	virtual void CheckLimiter(IN HSETTING setting, IN BYTE options = 0);
-	virtual void SetLimiter(IN HSETTING setting, IN PSETTINGLIMITER limiter, IN BYTE options = 0);
-	virtual PSETTINGLIMITER GetLimiter(IN HSETTING setting);
+    virtual void CheckLimiter(IN HSETTING setting, IN BYTE options = 0);
+    virtual void SetLimiter(IN HSETTING setting, IN PSETTINGLIMITER limiter, IN BYTE options = 0);
+    virtual PSETTINGLIMITER GetLimiter(IN HSETTING setting);
 
 protected:
-	// Flags used by CSettingInfo->flags.
-	enum
-	{
-		// Set when CHANGED notification should be sent for the setting
-		FLAG_CHANGING			= 1 << 0,
-		// Sets if the change notifications are the initial version
-		FLAG_INITIAL			= 1 << 1,
-		// Keep track of how many flags there're.
-		FLAG_GROUP_LAST			= 2,
-	};
+    // Flags used by CSettingInfo->flags.
+    enum
+    {
+        // Set when CHANGED notification should be sent for the setting
+        FLAG_CHANGING            = 1 << 0,
+        // Sets if the change notifications are the initial version
+        FLAG_INITIAL            = 1 << 1,
+        // Keep track of how many flags there're.
+        FLAG_GROUP_LAST            = 2,
+    };
 
-	// Break up of the op value
-	enum
-	{
-		OP_TYPE_OFFSET			= 6,
-		OP_MASK					= 0x3f,
-		OP_TYPE_MASK			= 0xc0,
-	};
+    // Break up of the op value
+    enum
+    {
+        OP_TYPE_OFFSET            = 6,
+        OP_MASK                    = 0x3f,
+        OP_TYPE_MASK            = 0xc0,
+    };
 
-	// Deferred operations
-	enum
-	{
-		OP_SILENCE				= 0,
-		OP_LOAD_SETTINGS,
-		OP_INSERT_MARKER,
-		OP_LOAD_SETTING,
-		OP_SET_VALUE,
-		OP_USE_DEFAULT,
-		OP_SET_DEFAULT,
-		OP_CHECK_LIMITER,
-		OP_SET_LIMITER,
-		OP_GROUP_LAST
-	};
+    // Deferred operations
+    enum
+    {
+        OP_SILENCE                = 0,
+        OP_LOAD_SETTINGS,
+        OP_INSERT_MARKER,
+        OP_LOAD_SETTING,
+        OP_SET_VALUE,
+        OP_USE_DEFAULT,
+        OP_SET_DEFAULT,
+        OP_CHECK_LIMITER,
+        OP_SET_LIMITER,
+        OP_GROUP_LAST
+    };
 
-	// Deferred operation type
-	enum
-	{
-		OP_TYPE_STATE			= 0 << OP_TYPE_OFFSET,
-		OP_TYPE_CONTAINED		= 1 << OP_TYPE_OFFSET,
-		OP_TYPE_OBJECT			= 2 << OP_TYPE_OFFSET,
-	};
+    // Deferred operation type
+    enum
+    {
+        OP_TYPE_STATE            = 0 << OP_TYPE_OFFSET,
+        OP_TYPE_CONTAINED        = 1 << OP_TYPE_OFFSET,
+        OP_TYPE_OBJECT            = 2 << OP_TYPE_OFFSET,
+    };
 
-	// Flags used by NOTIFICATIONSTATE flags.
-	enum
-	{
-		FLAG_DEFER				= 1 << 0,
-	};
+    // Flags used by NOTIFICATIONSTATE flags.
+    enum
+    {
+        FLAG_DEFER                = 1 << 0,
+    };
 
 
-	// This class defines the buffer that is used to store information
-	// about a single setting in the class's persistent storage.
-	// it should really be protected but vs6 doesn't like that
+    // This class defines the buffer that is used to store information
+    // about a single setting in the class's persistent storage.
+    // it should really be protected but vs6 doesn't like that
 public:
-	typedef class CSettingInfo
-	{
-	public:
-		CSettingInfo(PSETTINGKEY key, PSETTINGOBJECT object, std::string title = "");
-		virtual ~CSettingInfo();
-	public:
-		PSETTINGKEY			key;
-		PSETTINGOBJECT		object;
-		std::string			title;
-		BYTE				flags;
-	} *PSETTINGINFO;
+    typedef class CSettingInfo
+    {
+    public:
+        CSettingInfo(PSETTINGKEY key, PSETTINGOBJECT object, std::string title = "");
+        virtual ~CSettingInfo();
+    public:
+        PSETTINGKEY            key;
+        PSETTINGOBJECT        object;
+        std::string            title;
+        BYTE                flags;
+    } *PSETTINGINFO;
 
 protected:
-	// Type used to store list of all setting information.
-	typedef std::list<PSETTINGINFO>	SETTINGINFOLIST;
+    // Type used to store list of all setting information.
+    typedef std::list<PSETTINGINFO>    SETTINGINFOLIST;
 
-	typedef class CHANGEVALUES
-	{
-	public:
-		CHANGEVALUES() : isSet(FALSE) { };
+    typedef class CHANGEVALUES
+    {
+    public:
+        CHANGEVALUES() : isSet(FALSE) { };
 
-		void Set(IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue)
-		{
-			this->newValue = newValue;
-			this->oldValue = oldValue;
-			this->isSet = TRUE;
-		}
+        void Set(IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue)
+        {
+            this->newValue = newValue;
+            this->oldValue = oldValue;
+            this->isSet = TRUE;
+        }
 
-	public:
-		BOOL			isSet;
-		CSettingValue	newValue;
-		CSettingValue	oldValue;
-	} CHANGEVALUES, *PCHANGEVALUES;
+    public:
+        BOOL            isSet;
+        CSettingValue    newValue;
+        CSettingValue    oldValue;
+    } CHANGEVALUES, *PCHANGEVALUES;
 
-	// This structure is used to store temporally data that is
-	// used by the common change routines.
-	typedef struct
-	{
-		PSETTINGGROUP	group;
-		PSETTINGINFO	info;
-		CSettingValue	oldValue;
-	} CHANGEDNOTIFY, *PCHANGEDNOTIFY;
+    // This structure is used to store temporally data that is
+    // used by the common change routines.
+    typedef struct
+    {
+        PSETTINGGROUP    group;
+        PSETTINGINFO    info;
+        CSettingValue    oldValue;
+    } CHANGEDNOTIFY, *PCHANGEDNOTIFY;
 
-	// Stores information necessary about a single operation.
-	typedef struct OPERATIONINFO
-	{
-		OPERATIONINFO(PSETTINGGROUP group) : op(0), options(0),
-			info(NULL), group(group), lParam(NULL) { };
-		BYTE					op;
-		BYTE					options;
-		PSETTINGINFO			info;
-		PSETTINGGROUP			group;
-		union
-		{
-			PSETTINGVALUE		value;
-			PSETTINGLIMITER		limiter;
-			PVOID				ptr;
-			LPARAM				lParam;
-		};
-	} OPERATIONINFO, *POPERATIONINFO;
+    // Stores information necessary about a single operation.
+    typedef struct OPERATIONINFO
+    {
+        OPERATIONINFO(PSETTINGGROUP group) : op(0), options(0),
+            info(NULL), group(group), lParam(NULL) { };
+        BYTE                    op;
+        BYTE                    options;
+        PSETTINGINFO            info;
+        PSETTINGGROUP            group;
+        union
+        {
+            PSETTINGVALUE        value;
+            PSETTINGLIMITER        limiter;
+            PVOID                ptr;
+            LPARAM                lParam;
+        };
+    } OPERATIONINFO, *POPERATIONINFO;
 
-	// Type used to store list of settings that are changing.
-	typedef std::list<CHANGEDNOTIFY> CHANGEDNOTIFYLIST, *PCHANGEDNOTIFYLIST;
-	// Type used to store a list of deferred operations.
-	typedef std::list<OPERATIONINFO> OPERATIONLIST, *POPERATIONLIST;
+    // Type used to store list of settings that are changing.
+    typedef std::list<CHANGEDNOTIFY> CHANGEDNOTIFYLIST, *PCHANGEDNOTIFYLIST;
+    // Type used to store a list of deferred operations.
+    typedef std::list<OPERATIONINFO> OPERATIONLIST, *POPERATIONLIST;
 
-	typedef struct
-	{
-		PSETTINGINFO		identity;
-		BYTE				flags;
-		POPERATIONLIST		deferList;
-	} NOTIFICATIONSTATE, *PNOTIFICATIONSTATE;
+    typedef struct
+    {
+        PSETTINGINFO        identity;
+        BYTE                flags;
+        POPERATIONLIST        deferList;
+    } NOTIFICATIONSTATE, *PNOTIFICATIONSTATE;
 
 
-	// Stack for storing information for durations when changes occur.
-	typedef std::list<PCHANGEDNOTIFYLIST> CHANGEDNOTIFYSTACK, *PCHANGEDNOTIFYSTACK;
-	// Stack for storing information for windows of notification time;
-	typedef std::list<PNOTIFICATIONSTATE> NOTIFICATIONSTACK, *PNOTIFICATIONSTACK;
+    // Stack for storing information for durations when changes occur.
+    typedef std::list<PCHANGEDNOTIFYLIST> CHANGEDNOTIFYSTACK, *PCHANGEDNOTIFYSTACK;
+    // Stack for storing information for windows of notification time;
+    typedef std::list<PNOTIFICATIONSTATE> NOTIFICATIONSTACK, *PNOTIFICATIONSTACK;
 
-	// Initialize and cleanup multithread protection.
-	virtual inline void InitializeLocking();
-	virtual inline void CleanupLocking();
+    // Initialize and cleanup multithread protection.
+    virtual inline void InitializeLocking();
+    virtual inline void CleanupLocking();
 
-	// Multi-thread protection lock and unlock functions.  Not the best
-	// form of protection in terms of performance but it should provide
-	// sufficient safety as long as no two threads call a changing
-	// function at the same time.  The purpose of this lock is for
-	// protecting access when one thread calls a value getting function
-	// while another is changing the values of settings.
-	virtual inline void EnterObjectLock();
-	virtual inline void LeaveObjectLock();
+    // Multi-thread protection lock and unlock functions.  Not the best
+    // form of protection in terms of performance but it should provide
+    // sufficient safety as long as no two threads call a changing
+    // function at the same time.  The purpose of this lock is for
+    // protecting access when one thread calls a value getting function
+    // while another is changing the values of settings.
+    virtual inline void EnterObjectLock();
+    virtual inline void LeaveObjectLock();
 
-	// Puts info onto the setting info list.
-	virtual void RegisterSetting(IN PSETTINGINFO info);
+    // Puts info onto the setting info list.
+    virtual void RegisterSetting(IN PSETTINGINFO info);
 
-	// Sets or unsets flag(s) in info->flags.
-	virtual inline void SetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL set);
-	virtual inline BOOL GetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL strict = FALSE);
+    // Sets or unsets flag(s) in info->flags.
+    virtual inline void SetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL set);
+    virtual inline BOOL GetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL strict = FALSE);
 
-	virtual BOOL IsSilent(IN BYTE options) const;
+    virtual BOOL IsSilent(IN BYTE options) const;
 
-	// This function should notify CHANGING and change the values of all
-	// settings then put the appropriate CHANGEDNOTIFY structure onto the
-	// changed notify list.
-	virtual void _LoadSettings(IN POPERATIONINFO opinfo);
-	// This function performs the work of InsertMarker().
-	virtual void _InsertMarker(IN POPERATIONINFO opinfo);
+    // This function should notify CHANGING and change the values of all
+    // settings then put the appropriate CHANGEDNOTIFY structure onto the
+    // changed notify list.
+    virtual void _LoadSettings(IN POPERATIONINFO opinfo);
+    // This function performs the work of InsertMarker().
+    virtual void _InsertMarker(IN POPERATIONINFO opinfo);
 
-	// Load a single setting.
-	virtual void _LoadSetting(IN POPERATIONINFO opinfo);
+    // Load a single setting.
+    virtual void _LoadSetting(IN POPERATIONINFO opinfo);
 
-	// Processes operations and defers if necessary.
-	virtual void ProcessOperation(IN POPERATIONINFO opinfo);
-	// Performs the operation described by opinfo.
-	virtual void PerformOperation(IN POPERATIONINFO opinfo);
-	// Functions for performing specific types of operations.
-	virtual void PerformStateOperation(IN POPERATIONINFO opinfo);
-	virtual void PerformContainedOperation(IN POPERATIONINFO opinfo);
-	virtual void PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANGEVALUES values);
+    // Processes operations and defers if necessary.
+    virtual void ProcessOperation(IN POPERATIONINFO opinfo);
+    // Performs the operation described by opinfo.
+    virtual void PerformOperation(IN POPERATIONINFO opinfo);
+    // Functions for performing specific types of operations.
+    virtual void PerformStateOperation(IN POPERATIONINFO opinfo);
+    virtual void PerformContainedOperation(IN POPERATIONINFO opinfo);
+    virtual void PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANGEVALUES values);
 
-	// Performs the necessary notifications and changes when a setting value changes.
-	virtual BOOL ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values,
-									IN BYTE options);
+    // Performs the necessary notifications and changes when a setting value changes.
+    virtual BOOL ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values,
+                                    IN BYTE options);
 
-	// Get the changed notification stack and the active list.
-	virtual inline PCHANGEDNOTIFYSTACK GetChangedNotifyStack();
-	virtual inline PCHANGEDNOTIFYLIST GetActiveChangedNotifyList();
+    // Get the changed notification stack and the active list.
+    virtual inline PCHANGEDNOTIFYSTACK GetChangedNotifyStack();
+    virtual inline PCHANGEDNOTIFYLIST GetActiveChangedNotifyList();
 
-	// Sets the active changed notification list.
-	virtual inline void SetActiveChangedNotifyList(IN PCHANGEDNOTIFYLIST changedList);
-	virtual inline void RevertActiveChangedNotifyList();
+    // Sets the active changed notification list.
+    virtual inline void SetActiveChangedNotifyList(IN PCHANGEDNOTIFYLIST changedList);
+    virtual inline void RevertActiveChangedNotifyList();
 
-	// Enqueues, updates and processes the changed notification list.
-	virtual void EnqueueChangedNotification(IN PCHANGEDNOTIFY notification);
-	virtual void SendChangedNotifications(IN PCHANGEDNOTIFYLIST changedList);
-	virtual void UpdateChangedNotification(IN PSETTINGINFO info, IN BOOL removeOnly);
+    // Enqueues, updates and processes the changed notification list.
+    virtual void EnqueueChangedNotification(IN PCHANGEDNOTIFY notification);
+    virtual void SendChangedNotifications(IN PCHANGEDNOTIFYLIST changedList);
+    virtual void UpdateChangedNotification(IN PSETTINGINFO info, IN BOOL removeOnly);
 
-	// Gets the notification state stack and the active notification.
-	virtual inline PNOTIFICATIONSTACK GetNotificationStack();
-	virtual inline PNOTIFICATIONSTATE GetActiveNotification();
+    // Gets the notification state stack and the active notification.
+    virtual inline PNOTIFICATIONSTACK GetNotificationStack();
+    virtual inline PNOTIFICATIONSTATE GetActiveNotification();
 
-	// Enqueues, stack and processes the deferred operations list.
-	virtual void EnqueueDeferredOperation(IN POPERATIONINFO opinfo);
-	virtual void StackDeferredOperations(IN POPERATIONLIST oplist);
-	virtual void ProcessDeferredOperations();
+    // Enqueues, stack and processes the deferred operations list.
+    virtual void EnqueueDeferredOperation(IN POPERATIONINFO opinfo);
+    virtual void StackDeferredOperations(IN POPERATIONLIST oplist);
+    virtual void ProcessDeferredOperations();
 
-	// This callback is be called by CSettingObject when a setting is about
-	// to change its value.  This routine just grabs the new and old values and
-	// blocks the change.
-	static BOOL GetValueChangeProc(RCSETTINGVALUE newValue,
-								   RCSETTINGVALUE oldValue,
-								   PCSETTINGOBJECT object,
-								   PVOID context);
+    // This callback is be called by CSettingObject when a setting is about
+    // to change its value.  This routine just grabs the new and old values and
+    // blocks the change.
+    static BOOL GetValueChangeProc(RCSETTINGVALUE newValue,
+                                   RCSETTINGVALUE oldValue,
+                                   PCSETTINGOBJECT object,
+                                   PVOID context);
 
-	// This method takes care of sending a notification first to the global
-	// notification callback then to the respective setting key.
-	virtual inline BOOL Notify(IN PSETTINGINFO info, IN INT message,
-		IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue);
+    // This method takes care of sending a notification first to the global
+    // notification callback then to the respective setting key.
+    virtual inline BOOL Notify(IN PSETTINGINFO info, IN INT message,
+        IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue);
 
-	// Shortcut for sending CHANGING notifications
-	virtual inline BOOL NotifyChanging(IN PSETTINGINFO info,
-		IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue);
-	// Shortcut for sending RECHANGING notifications
-	virtual inline BOOL NotifyRechanging(IN PSETTINGINFO info,
-		IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue);
-	// Shortcut for sending CHANGED notifications
-	virtual inline BOOL NotifyChanged(IN PSETTINGINFO info,
-		IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue);
-	// Shortcut for sending NOTIFY_MARKER_QUEUE notifications
-	virtual inline BOOL NotifyMarkerQueue(IN RCSETTINGVALUE markerValue);
-	// Shortcut for sending NOTIFY_MARKER_QUEUED notifications
-	virtual inline BOOL NotifyMarkerQueued(IN RCSETTINGVALUE markerValue);
-	// Shortcut for sending NOTIFY_AFTER_CHANGES notifications.
-	virtual inline BOOL NotifyAfterChanges();
+    // Shortcut for sending CHANGING notifications
+    virtual inline BOOL NotifyChanging(IN PSETTINGINFO info,
+        IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue);
+    // Shortcut for sending RECHANGING notifications
+    virtual inline BOOL NotifyRechanging(IN PSETTINGINFO info,
+        IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue);
+    // Shortcut for sending CHANGED notifications
+    virtual inline BOOL NotifyChanged(IN PSETTINGINFO info,
+        IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue);
+    // Shortcut for sending NOTIFY_MARKER_QUEUE notifications
+    virtual inline BOOL NotifyMarkerQueue(IN RCSETTINGVALUE markerValue);
+    // Shortcut for sending NOTIFY_MARKER_QUEUED notifications
+    virtual inline BOOL NotifyMarkerQueued(IN RCSETTINGVALUE markerValue);
+    // Shortcut for sending NOTIFY_AFTER_CHANGES notifications.
+    virtual inline BOOL NotifyAfterChanges();
 
 protected:
-	CSettingRepository*			m_repository;
-	SETTINGINFOLIST				m_settingList;
-	// Repository section string for this group
-	std::string					m_section;
+    CSettingRepository*            m_repository;
+    SETTINGINFOLIST                m_settingList;
+    // Repository section string for this group
+    std::string                    m_section;
 
-	CHANGEDNOTIFYSTACK			m_changedNotifyStack;
-	NOTIFICATIONSTACK			m_notificationStack;
+    CHANGEDNOTIFYSTACK            m_changedNotifyStack;
+    NOTIFICATIONSTACK            m_notificationStack;
 
-	POPERATIONLIST				m_deferredOperationList;
+    POPERATIONLIST                m_deferredOperationList;
 
-	// Notifications are silenced if this is greater than zero.
-	CHAR						m_silent;
-	// Critical section used for protecting group access.
-	CRITICAL_SECTION			m_objectLockCriticalSection;
+    // Notifications are silenced if this is greater than zero.
+    CHAR                        m_silent;
+    // Critical section used for protecting group access.
+    CRITICAL_SECTION            m_objectLockCriticalSection;
 
-	// Global notify callback and its context value
-	PSETTINGGROUP_NOTIFYPROC	m_notifyProc;
-	PVOID						m_callbackContext;
+    // Global notify callback and its context value
+    PSETTINGGROUP_NOTIFYPROC    m_notifyProc;
+    PVOID                        m_callbackContext;
 };
 
 
@@ -650,314 +609,314 @@ typedef BYTE DBIT;
 class CSettingGroupEx : public CSettingGroup_
 {
 public:
-	CSettingGroupEx(IN std::string section, IN PSETTINGREPOSITORY repository,
-		PSETTINGGROUPEX parent = NULL);
-	virtual ~CSettingGroupEx();
+    CSettingGroupEx(IN std::string section, IN PSETTINGREPOSITORY repository,
+        PSETTINGGROUPEX parent = NULL);
+    virtual ~CSettingGroupEx();
 
-	// Creates a new dependency bit.  The returned value can be passed
-	// as the dependentOptionalBits and dependentAbsoluteBits values of
-	// AddSetting() and AddMaster() in this group and subgroups.  It can
-	// also be combined with other values returned by this same function
-	// by bitwise-ORing the values together.
-	virtual DBIT CreateDependency(IN std::string title, IN std::string section);
+    // Creates a new dependency bit.  The returned value can be passed
+    // as the dependentOptionalBits and dependentAbsoluteBits values of
+    // AddSetting() and AddMaster() in this group and subgroups.  It can
+    // also be combined with other values returned by this same function
+    // by bitwise-ORing the values together.
+    virtual DBIT CreateDependency(IN std::string title, IN std::string section);
 
-	// Adds a setting to the group
-	virtual HSETTING AddSetting(IN PSETTINGOBJECT object, IN PSETTINGKEY key = NULL,
-								IN DBIT dependentOptionalBits = 0,
-								IN DBIT dependentAbsoluteBits = 0);
+    // Adds a setting to the group
+    virtual HSETTING AddSetting(IN PSETTINGOBJECT object, IN PSETTINGKEY key = NULL,
+                                IN DBIT dependentOptionalBits = 0,
+                                IN DBIT dependentAbsoluteBits = 0);
 
-	// Adds a master setting to the group
-	virtual HSETTING AddMaster(IN PSETTINGOBJECT object, IN PSETTINGKEY key,
-							   IN DBIT dependeeBits,
-							   IN DBIT dependentOptionalBits = 0,
-							   IN DBIT dependentAbsoluteBits = 0);
+    // Adds a master setting to the group
+    virtual HSETTING AddMaster(IN PSETTINGOBJECT object, IN PSETTINGKEY key,
+                               IN DBIT dependeeBits,
+                               IN DBIT dependentOptionalBits = 0,
+                               IN DBIT dependentAbsoluteBits = 0);
 
-	// Adds a setting with a title to the group
-	virtual HSETTING AddSetting(IN std::string title,
-								IN PSETTINGOBJECT object, IN PSETTINGKEY key = NULL,
-								IN DBIT dependentOptionalBits = 0,
-								IN DBIT dependentAbsoluteBits = 0);
+    // Adds a setting with a title to the group
+    virtual HSETTING AddSetting(IN std::string title,
+                                IN PSETTINGOBJECT object, IN PSETTINGKEY key = NULL,
+                                IN DBIT dependentOptionalBits = 0,
+                                IN DBIT dependentAbsoluteBits = 0);
 
-	// Adds a master with a title setting to the group
-	virtual HSETTING AddMaster(IN std::string title,
-							   IN PSETTINGOBJECT object, IN PSETTINGKEY key,
-							   IN DBIT dependeeBits,
-							   IN DBIT dependentOptionalBits = 0,
-							   IN DBIT dependentAbsoluteBits = 0);
+    // Adds a master with a title setting to the group
+    virtual HSETTING AddMaster(IN std::string title,
+                               IN PSETTINGOBJECT object, IN PSETTINGKEY key,
+                               IN DBIT dependeeBits,
+                               IN DBIT dependentOptionalBits = 0,
+                               IN DBIT dependentAbsoluteBits = 0);
 
-	// Save all settings owned by this group.
-	virtual void SaveSettings();
-	// Save a single setting owned by this group.
-	virtual void SaveSetting(IN HSETTING setting);
+    // Save all settings owned by this group.
+    virtual void SaveSettings();
+    // Save a single setting owned by this group.
+    virtual void SaveSetting(IN HSETTING setting);
 
-	// Loads the optional dependents mask (the value that is set with
-	// SetDependentMask()) and loads previously saved dependentOptionalBits
-	// values for every setting.
-	virtual void LoadOptionalDependencies(IN BYTE options = 0);
-	// Saves the optional dependents mask and saves any dependentOptionalBits
-	// values that that have changed since the adding or loading of the setting.
-	virtual void SaveOptionalDependencies();
+    // Loads the optional dependents mask (the value that is set with
+    // SetDependentMask()) and loads previously saved dependentOptionalBits
+    // values for every setting.
+    virtual void LoadOptionalDependencies(IN BYTE options = 0);
+    // Saves the optional dependents mask and saves any dependentOptionalBits
+    // values that that have changed since the adding or loading of the setting.
+    virtual void SaveOptionalDependencies();
 
-	// Creates a subgroup.  Subgroups share the same dependency bits
-	// and pretty much all the other attributes as the parent.  Their
-	// only apparent use is when only a subset of settings need to be
-	// suspended.  The pointer returned by this function should not
-	// be deleted directly.  Deleting the parent deletes all its
-	// subgroups.
-	virtual PSETTINGGROUPEX CreateSubgroup();
+    // Creates a subgroup.  Subgroups share the same dependency bits
+    // and pretty much all the other attributes as the parent.  Their
+    // only apparent use is when only a subset of settings need to be
+    // suspended.  The pointer returned by this function should not
+    // be deleted directly.  Deleting the parent deletes all its
+    // subgroups.
+    virtual PSETTINGGROUPEX CreateSubgroup();
 
-	// Enables or disables dependeeBits that are set in the dependentOptionalBits
-	// value of every setting.  This function cannot be called from a subgroup.
-	// If suspended is TRUE, any related updates are not performed.
-	virtual inline void EnableOptionalDependencies(IN DBIT dependeeBit, IN BOOL set,
-												   IN BYTE options = 0);
+    // Enables or disables dependeeBits that are set in the dependentOptionalBits
+    // value of every setting.  This function cannot be called from a subgroup.
+    // If suspended is TRUE, any related updates are not performed.
+    virtual inline void EnableOptionalDependencies(IN DBIT dependeeBit, IN BOOL set,
+                                                   IN BYTE options = 0);
 
-	// Sets the bit list of all optional dependee bits that are enabled.
-	virtual inline void SetEnabledOptionalDependencies(IN DBIT mask,
-													   IN BYTE options = 0);
+    // Sets the bit list of all optional dependee bits that are enabled.
+    virtual inline void SetEnabledOptionalDependencies(IN DBIT mask,
+                                                       IN BYTE options = 0);
 
-	// Gets the bit list of all optional dependee bits that are enabled.
-	virtual inline DBIT GetEnabledOptionalDependencies();
+    // Gets the bit list of all optional dependee bits that are enabled.
+    virtual inline DBIT GetEnabledOptionalDependencies();
 
-	// Stops settings in the group and its sub-groups from processing
-	// dependencies.  Groups are not suspended by default at creation.
-	virtual inline void Suspend();
-	// Gets whether or not the group is suspended
-	virtual inline BOOL IsSuspended();
-	// Re-enables dependencies processing and synchronizes any changes
-	// that happened while suspended.
-	virtual void Activate(IN BYTE options = 0);
+    // Stops settings in the group and its sub-groups from processing
+    // dependencies.  Groups are not suspended by default at creation.
+    virtual inline void Suspend();
+    // Gets whether or not the group is suspended
+    virtual inline BOOL IsSuspended();
+    // Re-enables dependencies processing and synchronizes any changes
+    // that happened while suspended.
+    virtual void Activate(IN BYTE options = 0);
 
-	// Forces the group to check and change all its settings as if the setting
-	// associated to dependeeBit changed its value to dependeeValue.  Any
-	// setting associated to dependeeBit (if any) is not directly changed in
-	// the calling of this.  If suspended is TRUE, related updates are not
-	// performed.
-	virtual void JostleBit(IN DBIT dependeeBit, IN RCSETTINGVALUE dependeeValue,
-						   IN BYTE options = 0);
+    // Forces the group to check and change all its settings as if the setting
+    // associated to dependeeBit changed its value to dependeeValue.  Any
+    // setting associated to dependeeBit (if any) is not directly changed in
+    // the calling of this.  If suspended is TRUE, related updates are not
+    // performed.
+    virtual void JostleBit(IN DBIT dependeeBit, IN RCSETTINGVALUE dependeeValue,
+                           IN BYTE options = 0);
 
-	// Gets the dependee bits of a setting.
-	virtual DBIT GetDependeeBits(IN HSETTING setting);
+    // Gets the dependee bits of a setting.
+    virtual DBIT GetDependeeBits(IN HSETTING setting);
 
-	// Gets optional and absolute dependent bits of a setting.
-	virtual DBIT GetOptionalDependentBits(IN HSETTING setting);
-	virtual DBIT GetAbsoluteDependentBits(IN HSETTING setting);
+    // Gets optional and absolute dependent bits of a setting.
+    virtual DBIT GetOptionalDependentBits(IN HSETTING setting);
+    virtual DBIT GetAbsoluteDependentBits(IN HSETTING setting);
 
-	// Sets the optional dependent bits of a setting.  This function, like
-	// AddSetting() and AddMaster() does not check for cyclic dependencies.
-	virtual void SetOptionalDependentBits(IN HSETTING setting,
-										  IN DBIT dependentOptionalBits,
-										  IN BYTE options = 0);
+    // Sets the optional dependent bits of a setting.  This function, like
+    // AddSetting() and AddMaster() does not check for cyclic dependencies.
+    virtual void SetOptionalDependentBits(IN HSETTING setting,
+                                          IN DBIT dependentOptionalBits,
+                                          IN BYTE options = 0);
 
-	// Creates a CSettingConfigAssociation object that is filled with all the
-	// settings in the group.  The returned object should be deleted with
-	// 'delete' when it is no longer needed.  Since some values used by the
-	// configuration class is cached within the object, any changes that
-	// happen to associations in the group will not be visible to any
-	// CSettingConfigAssociation objects that were created before the change.
-	virtual PSETTINGCONFIG CreateAssociationConfig(std::string title,
-												   BOOL addsettings = FALSE);
+    // Creates a CSettingConfigAssociation object that is filled with all the
+    // settings in the group.  The returned object should be deleted with
+    // 'delete' when it is no longer needed.  Since some values used by the
+    // configuration class is cached within the object, any changes that
+    // happen to associations in the group will not be visible to any
+    // CSettingConfigAssociation objects that were created before the change.
+    virtual PSETTINGCONFIG CreateAssociationConfig(std::string title,
+                                                   BOOL addsettings = FALSE);
 
 protected:
-	// Flags used by CSettingInfoEx->flags.
-	enum
-	{
-		// Set when dependentOptionalBits of a setting is changed
-		// since last load.
-		FLAG_OPTDEPCHANGED		= 1 << (FLAG_GROUP_LAST),
-		FLAG_GROUPEX_LAST		= FLAG_GROUP_LAST + 1,
-	};
+    // Flags used by CSettingInfoEx->flags.
+    enum
+    {
+        // Set when dependentOptionalBits of a setting is changed
+        // since last load.
+        FLAG_OPTDEPCHANGED        = 1 << (FLAG_GROUP_LAST),
+        FLAG_GROUPEX_LAST        = FLAG_GROUP_LAST + 1,
+    };
 
-	// Deferred operations
-	enum
-	{
-		OP_SUSPEND				= OP_GROUP_LAST,
-		OP_ACTIVATE,
-		OP_JOSTLE_BIT,
-		OP_GROUPEX_LAST
+    // Deferred operations
+    enum
+    {
+        OP_SUSPEND                = OP_GROUP_LAST,
+        OP_ACTIVATE,
+        OP_JOSTLE_BIT,
+        OP_GROUPEX_LAST
 
-	};
+    };
 
-	// This type is an extension of CSettingInfo to hold the necessary
-	// information of settings with dependencies.
+    // This type is an extension of CSettingInfo to hold the necessary
+    // information of settings with dependencies.
     class CSettingInfoEx : public CSettingGroup_::CSettingInfo
-	{
-	public:
-		CSettingInfoEx(IN PSETTINGKEY key, IN PSETTINGOBJECT object,
-			std::string title = "", IN DBIT dependeeBit = 0,
-			IN DBIT dependentOptionalBits = 0, IN DBIT dependentAbsoluteBits = 0);
-		virtual ~CSettingInfoEx();
-	public:
-		DBIT dependeeBit;
-		DBIT dependentOptionalBits;
-		DBIT dependentAbsoluteBits;
-		DBIT loadedDependentBits;
-	};
+    {
+    public:
+        CSettingInfoEx(IN PSETTINGKEY key, IN PSETTINGOBJECT object,
+            std::string title = "", IN DBIT dependeeBit = 0,
+            IN DBIT dependentOptionalBits = 0, IN DBIT dependentAbsoluteBits = 0);
+        virtual ~CSettingInfoEx();
+    public:
+        DBIT dependeeBit;
+        DBIT dependentOptionalBits;
+        DBIT dependentAbsoluteBits;
+        DBIT loadedDependentBits;
+    };
     typedef CSettingInfoEx* PSETTINGINFOEX;
 
-	// This vector type is used to hold the dependee values for
-	// those used by the group.
-	typedef std::vector<CSettingValue> DEPENDVALUEVECTOR;
-	typedef DEPENDVALUEVECTOR *PDEPENDVALUEVECTOR;
-	typedef const DEPENDVALUEVECTOR *PCDEPENDVALUEVECTOR;
+    // This vector type is used to hold the dependee values for
+    // those used by the group.
+    typedef std::vector<CSettingValue> DEPENDVALUEVECTOR;
+    typedef DEPENDVALUEVECTOR *PDEPENDVALUEVECTOR;
+    typedef const DEPENDVALUEVECTOR *PCDEPENDVALUEVECTOR;
 
-	//////////////////////////////////////////////////////////////////////////
-	// CSettingGroupEx::CDependencyGestalt
-	//////////////////////////////////////////////////////////////////////////
-	typedef class CDependencyGestalt
-	{
-	public:
-		CDependencyGestalt();
-		virtual ~CDependencyGestalt();
+    //////////////////////////////////////////////////////////////////////////
+    // CSettingGroupEx::CDependencyGestalt
+    //////////////////////////////////////////////////////////////////////////
+    typedef class CDependencyGestalt
+    {
+    public:
+        CDependencyGestalt();
+        virtual ~CDependencyGestalt();
 
-		// Create a new dependee bit
-		DBIT CreateDependee(IN std::string title, IN std::string section);
+        // Create a new dependee bit
+        DBIT CreateDependee(IN std::string title, IN std::string section);
 
-		// Gets the number of dependee bits that have been created.
-		inline BYTE GetDependeeCount();
-		// Gets the title of a specific dependee bit.
-		inline std::string GetDependeeTitle(BYTE index);
-		// Gets the mask of all valid bits.
-		inline DBIT GetValidDependeeBits();
+        // Gets the number of dependee bits that have been created.
+        inline BYTE GetDependeeCount();
+        // Gets the title of a specific dependee bit.
+        inline std::string GetDependeeTitle(BYTE index);
+        // Gets the mask of all valid bits.
+        inline DBIT GetValidDependeeBits();
 
-		// Creates a string that describes the section for the dependentBits given.
-		std::string CreateSection(IN DBIT dependentBits, IN LPCSTR baseSection,
-								  IN LPCSTR sectionDelimiter,
-								  IN PCDEPENDVALUEVECTOR dependeeValueVector = NULL);
+        // Creates a string that describes the section for the dependentBits given.
+        std::string CreateSection(IN DBIT dependentBits, IN LPCSTR baseSection,
+                                  IN LPCSTR sectionDelimiter,
+                                  IN PCDEPENDVALUEVECTOR dependeeValueVector = NULL);
 
-		// Puts the dependee change into the pending changes list.  Returns
-		// TRUE if the value actually causes a change.
-		BOOL RegisterDependeeChange(IN PCDEPENDVALUEVECTOR dependeeValueVector,
-									IN DBIT dependeeBit, IN RCSETTINGVALUE value);
+        // Puts the dependee change into the pending changes list.  Returns
+        // TRUE if the value actually causes a change.
+        BOOL RegisterDependeeChange(IN PCDEPENDVALUEVECTOR dependeeValueVector,
+                                    IN DBIT dependeeBit, IN RCSETTINGVALUE value);
 
-		// Gets all the bits that have changed between currentValueVector and the
-		// internal pending changes vector.  Only the bits set in the mask are compared.
-		DBIT CompareVectorChanges(IN PCDEPENDVALUEVECTOR dependeeValueVector,
-								  IN DBIT mask = ~(DBIT)0);
+        // Gets all the bits that have changed between currentValueVector and the
+        // internal pending changes vector.  Only the bits set in the mask are compared.
+        DBIT CompareVectorChanges(IN PCDEPENDVALUEVECTOR dependeeValueVector,
+                                  IN DBIT mask = ~(DBIT)0);
 
-		// Forget all changes registered so far.
-		void ClearVectorChanges();
-		// Copies all pending changes to currentValueVector.  Only the bits set
-		// in the mask are copied.
-		void ApplyVectorChanges(IN OUT PDEPENDVALUEVECTOR dependeeValueVector,
-								IN DBIT mask = ~(DBIT)0);
+        // Forget all changes registered so far.
+        void ClearVectorChanges();
+        // Copies all pending changes to currentValueVector.  Only the bits set
+        // in the mask are copied.
+        void ApplyVectorChanges(IN OUT PDEPENDVALUEVECTOR dependeeValueVector,
+                                IN DBIT mask = ~(DBIT)0);
 
-		// Sets and gets the dependent mask value.  This value is just stored by
-		// this class.  It isn't used as part of any other process in the class.
-		inline BOOL SetDependentMask(IN DBIT dependentMask);
-		inline DBIT GetDependentMask();
+        // Sets and gets the dependent mask value.  This value is just stored by
+        // this class.  It isn't used as part of any other process in the class.
+        inline BOOL SetDependentMask(IN DBIT dependentMask);
+        inline DBIT GetDependentMask();
 
-	protected:
-		inline BYTE DependeeBitToIndex(IN DBIT dependeeBit);
+    protected:
+        inline BYTE DependeeBitToIndex(IN DBIT dependeeBit);
 
-	private:
-		class CDependeeInfo
-		{
-		public:
-			CDependeeInfo(std::string title, std::string section) :
-				title(title), section(section) { };
-			virtual ~CDependeeInfo() { };
-			std::string title;
-			std::string section;
-		};
+    private:
+        class CDependeeInfo
+        {
+        public:
+            CDependeeInfo(std::string title, std::string section) :
+                title(title), section(section) { };
+            virtual ~CDependeeInfo() { };
+            std::string title;
+            std::string section;
+        };
 
-		std::vector<CDependeeInfo>	m_dependeeList;
-		DBIT						m_validDependeeBits;
-		DEPENDVALUEVECTOR			m_dependeeValueVector;
-		DBIT						m_dependentMask;
-	} *PDEPENDENCYGESTALT;
+        std::vector<CDependeeInfo>    m_dependeeList;
+        DBIT                        m_validDependeeBits;
+        DEPENDVALUEVECTOR            m_dependeeValueVector;
+        DBIT                        m_dependentMask;
+    } *PDEPENDENCYGESTALT;
 
 protected:
-	// This type is used to hold a list of all the subgroups.
-	typedef std::list<CSettingGroupEx*> SUBGROUPEXLIST;
+    // This type is used to hold a list of all the subgroups.
+    typedef std::list<CSettingGroupEx*> SUBGROUPEXLIST;
 
-	// Structure for holding temporally values required during
-	// the jostling process.
-	typedef struct JOSTLESTRUCT
-	{
-		JOSTLESTRUCT(DBIT changedBits, DBIT checkedBits, BYTE options)
-			: saveSectionCacheBits(0), loadSectionCacheBits(0),
-			changedBits(changedBits), checkedBits(checkedBits), options(options) { }
+    // Structure for holding temporally values required during
+    // the jostling process.
+    typedef struct JOSTLESTRUCT
+    {
+        JOSTLESTRUCT(DBIT changedBits, DBIT checkedBits, BYTE options)
+            : saveSectionCacheBits(0), loadSectionCacheBits(0),
+            changedBits(changedBits), checkedBits(checkedBits), options(options) { }
 
-	public:
-		DBIT			changedBits;
-		DBIT			checkedBits;
-		BYTE			options;
-		DBIT			saveSectionCacheBits;
-		std::string		saveSectionCacheString;
-		DBIT			loadSectionCacheBits;
-		std::string		loadSectionCacheString;
-	} JOSTLESTRUCT, *PJOSTLESTRUCT;
+    public:
+        DBIT            changedBits;
+        DBIT            checkedBits;
+        BYTE            options;
+        DBIT            saveSectionCacheBits;
+        std::string        saveSectionCacheString;
+        DBIT            loadSectionCacheBits;
+        std::string        loadSectionCacheString;
+    } JOSTLESTRUCT, *PJOSTLESTRUCT;
 
 
-	// The string that is used to delimit sub-section when saving and
-	// loading from the repository.  Changing will lose previously
-	// saved sections
-	static const LPCSTR SECTIONDELIM;
-	// This string is attached to the section string for the section
-	// used to store optional dependent bits for every setting.
-	static const LPCSTR DEPENDENTSECTIONPOSTFIX;
-	static const LPCSTR DEPENDENTMASKSAVEKEY;
+    // The string that is used to delimit sub-section when saving and
+    // loading from the repository.  Changing will lose previously
+    // saved sections
+    static const LPCSTR SECTIONDELIM;
+    // This string is attached to the section string for the section
+    // used to store optional dependent bits for every setting.
+    static const LPCSTR DEPENDENTSECTIONPOSTFIX;
+    static const LPCSTR DEPENDENTMASKSAVEKEY;
 
-	// Internal functions for saving and loading optional dependent bits.
-	virtual void _SaveOptionalDependencies(IN LPCSTR, IN LPSTR, IN DWORD);
-	virtual void _LoadOptionalDependencies(IN LPCSTR, IN DBIT, IN LPSTR, IN DWORD);
+    // Internal functions for saving and loading optional dependent bits.
+    virtual void _SaveOptionalDependencies(IN LPCSTR, IN LPSTR, IN DWORD);
+    virtual void _LoadOptionalDependencies(IN LPCSTR, IN DBIT, IN LPSTR, IN DWORD);
 
-	virtual PSETTINGGROUPEX GetRootParent();
+    virtual PSETTINGGROUPEX GetRootParent();
 
-	virtual void _LoadSettings(IN POPERATIONINFO opinfo);
-	virtual void _LoadSetting(IN POPERATIONINFO opinfo);
-	virtual void _Activate(IN POPERATIONINFO opinfo);
-	virtual void _JostleBit(IN POPERATIONINFO opinfo);
+    virtual void _LoadSettings(IN POPERATIONINFO opinfo);
+    virtual void _LoadSetting(IN POPERATIONINFO opinfo);
+    virtual void _Activate(IN POPERATIONINFO opinfo);
+    virtual void _JostleBit(IN POPERATIONINFO opinfo);
 
-	// Overrides for slight changes in operations for group ex.
-	virtual void PerformStateOperation(IN POPERATIONINFO opinfo);
-	virtual void PerformContainedOperation(IN POPERATIONINFO opinfo);
+    // Overrides for slight changes in operations for group ex.
+    virtual void PerformStateOperation(IN POPERATIONINFO opinfo);
+    virtual void PerformContainedOperation(IN POPERATIONINFO opinfo);
 
-	// Performs all necessary calls for a single setting value change.
-	virtual BOOL ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values,
-		IN BYTE options);
+    // Performs all necessary calls for a single setting value change.
+    virtual BOOL ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values,
+        IN BYTE options);
 
-	// Checks and processes all setting in the group and subgroups for changes.
-	virtual void JostleAllSettings(IN DBIT changedBits,
-								   IN DBIT checkedBits, IN BYTE options);
-	// Checks and processes the setting for any change necessary because of another
-	// setting change.
-	virtual void JostleSetting(IN PSETTINGINFOEX info, IN PJOSTLESTRUCT jostleStruct);
-	// Finds masters for dependees set by dependeeBits and calls JostleSetting() on those
-	virtual void JostleMasters(IN DBIT dependeeBits, IN PJOSTLESTRUCT jostleStruct);
-	// Finds masters calls JostleSetting() on those.  Without base group checking.
-	DBIT _JostleMasters(IN DBIT dependeeBits, IN PJOSTLESTRUCT jostleStruct);
+    // Checks and processes all setting in the group and subgroups for changes.
+    virtual void JostleAllSettings(IN DBIT changedBits,
+                                   IN DBIT checkedBits, IN BYTE options);
+    // Checks and processes the setting for any change necessary because of another
+    // setting change.
+    virtual void JostleSetting(IN PSETTINGINFOEX info, IN PJOSTLESTRUCT jostleStruct);
+    // Finds masters for dependees set by dependeeBits and calls JostleSetting() on those
+    virtual void JostleMasters(IN DBIT dependeeBits, IN PJOSTLESTRUCT jostleStruct);
+    // Finds masters calls JostleSetting() on those.  Without base group checking.
+    DBIT _JostleMasters(IN DBIT dependeeBits, IN PJOSTLESTRUCT jostleStruct);
 
-	// Override to get the same changed notify stack for subgroups.
-	virtual inline PCHANGEDNOTIFYSTACK GetChangedNotifyStack();;
-	// Override to get the same notification stack for subgroups.
-	virtual inline PNOTIFICATIONSTACK GetNotificationStack();
+    // Override to get the same changed notify stack for subgroups.
+    virtual inline PCHANGEDNOTIFYSTACK GetChangedNotifyStack();;
+    // Override to get the same notification stack for subgroups.
+    virtual inline PNOTIFICATIONSTACK GetNotificationStack();
 
-	// Gets the bits that a setting depends on.
-	virtual inline DBIT GetDependentBits(IN PSETTINGINFOEX info);
-	// Gets the string describing the section to which a setting belongs.
-	virtual LPCSTR GetSection(IN DBIT dependentBits, IN BOOL useOldValues,
-		IN OUT std::string* cacheString, IN OUT DBIT* cacheBits);
+    // Gets the bits that a setting depends on.
+    virtual inline DBIT GetDependentBits(IN PSETTINGINFOEX info);
+    // Gets the string describing the section to which a setting belongs.
+    virtual LPCSTR GetSection(IN DBIT dependentBits, IN BOOL useOldValues,
+        IN OUT std::string* cacheString, IN OUT DBIT* cacheBits);
 
-	// Internal functions for adding all settings to the a config container.
-	void _CreateAssociationConfig(PSETTINGCONFIG association);
+    // Internal functions for adding all settings to the a config container.
+    void _CreateAssociationConfig(PSETTINGCONFIG association);
 
-	// Database of information about a specific dependency
-	PDEPENDENCYGESTALT	m_dependencyGestalt;
+    // Database of information about a specific dependency
+    PDEPENDENCYGESTALT    m_dependencyGestalt;
 
-	// A vector that this group's settings rely on for dependency.
-	DEPENDVALUEVECTOR	m_dependedValues;
-	// List of all subgroups directly owned by this group.
-	SUBGROUPEXLIST		m_subgroupList;
-	// Records the group's parent group
-	PSETTINGGROUPEX		m_parentGroup;
+    // A vector that this group's settings rely on for dependency.
+    DEPENDVALUEVECTOR    m_dependedValues;
+    // List of all subgroups directly owned by this group.
+    SUBGROUPEXLIST        m_subgroupList;
+    // Records the group's parent group
+    PSETTINGGROUPEX        m_parentGroup;
 
-	// Records whether or not this group is suspended.
-	BOOL				m_suspended;
+    // Records whether or not this group is suspended.
+    BOOL                m_suspended;
 
-	// Records all the bits for which this group owns a master for.
-	DBIT				m_haveDependeeBits;
+    // Records all the bits for which this group owns a master for.
+    DBIT                m_haveDependeeBits;
 };
 
 

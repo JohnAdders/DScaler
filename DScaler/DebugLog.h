@@ -15,12 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 12 Jul 2001   John Adcock           added header block
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file debuglog.h debuglog Header file

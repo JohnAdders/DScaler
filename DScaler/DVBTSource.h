@@ -55,15 +55,15 @@ public:
     ISetting* GetBottomOverscan();
     ISetting* GetLeftOverscan();
     ISetting* GetRightOverscan();
-	ISetting* GetHDelay() {return NULL;};
-	ISetting* GetVDelay() {return NULL;};
+    ISetting* GetHDelay() {return NULL;};
+    ISetting* GetVDelay() {return NULL;};
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return TRUE;}
     int GetInitialWidth() {return GetWidth();};
     int GetInitialHeight() {return GetHeight() / 2;};
     int GetWidth() {return 720;};
     int GetHeight() {return 576;};
-	void SetWidth() {return;};
+    void SetWidth() {return;};
    
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
@@ -80,7 +80,7 @@ public:
     void Pause() {return;};
     void UnPause() {return;};
 
-	BOOL HasMediaControl() {return FALSE;};
+    BOOL HasMediaControl() {return FALSE;};
     BOOL IsAudioMixerAccessAllowed() {return TRUE;};
 
 private:

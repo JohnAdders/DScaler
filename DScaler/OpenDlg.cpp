@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2003/02/22 16:45:02  tobbej
-// added a new open file dialog that allows entering urls
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file OpenDlg.cpp implementation file for COpenDlg
@@ -43,35 +36,35 @@ static char THIS_FILE[] = __FILE__;
 // COpenDlg dialog
 
 COpenDlg::COpenDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(COpenDlg::IDD, pParent),m_hSHLWAPIDLL(NULL)
+    : CDialog(COpenDlg::IDD, pParent),m_hSHLWAPIDLL(NULL)
 {
-	//{{AFX_DATA_INIT(COpenDlg)
-		// NOTE: the ClassWizard will add member initialization here
-	//}}AFX_DATA_INIT
+    //{{AFX_DATA_INIT(COpenDlg)
+        // NOTE: the ClassWizard will add member initialization here
+    //}}AFX_DATA_INIT
 }
 
 COpenDlg::~COpenDlg()
 {
-	if(m_hSHLWAPIDLL!=NULL)
-	{
-		FreeLibrary(m_hSHLWAPIDLL);
-		m_hSHLWAPIDLL=NULL;
-	}
+    if(m_hSHLWAPIDLL!=NULL)
+    {
+        FreeLibrary(m_hSHLWAPIDLL);
+        m_hSHLWAPIDLL=NULL;
+    }
 }
 
 void COpenDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(COpenDlg)
-	DDX_Control(pDX, IDC_OPEN_FILE, m_File);
-	//}}AFX_DATA_MAP
+    CDialog::DoDataExchange(pDX);
+    //{{AFX_DATA_MAP(COpenDlg)
+    DDX_Control(pDX, IDC_OPEN_FILE, m_File);
+    //}}AFX_DATA_MAP
 }
 
 
 BEGIN_MESSAGE_MAP(COpenDlg, CDialog)
-	//{{AFX_MSG_MAP(COpenDlg)
-	ON_BN_CLICKED(IDC_OPEN_BROWSE, OnBrowse)
-	//}}AFX_MSG_MAP
+    //{{AFX_MSG_MAP(COpenDlg)
+    ON_BN_CLICKED(IDC_OPEN_BROWSE, OnBrowse)
+    //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -79,99 +72,99 @@ END_MESSAGE_MAP()
 
 BOOL COpenDlg::OnInitDialog() 
 {
-	CDialog::OnInitDialog();
-	
-	SetupAutoComplete();
-	
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
+    CDialog::OnInitDialog();
+    
+    SetupAutoComplete();
+    
+    return TRUE;  // return TRUE unless you set the focus to a control
+                  // EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void COpenDlg::SetupAutoComplete()
 {
-	typedef HRESULT (WINAPI *SHAUTOCOMPLETEFN) (HWND hTarget, DWORD dwFlags);
-	if(m_File.m_hWnd==NULL)
-	{
-		return;
-	}
-	if(m_hSHLWAPIDLL==NULL)
-	{
-		m_hSHLWAPIDLL=LoadLibrary("SHLWAPI.DLL");
-		if(m_hSHLWAPIDLL==NULL)
-		{
-			return;
-		}
-	}
-	HRESULT hr;
-	SHAUTOCOMPLETEFN pSHAC=(SHAUTOCOMPLETEFN)GetProcAddress(m_hSHLWAPIDLL,"SHAutoComplete");
-	if(pSHAC!=NULL)
-	{
-		//this only work in singel threaded apartments
-		//(same problem as with the file open dialogs)
-		hr=pSHAC(m_File.m_hWnd, SHACF_URLALL|SHACF_FILESYS_ONLY);
-		ASSERT(SUCCEEDED(hr));
-	}
+    typedef HRESULT (WINAPI *SHAUTOCOMPLETEFN) (HWND hTarget, DWORD dwFlags);
+    if(m_File.m_hWnd==NULL)
+    {
+        return;
+    }
+    if(m_hSHLWAPIDLL==NULL)
+    {
+        m_hSHLWAPIDLL=LoadLibrary("SHLWAPI.DLL");
+        if(m_hSHLWAPIDLL==NULL)
+        {
+            return;
+        }
+    }
+    HRESULT hr;
+    SHAUTOCOMPLETEFN pSHAC=(SHAUTOCOMPLETEFN)GetProcAddress(m_hSHLWAPIDLL,"SHAutoComplete");
+    if(pSHAC!=NULL)
+    {
+        //this only work in singel threaded apartments
+        //(same problem as with the file open dialogs)
+        hr=pSHAC(m_File.m_hWnd, SHACF_URLALL|SHACF_FILESYS_ONLY);
+        ASSERT(SUCCEEDED(hr));
+    }
 }
 
 void COpenDlg::OnOK()
 {
-	m_File.GetWindowText(m_FileName);
-	CDialog::OnOK();
+    m_File.GetWindowText(m_FileName);
+    CDialog::OnOK();
 }
 
 bool COpenDlg::ShowOpenDialog(HWND hParent,CString &FileName)
 {
-	COpenDlg dlg(CWnd::FromHandle(hParent));
-	
-	if(dlg.DoModal()==IDOK)
-	{
-		FileName=dlg.m_FileName;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    COpenDlg dlg(CWnd::FromHandle(hParent));
+    
+    if(dlg.DoModal()==IDOK)
+    {
+        FileName=dlg.m_FileName;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void COpenDlg::OnBrowse() 
 {
-	OPENFILENAME OpenFileInfo;
-	char FilePath[MAX_PATH];
-	char* FileFilters;
-	FileFilters =
-							"All Files\0*.*;\0"
-	#ifndef WANT_DSHOW_SUPPORT
-							"All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;\0"
-	#else
-							"All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv;*.grf\0"
-	#endif
-							"TIFF Files\0*.tif;*.tiff\0"
-							"JPEG Files\0*.jpg;*.jpeg\0"
-							"DScaler Playlists\0*.d3u\0"
-							"DScaler Patterns\0*.pat\0"
-	#ifdef WANT_DSHOW_SUPPORT
-							"Media Files (*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv)\0*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0"
-							"GraphEdit Filter Graphs (*.grf)\0*.grf\0"
-	#endif
-							;
+    OPENFILENAME OpenFileInfo;
+    char FilePath[MAX_PATH];
+    char* FileFilters;
+    FileFilters =
+                            "All Files\0*.*;\0"
+    #ifndef WANT_DSHOW_SUPPORT
+                            "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;\0"
+    #else
+                            "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv;*.grf\0"
+    #endif
+                            "TIFF Files\0*.tif;*.tiff\0"
+                            "JPEG Files\0*.jpg;*.jpeg\0"
+                            "DScaler Playlists\0*.d3u\0"
+                            "DScaler Patterns\0*.pat\0"
+    #ifdef WANT_DSHOW_SUPPORT
+                            "Media Files (*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv)\0*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0"
+                            "GraphEdit Filter Graphs (*.grf)\0*.grf\0"
+    #endif
+                            ;
 
-	FilePath[0] = 0;
-	ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
-	OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
-	OpenFileInfo.hwndOwner = m_hWnd;
-	OpenFileInfo.lpstrFilter = FileFilters;
-	OpenFileInfo.nFilterIndex = 2;
-	OpenFileInfo.lpstrCustomFilter = NULL;
-	OpenFileInfo.lpstrFile = FilePath;
-	OpenFileInfo.nMaxFile = sizeof(FilePath);
-	OpenFileInfo.lpstrFileTitle = NULL;
-	OpenFileInfo.lpstrInitialDir = NULL;
-	OpenFileInfo.lpstrTitle = NULL;
-	OpenFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-	OpenFileInfo.lpstrDefExt = NULL;
-	if(GetOpenFileName(&OpenFileInfo))
-	{
-		m_File.SetWindowText(FilePath);
-	}
+    FilePath[0] = 0;
+    ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
+    OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
+    OpenFileInfo.hwndOwner = m_hWnd;
+    OpenFileInfo.lpstrFilter = FileFilters;
+    OpenFileInfo.nFilterIndex = 2;
+    OpenFileInfo.lpstrCustomFilter = NULL;
+    OpenFileInfo.lpstrFile = FilePath;
+    OpenFileInfo.nMaxFile = sizeof(FilePath);
+    OpenFileInfo.lpstrFileTitle = NULL;
+    OpenFileInfo.lpstrInitialDir = NULL;
+    OpenFileInfo.lpstrTitle = NULL;
+    OpenFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    OpenFileInfo.lpstrDefExt = NULL;
+    if(GetOpenFileName(&OpenFileInfo))
+    {
+        m_File.SetWindowText(FilePath);
+    }
 }

@@ -15,12 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 
@@ -124,7 +118,7 @@ SendMsg /m This is a message.\\nSecond line.\
             }
         }
     }
-	return 0;
+    return 0;
 }
 
 /** Process command line parameters and return them

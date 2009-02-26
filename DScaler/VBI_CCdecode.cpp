@@ -23,85 +23,6 @@
 // (based on code by timecop@japan.co.jp)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 29 Jan 2001   John Adcock           Took code from latest version of ccdecode
-//                                     Made compatable with dTV
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.22  2005/03/23 14:21:02  adcockj
-// Test fix for threading issues
-//
-// Revision 1.21  2005/03/11 14:54:41  adcockj
-// Get rid of a load of compilation warnings in vs.net
-//
-// Revision 1.20  2004/10/26 16:44:54  adcockj
-// More CC fixes from Rani Feldman
-//
-// Revision 1.19  2004/10/18 16:04:08  adcockj
-// Much delayed CC pop up fix from Rani Feldman
-//
-// Revision 1.18  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.17  2003/06/28 10:54:01  laurentg
-// Erase first CC display when changing CC selection
-//
-// Revision 1.16  2003/01/07 16:49:10  adcockj
-// Changes to allow variable sampling rates for VBI
-//
-// Revision 1.15  2003/01/05 18:35:45  laurentg
-// Init function for VBI added
-//
-// Revision 1.14  2003/01/01 20:32:39  atnak
-// Renamed DecodeLine function
-//
-// Revision 1.13  2002/12/06 10:30:02  adcockj
-// Pop On Captioning Fix from Kevin Radke
-//
-// Revision 1.12  2002/11/28 21:29:52  adcockj
-// Patch from Kevin Radke
-//  Closed Caption position and color fixes
-//  - Fixed closed caption indentation problems due to missing parens in the code.
-//  - Fixed foreground color problems due to missing parens and weird RGB values in the code.
-//  - Fixed dropping of repeated 2 character chunks in text. (i.e. "mimi" only showed "mi" before)
-//  - Roll up captions now show the correct number of lines. (Previously it was 1 too many)
-//  - Pop on captions now handle multiple lines correctly.
-//
-// Revision 1.11  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.10  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.9  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.8  2001/09/05 15:08:43  adcockj
-// Updated Loging
-//
-// Revision 1.7.2.2  2001/08/21 09:43:01  adcockj
-// Brought branch up to date with latest code fixes
-//
-// Revision 1.7.2.1  2001/08/18 17:09:30  adcockj
-// Got to compile, still lots to do...
-//
-// Revision 1.7  2001/08/02 18:08:17  adcockj
-// Made all logging code use new levels
-//
-// Revision 1.6  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.5  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file VBI_CCdecode.cpp VBI Closed caption functions
@@ -502,7 +423,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                 }
                 else 
                 {
-					// Not enough room - Shift characters over one row
+                    // Not enough room - Shift characters over one row
                     for(x = 1; x < CC_CHARS_PER_LINE;x++)
                     {
                         memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][x - 1], 
@@ -524,7 +445,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     }
                     else 
                     {
-					    // Not enough room - Shift characters over one row
+                        // Not enough room - Shift characters over one row
                         for(x = 1; x < CC_CHARS_PER_LINE;x++)
                         {
                             memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][x - 1], 
@@ -651,7 +572,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                             {
                                 if (bOldCCMethod || Mode != POP_ON)
                                 {
-								    // Only reset on the first pop_on command
+                                    // Only reset on the first pop_on command
                                     if (ScreenToWrite == 0)
                                     {
                                         memset(&Screens[1],0,sizeof(TCCScreen));
@@ -880,11 +801,11 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
 
 int VBI_DecodeLine_CC(BYTE* vbiline, eCCMode CCMode, BOOL IsOdd)
 {
-	if (CCMode == CCMODE_OFF)
-	{
+    if (CCMode == CCMODE_OFF)
+    {
          CCdecode(-2, TRUE, 0);
-		return 0;
-	}
+        return 0;
+    }
 
     if(!IsOdd)
     {

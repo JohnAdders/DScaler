@@ -20,34 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.7  2003/09/26 20:54:06  laurentg
-// Media player toolbar hidden when one skin is selected
-//
-// Revision 1.6  2003/09/07 19:09:52  laurentg
-// Display of toolbars on several rows when not enough space
-//
-// Revision 1.5  2003/08/09 15:53:39  laurentg
-// Bad refresh of the toolbar when in full screen mode corrected
-//
-// Revision 1.4  2003/08/09 12:59:46  laurentg
-// Display of the toolbar in full screen mode
-//
-// Revision 1.3  2002/10/07 20:33:50  kooiman
-// Fixed lots of toolbar bugs & added grip/separator bars.
-//
-// Revision 1.2  2002/09/26 16:34:19  kooiman
-// Lots of toolbar fixes &added EVENT_VOLUME support.
-//
-// Revision 1.1  2002/09/25 22:32:50  kooiman
-// Toolbar support.
-//
-// Revision 1.0  2002/08/03 17:57:52  kooiman
-// initial version
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file ToolbarWindow.cpp CToolbarWindow Implementation
@@ -104,10 +76,10 @@ bChildOrderChanged(TRUE)
     }
 
     MDICREATESTRUCT mdic;
-	::memset(&mdic, 0, sizeof(mdic));
-	mdic.lParam = (LPARAM)this;
+    ::memset(&mdic, 0, sizeof(mdic));
+    mdic.lParam = (LPARAM)this;
 
-	hWndToolbar = CreateWindow(
+    hWndToolbar = CreateWindow(
       "DSCALERTOOLBARWINDOW",      
       "DSCALERTOOLBARWINDOW",
       (Child?WS_CHILD:WS_POPUP) | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
@@ -116,7 +88,7 @@ bChildOrderChanged(TRUE)
       500,       // width 
       100,        // height 
       Child?hWndParent:NULL,       // parent window 
-	  NULL,       // No menu 
+      NULL,       // No menu 
       hInst,
       &mdic);      // pointer not needed 
 
@@ -130,7 +102,7 @@ bChildOrderChanged(TRUE)
     ChildLeftRightMargin = 10;
     ChildTopBottomMargin = 5;
 
-	m_lastWindowPos_x = -1;
+    m_lastWindowPos_x = -1;
     m_lastWindowPos_y = -1;
     m_lastWindowPos_w = -1;
     m_lastWindowPos_h = -1;
@@ -151,7 +123,7 @@ CToolbarWindow::~CToolbarWindow()
             ::SetWindowLong(vChildList[i].pChild->GethWnd(), GWL_USERDATA, NULL);
 
 
-			//Doesn't work.
+            //Doesn't work.
             //Is 'pure virtual function call', somehow fix this..
             //delete vChildList[i].pChild;
         }
@@ -160,7 +132,7 @@ CToolbarWindow::~CToolbarWindow()
     if (hWndToolbar != NULL)
     {
         ::SetWindowLong(hWndToolbar, GWL_USERDATA, NULL);
-		DestroyWindow(hWndToolbar);
+        DestroyWindow(hWndToolbar);
         hWndToolbar = NULL;
     }
 }
@@ -194,8 +166,8 @@ BOOL CToolbarWindow::Add(CToolbarChild *pChild, eToolbarRowAlign Align, int Orde
     ci.Order = Order;
     ci.Row = Row;
     ci.Align = Align; //TOOLBARCHILD_ALIGN_LEFTCENTER;
-	ci.pBarLeft = NULL;
-	ci.pBarRight = NULL;
+    ci.pBarLeft = NULL;
+    ci.pBarRight = NULL;
     vChildList.push_back(ci);    
 
     bChildOrderChanged = TRUE;
@@ -222,44 +194,44 @@ void CToolbarWindow::Remove(CToolbarChild *pChild)
 
 BOOL CToolbarWindow::AttachBar(CToolbarChild *pChild, int Left, CToolbarChild *pBar)
 {
-	for (int i = 0 ; i < vChildList.size(); i++)
+    for (int i = 0 ; i < vChildList.size(); i++)
     {
         if (vChildList[i].pChild == pChild)
         {
             if (Left)
-			{
-				vChildList[i].pBarLeft = pBar;
-			}
-			else
-			{
-				vChildList[i].pBarRight = pBar;
-			}
-			bChildOrderChanged = TRUE;
-			return TRUE;
+            {
+                vChildList[i].pBarLeft = pBar;
+            }
+            else
+            {
+                vChildList[i].pBarRight = pBar;
+            }
+            bChildOrderChanged = TRUE;
+            return TRUE;
         }        
     }
-	return FALSE;
+    return FALSE;
 }
 
 BOOL CToolbarWindow::DetachBar(CToolbarChild *pChild, int Left)
 {
-	for (int i = 0 ; i < vChildList.size(); i++)
+    for (int i = 0 ; i < vChildList.size(); i++)
     {
         if (vChildList[i].pChild == pChild)
         {
             if (Left)
-			{
-				vChildList[i].pBarLeft = NULL;
-			}
-			else
-			{
-				vChildList[i].pBarRight = NULL;
-			}
-			bChildOrderChanged = TRUE;
-			return TRUE;
+            {
+                vChildList[i].pBarLeft = NULL;
+            }
+            else
+            {
+                vChildList[i].pBarRight = NULL;
+            }
+            bChildOrderChanged = TRUE;
+            return TRUE;
         }        
     }
-	return FALSE;
+    return FALSE;
 }
 
 BOOL CToolbarWindow::Show() 
@@ -270,30 +242,30 @@ BOOL CToolbarWindow::Show()
        if (vChildList[i].pChild != NULL)
        {
            ShowWindow(vChildList[i].pChild->GethWnd(), (vChildList[i].bShow) ? SW_SHOW : SW_HIDE);
-			if (vChildList[i].bShow)
-			{
-				vChildList[i].pChild->Show();
-				if (vChildList[i].pBarLeft != NULL)
-				{
-					vChildList[i].pBarLeft->Show();
-				}
-				if (vChildList[i].pBarRight != NULL)
-				{
-					vChildList[i].pBarRight->Show();
-				}
-			}
-			else
-			{
-				vChildList[i].pChild->Hide();
-				if (vChildList[i].pBarLeft != NULL)
-				{
-					vChildList[i].pBarLeft->Hide();
-				}
-				if (vChildList[i].pBarRight != NULL)
-				{
-					vChildList[i].pBarRight->Hide();
-				}
-			}		   
+            if (vChildList[i].bShow)
+            {
+                vChildList[i].pChild->Show();
+                if (vChildList[i].pBarLeft != NULL)
+                {
+                    vChildList[i].pBarLeft->Show();
+                }
+                if (vChildList[i].pBarRight != NULL)
+                {
+                    vChildList[i].pBarRight->Show();
+                }
+            }
+            else
+            {
+                vChildList[i].pChild->Hide();
+                if (vChildList[i].pBarLeft != NULL)
+                {
+                    vChildList[i].pBarLeft->Hide();
+                }
+                if (vChildList[i].pBarRight != NULL)
+                {
+                    vChildList[i].pBarRight->Hide();
+                }
+            }           
        }
    }
    InvalidateRect(hWndToolbar, NULL, FALSE);   
@@ -315,19 +287,19 @@ BOOL CToolbarWindow::Hide()
 
 BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
 {    
-	int Width;
-	int XLPos;
-	int XRPos;
-	int BarLeftWidth;
-	int BarRightWidth;	
-	int i;
-	int n;
-	int row;
+    int Width;
+    int XLPos;
+    int XRPos;
+    int BarLeftWidth;
+    int BarRightWidth;    
+    int i;
+    int n;
+    int row;
 
     if (bChildOrderChanged)
     {        
         bChildOrderChanged = FALSE;
-		vChildOrder.clear();
+        vChildOrder.clear();
         
         vector<int> TempList; 
         int i;
@@ -369,96 +341,96 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
             }
         }        
 
-		// Cut on several rows if necessary
+        // Cut on several rows if necessary
         FitHeight = TopMargin+BottomMargin;
-		vRowHeight.clear();
-		XLPos = LeftMargin;
-		XRPos = w - RightMargin;
-		row = 0;
-		int in_row = 0;
-		int Height = 0;
+        vRowHeight.clear();
+        XLPos = LeftMargin;
+        XRPos = w - RightMargin;
+        row = 0;
+        int in_row = 0;
+        int Height = 0;
         for (n = 0; n < vChildOrder.size(); n++)
         {
            i = vChildOrder[n];
 
-		   Width = 0;
-		   if (vChildList[i].bShow && (vChildList[i].pChild != NULL))
-		   {
-			  Width = vChildList[i].pChild->Width();
-		   }
+           Width = 0;
+           if (vChildList[i].bShow && (vChildList[i].pChild != NULL))
+           {
+              Width = vChildList[i].pChild->Width();
+           }
            if (Width > 0)
-		   {
-		      BarLeftWidth = 0;
-		      BarRightWidth = 0;
-		      if (vChildList[i].pBarLeft != NULL)
-			  {
-		         BarLeftWidth = vChildList[i].pBarLeft->Width();
-			  }
-		      if (vChildList[i].pBarRight != NULL)
-			  {
-			     BarRightWidth = vChildList[i].pBarRight->Width();
-			  }
-		      if (n<ChildOrderRightPos)
-			  {                
+           {
+              BarLeftWidth = 0;
+              BarRightWidth = 0;
+              if (vChildList[i].pBarLeft != NULL)
+              {
+                 BarLeftWidth = vChildList[i].pBarLeft->Width();
+              }
+              if (vChildList[i].pBarRight != NULL)
+              {
+                 BarRightWidth = vChildList[i].pBarRight->Width();
+              }
+              if (n<ChildOrderRightPos)
+              {                
                  XLPos += BarLeftWidth + Width + BarRightWidth + ChildLeftRightMargin;
-			  } 
-		      else 
-			  {   
-				 XRPos -= BarLeftWidth + Width + BarRightWidth + ChildLeftRightMargin;
-			  }
-			  if ( (XRPos<XLPos) && (in_row > 0) )
-			  {
-				 // This block of code should allow to erase the separator mark
-				 // at the end of a line when the next toolbar is on the next line
-				 // IT DOES NOT WORK WELL
-//				 if (vChildList[i].pBarLeft != NULL)
-//				 {
-//					vChildList[i].pBarLeft->Hide();
-//					DetachBar(vChildList[i].pChild, 1);
-//				 }
-//				 if (n > 0)
-//				 {
-//				    if (vChildList[vChildOrder[n-1]].pBarRight != NULL)
-//					{
-//				       vChildList[vChildOrder[n-1]].pBarRight->Hide();
-//					   DetachBar(vChildList[vChildOrder[n-1]].pChild, 0);
-//					}
-//				 }
-				 vRowHeight.push_back(Height);
-			     FitHeight += Height;
-				 row++;
-				 in_row = 0;
-				 Height = 0;
-			  }    
+              } 
+              else 
+              {   
+                 XRPos -= BarLeftWidth + Width + BarRightWidth + ChildLeftRightMargin;
+              }
+              if ( (XRPos<XLPos) && (in_row > 0) )
+              {
+                 // This block of code should allow to erase the separator mark
+                 // at the end of a line when the next toolbar is on the next line
+                 // IT DOES NOT WORK WELL
+//                 if (vChildList[i].pBarLeft != NULL)
+//                 {
+//                    vChildList[i].pBarLeft->Hide();
+//                    DetachBar(vChildList[i].pChild, 1);
+//                 }
+//                 if (n > 0)
+//                 {
+//                    if (vChildList[vChildOrder[n-1]].pBarRight != NULL)
+//                    {
+//                       vChildList[vChildOrder[n-1]].pBarRight->Hide();
+//                       DetachBar(vChildList[vChildOrder[n-1]].pChild, 0);
+//                    }
+//                 }
+                 vRowHeight.push_back(Height);
+                 FitHeight += Height;
+                 row++;
+                 in_row = 0;
+                 Height = 0;
+              }    
               if (vChildList[i].pChild->Height() > Height)
-			  {
+              {
                  Height = vChildList[i].pChild->Height();
-			  }
-			  in_row++;
-		   }
-		   SetChildRow(vChildList[i].pChild, row);
+              }
+              in_row++;
+           }
+           SetChildRow(vChildList[i].pChild, row);
         }
-	    vRowHeight.push_back(Height);
-	    FitHeight += Height;
+        vRowHeight.push_back(Height);
+        FitHeight += Height;
         bChildOrderChanged = FALSE;
    }
 
     if (h<0)
     {
         if (h < -1)
-		{
-			h = FitHeight;
-			y -= h;
-		}
-		else
-		{
-			h = FitHeight;
-		}
+        {
+            h = FitHeight;
+            y -= h;
+        }
+        else
+        {
+            h = FitHeight;
+        }
     }
 
     if ((m_lastWindowPos_x != x) || (m_lastWindowPos_y != y) || (m_lastWindowPos_w != w) || (m_lastWindowPos_h != h))
     {
-        SetWindowPos(hWndToolbar,NULL,x,y,w,h,SWP_NOACTIVATE|SWP_NOZORDER);				
+        SetWindowPos(hWndToolbar,NULL,x,y,w,h,SWP_NOACTIVATE|SWP_NOZORDER);                
         m_lastWindowPos_x = x;
         m_lastWindowPos_y = y;
         m_lastWindowPos_w = w;
@@ -468,39 +440,39 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
     
     //Set all child windows
     
-	int j;
+    int j;
     int dy = 0;
-	row = -1;
-	int top_row;
+    row = -1;
+    int top_row;
     for (n = 0; n < vChildOrder.size(); n++)
     {              
        i = vChildOrder[n];
        
-	   if (vChildList[i].Row != row)
-	   {
-		  row = vChildList[i].Row;
-		  top_row = 0;
-		  for (j=0 ; j<row ; j++)
-		     top_row += vRowHeight[j];
-	      XLPos = LeftMargin;
+       if (vChildList[i].Row != row)
+       {
+          row = vChildList[i].Row;
+          top_row = 0;
+          for (j=0 ; j<row ; j++)
+             top_row += vRowHeight[j];
+          XLPos = LeftMargin;
           XRPos = w - RightMargin;
-	   }
+       }
 
        Width = 0;
        if (vChildList[i].bShow && (vChildList[i].pChild != NULL))
        {
           Width = vChildList[i].pChild->Width();
        }
-	   BarLeftWidth = 0;
-	   BarRightWidth = 0;
-	   if (vChildList[i].pBarLeft != NULL)
-	   {
-			BarLeftWidth = vChildList[i].pBarLeft->Width();
-	   }
-	   if (vChildList[i].pBarRight != NULL)
-	   {
-			BarRightWidth = vChildList[i].pBarRight->Width();
-	   }
+       BarLeftWidth = 0;
+       BarRightWidth = 0;
+       if (vChildList[i].pBarLeft != NULL)
+       {
+            BarLeftWidth = vChildList[i].pBarLeft->Width();
+       }
+       if (vChildList[i].pBarRight != NULL)
+       {
+            BarRightWidth = vChildList[i].pBarRight->Width();
+       }
          
        if (Width > 0)
        {
@@ -514,15 +486,15 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
             }
             if (n<ChildOrderRightPos)
             {                
-				if (vChildList[i].pBarLeft != NULL)
-				{
-					vChildList[i].pBarLeft->SetPos(XLPos,TopMargin+dy, BarLeftWidth, vChildList[i].pChild->Height(), TRUE);
-				}
-				vChildList[i].pChild->SetPos(XLPos+BarLeftWidth,TopMargin+dy, Width, vChildList[i].pChild->Height(), TRUE);
-				if (vChildList[i].pBarRight != NULL)
-				{
-					vChildList[i].pBarRight->SetPos(XLPos+BarLeftWidth+Width,TopMargin+dy, BarRightWidth, vChildList[i].pChild->Height(), TRUE);
-				}
+                if (vChildList[i].pBarLeft != NULL)
+                {
+                    vChildList[i].pBarLeft->SetPos(XLPos,TopMargin+dy, BarLeftWidth, vChildList[i].pChild->Height(), TRUE);
+                }
+                vChildList[i].pChild->SetPos(XLPos+BarLeftWidth,TopMargin+dy, Width, vChildList[i].pChild->Height(), TRUE);
+                if (vChildList[i].pBarRight != NULL)
+                {
+                    vChildList[i].pBarRight->SetPos(XLPos+BarLeftWidth+Width,TopMargin+dy, BarRightWidth, vChildList[i].pChild->Height(), TRUE);
+                }
                 XLPos += BarLeftWidth + Width + BarRightWidth + ChildLeftRightMargin;
             } 
             else 
@@ -531,17 +503,17 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
                 if (XRPos<XLPos)
                 {                    
                     //Overlap
-                    XRPos=XLPos + ChildLeftRightMargin;					
+                    XRPos=XLPos + ChildLeftRightMargin;                    
                 }    
-				if (vChildList[i].pBarLeft != NULL)
-				{
-					vChildList[i].pBarLeft->SetPos(XRPos,TopMargin+dy, BarLeftWidth, vChildList[i].pChild->Height(), TRUE);
-				}
-				vChildList[i].pChild->SetPos(XRPos+BarLeftWidth,TopMargin+dy, Width, vChildList[i].pChild->Height(), TRUE);                
-				if (vChildList[i].pBarRight != NULL)
-				{
-					vChildList[i].pBarRight->SetPos(XRPos+BarLeftWidth+Width,TopMargin+dy, BarRightWidth, vChildList[i].pChild->Height(), TRUE);
-				}                                
+                if (vChildList[i].pBarLeft != NULL)
+                {
+                    vChildList[i].pBarLeft->SetPos(XRPos,TopMargin+dy, BarLeftWidth, vChildList[i].pChild->Height(), TRUE);
+                }
+                vChildList[i].pChild->SetPos(XRPos+BarLeftWidth,TopMargin+dy, Width, vChildList[i].pChild->Height(), TRUE);                
+                if (vChildList[i].pBarRight != NULL)
+                {
+                    vChildList[i].pBarRight->SetPos(XRPos+BarLeftWidth+Width,TopMargin+dy, BarRightWidth, vChildList[i].pChild->Height(), TRUE);
+                }                                
             }
        }
        
@@ -618,7 +590,7 @@ void CToolbarWindow::UpdateWindowPosition(HWND hParentWnd)
       if (MainToolbarPosition==0) //top
       {          
 //          if ((rcBar.left != rc.left) || (rcBar.top != rc.top) || (rcBar.right!=Width) || (rcBar.bottom != Height))
-		  if (1)
+          if (1)
           {
               Height = -1;
               SetPos(rc.left,rc.top,Width, Height);
@@ -629,7 +601,7 @@ void CToolbarWindow::UpdateWindowPosition(HWND hParentWnd)
           int YPos = rc.bottom; // - Height;
           
 //          if ((rcBar.left != rc.left) || (rcBar.top != YPos) || (rcBar.right!=Width) || (rcBar.bottom != (YPos+Height)))
-		  if (1)
+          if (1)
           {
               Height = -2;
               SetPos(rc.left,YPos,Width, Height);              
@@ -639,8 +611,8 @@ void CToolbarWindow::UpdateWindowPosition(HWND hParentWnd)
 
 void CToolbarWindow::ForceUpdateWindowPosition(HWND hParentWnd)
 {
-	bChildOrderChanged = TRUE;
-	UpdateWindowPosition((hParentWnd != NULL) ? hParentWnd : hWndParent);
+    bChildOrderChanged = TRUE;
+    UpdateWindowPosition((hParentWnd != NULL) ? hParentWnd : hWndParent);
 }
 
 void CToolbarWindow::SetPosition(int Pos)
@@ -738,17 +710,17 @@ void CToolbarWindow::PaintToolbar(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPSh
     rcToolbar.left = 0;
     rcToolbar.top = 0;
     
-	if (IsSkinned())
-	{			        
-		// Border
-		Paint(hWnd,hDC,lpRect, pPShift);
+    if (IsSkinned())
+    {                    
+        // Border
+        Paint(hWnd,hDC,lpRect, pPShift);
 
-		::SetRect(&rcMiddle,LeftSize,TopSize,rcToolbar.right-RightSize,rcToolbar.bottom-BottomSize);
-	}
-	else
-	{
-		rcMiddle = rcToolbar;
-	}
+        ::SetRect(&rcMiddle,LeftSize,TopSize,rcToolbar.right-RightSize,rcToolbar.bottom-BottomSize);
+    }
+    else
+    {
+        rcMiddle = rcToolbar;
+    }
     
     if (lpRect == NULL)
     {
@@ -780,11 +752,11 @@ void CToolbarWindow::PaintChildBG(HWND hWndChild, HDC hDC, LPRECT lpRect)
     for (i = 0; i < vChildList.size(); i++)
     {        
         if ((vChildList[i].pChild != NULL) && 
-			 (	 (vChildList[i].pChild->GethWnd() == hWndChild)
-			  || ((vChildList[i].pBarLeft != NULL) && (vChildList[i].pBarLeft->GethWnd() == hWndChild)) 
-			  || ((vChildList[i].pBarRight != NULL) && (vChildList[i].pBarRight->GethWnd() == hWndChild))
-			 )
-			)
+             (     (vChildList[i].pChild->GethWnd() == hWndChild)
+              || ((vChildList[i].pBarLeft != NULL) && (vChildList[i].pBarLeft->GethWnd() == hWndChild)) 
+              || ((vChildList[i].pBarRight != NULL) && (vChildList[i].pBarRight->GethWnd() == hWndChild))
+             )
+            )
         {
             RECT rcInParent;
             RECT rcTotalInParent;
@@ -818,19 +790,19 @@ void CToolbarWindow::PaintChildBG(HWND hWndChild, HDC hDC, LPRECT lpRect)
 
 BOOL CToolbarWindow::LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache)
 {
-	bChildOrderChanged = TRUE;
-	return CWindowBorder::LoadSkin(szSkinIniFile, szSection, Results, pBitmapCache);
+    bChildOrderChanged = TRUE;
+    return CWindowBorder::LoadSkin(szSkinIniFile, szSection, Results, pBitmapCache);
 }
 
 void CToolbarWindow::ClearSkin()
 {
-	bChildOrderChanged = TRUE;
-	CWindowBorder::ClearSkin();
+    bChildOrderChanged = TRUE;
+    CWindowBorder::ClearSkin();
 }
 
 void CToolbarWindow::Margins(int l,int t,int r,int b, int child_lr, int child_tb)
 {
-	TopMargin = t;
+    TopMargin = t;
     BottomMargin = b;
     LeftMargin = l;
     RightMargin = t;
@@ -840,21 +812,21 @@ void CToolbarWindow::Margins(int l,int t,int r,int b, int child_lr, int child_tb
 
 LRESULT CALLBACK CToolbarWindow::ToolbarProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	CToolbarWindow *pThis = NULL;
+    CToolbarWindow *pThis = NULL;
 
     if ( message == WM_NCCREATE )
-	{
-		if (lParam == 0)
+    {
+        if (lParam == 0)
         {
             return FALSE;
         }
         MDICREATESTRUCT * pMDIC = (MDICREATESTRUCT *)((LPCREATESTRUCT) lParam)->lpCreateParams;
-		CToolbarWindow *pThis = (CToolbarWindow*) (pMDIC->lParam);
-		::SetWindowLong(hWnd, GWL_USERDATA, (LONG)pThis);        
+        CToolbarWindow *pThis = (CToolbarWindow*) (pMDIC->lParam);
+        ::SetWindowLong(hWnd, GWL_USERDATA, (LONG)pThis);        
         return TRUE;
-	}
+    }
     
-	pThis = (CToolbarWindow*)::GetWindowLong(hWnd, GWL_USERDATA);    
+    pThis = (CToolbarWindow*)::GetWindowLong(hWnd, GWL_USERDATA);    
     
     switch (message)
     {
@@ -864,7 +836,7 @@ LRESULT CALLBACK CToolbarWindow::ToolbarProc(HWND hWnd, UINT message, WPARAM wPa
         }
     case WM_ERASEBKGND:
          //LOG(2,"Toolbar main: 0x%08x: erase bg",pThis->GethWnd());
-	     return TRUE;		 
+         return TRUE;         
     case WM_PAINT:
         {
             if ((pThis!=NULL) && (pThis->GethWnd() != NULL))
@@ -930,7 +902,7 @@ CToolbarChild::~CToolbarChild()
     if (hWnd != NULL)
     {
         ::SetWindowLong(hWnd, GWL_USERDATA, NULL);
-		DestroyWindow(hWnd);
+        DestroyWindow(hWnd);
         hWnd = NULL;
     }
 }
@@ -945,7 +917,7 @@ BOOL CToolbarChild::SetPos(int x, int y, int w, int h, BOOL bUpdate)
         m_PosW = w;
         m_PosH = h;
         //return MoveWindow(hWnd,x,y,w,h,bUpdate);
-		return SetWindowPos(hWnd, NULL, x,y,w,h, SWP_NOZORDER|SWP_NOACTIVATE);		
+        return SetWindowPos(hWnd, NULL, x,y,w,h, SWP_NOZORDER|SWP_NOACTIVATE);        
     }
     return TRUE;
 }
@@ -973,38 +945,38 @@ int CToolbarChild::Height()
 
 int CToolbarChild::Visible()
 {
-	return m_Visible;
+    return m_Visible;
 }
 
 BOOL CToolbarChild::Show()
 {
-	if (hWnd != NULL)
-	{
-		UpdateWindow();
-		if (!m_Visible)
-		{			
-			ShowWindow(hWnd, SW_SHOW);
-			m_Visible = 1;
-		}
-		return TRUE;
-	}
-	return FALSE;
+    if (hWnd != NULL)
+    {
+        UpdateWindow();
+        if (!m_Visible)
+        {            
+            ShowWindow(hWnd, SW_SHOW);
+            m_Visible = 1;
+        }
+        return TRUE;
+    }
+    return FALSE;
 }
 
 
 BOOL CToolbarChild::Hide()
 {
-	if (hWnd != NULL)
-	{
-		if (m_Visible)
-		{						
-			ShowWindow(hWnd, SW_HIDE);
-			m_Visible = 0;
-		}
-		return TRUE;
-	}
-	return FALSE;
-	
+    if (hWnd != NULL)
+    {
+        if (m_Visible)
+        {                        
+            ShowWindow(hWnd, SW_HIDE);
+            m_Visible = 0;
+        }
+        return TRUE;
+    }
+    return FALSE;
+    
 }
 
 
@@ -1032,8 +1004,8 @@ HWND CToolbarChild::Create(LPCTSTR szClassName, HINSTANCE hResourceInst)
     }
 
     MDICREATESTRUCT mdic;
-	::memset(&mdic, 0, sizeof(mdic));
-	mdic.lParam = (LPARAM)this;
+    ::memset(&mdic, 0, sizeof(mdic));
+    mdic.lParam = (LPARAM)this;
 
     this->hResourceInst = hResourceInst;
 
@@ -1074,7 +1046,7 @@ BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBit
         States.push_back(sIniEntry + "MouseOver");
         States.push_back(sIniEntry + "Click");  
     } 
-	else if (ButtonType == BITMAPASBUTTON_CHECKBOX)
+    else if (ButtonType == BITMAPASBUTTON_CHECKBOX)
     {
         States.push_back(sIniEntry);
         States.push_back(sIniEntry + "MouseOver");
@@ -1083,7 +1055,7 @@ BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBit
         States.push_back(sIniEntry + "CheckedMouseOver");
         States.push_back(sIniEntry + "CheckedClick");  
     } 
-	else if (ButtonType == BITMAPASBUTTON_3STATE)
+    else if (ButtonType == BITMAPASBUTTON_3STATE)
     {
         States.push_back(sIniEntry);
         States.push_back(sIniEntry + "MouseOver");
@@ -1091,11 +1063,11 @@ BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBit
         States.push_back(sIniEntry + "1");
         States.push_back(sIniEntry + "1MouseOver");
         States.push_back(sIniEntry + "1Click");  
-		States.push_back(sIniEntry + "2");
+        States.push_back(sIniEntry + "2");
         States.push_back(sIniEntry + "2MouseOver");
         States.push_back(sIniEntry + "2Click");  
-	}
-	else if (ButtonType == BITMAPASBUTTON_4STATE)
+    }
+    else if (ButtonType == BITMAPASBUTTON_4STATE)
     {
         States.push_back(sIniEntry);
         States.push_back(sIniEntry + "MouseOver");
@@ -1103,14 +1075,14 @@ BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBit
         States.push_back(sIniEntry + "1");
         States.push_back(sIniEntry + "1MouseOver");
         States.push_back(sIniEntry + "1Click");  
-		States.push_back(sIniEntry + "2");
+        States.push_back(sIniEntry + "2");
         States.push_back(sIniEntry + "2MouseOver");
         States.push_back(sIniEntry + "2Click");  
-		States.push_back(sIniEntry + "3");
+        States.push_back(sIniEntry + "3");
         States.push_back(sIniEntry + "3MouseOver");
         States.push_back(sIniEntry + "3Click");  
     } 
-	else if (ButtonType == BITMAPASBUTTON_SLIDER)
+    else if (ButtonType == BITMAPASBUTTON_SLIDER)
     {
         States.push_back(sIniEntry);
         States.push_back(sIniEntry + "MouseOver");
@@ -1132,23 +1104,23 @@ BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBit
     if ((hWndItem != NULL) && (BitmapsFromIniSection.Get(sIniEntry) != NULL))
     {
         CBitmapAsButton *Button = NULL;
-		int i;
-		int n;
+        int i;
+        int n;
 
-		for (i = 0; i < Buttons.size(); i++)
-		{
-			if ((Buttons[i] != NULL) && (Buttons[i]->hWnd() == hWndItem))
-			{
-				Button = Buttons[i];
-				break;
-			}
-		}
-		n = i;
-		if (Button == NULL)
-		{
-			Button = new CBitmapAsButton(ButtonType);
-			Buttons.push_back(Button);
-		}
+        for (i = 0; i < Buttons.size(); i++)
+        {
+            if ((Buttons[i] != NULL) && (Buttons[i]->hWnd() == hWndItem))
+            {
+                Button = Buttons[i];
+                break;
+            }
+        }
+        n = i;
+        if (Button == NULL)
+        {
+            Button = new CBitmapAsButton(ButtonType);
+            Buttons.push_back(Button);
+        }
         Button->SetProcessMessage(this, StaticToolbarChildButtonProc);
 
         for (i = 0 ; i < States.size(); i++)
@@ -1163,7 +1135,7 @@ BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBit
         else
         {
             delete Button;
-			Buttons[n] = NULL;
+            Buttons[n] = NULL;
             return FALSE;
         }                   
     }    
@@ -1196,19 +1168,19 @@ BOOL CToolbarChild::RemoveSkin(string sID)
 
 BOOL CToolbarChild::SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache)
 {
-	HWND hWndItem = GetDlgItem(hWnd, uItemID); 
-	char szID[20];
-	sprintf(szID,"#%u", uItemID);
+    HWND hWndItem = GetDlgItem(hWnd, uItemID); 
+    char szID[20];
+    sprintf(szID,"#%u", uItemID);
     
     return SkinWindow(hWndItem, szID, sIniEntry, ButtonType, sSection, sIniFile, pBitmapCache);
 }
 
 BOOL CToolbarChild::RemoveSkinDlgItem(UINT uItemID)
 {
-	char szID[20];
+    char szID[20];
     sprintf(szID,"#%u", uItemID);
 
-	return RemoveSkin(szID);
+    return RemoveSkin(szID);
 }
 
 LRESULT CToolbarChild::ButtonChildProc(string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
@@ -1230,159 +1202,159 @@ LRESULT CToolbarChild::ButtonChildProc(string sID, HWND hWndParent, UINT MouseFl
 
 void CToolbarChild::DrawItem(DRAWITEMSTRUCT* pDrawItem, HICON hIcon, LPCSTR szText, int Width, int Height, int Align)
 {
-	if (pDrawItem == NULL)
-	{
-		return;
-	}
-	if (m_BgBrush == NULL)
-	{
-		m_BgBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
-	}
-	if (m_hPen3DShadow == NULL)
-	{
-		m_hPen3DShadow = ::CreatePen(PS_SOLID,1,GetSysColor(COLOR_3DSHADOW));
-	}
-	if (m_hPen3DLight == NULL)
-	{
-		m_hPen3DLight = ::CreatePen(PS_SOLID,1,GetSysColor(COLOR_3DLIGHT));
-	}
+    if (pDrawItem == NULL)
+    {
+        return;
+    }
+    if (m_BgBrush == NULL)
+    {
+        m_BgBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
+    }
+    if (m_hPen3DShadow == NULL)
+    {
+        m_hPen3DShadow = ::CreatePen(PS_SOLID,1,GetSysColor(COLOR_3DSHADOW));
+    }
+    if (m_hPen3DLight == NULL)
+    {
+        m_hPen3DLight = ::CreatePen(PS_SOLID,1,GetSysColor(COLOR_3DLIGHT));
+    }
 
-	FillRect(pDrawItem->hDC, &pDrawItem->rcItem, m_BgBrush);
-	
-	if ((pDrawItem->CtlType == ODT_BUTTON) && ((pDrawItem->itemState&17)!=0))
-	{
-		//Draw sunken border
+    FillRect(pDrawItem->hDC, &pDrawItem->rcItem, m_BgBrush);
+    
+    if ((pDrawItem->CtlType == ODT_BUTTON) && ((pDrawItem->itemState&17)!=0))
+    {
+        //Draw sunken border
 
-		LPRECT lpRect = &pDrawItem->rcItem;
-		if ((m_hPen3DShadow != NULL) && (m_hPen3DLight!=NULL))
-		{
-			HPEN hPenOld = (HPEN)::SelectObject(pDrawItem->hDC, m_hPen3DShadow);					
-				
-			MoveToEx(pDrawItem->hDC, lpRect->left, lpRect->bottom-1, NULL);
-			LineTo(pDrawItem->hDC, lpRect->left, lpRect->top);
-			LineTo(pDrawItem->hDC, lpRect->right-1, lpRect->top);
+        LPRECT lpRect = &pDrawItem->rcItem;
+        if ((m_hPen3DShadow != NULL) && (m_hPen3DLight!=NULL))
+        {
+            HPEN hPenOld = (HPEN)::SelectObject(pDrawItem->hDC, m_hPen3DShadow);                    
+                
+            MoveToEx(pDrawItem->hDC, lpRect->left, lpRect->bottom-1, NULL);
+            LineTo(pDrawItem->hDC, lpRect->left, lpRect->top);
+            LineTo(pDrawItem->hDC, lpRect->right-1, lpRect->top);
 
-			::SelectObject(pDrawItem->hDC, m_hPen3DLight);
-			LineTo(pDrawItem->hDC, lpRect->right-1, lpRect->bottom-1);
-			LineTo(pDrawItem->hDC, lpRect->left, lpRect->bottom-1);
+            ::SelectObject(pDrawItem->hDC, m_hPen3DLight);
+            LineTo(pDrawItem->hDC, lpRect->right-1, lpRect->bottom-1);
+            LineTo(pDrawItem->hDC, lpRect->left, lpRect->bottom-1);
 
-			::SelectObject(pDrawItem->hDC, hPenOld);
-		}
-	}
-	if (hIcon != NULL)
-	{	
-		int X = pDrawItem->rcItem.left+1;
-		int Y = pDrawItem->rcItem.top+1;
-		
-		ICONINFO IconInfo;
-
-		if (GetIconInfo(hIcon, &IconInfo)) //try to align icon
-		{
-			BITMAP bm;
-			if (::GetObject (IconInfo.hbmColor, sizeof (bm), & bm))
-			{
-				int BmWidth =  bm.bmWidth;
-				int BmHeight =  bm.bmHeight;
-				if (Align & TOOLBARBUTTON_ICON_HALIGN_RIGHT)
-				{	
-					X = Width-BmWidth;
-				}
-				else if (Align & TOOLBARBUTTON_ICON_HALIGN_CENTER)
-				{
-					X = (Width-BmWidth)/2;
-				}
-
-				if (Align & TOOLBARBUTTON_ICON_VALIGN_BOTTOM)
-				{	
-					Y = Height-BmHeight;
-				}
-				else if (Align & TOOLBARBUTTON_ICON_VALIGN_CENTER)
-				{
-					Y = (Height-BmHeight)/2;
-				}
-				X += pDrawItem->rcItem.left;
-				Y += pDrawItem->rcItem.top;
-			}
-		}
-
-		if (pDrawItem->itemState & ODS_SELECTED) 
-		{
-			X++;
-			Y++;
-		} 
-		
-		::DrawIconEx(pDrawItem->hDC, X,Y,
-					hIcon, 0,0, 0, NULL, DI_NORMAL);
-	}
-	if ((szText!=NULL) && (szText[0]!=0))
-	{		
+            ::SelectObject(pDrawItem->hDC, hPenOld);
+        }
+    }
+    if (hIcon != NULL)
+    {    
         int X = pDrawItem->rcItem.left+1;
-		int Y = pDrawItem->rcItem.top+1;
-		
-		SIZE Size;
-		if (GetTextExtentPoint(pDrawItem->hDC, szText, strlen(szText), &Size))
-		{
-			if (Align & TOOLBARBUTTON_TEXT_HALIGN_RIGHT)
-			{
-				X = Width-Size.cx;
-			}
-			else if (Align & TOOLBARBUTTON_TEXT_HALIGN_CENTER)
-			{
-				X = (Width-Size.cx)/2; 
-			}
-			if (Align & TOOLBARBUTTON_TEXT_VALIGN_BOTTOM)
-			{
-				Y = (Height-Size.cy);
-			}
-			else if (Align & TOOLBARBUTTON_TEXT_VALIGN_CENTER)
-			{
-				Y = (Height-Size.cy)/2;
-			}
-			X += pDrawItem->rcItem.left;
-			Y += pDrawItem->rcItem.top;
-		}
-		
-		if (pDrawItem->itemState & ODS_SELECTED) 
-		{
-			X++;
-			Y++;
-		}            
-		
-        int nMode = SetBkMode(pDrawItem->hDC, TRANSPARENT);        		
+        int Y = pDrawItem->rcItem.top+1;
+        
+        ICONINFO IconInfo;
+
+        if (GetIconInfo(hIcon, &IconInfo)) //try to align icon
+        {
+            BITMAP bm;
+            if (::GetObject (IconInfo.hbmColor, sizeof (bm), & bm))
+            {
+                int BmWidth =  bm.bmWidth;
+                int BmHeight =  bm.bmHeight;
+                if (Align & TOOLBARBUTTON_ICON_HALIGN_RIGHT)
+                {    
+                    X = Width-BmWidth;
+                }
+                else if (Align & TOOLBARBUTTON_ICON_HALIGN_CENTER)
+                {
+                    X = (Width-BmWidth)/2;
+                }
+
+                if (Align & TOOLBARBUTTON_ICON_VALIGN_BOTTOM)
+                {    
+                    Y = Height-BmHeight;
+                }
+                else if (Align & TOOLBARBUTTON_ICON_VALIGN_CENTER)
+                {
+                    Y = (Height-BmHeight)/2;
+                }
+                X += pDrawItem->rcItem.left;
+                Y += pDrawItem->rcItem.top;
+            }
+        }
+
+        if (pDrawItem->itemState & ODS_SELECTED) 
+        {
+            X++;
+            Y++;
+        } 
+        
+        ::DrawIconEx(pDrawItem->hDC, X,Y,
+                    hIcon, 0,0, 0, NULL, DI_NORMAL);
+    }
+    if ((szText!=NULL) && (szText[0]!=0))
+    {        
+        int X = pDrawItem->rcItem.left+1;
+        int Y = pDrawItem->rcItem.top+1;
+        
+        SIZE Size;
+        if (GetTextExtentPoint(pDrawItem->hDC, szText, strlen(szText), &Size))
+        {
+            if (Align & TOOLBARBUTTON_TEXT_HALIGN_RIGHT)
+            {
+                X = Width-Size.cx;
+            }
+            else if (Align & TOOLBARBUTTON_TEXT_HALIGN_CENTER)
+            {
+                X = (Width-Size.cx)/2; 
+            }
+            if (Align & TOOLBARBUTTON_TEXT_VALIGN_BOTTOM)
+            {
+                Y = (Height-Size.cy);
+            }
+            else if (Align & TOOLBARBUTTON_TEXT_VALIGN_CENTER)
+            {
+                Y = (Height-Size.cy)/2;
+            }
+            X += pDrawItem->rcItem.left;
+            Y += pDrawItem->rcItem.top;
+        }
+        
+        if (pDrawItem->itemState & ODS_SELECTED) 
+        {
+            X++;
+            Y++;
+        }            
+        
+        int nMode = SetBkMode(pDrawItem->hDC, TRANSPARENT);                
         if (pDrawItem->itemState & ODS_DISABLED)
-		{
+        {
             DrawState(pDrawItem->hDC, (HBRUSH)NULL, NULL, (long)szText, 0, X,Y,Size.cx,Size.cy,DST_TEXT|DSS_DISABLED);
-		}
+        }
         else
-		{
+        {
             TextOut(pDrawItem->hDC, X, Y, szText, strlen(szText));
         }
         SetBkMode(pDrawItem->hDC, nMode);
-	}
+    }
 }
 
 LRESULT CALLBACK CToolbarChild::StaticToolbarChildProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	CToolbarChild *pThis = NULL;
+    CToolbarChild *pThis = NULL;
 
-	if (message == WM_GETDLGCODE)
-	{
+    if (message == WM_GETDLGCODE)
+    {
         return DLGC_WANTCHARS;
-	}
+    }
 
     if ( message == WM_NCCREATE )
-	{
-		if (lParam == 0)
+    {
+        if (lParam == 0)
         {
             return FALSE;
         }
         MDICREATESTRUCT * pMDIC = (MDICREATESTRUCT *)((LPCREATESTRUCT) lParam)->lpCreateParams;
-		CToolbarChild *pThis = (CToolbarChild*) (pMDIC->lParam);
-		::SetWindowLong(hWnd, GWL_USERDATA, (LONG)pThis);        
+        CToolbarChild *pThis = (CToolbarChild*) (pMDIC->lParam);
+        ::SetWindowLong(hWnd, GWL_USERDATA, (LONG)pThis);        
         return TRUE;
-	}
+    }
     
-	pThis = (CToolbarChild*)::GetWindowLong(hWnd, GWL_USERDATA);    
+    pThis = (CToolbarChild*)::GetWindowLong(hWnd, GWL_USERDATA);    
     
     if (pThis != NULL)
     {
@@ -1401,7 +1373,7 @@ LRESULT CALLBACK CToolbarChild::StaticToolbarChildDialogProc(HWND hWnd, UINT mes
     CToolbarChild* ToolbarChild = (CToolbarChild*)::GetWindowLong(hWnd, GWL_USERDATA);
     if (ToolbarChild != NULL)
     {
-        LRESULT Result = ToolbarChild->ToolbarChildProc(hWnd, message, wParam, lParam);		
+        LRESULT Result = ToolbarChild->ToolbarChildProc(hWnd, message, wParam, lParam);        
     }
     return FALSE;
 }

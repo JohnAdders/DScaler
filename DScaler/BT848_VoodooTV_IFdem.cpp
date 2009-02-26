@@ -20,12 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file BT848_VoodooTV_IFdem.cpp CPreTuneVoodooFM Implementation
@@ -67,7 +61,7 @@ void CPreTuneVoodooFM::TunerSet(bool bPreSet, eVideoFormat videoFormat)
         switch (videoFormat)
         {
             case VIDEOFORMAT_PAL_N_COMBO:
-	        case VIDEOFORMAT_NTSC_M:
+            case VIDEOFORMAT_NTSC_M:
             case VIDEOFORMAT_NTSC_M_Japan:
             case VIDEOFORMAT_NTSC_50:
                 Val |= (1<<16);

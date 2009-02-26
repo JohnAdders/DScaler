@@ -23,61 +23,6 @@
 // Copyright (C) 1999-2000 Zoltán Sinkovics and Szabolcs Seláf
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Original Release
-//                                     Translated most code from German
-//                                     Combined Header files
-//                                     Cut out all decoding
-//                                     Cut out digital hardware stuff
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 29 Dec 2002   Atsushi Nakagawa      Moved VPS stuff out of VBI_VideoText.*
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.11  2005/08/14 15:13:48  to_see
-// Added PCS, PTY to VPS Info dialog
-//
-// Revision 1.10  2005/08/07 18:47:28  to_see
-// Fixed: No VPS data at Pixel Width 720 and CX2388x chip
-//
-// Revision 1.9  2005/08/03 19:53:05  to_see
-// VPS Info Dialog improved
-// Added Audio info
-//
-// Revision 1.8  2005/08/02 19:57:17  to_see
-// Improved VPS decoding
-//
-// Revision 1.7  2005/07/29 16:29:35  to_see
-// Fixed VPS decoding bug
-//
-// Revision 1.6  2005/07/27 22:57:45  laurentg
-// New function to search the channel with the VPS CNI
-//
-// Revision 1.5  2004/01/16 09:14:03  adcockj
-// Fixed a couple of bugs spotted by Robert Schlabbach
-//
-// Revision 1.4  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.3  2003/01/07 16:49:11  adcockj
-// Changes to allow variable sampling rates for VBI
-//
-// Revision 1.2  2003/01/05 18:35:45  laurentg
-// Init function for VBI added
-//
-// Revision 1.1  2003/01/01 20:35:32  atnak
-// Moved VPS stuff out of VBI_VideoText.*
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file VBI_VPSdecode.cpp VBI VPS functions
@@ -141,19 +86,19 @@ void VPS_GetChannelNameFromCNI(LPSTR lpBuffer, LONG nLength)
 
     lpBuffer[0] = '\0';
 
-	if (VPS_Data.CNI != 0)
-	{
-		//LOG(1, "VPS CNI Code %x", VPS_Data.CNI);
-		for (int i(0); i < iNbRegisteredCNICodes; i++)
-		{
-			if (RegisteredCNICodes[i].wCNI_VPS == VPS_Data.CNI)
-			{
-				strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
-				lpBuffer[nLength] = '\0';
-				break;
-			}
-		}
-	}
+    if (VPS_Data.CNI != 0)
+    {
+        //LOG(1, "VPS CNI Code %x", VPS_Data.CNI);
+        for (int i(0); i < iNbRegisteredCNICodes; i++)
+        {
+            if (RegisteredCNICodes[i].wCNI_VPS == VPS_Data.CNI)
+            {
+                strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
+                lpBuffer[nLength] = '\0';
+                break;
+            }
+        }
+    }
 }
 
 

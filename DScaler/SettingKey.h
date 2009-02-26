@@ -15,28 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//  This file is part of the SettingRepository module.  See
-//  SettingRepository.h for more information.
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.5  2005/03/17 03:55:19  atnak
-// Syncing wip.
-//
-// Revision 1.4  2005/03/05 12:15:20  atnak
-// Syncing files.
-//
-// Revision 1.3  2004/09/08 07:14:08  atnak
-// Added type cast operators to simplify usage.
-//
-// Revision 1.2  2004/08/20 07:25:17  atnak
-// Removed the title value.
-//
-// Revision 1.1  2004/08/06 17:12:10  atnak
-// Setting repository initial upload.
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SETTINGKEY_H__
 #define __SETTINGKEY_H__
@@ -58,37 +36,37 @@ typedef class CSettingKey *PSETTINGKEY;
 class CSettingKey
 {
 public:
-	CSettingKey();
-	virtual ~CSettingKey();
+    CSettingKey();
+    virtual ~CSettingKey();
 
-	static PSETTINGOBJECT NewSetting(LPCSTR entry, BYTE type);
+    static PSETTINGOBJECT NewSetting(LPCSTR entry, BYTE type);
 
-	virtual void LoadSetting(BYTE options = 0);
-	virtual void SaveSetting();
+    virtual void LoadSetting(BYTE options = 0);
+    virtual void SaveSetting();
 
-	virtual void SetValueSV(RCSETTINGVALUE value, BYTE options = 0);
-	virtual CSettingValue GetValueSV();
+    virtual void SetValueSV(RCSETTINGVALUE value, BYTE options = 0);
+    virtual CSettingValue GetValueSV();
 
-	virtual void UseDefault(BYTE options = 0);
-	virtual void SetDefaultSV(RCSETTINGVALUE value, BYTE options = 0);
-	virtual CSettingValue GetDefaultSV();
+    virtual void UseDefault(BYTE options = 0);
+    virtual void SetDefaultSV(RCSETTINGVALUE value, BYTE options = 0);
+    virtual CSettingValue GetDefaultSV();
 
-	virtual void CheckLimiter(BYTE options = 0);
-	virtual void SetLimiter(PSETTINGLIMITER limiter, BYTE options = 0);
-	virtual PSETTINGLIMITER GetLimiter();
+    virtual void CheckLimiter(BYTE options = 0);
+    virtual void SetLimiter(PSETTINGLIMITER limiter, BYTE options = 0);
+    virtual PSETTINGLIMITER GetLimiter();
 
-	virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
+    virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
 
-	void			SetController(PSETTINGGROUP controller, HSETTING identifier);
-	PSETTINGGROUP	GetController() const;
-	HSETTING		GetIdentifier() const;
+    void            SetController(PSETTINGGROUP controller, HSETTING identifier);
+    PSETTINGGROUP    GetController() const;
+    HSETTING        GetIdentifier() const;
 
-	inline operator PSETTINGKEY() { return this; };
-	inline operator HSETTING() const { return GetIdentifier(); };
+    inline operator PSETTINGKEY() { return this; };
+    inline operator HSETTING() const { return GetIdentifier(); };
 
 protected:
-	HSETTING		m_identifier;
-	PSETTINGGROUP	m_controller;
+    HSETTING        m_identifier;
+    PSETTINGGROUP    m_controller;
 };
 
 
@@ -98,22 +76,22 @@ protected:
 class CSettingKeyLong : public CSettingKey
 {
 public:
-	CSettingKeyLong();
-	virtual ~CSettingKeyLong();
+    CSettingKeyLong();
+    virtual ~CSettingKeyLong();
 
-	static PSETTINGOBJECT NewSetting(LPCSTR entry, long initial);
-	static PSETTINGOBJECT NewSetting(LPCSTR entry, long initial, long minimum, long maximum);
+    static PSETTINGOBJECT NewSetting(LPCSTR entry, long initial);
+    static PSETTINGOBJECT NewSetting(LPCSTR entry, long initial, long minimum, long maximum);
 
-	virtual void SetValue(long value, BYTE options = 0);
-	virtual long GetValue();
+    virtual void SetValue(long value, BYTE options = 0);
+    virtual long GetValue();
 
-	virtual void SetDefault(long value, BYTE options = 0);
-	virtual long GetDefault();
+    virtual void SetDefault(long value, BYTE options = 0);
+    virtual long GetDefault();
 
-	virtual void SetRange(long minimum, long maximum, BYTE options = 0);
+    virtual void SetRange(long minimum, long maximum, BYTE options = 0);
 
-	virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
-	virtual BOOL Notify(INT message, long newValue, long oldValue);
+    virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
+    virtual BOOL Notify(INT message, long newValue, long oldValue);
 };
 
 
@@ -123,22 +101,22 @@ public:
 class CSettingKeyString : public CSettingKey
 {
 public:
-	CSettingKeyString();
-	virtual ~CSettingKeyString();
+    CSettingKeyString();
+    virtual ~CSettingKeyString();
 
-	static PSETTINGOBJECT NewSetting(LPCSTR entry, std::string initial);
-	static PSETTINGOBJECT NewSetting(LPCSTR entry, std::string initial, ULONG maxLength);
+    static PSETTINGOBJECT NewSetting(LPCSTR entry, std::string initial);
+    static PSETTINGOBJECT NewSetting(LPCSTR entry, std::string initial, ULONG maxLength);
 
-	virtual void SetValue(std::string value, BYTE options = 0);
-	virtual std::string GetValue();
+    virtual void SetValue(std::string value, BYTE options = 0);
+    virtual std::string GetValue();
 
-	virtual void SetDefault(std::string value, BYTE options = 0);
-	virtual std::string GetDefault();
+    virtual void SetDefault(std::string value, BYTE options = 0);
+    virtual std::string GetDefault();
 
-	virtual void SetMaxLength(ULONG maxLength, BYTE options = 0);
+    virtual void SetMaxLength(ULONG maxLength, BYTE options = 0);
 
-	virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
-	virtual BOOL Notify(INT message, std::string newValue, std::string oldValue);
+    virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
+    virtual BOOL Notify(INT message, std::string newValue, std::string oldValue);
 };
 
 
@@ -148,31 +126,31 @@ public:
 class CSettingKeySlider : public CSettingKeyLong
 {
 public:
-	CSettingKeySlider();
-	virtual ~CSettingKeySlider();
+    CSettingKeySlider();
+    virtual ~CSettingKeySlider();
 
-	virtual void Setup(long initial, long minimum, long maximum, long step = 1);
+    virtual void Setup(long initial, long minimum, long maximum, long step = 1);
 
-	virtual PSETTINGOBJECT CreateSetting(LPCSTR entry);
-	virtual PSETTINGCONFIG CreateSliderConfig();
+    virtual PSETTINGOBJECT CreateSetting(LPCSTR entry);
+    virtual PSETTINGCONFIG CreateSliderConfig();
 
-	virtual void StepUp(BYTE options = 0);
-	virtual void StepDown(BYTE options = 0);
+    virtual void StepUp(BYTE options = 0);
+    virtual void StepDown(BYTE options = 0);
 
-	virtual void SetRange(long minimum, long maximum, BYTE options = 0);
+    virtual void SetRange(long minimum, long maximum, BYTE options = 0);
 
-	virtual void SetMin(long minimum, BYTE options = 0);
-	virtual void SetMax(long maximum, BYTE options = 0);
-	virtual long GetMin();
-	virtual long GetMax();
+    virtual void SetMin(long minimum, BYTE options = 0);
+    virtual void SetMax(long maximum, BYTE options = 0);
+    virtual long GetMin();
+    virtual long GetMax();
 
-	virtual void SetStep(long step);
+    virtual void SetStep(long step);
 
 protected:
-	long m_initial;
-	long m_minimum;
-	long m_maximum;
-	long m_step;
+    long m_initial;
+    long m_minimum;
+    long m_maximum;
+    long m_step;
 };
 
 
@@ -182,41 +160,41 @@ protected:
 class CSettingKeyDSSimple : public CSettingKeySlider, public ISetting
 {
 public:
-	CSettingKeyDSSimple();
-	virtual ~CSettingKeyDSSimple();
+    CSettingKeyDSSimple();
+    virtual ~CSettingKeyDSSimple();
 
-	virtual void SetDefault() { CSettingKeySlider::UseDefault(); }
-	virtual SETTING_TYPE GetType() { return SLIDER; };
+    virtual void SetDefault() { CSettingKeySlider::UseDefault(); }
+    virtual SETTING_TYPE GetType() { return SLIDER; };
 
-	virtual long GetValue() { return CSettingKeySlider::GetValue(); }
-	virtual void ChangeValue(eCHANGEVALUE method);
+    virtual long GetValue() { return CSettingKeySlider::GetValue(); }
+    virtual void ChangeValue(eCHANGEVALUE method);
 
-	virtual long GetMin() { return CSettingKeySlider::GetMin(); }
-	virtual long GetMax() { return CSettingKeySlider::GetMax(); }
-	virtual long GetDefault() { return CSettingKeySlider::GetDefault(); }
+    virtual long GetMin() { return CSettingKeySlider::GetMin(); }
+    virtual long GetMax() { return CSettingKeySlider::GetMax(); }
+    virtual long GetDefault() { return CSettingKeySlider::GetDefault(); }
 
-	virtual void ChangeDefault(long newDefault, BOOL = FALSE);
-	virtual void SetDefault(long newValue, BOOL = FALSE);
-	virtual void SetValue(long newValue, BOOL = FALSE);
+    virtual void ChangeDefault(long newDefault, BOOL = FALSE);
+    virtual void SetDefault(long newValue, BOOL = FALSE);
+    virtual void SetValue(long newValue, BOOL = FALSE);
 
-	virtual void OSDShow();
+    virtual void OSDShow();
 
-	virtual void SetupControl(HWND hWnd);
-	virtual void SetControlValue(HWND hWnd);
-	virtual void SetFromControl(HWND hWnd);
+    virtual void SetupControl(HWND hWnd);
+    virtual void SetControlValue(HWND hWnd);
+    virtual void SetFromControl(HWND hWnd);
 
-	// Unsupported
-	virtual BOOL ReadFromIni() { return FALSE; }
-	virtual void WriteToIni(BOOL) { }
+    // Unsupported
+    virtual BOOL ReadFromIni() { return FALSE; }
+    virtual void WriteToIni(BOOL) { }
 
-	virtual BOOL ReadFromIniSubSection(LPCSTR) { return FALSE; }
-	virtual void WriteToIniSubSection(LPCSTR, BOOL = TRUE) { }
+    virtual BOOL ReadFromIniSubSection(LPCSTR) { return FALSE; }
+    virtual void WriteToIniSubSection(LPCSTR, BOOL = TRUE) { }
 
-	virtual void DisableOnChange() { }
-	virtual void EnableOnChange() { }
+    virtual void DisableOnChange() { }
+    virtual void EnableOnChange() { }
 
-	virtual void SetGroup(CSettingGroup*) { }; 
-	virtual CSettingGroup* GetGroup() { return NULL; }
+    virtual void SetGroup(CSettingGroup*) { }; 
+    virtual CSettingGroup* GetGroup() { return NULL; }
 };
 
 
@@ -265,18 +243,18 @@ public:
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(__KeyClass, __TClass, __Name) \
 public: \
-	BOOL __Name ## OnNotify(INT message, long newValue, long oldValue); \
+    BOOL __Name ## OnNotify(INT message, long newValue, long oldValue); \
 protected: \
 class C ## __Name ## Setting : public __KeyClass \
 { \
 public: \
-	C ## __Name ## Setting() : __KeyClass(), m_c(NULL) { } \
-	void SetParent(__TClass* ptr) \
-	{ m_c = ptr; } \
-	BOOL Notify(INT message, long newValue, long oldValue) \
-	{ return m_c == NULL || m_c->__Name ## OnNotify(message, newValue, oldValue); } \
+    C ## __Name ## Setting() : __KeyClass(), m_c(NULL) { } \
+    void SetParent(__TClass* ptr) \
+    { m_c = ptr; } \
+    BOOL Notify(INT message, long newValue, long oldValue) \
+    { return m_c == NULL || m_c->__Name ## OnNotify(message, newValue, oldValue); } \
 private: \
-	__TClass* m_c; \
+    __TClass* m_c; \
 }
 
 
@@ -288,8 +266,8 @@ BOOL __Name ## OnNotify(INT message, long newValue, long oldValue); \
 class C ## __Name ## Setting : public __KeyClass \
 { \
 public: \
-	BOOL Notify(INT message, long newValue, long oldValue) \
-	{ return __Name ## OnNotify(message, newValue, oldValue); } \
+    BOOL Notify(INT message, long newValue, long oldValue) \
+    { return __Name ## OnNotify(message, newValue, oldValue); } \
 }
 
 
@@ -297,49 +275,49 @@ public: \
 // CSETTINGKEY_C_CALLBACK_INIT(InstanceVariable)
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_C_CALLBACK_INIT(__Instance) \
-	(__Instance).SetParent(this)
+    (__Instance).SetParent(this)
 
 
 //////////////////////////////////////////////////////////////////////////
 // CSETTINGKEY_C_CALLBACK_LONG(ClassName, SettingName)
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_C_CALLBACK_LONG(__TClass, __Name) \
-	CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(CSettingKeyLong, __TClass, __Name)
+    CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(CSettingKeyLong, __TClass, __Name)
 
 
 //////////////////////////////////////////////////////////////////////////
 // CSETTINGKEY_P_CALLBACK_LONG(SettingName)
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_P_CALLBACK_LONG(__Name) \
-	CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(CSettingKeyLong, __Name)
+    CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(CSettingKeyLong, __Name)
 
 
 //////////////////////////////////////////////////////////////////////////
 // CSETTINGKEY_C_CALLBACK_SLIDER(ClassName, SettingName)
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_C_CALLBACK_SLIDER(__TClass, __Name) \
-	CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(CSettingKeySlider, __TClass, __Name)
+    CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(CSettingKeySlider, __TClass, __Name)
 
 
 //////////////////////////////////////////////////////////////////////////
 // CSETTINGKEY_P_CALLBACK_SLIDER(SettingName)
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_P_CALLBACK_SLIDER(__Name) \
-	CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(CSettingKeySlider, __Name)
+    CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(CSettingKeySlider, __Name)
 
 
 //////////////////////////////////////////////////////////////////////////
 // CSETTINGKEY_C_CALLBACK_DSSIMPLE(ClassName, SettingName)
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_C_CALLBACK_DSSIMPLE(__TClass, __Name) \
-	CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(CSettingKeyDSSimple, __TClass, __Name)
+    CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(CSettingKeyDSSimple, __TClass, __Name)
 
 
 //////////////////////////////////////////////////////////////////////////
 // CSETTINGKEY_P_CALLBACK_DSSIMPLE(SettingName)
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_P_CALLBACK_DSSIMPLE(__Name) \
-	CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(CSettingKeyDSSimple, __Name)
+    CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(CSettingKeyDSSimple, __Name)
 
 
 //////////////////////////////////////////////////////////////////////////

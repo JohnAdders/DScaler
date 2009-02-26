@@ -84,12 +84,12 @@ private:
     std::string m_FileName;
     BOOL m_Supported;
     BYTE* m_FrameBuffer;
-	int m_FrameHeight;
-	int m_FrameWidth;
-	int m_LinePitch;
+    int m_FrameHeight;
+    int m_FrameWidth;
+    int m_LinePitch;
     BOOL m_SquarePixels;
-	time_t m_TimeStamp;
-	std::string m_Context;
+    time_t m_TimeStamp;
+    std::string m_Context;
 };
 
 /** Source class that can read files and playlists and display
@@ -122,8 +122,8 @@ public:
     ISetting* GetBottomOverscan() {return NULL;};
     ISetting* GetLeftOverscan() {return NULL;};
     ISetting* GetRightOverscan() {return NULL;};
-	ISetting* GetHDelay() {return NULL;};
-	ISetting* GetVDelay() {return NULL;};
+    ISetting* GetHDelay() {return NULL;};
+    ISetting* GetVDelay() {return NULL;};
 
     CTreeSettingsPage* GetTreeSettingsPage() {return NULL;};
 
@@ -133,7 +133,7 @@ public:
     int GetInitialHeight();
     int GetWidth();
     int GetHeight();
-	void SetWidth(int w) {return;};
+    void SetWidth(int w) {return;};
 
     void UpdateMenu();
     void SetMenu(HMENU hMenu);
@@ -146,7 +146,7 @@ public:
     BOOL ReadNextFrameInFile();
     BOOL LoadPlayList(LPCSTR FileName);
     void SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch);
-	void SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pAllocBuffer, LONG LinePitch);
+    void SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pAllocBuffer, LONG LinePitch);
     void SaveInFile(int pos);
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
     BOOL IsAccessAllowed();
@@ -167,12 +167,12 @@ public:
     void Pause() {return;};
     void UnPause() {return;};
 
-	BOOL HasMediaControl() {return FALSE;};
+    BOOL HasMediaControl() {return FALSE;};
 
     BOOL IsAudioMixerAccessAllowed() {return FALSE;};
 
-	int	 GetPlaylistPosition();
-	int CountMemoryUsage();
+    int     GetPlaylistPosition();
+    int CountMemoryUsage();
 
     BOOL IsOneItemInMemory();
 
@@ -181,15 +181,15 @@ public:
     friend class CPatternHelper;
 
 private:
-	void FreeOriginalFrameBuffer();
+    void FreeOriginalFrameBuffer();
     void ClearPlayList();
     BOOL ShowNextInPlayList();
     BOOL ShowPreviousInPlayList();
     BOOL OpenPictureFile(LPCSTR FileName);
-	BOOL OpenPictureMemory(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const char* Context);
+    BOOL OpenPictureMemory(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const char* Context);
     BOOL SavePlayList(LPCSTR FileName);
     BOOL IsItemInList(LPCSTR FileName);
-	BOOL FindFileName(time_t TimeStamp, char* FileName);
+    BOOL FindFileName(time_t TimeStamp, char* FileName);
 
 protected:
     int         m_InitialWidth;
@@ -215,7 +215,7 @@ protected:
 
 private:
     DWORD       m_LastTickCount;
-    DWORD		m_FrameDuration;
+    DWORD        m_FrameDuration;
     BOOL        m_SlideShowActive;
     
     eStillNewFileRequest    m_NewFileRequested;
@@ -227,9 +227,9 @@ private:
 };
 
 
-//    	BYTE** y = (BYTE**) (x+16);
-//    	y = (BYTE**) ((unsigned int) y & 0xfffffff0);
-#define	START_ALIGNED16(buf)	((buf) + 16 - ((DWORD)(buf) % 16))
+//        BYTE** y = (BYTE**) (x+16);
+//        y = (BYTE**) ((unsigned int) y & 0xfffffff0);
+#define    START_ALIGNED16(buf)    ((buf) + 16 - ((DWORD)(buf) % 16))
 
 BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight);
 

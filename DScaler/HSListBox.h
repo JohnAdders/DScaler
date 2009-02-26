@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jun 2001   Torbjörn Jansson      Initial release
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file HSListBox.h Header file for CHSListBox class.

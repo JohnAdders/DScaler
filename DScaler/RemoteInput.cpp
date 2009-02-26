@@ -19,7 +19,7 @@ void RemoteRegister()
 #ifdef WM_INPUT
     // we've got to load these functions dynamically 
     // so that we continue to run on NT 4
-	HINSTANCE h = LoadLibrary("user32.dll");
+    HINSTANCE h = LoadLibrary("user32.dll");
     lpRegisterRawInputDevices = (BOOL (WINAPI *)(IN PCRAWINPUTDEVICE pRawInputDevices,IN UINT uiNumDevices,IN UINT cbSize))GetProcAddress(h,"RegisterRawInputDevices");
     lpGetRawInputData = (UINT (WINAPI*)(IN HRAWINPUT hRawInput,IN UINT uiCommand,OUT LPVOID pData,IN OUT PUINT pcbSize,IN UINT cbSizeHeader))GetProcAddress(h,"GetRawInputData");;
 

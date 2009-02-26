@@ -13,51 +13,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.12  2002/11/04 01:09:12  lindsey
-// Slightly changed the response curve to more closely resemble the
-// chi-squaredish optimum; Reduced the default parameter value
-//
-// Revision 1.11  2002/10/13 07:48:26  lindsey
-// Corrected the HistoryRequired field
-//
-// Revision 1.10  2002/08/07 00:42:38  lindsey
-// Made prefetching into a user option.
-//
-// Revision 1.9  2002/06/18 19:46:08  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.8  2002/06/13 12:10:25  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.7  2002/02/23 03:22:16  lindsey
-// Exposed the "Use this filter" settings
-//
-// Revision 1.6  2002/02/04 01:06:03  lindsey
-// Added 3DNow optimized version
-//
-// Revision 1.5  2002/02/01 23:19:49  lindsey
-// Enabled SSE version, again.  (Oops.)
-//
-// Revision 1.4  2002/02/01 23:16:29  lindsey
-// Added code for MMX computers
-// Removed MMXEXT version (since it didn't do anything)
-//
-// Revision 1.3  2001/12/31 00:02:59  lindsey
-// Fixed crashing bug when pixel width not evenly divisible by 8
-// Added prefetching for a substantial speed up
-//
-// Revision 1.2  2001/12/28 02:52:14  lindsey
-// Corrected a settings typo
-// Prevented a crash with very low Noise Reduction settings
-//
-// Revision 1.1.1.1  2001/12/23 01:43:53  lindsey
-// Added Gradual Noise Filter
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Filter.h"

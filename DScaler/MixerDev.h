@@ -20,20 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Original Release
-//                                     Translated most code from German
-//                                     Combined Header files
-//                                     Cut out all decoding
-//                                     Cut out digital hardware stuff
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file mixerdev.h mixerdev Header file

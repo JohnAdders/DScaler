@@ -15,14 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2007/02/18 15:02:16  robmuller
-// Added CVS log.
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "ioutput.h"
@@ -34,7 +26,7 @@ IOutput *ActiveOutput=NULL;
 extern COverlayOutput OverlayOutputInstance;
 extern CD3D9Output D3D9OutputInstance;
    
-	
+    
 
 IOutput::IOutput(void)
 {
@@ -48,8 +40,8 @@ IOutput::~IOutput(void)
 void IOutput::GetMonitorRect(HWND hWnd, RECT* rect)
 {
     /*
-	drop NT4.0 compatibility .. anybody still using it???
-	if(lpMonitorFromWindow == NULL)
+    drop NT4.0 compatibility .. anybody still using it???
+    if(lpMonitorFromWindow == NULL)
     {
         rect->top = 0;
         rect->left = 0;
@@ -58,14 +50,14 @@ void IOutput::GetMonitorRect(HWND hWnd, RECT* rect)
         return;
     }*/
 
-	HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
-	MONITORINFO MonInfo;
+    HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    MONITORINFO MonInfo;
 
-	MonInfo.cbSize = sizeof(MONITORINFO);
+    MonInfo.cbSize = sizeof(MONITORINFO);
 
-	GetMonitorInfo(hMonitor, &MonInfo);
-	memcpy(rect, &MonInfo.rcMonitor, sizeof(RECT));
-	LOG(2, "GetMonitorRect %d %d %d %d", rect->left, rect->right, rect->top, rect->bottom);
+    GetMonitorInfo(hMonitor, &MonInfo);
+    memcpy(rect, &MonInfo.rcMonitor, sizeof(RECT));
+    LOG(2, "GetMonitorRect %d %d %d %d", rect->left, rect->right, rect->top, rect->bottom);
 }
 
 SETTING* IOutput::GetOtherSettings()

@@ -20,26 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.5  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.4  2001/12/08 13:43:20  adcockj
-// Fixed logging and memory leak bugs
-//
-// Revision 1.3  2001/11/29 17:30:52  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.2  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
-// initial checkin of the new I2C code
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file I2CBusForLineInterface.cpp CI2CBusForLineInterface Implementation

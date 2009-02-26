@@ -15,37 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 21 Dec 2002   Atsushi Nakagawa      Remodularized videotext elements
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.6  2005/07/26 19:36:03  laurentg
-// New functions to get network ID from P8/30/1,2
-// History of 2 consecutive values for NetworkIDCode inside P8/30/1
-//
-// Revision 1.5  2005/07/25 22:32:52  laurentg
-// Mutex added to access m_BroadcastServiceData and m_PDC
-//
-// Revision 1.4  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.3  2003/01/12 17:12:45  atnak
-// Added hex pages display and goto dialog
-//
-// Revision 1.2  2003/01/05 16:09:44  atnak
-// Updated TopText for new teletext
-//
-// Revision 1.1  2003/01/01 20:38:11  atnak
-// New videotext decoder
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file vtdecoder.h vtdecoder Header file
@@ -112,11 +81,11 @@ public:
     // Get the status display in the broadcast service data
     void GetStatusDisplay(LPSTR lpBuffer, LONG nLength);
 
-	// Get the network ID code from P8/30/1
-	WORD GetNetworkIDFromP8301();
+    // Get the network ID code from P8/30/1
+    WORD GetNetworkIDFromP8301();
 
-	// Get the CNI from PDC (P8/30/2)
-	WORD GetCNIFromPDC();
+    // Get the CNI from PDC (P8/30/2)
+    WORD GetCNIFromPDC();
 
     // Gets the list of visible page numbers in the cache
     WORD GetVisiblePageNumbers(LPWORD lpNumberList, WORD nListSize);

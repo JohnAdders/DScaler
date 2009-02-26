@@ -15,187 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.81  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.80  2003/05/26 22:04:11  laurentg
-// Update of the OSD displayed when doing calibration
-//
-// Revision 1.79  2003/01/30 22:32:39  laurentg
-// Restriction to maximum range for the settings deleted
-//
-// Revision 1.78  2003/01/24 01:55:18  atnak
-// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
-// got rid of the pink overlay colorkey for Teletext.
-//
-// Revision 1.77  2003/01/18 10:52:11  laurentg
-// SetOverscan renamed SetAspectRatioData
-// Unnecessary call to SetOverscan deleted
-// Overscan setting specific to calibration deleted
-//
-// Revision 1.76  2003/01/08 19:59:36  laurentg
-// Analogue Blanking setting by source
-//
-// Revision 1.75  2003/01/07 23:27:02  laurentg
-// New overscan settings
-//
-// Revision 1.74  2002/10/29 23:38:35  laurentg
-// Display of the calibration OSD
-//
-// Revision 1.73  2002/10/29 20:58:09  laurentg
-// Calibration source cut in Calibration + Pattern
-//
-// Revision 1.72  2002/10/26 17:56:18  laurentg
-// Possibility to take stills in memory added
-//
-// Revision 1.71  2002/10/05 18:28:48  laurentg
-// Correction for H3D in order to have the menu for color calibration enabled
-//
-// Revision 1.70  2002/09/28 11:10:16  laurentg
-// Manage the case when there is only one unique setting for color
-//
-// Revision 1.69  2002/08/02 20:16:43  laurentg
-// Suppress call to RemoveMenu
-//
-// Revision 1.68  2002/07/20 12:09:38  laurentg
-// Card calibration settings added in the tree settings
-//
-// Revision 1.67  2002/06/21 23:14:19  laurentg
-// New way to store address of allocated memory buffer for still source
-//
-// Revision 1.66  2002/06/13 12:10:21  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.65  2002/06/02 09:43:23  laurentg
-// Settings restore at end of automatic calibration was broken
-//
-// Revision 1.64  2002/06/01 22:24:36  laurentg
-// New calibration mode to compute YUV range
-//
-// Revision 1.63  2002/05/27 22:28:20  laurentg
-// LIMIT_Y and LIMIT_CbCr used in the conversion from RGB to YCbCr
-//
-// Revision 1.62  2002/05/27 20:14:54  laurentg
-// Possibility to define the pattern size in the pattern description
-//
-// Revision 1.61  2002/05/10 20:34:38  laurentg
-// Formula for conversion RGB <=> YCbCr updated
-//
-// Revision 1.60  2002/05/06 15:48:53  laurentg
-// Informations saved in a DScaler still updated
-// Use of the comments field to show informations about a DScaler still
-//
-// Revision 1.59  2002/05/05 12:09:21  laurentg
-// All lines have now a pitch which is a multiple of 16
-// Width of picture is now forced to an even value
-//
-// Revision 1.58  2002/05/03 20:36:49  laurentg
-// 16 byte aligned data
-//
-// Revision 1.57  2002/05/03 11:18:37  laurentg
-// New settings added to define the size of the pattern
-//
-// Revision 1.56  2002/04/15 22:50:08  laurentg
-// Change again the available formats for still saving
-// Automatic switch to "square pixels" AR mode when needed
-//
-// Revision 1.55  2002/04/13 18:47:53  laurentg
-// Management of still files improved
-//
-// Revision 1.54  2002/04/06 11:46:46  laurentg
-// Check that the current source is not NULL to avoid DScaler exits
-//
-// Revision 1.53  2002/02/26 21:24:24  laurentg
-// Move the test on the still file size in order to have a global treatment later
-//
-// Revision 1.52  2002/02/24 19:04:16  laurentg
-// Draw borders with specific size in pixels
-//
-// Revision 1.51  2002/02/23 00:30:47  laurentg
-// NotifySizeChange
-//
-// Revision 1.50  2002/02/22 09:07:13  tobbej
-// fixed small race condition when calling notifysizechange, workoutoverlaysize might have used the old size
-//
-// Revision 1.49  2002/02/19 16:03:36  tobbej
-// removed CurrentX and CurrentY
-// added new member in CSource, NotifySizeChange
-//
-// Revision 1.48  2002/02/16 16:43:15  laurentg
-// Syntax modification for patterns
-//
-// Revision 1.47  2002/02/16 13:22:23  laurentg
-// Gradation of colors for pattern generator
-//
-// Revision 1.46  2002/02/16 11:37:29  laurentg
-// Pattern generator improvments
-// New gamma and test scaling patterns
-//
-// Revision 1.45  2002/02/14 23:16:59  laurentg
-// Stop / start capture never needed when switching between files of the playlist
-// CurrentX / CurrentY not updated in StillSource but in the main decoding loop
-//
-// Revision 1.44  2002/02/10 09:25:03  laurentg
-// Don't paint the background in white
-//
-// Revision 1.43  2002/02/09 21:12:28  laurentg
-// Old test patterns restored
-// Loading of d3u files improved (absolute or relative path)
-//
-// Revision 1.42  2002/02/09 18:06:27  laurentg
-// Avoid to start calibration if there is no control on needed settings
-//
-// Revision 1.41  2002/02/09 12:57:38  laurentg
-// Function Calibr_ShowUI added
-//
-// Revision 1.40  2002/02/09 02:44:56  laurentg
-// Overscan now stored in a setting of the source
-//
-// Revision 1.39  2002/02/08 00:36:06  laurentg
-// Support of a new type of file : DScaler patterns
-//
-// Revision 1.38  2001/12/08 13:43:20  adcockj
-// Fixed logging and memory leak bugs
-//
-// Revision 1.37  2001/12/05 21:45:10  ittarnavsky
-// added changes for the AudioDecoder and AudioControls support
-//
-// Revision 1.36  2001/11/29 17:30:51  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.35  2001/11/24 22:57:02  laurentg
-// Copyright line restored
-//
-// Revision 1.34  2001/11/23 10:49:16  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.33  2001/11/22 13:32:03  adcockj
-// Finished changes caused by changes to TDeinterlaceInfo - Compiles
-//
-// Revision 1.32  2001/11/21 12:32:11  adcockj
-// Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
-//
-// Revision 1.31  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.30  2001/11/02 16:30:07  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.29  2001/11/01 11:35:23  adcockj
-// Pre release changes to version, help, comment and headers
-//
-/////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 23 Jul 2001   Laurent Garnier       File created
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file Calibration.cpp Calibration Classes
@@ -215,7 +34,7 @@
 
 
 // Minimum time in milliseconds between two consecutive evaluations
-#define	MIN_TIME_BETWEEN_CALC	35
+#define    MIN_TIME_BETWEEN_CALC    35
 // Number of calculations to do on successive frames before to decide what to adjust
 #define NB_CALCULATIONS_LOW     10
 #define NB_CALCULATIONS_HIGH    50
@@ -238,13 +57,13 @@ CCalSetting::CCalSetting(ISetting* pSetting)
     m_pSetting = pSetting;
     min = pSetting->GetMin();
     max = pSetting->GetMax();
-	mask_nb = (max-min+1) / 32;
-	if ((max-min+1) % 32)
-	{
-		mask_nb++;
-	}
-	mask_input = (unsigned int*) malloc(mask_nb * sizeof(unsigned int)), 
-	mask_output = (unsigned int*) malloc(mask_nb * sizeof(unsigned int)), 
+    mask_nb = (max-min+1) / 32;
+    if ((max-min+1) % 32)
+    {
+        mask_nb++;
+    }
+    mask_input = (unsigned int*) malloc(mask_nb * sizeof(unsigned int)), 
+    mask_output = (unsigned int*) malloc(mask_nb * sizeof(unsigned int)), 
     current_value = pSetting->GetValue();
     SetFullRange();
     InitResult();
@@ -252,8 +71,8 @@ CCalSetting::CCalSetting(ISetting* pSetting)
 
 CCalSetting::~CCalSetting()
 {
-	free(mask_input);
-	free(mask_output);
+    free(mask_input);
+    free(mask_output);
 }
 
 BOOL CCalSetting::Update()
@@ -352,7 +171,7 @@ int CCalSetting::GetRange(unsigned int** mask, int* min_val, int* max_val)
 {
     int i, nb;
 
-	for (i=0,nb=0 ; i<=(max - min) ; i++)
+    for (i=0,nb=0 ; i<=(max - min) ; i++)
     {
         if (mask_input[i/32] & (1 << (i%32)))
         {
@@ -360,16 +179,16 @@ int CCalSetting::GetRange(unsigned int** mask, int* min_val, int* max_val)
         }
     }
 
-	if (mask != NULL)
-	{
-		*mask = (unsigned int*) malloc(mask_nb * sizeof(unsigned int));
-		for (i=0 ; i<mask_nb; i++)
-		{
-			(*mask)[i] = mask_input[i];
-		}
-	}
-	*min_val = min_value;
-	*max_val = max_value;
+    if (mask != NULL)
+    {
+        *mask = (unsigned int*) malloc(mask_nb * sizeof(unsigned int));
+        for (i=0 ; i<mask_nb; i++)
+        {
+            (*mask)[i] = mask_input[i];
+        }
+    }
+    *min_val = min_value;
+    *max_val = max_value;
 
     return nb;
 }
@@ -419,7 +238,7 @@ void CCalSetting::AdjustBest()
     unsigned int* mask;
 
     nb_min = GetResult(&mask, &best_val_min, &best_val_max);
-	free(mask);
+    free(mask);
     if (nb_min > 0)
     {
         // Set the setting to one of the best found values
@@ -509,16 +328,16 @@ int CCalSetting::GetResult(unsigned int** mask, int* min_val, int* max_val)
         }
     }
 
-	*mask = (unsigned int*) malloc(mask_nb * sizeof(unsigned int));
+    *mask = (unsigned int*) malloc(mask_nb * sizeof(unsigned int));
 
-	if (nb_min > 0)
+    if (nb_min > 0)
     {
         for (i=0 ; i<mask_nb; i++)
         {
             (*mask)[i] = mask_output[i];
         }
-		*min_val = best_val_min;
-		*max_val = best_val_max;
+        *min_val = best_val_min;
+        *max_val = best_val_max;
     }
 
     return nb_min;
@@ -820,13 +639,13 @@ BOOL CCalibration::ProcessSelection(HWND hWnd, WORD wMenuId)
         it != m_TestPatterns.end(); 
         ++it, ++i)
     {
-		if (wMenuId == IDM_PATTERN_SELECT + i + 1)
+        if (wMenuId == IDM_PATTERN_SELECT + i + 1)
         {
-			pCalibration->SelectTestPattern(i);
-			return TRUE;
+            pCalibration->SelectTestPattern(i);
+            return TRUE;
         }
     }
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -835,7 +654,7 @@ void CCalibration::UpdateMenu(HMENU hMenu)
     HMENU           hMenuPatterns;
     MENUITEMINFO    MenuItemInfo;
     int             i;
-	char*		    name;
+    char*            name;
 
     hMenuPatterns = GetPatternsSubmenu();
     if (hMenuPatterns == NULL) return;
@@ -845,16 +664,16 @@ void CCalibration::UpdateMenu(HMENU hMenu)
         it != m_TestPatterns.end(); 
         ++it, ++i)
     {
-		name = (*it)->GetName();
+        name = (*it)->GetName();
 
         MenuItemInfo.cbSize = sizeof (MenuItemInfo);
         MenuItemInfo.fType = MFT_STRING;
-	    MenuItemInfo.dwTypeData = name;
-		MenuItemInfo.cch = strlen (name);
+        MenuItemInfo.dwTypeData = name;
+        MenuItemInfo.cch = strlen (name);
 
         MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
         MenuItemInfo.wID = IDM_PATTERN_SELECT + i + 1;
-	    InsertMenuItem(hMenuPatterns, i, TRUE, &MenuItemInfo);
+        InsertMenuItem(hMenuPatterns, i, TRUE, &MenuItemInfo);
     }
 }
 
@@ -862,26 +681,26 @@ void CCalibration::SetMenu(HMENU hMenu)
 {
     HMENU   hMenuPatterns;
     int     i;
-	char	*name;
+    char    *name;
     eTypeContentPattern type_content;
     int     SourceHeight;
     CSource* pSource = Providers_GetCurrentSource();
-	BOOL	OkBK, OkC, OkH;
+    BOOL    OkBK, OkC, OkH;
 
     if (pSource != NULL)
     {
         SourceHeight = pSource->GetHeight();
-		OkBK = (pSource->GetBrightness() != NULL && pSource->GetContrast() != NULL);
-		OkC = ( (pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL)
-		     || (pSource->GetSaturationU() == NULL && pSource->GetSaturationV() == NULL && pSource->GetSaturation() != NULL) );
-		OkH = (pSource->GetHue() != NULL);
+        OkBK = (pSource->GetBrightness() != NULL && pSource->GetContrast() != NULL);
+        OkC = ( (pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL)
+             || (pSource->GetSaturationU() == NULL && pSource->GetSaturationV() == NULL && pSource->GetSaturation() != NULL) );
+        OkH = (pSource->GetHue() != NULL);
     }
     else
     {
         SourceHeight = -1;
-		OkBK = FALSE;
-		OkC = FALSE;
-		OkH = FALSE;
+        OkBK = FALSE;
+        OkC = FALSE;
+        OkH = FALSE;
     }
 
     if ((m_CurTestPat != NULL) && (m_CurTestPat->GetHeight() != SourceHeight))
@@ -906,55 +725,55 @@ void CCalibration::SetMenu(HMENU hMenu)
         it != m_TestPatterns.end(); 
         ++it, ++i)
     {
-		name = (*it)->GetName();
-		EnableMenuItem(hMenuPatterns, i, (m_IsRunning || ((*it)->GetHeight() != SourceHeight)) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
-		CheckMenuItem(hMenuPatterns, i, (m_CurTestPat == (*it)) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
+        name = (*it)->GetName();
+        EnableMenuItem(hMenuPatterns, i, (m_IsRunning || ((*it)->GetHeight() != SourceHeight)) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
+        CheckMenuItem(hMenuPatterns, i, (m_CurTestPat == (*it)) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
     }
-	
+    
     EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
     EnableMenuItem(hMenu, IDM_START_YUV_RANGE, m_IsRunning ? MF_GRAYED : MF_ENABLED);
     if (OkBK && OkC && OkH)
     {
-    	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL) || (type_content != PAT_GRAY_AND_COLOR)) ? MF_GRAYED : MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL) || (type_content != PAT_GRAY_AND_COLOR)) ? MF_GRAYED : MF_ENABLED);
     }
     else
     {
-    	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, MF_GRAYED);
     }
     if (OkC && OkH)
     {
-    	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_COLOR))) ? MF_GRAYED : MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_COLOR))) ? MF_GRAYED : MF_ENABLED);
     }
     else
     {
-    	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, MF_GRAYED);
     }
     if (OkBK)
     {
-	    EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_RANGE_OF_GRAY))) ? MF_GRAYED : MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_RANGE_OF_GRAY))) ? MF_GRAYED : MF_ENABLED);
     }
     else
     {
-	    EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, MF_GRAYED);
     }
-	EnableMenuItem(hMenu, IDM_STOP_CALIBRATION, (!m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_STOP_CALIBRATION, (!m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
 }
 
 void CCalibration::SelectTestPattern(int num)
 {
     if ( (num >= 0) && (num < m_TestPatterns.size()) )
-	{
-		m_CurTestPat = m_TestPatterns[num];
-	}
-	else
-	{
-		m_CurTestPat = NULL;
-	}
+    {
+        m_CurTestPat = m_TestPatterns[num];
+    }
+    else
+    {
+        m_CurTestPat = NULL;
+    }
 }
 
 CTestPattern* CCalibration::GetCurrentTestPattern()
 {
-	return m_CurTestPat;
+    return m_CurTestPat;
 }
 
 CSubPattern* CCalibration::GetSubPattern(eTypeAdjust type_adjust)
@@ -971,7 +790,7 @@ CSubPattern* CCalibration::GetSubPattern(eTypeAdjust type_adjust)
 
 CSubPattern* CCalibration::GetCurrentSubPattern()
 {
-	return m_CurSubPat;
+    return m_CurSubPat;
 }
 
 void CCalibration::Start(eTypeCalibration type)
@@ -994,31 +813,31 @@ void CCalibration::Start(eTypeCalibration type)
     if (m_CurTestPat == NULL)
         return;
 
-	if (m_Brightness != NULL)
-	{
-		delete m_Brightness;
-		m_Brightness = NULL;
-	}
-	if (m_Contrast != NULL)
-	{
-		delete m_Contrast;
-		m_Contrast = NULL;
-	}
-	if (m_Saturation_U != NULL)
-	{
-		delete m_Saturation_U;
-		m_Saturation_U = NULL;
-	}
-	if (m_Saturation_V != NULL)
-	{
-		delete m_Saturation_V;
-		m_Saturation_V = NULL;
-	}
-	if (m_Hue != NULL)
-	{
-		delete m_Hue;
-		m_Hue = NULL;
-	}
+    if (m_Brightness != NULL)
+    {
+        delete m_Brightness;
+        m_Brightness = NULL;
+    }
+    if (m_Contrast != NULL)
+    {
+        delete m_Contrast;
+        m_Contrast = NULL;
+    }
+    if (m_Saturation_U != NULL)
+    {
+        delete m_Saturation_U;
+        m_Saturation_U = NULL;
+    }
+    if (m_Saturation_V != NULL)
+    {
+        delete m_Saturation_V;
+        m_Saturation_V = NULL;
+    }
+    if (m_Hue != NULL)
+    {
+        delete m_Hue;
+        m_Hue = NULL;
+    }
 
     /// \todo this is bad coding sort this out
     if (pSource->GetBrightness() != NULL)
@@ -1045,8 +864,8 @@ void CCalibration::Start(eTypeCalibration type)
         m_Saturation_V->Update();
         m_Saturation_V->Save();
     }
-	// This case if for cards which have only one unique color setting
-	if (pSource->GetSaturationU() == NULL && pSource->GetSaturationV() == NULL && pSource->GetSaturation() != NULL)
+    // This case if for cards which have only one unique color setting
+    if (pSource->GetSaturationU() == NULL && pSource->GetSaturationV() == NULL && pSource->GetSaturation() != NULL)
     {
         m_Saturation_U = new CCalSetting(pSource->GetSaturation());
         m_Saturation_U->Update();
@@ -1059,7 +878,7 @@ void CCalibration::Start(eTypeCalibration type)
         m_Hue->Save();
     }
 
-	m_TypeCalibration = type;
+    m_TypeCalibration = type;
 
     switch (m_TypeCalibration)
     {
@@ -1080,14 +899,14 @@ void CCalibration::Start(eTypeCalibration type)
         {
             OkToStart = TRUE;
             m_Saturation_U->AdjustDefault();
-			if (m_Saturation_V != NULL)
-			{
-	            m_Saturation_V->AdjustDefault();
-			}
-			if (m_Hue != NULL)
-			{
-	            m_Hue->AdjustDefault();
-			}
+            if (m_Saturation_V != NULL)
+            {
+                m_Saturation_V->AdjustDefault();
+            }
+            if (m_Hue != NULL)
+            {
+                m_Hue->AdjustDefault();
+            }
         }
         break;
     case CAL_AUTO_FULL:
@@ -1099,14 +918,14 @@ void CCalibration::Start(eTypeCalibration type)
             m_Brightness->AdjustDefault();
             m_Contrast->AdjustDefault();
             m_Saturation_U->AdjustDefault();
-			if (m_Saturation_V != NULL)
-			{
-	            m_Saturation_V->AdjustDefault();
-			}
-			if (m_Hue != NULL)
-			{
-	            m_Hue->AdjustDefault();
-			}
+            if (m_Saturation_V != NULL)
+            {
+                m_Saturation_V->AdjustDefault();
+            }
+            if (m_Hue != NULL)
+            {
+                m_Hue->AdjustDefault();
+            }
         }
         break;
     case CAL_MANUAL:
@@ -1163,22 +982,22 @@ void CCalibration::Stop()
         m_CurSubPat = NULL;
     }
 
-	m_IsRunning = FALSE;
+    m_IsRunning = FALSE;
 }
 
 BOOL CCalibration::IsRunning()
 {
-	return m_IsRunning;
+    return m_IsRunning;
 }
 
 BOOL CCalibration::GetCurrentStep()
 {
-	return current_step;
+    return current_step;
 }
 
 eTypeCalibration CCalibration::GetType()
 {
-	return m_TypeCalibration;
+    return m_TypeCalibration;
 }
 
 void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
@@ -1189,17 +1008,17 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
     BOOL new_settings;
     BOOL found;
 
-	if (!m_IsRunning
-	 || (m_CurTestPat == NULL))
-		return;
+    if (!m_IsRunning
+     || (m_CurTestPat == NULL))
+        return;
 
-	if ((last_tick_count != -1) && ((tick_count - last_tick_count) < MIN_TIME_BETWEEN_CALC))
+    if ((last_tick_count != -1) && ((tick_count - last_tick_count) < MIN_TIME_BETWEEN_CALC))
     {
         if (m_CurSubPat != NULL)
         {
             m_CurSubPat->Draw(pInfo);
         }
-		return;
+        return;
     }
 
     last_tick_count = tick_count;
@@ -1346,7 +1165,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         {
             m_Brightness->SetRange(0);
         }
-		free(mask);
+        free(mask);
         nb1 = m_Brightness->GetRange(NULL, &min, &max);
         if (m_Contrast->GetResult(&mask, &min, &max) > 0)
         {
@@ -1356,7 +1175,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         {
             m_Contrast->SetRange(0);
         }
-		free(mask);
+        free(mask);
         nb2 = m_Contrast->GetRange(NULL, &min, &max);
         if ((nb1 == 1) && (nb2 == 1))
         {
@@ -1510,42 +1329,42 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         {
             m_Saturation_U->SetRange(0);
         }
-		free(mask);
+        free(mask);
         nb1 = m_Saturation_U->GetRange(NULL, &min, &max);
-		if (m_Saturation_V != NULL)
-		{
-			if (m_Saturation_V->GetResult(&mask, &min, &max) > 0)
-			{
-				m_Saturation_V->SetRange(mask);
-			}
-			else
-			{
-				m_Saturation_V->SetRange(0);
-			}
-			free(mask);
-			nb2 = m_Saturation_V->GetRange(NULL, &min, &max);
-		}
-		else
-		{
-			nb2 = 1;
-		}
-		if (m_Hue != NULL)
-		{
-			if (m_Hue->GetResult(&mask, &min, &max) > 0)
-			{
-				m_Hue->SetRange(mask);
-			}
-			else
-			{
-				m_Hue->SetRange(0);
-			}
-			free(mask);
-			nb3 = m_Hue->GetRange(NULL, &min, &max);
-		}
-		else
-		{
-			nb3 = 1;
-		}
+        if (m_Saturation_V != NULL)
+        {
+            if (m_Saturation_V->GetResult(&mask, &min, &max) > 0)
+            {
+                m_Saturation_V->SetRange(mask);
+            }
+            else
+            {
+                m_Saturation_V->SetRange(0);
+            }
+            free(mask);
+            nb2 = m_Saturation_V->GetRange(NULL, &min, &max);
+        }
+        else
+        {
+            nb2 = 1;
+        }
+        if (m_Hue != NULL)
+        {
+            if (m_Hue->GetResult(&mask, &min, &max) > 0)
+            {
+                m_Hue->SetRange(mask);
+            }
+            else
+            {
+                m_Hue->SetRange(0);
+            }
+            free(mask);
+            nb3 = m_Hue->GetRange(NULL, &min, &max);
+        }
+        else
+        {
+            nb3 = 1;
+        }
         if ((nb1 == 1) && (nb2 == 1) && (nb3 == 1))
         {
             current_step += 2;

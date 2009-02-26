@@ -4,104 +4,16 @@
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//    This file is subject to the terms of the GNU General Public License as
+//    published by the Free Software Foundation.  A copy of this license is
+//    included with this software distribution in the file COPYING.  If you
+//    do not have a copy, you may obtain a copy by writing to the Free
+//    Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
-//
-/////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2001   Eric Schmidt          Original Release
-//                                     Got 'record mode' working.
-//                                     Got 'play mode' working.
-//                                     Got 'prev/next' working.
-//                                     More to come.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.22  2005/07/17 20:43:23  dosx86
-// Removed the C++ class and reorganized the functions. Uses the new AVI file
-// functions.
-//
-// Revision 1.21  2004/08/12 16:27:48  adcockj
-// added timeshift changes from emu
-//
-// Revision 1.20  2003/12/29 01:27:54  robmuller
-// Added AVI file splitting.
-//
-// Revision 1.19  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.18  2003/10/11 17:25:53  laurentg
-// Comments updated
-//
-// Revision 1.17  2003/10/11 15:45:50  laurentg
-// Saving of compression options fixed
-//
-// Revision 1.16  2003/09/13 13:59:09  laurentg
-// half height mode removed - Some menu actions like play or pause disabled
-//
-// Revision 1.15  2003/08/04 23:48:24  laurentg
-// Use extra buffer when recording DScaler output frames
-//
-// Revision 1.14  2003/07/08 21:04:59  laurentg
-// New timeshift mode (full height) - experimental
-//
-// Revision 1.13  2003/07/05 12:59:51  laurentg
-// Timeshift enabled + some improvments
-//
-// Revision 1.12  2003/07/02 21:44:19  laurentg
-// TimeShift settings
-//
-// Revision 1.11  2002/02/09 11:09:50  temperton
-// Frame rate of created AVI now depends on TV format.
-//
-// Revision 1.10  2001/11/29 17:30:52  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.9  2001/11/22 13:32:03  adcockj
-// Finished changes caused by changes to TDeinterlaceInfo - Compiles
-//
-// Revision 1.8  2001/11/21 15:21:39  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.7  2001/11/20 11:43:00  temperton
-// Store wave-device names instead of indexes in ini
-//
-// Revision 1.6  2001/08/06 03:00:17  ericschmidt
-// solidified auto-pixel-width detection
-// preliminary pausing-of-live-tv work
-//
-// Revision 1.5  2001/07/27 15:52:26  ericschmidt
-// P3-or-better handling.
-// Preliminary pixel-width auto-setting on playback.
-//
-// Revision 1.4  2001/07/26 15:28:14  ericschmidt
-// Added AVI height control, i.e. even/odd/averaged lines.
-// Used existing cpu/mmx detection in TimeShift code.
-//
-// Revision 1.3  2001/07/24 12:25:49  adcockj
-// Added copyright notice as per standards
-//
-// Revision 1.2  2001/07/24 12:24:25  adcockj
-// Added Id to comment block
-//
-// Revision 1.1  2001/07/23 20:52:07  ericschmidt
-// Added TimeShift class.  Original Release.  Got record and playback code working.
-//
+//    This software is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
 

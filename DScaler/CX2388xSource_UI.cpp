@@ -20,206 +20,6 @@
 // others at Connexant.  Those parts are probably (c) Connexant 2002
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.47  2007/02/18 21:15:31  robmuller
-// Added option to not compile BT8x8 code.
-//
-// Revision 1.46  2004/12/25 22:40:18  to_see
-// Changed the card list to an ini file
-//
-// Revision 1.45  2004/11/13 21:45:56  to_see
-// - Some minor fixes
-// - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
-//   It reduces dead lock problems dramaticaly if no video signal is present. Faster videosignal detection.
-//
-// Revision 1.44  2004/05/21 18:35:59  to_see
-// Bugfix: Moved StartStopConexantDriver code from CX2388xCard to CCX2388xSource that the driver is stoped before CCX2388xCard::InitTuner is called.
-//
-// More Loging when StartStopConexantDriver is not able to Stop the WDM-Driver when other SW uses the card Hardware.
-//
-// Revision 1.43  2004/03/07 12:20:12  to_see
-// added 2 Cards
-// working Nicam-Sound
-// Submenus in CX-Card for Soundsettings
-// Click in "Autodetect" in "Setup card CX2388x" is now working
-// added "Automute if no Tunersignal" in CX2388x Advanced
-//
-// Revision 1.42  2004/02/29 19:41:45  to_see
-// new Submenu's in CX Card for Audio Channel and Audio Standard
-// new AutoMute entry
-//
-// Revision 1.41  2004/02/27 20:51:00  to_see
-// -more logging in CCX2388xCard::StartStopConexxantDriver
-// -handling for IDC_AUTODETECT in CX2388xSource_UI.cpp
-// -renamed eAudioStandard to eCX2388xAudioStandard,
-//  eStereoType to eCX2388xStereoType and moved from
-//  cx2388xcard.h to cx2388x_defines.h
-// -moved Audiodetecting from CX2388xCard_Audio.cpp
-//  to CX2388xSource_Audio.cpp
-// -CCX2388xCard::AutoDetectTuner read
-//  at first from Registers
-//
-// Revision 1.40  2004/02/05 21:47:52  to_see
-// Starting/Stopping connexant-drivers while dscaler is running.
-// To Enable/Disable it, go to Settings->Advanced Settings->
-// CX2388X Advanced->Stopping Conexxant driver while Dscaler is running.
-//
-// This enables sound on my card without to go to windows control panel.
-//
-// Revision 1.39  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.38  2003/07/18 09:41:23  adcockj
-// Added PDI input to holo3d (doesn't yet work)
-//
-// Revision 1.37  2003/06/01 14:48:33  adcockj
-// Fixed possible bug spotted by Laurent
-//
-// Revision 1.36  2003/03/23 10:42:21  laurentg
-// Avoid to switch to an unknown video input when using 000...
-//
-// Revision 1.35  2003/03/23 10:25:23  laurentg
-// Use video input name as icon tips when not in tuner mode
-//
-// Revision 1.34  2003/01/27 22:04:09  laurentg
-// First step to merge setup hardware and hardware info dialog boxes
-// CPU flag information moved in the general hardware dialog box
-// Hardware info dialog box available for CX2388x
-//
-// Revision 1.33  2003/01/25 23:43:15  laurentg
-// Default video settings for SECAM
-//
-// Revision 1.32  2003/01/21 14:42:14  adcockj
-// Changed PAL defaults and added place for SECAM defaults
-//
-// Revision 1.31  2003/01/19 10:39:56  laurentg
-// Disable selection of the tuner input when no tuner has been selected in the card setup dialog box
-//
-// Revision 1.30  2003/01/18 12:10:47  laurentg
-// Avoid double display in OSD (ADJUSTDOWN_SILENT and ADJUSTUP_SILENT instead of (ADJUSTDOWN and ADJUSTUP)
-//
-// Revision 1.29  2003/01/16 14:21:49  adcockj
-// Added analogue blanking to advanced settings
-//
-// Revision 1.28  2003/01/16 13:30:49  adcockj
-// Fixes for various settings problems reported by Laurent 15/Jan/2003
-//
-// Revision 1.27  2003/01/15 15:54:22  adcockj
-// Fixed some keyboard focus issues
-//
-// Revision 1.26  2003/01/10 17:37:55  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.25  2003/01/07 23:27:02  laurentg
-// New overscan settings
-//
-// Revision 1.24  2003/01/04 16:54:39  adcockj
-// Disabled format menu when in tuner mode
-//
-// Revision 1.23  2002/12/31 13:21:22  adcockj
-// Fixes for SetDefault Problems (needs testing)
-//
-// Revision 1.22  2002/12/23 17:22:10  adcockj
-// Settings fixes
-//
-// Revision 1.21  2002/12/10 14:53:17  adcockj
-// Sound fixes for cx2388x
-//
-// Revision 1.20  2002/12/04 16:18:25  adcockj
-// Added White crush to settings dialog
-//
-// Revision 1.19  2002/12/04 15:54:09  adcockj
-// Hacky fix for settings by channel code with mutiple cards
-//
-// Revision 1.18  2002/12/04 15:20:08  adcockj
-// Fixed accedental test code check in
-//
-// Revision 1.17  2002/12/04 15:15:24  adcockj
-// Checked in test code by accident
-//
-// Revision 1.16  2002/12/03 16:34:13  adcockj
-// Corrected channel settings groupings
-//
-// Revision 1.15  2002/12/03 13:28:23  adcockj
-// Corrected per channel settings code
-//
-// Revision 1.14  2002/12/03 07:56:31  adcockj
-// Fixed some problems with settings not saving
-//
-// Revision 1.13  2002/11/28 18:06:32  adcockj
-// Changed text for progressive mode
-//
-// Revision 1.12  2002/11/13 10:34:36  adcockj
-// Improved pixel width support
-//
-// Revision 1.11  2002/11/12 15:22:50  adcockj
-// Made new flag settings have default setting
-// Added pixel width for CX2388x cards
-//
-// Revision 1.10  2002/11/12 11:33:07  adcockj
-// Fixed OSD
-//
-// Revision 1.9  2002/11/09 20:53:46  laurentg
-// New CX2388x settings
-//
-// Revision 1.8  2002/11/09 00:22:23  laurentg
-// New settings for CX2388x chip
-//
-// Revision 1.7  2002/11/08 10:37:46  adcockj
-// Added UI for Holo3d Settings
-//
-// Revision 1.6  2002/11/06 11:11:23  adcockj
-// Added new Settings and applied Laurent's filter setup suggestions
-//
-// Revision 1.5  2002/11/03 15:54:10  adcockj
-// Added cx2388x register tweaker support
-//
-// Revision 1.4  2002/10/31 14:47:20  adcockj
-// Added Sharpness
-//
-// Revision 1.3  2002/10/31 03:10:55  atnak
-// Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
-//
-// Revision 1.2  2002/10/29 22:00:30  adcockj
-// Added EatlLinesAtTop setting for SDI on holo3d
-//
-// Revision 1.1  2002/10/29 11:05:28  adcockj
-// Renamed CT2388x to CX2388x
-//
-// 
-// CVS Log while file was called CT2388xSource_UI.cpp
-//
-// Revision 1.8  2002/10/26 17:51:52  adcockj
-// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
-//
-// Revision 1.7  2002/10/21 19:08:09  adcockj
-// Added support for keyboard h/v delay
-//
-// Revision 1.6  2002/10/21 07:19:33  adcockj
-// Preliminary Support for PixelView XCapture
-//
-// Revision 1.5  2002/09/29 16:16:21  adcockj
-// Holo3d imrprovements
-//
-// Revision 1.4  2002/09/29 13:56:30  adcockj
-// Fixed some cursor hide problems
-//
-// Revision 1.3  2002/09/25 15:11:12  adcockj
-// Preliminary code for format specific support for settings per channel
-//
-// Revision 1.2  2002/09/22 17:47:04  adcockj
-// Fixes for holo3d
-//
-// Revision 1.1  2002/09/11 18:19:38  adcockj
-// Prelimainary support for CX2388x based cards
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file CX2388xSource.cpp CCX2388xSource Implementation (UI)
@@ -267,7 +67,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
         for(i = 0; i < pThis->m_pCard->GetMaxCards(); i++)
         {
-			int nIndex;
+            int nIndex;
             nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pCard->GetCardName((eCX2388xCardId)i));
             SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
             if(i == pThis->m_CardType->GetValue())
@@ -295,7 +95,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
           }
         }
 
-		pCard = pThis->GetCard();
+        pCard = pThis->GetCard();
         SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, "CX2388x");
         sprintf(szVendorId,"%04X", pCard->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
@@ -326,7 +126,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
             pThis->m_CardName->SetValue(reinterpret_cast<long>(pThis->GetCard()->GetCardName((eCX2388xCardId) i )));
 
-			WriteSettingsToIni(TRUE);
+            WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
@@ -378,7 +178,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                         SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
                     }
                 }
-			}
+            }
         default:
             break;
         }
@@ -415,9 +215,9 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
         
         // enable the menu and check it appropriately
         //EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_ENABLED);
-		EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_TunerType->GetValue() == TUNER_ABSENT && m_pCard->IsInputATuner(i)) ? MF_GRAYED : MF_ENABLED);
+        EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_TunerType->GetValue() == TUNER_ABSENT && m_pCard->IsInputATuner(i)) ? MF_GRAYED : MF_ENABLED);
         CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
-	}
+    }
     
     while(i < CX_INPUTS_PER_CARD)
     {
@@ -474,43 +274,43 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_8, (videoFormat == VIDEOFORMAT_PAL_N_COMBO));
 
     if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
-	{
-		CheckMenuItemBool(m_hMenu, IDM_PROGRESSIVE, m_IsVideoProgressive->GetValue());
-		CheckMenuItemBool(m_hMenu, IDM_FLI_FILMDETECT, m_FLIFilmDetect->GetValue());
+    {
+        CheckMenuItemBool(m_hMenu, IDM_PROGRESSIVE, m_IsVideoProgressive->GetValue());
+        CheckMenuItemBool(m_hMenu, IDM_FLI_FILMDETECT, m_FLIFilmDetect->GetValue());
         EnableMenuItem(m_hMenu, IDM_PROGRESSIVE, MF_ENABLED);
         EnableMenuItem(m_hMenu, IDM_FLI_FILMDETECT, MF_ENABLED);
-	}
-	else
-	{
+    }
+    else
+    {
         EnableMenuItem(m_hMenu, IDM_PROGRESSIVE, MF_GRAYED);
         EnableMenuItem(m_hMenu, IDM_FLI_FILMDETECT, MF_GRAYED);
-	}
+    }
     
-	CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO,			(m_StereoType->GetValue() == STEREOTYPE_MONO  ));
-	CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO,			(m_StereoType->GetValue() == STEREOTYPE_STEREO));
-	CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1,		(m_StereoType->GetValue() == STEREOTYPE_ALT1  ));
-	CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2,		(m_StereoType->GetValue() == STEREOTYPE_ALT2  ));
-	CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO,					(m_StereoType->GetValue() == STEREOTYPE_AUTO  ));
-	EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO,			IsInTunerMode());
-    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO,		IsInTunerMode());
-    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1,		IsInTunerMode());
-    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2,		IsInTunerMode());
-    EnableMenuItemBool(m_hMenu, IDM_AUTOSTEREO,					IsInTunerMode());
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO,            (m_StereoType->GetValue() == STEREOTYPE_MONO  ));
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO,            (m_StereoType->GetValue() == STEREOTYPE_STEREO));
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1,        (m_StereoType->GetValue() == STEREOTYPE_ALT1  ));
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2,        (m_StereoType->GetValue() == STEREOTYPE_ALT2  ));
+    CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO,                    (m_StereoType->GetValue() == STEREOTYPE_AUTO  ));
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO,            IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO,        IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1,        IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2,        IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_AUTOSTEREO,                    IsInTunerMode());
 
-	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_AUTO,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_AUTO			));
-	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_A2,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_A2			));
-	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_BTSC			));
-	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC_SAP,	(m_AudioStandard->GetValue() == AUDIO_STANDARD_BTSC_SAP		));
-	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_EIAJ,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_EIAJ			));
-	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_FM,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_FM			));
-	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_NICAM,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_NICAM		));
-	EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_AUTO,		IsInTunerMode());
-    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_A2,		IsInTunerMode());
-    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC,		IsInTunerMode());
-    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC_SAP,	IsInTunerMode());
-    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_EIAJ,		IsInTunerMode());
-    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_FM,		IsInTunerMode());
-    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_NICAM,	IsInTunerMode());
+    CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_AUTO,        (m_AudioStandard->GetValue() == AUDIO_STANDARD_AUTO            ));
+    CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_A2,        (m_AudioStandard->GetValue() == AUDIO_STANDARD_A2            ));
+    CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC,        (m_AudioStandard->GetValue() == AUDIO_STANDARD_BTSC            ));
+    CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC_SAP,    (m_AudioStandard->GetValue() == AUDIO_STANDARD_BTSC_SAP        ));
+    CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_EIAJ,        (m_AudioStandard->GetValue() == AUDIO_STANDARD_EIAJ            ));
+    CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_FM,        (m_AudioStandard->GetValue() == AUDIO_STANDARD_FM            ));
+    CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_NICAM,        (m_AudioStandard->GetValue() == AUDIO_STANDARD_NICAM        ));
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_AUTO,        IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_A2,        IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC,        IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC_SAP,    IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_EIAJ,        IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_FM,        IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_NICAM,    IsInTunerMode());
 }
 
 BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -540,16 +340,16 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SOURCE_INPUT9:
             {
                 int nValue = LOWORD(wParam) - IDM_SOURCE_INPUT1;
-				if (nValue < m_pCard->GetNumInputs())
-				{
-					if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pCard->IsInputATuner(nValue))
-					{
-						ShowText(hWnd, m_pCard->GetInputName(nValue));
-						SetTrayTip(m_pCard->GetInputName(nValue));
-						m_VideoSource->SetValue(nValue);
-						SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
-					}
-				}
+                if (nValue < m_pCard->GetNumInputs())
+                {
+                    if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pCard->IsInputATuner(nValue))
+                    {
+                        ShowText(hWnd, m_pCard->GetInputName(nValue));
+                        SetTrayTip(m_pCard->GetInputName(nValue));
+                        m_VideoSource->SetValue(nValue);
+                        SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
+                    }
+                }
             }
             break;
             
@@ -603,7 +403,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             }
             break;
 
-		case IDM_FLI_FILMDETECT:
+        case IDM_FLI_FILMDETECT:
             m_FLIFilmDetect->SetValue(!m_FLIFilmDetect->GetValue());
             if(m_FLIFilmDetect->GetValue())
             {
@@ -705,51 +505,51 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_MONO);
             break;
         
-		case IDM_SOUNDCHANNEL_STEREO:
+        case IDM_SOUNDCHANNEL_STEREO:
             m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_STEREO);
             break;
         
-		case IDM_SOUNDCHANNEL_LANGUAGE1:
+        case IDM_SOUNDCHANNEL_LANGUAGE1:
             m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_ALT1);
             break;
         
-		case IDM_SOUNDCHANNEL_LANGUAGE2:
+        case IDM_SOUNDCHANNEL_LANGUAGE2:
             m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_ALT2);
             break;
-	
-		case IDM_AUTOSTEREO:
+    
+        case IDM_AUTOSTEREO:
             m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_AUTO);
             break;
-		
-		case IDM_CX2388X_AUDIO_STD_AUTO:
-			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_AUTO);
-			break;
-	
-		case IDM_CX2388X_AUDIO_STD_A2:
-			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_A2);
-			break;
+        
+        case IDM_CX2388X_AUDIO_STD_AUTO:
+            m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_AUTO);
+            break;
+    
+        case IDM_CX2388X_AUDIO_STD_A2:
+            m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_A2);
+            break;
 
-		case IDM_CX2388X_AUDIO_STD_BTSC:
-			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_BTSC);
-			break;
-		
-		case IDM_CX2388X_AUDIO_STD_BTSC_SAP:
-			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_BTSC_SAP);
-			break;
+        case IDM_CX2388X_AUDIO_STD_BTSC:
+            m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_BTSC);
+            break;
+        
+        case IDM_CX2388X_AUDIO_STD_BTSC_SAP:
+            m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_BTSC_SAP);
+            break;
 
-		case IDM_CX2388X_AUDIO_STD_EIAJ:
-			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_EIAJ);
-			break;
-		
-		case IDM_CX2388X_AUDIO_STD_FM:
-			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_FM);
-			break;
+        case IDM_CX2388X_AUDIO_STD_EIAJ:
+            m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_EIAJ);
+            break;
+        
+        case IDM_CX2388X_AUDIO_STD_FM:
+            m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_FM);
+            break;
 
-		case IDM_CX2388X_AUDIO_STD_NICAM:
-			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_NICAM);
-			break;
-		
-		default:
+        case IDM_CX2388X_AUDIO_STD_NICAM:
+            m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_NICAM);
+            break;
+        
+        default:
             return FALSE;
             break;
     }

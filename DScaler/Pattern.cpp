@@ -15,32 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// Change Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.6  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.5  2003/03/05 22:08:45  laurentg
-// Updated management of 16 bytes aligned buffer for stills
-//
-// Revision 1.4  2003/01/19 11:09:11  laurentg
-// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
-//
-// Revision 1.3  2003/01/18 10:52:11  laurentg
-// SetOverscan renamed SetAspectRatioData
-// Unnecessary call to SetOverscan deleted
-// Overscan setting specific to calibration deleted
-//
-// Revision 1.2  2002/11/01 13:09:19  laurentg
-// Management of the still capture context slightly updated - works now even with stills in memory
-//
-// Revision 1.1  2002/10/29 20:58:11  laurentg
-// Calibration source cut in Calibration + Pattern
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 
 /**
@@ -313,7 +287,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
 
     // Calculate the exact coordinates of rectangular zone in the buffer
 //    overscan = SourceOverscan * width / (height * 2);
-	overscan = 0;
+    overscan = 0;
     left_crop = ((LeftCropping * width) + 500) / 1000;
     total_crop = (((LeftCropping + RightCropping) * width) + 500) / 1000;
     left = (width + total_crop - 2 * overscan) * m_LeftBorder / 10000 - left_crop + overscan;
@@ -784,7 +758,7 @@ void CSubPattern::GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, in
     *pB_V = sum_delta[2];
     *pTotal = sum_delta[3];
 }
-	
+    
 // This method draws in the video signal rectangles around each color bar of the sub-pattern
 void CSubPattern::Draw(TDeinterlaceInfo* pInfo)
 {
@@ -1188,7 +1162,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
     {
         return FALSE;
     }
-	pStartFrame = START_ALIGNED16(pFrameBuf);
+    pStartFrame = START_ALIGNED16(pFrameBuf);
 
     // Set the background of the pattern to black
     for (int i=0 ; i<pattern.GetHeight() ; i++)
@@ -1202,7 +1176,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 
     pattern.Draw(pStartFrame, LinePitch);
 
-	m_pParent->FreeOriginalFrameBuffer();
+    m_pParent->FreeOriginalFrameBuffer();
     m_pParent->m_OriginalFrameBuffer = pFrameBuf;
     m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;

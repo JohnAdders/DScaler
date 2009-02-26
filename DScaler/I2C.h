@@ -20,13 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 11 Aug 2000   John Adcock           Moved i2c Functions in here
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file i2c.h i2c Header file

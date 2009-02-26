@@ -16,26 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.5  2003/06/26 11:42:54  adcockj
-// Reduced teh size of some of the dlls
-//
-// Revision 1.4  2003/03/29 22:35:05  laurentg
-// Label of the setting updated
-//
-// Revision 1.3  2003/03/22 19:14:52  robmuller
-// Implemented MMX code.
-//
-// Revision 1.2  2003/03/22 13:16:26  laurentg
-// Use of an help id
-//
-// Revision 1.1  2003/03/13 00:43:59  laurentg
-// New filter black & white
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include <windows.h>
 #include "DS_Filter.h"

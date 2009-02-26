@@ -19,10 +19,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_DOPARSE_H__BCC73107_96A6_47BA_A1E5_9E3D6B4B2A4A__INCLUDED_)
 #define AFX_DOPARSE_H__BCC73107_96A6_47BA_A1E5_9E3D6B4B2A4A__INCLUDED_
@@ -37,20 +33,20 @@
 class CDoParse  
 {
 protected:
-	CDoParse(const char* pszFileName, CListBox* pErrorList, CTreeCtrl* pTreeCtrl, BOOL bSort);
-	virtual ~CDoParse();
+    CDoParse(const char* pszFileName, CListBox* pErrorList, CTreeCtrl* pTreeCtrl, BOOL bSort);
+    virtual ~CDoParse();
 
 protected:
-	virtual void DisplayCardsInTree() = 0;
-	virtual void ParseIniFile() = 0;
+    virtual void DisplayCardsInTree() = 0;
+    virtual void ParseIniFile() = 0;
 
 protected:
-	CTreeCtrl*   m_pTreeCtrl;
-	CListBox*    m_pErrorList;
-	const char*  m_pszFileName;
+    CTreeCtrl*   m_pTreeCtrl;
+    CListBox*    m_pErrorList;
+    const char*  m_pszFileName;
     BOOL         m_bDoSort;
 
-	static const char*  m_TDAFormatNames[];
+    static const char*  m_TDAFormatNames[];
 
 
 };

@@ -20,331 +20,6 @@
 // others at Connexant.  Those parts are probably (c) Connexant 2002
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.78  2007/02/23 15:35:56  to_see
-// Deleted unused code lines
-//
-// Revision 1.77  2007/02/18 21:32:44  robmuller
-// Added option to not compile cx2388x code.
-//
-// Revision 1.76  2007/02/18 15:18:00  robmuller
-// Improve accuracy of sleep() (used for i2c timing).
-//
-// Revision 1.75  2006/10/06 13:35:28  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.74  2005/07/14 05:05:21  dosx86
-// Fixed the white crush major selection mask so it's two bits wide instead of four
-//
-// Revision 1.73  2005/06/09 23:22:00  robmuller
-// Fixed bug in GetTickCount().
-//
-// Revision 1.72  2005/03/24 17:57:57  adcockj
-// Card access from one thread at a time
-//
-// Revision 1.71  2005/03/23 14:20:36  adcockj
-// Test fix for threading issues
-//
-// Revision 1.70  2004/12/25 22:40:17  to_see
-// Changed the card list to an ini file
-//
-// Revision 1.69  2004/12/20 18:55:33  to_see
-// Moved tuner code to new file CX2388xCard_Tuner.cpp
-//
-// Revision 1.68  2004/11/29 18:02:57  to_see
-// Changed TDA9887 detecting to Atsushi's new tda code.
-//
-// Revision 1.67  2004/11/13 21:45:56  to_see
-// - Some minor fixes
-// - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
-//   It reduces dead lock problems dramaticaly if no video signal is present. Faster videosignal detection.
-//
-// Revision 1.66  2004/09/29 20:36:02  to_see
-// Added Card AverTV303, Thanks to Zbigniew Pluta
-//
-// Revision 1.65  2004/08/27 13:12:40  to_see
-// Added audio support for Ati Tv Wonder Pro
-//
-// Revision 1.64  2004/07/10 11:57:17  adcockj
-// improved cx2388x driver coverage when disabling drivers
-//
-// Revision 1.63  2004/06/23 20:15:22  to_see
-// Created an new struct TControlSettings for better handling
-// more cards and deleted class CTDA9887MsiMaster. Thanks to atnak.
-//
-// Revision 1.62  2004/06/02 18:43:54  to_see
-// New TAudioRegList structure to hold audio register
-// settings for better handling
-//
-// Revision 1.61  2004/05/21 18:35:58  to_see
-// Bugfix: Moved StartStopConexantDriver code from CX2388xCard to CCX2388xSource that the driver is stoped before CCX2388xCard::InitTuner is called.
-//
-// More Loging when StartStopConexantDriver is not able to Stop the WDM-Driver when other SW uses the card Hardware.
-//
-// Revision 1.60  2004/05/16 19:45:08  to_see
-// Added an new class for Msi Master Card
-//
-// Revision 1.59  2004/04/19 20:38:38  adcockj
-// Fix for previous fix (must learn to program...)
-//
-// Revision 1.58  2004/04/19 15:13:20  adcockj
-// Fix failing to find tda9887 at alternate addresses
-//
-// Revision 1.57  2004/04/18 12:01:03  adcockj
-// Fixes for eeprom corruption
-//
-// Revision 1.56  2004/03/07 17:34:48  to_see
-// moved CCX2388xCard::AutoDetectTuner from CX2388xCard.cpp to CX2388xCard_Types.cpp
-// to can use correct sizeof(m_Tuners_Hauppauge_CX2388x_Card)
-//
-// Revision 1.55  2004/02/27 20:50:59  to_see
-// -more logging in CCX2388xCard::StartStopConexxantDriver
-// -handling for IDC_AUTODETECT in CX2388xSource_UI.cpp
-// -renamed eAudioStandard to eCX2388xAudioStandard,
-//  eStereoType to eCX2388xStereoType and moved from
-//  cx2388xcard.h to cx2388x_defines.h
-// -moved Audiodetecting from CX2388xCard_Audio.cpp
-//  to CX2388xSource_Audio.cpp
-// -CCX2388xCard::AutoDetectTuner read
-//  at first from Registers
-//
-// Revision 1.54  2004/02/21 21:47:06  to_see
-// Added AutodetectTuner for Hauppauge
-//
-// Revision 1.53  2004/02/21 14:11:29  to_see
-// more A2-code
-//
-// Revision 1.52  2004/02/11 20:34:00  adcockj
-// Support multiple locations of TDA9887 (thanks to Pityu)
-//
-// Revision 1.51  2004/02/08 13:08:50  adcockj
-// SECAM changes suggested by MidiMaker
-//
-// Revision 1.50  2004/02/06 08:01:21  adcockj
-// Fixed a couple of minor issues with Torsten's changes
-//
-// Revision 1.49  2004/02/05 21:47:53  to_see
-// Starting/Stopping connexant-drivers while dscaler is running.
-// To Enable/Disable it, go to Settings->Advanced Settings->
-// CX2388X Advanced->Stopping Conexxant driver while Dscaler is running.
-//
-// This enables sound on my card without to go to windows control panel.
-//
-// Revision 1.48  2004/01/18 21:13:59  adcockj
-// Fix for chip setup with no driver
-//
-// Revision 1.47  2004/01/16 09:35:12  adcockj
-// CX2388x sound fixes suggested by MidiMaker
-//
-// Revision 1.46  2004/01/07 10:27:18  adcockj
-// Patch from MidiMaker to fix issue with PAL comb filter
-//
-// Revision 1.45  2004/01/05 13:12:24  adcockj
-// Added patch from Lavrenov Dmitrij (midimaker)
-//
-// Revision 1.44  2003/12/18 15:57:41  adcockj
-// Added MT2050 tuner type support (untested)
-//
-// Revision 1.43  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.42  2003/02/22 12:27:45  adcockj
-// Solution to crashin problem with some cards
-//
-// Revision 1.41  2003/02/15 13:04:47  laurentg
-// Setting Chroma 2H Comb : On is 0 and OFF is 1
-//
-// Revision 1.40  2003/02/03 17:25:20  adcockj
-// Fixes for PlayHD
-//
-// Revision 1.39  2003/01/29 18:24:49  adcockj
-// Test fix for crashing in other apps after running DScaler
-//
-// Revision 1.38  2003/01/27 22:04:07  laurentg
-// First step to merge setup hardware and hardware info dialog boxes
-// CPU flag information moved in the general hardware dialog box
-// Hardware info dialog box available for CX2388x
-//
-// Revision 1.37  2003/01/26 12:33:26  adcockj
-// Fixed problem with PAL60
-//
-// Revision 1.36  2003/01/16 13:30:49  adcockj
-// Fixes for various settings problems reported by Laurent 15/Jan/2003
-//
-// Revision 1.35  2003/01/15 15:54:22  adcockj
-// Fixed some keyboard focus issues
-//
-// Revision 1.34  2003/01/13 17:46:44  adcockj
-// HDelay and VDelay turned from absolute to adjustments
-//
-// Revision 1.33  2003/01/06 10:33:37  adcockj
-// Set correct number of Dwords for VBI at 720 pixels
-//
-// Revision 1.32  2003/01/05 19:42:24  laurentg
-// Correction to John's correction correcting Laurent's correction
-//
-// Revision 1.31  2003/01/05 19:01:13  adcockj
-// Made some changes to Laurent's last set of VBI fixes
-//
-// Revision 1.30  2003/01/04 21:40:15  laurentg
-// Update the default vertical delay when pixel width is different from 720 (32 replaced by 36)
-//
-// Revision 1.29  2003/01/04 21:00:33  laurentg
-// Setting of register CX2388x_VBI_SIZE updated when pixel width is 720
-//
-// Revision 1.28  2002/12/15 13:54:13  adcockj
-// Added code to reset card better
-//
-// Revision 1.27  2002/12/10 14:53:15  adcockj
-// Sound fixes for cx2388x
-//
-// Revision 1.26  2002/12/04 17:43:49  adcockj
-// Contrast and Brightness adjustments so that h3d card behaves in expected way
-//
-// Revision 1.25  2002/12/02 13:47:01  adcockj
-// Allow fine control over white crush settings
-//
-// Revision 1.24  2002/11/28 18:07:37  adcockj
-// Fixed overflowing registers
-//
-// Revision 1.23  2002/11/28 15:15:21  adcockj
-// Fixed pll dump
-//
-// Revision 1.22  2002/11/27 17:41:57  adcockj
-// Fixed setting PLL registers in DumpRegister
-//
-// Revision 1.21  2002/11/25 12:22:17  adcockj
-// Added audio registers to debug file to help with audio questions
-//
-// Revision 1.20  2002/11/25 09:52:55  adcockj
-// Commented out state code
-//
-// Revision 1.19  2002/11/12 19:32:21  adcockj
-// Fixes for pixel width code
-//
-// Revision 1.18  2002/11/12 15:22:45  adcockj
-// Made new flag settings have default setting
-// Added pixel width for CX2388x cards
-//
-// Revision 1.17  2002/11/11 17:10:37  adcockj
-// Added GPIO to dump and save/restore
-//
-// Revision 1.16  2002/11/09 20:53:46  laurentg
-// New CX2388x settings
-//
-// Revision 1.15  2002/11/09 00:22:23  laurentg
-// New settings for CX2388x chip
-//
-// Revision 1.14  2002/11/08 11:54:51  adcockj
-// try looking for TDA9887 with MT2032 tuners
-//
-// Revision 1.13  2002/11/07 21:06:12  adcockj
-// Fixes to prevent hanging with card that's not been initilaised
-//
-// Revision 1.12  2002/11/07 20:33:16  adcockj
-// Promoted ACPI functions so that state management works properly
-//
-// Revision 1.11  2002/11/07 20:06:07  adcockj
-// Fixed problems with manage state function
-//
-// Revision 1.10  2002/11/07 13:37:43  adcockj
-// Added State restoration code to PCICard
-// Functionality disabled prior to testing and not done for SAA7134
-//
-// Revision 1.9  2002/11/06 20:15:27  adcockj
-// Centered pixels to work with my equipment
-//
-// Revision 1.8  2002/11/06 11:11:23  adcockj
-// Added new Settings and applied Laurent's filter setup suggestions
-//
-// Revision 1.7  2002/11/03 18:38:32  adcockj
-// Fixes for cx2388x and PAL & NTSC
-//
-// Revision 1.6  2002/11/03 15:54:10  adcockj
-// Added cx2388x register tweaker support
-//
-// Revision 1.5  2002/10/31 15:55:46  adcockj
-// Moved audio code from Connexant dTV version
-//
-// Revision 1.4  2002/10/31 14:09:54  adcockj
-// Move back to 720 pixel width now that we have analogue blanking mode
-//
-// Revision 1.3  2002/10/31 13:55:15  adcockj
-// Made VBI similar to bt848
-//
-// Revision 1.2  2002/10/29 16:20:29  adcockj
-// Added card setup for MSI TV@nywhere (no work done on sound)
-//
-// Revision 1.1  2002/10/29 11:05:28  adcockj
-// Renamed CT2388x to CX2388x
-//
-// 
-// CVS Log while file was called CT2388xCard.cpp
-//
-// Revision 1.20  2002/10/27 19:17:25  adcockj
-// Fixes for cx2388x - PAL & NTSC tested
-//
-// Revision 1.19  2002/10/25 14:46:24  laurentg
-// Notes for John about SECAM and the old mode
-//
-// Revision 1.18  2002/10/24 17:17:17  adcockj
-// Fixed silly bug in new buffer code
-//
-// Revision 1.17  2002/10/24 16:04:47  adcockj
-// Another attempt to get VBI working
-// Tidy up CMDS/Buffers code
-//
-// Revision 1.16  2002/10/23 20:26:52  adcockj
-// Bug fixes for cx2388x
-//
-// Revision 1.15  2002/10/23 16:10:50  adcockj
-// Fixed some filter setting bugs and added SECAM tests for Laurent
-//
-// Revision 1.14  2002/10/23 15:18:07  adcockj
-// Added preliminary code for VBI
-//
-// Revision 1.13  2002/10/22 18:52:18  adcockj
-// Added ASPI support
-//
-// Revision 1.12  2002/10/22 11:39:50  adcockj
-// Changes to test 8xFsc mode
-//
-// Revision 1.11  2002/10/21 07:19:33  adcockj
-// Preliminary Support for PixelView XCapture
-//
-// Revision 1.10  2002/10/18 16:12:31  adcockj
-// Tidy up and fixes for Cx2388x analogue support
-//
-// Revision 1.9  2002/10/08 11:22:40  adcockj
-// Changed some defines for consistency
-//
-// Revision 1.8  2002/09/29 16:16:21  adcockj
-// Holo3d imrprovements
-//
-// Revision 1.7  2002/09/19 22:10:08  adcockj
-// Holo3D Fixes for PAL
-//
-// Revision 1.6  2002/09/16 20:08:21  adcockj
-// fixed format detect for cx2388x
-//
-// Revision 1.5  2002/09/16 19:34:18  adcockj
-// Fix for auto format change
-//
-// Revision 1.4  2002/09/15 14:20:38  adcockj
-// Fixed timing problems for cx2388x chips
-//
-// Revision 1.3  2002/09/12 21:45:35  ittarnavsky
-// changed the IAudioControls to CAudioControls
-//
-// Revision 1.2  2002/09/11 19:33:06  adcockj
-// a few tidy ups
-//
-// Revision 1.1  2002/09/11 18:19:36  adcockj
-// Prelimainary support for CX2388x based cards
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file CX2388xCard.cpp CCX2388xCard Implementation
@@ -371,8 +46,8 @@ CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
     m_SAA7118(NULL),
     m_RISCIsRunning(FALSE),
     m_CurrentInput(0),
-	m_CurrentAudioStandard(AUDIO_STANDARD_AUTO),
-	m_CurrentStereoType(STEREOTYPE_AUTO)
+    m_CurrentAudioStandard(AUDIO_STANDARD_AUTO),
+    m_CurrentStereoType(STEREOTYPE_AUTO)
 {
     strcpy(m_TunerType,"n/a");
 
@@ -449,7 +124,7 @@ void CCX2388xCard::StopCapture()
     m_RISCIsRunning = FALSE;
 
 /*
-	// 2004/12/25 to_see: unused code
+    // 2004/12/25 to_see: unused code
 
     // perform card specific Stop Capture
     if(m_CX2388xCards[m_CardType].pStopCaptureCardFunction != NULL)
@@ -692,22 +367,22 @@ void CCX2388xCard::SetLowColorRemoval(BOOL LowColorRemoval)
 
 void CCX2388xCard::SetCombFilter(eCombFilter CombFilter)
 {
-	switch(CombFilter)
-	{
-	case COMBFILTER_OFF:
+    switch(CombFilter)
+    {
+    case COMBFILTER_OFF:
         OrDataDword(CX2388X_FILTER_EVEN, (1 << 5) | (1 << 6));
         OrDataDword(CX2388X_FILTER_ODD, (1 << 5) | (1 << 6));
-		break;
-	case COMBFILTER_CHROMA_ONLY:
+        break;
+    case COMBFILTER_CHROMA_ONLY:
         OrDataDword(CX2388X_FILTER_EVEN, (1 << 5));
         AndDataDword(CX2388X_FILTER_EVEN, ~(1 << 6));
         OrDataDword(CX2388X_FILTER_ODD, (1 << 5));
         AndDataDword(CX2388X_FILTER_ODD, ~(1 << 6));
-		break;
-	case COMBFILTER_FULL:
+        break;
+    case COMBFILTER_FULL:
         AndDataDword(CX2388X_FILTER_EVEN, ~((1 << 5) | (1 << 6)));
         AndDataDword(CX2388X_FILTER_ODD, ~((1 << 5) | (1 << 6)));
-		break;
+        break;
     case COMBFILTER_DEFAULT:
         if(m_CX2388xCards[m_CardType].Inputs[m_CurrentInput].InputType == INPUTTYPE_SVIDEO)
         {
@@ -721,10 +396,10 @@ void CCX2388xCard::SetCombFilter(eCombFilter CombFilter)
             AndDataDword(CX2388X_FILTER_EVEN, ~((1 << 5) | (1 << 6)));
             AndDataDword(CX2388X_FILTER_ODD, ~((1 << 5) | (1 << 6)));
         }
-		break;
-	default:
-		break;
-	}
+        break;
+    default:
+        break;
+    }
 }
 
 void CCX2388xCard::SetFullLumaRange(BOOL FullLumaRange)
@@ -1039,7 +714,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             // Disable luma dec
             m_FilterDefault |= 1 << 12;
             // Disable chroma filter
-			m_FilterDefault &= ~(1 << 19);
+            m_FilterDefault &= ~(1 << 19);
         }
         else
         {
@@ -1260,7 +935,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             // Disable luma dec
             m_FilterDefault |= 1 << 12;
             // Disable chroma filter
-			m_FilterDefault &= ~(1 << 19);
+            m_FilterDefault &= ~(1 << 19);
         }
         else
         {
@@ -1386,21 +1061,21 @@ BOOL CCX2388xCard::IsCCIRSource(int nInput)
 
 BOOL CCX2388xCard::IsVideoPresent()
 {
-    DWORD dwval			= ReadDword(CX2388X_DEVICE_STATUS);
-	DWORD dwUseVSync	= ReadDword(CX2388X_VIDEO_INPUT);
+    DWORD dwval            = ReadDword(CX2388X_DEVICE_STATUS);
+    DWORD dwUseVSync    = ReadDword(CX2388X_VIDEO_INPUT);
 
-	// "Vertical Sync Detection" in CX2388x Advanced Settings enabled?
-	if((dwUseVSync & CX2388X_VIDEO_INPUT_VERTEN) == CX2388X_VIDEO_INPUT_VERTEN)
-	{
-		// detection is much faster
-		return ((dwval & CX2388X_DEVICE_STATUS_VPRES) == CX2388X_DEVICE_STATUS_VPRES);
-	}
+    // "Vertical Sync Detection" in CX2388x Advanced Settings enabled?
+    if((dwUseVSync & CX2388X_VIDEO_INPUT_VERTEN) == CX2388X_VIDEO_INPUT_VERTEN)
+    {
+        // detection is much faster
+        return ((dwval & CX2388X_DEVICE_STATUS_VPRES) == CX2388X_DEVICE_STATUS_VPRES);
+    }
 
-	else
-	{
-		// use the old way
-		return ((dwval & CX2388X_DEVICE_STATUS_HLOCK) == CX2388X_DEVICE_STATUS_HLOCK);
-	}
+    else
+    {
+        // use the old way
+        return ((dwval & CX2388X_DEVICE_STATUS_HLOCK) == CX2388X_DEVICE_STATUS_HLOCK);
+    }
 }
 
 DWORD CCX2388xCard::GetRISCPos()
@@ -1714,7 +1389,7 @@ ULONG CCX2388xCard::GetTickCount()
     QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
     QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
 
-	ticks = ticks * 1000 / frequency;
+    ticks = ticks * 1000 / frequency;
     return (ULONG)ticks;
 }
 
@@ -1723,10 +1398,10 @@ void CCX2388xCard::InitializeI2C()
     WriteDword(CX2388X_I2C, 1);
     m_I2CRegister = ReadDword(CX2388X_I2C);
 
-	ULONGLONG frequency;
-	QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
-	
-	m_I2CSleepCycle = (unsigned long)(frequency / 50000);
+    ULONGLONG frequency;
+    QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
+    
+    m_I2CSleepCycle = (unsigned long)(frequency / 50000);
     
     m_I2CInitialized = true;
 }
@@ -1734,14 +1409,14 @@ void CCX2388xCard::InitializeI2C()
 void CCX2388xCard::Sleep()
 {
     ULONGLONG ticks = 0;
-	ULONGLONG start;
+    ULONGLONG start;
 
     QueryPerformanceCounter((PLARGE_INTEGER)&start);
 
-	while(start + m_I2CSleepCycle > ticks)
-	{
-		QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
-	}
+    while(start + m_I2CSleepCycle > ticks)
+    {
+        QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
+    }
 }
 
 void CCX2388xCard::SetSDA(bool value)

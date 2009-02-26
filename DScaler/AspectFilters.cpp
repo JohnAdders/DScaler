@@ -15,116 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 03 Jul 2001   John Adcock           Put Filter code in a separate file
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.36  2006/12/20 07:45:06  adcockj
-// added DirectX code from Daniel Sabel
-//
-// Revision 1.35  2005/03/23 14:20:35  adcockj
-// Test fix for threading issues
-//
-// Revision 1.34  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.33  2003/08/09 15:53:39  laurentg
-// Bad refresh of the toolbar when in full screen mode corrected
-//
-// Revision 1.32  2003/07/02 20:35:11  laurentg
-// Allow virtual screen with origin different from (0,0)
-//
-// Revision 1.31  2003/06/14 12:02:59  laurentg
-// Comment added for something that should maybe need a correction
-//
-// Revision 1.30  2003/01/07 23:55:35  laurentg
-// Take into account the new overscans in the AR module
-//
-// Revision 1.29  2003/01/07 23:27:00  laurentg
-// New overscan settings
-//
-// Revision 1.28  2002/11/06 20:02:19  adcockj
-// Ananlogue blanking fixed to work with my STB
-//
-// Revision 1.27  2002/11/03 18:38:32  adcockj
-// Fixes for cx2388x and PAL & NTSC
-//
-// Revision 1.26  2002/10/31 14:03:33  adcockj
-// Added Analogue blanking option to aspect code
-//
-// Revision 1.25  2002/10/11 13:40:52  kooiman
-// Changed bounding screen rectangle to virtual screen. Maybe the overlay doesn't get clipped on multi-monitor setups.
-//
-// Revision 1.24  2002/09/18 11:38:05  kooiman
-// Preparations for skinned dscaler look.
-//
-// Revision 1.23  2002/08/05 21:01:55  laurentg
-// Square pixels mode updated
-//
-// Revision 1.22  2002/08/04 08:43:45  kooiman
-// Moved the CResizeWindowAspectFilter before the ScreenSanity filter in the filter chain
-//
-// Revision 1.21  2002/03/20 11:30:20  robmuller
-// Corrected window behaviour with a wrapped menu bar.
-//
-// Revision 1.20  2002/02/26 00:16:16  laurentg
-// "Auto resize window" option not taken into account when in "Square Pixels" mode
-//
-// Revision 1.19  2002/02/25 22:42:23  laurentg
-// Correction of a bug in method CUnCropAspectFilter::adjustAspect
-//
-// Revision 1.18  2002/02/23 19:07:06  laurentg
-// New AR mode for stills having square pixels
-//
-// Revision 1.17  2002/02/23 12:00:13  laurentg
-// Do nothing in WorkoutOverlaySize when source width or height is null
-//
-// Revision 1.16  2002/02/19 16:03:36  tobbej
-// removed CurrentX and CurrentY
-// added new member in CSource, NotifySizeChange
-//
-// Revision 1.15  2001/11/29 17:30:51  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.14  2001/11/23 10:49:16  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.13  2001/11/02 16:30:06  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.12  2001/09/08 15:17:58  adcockj
-// Got Linear Correction working properly with squeeze
-//
-// Revision 1.11.2.1  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.11  2001/08/02 18:08:17  adcockj
-// Made all logging code use new levels
-//
-// Revision 1.10  2001/07/29 10:06:42  adcockj
-// Took out debug log for aspect ratio
-//
-// Revision 1.9  2001/07/18 18:45:32  adcockj
-// Corrected file comment
-//
-// Revision 1.8  2001/07/18 18:38:12  adcockj
-// Fixed crashing with off screen overlay
-//
-// Revision 1.7  2001/07/13 16:14:55  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.6  2001/07/12 16:16:39  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file AspectFilter.cpp Aspect Ratio Filter Classes
@@ -662,20 +552,20 @@ BOOL CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar)
     // so that we see the appropriate portion on the screen
     // (this should make us compatable with YXY)        
     RECT screenRect;
-	if (GetSystemMetrics(SM_CXVIRTUALSCREEN) == 0 || GetSystemMetrics(SM_CYVIRTUALSCREEN) == 0)
-	{
-		screenRect.top = 0;
+    if (GetSystemMetrics(SM_CXVIRTUALSCREEN) == 0 || GetSystemMetrics(SM_CYVIRTUALSCREEN) == 0)
+    {
+        screenRect.top = 0;
         screenRect.bottom = GetSystemMetrics(SM_CYSCREEN);
-		screenRect.left = 0;
+        screenRect.left = 0;
         screenRect.right = GetSystemMetrics(SM_CXSCREEN);
-	}
-	else
-	{
-		screenRect.top = GetSystemMetrics(SM_YVIRTUALSCREEN);
+    }
+    else
+    {
+        screenRect.top = GetSystemMetrics(SM_YVIRTUALSCREEN);
         screenRect.bottom = GetSystemMetrics(SM_YVIRTUALSCREEN)+GetSystemMetrics(SM_CYVIRTUALSCREEN);
-		screenRect.left = GetSystemMetrics(SM_XVIRTUALSCREEN);
+        screenRect.left = GetSystemMetrics(SM_XVIRTUALSCREEN);
         screenRect.right = GetSystemMetrics(SM_XVIRTUALSCREEN)+GetSystemMetrics(SM_CXVIRTUALSCREEN);
-	}
+    }
     RECT sourceRect = {0, 0, m_SrcWidth, m_SrcHeight};
 
     ar.m_CurrentOverlayDestRect.crop(screenRect,&ar.m_CurrentOverlaySrcRect);
@@ -737,12 +627,12 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
         {
             // Nope!  Scale the existing window using "smart" logic to grow or shrink the window as needed
             RECT screenRect = {0,0,GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN) };
-			//
-			// Laurent's comment
-			// Maybe the two following lines should replace the previous one.
-			//
-			//RECT screenRect;
-			//GetMonitorRect(hWnd, &screenRect);
+            //
+            // Laurent's comment
+            // Maybe the two following lines should replace the previous one.
+            //
+            //RECT screenRect;
+            //GetMonitorRect(hWnd, &screenRect);
 
             currentClientRect.adjustSourceAspectSmart(newRect.sourceAspect(),screenRect);
             
@@ -817,8 +707,8 @@ void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
 
     if (AspectSettings.OrbitEnabled)
     { 
-		// TO BE CHANGED (LG) : don't know what to put in m_Overscan
-		// and why m_Overscan is not used after ?
+        // TO BE CHANGED (LG) : don't know what to put in m_Overscan
+        // and why m_Overscan is not used after ?
         int m_Overscan = AspectSettings.InitialTopOverscan;
         if (AspectSettings.OrbitEnabled && m_Overscan*2 < AspectSettings.OrbitSize)
         {

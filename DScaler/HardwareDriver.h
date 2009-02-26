@@ -31,8 +31,8 @@
 class CHardwareDriver
 {
 public:
-	BOOL UnInstallNTDriver();
-	BOOL InstallNTDriver();
+    BOOL UnInstallNTDriver();
+    BOOL InstallNTDriver();
     CHardwareDriver();
     ~CHardwareDriver();
 
@@ -62,7 +62,7 @@ public:
                               );
 
 private:
-	BOOL AdjustAccessRights();
+    BOOL AdjustAccessRights();
     SC_HANDLE   m_hService;
     HANDLE      m_hFile;
     BOOL        m_bWindows95;

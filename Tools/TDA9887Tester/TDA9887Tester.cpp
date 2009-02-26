@@ -16,9 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 
@@ -35,10 +32,10 @@ static char THIS_FILE[] = __FILE__;
 // CTDA9887TesterApp
 
 BEGIN_MESSAGE_MAP(CTDA9887TesterApp, CWinApp)
-	//{{AFX_MSG_MAP(CTDA9887TesterApp)
-		// HINWEIS - Hier werden Mapping-Makros vom Klassen-Assistenten eingefügt und entfernt.
-		//    Innerhalb dieser generierten Quelltextabschnitte NICHTS VERÄNDERN!
-	//}}AFX_MSG
+    //{{AFX_MSG_MAP(CTDA9887TesterApp)
+        // HINWEIS - Hier werden Mapping-Makros vom Klassen-Assistenten eingefügt und entfernt.
+        //    Innerhalb dieser generierten Quelltextabschnitte NICHTS VERÄNDERN!
+    //}}AFX_MSG
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -60,18 +57,18 @@ BOOL CTDA9887TesterApp::InitInstance()
 {
     CHardwareDriver* pDriver = new CHardwareDriver();
 
-	if(pDriver->LoadDriver() == FALSE)
+    if(pDriver->LoadDriver() == FALSE)
     {
         delete pDriver;
         AfxMessageBox("Can't open driver", MB_OK);
         return FALSE;
     }
       
-	CTDA9887TesterDlg dlg(pDriver);
-	m_pMainWnd = &dlg;
-	dlg.DoModal();
+    CTDA9887TesterDlg dlg(pDriver);
+    m_pMainWnd = &dlg;
+    dlg.DoModal();
 
-	delete pDriver;
-	return FALSE;
+    delete pDriver;
+    return FALSE;
 }
 

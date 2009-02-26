@@ -16,9 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "HardwareDriver.h"
@@ -55,49 +52,49 @@ CHardwareDriver::~CHardwareDriver()
 
 BOOL CHardwareDriver::LoadDriver()
 {
-	UnloadDriver();
+    UnloadDriver();
 
-    SC_HANDLE hSCManager	= NULL;
-    BOOL      bError		= FALSE;
+    SC_HANDLE hSCManager    = NULL;
+    BOOL      bError        = FALSE;
 
 
     if (!m_bWindows95)
     {
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
-		
-		if(hSCManager == NULL)
-		{
+        
+        if(hSCManager == NULL)
+        {
             bError = TRUE;
-		}
+        }
 
         if(!bError)
         {
 
             m_hService = OpenService(hSCManager, NTDriverName, SERVICE_START|SERVICE_STOP);
 
-			if(m_hService == NULL)
+            if(m_hService == NULL)
             {
                 if(GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST)
-				{
+                {
                     if(!InstallNTDriver())
-					{
+                    {
                         bError = TRUE;
-					}
-				}
+                    }
+                }
 
                 else
-				{
+                {
                     bError = TRUE;
-				}
+                }
             }
         }
 
         if(hSCManager != NULL)
         {
             if(!CloseServiceHandle(hSCManager))
-			{
+            {
                 bError = TRUE;
-			}
+            }
 
             hSCManager = NULL;
         }
@@ -115,30 +112,30 @@ BOOL CHardwareDriver::LoadDriver()
                 }
 
                 else if(Err == ERROR_SERVICE_ALREADY_RUNNING)
-				{
+                {
                     m_WeStartedDriver = FALSE;
-				}
+                }
 
                 else
-				{
+                {
                     bError = TRUE;
-				}
+                }
 
             }
             
-			if(!bError)
-			{
+            if(!bError)
+            {
                 m_hFile = CreateFile("\\\\.\\DSDrv4", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, INVALID_HANDLE_VALUE);
-			}
-		}
+            }
+        }
     }
 
     else
-	{
+    {
         m_hFile = CreateFile("\\\\.\\DSDrv4.VXD", 0, 0, NULL, 0, FILE_FLAG_OVERLAPPED|FILE_FLAG_DELETE_ON_CLOSE, NULL);
-	}
-	
-	if(!bError)
+    }
+    
+    if(!bError)
     {
         if(m_hFile != INVALID_HANDLE_VALUE)
         {
@@ -154,22 +151,22 @@ BOOL CHardwareDriver::LoadDriver()
             }
         }
         
-		else
-		{
-			bError = TRUE;
-		}
+        else
+        {
+            bError = TRUE;
+        }
     }
 
     if(bError)
     {
         UnloadDriver();
         return FALSE;
-	}
-	
-	else
-	{
+    }
+    
+    else
+    {
         return TRUE;
-	}
+    }
 }
 
 void CHardwareDriver::UnloadDriver()
@@ -216,9 +213,9 @@ BOOL CHardwareDriver::InstallNTDriver()
     UnloadDriver();
 
     if (m_bWindows95)
-	{
+    {
         return TRUE;
-	}
+    }
 
     if (!GetModuleFileName(NULL, szDriverPath, sizeof(szDriverPath)))
     {
@@ -235,9 +232,9 @@ BOOL CHardwareDriver::InstallNTDriver()
         }
 
         if(GetDriveType(szDriverPath) == DRIVE_REMOTE)
-		{
+        {
             bError = TRUE;
-		}
+        }
     }
 
     if(!bError)
@@ -247,28 +244,28 @@ BOOL CHardwareDriver::InstallNTDriver()
         
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
         if(hSCManager == NULL)
-		{
+        {
             bError = TRUE;
-		}
+        }
     }
     
     if(!bError)
     {
         GetShortPathName(szDriverPath, szDriverPath, MAX_PATH);
 
-        m_hService = CreateService(	hSCManager,            // SCManager database
-									NTDriverName,          // name of service
-									NTDriverName,          // name to display
-									SERVICE_ALL_ACCESS,    // desired access
-									SERVICE_KERNEL_DRIVER, // service type
-									SERVICE_DEMAND_START,  // start type
-									SERVICE_ERROR_NORMAL,  // error control type
-									szDriverPath,          // service's binary
-									NULL,                  // no load ordering group
-									NULL,                  // no tag identifier
-									NULL,                  // no dependencies
-									NULL,                  // LocalSystem account
-									NULL);                 // no password
+        m_hService = CreateService(    hSCManager,            // SCManager database
+                                    NTDriverName,          // name of service
+                                    NTDriverName,          // name to display
+                                    SERVICE_ALL_ACCESS,    // desired access
+                                    SERVICE_KERNEL_DRIVER, // service type
+                                    SERVICE_DEMAND_START,  // start type
+                                    SERVICE_ERROR_NORMAL,  // error control type
+                                    szDriverPath,          // service's binary
+                                    NULL,                  // no load ordering group
+                                    NULL,                  // no tag identifier
+                                    NULL,                  // no dependencies
+                                    NULL,                  // LocalSystem account
+                                    NULL);                 // no password
         
         if(m_hService == NULL)
         {
@@ -276,9 +273,9 @@ BOOL CHardwareDriver::InstallNTDriver()
             {              
                 m_hService = OpenService(hSCManager, NTDriverName, SERVICE_ALL_ACCESS);
                 if(DeleteService(m_hService) == FALSE)
-				{
+                {
                     bError = TRUE;
-				}
+                }
 
                 if(m_hService != NULL)
                 {
@@ -289,49 +286,49 @@ BOOL CHardwareDriver::InstallNTDriver()
                 if(!bError)
                 {
                     m_hService = CreateService( hSCManager,            // SCManager database
-												NTDriverName,          // name of service
-												NTDriverName,          // name to display
-												SERVICE_ALL_ACCESS,    // desired access
-												SERVICE_KERNEL_DRIVER, // service type
-												SERVICE_DEMAND_START,  // start type
-												SERVICE_ERROR_NORMAL,  // error control type
-												szDriverPath,          // service's binary
-												NULL,                  // no load ordering group
-												NULL,                  // no tag identifier
-												NULL,                  // no dependencies
-												NULL,                  // LocalSystem account
-												NULL);                 // no password
+                                                NTDriverName,          // name of service
+                                                NTDriverName,          // name to display
+                                                SERVICE_ALL_ACCESS,    // desired access
+                                                SERVICE_KERNEL_DRIVER, // service type
+                                                SERVICE_DEMAND_START,  // start type
+                                                SERVICE_ERROR_NORMAL,  // error control type
+                                                szDriverPath,          // service's binary
+                                                NULL,                  // no load ordering group
+                                                NULL,                  // no tag identifier
+                                                NULL,                  // no dependencies
+                                                NULL,                  // LocalSystem account
+                                                NULL);                 // no password
                     
-					if(m_hService == NULL)
-					{
+                    if(m_hService == NULL)
+                    {
                         bError = TRUE;
-					}
+                    }
                 }
             }
            
-			else
-			{
+            else
+            {
                 bError = TRUE;
-			}
+            }
         }
     }
     
     if(!bError)
-	{
+    {
         if(!AdjustAccessRights())
-		{
+        {
             bError = TRUE;
-		}
-	}
+        }
+    }
     
     if(hSCManager != NULL)
     {
         if(!CloseServiceHandle(hSCManager))
-		{
+        {
             bError = TRUE;
-		}
+        }
         
-		hSCManager = NULL;
+        hSCManager = NULL;
     }
     
     if(bError)
@@ -340,10 +337,10 @@ BOOL CHardwareDriver::InstallNTDriver()
         return FALSE;
     }
     
-	else
-	{
+    else
+    {
         return TRUE;
-	}
+    }
 
 }
 
@@ -353,20 +350,20 @@ BOOL CHardwareDriver::UnInstallNTDriver()
     BOOL      bError = FALSE;
 
     if (m_bWindows95)
-	{
+    {
         TRACE("(NT driver) Uninstall not needed with win9x/ME.\n");
-	}
+    }
    
-	else
+    else
     {
         UnloadDriver();
 
         // get handle of the Service Control Manager
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
         if(hSCManager == NULL)
-		{
+        {
             bError = TRUE;
-		}
+        }
 
         if(!bError)
         {
@@ -380,10 +377,10 @@ BOOL CHardwareDriver::UnInstallNTDriver()
                     return TRUE;
                 }
                 
-				else
-				{
+                else
+                {
                     bError = TRUE;
-				}
+                }
             }
         }
 
@@ -396,27 +393,27 @@ BOOL CHardwareDriver::UnInstallNTDriver()
         if(hSCManager != NULL)
         {
             if(!CloseServiceHandle(hSCManager))
-			{
+            {
                 bError = TRUE;
-			}
+            }
 
             hSCManager = NULL;
         }
 
         if(!bError)
-		{
+        {
             if (DeleteService(m_hService) == FALSE)
-			{
+            {
                 bError = TRUE;
-			}
-		}
+            }
+        }
 
         if(m_hService != NULL)
         {
             if(CloseServiceHandle(m_hService) == FALSE)
-			{
+            {
                 bError = TRUE;
-			}
+            }
 
             m_hService = NULL;
         }
@@ -435,29 +432,29 @@ BOOL CHardwareDriver::UnInstallNTDriver()
 DWORD CHardwareDriver::SendCommand(DWORD dwIOCommand, LPVOID pvInput, DWORD dwInputLength, LPVOID pvOutput, DWORD dwOutputLength, LPDWORD pdwReturnedLength)
 {
     if(DeviceIoControl(m_hFile, dwIOCommand, pvInput, dwInputLength, pvOutput, dwOutputLength, pdwReturnedLength, NULL))
-	{
+    {
         return 0;
-	}
+    }
     
-	else
-	{
+    else
+    {
         return GetLastError();
-	}
+    }
 }
 
 DWORD CHardwareDriver::SendCommand(DWORD dwIOCommand, LPVOID pvInput, DWORD dwInputLength)
 {
     DWORD dwDummy;
     
-	if(DeviceIoControl(m_hFile, dwIOCommand, pvInput, dwInputLength, NULL, 0, &dwDummy, NULL))
-	{
+    if(DeviceIoControl(m_hFile, dwIOCommand, pvInput, dwInputLength, NULL, 0, &dwDummy, NULL))
+    {
         return 0;
-	}
+    }
    
-	else
-	{
+    else
+    {
         return GetLastError();
-	}
+    }
 }
 
 BOOL CHardwareDriver::AdjustAccessRights()
@@ -474,14 +471,14 @@ BOOL CHardwareDriver::AdjustAccessRights()
     EXPLICIT_ACCESS         ea;
 
     if(m_bWindows95)
-	{
+    {
         return TRUE;
-	}
+    }
 
     if(m_hService == NULL)
-	{
+    {
         return FALSE;
-	}
+    }
 
     psd = (PSECURITY_DESCRIPTOR)&psd;
     
@@ -491,34 +488,34 @@ BOOL CHardwareDriver::AdjustAccessRights()
         {
             psd = (PSECURITY_DESCRIPTOR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, dwSize);
             if(psd == NULL)
-			{
+            {
                 bError = TRUE;
-			}
+            }
         }
         
-		else
-		{
+        else
+        {
             bError = TRUE;
-		}
+        }
     }
     
     // Get the current security descriptor.
     if(!bError)
-	{
+    {
         if(!QueryServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, psd,dwSize, &dwSize))
-		{
-			bError = TRUE;                       
-		}
-	}
+        {
+            bError = TRUE;                       
+        }
+    }
 
     // Get the DACL.
     if(!bError)
     {
-		if(!GetSecurityDescriptorDacl(psd, &bDaclPresent, &pacl, &bDaclDefaulted))
+        if(!GetSecurityDescriptorDacl(psd, &bDaclPresent, &pacl, &bDaclDefaulted))
         {
-			bError = TRUE;
-		}
-	}
+            bError = TRUE;
+        }
+    }
 
     // Build the ACE.
     if(!bError)
@@ -528,57 +525,57 @@ BOOL CHardwareDriver::AdjustAccessRights()
 
         // Create a SID for the Everyone group.
         if (!AllocateAndInitializeSid(&SIDAuthWorld, 1, SECURITY_WORLD_RID, 0, 0, 0, 0, 0, 0, 0, &pSIDEveryone))
-		{
-			bError = TRUE;
+        {
+            bError = TRUE;
         }
 
-		else
+        else
         {
-            ea.grfAccessMode					= SET_ACCESS;
-            ea.grfAccessPermissions				= SERVICE_START|SERVICE_STOP;
-            ea.grfInheritance					= NO_INHERITANCE;
+            ea.grfAccessMode                    = SET_ACCESS;
+            ea.grfAccessPermissions                = SERVICE_START|SERVICE_STOP;
+            ea.grfInheritance                    = NO_INHERITANCE;
             ea.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
-            ea.Trustee.pMultipleTrustee			= NULL;
-            ea.Trustee.TrusteeForm				= TRUSTEE_IS_SID;
-            ea.Trustee.TrusteeType				= TRUSTEE_IS_GROUP;
-            ea.Trustee.ptstrName				= (char *)pSIDEveryone;
+            ea.Trustee.pMultipleTrustee            = NULL;
+            ea.Trustee.TrusteeForm                = TRUSTEE_IS_SID;
+            ea.Trustee.TrusteeType                = TRUSTEE_IS_GROUP;
+            ea.Trustee.ptstrName                = (char *)pSIDEveryone;
     
             dwError = SetEntriesInAcl(1, &ea, pacl, &pNewAcl);
             if(dwError != ERROR_SUCCESS)
             {
-				bError = TRUE;
-        	}
+                bError = TRUE;
+            }
         }
 
-		FreeSid(pSIDEveryone);
+        FreeSid(pSIDEveryone);
     }
     
     // Initialize a new Security Descriptor.
     if(!bError)
-	{
+    {
         if(!InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION))
-		{
+        {
             bError = TRUE;
-		}
-	}
+        }
+    }
     
     // Set the new DACL in the Security Descriptor.
     if(!bError)
-	{
+    {
         if(!SetSecurityDescriptorDacl(&sd, TRUE, pNewAcl, FALSE))
-		{
+        {
             bError = TRUE;
-		}
-	}
+        }
+    }
     
     // Set the new DACL for the service object.
     if(!bError)
-	{
+    {
         if (!SetServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, &sd))
-		{
+        {
             bError = TRUE;
-		}
-	}
+        }
+    }
     
     // Free buffers.
     LocalFree((HLOCAL)pNewAcl);
@@ -593,10 +590,10 @@ BOOL CHardwareDriver::DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int Dev
     DWORD dwStatus;
     DWORD dwLength;
     
-	TPCICARDINFO PCICardInfo;
-    hwParam.dwAddress	= VendorID;
-    hwParam.dwValue		= DeviceID;
-    hwParam.dwFlags		= DeviceIndex;
+    TPCICARDINFO PCICardInfo;
+    hwParam.dwAddress    = VendorID;
+    hwParam.dwValue        = DeviceID;
+    hwParam.dwFlags        = DeviceIndex;
 
     dwStatus = SendCommand( IOCTL_DSDRV_GETPCIINFO,
                             &hwParam,
@@ -611,7 +608,7 @@ BOOL CHardwareDriver::DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int Dev
         return TRUE;
     }
     
-	else
+    else
     {
         SubSystemId = 0;
         return FALSE;

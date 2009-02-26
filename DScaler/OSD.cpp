@@ -16,416 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 8 Nov 2000    Michael Eskin         Initial onscreen display
-//
-// 28 Nov 2000   Mark Rejhon           Reorganization and visual improvements
-//
-// 23 Feb 2001   Michael Samblanet     Calculate OSD rect so we do not 
-//                                     invalidate entire display to erase
-//
-// 24 Feb 2001   Michael Samblanet     Moved rect into OSDInfo structure
-//                                     Should improve compatability with coming
-//                                     OSD changes
-//
-// 25 Feb 2001   Laurent Garnier       Added management of multiple OSD texts
-//
-// 03 Mar 2001   Laurent Garnier       Added functions OSD_ShowInfosScreen
-//                                     and OSD_GetLineYpos
-//
-// 10 Mar 2001   Laurent Garnier       Status bar height taken into account when
-//                                     calculating texts placement
-//
-// 18 Mar 2001   Laurent Garnier       Added multiple screens feature
-//                                     Added specific screen for WSS data decoding
-//
-// 22 Mar 2001   Laurent Garnier       Screen Refresh managed with a timer
-//                                     Choice (in ini file) between persistent
-//                                     screens and screens with autohide timer
-//
-// NOTICE FROM MARK: This code will probably be rewritten, but keeping 
-// this code neat and architecturally well organized, will maximize code 
-// recyclability.   There is a need for multiple independent OSD elements,
-// such as persistent "MUTE" / "UNMUTE" with separate channel number that
-// dissappears.   Perhaps some kind of a linked list of OSD's can be 
-// maintained.   Keep a future multi-OSD architecture in mind when deciding
-// to expand this code.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.116  2006/12/20 07:45:07  adcockj
-// added DirectX code from Daniel Sabel
-//
-// Revision 1.115  2006/10/06 13:35:28  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.114  2006/09/24 14:00:43  robmuller
-// Fixed: General Screen could not be disabled.
-//
-// Revision 1.113  2006/09/24 00:51:03  robmuller
-// Added more info to developers screen.
-//
-// Revision 1.112  2005/07/23 19:13:27  laurentg
-// EPG: put common code in a new function
-//
-// Revision 1.111  2005/07/23 18:56:08  laurentg
-// EPG with external tuner using teletext/VPS to get channel name
-//
-// Revision 1.110  2005/07/23 12:40:57  laurentg
-// EPG: switch between browser view and details view improved
-//
-// Revision 1.109  2005/07/19 21:41:54  laurentg
-// EPG: shift programme description at screen using Shift+PgUp and Shift+PgDn
-//
-// Revision 1.108  2005/07/11 22:11:29  laurentg
-// Minor change for display of EPG in OSD
-//
-// Revision 1.107  2005/07/09 13:43:43  laurentg
-// Two new EPG settings + Possibility to display next and previous programmes info
-//
-// Revision 1.106  2005/07/06 21:44:41  laurentg
-// Cut on several lines for the display of the programme description ( EPG OSD)
-//
-// Revision 1.105  2005/07/06 19:48:33  laurentg
-// Updated OSD for EPG
-//
-// Revision 1.104  2005/06/09 23:27:41  robmuller
-// Enable Developer Statistics by default (this screen is never shown in a release build).
-//
-// Revision 1.103  2005/04/02 14:23:44  laurentg
-// EPG: little bugs fixed
-//
-// Revision 1.102  2005/04/02 14:04:12  laurentg
-// EPG: navigation between the browser view and the programme view improved
-//
-// Revision 1.101  2005/04/01 22:16:33  laurentg
-// EPG: new menu "Hide EPG" + new setting to define the time frame duration
-//
-// Revision 1.100  2005/03/29 21:08:34  laurentg
-// program renamed programme
-//
-// Revision 1.99  2005/03/28 17:48:10  laurentg
-// Navigation into EPG + change of channel
-//
-// Revision 1.98  2005/03/28 13:42:02  laurentg
-// EPG: preparation for when new data (category, sub-title, description) will be available
-//
-// Revision 1.97  2005/03/28 12:53:20  laurentg
-// EPG: previous and next page to show programs
-//
-// Revision 1.96  2005/03/27 20:22:20  laurentg
-// EPG: new improvements
-//
-// Revision 1.95  2005/03/26 22:07:28  laurentg
-// EPG screens defined as not accessible in the View menu
-//
-// Revision 1.94  2005/03/26 18:53:23  laurentg
-// EPG code improved
-// => possibility to set the EPG channel name in the channel setup dialog box
-// => automatic loading of new data when needed
-// => OSD scrrens updated
-// => first step for programs "browser"
-//
-// Revision 1.93  2005/03/23 14:20:57  adcockj
-// Test fix for threading issues
-//
-// Revision 1.92  2005/03/21 22:39:15  laurentg
-// EPG: changes regarding OSD
-//
-// Revision 1.91  2005/03/20 22:56:22  laurentg
-// New OSD screens added for EPG
-//
-// Revision 1.90  2004/07/25 11:25:31  adcockj
-// Patch for international lanugauges in OSD from Alexander Choporov
-//
-// Revision 1.89  2004/05/02 14:09:32  atnak
-// Fixed possible problem of overlay colour getting dithered with < 32bit colour
-//
-// Revision 1.88  2003/11/12 22:14:30  robmuller
-// Add some more info to the developers statistics screen.
-//
-// Revision 1.87  2003/11/11 22:16:30  robmuller
-// Add ability to include the performance statistics in a release build.
-//
-// Revision 1.86  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.85  2003/06/02 13:15:34  adcockj
-// Fixes for CHARSTRING problems
-//
-// Revision 1.84  2003/05/26 22:04:17  laurentg
-// Update of the OSD displayed when doing calibration
-//
-// Revision 1.83  2003/04/26 19:39:10  laurentg
-// New character string settings
-//
-// Revision 1.82  2003/03/09 19:46:26  laurentg
-// Updated field statistics
-//
-// Revision 1.81  2003/02/22 13:37:49  laurentg
-// New statistics to check fields runnign late and no flip at time
-//
-// Revision 1.80  2003/01/24 02:20:37  atnak
-// Put back performance counter for OSD screen redraw.
-//
-// Revision 1.79  2003/01/24 01:55:18  atnak
-// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
-// got rid of the pink overlay colorkey for Teletext.
-//
-// Revision 1.78  2003/01/19 11:09:10  laurentg
-// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
-//
-// Revision 1.77  2003/01/18 12:26:27  laurentg
-// Menu items for OSD screens allow now to select/display the screen instead of enable/disable it
-// The three OSD screens are now enabled by default
-//
-// Revision 1.76  2003/01/08 22:01:24  robmuller
-// Fixed problem with multi-line OSD messages at default size.
-//
-// Revision 1.75  2002/11/10 09:42:01  laurentg
-// Settings "Use OSD screen..."
-//
-// Revision 1.74  2002/10/29 23:38:35  laurentg
-// Display of the calibration OSD
-//
-// Revision 1.73  2002/10/29 11:05:28  adcockj
-// Renamed CT2388x to CX2388x
-//
-// Revision 1.72  2002/10/27 20:39:07  laurentg
-// Performance statistics only computed in DEBUG buildd
-// Developer OSD screen only present in DEBUG build
-//
-// Revision 1.71  2002/10/27 13:08:17  robmuller
-// In addition to "\n" OSD now supports "\r\n" to start a new line.
-//
-// Revision 1.70  2002/09/18 11:38:05  kooiman
-// Preparations for skinned dscaler look.
-//
-// Revision 1.69  2002/09/11 18:19:42  adcockj
-// Prelimainary support for CX2388x based cards
-//
-// Revision 1.68  2002/08/02 20:16:43  laurentg
-// Suppress call to RemoveMenu
-//
-// Revision 1.67  2002/07/30 21:20:59  laurentg
-// Merge of menus View, AspectRatio and OSD
-//
-// Revision 1.66  2002/07/20 10:33:06  laurentg
-// New settings to select the wished OSD screens
-//
-// Revision 1.65  2002/07/19 13:02:32  laurentg
-// OSD menu simplified (one depth level less)
-//
-// Revision 1.64  2002/07/19 11:59:12  laurentg
-// OSD settings added in the tree settings
-//
-// Revision 1.63  2002/06/13 12:10:22  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.62  2002/06/02 09:43:23  laurentg
-// Settings restore at end of automatic calibration was broken
-//
-// Revision 1.61  2002/06/01 22:24:36  laurentg
-// New calibration mode to compute YUV range
-//
-// Revision 1.60  2002/05/28 08:23:05  robmuller
-// Fixed: OSD did never output non-antialiased.
-// Changed: OSD font now defaults to non-antialiased to fix the OSD performance problems.
-//
-// Revision 1.59  2002/05/20 18:08:29  robmuller
-// Fixed: screen only partly updated when in video text mode.
-//
-// Revision 1.58  2002/05/06 15:34:59  laurentg
-// Key <i> to show source informations through OSD
-//
-// Revision 1.57  2002/04/27 14:08:07  laurentg
-// Automatic square pixels mode handling updated
-//
-// Revision 1.56  2002/04/06 11:46:45  laurentg
-// Check that the current source is not NULL to avoid DScaler exits
-//
-// Revision 1.55  2002/02/23 15:43:08  laurentg
-// General screen (OSD) updated
-//
-// Revision 1.54  2002/02/23 13:56:12  laurentg
-// Big switch in OSD_RefreshInfosScreen replaced by a call to one function for each screen
-// AR statistics moved in the the statistics screen and AR screen disabled
-// New screen added with our statistics regarding the time spent in each part of the DScaler code
-//
-// Revision 1.53  2002/02/23 12:02:40  laurentg
-// % of time used by each AR added in the AR statistics
-//
-// Revision 1.52  2002/02/18 20:51:51  laurentg
-// Statistics regarding deinterlace modes now takes into account the progressive mode
-// Reset of the deinterlace statistics at each start of the decoding thread
-// Reset action now resets the deinterlace statistics too
-//
-// Revision 1.51  2002/02/17 22:34:19  laurentg
-// Bug in statistics OSD screen corrected
-//
-// Revision 1.50  2002/02/17 20:32:34  laurentg
-// Audio input display suppressed from the OSD main screen
-// GetStatus modified to display the video input name in OSD main screen even when there is no signal
-//
-// Revision 1.49  2002/02/09 14:46:04  laurentg
-// OSD main screen updated to display the correct input name (or channel)
-// OSD main screen updated to display only activated filters
-// Menu label for the BT848 providers now displays the name of the card
-//
-// Revision 1.48  2002/02/09 13:01:57  laurentg
-// Function OSD_ShowUI added
-//
-// Revision 1.47  2002/02/08 00:42:25  laurentg
-// Support of a new type of file : DScaler patterns
-//
-// Revision 1.46  2002/02/02 12:44:01  laurentg
-// "Pixel width" replaced by "Source size" in the main OSD
-//
-// Revision 1.45  2002/01/19 19:09:37  robmuller
-// Added support for the '\n' character in OSD_AddText().
-//
-// Revision 1.44  2001/12/16 16:31:43  adcockj
-// Bug fixes
-//
-// Revision 1.43  2001/12/16 13:13:34  laurentg
-// New statistics
-//
-// Revision 1.42  2001/11/29 17:30:52  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.41  2001/11/29 14:04:07  adcockj
-// Added Javadoc comments
-//
-// Revision 1.40  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.39  2001/11/22 22:27:00  adcockj
-// Bug Fixes
-//
-// Revision 1.38  2001/11/22 13:19:37  temperton
-// Added CPaintingHDC class for double buffering painting
-//
-// Revision 1.37  2001/11/21 12:32:11  adcockj
-// Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
-//
-// Revision 1.36  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.35  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.34  2001/09/29 16:33:50  laurentg
-// Background color and background mode can now be deifned sepaately for each text in OSD
-// OSD for calibration updated
-//
-// Revision 1.33  2001/09/29 10:40:58  laurentg
-// OSD for calibration updated
-//
-// Revision 1.32  2001/09/22 18:04:55  laurentg
-// Minimum time to wait after each ajustment reduced
-// Fine adjustments made with more frames (50)
-// Brigthness now ajusted using several black bars
-// Contrast now ajusted using several white bars
-// Hue now ajusted using magenta, cyan and green bars
-// Fine ajustment only tests combinations of correct settings found in previous steps
-//
-// Revision 1.31  2001/09/21 20:39:12  laurentg
-// Text "auto" added in front of the source ratio in the OSD general screen when ratio automatic detection is activated
-//
-// Revision 1.30  2001/09/15 21:02:45  laurentg
-// no message
-//
-// Revision 1.29  2001/09/09 17:46:30  laurentg
-// no message
-//
-// Revision 1.28  2001/09/04 21:03:09  laurentg
-// no message
-//
-// Revision 1.27  2001/09/02 22:07:42  laurentg
-// OSD screen for automatic calibration modified
-// Hue taken into account during automatic calibration
-//
-// Revision 1.26  2001/08/26 18:33:42  laurentg
-// Automatic calibration improved
-//
-// Revision 1.25  2001/08/23 16:03:26  adcockj
-// Improvements to dynamic menus to remove requirement that they are not empty
-//
-// Revision 1.24  2001/08/16 21:17:34  laurentg
-// Automatic calibration improved with a fine adjustment
-//
-// Revision 1.23  2001/08/15 17:50:11  laurentg
-// UseRGB ini parameter suppressed
-// OSD screen concerning card calibration fully modified
-// Automatic calibration added (not finished)
-//
-// Revision 1.22.2.7  2001/08/24 12:35:09  adcockj
-// Menu handling changes
-//
-// Revision 1.22.2.6  2001/08/23 16:04:57  adcockj
-// Improvements to dynamic menus to remove requirement that they are not empty
-//
-// Revision 1.22.2.5  2001/08/21 09:43:01  adcockj
-// Brought branch up to date with latest code fixes
-//
-// Revision 1.22.2.4  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.22.2.3  2001/08/17 16:35:14  adcockj
-// Another interim check-in still doesn't compile. Getting closer ...
-//
-// Revision 1.22.2.2  2001/08/16 06:43:34  adcockj
-// moved more stuff into the new file (deonsn't compile)
-//
-// Revision 1.22.2.1  2001/08/15 14:44:05  adcockj
-// Starting to put some flesh onto the new structure
-//
-// Revision 1.22  2001/08/11 15:17:06  laurentg
-// Bug fixed
-//
-// Revision 1.21  2001/08/09 22:18:23  laurentg
-// Improvments in relation with calibration
-//
-// Revision 1.20  2001/08/08 21:58:16  laurentg
-// Lot of comments added - not finished
-//
-// Revision 1.19  2001/08/05 20:14:49  laurentg
-// New OSD screen added for AR autodetection
-//
-// Revision 1.18  2001/07/30 19:51:30  laurentg
-// no message
-//
-// Revision 1.17  2001/07/29 22:51:09  laurentg
-// OSD screen for card calibration improved
-// Test patterns description added or corrected
-//
-// Revision 1.16  2001/07/28 16:15:15  laurentg
-// New test patterns added
-//
-// Revision 1.15  2001/07/26 22:02:12  laurentg
-// New entry in OSD section of ini file
-// New OSD screen for card calibration
-//
-// Revision 1.14  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.13  2001/07/13 18:13:24  adcockj
-// Changed Mute to not be persisted and to work properly
-//
-// Revision 1.12  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.11  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file OSD.cpp OSD Functions
@@ -724,25 +314,25 @@ void OSD_ActivateInfosScreen(INT IdxScreen, DOUBLE Size)
 // External: Displays the specified OSD screen
 void OSD_ShowInfosScreen(INT IdxScreen, DOUBLE dSize)
 {
-	// Laurent: change not very clean !!!
-	// When the display of the current screen disables all other OSD
-	// and we try to display another OSD screen managed by the application,
-	// we accept it
+    // Laurent: change not very clean !!!
+    // When the display of the current screen disables all other OSD
+    // and we try to display another OSD screen managed by the application,
+    // we accept it
     if (OSD_bOverride)
     {
-		int nScreens = sizeof(ActiveScreens) / sizeof(ActiveScreens[0]);
+        int nScreens = sizeof(ActiveScreens) / sizeof(ActiveScreens[0]);
 
-		if (IdxScreen < 0 || IdxScreen >= nScreens)
-		{
-			IdxScreen = -1;
-		}
-		else if (!ActiveScreens[IdxScreen].active)
-		{
-			IdxScreen = -1;
-		}
-		if (   (IdxScreen == -1)
-			|| (ActiveScreens[IdxScreen].lock == FALSE) )
-	        return;
+        if (IdxScreen < 0 || IdxScreen >= nScreens)
+        {
+            IdxScreen = -1;
+        }
+        else if (!ActiveScreens[IdxScreen].active)
+        {
+            IdxScreen = -1;
+        }
+        if (   (IdxScreen == -1)
+            || (ActiveScreens[IdxScreen].lock == FALSE) )
+            return;
     }
 
     TOSDCommand* pOSDCommand;
@@ -967,7 +557,7 @@ void OSD_Clear(HDC hDC, LPRECT lpRect)
         OSD_IdxCurrentScreen = -1;
     }
 
-	MyEPG.HideOSD();
+    MyEPG.HideOSD();
 }
 
 
@@ -1022,11 +612,11 @@ void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size)
     }
 #endif
 
-	if (ActiveScreens[OSD_IdxCurrentScreen].refresh_delay)
-	{
-		SetTimer(GetMainWnd(), OSD_TIMER_REFRESH_ID,
-			ActiveScreens[OSD_IdxCurrentScreen].refresh_delay, NULL);
-	}
+    if (ActiveScreens[OSD_IdxCurrentScreen].refresh_delay)
+    {
+        SetTimer(GetMainWnd(), OSD_TIMER_REFRESH_ID,
+            ActiveScreens[OSD_IdxCurrentScreen].refresh_delay, NULL);
+    }
 }
 
 
@@ -1373,14 +963,14 @@ static void OSD_RefreshGeneralScreen(double Size)
     // Source size
     if (pSource != NULL)
     {
-		if (pSource->GetWidth() != pSource->GetInitialWidth() || pSource->GetHeight() != pSource->GetInitialHeight())
-		{
-	        sprintf (szInfo, "Size %ux%u (%ux%u)", pSource->GetWidth(), pSource->GetHeight(), pSource->GetInitialWidth(), pSource->GetInitialHeight());
-		}
-		else
-		{
-		    sprintf (szInfo, "Size %ux%u", pSource->GetWidth(), pSource->GetHeight());
-		}
+        if (pSource->GetWidth() != pSource->GetInitialWidth() || pSource->GetHeight() != pSource->GetInitialHeight())
+        {
+            sprintf (szInfo, "Size %ux%u (%ux%u)", pSource->GetWidth(), pSource->GetHeight(), pSource->GetInitialWidth(), pSource->GetInitialHeight());
+        }
+        else
+        {
+            sprintf (szInfo, "Size %ux%u", pSource->GetWidth(), pSource->GetHeight());
+        }
         OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     }
 
@@ -1650,15 +1240,15 @@ static void OSD_RefreshStatisticsScreen(double Size)
 
     if (Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)))
     {
-		OSD_AddText("No flip at time", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText("No flip at time", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-		sprintf (szInfo, "Number : %ld", pPerf->GetNumberNoFlipAtTime());
-		OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-		sprintf (szInfo, "Last second : %d", pPerf->GetNoFlipAtTimeLastSecond());
-		OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-		sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageNoFlipAtTime());
-		OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-	}
+        sprintf (szInfo, "Number : %ld", pPerf->GetNumberNoFlipAtTime());
+        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        sprintf (szInfo, "Last second : %d", pPerf->GetNoFlipAtTimeLastSecond());
+        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageNoFlipAtTime());
+        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    }
 
     nLine = 1;
 
@@ -2037,7 +1627,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
         }
         else
         {
-			nLine = 8;
+            nLine = 8;
 
             // do brightness
             pSetting = pSource->GetBrightness();
@@ -2059,7 +1649,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
-	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
 
 
@@ -2083,7 +1673,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
-	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
 
 
@@ -2110,7 +1700,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
-	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
 
 
@@ -2133,7 +1723,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
-	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
 
 
@@ -2156,7 +1746,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
-	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
 
             // do Hue
@@ -2176,20 +1766,20 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
-	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
         }
     }
 
-	// Name of the test pattern
-	pTestPattern = pCalibration->GetCurrentTestPattern();
+    // Name of the test pattern
+    pTestPattern = pCalibration->GetCurrentTestPattern();
     if (pTestPattern != NULL)
-	{
+    {
         OSD_AddText(pTestPattern->GetName(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
-	}
+    }
 
     if (pCalibration->IsRunning() && (pTestPattern != NULL))
-	{
+    {
         if ( (pCalibration->GetType() != CAL_MANUAL)
           && (pCalibration->GetType() != CAL_CHECK_YUV_RANGE) )
         {
@@ -2257,13 +1847,13 @@ static void OSD_RefreshCalibrationScreen(double Size)
             }
             nLine++;
 
-        	pSubPattern = pCalibration->GetCurrentSubPattern();
+            pSubPattern = pCalibration->GetCurrentSubPattern();
             if (pSubPattern != NULL)
             {
                 for(vector<CColorBar*>::iterator it = pSubPattern->m_ColorBars.begin(); 
                     it != pSubPattern->m_ColorBars.end(); 
                     ++it)
-    	    	{
+                {
                     if (pCalibration->GetType() == CAL_CHECK_YUV_RANGE)
                     {
                         if ( (*it)->GetMinColor(&val1, &val2, &val3)
@@ -2280,7 +1870,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
                     else
                     {
                         (*it)->GetRefColor(FALSE, &val1, &val2, &val3);
-    	    		    BackColor = RGB(val1, val2, val3);
+                        BackColor = RGB(val1, val2, val3);
 
                         avail1 = (*it)->GetDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
                         if ( avail1
@@ -2306,32 +1896,32 @@ static void OSD_RefreshCalibrationScreen(double Size)
                               && ! Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
                             {
                                 OSD_GetTextResult(dif_total1, szInfo, &Color);
-        		    		    OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                                OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
                             }
                             else if ( avail2
                                    && ! Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
                                    && Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
                             {
                                 OSD_GetTextResult(dif_total2, szInfo, &Color);
-        		    		    OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                                OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
                             }
                             else if (avail1 && avail2)
                             {
                                 OSD_GetTextResult((dif_total1 < dif_total2) ? dif_total1 : dif_total2, szInfo, &Color);
-        		    		    OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                                OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
                             }
                         }
                         else if (avail2)
                         {
                             OSD_GetTextResult(dif_total2, szResult, &Color);
                             sprintf (szInfo, "%s (YUV %d)", szResult, dif_total2);
-		    		        OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                            OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                         }
                     }
-    	    	}
+                }
             }
         }
-	}
+    }
 }
 
 
@@ -2342,8 +1932,8 @@ static void OSD_RefreshDeveloperScreen(double Size)
     int         nLine;
     int         i;
     double      pos;
-	DWORD		Total = 0;
-	DWORD		Cycles = 0;
+    DWORD        Total = 0;
+    DWORD        Cycles = 0;
 
     if (Size == 0)
     {
@@ -2395,7 +1985,7 @@ static void OSD_RefreshDeveloperScreen(double Size)
             sprintf(szInfo, "%d", pPerf->GetAverageDuration((ePerfType)i));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
             nLine++;
-			Total += pPerf->GetAverageDuration((ePerfType)i);
+            Total += pPerf->GetAverageDuration((ePerfType)i);
         }
     }
     pos = OSD_GetLineYpos (nLine, dfMargin, Size);
@@ -2403,57 +1993,57 @@ static void OSD_RefreshDeveloperScreen(double Size)
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
     sprintf(szInfo, "%d", Total);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
-	nLine += 2;
-	pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+    nLine += 2;
+    pos = OSD_GetLineYpos (nLine, dfMargin, Size);
     sprintf(szInfo, "%s", "Duration since start");
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
-	Cycles = pPerf->GetNbCycles(1);
+    Cycles = pPerf->GetNbCycles(1);
     sprintf(szInfo, "%d:%02d", Cycles/60, Cycles % 60);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
-	
+    
 }
 
 
 static void OSD_DisplayProgrammeInfos(double Size)
 {
-    double	dfMargin = 0.02;    // 2% of screen height/width
+    double    dfMargin = 0.02;    // 2% of screen height/width
 
-	time_t StartTime;
-	time_t EndTime;
-	string ChannelName;
-	string ProgrammeTitle;
-	string Category;
+    time_t StartTime;
+    time_t EndTime;
+    string ChannelName;
+    string ProgrammeTitle;
+    string Category;
 
-	if (MyEPG.GetProgrammeMainData(-1, &StartTime, &EndTime, ChannelName, ProgrammeTitle, Category) == FALSE)
-	{
-		return;
-	}
+    if (MyEPG.GetProgrammeMainData(-1, &StartTime, &EndTime, ChannelName, ProgrammeTitle, Category) == FALSE)
+    {
+        return;
+    }
 
-	OSD_AddText(ChannelName.c_str(), OSD_DefaultSizePerc, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, OSD_DefaultSizePerc));
+    OSD_AddText(ChannelName.c_str(), OSD_DefaultSizePerc, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, OSD_DefaultSizePerc));
 
     if (Size == 0)
     {
         Size = Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE));
     }
 
-	struct tm *date_tm;
-	char   StartTimeStr[6];
-	char   EndTimeStr[6];
-	date_tm = localtime(&StartTime);
-	sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
-	date_tm = localtime(&EndTime);
-	sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+    struct tm *date_tm;
+    char   StartTimeStr[6];
+    char   EndTimeStr[6];
+    date_tm = localtime(&StartTime);
+    sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+    date_tm = localtime(&EndTime);
+    sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 
     double pos2 = OSD_GetLineYpos (2, dfMargin, OSD_DefaultSizePerc);
     double pos3 = pos2 + OSD_GetLineYpos (2, dfMargin, Size) - OSD_GetLineYpos (1, dfMargin, Size);
-	double pos4 = pos3 + pos3 - pos2;
+    double pos4 = pos3 + pos3 - pos2;
 
     OSD_AddText(ProgrammeTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
-	char   szInfo[16];
+    char   szInfo[16];
     sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos3);
-	time_t TimeNow;
-	time(&TimeNow);
+    time_t TimeNow;
+    time(&TimeNow);
     sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos4);
 }
@@ -2461,111 +2051,111 @@ static void OSD_DisplayProgrammeInfos(double Size)
 
 static void OSD_RefreshCurrentProgrammeScreen(double Size)
 {
-    double	dfMargin = 0.02;    // 2% of screen height/width
+    double    dfMargin = 0.02;    // 2% of screen height/width
 
     if (Size == 0)
     {
         Size = Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE));
     }
 
-	int nLine = 1;
+    int nLine = 1;
 
     double pos1 = OSD_GetLineYpos (nLine++, dfMargin, Size);
     double pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
 
-	string Channel;
+    string Channel;
 
-	if (   (MyEPG.SearchForProgramme(Channel) == FALSE)
-		|| (Channel.length() == 0) )
-	{
-		OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
-		return;
-	}
+    if (   (MyEPG.SearchForProgramme(Channel) == FALSE)
+        || (Channel.length() == 0) )
+    {
+        OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+        return;
+    }
 
-	time_t StartTime;
-	time_t EndTime;
-	string ChannelName;
-	string ProgrammeTitle;
-	string SubTitle;
-	string Category;
-	string Description;
+    time_t StartTime;
+    time_t EndTime;
+    string ChannelName;
+    string ProgrammeTitle;
+    string SubTitle;
+    string Category;
+    string Description;
 
-	MyEPG.GetProgrammeData(-1, &StartTime, &EndTime, ChannelName, ProgrammeTitle, SubTitle, Category, Description);
+    MyEPG.GetProgrammeData(-1, &StartTime, &EndTime, ChannelName, ProgrammeTitle, SubTitle, Category, Description);
 
-	struct tm *date_tm;
-	char   StartTimeStr[6];
-	char   EndTimeStr[6];
-	date_tm = localtime(&StartTime);
-	sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
-	date_tm = localtime(&EndTime);
-	sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+    struct tm *date_tm;
+    char   StartTimeStr[6];
+    char   EndTimeStr[6];
+    date_tm = localtime(&StartTime);
+    sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+    date_tm = localtime(&EndTime);
+    sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 
     OSD_AddText(ChannelName.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
-	char   szInfo[16];
-	time_t TimeNow;
-	time(&TimeNow);
-	if (   (TimeNow >= StartTime)
-		&& (TimeNow < EndTime) )
-	{
-		sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
-		OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
-	}
+    char   szInfo[16];
+    time_t TimeNow;
+    time(&TimeNow);
+    if (   (TimeNow >= StartTime)
+        && (TimeNow < EndTime) )
+    {
+        sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
+        OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
+    }
     sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
     OSD_AddText(ProgrammeTitle.c_str(), Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
-	if (SubTitle.length() > 0)
-	{
-		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
-		OSD_AddText(SubTitle.c_str(), Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
-	}
-	if (Description.length() > 0)
-	{
-		// Get the Y position of the first line of the description
-		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
+    if (SubTitle.length() > 0)
+    {
+        pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
+        OSD_AddText(SubTitle.c_str(), Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
+    }
+    if (Description.length() > 0)
+    {
+        // Get the Y position of the first line of the description
+        pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
 
-		// Determine how many lines can still enter in the OSD
-		double LineHeight = (Size-1)/100;
-		int nb = 0;
-		pos1 = pos2;
-		while ( (pos1+LineHeight) <= 1.0)
-		{
+        // Determine how many lines can still enter in the OSD
+        double LineHeight = (Size-1)/100;
+        int nb = 0;
+        pos1 = pos2;
+        while ( (pos1+LineHeight) <= 1.0)
+        {
             pos1 += LineHeight;
-			nb++;
-		} 
+            nb++;
+        } 
 
-		// Cut the description test on several lines and
-		// determine the number of necessary lines
-		int nb2 = OSD_CutLines(Description.c_str(), Setting_GetValue(EPG_GetSetting(EPG_MAXCHARSPERLINE)));
+        // Cut the description test on several lines and
+        // determine the number of necessary lines
+        int nb2 = OSD_CutLines(Description.c_str(), Setting_GetValue(EPG_GetSetting(EPG_MAXCHARSPERLINE)));
 
-		// Display the lines skipping first lines if required
-		int IdxFirstLine;
-		int nb3;
-		if (nb2 <= nb)
-		{
-			IdxFirstLine = 0;
-			nb3 = nb2;
-		}
-		else
-		{
-			IdxFirstLine = MyEPG.GetDisplayLineShift(nb2 - nb);
-			nb3 = nb + IdxFirstLine;
-		}
-		for(int i = IdxFirstLine; i < nb3; i++)
-		{
-			OSD_AddTextSingleLine(TextLines[i], Size-1 ,-1 ,-1 , OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
-			pos2 += LineHeight;
-		}
-	}
+        // Display the lines skipping first lines if required
+        int IdxFirstLine;
+        int nb3;
+        if (nb2 <= nb)
+        {
+            IdxFirstLine = 0;
+            nb3 = nb2;
+        }
+        else
+        {
+            IdxFirstLine = MyEPG.GetDisplayLineShift(nb2 - nb);
+            nb3 = nb + IdxFirstLine;
+        }
+        for(int i = IdxFirstLine; i < nb3; i++)
+        {
+            OSD_AddTextSingleLine(TextLines[i], Size-1 ,-1 ,-1 , OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+            pos2 += LineHeight;
+        }
+    }
 }
 
 
 static void OSD_RefreshProgrammesScreen(double Size)
 {
-    double	dfMargin = 0.02;    // 2% of screen height/width
+    double    dfMargin = 0.02;    // 2% of screen height/width
 
-	time_t	TimeMin;
-	time_t	TimeMax;
-	int nb = MyEPG.GetSearchContext(NULL, &TimeMin, &TimeMax);
+    time_t    TimeMin;
+    time_t    TimeMax;
+    int nb = MyEPG.GetSearchContext(NULL, &TimeMin, &TimeMax);
 
     if (Size == 0)
     {
@@ -2573,125 +2163,125 @@ static void OSD_RefreshProgrammesScreen(double Size)
     }
 
     // Title
-	double pos1 = OSD_GetLineYpos (1, dfMargin, Size*1.5);
-	char   szInfo[64];
-	struct tm *Time_tm = localtime(&TimeMin);
+    double pos1 = OSD_GetLineYpos (1, dfMargin, Size*1.5);
+    char   szInfo[64];
+    struct tm *Time_tm = localtime(&TimeMin);
     sprintf(szInfo, "%02u/%02u", Time_tm->tm_mday, Time_tm->tm_mon+1);
     OSD_AddText(szInfo, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
     sprintf(szInfo, "%02u:%02u/%02u:%02u", Time_tm->tm_hour, Time_tm->tm_min);
-	Time_tm = localtime(&TimeMax);
+    Time_tm = localtime(&TimeMax);
     sprintf(&szInfo[5], " / %02u:%02u", Time_tm->tm_hour, Time_tm->tm_min);
     OSD_AddText(szInfo, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
 
-	if (nb == 0)
-	{
-		return;
-	}
+    if (nb == 0)
+    {
+        return;
+    }
 
-	time_t TimeNow;
-	time(&TimeNow);
+    time_t TimeNow;
+    time(&TimeNow);
 
-	string Channel;
-	MyEPG.GetViewedChannelName(Channel);
+    string Channel;
+    MyEPG.GetViewedChannelName(Channel);
 
-	int IdxMin, IdxMax, IdxCur;
-	MyEPG.GetDisplayIndexes(&IdxMin, &IdxMax, &IdxCur);
+    int IdxMin, IdxMax, IdxCur;
+    MyEPG.GetDisplayIndexes(&IdxMin, &IdxMax, &IdxCur);
 
-	BOOL NeedAdjust = ( (IdxCur != -1) && (IdxMin == -1) && (IdxMax == -1) ) ? TRUE : FALSE;
+    BOOL NeedAdjust = ( (IdxCur != -1) && (IdxMin == -1) && (IdxMax == -1) ) ? TRUE : FALSE;
 
-	if (IdxMax == -1)
-	{
-		IdxMax = nb;
-	}
+    if (IdxMax == -1)
+    {
+        IdxMax = nb;
+    }
 
-	int i;
-	int nLine = 3;
-	double pos2;
-	double pos3;
-	if (IdxMin == -1)
-	{
-		nLine++;
-		for (i=IdxMax; i>=1; i--)
-		{
-			pos2 = OSD_GetLineYpos (nLine, dfMargin, Size);
-			nLine += 2;
-			if (pos2 == 0.0)
-			{
-				IdxMin = i+1;
-				if (NeedAdjust == TRUE)
-				{
-					int NbPerPage = IdxMax - IdxMin + 1;
-					int IdxPage = (IdxCur - 1) / NbPerPage;
-					IdxMin = (IdxPage * NbPerPage) + 1;
-					IdxMax = (IdxPage + 1) * NbPerPage;
-					if (IdxMax > nb)
-					{
-						IdxMax = nb;
-					}
-				}
-				break;
-			}
-		}
-		if (IdxMin == -1)
-		{
-			IdxMin = 1;
-		}
-		nLine = 3;
-	}
+    int i;
+    int nLine = 3;
+    double pos2;
+    double pos3;
+    if (IdxMin == -1)
+    {
+        nLine++;
+        for (i=IdxMax; i>=1; i--)
+        {
+            pos2 = OSD_GetLineYpos (nLine, dfMargin, Size);
+            nLine += 2;
+            if (pos2 == 0.0)
+            {
+                IdxMin = i+1;
+                if (NeedAdjust == TRUE)
+                {
+                    int NbPerPage = IdxMax - IdxMin + 1;
+                    int IdxPage = (IdxCur - 1) / NbPerPage;
+                    IdxMin = (IdxPage * NbPerPage) + 1;
+                    IdxMax = (IdxPage + 1) * NbPerPage;
+                    if (IdxMax > nb)
+                    {
+                        IdxMax = nb;
+                    }
+                }
+                break;
+            }
+        }
+        if (IdxMin == -1)
+        {
+            IdxMin = 1;
+        }
+        nLine = 3;
+    }
 
-	for (i=IdxMin-1; i<IdxMax; i++)
-	{
-		long   Color;
-		time_t StartTime;
-		time_t EndTime;
-		char StartTimeStr[6];
-		char EndTimeStr[6];
-		string ChannelName;
-		string ProgrammeTitle;
-		string Category;
+    for (i=IdxMin-1; i<IdxMax; i++)
+    {
+        long   Color;
+        time_t StartTime;
+        time_t EndTime;
+        char StartTimeStr[6];
+        char EndTimeStr[6];
+        string ChannelName;
+        string ProgrammeTitle;
+        string Category;
 
-		MyEPG.GetProgrammeMainData(i, &StartTime, &EndTime, ChannelName, ProgrammeTitle, Category);
-		struct tm *date_tm;
-		date_tm = localtime(&StartTime);
-		sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
-		date_tm = localtime(&EndTime);
-		sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+        MyEPG.GetProgrammeMainData(i, &StartTime, &EndTime, ChannelName, ProgrammeTitle, Category);
+        struct tm *date_tm;
+        date_tm = localtime(&StartTime);
+        sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+        date_tm = localtime(&EndTime);
+        sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 
-		if (   (Channel.length() > 0) 
-			&& !_stricmp(ChannelName.c_str(), Channel.c_str())
-			&& (TimeNow >= StartTime)
-			&& (TimeNow < EndTime) )
-		{
-			Color = OSD_COLOR_SECTION;
-		}
-		else
-		{
-			Color = -1;
-		}
-		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
-		pos3 = OSD_GetLineYpos (nLine++, dfMargin, Size);
-		if (pos3 == 0.0)
-		{
-			IdxMax = i;
-			break;
-		}
+        if (   (Channel.length() > 0) 
+            && !_stricmp(ChannelName.c_str(), Channel.c_str())
+            && (TimeNow >= StartTime)
+            && (TimeNow < EndTime) )
+        {
+            Color = OSD_COLOR_SECTION;
+        }
+        else
+        {
+            Color = -1;
+        }
+        pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
+        pos3 = OSD_GetLineYpos (nLine++, dfMargin, Size);
+        if (pos3 == 0.0)
+        {
+            IdxMax = i;
+            break;
+        }
         OSD_AddText(ChannelName.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
-		if (Category.length() > 0)
-		{
-			OSD_AddText(Category.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
-		}
+        if (Category.length() > 0)
+        {
+            OSD_AddText(Category.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
+        }
         sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
         OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
         OSD_AddText(ProgrammeTitle.c_str(), Size, (i == (IdxCur -1)) ? OSD_COLOR_CURRENT : -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos3);
-		if (   (TimeNow >= StartTime)
-			&& (TimeNow < EndTime) )
-		{
-			sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
-			OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos3);
-		}
-	}
+        if (   (TimeNow >= StartTime)
+            && (TimeNow < EndTime) )
+        {
+            sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
+            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos3);
+        }
+    }
 
-	MyEPG.SetDisplayIndexes(IdxMin, IdxMax, IdxCur);
+    MyEPG.SetDisplayIndexes(IdxMin, IdxMax, IdxCur);
 
     sprintf(szInfo, "%u-%u / %u", IdxMin, IdxMax, nb);
     OSD_AddText(szInfo, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
@@ -2713,9 +2303,9 @@ void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long 
         return;
     }
 
-	// Don't display lines that are outside or partially outside
-	// the screen vertically
-	double YPos2;
+    // Don't display lines that are outside or partially outside
+    // the screen vertically
+    double YPos2;
     if(Size == 0)
     {
         YPos2 = YPos + (double)OSD_DefaultSizePerc/100;
@@ -2724,7 +2314,7 @@ void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long 
     {
         YPos2 = YPos + Size/100;
     }
-	if (YPos < 0.0 || YPos2 > 1.0)
+    if (YPos < 0.0 || YPos2 > 1.0)
     {
         return;
     }
@@ -2793,7 +2383,7 @@ void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long Background
             SingleLineIndex--;
             break;
         }
-		if( szText[i] != '\n' )
+        if( szText[i] != '\n' )
         {
             SingleLine[SingleLineIndex++] = szText[i];
         }
@@ -2824,10 +2414,10 @@ void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long Background
 // as soon as one line has more than a certain number of characters.
 int OSD_CutLines(LPCTSTR szText, long MaxCharsPerLine)
 {
-	int       IndexLine = 0;
+    int       IndexLine = 0;
     int       InLineIndex = 0;
     const char      *cs;
-	int       i;
+    int       i;
 
     // convert "\r\n" to "\n"
     while(cs = strstr(szText, "\r\n"))
@@ -2842,7 +2432,7 @@ int OSD_CutLines(LPCTSTR szText, long MaxCharsPerLine)
             InLineIndex--;
             break;
         }
-		if( (szText[i] != '\n') && (InLineIndex < MaxCharsPerLine))
+        if( (szText[i] != '\n') && (InLineIndex < MaxCharsPerLine))
         {
             TextLines[IndexLine][InLineIndex++] = szText[i];
         }
@@ -2850,69 +2440,69 @@ int OSD_CutLines(LPCTSTR szText, long MaxCharsPerLine)
         {
             TextLines[IndexLine][InLineIndex] = 0x00;
 
-			// If the current character is a cariage return or a space,
-			// then go to the next line and skip the current character
-			if ((szText[i] == '\n') || (szText[i] == ' '))
-			{
-				IndexLine++;
-				InLineIndex = 0;
-				if(IndexLine == 128)
-				{
-					break;
-				}
-			}
-			else
-			{
-				// The current character is neither a cariage return nor a space
+            // If the current character is a cariage return or a space,
+            // then go to the next line and skip the current character
+            if ((szText[i] == '\n') || (szText[i] == ' '))
+            {
+                IndexLine++;
+                InLineIndex = 0;
+                if(IndexLine == 128)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                // The current character is neither a cariage return nor a space
 
-				// If the last buffered character is a space,
-				// then go to the next line and keep the current character
-				// as first first character of the next line
-				if (TextLines[IndexLine][InLineIndex-1] == ' ')
-				{
-					IndexLine++;
-					InLineIndex = 0;
-				}
-				else
-				{
-					// Search the last space in the buffered line
-					char* s = strrchr(TextLines[IndexLine], ' ');
-					if (s)
-					{
-						*s = 0x00;
-						IndexLine++;
-						if (IndexLine == 128)
-						{
-							InLineIndex = 0;
-							break;
-						}
-				        strcpy(&TextLines[IndexLine][0], s+1);
-						InLineIndex = strlen(TextLines[IndexLine]);
-					}
-					else
-					{
-						IndexLine++;
-						InLineIndex = 0;
-					}
-				}
+                // If the last buffered character is a space,
+                // then go to the next line and keep the current character
+                // as first first character of the next line
+                if (TextLines[IndexLine][InLineIndex-1] == ' ')
+                {
+                    IndexLine++;
+                    InLineIndex = 0;
+                }
+                else
+                {
+                    // Search the last space in the buffered line
+                    char* s = strrchr(TextLines[IndexLine], ' ');
+                    if (s)
+                    {
+                        *s = 0x00;
+                        IndexLine++;
+                        if (IndexLine == 128)
+                        {
+                            InLineIndex = 0;
+                            break;
+                        }
+                        strcpy(&TextLines[IndexLine][0], s+1);
+                        InLineIndex = strlen(TextLines[IndexLine]);
+                    }
+                    else
+                    {
+                        IndexLine++;
+                        InLineIndex = 0;
+                    }
+                }
 
-				if (IndexLine == 128)
-				{
-					break;
-				}
+                if (IndexLine == 128)
+                {
+                    break;
+                }
 
-				// Add the current character to the line buffer
-				TextLines[IndexLine][InLineIndex++] = szText[i];
-			}
+                // Add the current character to the line buffer
+                TextLines[IndexLine][InLineIndex++] = szText[i];
+            }
         }
     }
     if ( (IndexLine < 128) && (InLineIndex > 0) )
     {
-		TextLines[IndexLine][InLineIndex] = 0x00;
-		IndexLine++;
+        TextLines[IndexLine][InLineIndex] = 0x00;
+        IndexLine++;
     }
 
-	return IndexLine;
+    return IndexLine;
 }
 
 

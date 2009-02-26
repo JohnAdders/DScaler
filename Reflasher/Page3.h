@@ -30,38 +30,38 @@
 
 class CPage3 : public CPropertyPage
 {
-	DECLARE_DYNCREATE(CPage3)
+    DECLARE_DYNCREATE(CPage3)
 
 // Konstruktion
 public:
-	CPage3();
-	~CPage3();
+    CPage3();
+    ~CPage3();
 
 // Dialogfelddaten
-	//{{AFX_DATA(CPage3)
-	enum { IDD = IDD_PAGE3 };
-		// HINWEIS - Der Klassen-Assistent fügt hier Datenelemente ein.
-		//    Innerhalb dieser generierten Quellcodeabschnitte NICHTS BEARBEITEN!
-	//}}AFX_DATA
+    //{{AFX_DATA(CPage3)
+    enum { IDD = IDD_PAGE3 };
+        // HINWEIS - Der Klassen-Assistent fügt hier Datenelemente ein.
+        //    Innerhalb dieser generierten Quellcodeabschnitte NICHTS BEARBEITEN!
+    //}}AFX_DATA
 
 
 // Überschreibungen
-	// Der Klassen-Assistent generiert virtuelle Funktionsüberschreibungen
-	//{{AFX_VIRTUAL(CPage3)
-	public:
-	virtual BOOL OnSetActive();
-	virtual LRESULT OnWizardNext();
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV-Unterstützung
-	//}}AFX_VIRTUAL
+    // Der Klassen-Assistent generiert virtuelle Funktionsüberschreibungen
+    //{{AFX_VIRTUAL(CPage3)
+    public:
+    virtual BOOL OnSetActive();
+    virtual LRESULT OnWizardNext();
+    protected:
+    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV-Unterstützung
+    //}}AFX_VIRTUAL
 
 // Implementierung
 protected:
-	// Generierte Nachrichtenzuordnungsfunktionen
-	//{{AFX_MSG(CPage3)
-	afx_msg void OnChangeEditYes();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+    // Generierte Nachrichtenzuordnungsfunktionen
+    //{{AFX_MSG(CPage3)
+    afx_msg void OnChangeEditYes();
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 
 };
 

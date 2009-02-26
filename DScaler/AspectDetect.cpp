@@ -28,118 +28,6 @@
 // Portions copyright (C) 2000 John Adcock
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 13 Mar 2001   Michael Samblanet     File created from code in AspectRatio.c
-//                                     Split out to improve redability
-//
-//////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.37  2006/12/20 07:45:06  adcockj
-// added DirectX code from Daniel Sabel
-//
-// Revision 1.36  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.35  2003/01/07 23:27:00  laurentg
-// New overscan settings
-//
-// Revision 1.34  2003/01/04 13:36:41  laurentg
-// Two modes for AR autodetection
-//
-// Revision 1.33  2003/01/03 00:54:19  laurentg
-// New mode for AR autodetection using only WSS
-//
-// Revision 1.32  2002/06/24 21:49:28  laurentg
-// New option to use or not WSS data when doing AR detection
-//
-// Revision 1.31  2002/06/23 20:06:53  laurentg
-// Patch regarding call to WorkoutOverlaySize to have something working in all cases
-//
-// Revision 1.30  2002/04/28 16:43:37  laurentg
-// New setting for aspect ratio detect
-//
-// Revision 1.29  2002/02/23 13:52:39  laurentg
-// Don't create new entry in statistics table when not necessary
-//
-// Revision 1.28  2002/02/23 12:02:40  laurentg
-// % of time used by each AR added in the AR statistics
-//
-// Revision 1.27  2002/02/23 00:37:15  laurentg
-// AR statistics included in user's action to reset statistics
-// AR statistics reseted at the startup of the decoding thread
-//
-// Revision 1.26  2001/11/29 17:30:51  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.25  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.24  2001/11/23 10:49:16  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.23  2001/11/22 22:27:00  adcockj
-// Bug Fixes
-//
-// Revision 1.22  2001/11/22 13:32:03  adcockj
-// Finished changes caused by changes to TDeinterlaceInfo - Compiles
-//
-// Revision 1.21  2001/11/21 15:21:39  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.20  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.19  2001/11/02 16:30:06  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.18  2001/09/05 15:08:43  adcockj
-// Updated Loging
-//
-// Revision 1.17.2.2  2001/08/21 16:42:16  adcockj
-// Per format/input settings and ini file fixes
-//
-// Revision 1.17.2.1  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.17  2001/08/09 12:21:40  adcockj
-// Structure name changes
-//
-// Revision 1.16  2001/08/06 22:32:13  laurentg
-// Little improvments for AR autodetection
-//
-// Revision 1.15  2001/08/05 20:14:49  laurentg
-// New OSD screen added for AR autodetection
-//
-// Revision 1.14  2001/08/05 17:14:26  laurentg
-// no message
-//
-// Revision 1.13  2001/08/05 09:54:54  laurentg
-// Bug fixed concerning WSS AR data in AR autodetection mode
-//
-// Revision 1.12  2001/08/03 09:44:06  koreth
-// Remove an SSE dependency in black bar detection.
-//
-// Revision 1.11  2001/08/02 17:43:19  koreth
-// Maybe fix WSS handling; the code was using an integer expression expecting it to behave like a floating-point one.
-//
-// Revision 1.10  2001/08/02 16:43:05  adcockj
-// Added Debug level to LOG function
-//
-// Revision 1.9  2001/07/13 16:14:55  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.8  2001/07/12 16:16:39  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file AspectDetect.cpp Aspect Ratio Detection Functions
@@ -318,7 +206,7 @@ static inline int GetNonBlackCount(BYTE* Line, int StartX, int EndX)
     __int64 luminances;
     __int64 chromaMins;
     __int64 chromaMaxes;
-	__int64 totals;
+    __int64 totals;
     const __int64 YMask = 0x00FF00FF00FF00FF;
     const __int64 OneMask = 0x0001000100010001;
     int chromaMin, chromaMax;
@@ -381,16 +269,16 @@ BlackLoop:
         add     eax, 8              // Next qword
         loop    BlackLoop
 
-		movq	totals, mm4			// Save totals so C code can deal with them
+        movq    totals, mm4            // Save totals so C code can deal with them
         emms
     }
 
-	// Add up the four totals (each in one word of the "totals" qword) to
-	// get the total overall count.
-	counts = (int)(totals & 0xffff) +
-			 (int)((totals >> 16) & 0xffff) +
-			 (int)((totals >> 32) & 0xffff) +
-			 (int)((totals >> 48) & 0xffff);
+    // Add up the four totals (each in one word of the "totals" qword) to
+    // get the total overall count.
+    counts = (int)(totals & 0xffff) +
+             (int)((totals >> 16) & 0xffff) +
+             (int)((totals >> 32) & 0xffff) +
+             (int)((totals >> 48) & 0xffff);
 
     //
     // Log the offending pixels
@@ -486,11 +374,11 @@ int FindAspectRatio(TDeinterlaceInfo* pInfo)
 
     // Test to check if all the frame is detected as a big black bar
     if ((imageHeight - border * 2) <= (AspectSettings.InitialTopOverscan + AspectSettings.InitialBottomOverscan))
-	{
+    {
         ratio = AspectSettings.SourceAspect;
-	}
-	else
-	{
+    }
+    else
+    {
         // Now the material aspect ratio is simply
         //
         //  effective width / (total image height - number of black lines at top and bottom)
@@ -498,7 +386,7 @@ int FindAspectRatio(TDeinterlaceInfo* pInfo)
         // We compute effective width from height using the source-frame aspect ratio, since
         // this will change depending on whether or not the image is anamorphic.
         ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
-	}
+    }
     LOG(2, "top %d bot %d bord %d rat %d", topBorder, bottomBorder, border, ratio);
 
     return ratio;
@@ -538,40 +426,40 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
     */
     if (AspectSettings.DetectAspectNow || AspectSettings.AutoDetectAspect)
     {
-		if(pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL)
-		{
-			return;
-		}
+        if(pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL)
+        {
+            return;
+        }
 
         if (AspectSettings.AutoDetectAspect == 2)
         {
-			if (!WSS_GetRecommendedAR(&newMode, &newRatio))
-			{
-	            newRatio = AspectSettings.DefaultSourceAspect;
-				newMode = AspectSettings.DefaultAspectMode;
-				WssSourceRatio = -1;
-			}
-			else
-			{
-				WssSourceRatio = newRatio;
-			}
+            if (!WSS_GetRecommendedAR(&newMode, &newRatio))
+            {
+                newRatio = AspectSettings.DefaultSourceAspect;
+                newMode = AspectSettings.DefaultAspectMode;
+                WssSourceRatio = -1;
+            }
+            else
+            {
+                WssSourceRatio = newRatio;
+            }
         }
         else
         {
-	    	newRatio = FindAspectRatio(pInfo);
+            newRatio = FindAspectRatio(pInfo);
 
-			// Get aspect ratio from WSS data
-			// (WssSourceRatio = -1 if ratio is not defined in WSS data)
-			if (!AspectSettings.bUseWSS || !WSS_GetRecommendedAR(&newMode, &WssSourceRatio))
-			{
-				newMode = AspectSettings.AspectMode;
-				WssSourceRatio = -1;
-			}
-			// The ratio must be at least the ratio defined in WSS data
-			else if (newRatio < WssSourceRatio)
-			{
-				newRatio = WssSourceRatio;
-			}
+            // Get aspect ratio from WSS data
+            // (WssSourceRatio = -1 if ratio is not defined in WSS data)
+            if (!AspectSettings.bUseWSS || !WSS_GetRecommendedAR(&newMode, &WssSourceRatio))
+            {
+                newMode = AspectSettings.AspectMode;
+                WssSourceRatio = -1;
+            }
+            // The ratio must be at least the ratio defined in WSS data
+            else if (newRatio < WssSourceRatio)
+            {
+                newRatio = WssSourceRatio;
+            }
         }
 
         if (bIsFullScreen && AspectSettings.TargetAspect && !AspectSettings.bAllowGreaterThanScreen)
@@ -602,12 +490,12 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
     }
     else if (AspectSettings.AutoDetectAspect == 2)
     {
-		if (newMode != AspectSettings.AspectMode || newRatio != AspectSettings.SourceAspect)
-		{
-			SwitchToRatio(newMode, newRatio);
-			return;
-		}
-	}
+        if (newMode != AspectSettings.AspectMode || newRatio != AspectSettings.SourceAspect)
+        {
+            SwitchToRatio(newMode, newRatio);
+            return;
+        }
+    }
     else if (AspectSettings.AutoDetectAspect == 1)
     {
         // If we've just crossed a 1-second boundary, scroll the aspect ratio

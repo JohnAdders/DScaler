@@ -15,26 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// Change Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2003/01/19 11:09:11  laurentg
-// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
-//
-// Revision 1.3  2003/01/18 10:52:11  laurentg
-// SetOverscan renamed SetAspectRatioData
-// Unnecessary call to SetOverscan deleted
-// Overscan setting specific to calibration deleted
-//
-// Revision 1.2  2002/11/01 13:09:19  laurentg
-// Management of the still capture context slightly updated - works now even with stills in memory
-//
-// Revision 1.1  2002/10/29 20:58:11  laurentg
-// Calibration source cut in Calibration + Pattern
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file pattern.h pattern Header file

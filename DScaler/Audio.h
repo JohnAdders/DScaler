@@ -20,16 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 11 Aug 2000   John Adcock           Moved Audio_ Function in here
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file audio.h  audio Header file

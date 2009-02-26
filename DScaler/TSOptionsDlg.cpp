@@ -4,84 +4,16 @@
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//    This file is subject to the terms of the GNU General Public License as
+//    published by the Free Software Foundation.  A copy of this license is
+//    included with this software distribution in the file COPYING.  If you
+//    do not have a copy, you may obtain a copy by writing to the Free
+//    Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
-//
-/////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2001   Eric Schmidt          Original Release.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// EMU: 12th July 2004 updated the height settings before going 
-// to AVICOMPRESSOPTIONS. It was displaying wrong pixel value and 
-// maybe causes crash with some video codecs. 
-//
-// EMU: 23rd June 2004 added a simple scheduler / timer and
-// custom AV sync setting (it is stored in the INI file).
-// Put radio button to enable / disable 'TimeShift' warnings.
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.16  2005/07/17 20:46:24  dosx86
-// Updated to use the new time shift options dialog. Redid some of the help text.
-//
-// Revision 1.14  2004/08/12 16:27:47  adcockj
-// added timeshift changes from emu
-//
-// Revision 1.13  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.12  2003/09/13 13:53:25  laurentg
-// half height mode removed from the options dialog box
-//
-// Revision 1.11  2003/08/15 17:18:36  laurentg
-// Factorize treatments
-//
-// Revision 1.10  2003/08/15 16:51:11  laurentg
-// New event type EVENT_NO_VOLUME
-// Update the volume toolbar when exiting from the audio mixer setup dialog box
-//
-// Revision 1.9  2003/07/08 21:04:59  laurentg
-// New timeshift mode (full height) - experimental
-//
-// Revision 1.8  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.7  2001/11/22 13:32:03  adcockj
-// Finished changes caused by changes to TDeinterlaceInfo - Compiles
-//
-// Revision 1.6  2001/11/20 11:43:00  temperton
-// Store wave-device names instead of indexes in ini
-//
-// Revision 1.5  2001/08/06 03:00:17  ericschmidt
-// solidified auto-pixel-width detection
-// preliminary pausing-of-live-tv work
-//
-// Revision 1.4  2001/07/26 15:28:14  ericschmidt
-// Added AVI height control, i.e. even/odd/averaged lines.
-// Used existing cpu/mmx detection in CTimeShift:: code.
-//
-// Revision 1.3  2001/07/24 12:25:49  adcockj
-// Added copyright notice as per standards
-//
-// Revision 1.2  2001/07/24 12:24:25  adcockj
-// Added Id to comment block
-//
-// Revision 1.1  2001/07/23 20:52:07  ericschmidt
-// Added CTimeShift:: class.  Original Release.  Got record and playback code working.
-//
+//    This software is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -110,10 +42,10 @@ static char THIS_FILE[] = __FILE__;
 
 
 CTSOptionsDlg::CTSOptionsDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CTSOptionsDlg::IDD, pParent)
+    : CDialog(CTSOptionsDlg::IDD, pParent)
 {
-	//{{AFX_DATA_INIT(CTSOptionsDlg)
-	//}}AFX_DATA_INIT
+    //{{AFX_DATA_INIT(CTSOptionsDlg)
+    //}}AFX_DATA_INIT
 }
 
 int CTSOptionsDlg::OnCreate(LPCREATESTRUCT lpCreateStruct) 
@@ -135,16 +67,16 @@ void CTSOptionsDlg::OnDestroy()
 
 void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+    CDialog::DoDataExchange(pDX);
 
-	//{{AFX_DATA_MAP(CTSOptionsDlg)
-	DDX_Control(pDX, IDC_TS_PATH_DISPLAY, m_PathDisplay);
-	DDX_Control(pDX, IDC_TS_SIZE_GIB, m_SizeGiB);
-	DDX_Control(pDX, IDC_TS_SIZE_NO_LIMIT, m_SizeCheckBox);
-	DDX_Control(pDX, IDC_TS_SIZE, m_SizeEdit);
-	DDX_Control(pDX, IDC_TSWAVEOUTCOMBO, m_WaveOutComboBox);
-	DDX_Control(pDX, IDC_TSWAVEINCOMBO, m_WaveInComboBox);
-	//}}AFX_DATA_MAP
+    //{{AFX_DATA_MAP(CTSOptionsDlg)
+    DDX_Control(pDX, IDC_TS_PATH_DISPLAY, m_PathDisplay);
+    DDX_Control(pDX, IDC_TS_SIZE_GIB, m_SizeGiB);
+    DDX_Control(pDX, IDC_TS_SIZE_NO_LIMIT, m_SizeCheckBox);
+    DDX_Control(pDX, IDC_TS_SIZE, m_SizeEdit);
+    DDX_Control(pDX, IDC_TSWAVEOUTCOMBO, m_WaveOutComboBox);
+    DDX_Control(pDX, IDC_TSWAVEINCOMBO, m_WaveInComboBox);
+    //}}AFX_DATA_MAP
 
     if (!pDX->m_bSaveAndValidate)
     {
@@ -215,19 +147,19 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CTSOptionsDlg, CDialog)
-	//{{AFX_MSG_MAP(CTSOptionsDlg)
-	ON_BN_CLICKED(IDC_TSCOMPRESSIONBUTTON, OnButtonCompression)
-	ON_BN_CLICKED(IDC_TSCOMPRESSIONHELP, OnCompressionhelp)
-	ON_BN_CLICKED(IDC_TSWAVEHELP, OnWavehelp)
-	ON_BN_CLICKED(IDC_TSHEIGHTHELP, OnHeighthelp)
-	ON_BN_CLICKED(IDC_TSMIXERBUTTON, OnButtonMixer)
-	ON_BN_CLICKED(IDC_TS_PATH_SELECT, OnTSPathSelect)
-	ON_WM_CREATE()
-	ON_WM_DESTROY()
-	ON_EN_UPDATE(IDC_TS_SIZE, OnUpdateTSSize)
-	ON_EN_KILLFOCUS(IDC_TS_SIZE, OnKillfocusTSSize)
-	ON_BN_CLICKED(IDC_TS_SIZE_NO_LIMIT, OnTSSizeNoLimit)
-	//}}AFX_MSG_MAP
+    //{{AFX_MSG_MAP(CTSOptionsDlg)
+    ON_BN_CLICKED(IDC_TSCOMPRESSIONBUTTON, OnButtonCompression)
+    ON_BN_CLICKED(IDC_TSCOMPRESSIONHELP, OnCompressionhelp)
+    ON_BN_CLICKED(IDC_TSWAVEHELP, OnWavehelp)
+    ON_BN_CLICKED(IDC_TSHEIGHTHELP, OnHeighthelp)
+    ON_BN_CLICKED(IDC_TSMIXERBUTTON, OnButtonMixer)
+    ON_BN_CLICKED(IDC_TS_PATH_SELECT, OnTSPathSelect)
+    ON_WM_CREATE()
+    ON_WM_DESTROY()
+    ON_EN_UPDATE(IDC_TS_SIZE, OnUpdateTSSize)
+    ON_EN_KILLFOCUS(IDC_TS_SIZE, OnKillfocusTSSize)
+    ON_BN_CLICKED(IDC_TS_SIZE_NO_LIMIT, OnTSSizeNoLimit)
+    //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 BOOL CTSOptionsDlg::IsChecked(int id)
@@ -302,7 +234,7 @@ BOOL CTSOptionsDlg::OnInitDialog()
     int        index;
     const char *tsPath = TimeShiftGetSavingPath();
 
-	CDialog::OnInitDialog();
+    CDialog::OnInitDialog();
 
     /* Initialize the options */
     memset(&options, 0, sizeof(options));
@@ -373,8 +305,8 @@ BOOL CTSOptionsDlg::OnInitDialog()
     // Refresh the controls on the dialog with the current data.
     UpdateData(FALSE);
 
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
+    return TRUE;  // return TRUE unless you set the focus to a control
+                  // EXCEPTION: OCX Property Pages should return FALSE
 }
 
 int CALLBACK browseCallback(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)

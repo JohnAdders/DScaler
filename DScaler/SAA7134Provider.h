@@ -20,30 +20,6 @@
 // Copyright (c) 2001 John Adcock.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Sep 2002   Atsushi Nakagawa      Initial Release
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.6  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.5  2002/10/03 23:36:22  atnak
-// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
-//
-// Revision 1.4  2002/09/15 09:52:23  atnak
-// fixed memory leak (pagetable block)
-//
-// Revision 1.3  2002/09/14 19:40:48  atnak
-// various changes
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file saa7134provider.h saa7134provider Header file

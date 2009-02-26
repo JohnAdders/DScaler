@@ -13,58 +13,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.10  2002/11/04 02:08:05  lindsey
-// Allowed stability values below 0.
-//
-// Revision 1.9  2002/11/02 01:30:18  lindsey
-// Added spatial averaging
-// Changed response curve to amount of change to more closely approximate the modelled ideal
-// Accounted for reduction of variance due to averaging when evaluating motion vs. noise
-// Added a readout of the noise level
-//
-// Revision 1.8  2002/09/29 10:14:15  adcockj
-// Fixed problem with history in OutThreads
-//
-// Revision 1.7  2002/08/06 21:26:03  lindsey
-// Made prefetching a user option
-//
-// Revision 1.6  2002/03/11 01:47:32  lindsey
-// Corrected for use with progressive source
-// Changed to use Tom's aligned memory allocation
-//
-// Revision 1.5  2002/01/26 01:03:11  lindsey
-// Fixed some comments
-// Effect of coefficient of varience on reliability scaled to the sample size
-//
-// Revision 1.4  2002/01/26 00:47:00  lindsey
-// Fixed big bug in noise threshold / motion correlation interaction
-// Fixed bug in parameterization
-// Changed to an additive filter for motion correlation
-// Changed parameterization
-// Changed use of coefficient of variation in reliability estimate
-// Reduced size of histogram
-// Optimized a little
-// Moved algorithm description to a separate file
-//
-// Revision 1.3  2002/01/17 07:49:18  lindsey
-// Fixed vertical correlation information bug
-// Increased effect of nearby motion on averaging
-// Changed indexing into motion map
-// Moved some magic numbers into #defines
-// Reduced artifacts with the "lock dot"
-// Slightly changed parameterization
-//
-// Revision 1.2  2002/01/04 01:29:54  lindsey
-// Changed parameterization
-//
-// Revision 1.1.1.1  2001/12/31 01:25:17  lindsey
-// Added FLT_AdaptiveNoise
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 // This is the implementation of the noise filter described in FLT_AdaptiveNoise.c .
 // It's in a separate file to make it easier for me to allow different options

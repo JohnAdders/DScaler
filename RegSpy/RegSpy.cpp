@@ -15,72 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.20  2004/12/16 02:32:05  atnak
-// Added proper SAA7133 registers.
-//
-// Revision 1.19  2004/08/14 13:45:23  adcockj
-// Fixes to get new settings code working under VS6
-//
-// Revision 1.18  2004/06/01 19:26:31  to_see
-// corrected CX2388x byte wide registers
-//
-// Revision 1.17  2004/02/15 02:06:59  atnak
-// Increased the number of log states
-//
-// Revision 1.16  2003/09/28 09:11:33  adcockj
-// Added extra values
-//
-// Revision 1.15  2003/08/12 16:57:54  laurentg
-// Update the prototype of GetDisplayAreaRect
-//
-// Revision 1.14  2003/05/05 15:30:38  atnak
-// Fixes crash when custom name is too long
-//
-// Revision 1.13  2003/05/05 12:57:56  adcockj
-// Added some support for saa7134
-//
-// Revision 1.12  2003/01/26 12:49:53  adcockj
-// Fixed link problems
-//
-// Revision 1.11  2002/12/22 02:30:12  atnak
-// Added SAA7133 registers
-//
-// Revision 1.10  2002/12/15 13:54:13  adcockj
-// Added code to reset card better
-//
-// Revision 1.9  2002/12/11 01:01:08  atnak
-// Added SAA7130 and more registers for SAA7134 to aid new card adding.
-//
-// Revision 1.8  2002/12/10 10:15:33  atnak
-// Fixed binary display order, changed some ini stuff
-//
-// Revision 1.7  2002/12/06 00:28:40  atnak
-// Replaced CreateDIBSection() with CreateCompatibleBitmap()
-//
-// Revision 1.6  2002/12/05 17:10:47  adcockj
-// Added new registers for debugging sound on cx2388x
-//
-// Revision 1.5  2002/12/05 08:38:39  atnak
-// Fixed no redraw bug in last update
-//
-// Revision 1.4  2002/12/05 08:06:11  atnak
-// Various changes
-//
-// Revision 1.3  2002/12/04 14:15:06  adcockj
-// Fixed RegSpy Problems
-//
-// Revision 1.2  2002/12/04 00:20:32  atnak
-// Fixed: Registers not redrawing properly.  Some register disappearing off the
-// list.  Untabified file
-//
-// Revision 1.1  2002/12/03 20:51:42  atnak
-// Added new app for monitoring register settings while other programs are running
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "resource.h"
@@ -1038,10 +972,10 @@ void GetCustomRegisterList(LPSTR lpSection, TRegister** hRegisterListTail)
                     *s++ = *c++;
                 }
 
-				while(*c != '\0')
-				{
-					c++;
-				}
+                while(*c != '\0')
+                {
+                    c++;
+                }
             }
         }
 

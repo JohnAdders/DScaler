@@ -19,10 +19,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "DoParse.h"
@@ -36,15 +32,15 @@ static char THIS_FILE[]=__FILE__;
 
 const char* CDoParse::m_TDAFormatNames[TDA9887_FORMAT_LASTONE] =
 {
-	"Pal(BG)",		// TDA9887_FORMAT_PAL_BG		
-	"Pal(I)",		// TDA9887_FORMAT_PAL_I
-	"Pal(DK)",		// TDA9887_FORMAT_PAL_DK
-	"Pal(MN)",		// TDA9887_FORMAT_PAL_MN
-	"Secam(L)",		// TDA9887_FORMAT_SECAM_L
-	"Secam(DK)",	// TDA9887_FORMAT_SECAM_DK
-	"Ntsc(M)",		// TDA9887_FORMAT_NTSC_M
-	"Ntsc(JP)",		// TDA9887_FORMAT_NTSC_JP
-	"Radio",		// TDA9887_FORMAT_RADIO
+    "Pal(BG)",        // TDA9887_FORMAT_PAL_BG        
+    "Pal(I)",        // TDA9887_FORMAT_PAL_I
+    "Pal(DK)",        // TDA9887_FORMAT_PAL_DK
+    "Pal(MN)",        // TDA9887_FORMAT_PAL_MN
+    "Secam(L)",        // TDA9887_FORMAT_SECAM_L
+    "Secam(DK)",    // TDA9887_FORMAT_SECAM_DK
+    "Ntsc(M)",        // TDA9887_FORMAT_NTSC_M
+    "Ntsc(JP)",        // TDA9887_FORMAT_NTSC_JP
+    "Radio",        // TDA9887_FORMAT_RADIO
 };
 
 CDoParse::CDoParse(const char* pszFileName, CListBox* pErrorList, CTreeCtrl* pTreeCtrl, BOOL bSort) :

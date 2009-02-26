@@ -68,8 +68,8 @@ public:
     ISetting* GetBottomOverscan();
     ISetting* GetLeftOverscan();
     ISetting* GetRightOverscan();
-	ISetting* GetHDelay();
-	ISetting* GetVDelay();
+    ISetting* GetHDelay();
+    ISetting* GetVDelay();
     eVideoFormat GetFormat();
     void SetFormat(eVideoFormat NewFormat);
     BOOL IsInTunerMode();
@@ -110,11 +110,11 @@ public:
     void Pause() {return;};
     void UnPause() {return;};
 
-	BOOL HasMediaControl() {return FALSE;};
+    BOOL HasMediaControl() {return FALSE;};
 
     BOOL IsAudioMixerAccessAllowed() {return TRUE;};
 
-	BOOL IsInitialSetup() {return m_InitialSetup;};
+    BOOL IsInitialSetup() {return m_InitialSetup;};
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);
@@ -138,12 +138,12 @@ private:
 
     void InitializeUI();
 
-	void StartUpdateAudioStatus();
-	void StopUpdateAudioStatus();
-	void UpdateAudioStatus();
-	eSoundChannel AutoDetect_BGDK();
-	eSoundChannel AutoDetect_I();
-	BOOL StartStopConexantDriver(DWORD NewState);
+    void StartUpdateAudioStatus();
+    void StopUpdateAudioStatus();
+    void UpdateAudioStatus();
+    eSoundChannel AutoDetect_BGDK();
+    eSoundChannel AutoDetect_I();
+    BOOL StartStopConexantDriver(DWORD NewState);
 
 private:
     CCX2388xCard*  m_pCard;
@@ -177,10 +177,10 @@ private:
     CYesNoSetting*  m_bSavePerChannel;
     CSliderSetting* m_CustomPixelWidth;
 
-	BOOL		 m_InitialSetup;
+    BOOL         m_InitialSetup;
 
-	long		 m_AutoDetectA2Counter;
-	BOOL		 m_bDriverStoped;
+    long         m_AutoDetectA2Counter;
+    BOOL         m_bDriverStoped;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Contrast);
@@ -197,37 +197,37 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, VideoSource);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, VideoFormat);
     DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, IsVideoProgressive);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FLIFilmDetect);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FLIFilmDetect);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, HDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, VDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, EatLinesAtTop);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Sharpness);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, LumaAGC);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ChromaAGC);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FastSubcarrierLock);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, WhiteCrush);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, LowColorRemoval);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, LumaAGC);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ChromaAGC);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FastSubcarrierLock);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, WhiteCrush);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, LowColorRemoval);
     DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, CombFilter);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FullLumaRange);
-	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, Remodulation);
-	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, Chroma2HComb);
-	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, ForceRemodExcessChroma);
-	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, IFXInterpolation);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FullLumaRange);
+    DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, Remodulation);
+    DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, Chroma2HComb);
+    DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, ForceRemodExcessChroma);
+    DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, IFXInterpolation);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, CombRange);
-	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, SecondChromaDemod);
-	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, ThirdChromaDemod);
+    DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, SecondChromaDemod);
+    DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, ThirdChromaDemod);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, PixelWidth);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, WhiteCrushUp);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, WhiteCrushDown);
-	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, WhiteCrushMajorityPoint);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, WhiteCrushPerFrame);
+    DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, WhiteCrushMajorityPoint);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, WhiteCrushPerFrame);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Volume);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Balance);
-	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, AudioStandard);
-	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, StereoType);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ConexantStopDriver);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, AutoMute);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, VerticalSyncDetection);
+    DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, AudioStandard);
+    DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, StereoType);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ConexantStopDriver);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, AutoMute);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, VerticalSyncDetection);
 
 protected:
     void ChangeDefaultsForVideoFormat(BOOL bDontSetValue);

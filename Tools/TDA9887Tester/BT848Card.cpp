@@ -16,9 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "BT848Card.h"
@@ -62,7 +59,7 @@ void CBT848Card::InitializeI2C()
     }
     // calculate how many cycles a 50kHZ is (half I2C bus cycle)
     m_I2CSleepCycle = m_I2CSleepCycle / elapsed * 1000L / 50000L;
-	m_I2CInitialized = true;
+    m_I2CInitialized = true;
 }
 
 void CBT848Card::Sleep()
@@ -134,10 +131,10 @@ bool CBT848Card::GetSCL()
 
 bool CBT848Card::WriteToI2C(const BYTE *writeBuffer, size_t writeBufferSize)
 {
-	if(m_I2CBus->Write(writeBuffer, writeBufferSize))
-	{
-		return true;
-	}
+    if(m_I2CBus->Write(writeBuffer, writeBufferSize))
+    {
+        return true;
+    }
 
-	return false;
+    return false;
 }

@@ -15,36 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.7  2003/03/09 22:22:39  laurentg
-// double replaced by integer
-//
-// Revision 1.6  2003/03/09 19:46:26  laurentg
-// Updated field statistics
-//
-// Revision 1.5  2003/02/22 13:36:37  laurentg
-// New statistics to check fields runnign late and no flip at time
-//
-// Revision 1.4  2002/10/27 20:39:08  laurentg
-// Performance statistics only computed in DEBUG buildd
-// Developer OSD screen only present in DEBUG build
-//
-// Revision 1.3  2002/01/31 13:02:46  robmuller
-// Improved accuracy and reliability of the performance statistics.
-//
-// Revision 1.2  2001/12/16 16:31:43  adcockj
-// Bug fixes
-//
-// Revision 1.1  2001/12/16 13:00:51  laurentg
-// New statistics
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file perf.h perf Header file
@@ -58,9 +28,9 @@
 
 // define USE_PERFORMANCE_STATS when doing a debug build
 #ifndef USE_PERFORMANCE_STATS
-	#ifdef _DEBUG
-		#define USE_PERFORMANCE_STATS
-	#endif
+    #ifdef _DEBUG
+        #define USE_PERFORMANCE_STATS
+    #endif
 #endif
 
 enum ePerfType
@@ -85,8 +55,8 @@ enum ePerfType
 class CPerfItem
 {
 public:
-	void Resume();
-	void Suspend();
+    void Resume();
+    void Suspend();
     CPerfItem(const char* Name);
     ~CPerfItem();
     void Reset();
@@ -108,7 +78,7 @@ protected:
     DWORD           m_MaxDuration;
 
 private:
-	DWORD           m_SuspendCounter;
+    DWORD           m_SuspendCounter;
     DWORD           m_TickStart;
     BOOL            m_IsCounting;
 };
@@ -116,8 +86,8 @@ private:
 class CPerf
 {
 public:
-	void Resume();
-	void Suspend();
+    void Resume();
+    void Suspend();
     CPerf();
     ~CPerf();
     void Reset();
@@ -159,11 +129,11 @@ private:
     int         m_TotalLateFields;
     int         m_TotalUsedFields;
     int         m_TotalNoFlipAtTime;
-    int			m_DroppedFieldsLastSec;
-    int		    m_NotWaitedFieldsLastSec;
-    int			m_LateFieldsLastSec;
-    int			m_UsedFieldsLastSec;
-    int			m_NoFlipAtTimeLastSec;
+    int            m_DroppedFieldsLastSec;
+    int            m_NotWaitedFieldsLastSec;
+    int            m_LateFieldsLastSec;
+    int            m_UsedFieldsLastSec;
+    int            m_NoFlipAtTimeLastSec;
     BOOL        m_ResetRequested;
 };
 

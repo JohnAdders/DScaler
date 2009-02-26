@@ -4,15 +4,15 @@
 // We best like finding 0 motion so we will bias everything we found previously
 // up by a little, and adjust later
 
-		__asm
-		{
+        __asm
+        {
 
 #ifdef IS_SSE2
-		paddusb xmm7, ONES				// bias toward no motion
+        paddusb xmm7, ONES                // bias toward no motion
 #else
-		paddusb mm7, ONES				// bias toward no motion
+        paddusb mm7, ONES                // bias toward no motion
 #endif
 
         MERGE4PIXavg(edi+ecx, esi+ecx)  // center, in old and new
 
-		}
+        }

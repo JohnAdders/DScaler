@@ -32,8 +32,8 @@ enum eBitmapAsButtonType
     BITMAPASBUTTON_PUSH = 0,
     BITMAPASBUTTON_CHECKBOX,
     BITMAPASBUTTON_SLIDER,
-	BITMAPASBUTTON_3STATE,
-	BITMAPASBUTTON_4STATE
+    BITMAPASBUTTON_3STATE,
+    BITMAPASBUTTON_4STATE
 };
 
 /** Simple button with different bitmaps for mouse over and click
@@ -46,10 +46,10 @@ enum eBitmapAsButtonType
                1 = mouse over
                2 = mouse down
      check box
-        state: 0 = normal,   	unchecked
+        state: 0 = normal,       unchecked
                1 = mouse over,  unchecked
                2 = mouse down,  unchecked
-               3 = normal,  	checked
+               3 = normal,      checked
                4 = mouse over,  checked
                5 = mouse down,  checked
         
@@ -64,14 +64,14 @@ enum eBitmapAsButtonType
         state: 7 = slider, mouse over
         state: 8 = slider, mouse down        
   
-	3state/4state:
-		state: 0 = state 0
-		state: 1 = state 0, mouse over
-		state: 2 = state 0, mouse click
-		state: 3 = state 1
-		state: 4 = state 1, mouse over
-		state: 5 = state 1, mouse click
-		...
+    3state/4state:
+        state: 0 = state 0
+        state: 1 = state 0, mouse over
+        state: 2 = state 0, mouse click
+        state: 3 = state 1
+        state: 4 = state 1, mouse over
+        state: 5 = state 1, mouse click
+        ...
 */
 
 class CBitmapAsButton {

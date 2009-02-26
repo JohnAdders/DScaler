@@ -20,15 +20,6 @@
 // Copyright (C) Mathias Ellinger
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 11 Jun 2001   Torbjörn Jansson      moved forward defines from DSDrvNT.cpp
-//
-// 13 Mar 2006   Michael Lutz          added 32-bit thunking structures
-//
-/////////////////////////////////////////////////////////////////////////////
 
 //#ifdef DBG
 // #define DEBUGSTR(S) {DbgPrint("%s(%d) : ", __FILE__, __LINE__);DbgPrint S;}

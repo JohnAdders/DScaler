@@ -24,10 +24,10 @@
 #endif // _MSC_VER > 1000
 
 #ifndef __AFXWIN_H__
-	#error include 'stdafx.h' before including this file for PCH
+    #error include 'stdafx.h' before including this file for PCH
 #endif
 
-#include "resource.h"		// Hauptsymbole
+#include "resource.h"        // Hauptsymbole
 
 /////////////////////////////////////////////////////////////////////////////
 // CReflasherApp:
@@ -37,22 +37,22 @@
 class CReflasherApp : public CWinApp
 {
 public:
-	CReflasherApp();
+    CReflasherApp();
 
 // Überladungen
-	// Vom Klassenassistenten generierte Überladungen virtueller Funktionen
-	//{{AFX_VIRTUAL(CReflasherApp)
-	public:
-	virtual BOOL InitInstance();
-	//}}AFX_VIRTUAL
+    // Vom Klassenassistenten generierte Überladungen virtueller Funktionen
+    //{{AFX_VIRTUAL(CReflasherApp)
+    public:
+    virtual BOOL InitInstance();
+    //}}AFX_VIRTUAL
 
 // Implementierung
 
-	//{{AFX_MSG(CReflasherApp)
-		// HINWEIS - An dieser Stelle werden Member-Funktionen vom Klassen-Assistenten eingefügt und entfernt.
-		//    Innerhalb dieser generierten Quelltextabschnitte NICHTS VERÄNDERN!
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+    //{{AFX_MSG(CReflasherApp)
+        // HINWEIS - An dieser Stelle werden Member-Funktionen vom Klassen-Assistenten eingefügt und entfernt.
+        //    Innerhalb dieser generierten Quelltextabschnitte NICHTS VERÄNDERN!
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 };
 
 

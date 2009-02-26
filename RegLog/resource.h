@@ -2,17 +2,17 @@
 // Microsoft Visual C++ generated include file.
 // Used by REGLOG.RC
 //
-#define IDR_MAINFRAME					128
-#define IDD_REGLOG_DIALOG		102
-#define IDD_ABOUTBOX					103
-#define IDS_APP_TITLE					103
-#define IDM_EXIT						105
-#define IDS_HELLO						106
-#define IDI_REGLOG	            107
-#define IDI_SMALL						108
-#define IDC_REGLOG	            109
-#define IDC_MYICON						2
-#define IDC_STATIC	                    -1
+#define IDR_MAINFRAME                    128
+#define IDD_REGLOG_DIALOG        102
+#define IDD_ABOUTBOX                    103
+#define IDS_APP_TITLE                    103
+#define IDM_EXIT                        105
+#define IDS_HELLO                        106
+#define IDI_REGLOG                107
+#define IDI_SMALL                        108
+#define IDC_REGLOG                109
+#define IDC_MYICON                        2
+#define IDC_STATIC                        -1
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

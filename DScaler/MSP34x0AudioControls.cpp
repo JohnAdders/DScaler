@@ -20,27 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.6  2007/02/18 21:15:31  robmuller
-// Added option to not compile BT8x8 code.
-//
-// Revision 1.5  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.4  2002/10/15 19:16:29  kooiman
-// Fixed Spatial effect for Audio decoder & MSP
-//
-// Revision 1.3  2002/09/27 14:14:22  kooiman
-// MSP34xx fixes.
-//
-// Revision 1.2  2002/09/15 15:58:33  kooiman
-// Added Audio standard detection & some MSP fixes.
-//
-// Revision 1.1  2002/09/12 21:44:27  ittarnavsky
-// split the MSP34x0 in two files one for the AudioControls the other foe AudioDecoder
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file MSP34x0AudioControls.cpp CMSP34x0AudioControls Implementation
@@ -177,14 +156,14 @@ WORD CMSP34x0AudioControls::GetEqualizerLevel(WORD nIndex)
 void CMSP34x0AudioControls::SetEqualizerLevel(WORD nIndex, WORD nLevel)
 {
     if ((nIndex < 0) || (nIndex>32767))
-	{
-		//Enable/disable equalizer	
-		//Disable means: bass & treble control is active
-		SetDSPRegister(DSP_WR_MODE_TONE_CTL, nLevel ? 0xFF00 : 0x0000);
-		return;
-	}
-	
-	if (!HasEqualizers() || nIndex > 4)
+    {
+        //Enable/disable equalizer    
+        //Disable means: bass & treble control is active
+        SetDSPRegister(DSP_WR_MODE_TONE_CTL, nLevel ? 0xFF00 : 0x0000);
+        return;
+    }
+    
+    if (!HasEqualizers() || nIndex > 4)
     {
         return;
     }
@@ -192,7 +171,7 @@ void CMSP34x0AudioControls::SetEqualizerLevel(WORD nIndex, WORD nLevel)
     {
         return;
     }
-	
+    
     SetDSPRegister((eDSPWriteRegister)(DSP_WR_LDSPK_EQ1 + nIndex), (nLevel & 0xFF) << 8);
 }
 
@@ -258,11 +237,11 @@ WORD CMSP34x0AudioControls::GetLoudness()
 void CMSP34x0AudioControls::SetAutoVolumeCorrection(long milliSeconds)
 {
     if (milliSeconds == 0)
-	{
-		SetDSPRegister(DSP_WR_AVC, 0x0000);
-	}
-	else
-	{      	
+    {
+        SetDSPRegister(DSP_WR_AVC, 0x0000);
+    }
+    else
+    {          
         WORD Val = 0x08; //8 seconds
         if (milliSeconds <= 4000)
         {
@@ -277,8 +256,8 @@ void CMSP34x0AudioControls::SetAutoVolumeCorrection(long milliSeconds)
             Val = 0x01;  //20 ms
         }
         
-		SetDSPRegister(DSP_WR_AVC, 0x8000 | ((Val&0x0F) << 8));
-	}
+        SetDSPRegister(DSP_WR_AVC, 0x8000 | ((Val&0x0F) << 8));
+    }
 }
 
 void CMSP34x0AudioControls::SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama)
@@ -307,16 +286,16 @@ void CMSP34x0AudioControls::SetDolby(long Mode, long nNoise, long nSpatial, long
          break;
     }
 
-    // Set Virtual surround Spatial effects		
+    // Set Virtual surround Spatial effects        
     SetDSPRegister(DSP_WR_SURROUND_SPATIAL, WORD(int(nSpatial) << 8) );
 
-	// Set Panorama effect...		
+    // Set Panorama effect...        
     SetDSPRegister(DSP_WR_SURROUND_PANORAMA, WORD(int(nPan)     << 8) );
 
-	// Based on requested mode, set it.
-	SetDSPRegister(DSP_WR_SURROUND_PANORAMA_MODE, ((Panorama==1) ? 0x50 :
-			((Panorama==2) ? 0x60 : 0)));
-		
+    // Based on requested mode, set it.
+    SetDSPRegister(DSP_WR_SURROUND_PANORAMA_MODE, ((Panorama==1) ? 0x50 :
+            ((Panorama==2) ? 0x60 : 0)));
+        
 }
 
 void CMSP34x0AudioControls::SetSpatialEffect(int nLevel)
@@ -330,10 +309,10 @@ void CMSP34x0AudioControls::SetSpatialEffect(int nLevel)
         nLevel = -128;
     }
     if (nLevel < 0)
-	{
-		nLevel += 256;
-	}
-	// Mode A, Automatic high pass gain
+    {
+        nLevel += 256;
+    }
+    // Mode A, Automatic high pass gain
     SetDSPRegister(DSP_WR_LDSPK_SPATIALEFF, ((nLevel & 0xFF) << 8) | 0x8);
 }
 

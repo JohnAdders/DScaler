@@ -20,18 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2007/02/18 21:15:31  robmuller
-// Added option to not compile BT8x8 code.
-//
-// Revision 1.2  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.1  2002/10/11 21:51:21  ittarnavsky
-// moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file msp34x0audiodecoder.h msp34x0audiodecoder Header

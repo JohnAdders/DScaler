@@ -533,15 +533,15 @@ void Xmltv_TsOpen( void )
 
 Bool Xmltv_TsFilter( void )
 {
-	if (   (xds.pi_start_time == 0)
-		|| (xds.pi_stop_time == 0)
-		|| (xds.pi_netwop_no >= xds.chn_count)
-		|| !CheckProgrammeValidity(xds.pi_start_time, xds.pi_stop_time, xds.p_chn_table[xds.pi_netwop_no].p_disp_name) )
-	{
-		return FALSE;
-	}
+    if (   (xds.pi_start_time == 0)
+        || (xds.pi_stop_time == 0)
+        || (xds.pi_netwop_no >= xds.chn_count)
+        || !CheckProgrammeValidity(xds.pi_start_time, xds.pi_stop_time, xds.p_chn_table[xds.pi_netwop_no].p_disp_name) )
+    {
+        return FALSE;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 void Xmltv_TsClose( void )
@@ -596,7 +596,7 @@ void Xmltv_TsClose( void )
    }
 #endif
 
-	AddProgramme(xds.pi_start_time, xds.pi_stop_time, XML_STR_BUF_GET_STR(xds.pi_title), xds.p_chn_table[xds.pi_netwop_no].p_disp_name, XML_STR_BUF_GET_STR(xds.pi_subtitle), XML_STR_BUF_GET_STR(xds.pi_category), XML_STR_BUF_GET_STR(xds.pi_desc));
+    AddProgramme(xds.pi_start_time, xds.pi_stop_time, XML_STR_BUF_GET_STR(xds.pi_title), xds.p_chn_table[xds.pi_netwop_no].p_disp_name, XML_STR_BUF_GET_STR(xds.pi_subtitle), XML_STR_BUF_GET_STR(xds.pi_category), XML_STR_BUF_GET_STR(xds.pi_desc));
 }
 
 void Xmltv_TsSetChannel( XML_STR_BUF * pBuf )
@@ -1291,7 +1291,7 @@ void XmltvParser_Start( const char * pFilename )
         XmltvTags_StartScan(fp, dtd);
 
         XmltvDb_Destroy();
-	 }
+     }
 
       fclose(fp);
    }

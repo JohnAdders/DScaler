@@ -20,71 +20,6 @@
 // others at Connexant.  Those parts are probably (c) Connexant 2002
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.11  2006/10/06 13:35:28  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.10  2005/03/09 09:35:16  atnak
-// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
-// non-intrusive nature.
-//
-// Revision 1.9  2003/11/26 17:40:58  adcockj
-// Scaler fixes
-//
-// Revision 1.8  2003/11/14 13:24:55  adcockj
-// PMS card fixes
-//
-// Revision 1.7  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.6  2003/07/18 09:41:23  adcockj
-// Added PDI input to holo3d (doesn't yet work)
-//
-// Revision 1.5  2003/07/01 21:00:55  adcockj
-// Fixed some h3d issues
-//
-// Revision 1.4  2002/12/04 17:43:49  adcockj
-// Contrast and Brightness adjustments so that h3d card behaves in expected way
-//
-// Revision 1.3  2002/11/28 18:06:08  adcockj
-// very small Reformat
-//
-// Revision 1.2  2002/10/31 14:47:20  adcockj
-// Added Sharpness
-//
-// Revision 1.1  2002/10/29 11:05:28  adcockj
-// Renamed CT2388x to CX2388x
-//
-// 
-// CVS Log while file was called CT2388xCard_H3D.cpp
-//
-// Revision 1.8  2002/10/21 07:19:33  adcockj
-// Preliminary Support for PixelView XCapture
-//
-// Revision 1.7  2002/09/29 16:16:21  adcockj
-// Holo3d imrprovements
-//
-// Revision 1.6  2002/09/26 16:32:33  adcockj
-// Holo3d fixes
-//
-// Revision 1.5  2002/09/22 17:47:04  adcockj
-// Fixes for holo3d
-//
-// Revision 1.4  2002/09/19 22:10:08  adcockj
-// Holo3D Fixes for PAL
-//
-// Revision 1.3  2002/09/16 19:34:18  adcockj
-// Fix for auto format change
-//
-// Revision 1.2  2002/09/11 19:33:06  adcockj
-// a few tidy ups
-//
-// Revision 1.1  2002/09/11 18:19:37  adcockj
-// Prelimainary support for CX2388x based cards
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file CX2388xCard.cpp CCX2388xCard Implementation (Holo3d)
@@ -322,14 +257,14 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
         // doesn't really matter for these inputs
         // but we'll set the default
         ChrominanceControl = 0x89;
-	    m_SAA7118->SetRegister(0x29, 0x40);
+        m_SAA7118->SetRegister(0x29, 0x40);
         break;
     case H3D_SVIDEO:
     case H3D_COMPOSITE1:
     case H3D_COMPOSITE2:
     case H3D_COMPOSITE3:
     case H3D_COMPOSITE4:
-	    m_SAA7118->SetRegister(0x29, 0x00);
+        m_SAA7118->SetRegister(0x29, 0x00);
         switch(TVFormat)
         {
         case VIDEOFORMAT_PAL_M:
@@ -560,12 +495,12 @@ void CCX2388xCard::SetSharpness(char Sharpness)
 
 void CCX2388xCard::SetFLIFilmDetect(BOOL FLIFilmDetect)
 {
-	BYTE Buffer[3] = {0xE2, 0x05, 0x0a};
-	if(FLIFilmDetect)
-	{
-		Buffer[2] = 0x0e;
-	}
-	m_I2CBus->Write(Buffer, 3);
+    BYTE Buffer[3] = {0xE2, 0x05, 0x0a};
+    if(FLIFilmDetect)
+    {
+        Buffer[2] = 0x0e;
+    }
+    m_I2CBus->Write(Buffer, 3);
 }
 
 #endif // WANT_CX2388X_SUPPORT

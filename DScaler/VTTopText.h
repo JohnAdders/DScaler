@@ -15,24 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU Library General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2003/01/05 16:09:44  atnak
-// Updated TopText for new teletext
-//
-// Revision 1.3  2003/01/01 20:30:12  atnak
-// Commented out everything so I can redo TopText for the new CVTCommon
-// functions later
-//
-// Revision 1.2  2002/10/24 01:38:32  atnak
-// Added subtitle message
-//
-// Revision 1.1  2002/10/23 16:51:01  atnak
-// TOP-Text support initial release
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file vttoptext.h vttoptext Header file

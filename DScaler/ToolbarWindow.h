@@ -65,8 +65,8 @@ protected:
         int  Row;
         eToolbarRowAlign  Align;
         CToolbarChild* pChild;
-		CToolbarChild* pBarLeft;
-		CToolbarChild* pBarRight;
+        CToolbarChild* pBarLeft;
+        CToolbarChild* pBarRight;
     } TChildInfo;
     vector<TChildInfo> vChildList;
 
@@ -86,11 +86,11 @@ protected:
     int IsToolbarVisible;
     int MainToolbarPosition;
 
-	int m_lastWindowPos_x;
+    int m_lastWindowPos_x;
     int m_lastWindowPos_y;
     int m_lastWindowPos_w;
     int m_lastWindowPos_h;
-	
+    
     BOOL SetPos(int x, int y, int w, int h);
     BOOL GetPos(LPRECT rc);
 public:
@@ -101,8 +101,8 @@ public:
     HWND GethWndParent() { return hWndParent; };  
 
     BOOL AttachBar(CToolbarChild *pChild, int Left, CToolbarChild *pBar);
-	BOOL DetachBar(CToolbarChild *pChild, int Left);
-	BOOL Add(CToolbarChild *pChild, eToolbarRowAlign Align, int Order, int Row);
+    BOOL DetachBar(CToolbarChild *pChild, int Left);
+    BOOL Add(CToolbarChild *pChild, eToolbarRowAlign Align, int Order, int Row);
     void Remove(CToolbarChild *pChild);
     CToolbarWindow(HWND hWndParent, HINSTANCE hInst, int Child);
     ~CToolbarWindow();
@@ -117,20 +117,20 @@ public:
     void HideChild(CToolbarChild *pChild);
     
     void SetChildPosition(CToolbarChild *pChild, int Order, int Row);    
-	void SetChildRow(CToolbarChild *pChild, int Row);
+    void SetChildRow(CToolbarChild *pChild, int Row);
     
     void SetPosition(int Pos);
     int GetPosition();
 
-	void Margins(int l,int t,int r,int b, int child_lr, int child_tb);
+    void Margins(int l,int t,int r,int b, int child_lr, int child_tb);
 
     BOOL Show();
     BOOL Hide();
     void UpdateWindowPosition(HWND hParentWnd);
-	void ForceUpdateWindowPosition(HWND hParentWnd);
+    void ForceUpdateWindowPosition(HWND hParentWnd);
 
-	virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache = NULL);
-	virtual void ClearSkin();
+    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache = NULL);
+    virtual void ClearSkin();
 
     static LRESULT CALLBACK ToolbarProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
@@ -151,15 +151,15 @@ protected:
     int m_PosW;
     int m_PosH;
 
-	HBRUSH m_BgBrush;
-	HPEN m_hPen3DShadow;
-	HPEN m_hPen3DLight;
+    HBRUSH m_BgBrush;
+    HPEN m_hPen3DShadow;
+    HPEN m_hPen3DLight;
 
-	int m_Visible;
+    int m_Visible;
 public:
-	int Visible();
+    int Visible();
 
-	BOOL Show();
+    BOOL Show();
     BOOL Hide();
 
     int  Width();  
@@ -169,12 +169,12 @@ public:
     BOOL GetPos(LPRECT lpRect);
 
     HWND GethWnd() { return hWnd; };  
-	HWND GethWndParent() { return m_pToolbar->GethWnd(); }
-	HWND GethWndParentOfToolbar() { return m_pToolbar->GethWndParent(); }
+    HWND GethWndParent() { return m_pToolbar->GethWnd(); }
+    HWND GethWndParentOfToolbar() { return m_pToolbar->GethWndParent(); }
 
-	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct, HICON hIcon, LPCSTR szText, int Width, int Height, int Align);
+    void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct, HICON hIcon, LPCSTR szText, int Width, int Height, int Align);
 
-	virtual void UpdateWindow() {;};
+    virtual void UpdateWindow() {;};
 
     CToolbarChild(CToolbarWindow *pToolbar);    
     ~CToolbarChild();
@@ -185,10 +185,10 @@ public:
     virtual BOOL SkinWindow(HWND hWnd, string sID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache = NULL);
     virtual BOOL RemoveSkin(string sID);
 
-	virtual BOOL SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache = NULL);
+    virtual BOOL SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache = NULL);
     virtual BOOL RemoveSkinDlgItem(UINT uItemID);
 
-	virtual LRESULT ButtonChildProc(string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
+    virtual LRESULT ButtonChildProc(string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
     
     static LRESULT CALLBACK StaticToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK StaticToolbarChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    

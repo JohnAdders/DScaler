@@ -15,64 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.15  2005/03/23 14:21:03  adcockj
-// Test fix for threading issues
-//
-// Revision 1.14  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.13  2003/01/12 16:19:35  adcockj
-// Added SettingsGroup activity setting
-// Corrected event sequence and channel change behaviour
-//
-// Revision 1.12  2003/01/11 12:53:58  adcockj
-// Interim Check in of settings changes
-//  - bug fixes for overlay settings changes
-//  - Bug fixes for new settings changes
-//  - disables settings per channel completely
-//
-// Revision 1.11  2003/01/10 17:38:40  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.10  2002/12/07 10:42:47  adcockj
-// Fixed problem with events caused by using SendMessage
-//
-// Revision 1.9  2002/12/04 15:20:08  adcockj
-// Fixed accedental test code check in
-//
-// Revision 1.8  2002/12/04 15:15:25  adcockj
-// Checked in test code by accident
-//
-// Revision 1.7  2002/12/02 17:06:29  adcockj
-// Changed Events to use messages instead of timer
-//
-// Revision 1.6  2002/10/07 20:29:48  kooiman
-// Fixed last event list. Added soundchannel event.
-//
-// Revision 1.5  2002/10/02 10:52:35  kooiman
-// Fixed C++ type casting for events.
-//
-// Revision 1.4  2002/09/28 13:34:07  kooiman
-// Added sender object to events and added setting flag to treesettingsgeneric.
-//
-// Revision 1.3  2002/09/27 14:11:35  kooiman
-// Added audio standard detect event & implemented event scheduler.
-//
-// Revision 1.2  2002/09/26 16:34:19  kooiman
-// Lots of toolbar fixes &added EVENT_VOLUME support.
-//
-// Revision 1.1  2002/09/25 22:33:06  kooiman
-// Event collector
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file Events.cpp CEventCollector implementation
@@ -144,19 +86,19 @@ CEventObject::~CEventObject()
 }
 
 CEventCollector::CEventCollector()
-{	
-	m_ScheduleTimerID = 0;
-	m_EventCollectorThread = NULL;
+{    
+    m_ScheduleTimerID = 0;
+    m_EventCollectorThread = NULL;
     m_bStopThread = FALSE;
-	InitializeCriticalSection(&m_EventCriticalSection);
-	InitializeCriticalSection(&m_LastEventCriticalSection);
+    InitializeCriticalSection(&m_EventCriticalSection);
+    InitializeCriticalSection(&m_LastEventCriticalSection);
 }
 
 CEventCollector::~CEventCollector()
 {
-	DeleteCriticalSection(&m_EventCriticalSection);
-	DeleteCriticalSection(&m_LastEventCriticalSection);
-	for (int i = 0; i < m_EventObjects.size(); i++)
+    DeleteCriticalSection(&m_EventCriticalSection);
+    DeleteCriticalSection(&m_LastEventCriticalSection);
+    for (int i = 0; i < m_EventObjects.size(); i++)
     {
         if (m_EventObjects[i].EventList != NULL)
         {
@@ -234,7 +176,7 @@ void CEventCollector::Register(CEventObject *pObject, eEventType *EventList)
 
 void CEventCollector::Unregister(CEventObject *pObject)
 {
-	vector<TEventCallbackInfo> NewList;
+    vector<TEventCallbackInfo> NewList;
     int i;
     for (i = 0; i < m_EventObjects.size(); i++)
     {
@@ -250,33 +192,33 @@ void CEventCollector::Unregister(CEventObject *pObject)
     }
     m_EventObjects = NewList;
 
-	//Remove from last event list
-	EnterCriticalSection(&m_LastEventCriticalSection);
-	vector<TEventInfo> NewList2;
-	for (i = 0; i < m_LastEvents.size(); i++)
-	{
-		if (m_LastEvents[i].pEventObject == pObject)
-		{
-			//remove
-		}
-		else
-		{
-			NewList2.push_back(m_LastEvents[i]);
-		}
-	}
-	m_LastEvents = NewList2;
-	LeaveCriticalSection(&m_LastEventCriticalSection);
+    //Remove from last event list
+    EnterCriticalSection(&m_LastEventCriticalSection);
+    vector<TEventInfo> NewList2;
+    for (i = 0; i < m_LastEvents.size(); i++)
+    {
+        if (m_LastEvents[i].pEventObject == pObject)
+        {
+            //remove
+        }
+        else
+        {
+            NewList2.push_back(m_LastEvents[i]);
+        }
+    }
+    m_LastEvents = NewList2;
+    LeaveCriticalSection(&m_LastEventCriticalSection);
 }
 
 void CEventCollector::RaiseEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {    
-	ScheduleEvent(pEventObject, Event, OldValue, NewValue, ComingUp);
+    ScheduleEvent(pEventObject, Event, OldValue, NewValue, ComingUp);
 }
 
 void CEventCollector::RaiseScheduledEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
     int i;
-	for (i = 0; i < m_EventObjects.size(); i++)
+    for (i = 0; i < m_EventObjects.size(); i++)
     {
         BOOL bCall = TRUE;
 
@@ -303,124 +245,124 @@ void CEventCollector::RaiseScheduledEvent(CEventObject *pEventObject, eEventType
             }
         }        
     }
-	
-	EnterCriticalSection(&m_LastEventCriticalSection);
-	for (i = 0; i < m_LastEvents.size(); i++)
-	{
-		if ((m_LastEvents[i].Event == Event) && (m_LastEvents[i].pEventObject == pEventObject))
-		{
-			m_LastEvents[i].OldValue = OldValue;
-			m_LastEvents[i].NewValue = NewValue;
-			break;
-		}
-	}
-	
-	if (i >= m_LastEvents.size()) //new
-	{
-		TEventInfo EventInfo;
-		EventInfo.pEventObject = pEventObject;
-		EventInfo.Event = Event;
-		EventInfo.OldValue = OldValue;
-		EventInfo.NewValue = NewValue;
-		m_LastEvents.push_back(EventInfo);		
-	}		
-	LeaveCriticalSection(&m_LastEventCriticalSection);
+    
+    EnterCriticalSection(&m_LastEventCriticalSection);
+    for (i = 0; i < m_LastEvents.size(); i++)
+    {
+        if ((m_LastEvents[i].Event == Event) && (m_LastEvents[i].pEventObject == pEventObject))
+        {
+            m_LastEvents[i].OldValue = OldValue;
+            m_LastEvents[i].NewValue = NewValue;
+            break;
+        }
+    }
+    
+    if (i >= m_LastEvents.size()) //new
+    {
+        TEventInfo EventInfo;
+        EventInfo.pEventObject = pEventObject;
+        EventInfo.Event = Event;
+        EventInfo.OldValue = OldValue;
+        EventInfo.NewValue = NewValue;
+        m_LastEvents.push_back(EventInfo);        
+    }        
+    LeaveCriticalSection(&m_LastEventCriticalSection);
 }
 
 
 int CEventCollector::LastEventValues(eEventType Event, CEventObject **pEventObject, long *OldValue, long *NewValue)
 {
-	EnterCriticalSection(&m_LastEventCriticalSection);
-	for (int i = 0; i < m_LastEvents.size(); i++)
-	{
-		if (m_LastEvents[i].Event == Event)
-		{			
-			if (pEventObject!=NULL) 
-			{ 
-				*pEventObject = m_LastEvents[i].pEventObject; 
-			}
-			if (OldValue!=NULL) 
-			{ 
-				*OldValue = m_LastEvents[i].OldValue; 
-			}
-			if (NewValue!=NULL) 
-			{ 
-				*NewValue = m_LastEvents[i].NewValue; 
-			}
-			LeaveCriticalSection(&m_LastEventCriticalSection);
-			return 1;
-		}
-	}
-	LeaveCriticalSection(&m_LastEventCriticalSection);
-	return 0;
+    EnterCriticalSection(&m_LastEventCriticalSection);
+    for (int i = 0; i < m_LastEvents.size(); i++)
+    {
+        if (m_LastEvents[i].Event == Event)
+        {            
+            if (pEventObject!=NULL) 
+            { 
+                *pEventObject = m_LastEvents[i].pEventObject; 
+            }
+            if (OldValue!=NULL) 
+            { 
+                *OldValue = m_LastEvents[i].OldValue; 
+            }
+            if (NewValue!=NULL) 
+            { 
+                *NewValue = m_LastEvents[i].NewValue; 
+            }
+            LeaveCriticalSection(&m_LastEventCriticalSection);
+            return 1;
+        }
+    }
+    LeaveCriticalSection(&m_LastEventCriticalSection);
+    return 0;
 }
 
 int CEventCollector::LastEventValues(CEventObject *pEventObject, eEventType Event, long *OldValue, long *NewValue)
 {
-	EnterCriticalSection(&m_LastEventCriticalSection);
-	for (int i = 0; i < m_LastEvents.size(); i++)
-	{
-		if ((m_LastEvents[i].Event == Event) && (m_LastEvents[i].pEventObject == pEventObject))
-		{			
-			if (OldValue!=NULL) 
-			{ 
-				*OldValue = m_LastEvents[i].OldValue; 
-			}
-			if (NewValue!=NULL) 
-			{ 
-				*NewValue = m_LastEvents[i].NewValue; 
-			}
-			LeaveCriticalSection(&m_LastEventCriticalSection);
-			return 1;
-		}
-	}
-	LeaveCriticalSection(&m_LastEventCriticalSection);
-	return 0;
+    EnterCriticalSection(&m_LastEventCriticalSection);
+    for (int i = 0; i < m_LastEvents.size(); i++)
+    {
+        if ((m_LastEvents[i].Event == Event) && (m_LastEvents[i].pEventObject == pEventObject))
+        {            
+            if (OldValue!=NULL) 
+            { 
+                *OldValue = m_LastEvents[i].OldValue; 
+            }
+            if (NewValue!=NULL) 
+            { 
+                *NewValue = m_LastEvents[i].NewValue; 
+            }
+            LeaveCriticalSection(&m_LastEventCriticalSection);
+            return 1;
+        }
+    }
+    LeaveCriticalSection(&m_LastEventCriticalSection);
+    return 0;
 }
 
 int CEventCollector::NumEventsWaiting()
 {
-	int Num;
-	EnterCriticalSection(&m_EventCriticalSection);
-	Num = m_ScheduledEventList.size();	
-	LeaveCriticalSection(&m_EventCriticalSection);
-	return Num;
+    int Num;
+    EnterCriticalSection(&m_EventCriticalSection);
+    Num = m_ScheduledEventList.size();    
+    LeaveCriticalSection(&m_EventCriticalSection);
+    return Num;
 }
 
 
 void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-	if (Event == EVENT_NONE)
-	{
-		return;
-	}
-	EnterCriticalSection(&m_EventCriticalSection);
+    if (Event == EVENT_NONE)
+    {
+        return;
+    }
+    EnterCriticalSection(&m_EventCriticalSection);
 
-	if (m_ScheduledEventList.size()>0)
-	{
-		deque<TEventInfo> NewEventList;
-		for (int i = 0; i < m_ScheduledEventList.size(); i++)
-		{
-			if ((m_ScheduledEventList[i].pEventObject == pEventObject)
-				&& (m_ScheduledEventList[i].Event == Event))
-			{
-				//Old duplicate event. remove
-			}
-			else
-			{
-				NewEventList.push_back(m_ScheduledEventList[i]);
-			}
-		}
-		m_ScheduledEventList = NewEventList;
-	}
+    if (m_ScheduledEventList.size()>0)
+    {
+        deque<TEventInfo> NewEventList;
+        for (int i = 0; i < m_ScheduledEventList.size(); i++)
+        {
+            if ((m_ScheduledEventList[i].pEventObject == pEventObject)
+                && (m_ScheduledEventList[i].Event == Event))
+            {
+                //Old duplicate event. remove
+            }
+            else
+            {
+                NewEventList.push_back(m_ScheduledEventList[i]);
+            }
+        }
+        m_ScheduledEventList = NewEventList;
+    }
 
-	TEventInfo ei;
-	ei.pEventObject = pEventObject;
-	ei.Event = Event;
-	ei.OldValue = OldValue;
-	ei.NewValue = NewValue;
-	ei.ComingUp = CopyEventList(ComingUp);
-	m_ScheduledEventList.push_back(ei);	
+    TEventInfo ei;
+    ei.pEventObject = pEventObject;
+    ei.Event = Event;
+    ei.OldValue = OldValue;
+    ei.NewValue = NewValue;
+    ei.ComingUp = CopyEventList(ComingUp);
+    m_ScheduledEventList.push_back(ei);    
 
     // this is where we keep track of what the current status
     // so lets use here as a good place to maitain the settings holder
@@ -455,7 +397,7 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
         break;
     }    
 
-	LeaveCriticalSection(&m_EventCriticalSection);
+    LeaveCriticalSection(&m_EventCriticalSection);
 
     // we want to signal the event and then run away
     // so use Post rather than Send.  Using send also causes
@@ -465,38 +407,38 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
 
 
 void CEventCollector::ProcessEvents()
-{	
+{    
     // JA 2/12/2002
     // attempt to get settings working properly
     // using messages rather than a thread
     // this should force all changes to come
     // from the main thread
     while(TRUE)
-    {			
-    	TEventInfo ei;
+    {            
+        TEventInfo ei;
         ei.Event = EVENT_NONE;
 
-		EnterCriticalSection(&m_EventCriticalSection);
-		if (m_ScheduledEventList.size()>0)
-		{
-			ei = m_ScheduledEventList.front();
-			m_ScheduledEventList.pop_front();
-		}
-		LeaveCriticalSection(&m_EventCriticalSection);
+        EnterCriticalSection(&m_EventCriticalSection);
+        if (m_ScheduledEventList.size()>0)
+        {
+            ei = m_ScheduledEventList.front();
+            m_ScheduledEventList.pop_front();
+        }
+        LeaveCriticalSection(&m_EventCriticalSection);
         
-		if (ei.Event != EVENT_NONE)
-		{
-			LOG(2,"Event: %d (%d,%d)",ei.Event,ei.OldValue,ei.NewValue);
-			RaiseScheduledEvent(ei.pEventObject, ei.Event, ei.OldValue, ei.NewValue, ei.ComingUp);	
-			if (ei.ComingUp != NULL)
+        if (ei.Event != EVENT_NONE)
+        {
+            LOG(2,"Event: %d (%d,%d)",ei.Event,ei.OldValue,ei.NewValue);
+            RaiseScheduledEvent(ei.pEventObject, ei.Event, ei.OldValue, ei.NewValue, ei.ComingUp);    
+            if (ei.ComingUp != NULL)
             { 
                 delete[] ei.ComingUp; 
             }
-		}
+        }
         else
         {
             return;
         }
-	} 
+    } 
 }
 

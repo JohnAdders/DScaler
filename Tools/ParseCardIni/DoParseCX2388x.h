@@ -19,10 +19,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_DOPARSECX2388X_H__663635B9_03D0_4F42_8167_D0243FF87D78__INCLUDED_)
 #define AFX_DOPARSECX2388X_H__663635B9_03D0_4F42_8167_D0243FF87D78__INCLUDED_
@@ -40,12 +36,12 @@
 class CDoParseCX2388x : public CDoParse
 {
 public:
-	CDoParseCX2388x(const char* pszFileName, CListBox* pErrorList, CTreeCtrl* pTreeCtrl, BOOL bSort);
-	virtual ~CDoParseCX2388x();
+    CDoParseCX2388x(const char* pszFileName, CListBox* pErrorList, CTreeCtrl* pTreeCtrl, BOOL bSort);
+    virtual ~CDoParseCX2388x();
 
 private:
-	void ParseIniFile();
-	void DisplayCardsInTree();
+    void ParseIniFile();
+    void DisplayCardsInTree();
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -69,18 +65,18 @@ private:
         INPUTTYPE_SVIDEO,
         INPUTTYPE_CCIR,
         INPUTTYPE_COLOURBARS,
-		INPUTTYPE_FINAL,
+        INPUTTYPE_FINAL,
     };
 
-	typedef struct
+    typedef struct
     {
         DWORD GPIO_0;
         DWORD GPIO_1;
         DWORD GPIO_2;
         DWORD GPIO_3;
     } TGPIOSet;
-	
-	typedef struct
+    
+    typedef struct
     {
         char       szName[64];
         eInputType InputType;
@@ -96,7 +92,7 @@ private:
         eTunerId        TunerId;
         DWORD           AutoDetectId[CX_AUTODETECT_ID_PER_CARD];
         BOOL            bUseTDA9887;
-		eCardMode       CardMode;
+        eCardMode       CardMode;
     } TCardType;
 
     class CCardTypeEx : public TCardType

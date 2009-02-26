@@ -30,41 +30,41 @@
 
 class CPage1 : public CPropertyPage
 {
-	DECLARE_DYNCREATE(CPage1)
+    DECLARE_DYNCREATE(CPage1)
 
 // Konstruktion
 public:
-	CPage1();
-	~CPage1();
+    CPage1();
+    ~CPage1();
 
 // Dialogfelddaten
-	//{{AFX_DATA(CPage1)
-	enum { IDD = IDD_PAGE1 };
-		// HINWEIS - Der Klassen-Assistent fügt hier Datenelemente ein.
-		//    Innerhalb dieser generierten Quellcodeabschnitte NICHTS BEARBEITEN!
-	//}}AFX_DATA
+    //{{AFX_DATA(CPage1)
+    enum { IDD = IDD_PAGE1 };
+        // HINWEIS - Der Klassen-Assistent fügt hier Datenelemente ein.
+        //    Innerhalb dieser generierten Quellcodeabschnitte NICHTS BEARBEITEN!
+    //}}AFX_DATA
 
 
 // Überschreibungen
-	// Der Klassen-Assistent generiert virtuelle Funktionsüberschreibungen
-	//{{AFX_VIRTUAL(CPage1)
-	public:
-	virtual BOOL OnSetActive();
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV-Unterstützung
-	//}}AFX_VIRTUAL
+    // Der Klassen-Assistent generiert virtuelle Funktionsüberschreibungen
+    //{{AFX_VIRTUAL(CPage1)
+    public:
+    virtual BOOL OnSetActive();
+    protected:
+    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV-Unterstützung
+    //}}AFX_VIRTUAL
 
 // Implementierung
 protected:
-	// Generierte Nachrichtenzuordnungsfunktionen
-	//{{AFX_MSG(CPage1)
-		// HINWEIS: Der Klassen-Assistent fügt hier Member-Funktionen ein
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+    // Generierte Nachrichtenzuordnungsfunktionen
+    //{{AFX_MSG(CPage1)
+        // HINWEIS: Der Klassen-Assistent fügt hier Member-Funktionen ein
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 
 private:
-	BOOL IsEepromCorrupted();
-	BOOL IsAnMsiCard();
+    BOOL IsEepromCorrupted();
+    BOOL IsAnMsiCard();
 };
 
 //{{AFX_INSERT_LOCATION}}

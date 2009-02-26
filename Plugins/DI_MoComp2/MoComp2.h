@@ -22,17 +22,6 @@
 //  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2003/02/11 15:40:50  adcockj
-// New implementation of StrangeBob based off paper
-// Tidy up sources
-//
-// Revision 1.1  2003/01/02 13:15:01  adcockj
-// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include <malloc.h>
 #include <string.h>
@@ -49,7 +38,7 @@ BOOL DeinterlaceMoComp2_3DNOW(TDeinterlaceInfo* pInfo);
 extern long SearchEffort;
 
 static int  Fieldcopy(void *dest, const void *src, size_t count, 
-			int rows, int dst_pitch, int src_pitch);
+            int rows, int dst_pitch, int src_pitch);
 static void  DoMoComp2_SimpleWeave();
 
 static __int64 Save1; 
@@ -60,7 +49,7 @@ static __int64 MOVE  = 0x0f0f0f0f0f0f0f0f;
 static const __int64 YMask = 0x00ff00ff00ff00ff; // keeps only luma
 static const __int64 UVMask =  0xff00ff00ff00ff00; // keeps only chroma
 
-static const __int64 ShiftMask = 0xfefffefffefffeff;	// to avoid shifting chroma to luma
+static const __int64 ShiftMask = 0xfefffefffefffeff;    // to avoid shifting chroma to luma
 
 
 // Define a few macros for CPU dependent instructions. 
@@ -76,14 +65,14 @@ static const __int64 ShiftMask = 0xfefffefffefffeff;	// to avoid shifting chroma
 
 
 #define V_PAVGB_MMX(mmr1,mmr2,mmrw,smask) __asm \
-	{ \
-	__asm movq mmrw,mmr2 \
-	__asm pand mmrw, smask \
-	__asm psrlw mmrw,1 \
-	__asm pand mmr1,smask \
-	__asm psrlw mmr1,1 \
-	__asm paddusb mmr1,mmrw \
-	}
+    { \
+    __asm movq mmrw,mmr2 \
+    __asm pand mmrw, smask \
+    __asm psrlw mmrw,1 \
+    __asm pand mmr1,smask \
+    __asm psrlw mmr1,1 \
+    __asm paddusb mmr1,mmrw \
+    }
 
 #define V_PAVGB_SSE(mmr1,mmr2,mmrw,smask) {pavgb mmr1,mmr2 }
 #define V_PAVGB_3DNOW(mmr1,mmr2,mmrw,smask) {pavgusb mmr1,mmr2 }
@@ -94,7 +83,7 @@ static const __int64 ShiftMask = 0xfefffefffefffeff;	// to avoid shifting chroma
 // some macros for pmaxub instruction
 //      V_PMAXUB(mmr1, mmr2)    
 #define V_PMAXUB_MMX(mmr1,mmr2)     __asm \
-	{ \
+    { \
     __asm psubusb mmr1,mmr2 \
     __asm paddusb mmr1,mmr2 \
     }
@@ -108,12 +97,12 @@ static const __int64 ShiftMask = 0xfefffefffefffeff;	// to avoid shifting chroma
 // some macros for pminub instruction
 //      V_PMINUB(mmr1, mmr2, mmr work register)     mmr2 may NOT = mmrw
 #define V_PMINUB_MMX(mmr1,mmr2,mmrw) __asm \
-	{ \
+    { \
     __asm pcmpeqb mmrw,mmrw     \
     __asm psubusb mmrw,mmr2     \
     __asm paddusb mmr1, mmrw     \
     __asm psubusb mmr1, mmrw     \
-	}
+    }
 
 #define V_PMINUB_SSE(mmr1,mmr2,mmrw) {pminub mmr1,mmr2}
 #define V_PMINUB_3DNOW(mmr1,mmr2,mmrw) V_PMINUB_MMX(mmr1,mmr2,mmrw)  // use MMX version
@@ -134,28 +123,28 @@ static const __int64 ShiftMask = 0xfefffefffefffeff;	// to avoid shifting chroma
 
 // macro load a field from this object
 #define thisLoad(reg, intfield) \
-		__asm {	\
-		__asm mov	reg, this \
-		__asm mov   reg, dword ptr [reg].intfield \
-		}
+        __asm {    \
+        __asm mov    reg, this \
+        __asm mov   reg, dword ptr [reg].intfield \
+        }
 
 // sorts registers a & b
-#define SORT(a,b,temp1) __asm {	\
-   __asm movq temp1, a					\
-   __asm pminub a, b					\
-   __asm pmaxub b, temp1				\
+#define SORT(a,b,temp1) __asm {    \
+   __asm movq temp1, a                    \
+   __asm pminub a, b                    \
+   __asm pmaxub b, temp1                \
 }
 
-#define PABS(a,b,temp1) __asm {	\
-   __asm movq temp1, b					\
-   __asm psubusb	temp1, a            \
+#define PABS(a,b,temp1) __asm {    \
+   __asm movq temp1, b                    \
+   __asm psubusb    temp1, a            \
    __asm psubusb    a, b                \
-   __asm por		a, temp1            \
+   __asm por        a, temp1            \
 }
 
 // a = a where mask, b otherwise; mask = -1
-#define COMBINE(a,b,mask) __asm {	\
-	__asm pand a, mask				\
-	__asm pandn mask, b				\
-	__asm por a, mask				\
+#define COMBINE(a,b,mask) __asm {    \
+    __asm pand a, mask                \
+    __asm pandn mask, b                \
+    __asm por a, mask                \
 }

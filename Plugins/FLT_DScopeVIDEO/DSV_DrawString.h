@@ -31,14 +31,14 @@
 */
 void DrawChar(unsigned char* P_source, unsigned char* P_dest, int pitch_source, int FrameHeight_dest, int x, int y, int Character) 
 {
-	// mods to select in/out pictures mj
+    // mods to select in/out pictures mj
     int             Column = 0;
     int             Row = 0;
     unsigned char*  P_dest_Start;
     static          char           strbuff[80];             // for debug text output
 
-	x = x * 10;     // 10 Columns(pixels) width   
-	y = y * 20;     // 20 Rows   (lines)  height
+    x = x * 10;     // 10 Columns(pixels) width   
+    y = y * 20;     // 20 Rows   (lines)  height
 
 // mj fix, added pitch for source and destination !!!!!!!!!!!!!!!!************!!!!!!!!!!!!!!
 
@@ -53,43 +53,43 @@ void DrawChar(unsigned char* P_source, unsigned char* P_dest, int pitch_source, 
     {
         for (Row = 0; Row < 20; Row++)          // 20 Rows    (lines)  down
         {
-			P_dest = &(P_source[(x + Column) * 2 + (y + Row) * pitch_source]);
+            P_dest = &(P_source[(x + Column) * 2 + (y + Row) * pitch_source]);
           
           //NOT COMPLETE to be fixed mj ******************************************************************************  
            // if (P_dest < P_dest_Start + (FrameHeight_dest * pitch_source))// prevent over-run 
            //     continue;
-			if (font[Character][Row] & (1 << (15 - Column)))
+            if (font[Character][Row] & (1 << (15 - Column)))
             {
-				if (Column & 1) 
+                if (Column & 1) 
                 {
-					P_dest[0]  = 250;
-					P_dest[-1] = 128;
-					P_dest[1]  = 128;
-				}
+                    P_dest[0]  = 250;
+                    P_dest[-1] = 128;
+                    P_dest[1]  = 128;
+                }
                 else 
                 {
-					P_dest[0]  = 250;
-					P_dest[1]  = 128;
-					P_dest[3]  = 128;
-				}
-			}
+                    P_dest[0]  = 250;
+                    P_dest[1]  = 128;
+                    P_dest[3]  = 128;
+                }
+            }
             else
             {
-				if (Column & 1) 
+                if (Column & 1) 
                 {
-					P_dest[0]  = (P_dest[0]  * 3)   >> 2;
-					P_dest[-1] = (P_dest[-1] + 128) >> 1;
-					P_dest[1]  = (P_dest[1]  + 128) >> 1;
-				}
+                    P_dest[0]  = (P_dest[0]  * 3)   >> 2;
+                    P_dest[-1] = (P_dest[-1] + 128) >> 1;
+                    P_dest[1]  = (P_dest[1]  + 128) >> 1;
+                }
                 else 
                 {
-					P_dest[0]  = (P_dest[0] * 3)    >> 2;
-					P_dest[1]  = (P_dest[1] + 128)  >> 1;
-					P_dest[3]  = (P_dest[3] + 128)  >> 1;
-				}
-			}
-		}
-	}
+                    P_dest[0]  = (P_dest[0] * 3)    >> 2;
+                    P_dest[1]  = (P_dest[1] + 128)  >> 1;
+                    P_dest[3]  = (P_dest[3] + 128)  >> 1;
+                }
+            }
+        }
+    }
 }
 
 
@@ -104,10 +104,10 @@ void DrawChar(unsigned char* P_source, unsigned char* P_dest, int pitch_source, 
 void DrawString(unsigned char* P_source, unsigned char* P_dest, int pitch_source, int FrameHeight_dest, int x, int y, const char *strBuffer) 
 {
     int xx = 0;
-	
+    
     for (xx = 0; *strBuffer; ++strBuffer, ++xx) 
     {
-		DrawChar(P_source, P_dest, pitch_source, FrameHeight_dest, x + xx, y, *strBuffer - ' ');
-	}
+        DrawChar(P_source, P_dest, pitch_source, FrameHeight_dest, x + xx, y, *strBuffer - ' ');
+    }
 }
 

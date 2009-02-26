@@ -15,23 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.5  2001/11/22 22:29:25  adcockj
-// Bug Fix
-//
-// Revision 1.4  2001/11/22 22:27:00  adcockj
-// Bug Fixes
-//
-// Revision 1.3  2001/11/21 15:21:41  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.2  2001/07/13 16:13:33  adcockj
-// Added CVS tags and removed tabs
-//
-/////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // Deinterlace the latest field, attempting to weave wherever it won't cause
@@ -151,10 +134,10 @@ BOOL DeinterlaceFieldTwoFrame_MMX(TDeinterlaceInfo* pInfo)
 
     for (Line = 0; Line < pInfo->FieldHeight - 1; ++Line)
     {
-		BYTE* Dest2 = Dest;
-		BYTE* OVal2UseInAsm = OVal2;
-		_asm
-		{
+        BYTE* Dest2 = Dest;
+        BYTE* OVal2UseInAsm = OVal2;
+        _asm
+        {
             // We'll be using a couple registers that have meaning in the C code, so
             // save them.
             mov OldSI, esi

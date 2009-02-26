@@ -15,94 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.23  2003/08/10 11:55:29  tobbej
-// implemented the base for seeking in files
-//
-// Revision 1.22  2003/03/09 12:14:39  tobbej
-// use the new graph debuging functions (only in loglevel 2 and 3)
-//
-// Revision 1.21  2003/02/05 19:13:15  tobbej
-// added support for capture devices where audio can be rendered from directshow
-// modified audio setings dialog so audio rendering can be turned off (usefull for devices with both internal and external audio)
-// some smal changes to ChangeRes
-//
-// Revision 1.20  2003/01/06 21:30:21  tobbej
-// modified resolution chaging so it automaticaly tries to get the best format
-//
-// Revision 1.19  2002/09/24 17:19:35  tobbej
-// new audio controll classes
-//
-// Revision 1.18  2002/09/14 17:03:11  tobbej
-// implemented audio output device selection
-//
-// Revision 1.17  2002/09/07 13:32:35  tobbej
-// save/restore video format settings to ini file
-//
-// Revision 1.16  2002/09/04 17:12:01  tobbej
-// moved parts of start() to ConnectGraph()
-// some other changes for new video format dialog
-//
-// Revision 1.15  2002/08/21 20:29:20  kooiman
-// Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
-//
-// Revision 1.14  2002/08/01 20:24:19  tobbej
-// implemented AvgSyncOffset counter in dsrend
-//
-// Revision 1.13  2002/07/06 16:50:08  tobbej
-// new field buffering
-// some small changes to resolution changing
-//
-// Revision 1.12  2002/05/24 15:15:11  tobbej
-// changed filter properties dialog to include progpertypages from the pins
-//
-// Revision 1.11  2002/05/11 15:22:00  tobbej
-// fixed object reference leak when opening filter settings
-// added filter graph loging in debug build
-//
-// Revision 1.10  2002/05/02 19:50:39  tobbej
-// changed dshow source filter submenu to use new tree based dialog
-//
-// Revision 1.9  2002/04/16 15:26:55  tobbej
-// fixed filter reference leak when geting filter names (filters submenu)
-// added waitForNextField
-//
-// Revision 1.8  2002/04/07 14:52:13  tobbej
-// fixed race when changing resolution
-// improved error handling
-//
-// Revision 1.7  2002/03/17 21:43:23  tobbej
-// added input resolution submenu
-//
-// Revision 1.6  2002/03/15 23:07:16  tobbej
-// changed dropped frames counter to include dropped frames in source filter.
-// added functions to enable/disable graph clock.
-// started to make changing resolution posibel.
-//
-// Revision 1.5  2002/02/13 17:01:42  tobbej
-// new filter properties menu
-//
-// Revision 1.4  2002/02/07 22:09:11  tobbej
-// changed for new file input
-//
-// Revision 1.3  2002/02/05 17:27:47  tobbej
-// update dropped/drawn fields stats
-//
-// Revision 1.2  2002/02/03 11:02:34  tobbej
-// various updates for new filter
-//
-// Revision 1.1  2001/12/17 19:30:24  tobbej
-// class for managing the capture graph
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DSGraph.h interface for the CDShowGraph class.
@@ -133,179 +45,179 @@
 class CDShowGraph
 {
 public:
-	/**
-	 * Video format settins.
-	 */
-	class CVideoFormat
-	{
-	public:
-		CVideoFormat()
-			:m_Width(0),m_Height(0),m_bForceYUY2(false),m_FieldFmt(DSREND_FIELD_FORMAT_AUTO)
-		{
-		}
-		bool operator==(CVideoFormat &fmt);
-		operator std::string();
-		void operator=(std::string &str);
+    /**
+     * Video format settins.
+     */
+    class CVideoFormat
+    {
+    public:
+        CVideoFormat()
+            :m_Width(0),m_Height(0),m_bForceYUY2(false),m_FieldFmt(DSREND_FIELD_FORMAT_AUTO)
+        {
+        }
+        bool operator==(CVideoFormat &fmt);
+        operator std::string();
+        void operator=(std::string &str);
 
-		string m_Name;
-		///Width
-		long m_Width;
-		///Height
-		long m_Height;
-		///Make dsrend filter only accept YUY2, currently unused
-		bool m_bForceYUY2;
-		///Field format, currently unused
-		DSREND_FIELD_FORMAT m_FieldFmt;
-	};
-	
-	///failure codes from ChangeRes
-	enum eChangeRes_Error
-	{
-		///format changed
-		SUCCESS,
-		///no filter graph
-		ERROR_NO_GRAPH,
-		///failed to change format, changed back to old
-		ERROR_CHANGED_BACK,
-		///failed to change format and coud not restor old format
-		ERROR_FAILED_TO_CHANGE_BACK
-	};
+        string m_Name;
+        ///Width
+        long m_Width;
+        ///Height
+        long m_Height;
+        ///Make dsrend filter only accept YUY2, currently unused
+        bool m_bForceYUY2;
+        ///Field format, currently unused
+        DSREND_FIELD_FORMAT m_FieldFmt;
+    };
+    
+    ///failure codes from ChangeRes
+    enum eChangeRes_Error
+    {
+        ///format changed
+        SUCCESS,
+        ///no filter graph
+        ERROR_NO_GRAPH,
+        ///failed to change format, changed back to old
+        ERROR_CHANGED_BACK,
+        ///failed to change format and coud not restor old format
+        ERROR_FAILED_TO_CHANGE_BACK
+    };
 
-	/**
-	 * Creates a filtergraph with a capture device as source.
-	 * @throws CDShowException
-	 */
-	CDShowGraph(string device,string deviceName,string AudioDevice,bool bConnectAudio);
+    /**
+     * Creates a filtergraph with a capture device as source.
+     * @throws CDShowException
+     */
+    CDShowGraph(string device,string deviceName,string AudioDevice,bool bConnectAudio);
 
-	/**
-	 * Creates a filtergraph with a file as source
-	 * @throws CDShowException
-	 */
-	CDShowGraph(string filename,string AudioDevice);
-	///Destructor
-	virtual ~CDShowGraph();
-	
-	/**
-	 * @return pointer to the source device or NULL if there is no source
-	 */
-	CDShowBaseSource* getSourceDevice();
-	void getConnectionMediatype(AM_MEDIA_TYPE *pmt);
-	bool GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info,DWORD dwLateness);
+    /**
+     * Creates a filtergraph with a file as source
+     * @throws CDShowException
+     */
+    CDShowGraph(string filename,string AudioDevice);
+    ///Destructor
+    virtual ~CDShowGraph();
+    
+    /**
+     * @return pointer to the source device or NULL if there is no source
+     */
+    CDShowBaseSource* getSourceDevice();
+    void getConnectionMediatype(AM_MEDIA_TYPE *pmt);
+    bool GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info,DWORD dwLateness);
 
-	/**
-	 * Get number of dropped frames.
-	 * This function return the total number of dropped frames from the
-	 * renderer filter and the source
-	 * @return number of dropped frames
-	 */
-	long getDroppedFrames();
-	
-	void ConnectGraph();
-	void start();
-	void pause();
-	void stop();
-	FILTER_STATE getState() {return m_GraphState;}
+    /**
+     * Get number of dropped frames.
+     * This function return the total number of dropped frames from the
+     * renderer filter and the source
+     * @return number of dropped frames
+     */
+    long getDroppedFrames();
+    
+    void ConnectGraph();
+    void start();
+    void pause();
+    void stop();
+    FILTER_STATE getState() {return m_GraphState;}
 
-	/**
-	 * Creates a propertypage for a filter.
-	 * This function creates a propertypage for the filter indicated by index.
-	 * To get all pages call this function with index set to 0 and then
-	 * increase it until the function returns false.
-	 * The caller is responsibel of deleting the returnd propertypage with
-	 * delete.
-	 *
-	 * @param index filter index
-	 * @param ppPage pointer to created propertypage
-	 * @param bHasSubPages true if specified filter has subpages
-	 * @return true if the propertypage was successfully created
-	 */
-	bool getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,bool &bHasSubPages);
+    /**
+     * Creates a propertypage for a filter.
+     * This function creates a propertypage for the filter indicated by index.
+     * To get all pages call this function with index set to 0 and then
+     * increase it until the function returns false.
+     * The caller is responsibel of deleting the returnd propertypage with
+     * delete.
+     *
+     * @param index filter index
+     * @param ppPage pointer to created propertypage
+     * @param bHasSubPages true if specified filter has subpages
+     * @return true if the propertypage was successfully created
+     */
+    bool getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,bool &bHasSubPages);
 
-	/**
-	 * This function works almost the same as getFilterPropertyPage() but returns the subpage.
-	 * @return true if successfull
-	 */
-	bool getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage);
+    /**
+     * This function works almost the same as getFilterPropertyPage() but returns the subpage.
+     * @return true if successfull
+     */
+    bool getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage);
 
-	/**
-	 * Changes connection settings to dsrend filter.
-	 *
-	 * @throws CDShowException
-	 * @param fmt new format to change to
-	 * @return 
-	 */
-	eChangeRes_Error ChangeRes(CDShowGraph::CVideoFormat fmt);
+    /**
+     * Changes connection settings to dsrend filter.
+     *
+     * @throws CDShowException
+     * @param fmt new format to change to
+     * @return 
+     */
+    eChangeRes_Error ChangeRes(CDShowGraph::CVideoFormat fmt);
 
-	/**
-	 * Checks if a resolution is valid and can be selected.
-	 * @param fmt video format to check
-	 * @return true if valid
-	 */
-	bool IsValidRes(CDShowGraph::CVideoFormat fmt);
+    /**
+     * Checks if a resolution is valid and can be selected.
+     * @param fmt video format to check
+     * @return true if valid
+     */
+    bool IsValidRes(CDShowGraph::CVideoFormat fmt);
 
-	/**
-	 * Disables the graph reference clock.
-	 * @throws CDShowException
-	 */
-	void DisableClock();
+    /**
+     * Disables the graph reference clock.
+     * @throws CDShowException
+     */
+    void DisableClock();
 
-	/**
-	 * Restored the old clock after a call to DisableClock().
-	 * @throws CDShowException
-	 */
-	void RestoreClock();
+    /**
+     * Restored the old clock after a call to DisableClock().
+     * @throws CDShowException
+     */
+    void RestoreClock();
 
-	/**
-	 * @return
-	 */
-	CDShowAudioControls *GetAudioControls();
+    /**
+     * @return
+     */
+    CDShowAudioControls *GetAudioControls();
 
-	CDShowSeeking *GetSeeking();
+    CDShowSeeking *GetSeeking();
 
 private:
-	void InitGraph();
-	void CreateRenderer();
+    void InitGraph();
+    void CreateRenderer();
 
-	void FindStreamConfig();
-	
-	/// updates m_filter vector with filters in the graph
-	void BuildFilterList();
+    void FindStreamConfig();
+    
+    /// updates m_filter vector with filters in the graph
+    void BuildFilterList();
 
-	///Custom video renderer. Used for transfering the picture to dscaler
-	CComPtr<IBaseFilter> m_renderer;
+    ///Custom video renderer. Used for transfering the picture to dscaler
+    CComPtr<IBaseFilter> m_renderer;
 
-	///Interface used for geting media samples from the renderer filter
-	CComPtr<IDSRendFilter> m_DSRend;
-	CComPtr<IQualProp> m_pQualProp;
-	CComPtr<IDSRendSettings> m_pDSRendSettings;
-	
-	///IAMStreamConfig interface for the filter connected to our renderer
-	CComPtr<IAMStreamConfig> m_pStreamCfg;
+    ///Interface used for geting media samples from the renderer filter
+    CComPtr<IDSRendFilter> m_DSRend;
+    CComPtr<IQualProp> m_pQualProp;
+    CComPtr<IDSRendSettings> m_pDSRendSettings;
+    
+    ///IAMStreamConfig interface for the filter connected to our renderer
+    CComPtr<IAMStreamConfig> m_pStreamCfg;
 
-	CComPtr<IGraphBuilder> m_pGraph;
-	CComPtr<ICaptureGraphBuilder2> m_pBuilder;
-	CComPtr<IMediaControl> m_pControl;
-		
-	CDShowBaseSource *m_pSource;
-	CDShowAudioControls *m_pAudioControlls;
-	CDShowSeeking *m_pSeeking;
+    CComPtr<IGraphBuilder> m_pGraph;
+    CComPtr<ICaptureGraphBuilder2> m_pBuilder;
+    CComPtr<IMediaControl> m_pControl;
+        
+    CDShowBaseSource *m_pSource;
+    CDShowAudioControls *m_pAudioControlls;
+    CDShowSeeking *m_pSeeking;
 
-	FILTER_STATE m_GraphState;
+    FILTER_STATE m_GraphState;
 
-	CComPtr<IReferenceClock> m_pOldRefClk;
-	
-	class CFilterPages
-	{
-	public:
-		CComPtr<IBaseFilter> m_pFilter;
-		vector<CComPtr<IPin> > m_SubPage;
-	};
-	/// used in getFilterName and showPropertyPage
-	vector<CFilterPages> m_filters;
+    CComPtr<IReferenceClock> m_pOldRefClk;
+    
+    class CFilterPages
+    {
+    public:
+        CComPtr<IBaseFilter> m_pFilter;
+        vector<CComPtr<IPin> > m_SubPage;
+    };
+    /// used in getFilterName and showPropertyPage
+    vector<CFilterPages> m_filters;
 
-	DWORD m_hROT;
+    DWORD m_hROT;
 #ifdef _DEBUG
-	HANDLE m_hLogFile;
+    HANDLE m_hLogFile;
 #endif
 };
 

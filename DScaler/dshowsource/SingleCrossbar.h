@@ -15,20 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2001/12/17 19:22:33  tobbej
-// new crossbar classes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SingleCrossbar.h interface for the CDShowSingleCrossbar class.
@@ -49,19 +35,19 @@
 class CDShowSingleCrossbar :public CDShowBaseCrossbar
 {
 public:
-	CDShowSingleCrossbar(CComPtr<IAMCrossbar> &pCrossbar,IGraphBuilder *pGraph);
-	virtual ~CDShowSingleCrossbar();
+    CDShowSingleCrossbar(CComPtr<IAMCrossbar> &pCrossbar,IGraphBuilder *pGraph);
+    virtual ~CDShowSingleCrossbar();
 
-	void GetPinCounts(long &cIn,long &cOut);
-	long GetInputIndex(long OutIndex);
-	bool IsInputSelected(long index);
+    void GetPinCounts(long &cIn,long &cOut);
+    long GetInputIndex(long OutIndex);
+    bool IsInputSelected(long index);
 
-	PhysicalConnectorType GetInputType(long Index);
-	void SetInputIndex(long Index,bool bSetRelated);
+    PhysicalConnectorType GetInputType(long Index);
+    void SetInputIndex(long Index,bool bSetRelated);
 
 private:
-	/// Crossbar filter
-	CComPtr<IAMCrossbar> m_crossbar;
+    /// Crossbar filter
+    CComPtr<IAMCrossbar> m_crossbar;
 };
 
 #endif // !defined(AFX_SINGLECROSSBAR_H__28485589_E809_4ED1_8F98_52F0740B6A11__INCLUDED_)

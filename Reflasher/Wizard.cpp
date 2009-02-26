@@ -15,10 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "Reflasher.h"
@@ -36,15 +32,15 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNAMIC(CWizard, CPropertySheet)
 
 CWizard::CWizard(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
-	:CPropertySheet(nIDCaption, pParentWnd, iSelectPage)
+    :CPropertySheet(nIDCaption, pParentWnd, iSelectPage)
 {
-	InitWizard();
+    InitWizard();
 }
 
 CWizard::CWizard(LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
-	:CPropertySheet(pszCaption, pParentWnd, iSelectPage)
+    :CPropertySheet(pszCaption, pParentWnd, iSelectPage)
 {
-	InitWizard();
+    InitWizard();
 }
 
 CWizard::~CWizard()
@@ -52,9 +48,9 @@ CWizard::~CWizard()
 }
 
 BEGIN_MESSAGE_MAP(CWizard, CPropertySheet)
-	//{{AFX_MSG_MAP(CWizard)
-		// HINWEIS - Der Klassen-Assistent fügt hier Zuordnungsmakros ein und entfernt diese.
-	//}}AFX_MSG_MAP
+    //{{AFX_MSG_MAP(CWizard)
+        // HINWEIS - Der Klassen-Assistent fügt hier Zuordnungsmakros ein und entfernt diese.
+    //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -62,14 +58,14 @@ END_MESSAGE_MAP()
 
 void CWizard::InitWizard()
 {
-	m_pCard	= NULL;
-	m_dwNewValue = 0;
-	
-	AddPage(&m_Page1);
-	AddPage(&m_Page2);
-	AddPage(&m_Page3);
-	AddPage(&m_Page4);
-	
-	m_psh.dwFlags &= ~PSH_HASHELP;
-	SetWizardMode();
+    m_pCard    = NULL;
+    m_dwNewValue = 0;
+    
+    AddPage(&m_Page1);
+    AddPage(&m_Page2);
+    AddPage(&m_Page3);
+    AddPage(&m_Page4);
+    
+    m_psh.dwFlags &= ~PSH_HASHELP;
+    SetWizardMode();
 }

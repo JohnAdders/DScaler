@@ -42,7 +42,7 @@
 
 #define TDA9875_CH1V        0x0c  /*Channel 1 volume*/
 #define TDA9875_CH2V        0x0d  /*Channel 2 volume*/
-#define TDA9875_NCHV		0x0f  /*NICAM volume*/
+#define TDA9875_NCHV        0x0f  /*NICAM volume*/
 #define TDA9875_SC1         0x14  /*SCART 1 in (mono)*/
 #define TDA9875_SC2         0x15  /*SCART 2 in (mono)*/
 
@@ -74,7 +74,7 @@
 #define TDA9875_FMAT        0x0b  /*FM Matrix regirter*/
 
 /* values */
-#define TDA9875_MUTE_ON	    0xff /*general mute*/
+#define TDA9875_MUTE_ON        0xff /*general mute*/
 #define TDA9875_MUTE_OFF    0xcc /*general no mute*/
 
 #define TDA9875_L1MSB       0x05  /*LEVEL READ-OUT REGISTERS MSB*/
@@ -85,10 +85,10 @@ class CTDA9875 : public CI2CDevice
 public:
 
     CTDA9875();
-	virtual ~CTDA9875() {};
+    virtual ~CTDA9875() {};
     void Reset();
 
-	bool IsDevicePresent(int& dic, int& rev);
+    bool IsDevicePresent(int& dic, int& rev);
 
 protected:
 

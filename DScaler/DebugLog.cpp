@@ -15,78 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 12 Jul 2001   John Adcock           added header block
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.26  2003/08/10 12:14:42  tobbej
-// prevent crashing when trying to log when the debuglog filename is not loaded yet
-//
-// Revision 1.25  2003/06/02 13:15:31  adcockj
-// Fixes for CHARSTRING problems
-//
-// Revision 1.24  2003/04/26 19:39:09  laurentg
-// New character string settings
-//
-// Revision 1.23  2003/03/02 16:21:29  tobbej
-// fixed crashing in LOGD if string is too long
-//
-// Revision 1.22  2003/01/10 17:38:04  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.21  2002/06/22 22:11:50  robmuller
-// Fixed: DebugLogFilename was not written to ini file if bOptimizeFileAccess is true.
-//
-// Revision 1.20  2002/06/15 10:36:58  robmuller
-// FlushAfterEachWrite defaults to TRUE.
-//
-// Revision 1.19  2002/06/13 12:10:21  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.18  2002/06/11 20:52:35  robmuller
-// Enable debug logging by default. Renamed debug log file to debug.log.
-//
-// Revision 1.17  2002/05/26 19:04:13  robmuller
-// Implemented debug log level 0 (for critical errors).
-//
-// Revision 1.16  2002/03/26 13:07:10  robmuller
-// Flush file when FlushAfterEachWrite is enabled with the dialog.
-//
-// Revision 1.15  2001/12/16 17:04:37  adcockj
-// Debug Log improvements
-//
-// Revision 1.14  2001/11/23 10:49:16  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.13  2001/09/05 15:08:43  adcockj
-// Updated Loging
-//
-// Revision 1.12  2001/08/02 18:18:32  adcockj
-// Fixed release build problem
-//
-// Revision 1.11  2001/08/02 16:43:05  adcockj
-// Added Debug level to LOG function
-//
-// Revision 1.10  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.9  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.8  2001/07/12 16:16:39  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DebugLog.cpp Debug Logging functions
@@ -148,10 +76,10 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
     va_end(Args);
 
     fputc('\n', debugLog);
-	if(FlushAfterEachWrite || DebugLevel == 0)
-	{
-	    fflush(debugLog);
-	}
+    if(FlushAfterEachWrite || DebugLevel == 0)
+    {
+        fflush(debugLog);
+    }
 }
 #endif
 
@@ -165,10 +93,10 @@ void LOGD(LPCSTR Format, ...)
     int result=_vsnprintf(szMessage,2048, Format, Args);
     va_end(Args);
     if(result==-1)
-	{
-		OutputDebugString("DebugString too long, truncated!!\n");
-	}
-	OutputDebugString(szMessage);
+    {
+        OutputDebugString("DebugString too long, truncated!!\n");
+    }
+    OutputDebugString(szMessage);
 }
 #endif
 
@@ -176,9 +104,9 @@ BOOL FlushAfterEachWrite_OnChange(long NewValue)
 {
     FlushAfterEachWrite = (BOOL)NewValue;
     if(FlushAfterEachWrite && (debugLog != NULL))
-	{
-	    fflush(debugLog);
-	}
+    {
+        fflush(debugLog);
+    }
     return FALSE;
 }
 

@@ -446,7 +446,7 @@
 #define MO_GPHST_MUX16      0x380064 // Host muxed 16-bit transfer parameters
 #define MO_GPHST_MODE       0x380068 // Host mode select
 
-#define MAP_EEPROM_DATA		0x365000 // Begin of EEPROM-Data
+#define MAP_EEPROM_DATA        0x365000 // Begin of EEPROM-Data
 
 // AUD_INIT
 
@@ -501,13 +501,13 @@
 #define EN_DMTRX_MONO           (3 << 7)
 #define EN_DMTRX_BYPASS         (1 << 11)
 
-#define EN_SRC_MUTE_EN			0x00000040
-#define EN_I2S_MUTE_EN			0x00000080
-#define EN_DAC_MUTE_EN			0x00000100
+#define EN_SRC_MUTE_EN            0x00000040
+#define EN_I2S_MUTE_EN            0x00000080
+#define EN_DAC_MUTE_EN            0x00000100
 
 
 // Video 
-#define VID_CAPTURE_CONTROL		0x310180
+#define VID_CAPTURE_CONTROL        0x310180
 
 #define CX23880_CAP_CTL_CAPTURE_VBI_ODD  (1<<3)
 #define CX23880_CAP_CTL_CAPTURE_VBI_EVEN (1<<2)
@@ -515,34 +515,34 @@
 #define CX23880_CAP_CTL_CAPTURE_EVEN     (1<<0)
 
 /****************************************************************************
-	RISC CONSTANTS
+    RISC CONSTANTS
 ****************************************************************************/
-#define RISC_SYNC			 0x80000000
-#define RISC_SYNC_ODD		 0x80000000
-#define RISC_SYNC_EVEN		 0x80000200
-#define RISC_RESYNC			 0x80008000
-#define RISC_RESYNC_ODD		 0x80008000
-#define RISC_RESYNC_EVEN	 0x80008200
-#define RISC_WRITE			 0x10000000
-#define RISC_WRITEC			 0x50000000
-#define RISC_READ			 0x90000000
-#define RISC_READC			 0xA0000000
-#define RISC_JUMP			 0x70000000
-#define RISC_SKIP			 0x20000000
-#define RISC_WRITERM		 0xB0000000
-#define RISC_WRITECM		 0xC0000000
-#define RISC_WRITECR		 0xD0000000
+#define RISC_SYNC             0x80000000
+#define RISC_SYNC_ODD         0x80000000
+#define RISC_SYNC_EVEN         0x80000200
+#define RISC_RESYNC             0x80008000
+#define RISC_RESYNC_ODD         0x80008000
+#define RISC_RESYNC_EVEN     0x80008200
+#define RISC_WRITE             0x10000000
+#define RISC_WRITEC             0x50000000
+#define RISC_READ             0x90000000
+#define RISC_READC             0xA0000000
+#define RISC_JUMP             0x70000000
+#define RISC_SKIP             0x20000000
+#define RISC_WRITERM         0xB0000000
+#define RISC_WRITECM         0xC0000000
+#define RISC_WRITECR         0xD0000000
 
-#define RISC_SOL			 0x08000000
-#define RISC_EOL			 0x04000000
+#define RISC_SOL             0x08000000
+#define RISC_EOL             0x04000000
 
-#define RISC_IRQ2			 0x02000000
-#define RISC_IRQ1			 0x01000000
+#define RISC_IRQ2             0x02000000
+#define RISC_IRQ1             0x01000000
 
-#define RISC_CNT_NONE		 0x00000000
-#define RISC_CNT_INC		 0x00010000
-#define RISC_CNT_RSVR		 0x00020000
-#define RISC_CNT_RESET		 0x00030000
+#define RISC_CNT_NONE         0x00000000
+#define RISC_CNT_INC         0x00010000
+#define RISC_CNT_RSVR         0x00020000
+#define RISC_CNT_RESET         0x00030000
 #define RISC_JMP_SRP         0x01
 
 
@@ -637,60 +637,60 @@
 #define CX2388X_GPHST_INTSTAT   0x00200094 
 
 
-#define VideoInputTuner		 0x0 
-#define VideoInputComposite	 0x1 
-#define VideoInputSVideo	 0x2
-#define VideoInputOther		 0x3 
+#define VideoInputTuner         0x0 
+#define VideoInputComposite     0x1 
+#define VideoInputSVideo     0x2
+#define VideoInputOther         0x3 
 
-#define Xtal0		 0x1
-#define Xtal1		 0x2
-#define XtalAuto	 0x3
+#define Xtal0         0x1
+#define Xtal1         0x2
+#define XtalAuto     0x3
 
-#define VideoFormatAuto		 0x0
-#define VideoFormatNTSC		 0x1
+#define VideoFormatAuto         0x0
+#define VideoFormatNTSC         0x1
 #define VideoFormatNTSCJapan 0x2
-#define VideoFormatNTSC443	 0x3
-#define VideoFormatPAL		 0x4
-#define VideoFormatPALB		 0x4 
-#define VideoFormatPALD		 0x4 
-#define VideoFormatPALG		 0x4 
-#define VideoFormatPALH		 0x4 
-#define VideoFormatPALI		 0x4 
-#define VideoFormatPALBDGHI	 0x4 
-#define VideoFormatPALM		 0x5
-#define VideoFormatPALN		 0x6
-#define VideoFormatPALNC	 0x7
-#define VideoFormatPAL60	 0x8
-#define VideoFormatSECAM	 0x9
+#define VideoFormatNTSC443     0x3
+#define VideoFormatPAL         0x4
+#define VideoFormatPALB         0x4 
+#define VideoFormatPALD         0x4 
+#define VideoFormatPALG         0x4 
+#define VideoFormatPALH         0x4 
+#define VideoFormatPALI         0x4 
+#define VideoFormatPALBDGHI     0x4 
+#define VideoFormatPALM         0x5
+#define VideoFormatPALN         0x6
+#define VideoFormatPALNC     0x7
+#define VideoFormatPAL60     0x8
+#define VideoFormatSECAM     0x9
 
-#define VideoFormatAuto27MHz		 0x10
-#define VideoFormatNTSC27MHz		 0x11
-#define VideoFormatNTSCJapan27MHz	 0x12
-#define VideoFormatNTSC44327MHz		 0x13
-#define VideoFormatPAL27MHz			 0x14
-#define VideoFormatPALB27MHz		 0x14 
-#define VideoFormatPALD27MHz		 0x14 
-#define VideoFormatPALG27MHz		 0x14 
-#define VideoFormatPALH27MHz		 0x14 
-#define VideoFormatPALI27MHz		 0x14 
-#define VideoFormatPALBDGHI27MHz	 0x14 
-#define VideoFormatPALM27MHz		 0x15
-#define VideoFormatPALN27MHz		 0x16
-#define VideoFormatPALNC27MHz		 0x17
-#define VideoFormatPAL6027MHz		 0x18
-#define VideoFormatSECAM27MHz		 0x19
+#define VideoFormatAuto27MHz         0x10
+#define VideoFormatNTSC27MHz         0x11
+#define VideoFormatNTSCJapan27MHz     0x12
+#define VideoFormatNTSC44327MHz         0x13
+#define VideoFormatPAL27MHz             0x14
+#define VideoFormatPALB27MHz         0x14 
+#define VideoFormatPALD27MHz         0x14 
+#define VideoFormatPALG27MHz         0x14 
+#define VideoFormatPALH27MHz         0x14 
+#define VideoFormatPALI27MHz         0x14 
+#define VideoFormatPALBDGHI27MHz     0x14 
+#define VideoFormatPALM27MHz         0x15
+#define VideoFormatPALN27MHz         0x16
+#define VideoFormatPALNC27MHz         0x17
+#define VideoFormatPAL6027MHz         0x18
+#define VideoFormatSECAM27MHz         0x19
 
-#define NominalUSECAM	 0x87
-#define NominalVSECAM	 0x85
-#define NominalUNTSC	 0xFE
-#define NominalVNTSC	 0xB4
+#define NominalUSECAM     0x87
+#define NominalVSECAM     0x85
+#define NominalUNTSC     0xFE
+#define NominalVNTSC     0xB4
 
 #define NominalContrast  0xD8
 
-#define HFilterAutoFormat	 0x0
-#define HFilterCIF		 0x1
-#define HFilterQCIF		 0x2
-#define HFilterICON		 0x3
+#define HFilterAutoFormat     0x0
+#define HFilterCIF         0x1
+#define HFilterQCIF         0x2
+#define HFilterICON         0x3
 
 #define VFilter2TapInterpolate  0
 #define VFilter3TapInterpolate  1
@@ -701,69 +701,69 @@
 #define VFilter4TapNoInterpolate  6
 #define VFilter5TapNoInterpolate  7
 
-#define ColorFormatRGB32	 0x0
-#define ColorFormatRGB24	 0x1
-#define ColorFormatRGB16	 0x2
-#define ColorFormatRGB15	 0x3
-#define ColorFormatYUY2		 0x4
-#define ColorFormatBTYUV	 0x5
-#define ColorFormatY8		 0x6
-#define ColorFormatRGB8		 0x7
-#define ColorFormatPL422	 0x8
-#define ColorFormatPL411	 0x9
-#define ColorFormatYUV12	 0xA
-#define ColorFormatYUV9		 0xB
-#define ColorFormatRAW		 0xE
+#define ColorFormatRGB32     0x0
+#define ColorFormatRGB24     0x1
+#define ColorFormatRGB16     0x2
+#define ColorFormatRGB15     0x3
+#define ColorFormatYUY2         0x4
+#define ColorFormatBTYUV     0x5
+#define ColorFormatY8         0x6
+#define ColorFormatRGB8         0x7
+#define ColorFormatPL422     0x8
+#define ColorFormatPL411     0x9
+#define ColorFormatYUV12     0xA
+#define ColorFormatYUV9         0xB
+#define ColorFormatRAW         0xE
 
-#define Interlaced		 0x1
-#define NonInterlaced	 0x0
+#define Interlaced         0x1
+#define NonInterlaced     0x0
 
-#define FieldEven		 0x1
-#define FieldOdd		 0x0
+#define FieldEven         0x1
+#define FieldOdd         0x0
 
-#define TGReadWriteMode	 0x0
-#define TGEnableMode	 0x1
+#define TGReadWriteMode     0x0
+#define TGEnableMode     0x1
 
-#define DV_CbAlign		 0x0
-#define DV_Y0Align		 0x1
-#define DV_CrAlign		 0x2
-#define DV_Y1Align		 0x3
+#define DV_CbAlign         0x0
+#define DV_Y0Align         0x1
+#define DV_CrAlign         0x2
+#define DV_Y1Align         0x3
 
-#define DVF_Analog		 0x0
-#define DVF_CCIR656		 0x1
-#define DVF_ByteStream	 0x2
-#define DVF_ExtVSYNC		 0x4
-#define DVF_ExtField		 0x5
+#define DVF_Analog         0x0
+#define DVF_CCIR656         0x1
+#define DVF_ByteStream     0x2
+#define DVF_ExtVSYNC         0x4
+#define DVF_ExtField         0x5
 
-#define CHANNEL_VID_Y		 0x1
-#define CHANNEL_VID_U		 0x2
-#define CHANNEL_VID_V		 0x3
-#define CHANNEL_VID_VBI		 0x4
-#define CHANNEL_AUD_DN		 0x5
-#define CHANNEL_AUD_UP		 0x6
-#define CHANNEL_AUD_RDS_DN	 0x7
-#define CHANNEL_MPEG_DN		 0x8
-#define CHANNEL_VIP_DN		 0x9
-#define CHANNEL_VIP_UP		 0xA
-#define CHANNEL_HOST_DN		 0xB
-#define CHANNEL_HOST_UP		 0xC
-#define CHANNEL_FIRST		 0x1 
-#define CHANNEL_LAST		 0xC 
+#define CHANNEL_VID_Y         0x1
+#define CHANNEL_VID_U         0x2
+#define CHANNEL_VID_V         0x3
+#define CHANNEL_VID_VBI         0x4
+#define CHANNEL_AUD_DN         0x5
+#define CHANNEL_AUD_UP         0x6
+#define CHANNEL_AUD_RDS_DN     0x7
+#define CHANNEL_MPEG_DN         0x8
+#define CHANNEL_VIP_DN         0x9
+#define CHANNEL_VIP_UP         0xA
+#define CHANNEL_HOST_DN         0xB
+#define CHANNEL_HOST_UP         0xC
+#define CHANNEL_FIRST         0x1 
+#define CHANNEL_LAST         0xC 
 
-#define GP_COUNT_CONTROL_NONE		 0x0
-#define GP_COUNT_CONTROL_INC		 0x1
-#define GP_COUNT_CONTROL_RESERVED	 0x2
-#define GP_COUNT_CONTROL_RESET		 0x3
+#define GP_COUNT_CONTROL_NONE         0x0
+#define GP_COUNT_CONTROL_INC         0x1
+#define GP_COUNT_CONTROL_RESERVED     0x2
+#define GP_COUNT_CONTROL_RESET         0x3
 
 #define PLL_PRESCALE_BY_2  2
 #define PLL_PRESCALE_BY_3  3
 #define PLL_PRESCALE_BY_4  4
 #define PLL_PRESCALE_BY_5  5
 
-#define HLNotchFilter4xFsc	 (0 << 11)
-#define HLNotchFilterSquare	 (1 << 11)
+#define HLNotchFilter4xFsc     (0 << 11)
+#define HLNotchFilterSquare     (1 << 11)
 #define HLNotchFilter135NTSC (2 << 11)
-#define HLNotchFilter135PAL	 (3 << 11)
+#define HLNotchFilter135PAL     (3 << 11)
 
 #define NTSC_8x_SUB_CARRIER  28.63636E6
 #define PAL_8x_SUB_CARRIER  35.46895E6

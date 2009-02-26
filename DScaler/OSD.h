@@ -16,22 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 8 Nov 2000    Michael Eskin         Initial onscreen display
-//
-// 28 Nov 2000   Mark Rejhon           Reorganization and visual improvements
-//
-// 24 Feb 2001   Michael Samblanet     Added invalidation rectangle
-//
-// 25 Feb 2001   Laurent Garnier       Added management of multiple OSD texts
-//
-// 03 Mar 2001   Laurent Garnier       Added functions OSD_ShowInfosScreen
-//                                     and OSD_GetLineYpos
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file osd.h osd Header file

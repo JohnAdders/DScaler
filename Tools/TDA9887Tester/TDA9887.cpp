@@ -16,15 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2004/11/27 21:43:09  to_see
-// Added more I2C Addresses from datasheet, fixed bug in Detect()
-//
-// Revision 1.1  2004/10/30 19:30:22  to_see
-// initial checkin
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "TDA9887Defines.h"
@@ -41,8 +32,8 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CTDA9887::CTDA9887(CPCICard* pCard) :
-	m_pPCICard(pCard),
-	m_I2CAdress(0)
+    m_pPCICard(pCard),
+    m_I2CAdress(0)
 {
 }
 
@@ -52,65 +43,65 @@ CTDA9887::~CTDA9887()
 
 BOOL CTDA9887::Detect()
 {
-	BYTE bI2CAdress[]	= { I2C_TDA9887_0, I2C_TDA9887_1, I2C_TDA9887_2, I2C_TDA9887_3, NULL };
-	BYTE bDetectBytes[]	= { 0x00, 0x00, 0x54, 0x70, 0x44 };
-	BOOL bSucces		= FALSE;
+    BYTE bI2CAdress[]    = { I2C_TDA9887_0, I2C_TDA9887_1, I2C_TDA9887_2, I2C_TDA9887_3, NULL };
+    BYTE bDetectBytes[]    = { 0x00, 0x00, 0x54, 0x70, 0x44 };
+    BOOL bSucces        = FALSE;
 
 /*
-	Content of bDetectBytes[]:
+    Content of bDetectBytes[]:
 
-	bDetectBytes[0] = I2C Address of TDA9887
-	bDetectBytes[1] = I2C Subadress start of writing (=0)
-	bDetectBytes[2] = Byte B
-	bDetectBytes[3] = Byte C
-	bDetectBytes[4] = Byte E
+    bDetectBytes[0] = I2C Address of TDA9887
+    bDetectBytes[1] = I2C Subadress start of writing (=0)
+    bDetectBytes[2] = Byte B
+    bDetectBytes[3] = Byte C
+    bDetectBytes[4] = Byte E
 */
 
-	for(int i = 0; bI2CAdress[i] != NULL; i++)
-	{
-		bDetectBytes[0] = bI2CAdress[i];
+    for(int i = 0; bI2CAdress[i] != NULL; i++)
+    {
+        bDetectBytes[0] = bI2CAdress[i];
 
-		if(m_pPCICard->WriteToI2C(bDetectBytes, sizeof(bDetectBytes)))
-		{
-			bSucces = TRUE;
-			m_I2CAdress = bI2CAdress[i];
-			break;
-		}
-	}
+        if(m_pPCICard->WriteToI2C(bDetectBytes, sizeof(bDetectBytes)))
+        {
+            bSucces = TRUE;
+            m_I2CAdress = bI2CAdress[i];
+            break;
+        }
+    }
 
-	return bSucces;
+    return bSucces;
 }
 
 const BYTE* CTDA9887::GetI2CAdress()
 {
-	return &m_I2CAdress;
+    return &m_I2CAdress;
 }
 
 bool CTDA9887::WriteControlBytes(const BYTE* pControlBytes)
 {
     BYTE bBuffer[5];
-	ZeroMemory(bBuffer, sizeof(bBuffer));
+    ZeroMemory(bBuffer, sizeof(bBuffer));
 
 /*
-	Content of bBuffer[]:
+    Content of bBuffer[]:
 
-	bBuffer[0] = I2C Address of TDA9887
-	bBuffer[1] = I2C Subadress start of writing (=0)
-	bBuffer[2] = Byte B
-	bBuffer[3] = Byte C
-	bBuffer[4] = Byte E
+    bBuffer[0] = I2C Address of TDA9887
+    bBuffer[1] = I2C Subadress start of writing (=0)
+    bBuffer[2] = Byte B
+    bBuffer[3] = Byte C
+    bBuffer[4] = Byte E
 */
-	
-	bBuffer[0] = m_I2CAdress;
-//	bBuffer[1] = 0; // not needed
-	bBuffer[2] = pControlBytes[0];
-	bBuffer[3] = pControlBytes[1];
-	bBuffer[4] = pControlBytes[2];
+    
+    bBuffer[0] = m_I2CAdress;
+//    bBuffer[1] = 0; // not needed
+    bBuffer[2] = pControlBytes[0];
+    bBuffer[3] = pControlBytes[1];
+    bBuffer[4] = pControlBytes[2];
 
-	if(m_pPCICard->WriteToI2C(bBuffer, sizeof(bBuffer)))
-	{
-		return true;
-	}
+    if(m_pPCICard->WriteToI2C(bBuffer, sizeof(bBuffer)))
+    {
+        return true;
+    }
 
-	return false;
+    return false;
 }

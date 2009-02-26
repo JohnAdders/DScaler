@@ -8,30 +8,16 @@
 //      http://www.math.berkeley.edu/~benrg/avisynth.html
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//    This file is subject to the terms of the GNU General Public License as
+//    published by the Free Software Foundation.  A copy of this license is
+//    included with this software distribution in the file COPYING.  If you
+//    do not have a copy, you may obtain a copy by writing to the Free
+//    Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
-/////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 01 Oct 2001   Tom Barry		       Create Greedy/HM as Avisynth Filter
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 0.1  2001/10/01 06:26:38  trbarry
-// Add GreedyHMA (Avisynth filter wrapper) to DScaler files
-//
+//    This software is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 /*
 
@@ -72,10 +58,10 @@ From the Readme_GreedyHMA.txt file:
         All the values are integer, 0=no, 1=yes:
         
           TopFirst - assume the top field, lines 0,2,4,... should be displayed first. 
-	        The default is the supposedly more common BottomFirst (not for me).
+            The default is the supposedly more common BottomFirst (not for me).
 
           SwapFields - for busted capture drivers that put lines 1,3,5.. over
-	        lines 0,2,4...
+            lines 0,2,4...
 
           AutoPullDown - Sets what types of Pulldown processing is desired.
             Valid parm values are:
@@ -120,7 +106,7 @@ From the Readme_GreedyHMA.txt file:
    ***** NOTE!  THE MEDIAN FILTER IS DISABLE FOR THIS RELEASE. *****
             
           MedianFilter (temporal) - Helps get rid of noise if needed but causes a 
-	        2 field video delay. (Otherwise there's a 1 field delay) Specifying 1
+            2 field video delay. (Otherwise there's a 1 field delay) Specifying 1
             turns it on using the current default of 3 (may change) but you can also 
             specify 2-255 to override this. But values over about 3-5 can cause motion
             artifacts in fast motion video.
@@ -132,13 +118,13 @@ From the Readme_GreedyHMA.txt file:
 
 
           VerticalFilter - Not only gets rid of noise but also some deinterlacing
-	        artifacts since it's done last, after deinterlace. Useful if you are going
-	        to down scale. Use only values 0,1 for parm.
+            artifacts since it's done last, after deinterlace. Useful if you are going
+            to down scale. Use only values 0,1 for parm.
 
           EdgeEnhance (horizontal) - Add a little sharpness to full res video. This 
-  	        one can also use parm values of 2-100. The default is currently 50 if
-	        1 is specified.  I may also support negative values in the future, making it a
-	        horizontal filter to help set up for downscaling.
+              one can also use parm values of 2-100. The default is currently 50 if
+            1 is specified.  I may also support negative values in the future, making it a
+            horizontal filter to help set up for downscaling.
 
           Good Pulldown Lvl - This is a number from 1-255 that must be exceeded before
             GreedyHMA will do pulldown for a frame. This parm is honored only when
@@ -162,36 +148,36 @@ From the Readme_GreedyHMA.txt file:
 
         Known issues and limitation:
 
-        1) 	THIS IS FOR SSE MACHINES ONLY!
+        1)     THIS IS FOR SSE MACHINES ONLY!
 
         This is written like the advanced options of DScaler Greedy/HM, partly in assembler for
         SSE machines only.  I've so far got zero error checking in it, so it will just CRASH if
         you don't have at least a faster Celeron, P-III, Athlon, or higher. I'm not sure if this
         will be corrected in the future, but I might if time permits.
 
-        2) 	Currently no error checking or messages. I haven't figured out how to issue messages
-	        in Avisynth yet, and there is a bunch of stuff I should check that I'm not.
-	        
-        3) 	Assumes YUV (YUY2) Frame Based input. Use an AVIsynth function to convert first if
-	        needed.
-	        
-        4)	Currently limited to a frame resolution of 999x576 pixels. FIXED ...
+        2)     Currently no error checking or messages. I haven't figured out how to issue messages
+            in Avisynth yet, and there is a bunch of stuff I should check that I'm not.
+            
+        3)     Assumes YUV (YUY2) Frame Based input. Use an AVIsynth function to convert first if
+            needed.
+            
+        4)    Currently limited to a frame resolution of 999x576 pixels. FIXED ...
             (Now adjusted to a limit of 1928x1081 when building for Avisynth, to support HDTV)
 
-        5)	If you have pure well behaved film source, with no edits or pulldown quirks, and no 
-	        video source, then you are still maybe better off in both performance and quality using
-	        the other functions of VirtualDub for Inverse Telecine, and not bothering with GreedyHMA.
-	        GreedyHMA is designed for high motion sports or mixed up video and film
-	        sequences. It may also do well on anime.
-	        
-        6)	There is a strange bug that I don't understand at all. If you add a new or changed
-	        GreedyHMA.dll to your machine, the first time you run VirtualDub/Avisynth/GreedyHMA
-	        then VirtualDub may stop responding. If you then use the Task Manager to cancel 
-	        VirtualDub it will run after that.  A work-around seems to be to first open any
-	        other AVI file in VirtualDub the first time you bring it up after installing GreedyHMA,
+        5)    If you have pure well behaved film source, with no edits or pulldown quirks, and no 
+            video source, then you are still maybe better off in both performance and quality using
+            the other functions of VirtualDub for Inverse Telecine, and not bothering with GreedyHMA.
+            GreedyHMA is designed for high motion sports or mixed up video and film
+            sequences. It may also do well on anime.
+            
+        6)    There is a strange bug that I don't understand at all. If you add a new or changed
+            GreedyHMA.dll to your machine, the first time you run VirtualDub/Avisynth/GreedyHMA
+            then VirtualDub may stop responding. If you then use the Task Manager to cancel 
+            VirtualDub it will run after that.  A work-around seems to be to first open any
+            other AVI file in VirtualDub the first time you bring it up after installing GreedyHMA,
             before opening any Avisynth scripts.  Later notes: it doesn't depend upon GreedyHMA at
             all, it happens without it on my machine, but I still don't understand it.
-	        
+            
         7)  Currently works properly only if fed a screen width in pixels that is a multiple of 16.
             Otherwise it may produce garbage at the right of the screen that you may have to crop.
 
@@ -489,23 +475,23 @@ int height;
             
                 for (j=1; j <= height/2; j++)
                 {
-		            _asm		
-		            {
+                    _asm        
+                    {
                     mov     esi, srcp1          // ptr to prev frame data
                     mov     edi, srcp2          // ptr to curr frame data
                     mov     edx, row_size       // count of 32 byte chunks
                     movd    mm7, skipvalw       // will accum total differences
 
-		            align 8
+                    align 8
             CompLoop:   
                     movq    mm0, qword ptr[esi]
                     movq    mm1, qword ptr[esi+8]
                     movq    mm2, qword ptr[esi+16]
                     movq    mm3, qword ptr[esi+64]
-    	            psadbw  mm0, qword ptr[edi]		// sum of abs differences 
-    	            psadbw  mm1, qword ptr[edi+8]	
-    	            psadbw  mm2, qword ptr[edi+16]	
-    	            psadbw  mm3, qword ptr[edi+24]	
+                    psadbw  mm0, qword ptr[edi]        // sum of abs differences 
+                    psadbw  mm1, qword ptr[edi+8]    
+                    psadbw  mm2, qword ptr[edi+16]    
+                    psadbw  mm3, qword ptr[edi+24]    
                     paddd   mm7, mm0                // accum totals
                     paddd   mm7, mm1
                     paddd   mm7, mm2

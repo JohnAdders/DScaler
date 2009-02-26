@@ -15,20 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2001/12/17 19:25:05  tobbej
-// baseclass for some of the other classes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DSObject.h interface for the CDShowObject class.
@@ -44,10 +30,10 @@
 //object types
 typedef enum
 {
-	DSHOW_TYPE_TUNER,
-	DSHOW_TYPE_CROSSBAR,
-	DSHOW_TYPE_SOURCE_CAPTURE,
-	DSHOW_TYPE_SOURCE_FILE,
+    DSHOW_TYPE_TUNER,
+    DSHOW_TYPE_CROSSBAR,
+    DSHOW_TYPE_SOURCE_CAPTURE,
+    DSHOW_TYPE_SOURCE_FILE,
 } eDSObjectType;
 
 
@@ -57,24 +43,24 @@ typedef enum
 class CDShowObject
 {
 public:
-	CDShowObject(IGraphBuilder *pGraph);
-	virtual ~CDShowObject();
-	
-	/**
-	 * This is used to tell the different object types apart, istead of using RTTI.
-	 * @return type of object
-	 */
-	virtual eDSObjectType getObjectType()=0;
-	
-	//name of object
-	//virtual char* getName()=0;
-	
-	//virtual void configure(HWND hWnd)=0;
-	//virtual bool canConfigure()=0;
+    CDShowObject(IGraphBuilder *pGraph);
+    virtual ~CDShowObject();
+    
+    /**
+     * This is used to tell the different object types apart, istead of using RTTI.
+     * @return type of object
+     */
+    virtual eDSObjectType getObjectType()=0;
+    
+    //name of object
+    //virtual char* getName()=0;
+    
+    //virtual void configure(HWND hWnd)=0;
+    //virtual bool canConfigure()=0;
 
 protected:
-	///graph that the object belongs to
-	CComPtr<IGraphBuilder> m_pGraph;
+    ///graph that the object belongs to
+    CComPtr<IGraphBuilder> m_pGraph;
 };
 
 #endif // !defined(AFX_DSOBJECT_H__F5D538DA_72E3_4F81_98D3_4D6673A5E07F__INCLUDED_)

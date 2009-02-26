@@ -20,29 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Oct 2002   Denis Balazuc         Original Release
-//                                     Copy/paste from ProgramList.h mostly
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2005/03/26 18:53:22  laurentg
-// EPG code improved
-// => possibility to set the EPG channel name in the channel setup dialog box
-// => automatic loading of new data when needed
-// => OSD scrrens updated
-// => first step for programs "browser"
-//
-// Revision 1.7  2005/03/08 03:23:27  robmuller
-// Added CVS keywords.
-//
-//                                     
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file channels.h channels Header file
@@ -120,7 +97,7 @@ public :
 
     CChannel* GetChannelByNumber(int iChannelNumber); //May return NULL
 
-	CChannel* GetChannelByFrequency(DWORD dwFreq); //May return NULL 
+    CChannel* GetChannelByFrequency(DWORD dwFreq); //May return NULL 
 
     inline BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, int eFormat, BOOL bActive = TRUE) 
     {

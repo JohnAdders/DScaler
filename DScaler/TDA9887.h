@@ -19,68 +19,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.20  2005/03/09 09:35:16  atnak
-// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
-// non-intrusive nature.
-//
-// Revision 1.19  2004/12/25 22:40:18  to_see
-// Changed the card list to an ini file
-//
-// Revision 1.18  2004/12/12 23:57:15  atnak
-// Fixed SetMode() QSS mask conflict with TakeOverPoint mask.
-//
-// Revision 1.17  2004/12/01 17:47:01  atnak
-// Added misc defines for SetModes(...).
-//
-// Revision 1.16  2004/11/28 06:53:22  atnak
-// Slight change to DetectAttach().
-//
-// Revision 1.15  2004/11/28 06:46:26  atnak
-// Added DetectAttach() to do the chip scanning work.
-//
-// Revision 1.14  2004/11/27 22:01:40  to_see
-// Added more I2C Addresses from datasheet
-//
-// Revision 1.13  2004/11/27 19:07:44  atnak
-// Changed constant to more correct name.
-//
-// Revision 1.12  2004/11/27 14:15:57  atnak
-// Changed variable name to fix conflict.
-//
-// Revision 1.11  2004/11/27 00:57:36  atnak
-// Completed changes for CTDA9887FromIni (and renamed to CTDA9887Ex).
-//
-// Revision 1.10  2004/11/23 20:24:18  to_see
-// Deleted unused defines
-//
-// Revision 1.9  2004/11/23 18:19:29  to_see
-// Created new class CTDA9887FromIni
-//
-// Revision 1.8  2004/09/29 20:36:02  to_see
-// Added Card AverTV303, Thanks to Zbigniew Pluta
-//
-// Revision 1.7  2004/09/11 20:19:55  to_see
-// Renamed variable name from Pal_L to Secam_L (Sorry)
-//
-// Revision 1.6  2004/08/27 13:12:41  to_see
-// Added audio support for Ati Tv Wonder Pro
-//
-// Revision 1.5  2004/06/23 20:15:22  to_see
-// Created an new struct TControlSettings for better handling
-// more cards and deleted class CTDA9887MsiMaster. Thanks to atnak.
-//
-// Revision 1.4  2004/05/16 19:45:08  to_see
-// Added an new class for Msi Master Card
-//
-// Revision 1.3  2004/02/11 20:34:00  adcockj
-// Support multiple locations of TDA9887 (thanks to Pityu)
-//
-// Revision 1.2  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file TDA9887.h CTDA9887 Header
@@ -97,68 +35,68 @@
 // TDA defines
 //
 
-#define I2C_TDA9887_0					0x86	// MAD1
-#define I2C_TDA9887_1					0x96	// MAD3
-#define I2C_TDA9887_2					0x84	// MAD2
-#define I2C_TDA9887_3					0x94	// MAD4
+#define I2C_TDA9887_0                    0x86    // MAD1
+#define I2C_TDA9887_1                    0x96    // MAD3
+#define I2C_TDA9887_2                    0x84    // MAD2
+#define I2C_TDA9887_3                    0x94    // MAD4
 
 
 //// first reg
-#define TDA9887_VideoTrapBypassOFF		0x00	// bit b0
-#define TDA9887_VideoTrapBypassON		0x01	// bit b0
+#define TDA9887_VideoTrapBypassOFF        0x00    // bit b0
+#define TDA9887_VideoTrapBypassON        0x01    // bit b0
 
-#define TDA9887_AutoMuteFmInactive		0x00	// bit b1
-#define TDA9887_AutoMuteFmActive		0x02	// bit b1
+#define TDA9887_AutoMuteFmInactive        0x00    // bit b1
+#define TDA9887_AutoMuteFmActive        0x02    // bit b1
 
-#define TDA9887_Intercarrier			0x00	// bit b2
-#define TDA9887_QSS						0x04	// bit b2
+#define TDA9887_Intercarrier            0x00    // bit b2
+#define TDA9887_QSS                        0x04    // bit b2
 
-#define TDA9887_PositiveAmTV			0x00	// bit b3:4
-#define TDA9887_FmRadio					0x08	// bit b3:4
-#define TDA9887_NegativeFmTV			0x10	// bit b3:4
+#define TDA9887_PositiveAmTV            0x00    // bit b3:4
+#define TDA9887_FmRadio                    0x08    // bit b3:4
+#define TDA9887_NegativeFmTV            0x10    // bit b3:4
 
-#define TDA9887_ForcedMuteAudioON		0x20	// bit b5
-#define TDA9887_ForcedMuteAudioOFF		0x00	// bit b5
+#define TDA9887_ForcedMuteAudioON        0x20    // bit b5
+#define TDA9887_ForcedMuteAudioOFF        0x00    // bit b5
 
-#define TDA9887_OutputPort1Active		0x00	// bit b6
-#define TDA9887_OutputPort1Inactive		0x40	// bit b6
-#define TDA9887_OutputPort2Active		0x00	// bit b7
-#define TDA9887_OutputPort2Inactive		0x80	// bit b7
+#define TDA9887_OutputPort1Active        0x00    // bit b6
+#define TDA9887_OutputPort1Inactive        0x40    // bit b6
+#define TDA9887_OutputPort2Active        0x00    // bit b7
+#define TDA9887_OutputPort2Inactive        0x80    // bit b7
 
 //// second reg
-#define TDA9887_TakeOverPointMin		0x00	// bit c0:4
-#define TDA9887_TakeOverPointDefault	0x10	// bit c0:4
-#define TDA9887_TakeOverPointMax		0x1f	// bit c0:4
-#define TDA9887_DeemphasisOFF			0x00	// bit c5
-#define TDA9887_DeemphasisON			0x20	// bit c5
-#define TDA9887_Deemphasis75			0x00	// bit c6
-#define TDA9887_Deemphasis50			0x40	// bit c6
-#define TDA9887_AudioGain0				0x00	// bit c7
-#define TDA9887_AudioGain6				0x80	// bit c7
+#define TDA9887_TakeOverPointMin        0x00    // bit c0:4
+#define TDA9887_TakeOverPointDefault    0x10    // bit c0:4
+#define TDA9887_TakeOverPointMax        0x1f    // bit c0:4
+#define TDA9887_DeemphasisOFF            0x00    // bit c5
+#define TDA9887_DeemphasisON            0x20    // bit c5
+#define TDA9887_Deemphasis75            0x00    // bit c6
+#define TDA9887_Deemphasis50            0x40    // bit c6
+#define TDA9887_AudioGain0                0x00    // bit c7
+#define TDA9887_AudioGain6                0x80    // bit c7
 
 //// third reg
-#define TDA9887_AudioIF_4_5				0x00	// bit e0:1
-#define TDA9887_AudioIF_5_5				0x01	// bit e0:1
-#define TDA9887_AudioIF_6_0				0x02	// bit e0:1
-#define TDA9887_AudioIF_6_5				0x03	// bit e0:1
+#define TDA9887_AudioIF_4_5                0x00    // bit e0:1
+#define TDA9887_AudioIF_5_5                0x01    // bit e0:1
+#define TDA9887_AudioIF_6_0                0x02    // bit e0:1
+#define TDA9887_AudioIF_6_5                0x03    // bit e0:1
 
-#define TDA9887_VideoIF_58_75			0x00	// bit e2:4
-#define TDA9887_VideoIF_45_75			0x04	// bit e2:4
-#define TDA9887_VideoIF_38_90			0x08	// bit e2:4
-#define TDA9887_VideoIF_38_00			0x0C	// bit e2:4
-#define TDA9887_VideoIF_33_90			0x10	// bit e2:4
-#define TDA9887_VideoIF_33_40			0x14	// bit e2:4
-#define TDA9887_RadioIF_45_75			0x18	// bit e2:4
-#define TDA9887_RadioIF_38_90			0x1C	// bit e2:4
+#define TDA9887_VideoIF_58_75            0x00    // bit e2:4
+#define TDA9887_VideoIF_45_75            0x04    // bit e2:4
+#define TDA9887_VideoIF_38_90            0x08    // bit e2:4
+#define TDA9887_VideoIF_38_00            0x0C    // bit e2:4
+#define TDA9887_VideoIF_33_90            0x10    // bit e2:4
+#define TDA9887_VideoIF_33_40            0x14    // bit e2:4
+#define TDA9887_RadioIF_45_75            0x18    // bit e2:4
+#define TDA9887_RadioIF_38_90            0x1C    // bit e2:4
 
-#define TDA9887_TunerGainNormal			0x00	// bit e5
-#define TDA9887_TunerGainLow			0x20	// bit e5
+#define TDA9887_TunerGainNormal            0x00    // bit e5
+#define TDA9887_TunerGainLow            0x20    // bit e5
 
-#define TDA9887_Gating_18				0x00	// bit e6
-#define TDA9887_Gating_36				0x40	// bit e6
+#define TDA9887_Gating_18                0x00    // bit e6
+#define TDA9887_Gating_36                0x40    // bit e6
 
-#define TDA9887_AgcOutON				0x80	// bit e7
-#define TDA9887_AgcOutOFF				0x00	// bit e7
+#define TDA9887_AgcOutON                0x80    // bit e7
+#define TDA9887_AgcOutOFF                0x00    // bit e7
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -171,14 +109,14 @@ public:
     CTDA9887();
     virtual ~CTDA9887();
 
-	// Return a CTDA9887 object or NULL if none is detected.
-	static CTDA9887* CreateDetectedTDA9887(IN CI2CBus* i2cBus);
+    // Return a CTDA9887 object or NULL if none is detected.
+    static CTDA9887* CreateDetectedTDA9887(IN CI2CBus* i2cBus);
 
-	// Sets the device to use a detected I2C address.
-	virtual bool SetDetectedI2CAddress(IN CI2CBus* i2cBus);
+    // Sets the device to use a detected I2C address.
+    virtual bool SetDetectedI2CAddress(IN CI2CBus* i2cBus);
 
-	// Detects if a TDA9887 device exists at the attached address.
-	virtual bool Detect();
+    // Detects if a TDA9887 device exists at the attached address.
+    virtual bool Detect();
 
     virtual void Init(bool bPreInit, eVideoFormat videoFormat);
     virtual void TunerSet(bool bPreSet, eVideoFormat videoFormat);
@@ -215,31 +153,31 @@ private:
 // TV format groupings used by TDA9887
 enum eTDA9887Format
 {
-	TDA9887_FORMAT_NONE		= -1,
-	TDA9887_FORMAT_PAL_BG	= 0,
-	TDA9887_FORMAT_PAL_I,
-	TDA9887_FORMAT_PAL_DK,
-	TDA9887_FORMAT_PAL_MN,
-	TDA9887_FORMAT_SECAM_L,
-	TDA9887_FORMAT_SECAM_DK,
-	TDA9887_FORMAT_NTSC_M,
-	TDA9887_FORMAT_NTSC_JP,
-	TDA9887_FORMAT_RADIO,
-	TDA9887_FORMAT_LASTONE,
+    TDA9887_FORMAT_NONE        = -1,
+    TDA9887_FORMAT_PAL_BG    = 0,
+    TDA9887_FORMAT_PAL_I,
+    TDA9887_FORMAT_PAL_DK,
+    TDA9887_FORMAT_PAL_MN,
+    TDA9887_FORMAT_SECAM_L,
+    TDA9887_FORMAT_SECAM_DK,
+    TDA9887_FORMAT_NTSC_M,
+    TDA9887_FORMAT_NTSC_JP,
+    TDA9887_FORMAT_RADIO,
+    TDA9887_FORMAT_LASTONE,
 };
 
 // Bits for SetCardSpecifics(...)'s TTDA9887CardSpecifics
 enum
 {
-    TDA9887_SM_CARRIER_QSS				= 0x20,	// != Intercarrier
-	TDA9887_SM_OUTPUTPORT1_INACTIVE		= 0x40,	// != Active
-	TDA9887_SM_OUTPUTPORT2_INACTIVE		= 0x80,	// != Active
-	TDA9887_SM_TAKEOVERPOINT_MASK		= 0x1F,
-	TDA9887_SM_TAKEOVERPOINT_OFFSET		= 0,
+    TDA9887_SM_CARRIER_QSS                = 0x20,    // != Intercarrier
+    TDA9887_SM_OUTPUTPORT1_INACTIVE        = 0x40,    // != Active
+    TDA9887_SM_OUTPUTPORT2_INACTIVE        = 0x80,    // != Active
+    TDA9887_SM_TAKEOVERPOINT_MASK        = 0x1F,
+    TDA9887_SM_TAKEOVERPOINT_OFFSET        = 0,
 
-	TDA9887_SM_TAKEOVERPOINT_DEFAULT	= 0x10,	// 0 dB
-	TDA9887_SM_TAKEOVERPOINT_MIN		= 0x00,	// -16 dB
-	TDA9887_SM_TAKEOVERPOINT_MAX		= 0x1F,	// +15 dB
+    TDA9887_SM_TAKEOVERPOINT_DEFAULT    = 0x10,    // 0 dB
+    TDA9887_SM_TAKEOVERPOINT_MIN        = 0x00,    // -16 dB
+    TDA9887_SM_TAKEOVERPOINT_MAX        = 0x1F,    // +15 dB
 };
 
 // Only the modes specified in the enum above can be changed with
@@ -257,51 +195,51 @@ enum
 // Input structure for SetModes(...).
 typedef struct
 {
-	BYTE	mask;
-	BYTE	bits;
+    BYTE    mask;
+    BYTE    bits;
 } TTDA9887Modes;
 
 // Input structure for SetModes(...).
 typedef struct
 {
-	eTDA9887Format	format;
-	BYTE			mask;
-	BYTE			bits;
+    eTDA9887Format    format;
+    BYTE            mask;
+    BYTE            bits;
 } TTDA9887FormatModes;
 
 class CTDA9887Ex : public CTDA9887
 {
 public:
-	CTDA9887Ex();
+    CTDA9887Ex();
     virtual ~CTDA9887Ex();
 
-	// Return a CTDA9887 object or NULL if none is detected.
-	static CTDA9887Ex* CreateDetectedTDA9887Ex(IN CI2CBus* i2cBus);
+    // Return a CTDA9887 object or NULL if none is detected.
+    static CTDA9887Ex* CreateDetectedTDA9887Ex(IN CI2CBus* i2cBus);
 
     virtual void TunerSet(IN bool bPreSet, IN eVideoFormat format);
-	virtual void TunerSet(IN bool bPreSet, IN eTDA9887Format format);
+    virtual void TunerSet(IN bool bPreSet, IN eTDA9887Format format);
 
-	virtual void SetModes(IN eTDA9887Format format, IN BYTE mask, IN BYTE bits);
-	virtual void SetModes(IN eTDA9887Format format, IN TTDA9887Modes* modes);
-	virtual void SetModes(IN TTDA9887FormatModes* modes);
+    virtual void SetModes(IN eTDA9887Format format, IN BYTE mask, IN BYTE bits);
+    virtual void SetModes(IN eTDA9887Format format, IN TTDA9887Modes* modes);
+    virtual void SetModes(IN TTDA9887FormatModes* modes);
 
 protected:
-	typedef struct
+    typedef struct
     {
-		BYTE b;
-		BYTE c;
-		BYTE e;
+        BYTE b;
+        BYTE c;
+        BYTE e;
     } TTDABytes;
 
-	// Converter for converting eVideoFormat to eTDA9887Format
-	eTDA9887Format VideoFormat2TDA9887Format(IN eVideoFormat format);
-	// Helper function for setting and unsetting bits.
-	void SetBit(IN OUT BYTE& bits, IN BYTE bit, IN bool set);
+    // Converter for converting eVideoFormat to eTDA9887Format
+    eTDA9887Format VideoFormat2TDA9887Format(IN eVideoFormat format);
+    // Helper function for setting and unsetting bits.
+    void SetBit(IN OUT BYTE& bits, IN BYTE bit, IN bool set);
 
-	// Standard settings for TDA9887.
+    // Standard settings for TDA9887.
     static const TTDABytes k_TDAStandardtSettings[TDA9887_FORMAT_LASTONE];
-	// Settings specific to a single chip.
-	TTDABytes m_TDASettings[TDA9887_FORMAT_LASTONE];
+    // Settings specific to a single chip.
+    TTDABytes m_TDASettings[TDA9887_FORMAT_LASTONE];
 };
 
 

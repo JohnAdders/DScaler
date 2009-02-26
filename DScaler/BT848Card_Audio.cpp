@@ -15,120 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.34  2005/03/09 09:35:15  atnak
-// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
-// non-intrusive nature.
-//
-// Revision 1.33  2004/09/25 16:22:25  to_see
-// Added autodetection for tda9874
-//
-// Revision 1.32  2004/08/30 16:17:02  adcockj
-// Fixed issue with TDA9875 detection
-//
-// Revision 1.31  2004/08/09 14:01:14  atnak
-// Corrected missing break in switch statement.
-//
-// Revision 1.30  2004/01/29 15:14:41  adcockj
-// Added TDA9873 patch from Sven Grothklags
-//
-// Revision 1.29  2004/01/05 13:25:25  adcockj
-// Added patch for Diamond DTV2000 from Robert Milharcic
-//
-// Revision 1.28  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.27  2002/10/27 12:33:33  adcockj
-// Fixed UseInputPin1 code
-//
-// Revision 1.26  2002/10/26 17:47:54  adcockj
-// Corrected UseInputPin1 code
-//
-// Revision 1.25  2002/10/15 19:16:29  kooiman
-// Fixed Spatial effect for Audio decoder & MSP
-//
-// Revision 1.24  2002/10/11 21:40:32  ittarnavsky
-// changes due to the new CMSP34x0AudioDecoder and  eAudioDecoderType move
-// removed GetNumAudioInputs()
-// replaced GetAudioDecoderID() with GetAudioDecoderType()
-// added UseInputPin1 support
-//
-// Revision 1.23  2002/10/02 10:52:36  kooiman
-// Fixed C++ type casting for events.
-//
-// Revision 1.22  2002/09/27 14:13:28  kooiman
-// Improved stereo detection & manual audio standard dialog box.
-//
-// Revision 1.21  2002/09/16 14:37:36  kooiman
-// Added stereo autodetection.
-//
-// Revision 1.20  2002/09/15 15:57:27  kooiman
-// Added Audio standard support.
-//
-// Revision 1.19  2002/09/12 21:59:52  ittarnavsky
-// Changes due to the new AudioDecoder handling
-// Changes due to the IAudioControls to CAudioControls transition
-//
-// Revision 1.18  2002/09/07 20:54:49  kooiman
-// Added equalizer, loudness, spatial effects for MSP34xx
-//
-// Revision 1.17  2002/08/27 22:02:32  kooiman
-// Added Get/Set input for video and audio for all sources. Added source input change notification.
-//
-// Revision 1.16  2002/07/02 20:00:07  adcockj
-// New setting for MSP input pin selection
-//
-// Revision 1.15  2002/04/07 10:37:53  adcockj
-// Made audio source work per input
-//
-// Revision 1.14  2002/02/12 02:27:45  ittarnavsky
-// fixed the hardware info dialog
-//
-// Revision 1.13  2002/02/01 04:43:55  ittarnavsky
-// some more audio related fixes
-// removed the handletimermessages and getaudioname methods
-// which break the separation of concerns oo principle
-//
-// Revision 1.12  2002/01/23 22:57:29  robmuller
-// Revision D/G improvements. The code is following the documentation much closer now.
-//
-// Revision 1.11  2002/01/21 08:40:27  robmuller
-// Removed unnecessary delay in SetAudioSource().
-//
-// Revision 1.10  2001/12/19 19:24:44  ittarnavsky
-// prepended SOUNDCHANNEL_ to all members of the eSoundChannel enum
-//
-// Revision 1.9  2001/12/18 23:36:01  adcockj
-// Split up the MSP chip support into two parts to avoid probelms when deleting objects
-//
-// Revision 1.8  2001/12/18 13:12:11  adcockj
-// Interim check-in for redesign of card specific settings
-//
-// Revision 1.7  2001/12/05 21:45:10  ittarnavsky
-// added changes for the AudioDecoder and AudioControls support
-//
-// Revision 1.6  2001/11/29 17:30:51  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.5  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.4  2001/11/25 01:58:34  ittarnavsky
-// initial checkin of the new I2C code
-//
-// Revision 1.3  2001/11/23 10:49:16  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.2  2001/11/02 16:30:07  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.1.2.1  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file BT848Card.cpp CBT848Card Implementation (Audio)
@@ -185,23 +71,23 @@ void CBT848Card::InitAudio(bool UsePin1)
         (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
          || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9873))
     {
-		CTDA9873AudioDecoder* TDADecoder = new CTDA9873AudioDecoder();
+        CTDA9873AudioDecoder* TDADecoder = new CTDA9873AudioDecoder();
         TDADecoder->SetI2CBus(m_I2CBus);
-		if(TDADecoder->Initialize())
-		{
-			m_AudioDecoder = TDADecoder;
+        if(TDADecoder->Initialize())
+        {
+            m_AudioDecoder = TDADecoder;
 
-			m_AudioControls = new CAudioControls();
+            m_AudioControls = new CAudioControls();
 
-			strcpy(m_AudioDecoderType, "TDA9873");
-		}
+            strcpy(m_AudioDecoderType, "TDA9873");
+        }
         else
         {
-			delete TDADecoder;
-		}
-	}
+            delete TDADecoder;
+        }
+    }
 
-	if (m_AudioDecoder == NULL &&
+    if (m_AudioDecoder == NULL &&
         (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
          || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0))
     {
@@ -217,16 +103,16 @@ void CBT848Card::InitAudio(bool UsePin1)
 
         if (0 != rev1 || 0 != rev2)
         {
-	        m_AudioControls = MSPControls;
+            m_AudioControls = MSPControls;
     
-			// need to create two so that we can delete all objects properly
-			CMSP34x0AudioDecoder* MSPDecoder = new CMSP34x0AudioDecoder();
-			MSPDecoder->SetUseInputPin1(UsePin1);
-			MSPDecoder->SetI2CBus(m_I2CBus);
+            // need to create two so that we can delete all objects properly
+            CMSP34x0AudioDecoder* MSPDecoder = new CMSP34x0AudioDecoder();
+            MSPDecoder->SetUseInputPin1(UsePin1);
+            MSPDecoder->SetI2CBus(m_I2CBus);
 
-			m_AudioDecoder =  MSPDecoder;
+            m_AudioDecoder =  MSPDecoder;
 
-			sprintf(m_AudioDecoderType, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
+            sprintf(m_AudioDecoderType, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
         }
         else
         {
@@ -238,7 +124,7 @@ void CBT848Card::InitAudio(bool UsePin1)
         (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
          || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9875))
     {
-		// TDA9875 autodetect
+        // TDA9875 autodetect
         CTDA9875AudioControls* TDA9875Controls = new CTDA9875AudioControls();
 
         TDA9875Controls->SetI2CBus(m_I2CBus);
@@ -246,57 +132,57 @@ void CBT848Card::InitAudio(bool UsePin1)
         ::Sleep(4);
 
         // setup version information
-		int dic;
-		int rev;
-		if (TDA9875Controls->IsDevicePresent(dic, rev))
-		{
-	        m_AudioControls = TDA9875Controls;
+        int dic;
+        int rev;
+        if (TDA9875Controls->IsDevicePresent(dic, rev))
+        {
+            m_AudioControls = TDA9875Controls;
     
-			CTDA9875AudioDecoder* TDA9875Decoder = new CTDA9875AudioDecoder(TDA9875Controls);
-			TDA9875Decoder->SetUseInputPin1(UsePin1);
-			TDA9875Decoder->SetI2CBus(m_I2CBus);
+            CTDA9875AudioDecoder* TDA9875Decoder = new CTDA9875AudioDecoder(TDA9875Controls);
+            TDA9875Decoder->SetUseInputPin1(UsePin1);
+            TDA9875Decoder->SetI2CBus(m_I2CBus);
 
-			m_AudioDecoder = TDA9875Decoder; //TDA9875Decoder;
+            m_AudioDecoder = TDA9875Decoder; //TDA9875Decoder;
 
-			sprintf(m_AudioDecoderType, "TDA9875%c Rev. %d", (dic==0) ? "":"A", rev); 
+            sprintf(m_AudioDecoderType, "TDA9875%c Rev. %d", (dic==0) ? "":"A", rev); 
         }
         else
         {
-		    delete TDA9875Controls;
+            delete TDA9875Controls;
         }
     }
 
-	if (m_AudioDecoder == NULL &&
+    if (m_AudioDecoder == NULL &&
         (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
-		|| GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9874))
-    {		
-		CTDA9874* TDADecoder = new CTDA9874();
-		TDADecoder->SetI2CBus(m_I2CBus);
-		
-		int dic, sic;
-		bool isPresent = TDADecoder->IsDevicePresent(dic, sic);
+        || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9874))
+    {        
+        CTDA9874* TDADecoder = new CTDA9874();
+        TDADecoder->SetI2CBus(m_I2CBus);
+        
+        int dic, sic;
+        bool isPresent = TDADecoder->IsDevicePresent(dic, sic);
 
-		if(isPresent)
-		{
-			CTDA9874AudioDecoder* TDA9874Decoder = new CTDA9874AudioDecoder();
-			TDA9874Decoder->SetI2CBus(m_I2CBus);
-			TDA9874Decoder->Initialize();
-			m_AudioDecoder = TDA9874Decoder; //TDA9874Decoder;					
-			m_AudioControls = new CAudioControls();			
+        if(isPresent)
+        {
+            CTDA9874AudioDecoder* TDA9874Decoder = new CTDA9874AudioDecoder();
+            TDA9874Decoder->SetI2CBus(m_I2CBus);
+            TDA9874Decoder->Initialize();
+            m_AudioDecoder = TDA9874Decoder; //TDA9874Decoder;                    
+            m_AudioControls = new CAudioControls();            
 
-			// need to switch unmute from PIC one time only
-			// used only for PV951 (Hercules SmartTV)
-			CPIC16C54 pic = CPIC16C54();
-			pic.SetI2CBus(m_I2CBus);
-			bool picAlive = pic.IsDevicePresent();
+            // need to switch unmute from PIC one time only
+            // used only for PV951 (Hercules SmartTV)
+            CPIC16C54 pic = CPIC16C54();
+            pic.SetI2CBus(m_I2CBus);
+            bool picAlive = pic.IsDevicePresent();
 
-			sprintf(m_AudioDecoderType, "TDA9874%c Rev. %d%s", (dic==0x11) ? "A":"H", sic, picAlive ? "" : " + Pic16c54"); 
-		}
+            sprintf(m_AudioDecoderType, "TDA9874%c Rev. %d%s", (dic==0x11) ? "A":"H", sic, picAlive ? "" : " + Pic16c54"); 
+        }
         else
         {
-			delete TDADecoder;
-		}
-	}
+            delete TDADecoder;
+        }
+    }
 
     if (m_AudioDecoder == NULL)
     {
@@ -650,7 +536,7 @@ void CBT848Card::SetUseInputPin1(bool AValue)
     {
         MSP34x0AudioDecoder->SetUseInputPin1(AValue);
     }
-	else if (TDA9875AudioDecoder)
+    else if (TDA9875AudioDecoder)
     {
         TDA9875AudioDecoder->SetUseInputPin1(AValue);
     }

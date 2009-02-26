@@ -15,16 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DShowGenericAudioControls.h interface for the CDShowGenericAudioControls class.
@@ -46,34 +36,34 @@
 class CDShowGenericAudioControls : public CDShowAudioControls  
 {
 public:
-	CDShowGenericAudioControls(CComPtr<IBasicAudio> pAudio);
-	virtual ~CDShowGenericAudioControls();
-	
-	int GetAudioCaps();
-	
-	/**
-	 * @return returns volume, zero is maximum volume and negative values is lower volume
-	 * @throws CDShowException this exception will be thrown if something goes wrong
-	 */
-	long GetVolume();
-	/**
-	 * @throws CDShowException this exception will be thrown if something goes wrong
-	 */
-	void SetVolume(long volume);
-	void GetVolumeMinMax(long &min,long &max);
-	/**
-	 * @throws CDShowException this exception will be thrown if something goes wrong
-	 */
-	long GetBalance();
-	/**
-	 * @throws CDShowException this exception will be thrown if something goes wrong
-	 */
-	void SetBalance(long balance);
-	void GetBalanceMinMax(long &min,long &max);
+    CDShowGenericAudioControls(CComPtr<IBasicAudio> pAudio);
+    virtual ~CDShowGenericAudioControls();
+    
+    int GetAudioCaps();
+    
+    /**
+     * @return returns volume, zero is maximum volume and negative values is lower volume
+     * @throws CDShowException this exception will be thrown if something goes wrong
+     */
+    long GetVolume();
+    /**
+     * @throws CDShowException this exception will be thrown if something goes wrong
+     */
+    void SetVolume(long volume);
+    void GetVolumeMinMax(long &min,long &max);
+    /**
+     * @throws CDShowException this exception will be thrown if something goes wrong
+     */
+    long GetBalance();
+    /**
+     * @throws CDShowException this exception will be thrown if something goes wrong
+     */
+    void SetBalance(long balance);
+    void GetBalanceMinMax(long &min,long &max);
 
 private:
-	///Audio interface
-	CComPtr<IBasicAudio> m_pAudio;
+    ///Audio interface
+    CComPtr<IBasicAudio> m_pAudio;
 };
 
 #endif // !defined(AFX_DSHOWGENERICAUDIOCONTROLS_H__BCC9A4B1_E307_41FE_BC89_EA708BADDA26__INCLUDED_)

@@ -15,35 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2002/10/22 16:01:41  adcockj
-// Changed definition of IOCTLs
-//
-// Revision 1.7  2001/12/03 19:33:59  adcockj
-// Bug fixes for settings and memory
-//
-// Revision 1.6  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.5  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.3.2.2  2001/08/14 21:25:57  adcockj
-// Bug fixes to get new version working
-//
-// Revision 1.3.2.1  2001/08/14 09:40:19  adcockj
-// Interim version of code for multiple card support
-//
-// Revision 1.3  2001/08/13 12:05:12  adcockj
-// Updated range for contrast and saturation
-// Added more code for new driver interface
-//
-// Revision 1.2  2001/08/09 16:46:48  adcockj
-// Fixed comilation error in new files
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file HardwareMemory.cpp CHardwareMemory Implementation
@@ -157,8 +128,8 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
         m_AllocatedBlock = NULL;
         throw std::runtime_error("Out of memory");
     }
-	
-	memset(m_pMemStruct, 0, dwOutParamLength);
+    
+    memset(m_pMemStruct, 0, dwOutParamLength);
 
     paramIn.dwValue = Bytes;
     paramIn.dwFlags = 0;

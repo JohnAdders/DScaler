@@ -15,43 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.7  2004/04/06 12:20:49  adcockj
-// Added .NET 2003 project files and some fixes to support this
-//
-// Revision 1.6  2003/10/27 10:39:57  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.5  2002/10/27 12:16:46  tobbej
-// renamed some functions
-// fixed indentation and tabs->spaces
-// changed TRCCountryList
-//
-// Revision 1.4  2002/10/08 20:48:52  kooiman
-// Changed to Hz instead of multiple of 62500 Hz.
-//
-// Revision 1.3  2002/08/16 09:38:06  kooiman
-// Improved DSTVTuner class.
-//
-// Revision 1.2  2002/08/15 14:19:02  kooiman
-// Added tuning to exact frequency through custom table in registry
-//
-// Revision 1.1  2002/08/14 22:00:19  kooiman
-// TV tuner class for DirectShow capture devices.
-//
-// Revision 1.0  2002/08/04 23:00:00  kooiman
-// TV tuner class
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DSTVTuner.cpp implementation file

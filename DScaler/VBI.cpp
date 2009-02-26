@@ -20,121 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Original Release
-//                                     Translated most code from German
-//                                     Combined Header files
-//                                     Cut out all decoding
-//                                     Cut out digital hardware stuff
-//
-// 02 Jan 2001   John Adcock           Started VBI Clean Up
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 11 Mar 2001   Laurent Garnier       Added WSS decoding
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.32  2005/08/03 18:06:03  to_see
-// Fix: VPS data is transmitted only on even field
-//
-// Revision 1.31  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.30  2003/06/28 10:54:01  laurentg
-// Erase first CC display when changing CC selection
-//
-// Revision 1.29  2003/02/17 11:39:00  adcockj
-// Added group flags for setting per channel on more settings
-//
-// Revision 1.28  2003/01/28 06:37:02  atnak
-// Enable Goto Teletext Page menu when videotext is on even when teletext
-// is not shown
-//
-// Revision 1.27  2003/01/26 14:30:11  adcockj
-// Fix problem with VBI_Init settings caching causing problems with format changes
-//
-// Revision 1.26  2003/01/17 14:39:38  adcockj
-// Grey new teletext menus when VBI is off
-//
-// Revision 1.25  2003/01/11 15:22:28  adcockj
-// Interim Checkin of setting code rewrite
-//  - Remove CSettingsGroupList class
-//  - Fixed bugs in format switching
-//  - Some new CSettingGroup code
-//
-// Revision 1.24  2003/01/10 17:38:40  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.23  2003/01/07 16:49:09  adcockj
-// Changes to allow variable sampling rates for VBI
-//
-// Revision 1.22  2003/01/05 18:35:45  laurentg
-// Init function for VBI added
-//
-// Revision 1.21  2003/01/05 12:42:52  laurentg
-// WSS decoding updated to take into account a VBI frequency of 27.0 MHz
-//
-// Revision 1.20  2003/01/03 00:54:19  laurentg
-// New mode for AR autodetection using only WSS
-//
-// Revision 1.19  2003/01/01 20:53:11  atnak
-// Updates for various VideoText and VPS changes/reorganization
-//
-// Revision 1.18  2002/10/30 13:37:52  atnak
-// Added "Single key teletext toggle" option. (Enables mixed mode menu item)
-//
-// Revision 1.17  2002/08/15 14:16:18  kooiman
-// Cleaner settings per channel implementation
-//
-// Revision 1.16  2002/08/08 12:57:03  kooiman
-// Added VBI settings to settings per channel.
-//
-// Revision 1.15  2002/08/05 22:33:38  laurentg
-// WSS decoding and VBI decoding locked when AR autodetection mode is ON and this mode used is set to use WSS
-//
-// Revision 1.14  2002/06/20 20:00:37  robmuller
-// Implemented videotext search highlighting.
-//
-// Revision 1.13  2002/05/24 18:04:32  robmuller
-// Gray VideoText search items when necessary.
-//
-// Revision 1.12  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.11  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.10  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.9.2.2  2001/08/21 09:43:01  adcockj
-// Brought branch up to date with latest code fixes
-//
-// Revision 1.9.2.1  2001/08/18 17:09:30  adcockj
-// Got to compile, still lots to do...
-//
-// Revision 1.9  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.8  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.7  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file VBI.cpp VBI functions
@@ -184,10 +69,10 @@ void VBI_Exit()
 
 void VBI_Init_data(double Frequency)
 {
-	VT_Init_Data(Frequency);
-	CC_Init_Data(Frequency);
-	VPS_Init_Data(Frequency);
-	WSS_Init_Data(Frequency);
+    VT_Init_Data(Frequency);
+    CC_Init_Data(Frequency);
+    VPS_Init_Data(Frequency);
+    WSS_Init_Data(Frequency);
 }
 
 void VBI_ChannelChange()
@@ -198,7 +83,7 @@ void VBI_ChannelChange()
 
 void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
 {
-	static eCCMode PrevCCMode = CCMODE_OFF;
+    static eCCMode PrevCCMode = CCMODE_OFF;
 
     TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
 
@@ -211,11 +96,11 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
         VBI_DecodeLine_VT(VBI_Buffer);
     }
 
-	// If the user has just changed CC selection, then we erase the CC display
- 	if (PrevCCMode != CCMode)
-	{
+    // If the user has just changed CC selection, then we erase the CC display
+     if (PrevCCMode != CCMode)
+    {
         VBI_DecodeLine_CC(VBI_Buffer, CCMODE_OFF, IsOdd);
-	}
+    }
 
    // Closed caption information appears on line 21 (line == 11) for NTSC
     // it also appears on PAL videos at line 22
@@ -235,11 +120,11 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
     // WSS information with source aspect ratio. 
     if (DoWSS && !IsOdd && (line == TVFormat->WSS_Line))
     {
-//		LOG(1, "WSS VBI_thresh %d VBIOffset %d", VBI_thresh, VBIOffset);
+//        LOG(1, "WSS VBI_thresh %d VBIOffset %d", VBI_thresh, VBIOffset);
         VBI_DecodeLine_WSS(VBI_Buffer);
     }
 
-	PrevCCMode = CCMode;
+    PrevCCMode = CCMode;
 }
 
 void VBI_AGC(BYTE* Buffer, int start, int stop, int step)

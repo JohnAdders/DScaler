@@ -23,20 +23,13 @@
 // VirtualDub 2.x (Nina) - Video processing and capture application
 // Copyright (C) 1998-2001 Avery Lee, All Rights Reserved.
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2002/09/17 17:31:47  tobbej
-// updated crashloging to same version as in latest virtualdub
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file list.cpp List implementation
- *	For those of you who say this looks familiar... it should.  This is
- *	the same linked-list style that the Amiga Exec uses, with dummy head
- *	and tail nodes.  It's really a very convienent way to implement
- * 	doubly-linked lists.
+ *    For those of you who say this looks familiar... it should.  This is
+ *    the same linked-list style that the Amiga Exec uses, with dummy head
+ *    and tail nodes.  It's really a very convienent way to implement
+ *     doubly-linked lists.
  */
 
 #include "stdafx.h"
@@ -44,51 +37,51 @@
 
 List::List()
 {
-	Init();
+    Init();
 }
 
 void List::Init()
 {
-	head.next = tail.prev = 0;
-	head.prev = &tail;
-	tail.next = &head;
+    head.next = tail.prev = 0;
+    head.prev = &tail;
+    tail.next = &head;
 }
 
 ListNode *List::RemoveHead()
 {
-	if (head.prev->prev)
-	{
-		ListNode *t = head.prev;
+    if (head.prev->prev)
+    {
+        ListNode *t = head.prev;
 
-		head.prev->Remove();
-		return t;
-	}
+        head.prev->Remove();
+        return t;
+    }
 
-	return 0;
+    return 0;
 }
 
 ListNode *List::RemoveTail()
 {
-	if (tail.next->next)
-	{
-		ListNode *t = tail.next;
+    if (tail.next->next)
+    {
+        ListNode *t = tail.next;
 
-		tail.next->Remove();
-		return t;
-	}
+        tail.next->Remove();
+        return t;
+    }
 
-	return 0;
+    return 0;
 }
 
 void List::Take(List &from)
 {
-	if (from.IsEmpty())
-		return;
+    if (from.IsEmpty())
+        return;
 
-	head.prev = from.head.prev;
-	tail.next = from.tail.next;
-	head.prev->next = &head;
-	tail.next->prev = &tail;
+    head.prev = from.head.prev;
+    tail.next = from.tail.next;
+    head.prev->next = &head;
+    tail.next->prev = &tail;
 
-	from.Init();
+    from.Init();
 }

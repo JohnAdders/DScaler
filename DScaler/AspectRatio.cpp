@@ -27,162 +27,6 @@
 // Portions copyright (C) 2000 John Adcock
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Sep 2000   Michael Samblanet     Aspect ratio code contributed
-//                                     to dTV project
-//
-// 12 Sep 2000   Mark Rejhon           Centralized aspect ratio code
-//                                     into separate module
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 11 Jan 2001   John Adcock           Added Code for window position
-//                                     Changed SourceFrameAspect to use
-//                                     CurrentX/Y rather than SourceRect
-//                                     So that m_Overscan does not effect Ratio
-//                                     Fixed bug in FindBottomOfImage when
-//                                     Overscan is 0
-//
-// 21 Feb 2001   Michael Samblanet     Added 1.44 and 1.55 ratio support
-//                                     Added code to handle clipped menu item
-//                                     Added prototype image bouncing code
-//                                       (currently has issues with purple flashing)
-//
-// 22 Feb 2001   Michael Samblanet     Added defered setting of overlay region to
-//                                     avoid purple flashing
-//                                     Made bounce timer a ini setting and changed to 1sec default
-//
-// 23 Feb 2001   Michael Samblanet     Added experemental orbiting code
-// 24 Feb 2001   Michael Samblanet     Minor bug fixes to invalidate code
-// 10 Mar 2001   Michael Samblanet     Added first draft auto-resize window code
-// 11 Mar 2001   Michael Samblanet     Converted to C++ file, initial pass at reworking the aspect calculation code
-// 23 Mar 2001   Michael Samblanet     Reworked code to use filter chain, major testing and debugging
-// 03 May 2001   Michael Samblanet     Moved half-height logic to correct location in aspect code
-//                                     Expieremental inversion code (invert source rect if options are enabled)
-// 07 May 2001   John Adcock           Reformmated code
-// 08 Jun 2001   Eric Schmidt          Added bounce amplitude to ini
-// 03 Jul 2001   John Adcock           Cleaned up Filter chain code
-//                                     Changed setings and behaviour for pan and scan
-//                                     to allow a variety of settings
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.49  2006/12/20 07:45:06  adcockj
-// added DirectX code from Daniel Sabel
-//
-// Revision 1.48  2005/03/23 14:20:36  adcockj
-// Test fix for threading issues
-//
-// Revision 1.47  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.46  2003/08/09 15:53:39  laurentg
-// Bad refresh of the toolbar when in full screen mode corrected
-//
-// Revision 1.45  2003/04/30 17:30:51  laurentg
-// Init of custom aspect ratio fixed
-//
-// Revision 1.44  2003/03/29 13:37:51  laurentg
-// Allow the display of DScaler to monitors other than the primary
-//
-// Revision 1.43  2003/03/22 15:41:58  laurentg
-// Half height deinterlace modes correctly handled in previow mode
-// Center of the image in its frame with black borders
-//
-// Revision 1.42  2003/03/16 18:31:24  laurentg
-// New multiple frames feature
-//
-// Revision 1.41  2003/01/07 23:27:01  laurentg
-// New overscan settings
-//
-// Revision 1.40  2003/01/04 13:36:42  laurentg
-// Two modes for AR autodetection
-//
-// Revision 1.39  2003/01/03 00:54:19  laurentg
-// New mode for AR autodetection using only WSS
-//
-// Revision 1.38  2002/10/31 14:03:33  adcockj
-// Added Analogue blanking option to aspect code
-//
-// Revision 1.37  2002/09/18 11:38:05  kooiman
-// Preparations for skinned dscaler look.
-//
-// Revision 1.36  2002/08/12 21:29:58  laurentg
-// Disable AR autodetection when switching to square pixel mode but restore it when exiting square pixel mode
-//
-// Revision 1.35  2002/08/05 21:01:55  laurentg
-// Square pixels mode updated
-//
-// Revision 1.34  2002/06/24 21:49:28  laurentg
-// New option to use or not WSS data when doing AR detection
-//
-// Revision 1.33  2002/05/30 13:06:41  robmuller
-// Removed variable bIgnoreMouse.
-//
-// Revision 1.32  2002/04/28 16:43:37  laurentg
-// New setting for aspect ratio detect
-//
-// Revision 1.31  2002/04/24 19:09:14  tobbej
-// added missing \n
-//
-// Revision 1.30  2002/04/13 18:56:22  laurentg
-// Checks added to manage case where the current source is not yet defined
-//
-// Revision 1.29  2002/02/25 23:03:51  tobbej
-// added a check for pSource==NULL in WorkoutOverlaySize
-// added logging
-//
-// Revision 1.28  2002/02/23 19:07:06  laurentg
-// New AR mode for stills having square pixels
-//
-// Revision 1.27  2002/02/23 12:00:13  laurentg
-// Do nothing in WorkoutOverlaySize when source width or height is null
-//
-// Revision 1.26  2002/02/19 16:03:36  tobbej
-// removed CurrentX and CurrentY
-// added new member in CSource, NotifySizeChange
-//
-// Revision 1.25  2001/11/29 17:30:51  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.24  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.23  2001/11/23 10:49:16  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.22  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.21  2001/11/02 16:30:06  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.20  2001/10/18 16:20:40  adcockj
-// Made Color of blanking adjustable
-//
-// Revision 1.19.2.1  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.19  2001/08/09 12:21:40  adcockj
-// Structure name changes
-//
-// Revision 1.18  2001/08/06 22:32:13  laurentg
-// Little improvments for AR autodetection
-//
-// Revision 1.17  2001/07/13 16:14:55  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.16  2001/07/12 16:16:39  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file AspectRatio.cpp Aspect Ratio Functions
@@ -221,7 +65,7 @@ TAspectSettings AspectSettings =
     FALSE,
     FALSE,
     1333,
-	1,
+    1,
     FALSE,
 };
 
@@ -273,28 +117,28 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
         static BOOL InFunction = FALSE;
         if(InFunction == TRUE) return;
 
-	    GetActiveOutput()->CheckChangeMonitor(GetMainWnd());
-	    RECT ScreenRect;
-	    GetActiveOutput()->GetMonitorRect(GetMainWnd(), &ScreenRect);
+        GetActiveOutput()->CheckChangeMonitor(GetMainWnd());
+        RECT ScreenRect;
+        GetActiveOutput()->GetMonitorRect(GetMainWnd(), &ScreenRect);
 
         CAspectRectangles ar;
         CSource* pSource = Providers_GetCurrentSource();
 
-	    if (pMultiFrames && pMultiFrames->IsActive())
-	    {
-		    SourceHeight = pMultiFrames->GetHeight();
-		    SourceWidth = pMultiFrames->GetWidth();
-	    }
-	    else if (pSource)
-	    {
-		    SourceHeight = pSource->GetHeight();
-		    SourceWidth = pSource->GetWidth();
-	    }
-	    else
-	    {
-		    SourceHeight = 720;
-		    SourceWidth = 480;
-	    }
+        if (pMultiFrames && pMultiFrames->IsActive())
+        {
+            SourceHeight = pMultiFrames->GetHeight();
+            SourceWidth = pMultiFrames->GetWidth();
+        }
+        else if (pSource)
+        {
+            SourceHeight = pSource->GetHeight();
+            SourceWidth = pSource->GetWidth();
+        }
+        else
+        {
+            SourceHeight = 720;
+            SourceWidth = 480;
+        }
         // If source width or source height is null, we do nothing
         if (SourceWidth == 0 || SourceHeight == 0)
         {
@@ -356,7 +200,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
         // If we're in half-height Mode, squish the source rectangle accordingly.  This
         // allows the overlay hardware to do our bobbing for us.
-	    if ( (!pMultiFrames || !pMultiFrames->IsActive())
+        if ( (!pMultiFrames || !pMultiFrames->IsActive())
         && (InHalfHeightMode() == TRUE) )
         {
             ar.m_CurrentOverlaySrcRect.top /= 2;
@@ -370,30 +214,30 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
         ScreenToClient(GetMainWnd(), ((PPOINT)&AspectSettings.DestinationRect.left));
         ScreenToClient(GetMainWnd(), ((PPOINT)&AspectSettings.DestinationRect.right));
 
-	    // cut the on-screen overlay surface out of the monitor screen area
-	    if (AspectSettings.DestinationRectWindow.right > ScreenRect.right)
-	    {
-		    AspectSettings.DestinationRectWindow.right = ScreenRect.right;
-	    }
+        // cut the on-screen overlay surface out of the monitor screen area
+        if (AspectSettings.DestinationRectWindow.right > ScreenRect.right)
+        {
+            AspectSettings.DestinationRectWindow.right = ScreenRect.right;
+        }
 
-	    if (AspectSettings.DestinationRectWindow.left < ScreenRect.left)
-	    {
-		    AspectSettings.DestinationRectWindow.left = ScreenRect.left;
-	    }
+        if (AspectSettings.DestinationRectWindow.left < ScreenRect.left)
+        {
+            AspectSettings.DestinationRectWindow.left = ScreenRect.left;
+        }
 
-	    if (AspectSettings.DestinationRectWindow.top < ScreenRect.top)
-	    {
-		    AspectSettings.DestinationRectWindow.top = ScreenRect.top;
-	    }
+        if (AspectSettings.DestinationRectWindow.top < ScreenRect.top)
+        {
+            AspectSettings.DestinationRectWindow.top = ScreenRect.top;
+        }
 
-	    if (AspectSettings.DestinationRectWindow.bottom > ScreenRect.bottom)
-	    {
-		    AspectSettings.DestinationRectWindow.bottom = ScreenRect.bottom;
-	    }
-	    AspectSettings.DestinationRectWindow.left   -= ScreenRect.left;
-	    AspectSettings.DestinationRectWindow.right  -= ScreenRect.left;
-	    AspectSettings.DestinationRectWindow.top    -= ScreenRect.top;
-	    AspectSettings.DestinationRectWindow.bottom -= ScreenRect.top;
+        if (AspectSettings.DestinationRectWindow.bottom > ScreenRect.bottom)
+        {
+            AspectSettings.DestinationRectWindow.bottom = ScreenRect.bottom;
+        }
+        AspectSettings.DestinationRectWindow.left   -= ScreenRect.left;
+        AspectSettings.DestinationRectWindow.right  -= ScreenRect.left;
+        AspectSettings.DestinationRectWindow.top    -= ScreenRect.top;
+        AspectSettings.DestinationRectWindow.bottom -= ScreenRect.top;
 
         // Invert the rectangle if necessary...
         //
@@ -517,8 +361,8 @@ int UpdateSquarePixelsMode(BOOL set)
             result = 1;
         }
         AspectSettings.AutoDetectAspect = 0;
-		if (pMultiFrames && pMultiFrames->IsActive())
-		{
+        if (pMultiFrames && pMultiFrames->IsActive())
+        {
             int width = pMultiFrames->GetWidth();
             int height = pMultiFrames->GetHeight();
             if (height != 0)
@@ -527,7 +371,7 @@ int UpdateSquarePixelsMode(BOOL set)
                 AspectSettings.AspectMode = AR_NONANAMORPHIC;
                 result = 1;
             }
-		}
+        }
         else if (Providers_GetCurrentSource() != NULL)
         {
             int width = Providers_GetCurrentSource()->GetWidth();

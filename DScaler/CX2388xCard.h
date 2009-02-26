@@ -77,7 +77,7 @@ public:
         MAJSEL_1_OVER_4,
         MAJSEL_AUTOMATIC
     };
-	
+    
 private:
 
     typedef struct
@@ -93,10 +93,10 @@ private:
         INPUTTYPE_SVIDEO,     // standard s-video input
         INPUTTYPE_CCIR,       // Digital CCIR656 input on the GPIO pins
         INPUTTYPE_COLOURBARS, // Shows Colour Bars for testing
-		INPUTTYPE_FINAL,      // Stores the state the cards should be put into at the end
+        INPUTTYPE_FINAL,      // Stores the state the cards should be put into at the end
     };
 
-	typedef struct
+    typedef struct
     {
         DWORD GPIO_0;
         DWORD GPIO_1;
@@ -112,7 +112,7 @@ private:
         TGPIOSet   GPIOSet;    // Which GPIO's on the card is to be used
     } TInputType;
 
-	enum eCardMode
+    enum eCardMode
     {
         MODE_STANDARD = 0,
         MODE_H3D,
@@ -121,22 +121,22 @@ private:
     typedef struct            // Defines the specific settings for a given card
     {
         char        szName[128];
-		eCardMode   CardMode;
+        eCardMode   CardMode;
         int         NumInputs;
         TInputType  Inputs[CX_INPUTS_PER_CARD];
         eTunerId    TunerId;
-		DWORD       AutoDetectId[CX_AUTODETECT_ID_PER_CARD];
-		BOOL        bUseTDA9887;
+        DWORD       AutoDetectId[CX_AUTODETECT_ID_PER_CARD];
+        BOOL        bUseTDA9887;
     } TCardType;
 
-	
-	class CCardTypeEx :	public TCardType                          // Same as TCardType but required to store dynamic values.
-	{
-	public:
-		std::vector<TTDA9887FormatModes> tda9887Modes;            // Card specific TDA9887 modes for various video formats.
-		CCardTypeEx() {	};
-		CCardTypeEx(const TCardType& card) : TCardType(card) { }; // TCardType to CCardTypeEx implicit conversion constructor.
-	};
+    
+    class CCardTypeEx :    public TCardType                          // Same as TCardType but required to store dynamic values.
+    {
+    public:
+        std::vector<TTDA9887FormatModes> tda9887Modes;            // Card specific TDA9887 modes for various video formats.
+        CCardTypeEx() {    };
+        CCardTypeEx(const TCardType& card) : TCardType(card) { }; // TCardType to CCardTypeEx implicit conversion constructor.
+    };
     
     typedef struct
     {
@@ -150,16 +150,16 @@ private:
 
 public:
     CCX2388xCard(CHardwareDriver* pDriver);
-	~CCX2388xCard();
+    ~CCX2388xCard();
 
     void SetCardType(int CardType);
     eCX2388xCardId GetCardType();
     eCX2388xCardId AutoDetectCardType();
-	int	GetMaxCards();
+    int    GetMaxCards();
     LPCSTR GetCardName(eCX2388xCardId CardId);
-	int	GetCardByName(LPCSTR cardName);
+    int    GetCardByName(LPCSTR cardName);
 
-	void HandleTimerMessages(int TimerId);
+    void HandleTimerMessages(int TimerId);
 
     void StartCapture(BOOL bCaptureVBI);
     void StopCapture();
@@ -191,12 +191,12 @@ public:
 
     void SetRISCStartAddress(DWORD RiscBasePhysical);
     void SetRISCStartAddressVBI(DWORD RiscBasePhysical);
-	void SetFLIFilmDetect(BOOL FLIFilmDetect);
+    void SetFLIFilmDetect(BOOL FLIFilmDetect);
     void SetLumaAGC(BOOL LumaAGC);
     void SetChromaAGC(BOOL ChromaAGC);
     void SetFastSubcarrierLock(BOOL LockFast);
     void SetWhiteCrushEnable(BOOL WhiteCrush);
-	void SetVerticalSyncDetection(BOOL SyncDetection);
+    void SetVerticalSyncDetection(BOOL SyncDetection);
     void SetWhiteCrushUp(BYTE WhiteCrushUp);
     void SetWhiteCrushDown(BYTE WhiteCrushDown);
     void SetWhiteCrushMajorityPoint(eWhiteCrushMajSel WhiteCrushMajSel);
@@ -204,13 +204,13 @@ public:
     void SetLowColorRemoval(BOOL LowColorRemoval);
     void SetCombFilter(eCombFilter CombFilter);
     void SetFullLumaRange(BOOL FullLumaRange);
-	void SetRemodulation(eFlagWithDefault Remodulation);
-	void SetChroma2HComb(eFlagWithDefault Chroma2HComb);
-	void SetForceRemodExcessChroma(eFlagWithDefault ForceRemodExcessChroma);
-	void SetIFXInterpolation(eFlagWithDefault IFXInterpolation);
-	void SetCombRange(int CombRange);
-	void SetSecondChromaDemod(eFlagWithDefault SecondChromaDemod);
-	void SetThirdChromaDemod(eFlagWithDefault ThirdChromaDemod);
+    void SetRemodulation(eFlagWithDefault Remodulation);
+    void SetChroma2HComb(eFlagWithDefault Chroma2HComb);
+    void SetForceRemodExcessChroma(eFlagWithDefault ForceRemodExcessChroma);
+    void SetIFXInterpolation(eFlagWithDefault IFXInterpolation);
+    void SetCombRange(int CombRange);
+    void SetSecondChromaDemod(eFlagWithDefault SecondChromaDemod);
+    void SetThirdChromaDemod(eFlagWithDefault ThirdChromaDemod);
     void SetHDelay(int nInput, eVideoFormat TVFormat, long CurrentX, int HDelayAdj);
     void SetVDelay(int nInput, eVideoFormat TVFormat, long CurrentX, int VDelayAdj);
 
@@ -232,8 +232,8 @@ public:
     void SetAudioUnMute(WORD nVolume);
     void SetAudioVolume(WORD nVolume);
     void SetAudioBalance(WORD nBalance);
-	eCX2388xAudioStandard GetCurrentAudioStandard();
-	eCX2388xStereoType GetCurrentStereoType();
+    eCX2388xAudioStandard GetCurrentAudioStandard();
+    eCX2388xStereoType GetCurrentStereoType();
 
     void ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst);
     void DumpChipStatus(const char* CardName);
@@ -258,8 +258,8 @@ private:
     /// Sets up Sample rate converter (Freq in MHz)
     void SetSampleRateConverter(double PLLFreq);
     /** Sets up PLL (Freq in MHz)
-	    Returns actual value set for use in further calcs
-	*/
+        Returns actual value set for use in further calcs
+    */
     double SetPLL(double PLLFreq);
 
     void StandardInputSelect(int nInput);
@@ -274,10 +274,10 @@ private:
     void SetVIPContrast(BYTE Contrast);
     void SetVIPSaturation(BYTE Saturation);
 
-	// H3D
+    // H3D
     void InitH3D();
-	void H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgressive);
-	void H3DInputSelect(int nInput);
+    void H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgressive);
+    void H3DInputSelect(int nInput);
     void SetH3DContrastBrightness(BYTE Contrast, BYTE Brightness);
     void SetH3DHue(BYTE Hue);
     void SetH3DSaturationU(BYTE SaturationU);
@@ -292,7 +292,7 @@ private:
     void AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
     void AudioInitFM(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
     void AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
-	void SetAudioRegisters(const TAudioRegList* pAudioList);
+    void SetAudioRegisters(const TAudioRegList* pAudioList);
 
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
@@ -301,7 +301,7 @@ private:
 
     CI2CBus*        m_I2CBus;
     II2CTuner*      m_Tuner;
-	CSAA7118*       m_SAA7118;
+    CSAA7118*       m_SAA7118;
 
     BOOL            m_RISCIsRunning;
     CAudioDecoder*  m_AudioDecoder;
@@ -312,8 +312,8 @@ private:
     DWORD           m_2HCombDefault;
 
     // Audio
-	eCX2388xAudioStandard m_CurrentAudioStandard;
-	eCX2388xStereoType    m_CurrentStereoType;
+    eCX2388xAudioStandard m_CurrentAudioStandard;
+    eCX2388xStereoType    m_CurrentStereoType;
 
 private:
     // Audio
@@ -337,16 +337,16 @@ private:
 // Parsing
 public:
 
-	// Reads CX2388 cards out of an INI file for all instances	of
-	// CCX2388xCard	to use.	 If	this is	not	called,	CCX2388x will
-	// have	no cards to	work with.	A return value of FALSE	indicates
-	// a parsing error occured and the user	chose to EXIT the program.
-	static BOOL	InitializeCX2388xCardList();
+    // Reads CX2388 cards out of an INI file for all instances    of
+    // CCX2388xCard    to use.     If    this is    not    called,    CCX2388x will
+    // have    no cards to    work with.    A return value of FALSE    indicates
+    // a parsing error occured and the user    chose to EXIT the program.
+    static BOOL    InitializeCX2388xCardList();
 
-	// This	function makes sure	there is at	least the "unknown"	card
-	// in the card list.  It is	called by InitializeCX2388xCardList()
-	// and other functions so does not need	to be called directly.
-	static void	InitializeCX2388xUnknownCard();
+    // This    function makes sure    there is at    least the "unknown"    card
+    // in the card list.  It is    called by InitializeCX2388xCardList()
+    // and other functions so does not need    to be called directly.
+    static void    InitializeCX2388xUnknownCard();
 
     static void ReadCardInputInfoProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
     static void ReadCardInputProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
@@ -355,12 +355,12 @@ public:
     static void ReadCardInfoProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
     static void ReadCardAutoDetectIDProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
     static void ReadCardProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
-	static BOOL	APIENTRY ParseErrorProc(HWND hDlg, UINT	message, UINT wParam, LPARAM lParam);
+    static BOOL    APIENTRY ParseErrorProc(HWND hDlg, UINT    message, UINT wParam, LPARAM lParam);
 
 private:
-	///	Holds the list of all cards
-	static const TCardType			m_CX2388xUnknownCard;
-	static std::vector<CCardTypeEx>	m_CX2388xCards;
+    ///    Holds the list of all cards
+    static const TCardType            m_CX2388xUnknownCard;
+    static std::vector<CCardTypeEx>    m_CX2388xCards;
 
     static const HCParser::CParseConstant k_parseInputTypeConstants[];
     static const HCParser::CParseConstant k_parseCardModeConstants[];

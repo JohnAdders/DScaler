@@ -19,10 +19,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "DoParseCX2388x.h"
@@ -39,18 +35,18 @@ using namespace HCParser;
 
 const char* g_CXInputTypeNamesConstants[] =
 {
-	"INPUTTYPE_TUNER",
-	"INPUTTYPE_COMPOSITE",
-	"INPUTTYPE_SVIDEO",
-	"INPUTTYPE_CCIR",
-	"INPUTTYPE_COLOURBARS",
-	"INPUTTYPE_FINAL",
+    "INPUTTYPE_TUNER",
+    "INPUTTYPE_COMPOSITE",
+    "INPUTTYPE_SVIDEO",
+    "INPUTTYPE_CCIR",
+    "INPUTTYPE_COLOURBARS",
+    "INPUTTYPE_FINAL",
 };
 
 const char* g_CXCardModeConstants[] =
 {
-	"MODE_STANDARD",
-	"MODE_H3D",
+    "MODE_STANDARD",
+    "MODE_H3D",
 };
 
 std::vector<CDoParseCX2388x::CCardTypeEx> CDoParseCX2388x::m_Cards;
@@ -100,13 +96,13 @@ const CParseTag CDoParseCX2388x::k_parseCardAutoDetectID[] =
 
 const CParseTag CDoParseCX2388x::k_parseCard[] =
 {
-    PT( "Name",           PARSE_STRING,                 1, 127,			       NULL,                            ReadCardInfoProc         ), 
+    PT( "Name",           PARSE_STRING,                 1, 127,                   NULL,                            ReadCardInfoProc         ), 
     PT( "CardMode",       PARSE_CONSTANT,               0, 32,                 k_parseCardModeConstants, ReadCardInfoProc         ),
     PT( "DefaultTuner",   PARSE_CONSTANT|PARSE_NUMERIC, 0, 32,                 k_parseTunerConstants,           ReadCardDefaultTunerProc ),
-    PT( "AutoDetectID",   PARSE_CHILDREN,               0, 1,				   k_parseCardAutoDetectID,         NULL                     ),
+    PT( "AutoDetectID",   PARSE_CHILDREN,               0, 1,                   k_parseCardAutoDetectID,         NULL                     ),
     PT( "Input",          PARSE_CHILDREN,               0, CX_INPUTS_PER_CARD, k_parseCardInput,                ReadCardInputProc        ),
     PT( "Final",          PARSE_CHILDREN,               0, CX_INPUTS_PER_CARD, k_parseCardInput+2,              ReadCardInputProc        ),
-    PT( "UseTDA9887",     PARSE_CHILDREN,               0, 1,				   k_parseUseTDA9887,               ReadCardUseTDA9887Proc   ),
+    PT( "UseTDA9887",     PARSE_CHILDREN,               0, 1,                   k_parseUseTDA9887,               ReadCardUseTDA9887Proc   ),
     PT( NULL )
 };
 
@@ -188,37 +184,37 @@ void CDoParseCX2388x::ReadCardInputInfoProc(int report, const CParseTag* tag, un
     else if (tag == k_parseCardInput + 2)
     {
         // 0...3
-		int n = value->GetNumber();
+        int n = value->GetNumber();
         if (n < 0 || n > 3)
         {
             throw string("MuxSelect must be between 0 and 3");
         }
 
-		input->MuxSelect = n;
+        input->MuxSelect = n;
     }
 
     // GPIOSet->GPIO_0
     else if (tag == k_parseCardGPIOSetConstants + 0)
     {
-		input->GPIOSet.GPIO_0 = static_cast<DWORD>(value->GetNumber());
+        input->GPIOSet.GPIO_0 = static_cast<DWORD>(value->GetNumber());
     }
 
     // GPIOSet->GPIO_1
     else if (tag == k_parseCardGPIOSetConstants + 1)
     {
-		input->GPIOSet.GPIO_1 = static_cast<DWORD>(value->GetNumber());
+        input->GPIOSet.GPIO_1 = static_cast<DWORD>(value->GetNumber());
     }
     
-	// GPIOSet->GPIO_2
+    // GPIOSet->GPIO_2
     else if (tag == k_parseCardGPIOSetConstants + 2)
     {
-		input->GPIOSet.GPIO_2 = static_cast<DWORD>(value->GetNumber());
+        input->GPIOSet.GPIO_2 = static_cast<DWORD>(value->GetNumber());
     }
 
     // GPIOSet->GPIO_3
     else if (tag == k_parseCardGPIOSetConstants + 3)
     {
-		input->GPIOSet.GPIO_3 = static_cast<DWORD>(value->GetNumber());
+        input->GPIOSet.GPIO_3 = static_cast<DWORD>(value->GetNumber());
     }
 }
 
@@ -246,14 +242,14 @@ void CDoParseCX2388x::ReadCardInfoProc(int report, const CParseTag* tag, unsigne
                 throw string("A card was already specified with this name");
             }
         }
-		strcpy(parseInfo->pCurrentCard->szName, value->GetString());
+        strcpy(parseInfo->pCurrentCard->szName, value->GetString());
     }
 
-	// Card Mode
-	else if (tag == k_parseCard + 1)
-	{
-		parseInfo->pCurrentCard->CardMode = static_cast<eCardMode>(value->GetNumber());
-	}
+    // Card Mode
+    else if (tag == k_parseCard + 1)
+    {
+        parseInfo->pCurrentCard->CardMode = static_cast<eCardMode>(value->GetNumber());
+    }
 }
 
 void CDoParseCX2388x::ReadCardInputProc(int report, const CParseTag* tag, unsigned char,
@@ -352,10 +348,10 @@ void CDoParseCX2388x::ReadCardDefaultTunerProc(int report, const CParseTag* tag,
 }
 
 CDoParseCX2388x::CDoParseCX2388x(const char* pszFileName, CListBox* pErrorList, CTreeCtrl* pTreeCtrl, BOOL bSort) :
-	CDoParse(pszFileName, pErrorList, pTreeCtrl, bSort)
+    CDoParse(pszFileName, pErrorList, pTreeCtrl, bSort)
 {
-	ParseIniFile();
-	DisplayCardsInTree();
+    ParseIniFile();
+    DisplayCardsInTree();
 }
 
 CDoParseCX2388x::~CDoParseCX2388x()
@@ -364,10 +360,10 @@ CDoParseCX2388x::~CDoParseCX2388x()
 
 void CDoParseCX2388x::ParseIniFile()
 {
-	m_Cards.resize(0);
-	m_pErrorList->ResetContent();
+    m_Cards.resize(0);
+    m_pErrorList->ResetContent();
     
-	CHCParser hcParser(k_parseCardList);
+    CHCParser hcParser(k_parseCardList);
 
     TParseCardInfo parseInfo;
     parseInfo.pCardList = &m_Cards;
@@ -377,15 +373,15 @@ void CDoParseCX2388x::ParseIniFile()
 
     while (!hcParser.ParseFile(m_pszFileName, (void*)&parseInfo))
     {
-		m_pErrorList->AddString(hcParser.GetError().c_str());
-		int iRetVal = AfxMessageBox("Error while parsing.", MB_ABORTRETRYIGNORE|MB_ICONEXCLAMATION);
+        m_pErrorList->AddString(hcParser.GetError().c_str());
+        int iRetVal = AfxMessageBox("Error while parsing.", MB_ABORTRETRYIGNORE|MB_ICONEXCLAMATION);
 
         if (iRetVal == IDIGNORE)
         {
             break;
         }
         
-		if (iRetVal == IDABORT)
+        if (iRetVal == IDABORT)
         {
             return;
         }
@@ -403,50 +399,50 @@ void CDoParseCX2388x::ParseIniFile()
 
 void CDoParseCX2388x::DisplayCardsInTree()
 {
-	m_pTreeCtrl->SetRedraw(FALSE);
-	m_pTreeCtrl->DeleteAllItems();
-	
-	CString strTemp;
+    m_pTreeCtrl->SetRedraw(FALSE);
+    m_pTreeCtrl->DeleteAllItems();
+    
+    CString strTemp;
 
-	for(int i = 0; i < m_Cards.size(); i++)
-	{
-		CCardTypeEx* pCurrentCard = &m_Cards[i];
-		
-		// Name
-		HTREEITEM hCard = m_pTreeCtrl->InsertItem(pCurrentCard->szName, 0, 0);
-		m_pTreeCtrl->SetItemState(hCard, TVIS_BOLD, TVIS_BOLD);
+    for(int i = 0; i < m_Cards.size(); i++)
+    {
+        CCardTypeEx* pCurrentCard = &m_Cards[i];
+        
+        // Name
+        HTREEITEM hCard = m_pTreeCtrl->InsertItem(pCurrentCard->szName, 0, 0);
+        m_pTreeCtrl->SetItemState(hCard, TVIS_BOLD, TVIS_BOLD);
 
-		// Card Handle Flag
-		strTemp.Format("Card Mode: %s", g_CXCardModeConstants[pCurrentCard->CardMode]);
-		m_pTreeCtrl->InsertItem(strTemp, 2, 2, hCard);
+        // Card Handle Flag
+        strTemp.Format("Card Mode: %s", g_CXCardModeConstants[pCurrentCard->CardMode]);
+        m_pTreeCtrl->InsertItem(strTemp, 2, 2, hCard);
 
-		// Default Tuner
-		strTemp.Format("Default Tuner: %s", TunerNames[pCurrentCard->TunerId + 2]);
-		m_pTreeCtrl->InsertItem(strTemp, 2, 2, hCard);
+        // Default Tuner
+        strTemp.Format("Default Tuner: %s", TunerNames[pCurrentCard->TunerId + 2]);
+        m_pTreeCtrl->InsertItem(strTemp, 2, 2, hCard);
 
-		// Auto Detect ID's
-		HTREEITEM hAutoDetectID = NULL;
-		for(int j = 0; j < CX_AUTODETECT_ID_PER_CARD; j++)
-		{
-			if(pCurrentCard->AutoDetectId[j])
-			{
-				if(!hAutoDetectID)
-				{
-					hAutoDetectID = m_pTreeCtrl->InsertItem("Auto Detect ID(s)", 1, 1, hCard);
-				}
+        // Auto Detect ID's
+        HTREEITEM hAutoDetectID = NULL;
+        for(int j = 0; j < CX_AUTODETECT_ID_PER_CARD; j++)
+        {
+            if(pCurrentCard->AutoDetectId[j])
+            {
+                if(!hAutoDetectID)
+                {
+                    hAutoDetectID = m_pTreeCtrl->InsertItem("Auto Detect ID(s)", 1, 1, hCard);
+                }
 
-				strTemp.Format("0x%08x", pCurrentCard->AutoDetectId[j]);
-				m_pTreeCtrl->InsertItem(strTemp, 2, 2, hAutoDetectID);
-			}
-		}
+                strTemp.Format("0x%08x", pCurrentCard->AutoDetectId[j]);
+                m_pTreeCtrl->InsertItem(strTemp, 2, 2, hAutoDetectID);
+            }
+        }
 
-		// Input Types
-		strTemp.Format("Input Types [%d]", pCurrentCard->NumInputs);
-		HTREEITEM hInput = m_pTreeCtrl->InsertItem(strTemp, 1, 1, hCard);
-		
+        // Input Types
+        strTemp.Format("Input Types [%d]", pCurrentCard->NumInputs);
+        HTREEITEM hInput = m_pTreeCtrl->InsertItem(strTemp, 1, 1, hCard);
+        
         for(int k = 0; k < CX_INPUTS_PER_CARD; k++)
-		{
-			TInputType* pInputType = &pCurrentCard->Inputs[k];
+        {
+            TInputType* pInputType = &pCurrentCard->Inputs[k];
 
             if(pInputType->InputType == INPUTTYPE_FINAL)
             {
@@ -454,7 +450,7 @@ void CDoParseCX2388x::DisplayCardsInTree()
             }
             else
             {
-    			strTemp = pInputType->szName;
+                strTemp = pInputType->szName;
             }
 
             if(strTemp.IsEmpty())
@@ -462,82 +458,82 @@ void CDoParseCX2388x::DisplayCardsInTree()
                 continue;
             }
 
-			HTREEITEM hInputItem = m_pTreeCtrl->InsertItem(strTemp, 1, 1, hInput);
+            HTREEITEM hInputItem = m_pTreeCtrl->InsertItem(strTemp, 1, 1, hInput);
 
-			// Input Type
-			strTemp.Format("Input Type: %s", g_CXInputTypeNamesConstants[pInputType->InputType]);
-			m_pTreeCtrl->InsertItem(strTemp, 2, 2, hInputItem);
-			
-			// Mux Select
-			strTemp.Format("Mux Select: %0d", pInputType->MuxSelect);
-			m_pTreeCtrl->InsertItem(strTemp, 2, 2, hInputItem);
-			
-			// GPIO Set
-			HTREEITEM hGPIO = m_pTreeCtrl->InsertItem("GPIO Set", 1, 1, hInputItem);
-			TGPIOSet* pGPIOSet = &pInputType->GPIOSet;
+            // Input Type
+            strTemp.Format("Input Type: %s", g_CXInputTypeNamesConstants[pInputType->InputType]);
+            m_pTreeCtrl->InsertItem(strTemp, 2, 2, hInputItem);
+            
+            // Mux Select
+            strTemp.Format("Mux Select: %0d", pInputType->MuxSelect);
+            m_pTreeCtrl->InsertItem(strTemp, 2, 2, hInputItem);
+            
+            // GPIO Set
+            HTREEITEM hGPIO = m_pTreeCtrl->InsertItem("GPIO Set", 1, 1, hInputItem);
+            TGPIOSet* pGPIOSet = &pInputType->GPIOSet;
 
-			strTemp.Format("GPIO_0: 0x%08x", pGPIOSet->GPIO_0);
-			m_pTreeCtrl->InsertItem(strTemp, 2, 2, hGPIO);
-			
-			strTemp.Format("GPIO_1: 0x%08x", pGPIOSet->GPIO_1);
-			m_pTreeCtrl->InsertItem(strTemp, 2, 2, hGPIO);
-			
-			strTemp.Format("GPIO_2: 0x%08x", pGPIOSet->GPIO_2);
-			m_pTreeCtrl->InsertItem(strTemp, 2, 2, hGPIO);
-		
-			strTemp.Format("GPIO_3: 0x%08x", pGPIOSet->GPIO_3);
-			m_pTreeCtrl->InsertItem(strTemp, 2, 2, hGPIO);
-		}
+            strTemp.Format("GPIO_0: 0x%08x", pGPIOSet->GPIO_0);
+            m_pTreeCtrl->InsertItem(strTemp, 2, 2, hGPIO);
+            
+            strTemp.Format("GPIO_1: 0x%08x", pGPIOSet->GPIO_1);
+            m_pTreeCtrl->InsertItem(strTemp, 2, 2, hGPIO);
+            
+            strTemp.Format("GPIO_2: 0x%08x", pGPIOSet->GPIO_2);
+            m_pTreeCtrl->InsertItem(strTemp, 2, 2, hGPIO);
+        
+            strTemp.Format("GPIO_3: 0x%08x", pGPIOSet->GPIO_3);
+            m_pTreeCtrl->InsertItem(strTemp, 2, 2, hGPIO);
+        }
 
-		// TDA9887
-		if(pCurrentCard->bUseTDA9887)
-		{
-			HTREEITEM hTDA9887 = m_pTreeCtrl->InsertItem("Use TDA9887", 1, 1, hCard);
-			
-			for(int m = 0; m < m_Cards[i].tda9887Modes.size(); m++)
-			{
-				TTDA9887FormatModes* pModes = &m_Cards[i].tda9887Modes[m];
-				
-				if (pModes->mask != 0)
-				{
-					HTREEITEM hTDA9887Format = m_pTreeCtrl->InsertItem(m_TDAFormatNames[pModes->format], 1, 1, hTDA9887);
-					
-					// Outport1
-					if(pModes->mask & TDA9887_SM_OUTPUTPORT1_INACTIVE)
-					{
-						strTemp.Format("OutPort1: %s", pModes->bits & TDA9887_SM_OUTPUTPORT1_INACTIVE ? "Inactive" : "Active");
-						m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
-					}
-					
-					// Outport2
-					if(pModes->mask & TDA9887_SM_OUTPUTPORT2_INACTIVE)
-					{
-						strTemp.Format("OutPort2: %s", pModes->bits & TDA9887_SM_OUTPUTPORT2_INACTIVE ? "Inactive" : "Active");
-						m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
-					}
-					
-					// Carrier
-					if(pModes->mask & TDA9887_SM_CARRIER_QSS)
-					{
-						strTemp.Format("Carrier: %s", pModes->bits & TDA9887_SM_CARRIER_QSS ? "QSS" : "Intercarrier" );
-						m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
-					}
-					
-					// Takeover Point
-					if(pModes->mask & TDA9887_SM_TAKEOVERPOINT_MASK)
-					{
-						strTemp.Format("Takeover Point: 0x%02x", (pModes->bits & TDA9887_SM_TAKEOVERPOINT_MASK) >> TDA9887_SM_TAKEOVERPOINT_OFFSET );
-						m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
-					}
-				}
-			}
-		}
-	}
+        // TDA9887
+        if(pCurrentCard->bUseTDA9887)
+        {
+            HTREEITEM hTDA9887 = m_pTreeCtrl->InsertItem("Use TDA9887", 1, 1, hCard);
+            
+            for(int m = 0; m < m_Cards[i].tda9887Modes.size(); m++)
+            {
+                TTDA9887FormatModes* pModes = &m_Cards[i].tda9887Modes[m];
+                
+                if (pModes->mask != 0)
+                {
+                    HTREEITEM hTDA9887Format = m_pTreeCtrl->InsertItem(m_TDAFormatNames[pModes->format], 1, 1, hTDA9887);
+                    
+                    // Outport1
+                    if(pModes->mask & TDA9887_SM_OUTPUTPORT1_INACTIVE)
+                    {
+                        strTemp.Format("OutPort1: %s", pModes->bits & TDA9887_SM_OUTPUTPORT1_INACTIVE ? "Inactive" : "Active");
+                        m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
+                    }
+                    
+                    // Outport2
+                    if(pModes->mask & TDA9887_SM_OUTPUTPORT2_INACTIVE)
+                    {
+                        strTemp.Format("OutPort2: %s", pModes->bits & TDA9887_SM_OUTPUTPORT2_INACTIVE ? "Inactive" : "Active");
+                        m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
+                    }
+                    
+                    // Carrier
+                    if(pModes->mask & TDA9887_SM_CARRIER_QSS)
+                    {
+                        strTemp.Format("Carrier: %s", pModes->bits & TDA9887_SM_CARRIER_QSS ? "QSS" : "Intercarrier" );
+                        m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
+                    }
+                    
+                    // Takeover Point
+                    if(pModes->mask & TDA9887_SM_TAKEOVERPOINT_MASK)
+                    {
+                        strTemp.Format("Takeover Point: 0x%02x", (pModes->bits & TDA9887_SM_TAKEOVERPOINT_MASK) >> TDA9887_SM_TAKEOVERPOINT_OFFSET );
+                        m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
+                    }
+                }
+            }
+        }
+    }
     
     if(m_bDoSort)
     {
         m_pTreeCtrl->SortChildren(0);
     }
 
-	m_pTreeCtrl->SetRedraw(TRUE);
+    m_pTreeCtrl->SetRedraw(TRUE);
 }

@@ -15,17 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file AutoCriticalSection.h interface for the CAutoCriticalSection class.
@@ -46,11 +35,11 @@
 class CAutoCriticalSection  
 {
 public:
-	CAutoCriticalSection(CRITICAL_SECTION &pCriticalSection);
-	virtual ~CAutoCriticalSection();
+    CAutoCriticalSection(CRITICAL_SECTION &pCriticalSection);
+    virtual ~CAutoCriticalSection();
 
 private:
-	CRITICAL_SECTION *m_pCriticalSection;
+    CRITICAL_SECTION *m_pCriticalSection;
 };
 
 #endif // !defined(AFX_AUTOCRITICALSECTION_H__38C52AC0_B93A_4DAB_9D84_35BA3314CC6F__INCLUDED_)

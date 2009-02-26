@@ -22,38 +22,6 @@
 //  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2003/06/17 12:46:28  adcockj
-// Added Help for new deinterlace methods
-//
-// Revision 1.2  2003/03/05 13:55:20  adcockj
-// Allow SSE optimizations
-//
-// Revision 1.1  2003/01/02 13:15:00  adcockj
-// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
-//
-//
-// Log: DI_TomsMoComp.c,v
-// Revision 1.5  2002/12/10 16:32:19  adcockj
-// Fix StrangeBob for MMX
-//
-// Revision 1.4  2002/11/26 21:32:14  adcockj
-// Made new strange bob method optional
-//
-// Revision 1.3  2002/07/08 18:16:43  adcockj
-// final fixes fro alpha 3
-//
-// Revision 1.2  2002/07/08 17:44:58  adcockj
-// Corrected Settings messages
-//
-// Revision 1.1  2002/07/07 20:07:24  trbarry
-// First cut at TomsMoComp, motion compensated deinterlace
-//
-// Revision 1.0  2002/05/04 16:13:33  trbarry
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include <DS_Deinterlace.h>
@@ -93,7 +61,7 @@ DEINTERLACE_METHOD MoComp2Method =
     NULL,
     NULL,
     NULL,
-    4,									// number fields needed
+    4,                                    // number fields needed
     0,
     0,
     WM_DI_MOCOMP2_GETVALUE - WM_APP,
@@ -109,15 +77,15 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
 {
     if (CpuFeatureFlags & FEATURE_SSE2)
     {
-	    MoComp2Method.pfnAlgorithm = DeinterlaceMoComp2_SSE; 
+        MoComp2Method.pfnAlgorithm = DeinterlaceMoComp2_SSE; 
     }
     else if (CpuFeatureFlags & FEATURE_SSE)
     {
-	    MoComp2Method.pfnAlgorithm = DeinterlaceMoComp2_SSE;
+        MoComp2Method.pfnAlgorithm = DeinterlaceMoComp2_SSE;
     }
     else if (CpuFeatureFlags & FEATURE_3DNOW)
     {
-		MoComp2Method.pfnAlgorithm = DeinterlaceMoComp2_3DNOW;
+        MoComp2Method.pfnAlgorithm = DeinterlaceMoComp2_3DNOW;
     }
     else
     {

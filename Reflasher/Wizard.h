@@ -37,43 +37,43 @@
 
 class CWizard : public CPropertySheet
 {
-	DECLARE_DYNAMIC(CWizard)
+    DECLARE_DYNAMIC(CWizard)
 
 // Konstruktion
 public:
-	CWizard(UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
-	CWizard(LPCTSTR pszCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
+    CWizard(UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
+    CWizard(LPCTSTR pszCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
 
 // Attribute
 public:
-	CMy2388xCard* m_pCard;
+    CMy2388xCard* m_pCard;
 
 private:
-	void	InitWizard();
-	CPage1	m_Page1;
-	CPage2	m_Page2;
-	CPage3	m_Page3;
-	CPage4	m_Page4;
+    void    InitWizard();
+    CPage1    m_Page1;
+    CPage2    m_Page2;
+    CPage3    m_Page3;
+    CPage4    m_Page4;
 
 // Operationen
 public:
 
 // Überschreibungen
-	// Vom Klassen-Assistenten generierte virtuelle Funktionsüberschreibungen
-	//{{AFX_VIRTUAL(CWizard)
-	//}}AFX_VIRTUAL
+    // Vom Klassen-Assistenten generierte virtuelle Funktionsüberschreibungen
+    //{{AFX_VIRTUAL(CWizard)
+    //}}AFX_VIRTUAL
 
 // Implementierung
 public:
-	DWORD m_dwNewValue;
-	virtual ~CWizard();
+    DWORD m_dwNewValue;
+    virtual ~CWizard();
 
-	// Generierte Nachrichtenzuordnungsfunktionen
+    // Generierte Nachrichtenzuordnungsfunktionen
 protected:
-	//{{AFX_MSG(CWizard)
-		// HINWEIS - Der Klassen-Assistent fügt hier Member-Funktionen ein und entfernt diese.
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+    //{{AFX_MSG(CWizard)
+        // HINWEIS - Der Klassen-Assistent fügt hier Member-Funktionen ein und entfernt diese.
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 };
 
 /////////////////////////////////////////////////////////////////////////////

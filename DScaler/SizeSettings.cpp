@@ -20,20 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2003/01/18 15:05:43  laurentg
-// New button in image size dialog box to check or uncheck the analogue blanking
-//
-// Revision 1.2  2003/01/18 13:56:56  laurentg
-// Sliders for chip horizontal and vertical delays enabled
-//
-// Revision 1.1  2003/01/16 22:34:21  laurentg
-// First step to add a new dialog box to adjust image size
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SizeSettings.cpp Size Settings Functions
@@ -82,8 +68,8 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         }
         else
         {
-			CheckDlgButton(hDlg, IDC_CHECK1, BST_UNCHECKED);
-			Edit_Enable(GetDlgItem(hDlg, IDC_CHECK1), FALSE);
+            CheckDlgButton(hDlg, IDC_CHECK1, BST_UNCHECKED);
+            Edit_Enable(GetDlgItem(hDlg, IDC_CHECK1), FALSE);
         }
 
         if(TopOverscan != NULL)
@@ -142,8 +128,8 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         }
         else
         {
-			Edit_Enable(GetDlgItem(hDlg, IDC_D5), FALSE);
-			Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER5), FALSE);
+            Edit_Enable(GetDlgItem(hDlg, IDC_D5), FALSE);
+            Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER5), FALSE);
         }
 
         if(VDelay != NULL)
@@ -154,8 +140,8 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         }
         else
         {
-			Edit_Enable(GetDlgItem(hDlg, IDC_D6), FALSE);
-			Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER6), FALSE);
+            Edit_Enable(GetDlgItem(hDlg, IDC_D6), FALSE);
+            Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER6), FALSE);
         }
 
         return TRUE;
@@ -244,12 +230,12 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             break;
 
-		case IDC_CHECK1:
+        case IDC_CHECK1:
             if(AnalogueBlanking != NULL)
             {
                 AnalogueBlanking->SetFromControl(GetDlgItem(hDlg, IDC_CHECK1));
             }
-			break;
+            break;
 
         default:
             break;

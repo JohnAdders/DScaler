@@ -15,16 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.1.2.1  2001/08/15 14:44:05  adcockj
-// Starting to put some flesh onto the new structure
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SourceProvider.cpp CSourceProvider Implementation

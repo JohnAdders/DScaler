@@ -15,64 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 01 Oct 2002   Atsushi Nakagawa      Initial Release
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.15  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.14  2003/06/20 03:57:22  atnak
-// Changes to VDelays
-//
-// Revision 1.13  2003/06/01 19:41:41  atnak
-// Adjusted video vdelays to avoid VBI overlap
-//
-// Revision 1.12  2003/05/26 20:49:03  laurentg
-// Corrections for datacasting
-// Enable the Cancel button in the setup card dialog box
-//
-// Revision 1.11  2002/11/10 09:30:57  atnak
-// Added Chroma only comb filter mode for SECAM
-//
-// Revision 1.10  2002/11/10 05:11:24  atnak
-// Added adjustable audio input level
-//
-// Revision 1.9  2002/11/07 18:54:21  atnak
-// Redid getting next field -- fixes some issues
-//
-// Revision 1.8  2002/10/29 03:07:19  atnak
-// Added SAA713x TreeSettings Page
-//
-// Revision 1.7  2002/10/26 06:59:30  atnak
-// Minor change to video standards definition
-//
-// Revision 1.6  2002/10/20 07:41:04  atnak
-// custom audio standard setup + etc
-//
-// Revision 1.5  2002/10/16 11:38:46  atnak
-// cleaned up audio standard stuff
-//
-// Revision 1.4  2002/10/12 01:38:54  atnak
-// VBI_DecodeLine() doesn't work properly with only 16 VBI lines
-//
-// Revision 1.3  2002/10/09 13:20:16  atnak
-// fixed up field start lines
-//
-// Revision 1.2  2002/10/08 19:35:45  atnak
-// various fixes, tweaks, cleanups
-//
-// Revision 1.1  2002/10/03 23:42:07  atnak
-// SAA7134Common.h SAA7134Common.cpp SAA7134Card_Video.cpp added
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 
 /**

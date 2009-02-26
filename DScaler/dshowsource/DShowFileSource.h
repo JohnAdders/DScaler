@@ -15,35 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.5  2002/09/14 17:04:24  tobbej
-// implemented audio output device selection.
-// added a safety check for .grf files when copying settings from dsrend
-//
-// Revision 1.4  2002/08/01 20:22:13  tobbej
-// improved error messages when opening files.
-// corrected some smal problems when opening .grf files
-//
-// Revision 1.3  2002/03/15 23:01:54  tobbej
-// changed dropped frames counter to include dropped frames in source filter
-//
-// Revision 1.2  2002/02/13 16:58:22  tobbej
-// changed some comments
-//
-// Revision 1.1  2002/02/07 22:05:43  tobbej
-// new classes for file input
-// rearanged class inheritance a bit
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DShowFileSource.h interface for the CDShowFileSource class.
@@ -67,8 +38,8 @@
 class CDShowUnsupportedFileException: public CDShowException
 {
 public:
-	CDShowUnsupportedFileException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
-	CDShowUnsupportedFileException(CString msg):CDShowException(msg) {};
+    CDShowUnsupportedFileException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
+    CDShowUnsupportedFileException(CString msg):CDShowException(msg) {};
 };
 
 /**
@@ -77,21 +48,21 @@ public:
 class CDShowFileSource : public CDShowBaseSource
 {
 public:
-	CDShowFileSource(IGraphBuilder *pGraph,string filename);
-	virtual ~CDShowFileSource();
-	
-	eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_FILE;}
-	void Connect(CComPtr<IBaseFilter> VideoFilter);
-	bool IsConnected() {return m_bIsConnected;};
-	long GetNumDroppedFrames(){return 0;};
-	
-	string getFileName() {return m_file;}
+    CDShowFileSource(IGraphBuilder *pGraph,string filename);
+    virtual ~CDShowFileSource();
+    
+    eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_FILE;}
+    void Connect(CComPtr<IBaseFilter> VideoFilter);
+    bool IsConnected() {return m_bIsConnected;};
+    long GetNumDroppedFrames(){return 0;};
+    
+    string getFileName() {return m_file;}
 
 private:
-	string m_file;
-	CComPtr<IBaseFilter> m_pFileSource;
-	CComPtr<ICaptureGraphBuilder2> m_pBuilder;
-	bool m_bIsConnected;
+    string m_file;
+    CComPtr<IBaseFilter> m_pFileSource;
+    CComPtr<ICaptureGraphBuilder2> m_pBuilder;
+    bool m_bIsConnected;
 };
 
 #endif // !defined(AFX_DSHOWFILESOURCE_H__D8C80F6D_F29B_4805_82AD_2B6D1B2FCD96__INCLUDED_)

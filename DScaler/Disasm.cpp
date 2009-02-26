@@ -23,34 +23,6 @@
 // VirtualDub - Video processing and capture application
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2003/01/20 15:19:36  adcockj
-// Brought crash code into line iwth latest vdub code
-//
-// Revision 1.7  2002/11/20 19:50:00  tobbej
-// synced crashlogging code with virtualdub
-//
-// Revision 1.6  2002/09/17 17:28:24  tobbej
-// updated crashloging to same version as in latest virtualdub
-//
-// Revision 1.5  2001/11/23 10:49:16  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.4  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.3  2001/07/30 12:18:57  adcockj
-// Added some SSE instructions
-//
-// Revision 1.2  2001/07/27 16:11:32  adcockj
-// Added support for new Crash dialog
-//
-// Revision 1.1  2001/07/24 12:19:00  adcockj
-// Added code and tools for crash logging from VirtualDub
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file Diasm.cpp Crash code from VirstualDub

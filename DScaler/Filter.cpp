@@ -15,120 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 03 Feb 2001   John Adcock           Initial Version
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.36  2003/02/17 11:39:00  adcockj
-// Added group flags for setting per channel on more settings
-//
-// Revision 1.35  2003/01/24 01:55:18  atnak
-// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
-// got rid of the pink overlay colorkey for Teletext.
-//
-// Revision 1.34  2003/01/11 15:22:26  adcockj
-// Interim Checkin of setting code rewrite
-//  - Remove CSettingsGroupList class
-//  - Fixed bugs in format switching
-//  - Some new CSettingGroup code
-//
-// Revision 1.33  2003/01/10 17:38:07  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.32  2003/01/02 16:22:07  adcockj
-// Preliminary code to support output plugins properly
-//
-// Revision 1.31  2002/10/30 12:56:44  robmuller
-// Do not load plugins with extensions other than .dll
-//
-// Revision 1.30  2002/09/17 17:41:54  tobbej
-// added fpu/mmx check
-//
-// Revision 1.29  2002/08/15 14:16:18  kooiman
-// Cleaner settings per channel implementation
-//
-// Revision 1.28  2002/08/14 07:09:18  robmuller
-// Improved filter ordering.
-//
-// Revision 1.27  2002/08/12 20:00:59  laurentg
-// no message
-//
-// Revision 1.26  2002/08/12 09:09:00  laurentg
-// Testing progressive field corrected
-//
-// Revision 1.25  2002/08/11 18:47:51  laurentg
-// Put first input filters and then output filters in the filter menu
-//
-// Revision 1.24  2002/08/09 08:33:35  kooiman
-// Fixed potential ignoring of some filter's settings for per channel settings.
-//
-// Revision 1.23  2002/08/08 12:39:13  kooiman
-// Added filter settings to settings per channel.
-//
-// Revision 1.22  2002/06/18 19:46:06  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.21  2002/06/13 12:10:22  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.20  2002/06/07 16:36:27  robmuller
-// Added filter sorting. Added missing FindClose() statement.
-//
-// Revision 1.19  2002/04/24 19:10:38  tobbej
-// test of new tree based setting dialog
-//
-// Revision 1.18  2001/11/26 15:27:18  adcockj
-// Changed filter structure
-//
-// Revision 1.17  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.16  2001/11/22 22:32:09  adcockj
-// Removed extra filer settings menu item
-//
-// Revision 1.15  2001/11/21 15:21:39  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.14  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.13  2001/09/09 18:30:19  adcockj
-// Filter menu fix
-//
-// Revision 1.12  2001/09/05 15:08:43  adcockj
-// Updated Loging
-//
-// Revision 1.11  2001/08/25 10:48:02  laurentg
-// Log messages added
-//
-// Revision 1.10  2001/08/23 16:03:26  adcockj
-// Improvements to dynamic menus to remove requirement that they are not empty
-//
-// Revision 1.9  2001/08/02 16:43:05  adcockj
-// Added Debug level to LOG function
-//
-// Revision 1.8  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.7  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.6  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file Filter.cpp Filter functions
@@ -172,7 +58,7 @@ long Filter_DoInput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
                         Filters[i]->CanDoInterlaced)
                     {
                         SourceAspectAdjust *= Filters[i]->pfnAlgorithm(pInfo);
-						CHECK_FPU_STACK
+                        CHECK_FPU_STACK
                         SourceAspectAdjust /= 1000;
                     }
                 }
@@ -194,7 +80,7 @@ void Filter_DoOutput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
                 if(History >= Filters[i]->HistoryRequired)
                 {
                     Filters[i]->pfnAlgorithm(pInfo);
-					CHECK_FPU_STACK
+                    CHECK_FPU_STACK
                 }
             }
         }
@@ -453,8 +339,8 @@ BOOL ProcessFilterSelection(HWND hWnd, WORD wMenuID)
 
 void GetFilterSettings(FILTER_METHOD**& MethodsArray,long& Num)
 {
-	MethodsArray = Filters;
-	Num= NumFilters;
+    MethodsArray = Filters;
+    Num= NumFilters;
 }
 
 ////////////////////////////////////////////////////////////////////////////

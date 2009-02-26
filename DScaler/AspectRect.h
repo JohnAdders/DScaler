@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 14 Mar 2001   Michael Samblanet     File created
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file aspectrect.h aspectrect Header file

@@ -15,17 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file AutoCriticalSection.cpp implementation of the CAutoCriticalSection class.
@@ -45,11 +34,11 @@ static char THIS_FILE[]=__FILE__;
 CAutoCriticalSection::CAutoCriticalSection(CRITICAL_SECTION &pCriticalSection)
 :m_pCriticalSection(&pCriticalSection)
 {
-	ASSERT(m_pCriticalSection!=NULL);
-	EnterCriticalSection(m_pCriticalSection);
+    ASSERT(m_pCriticalSection!=NULL);
+    EnterCriticalSection(m_pCriticalSection);
 }
 
 CAutoCriticalSection::~CAutoCriticalSection()
 {
-	LeaveCriticalSection(m_pCriticalSection);
+    LeaveCriticalSection(m_pCriticalSection);
 }

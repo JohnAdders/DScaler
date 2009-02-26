@@ -13,13 +13,6 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Library General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 27 Mar 2001   John Adcock           Separated code to support plug-ins
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #ifndef __DS_DEINTERLACE_H___
 #define __DS_DEINTERLACE_H___

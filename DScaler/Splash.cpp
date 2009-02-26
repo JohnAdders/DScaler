@@ -20,45 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 11 Jan 2001   John Adcock           Split into separate file
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.13  2006/12/20 07:45:07  adcockj
-// added DirectX code from Daniel Sabel
-//
-// Revision 1.12  2005/03/23 14:21:00  adcockj
-// Test fix for threading issues
-//
-// Revision 1.11  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.10  2003/03/29 13:40:24  laurentg
-// Allow the display of DScaler to monitors other than the primary
-//
-// Revision 1.9  2003/01/15 15:54:23  adcockj
-// Fixed some keyboard focus issues
-//
-// Revision 1.8  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.7  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.6  2001/08/02 16:43:05  adcockj
-// Added Debug level to LOG function
-//
-// Revision 1.5  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file Splash.cpp Splash window
@@ -87,8 +48,8 @@ BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     {
     case WM_INITDIALOG:
         {
-			RECT ScreenRect;
-			GetActiveOutput()->GetMonitorRect(GetMainWnd(), &ScreenRect);
+            RECT ScreenRect;
+            GetActiveOutput()->GetMonitorRect(GetMainWnd(), &ScreenRect);
             int Width = ScreenRect.right  - ScreenRect.left;
             int Height = ScreenRect.bottom - ScreenRect.top;
             hSplashBm = (HBITMAP)LoadImage(hDScalerInst, MAKEINTRESOURCE(IDB_STARTUP), IMAGE_BITMAP, 0, 0, LR_VGACOLOR);

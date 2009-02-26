@@ -24,153 +24,6 @@
 // Copyright (c) 2001 John Adcock.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Sep 2002   Atsushi Nakagawa      Initial Release
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.46  2005/03/24 17:57:58  adcockj
-// Card access from one thread at a time
-//
-// Revision 1.45  2005/02/03 03:39:58  atnak
-// Added manage for SAA7133/5's ANALOG_IO_SELECT.
-//
-// Revision 1.44  2004/11/20 14:20:09  atnak
-// Changed the card list to an ini file.
-//
-// Revision 1.43  2004/04/24 11:12:01  atnak
-// fix: dma memory safety check broke when available memory was zero or close to
-//
-// Revision 1.42  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.41  2003/08/14 08:25:16  atnak
-// Fix to mute lining and audio channel clush
-//
-// Revision 1.40  2003/08/12 15:34:37  atnak
-// Minor fixes
-//
-// Revision 1.39  2003/08/12 06:46:01  atnak
-// Fix for initial muting of SAA7130 cards
-//
-// Revision 1.38  2003/07/29 12:02:15  atnak
-// Fixes card might not mute on exit
-//
-// Revision 1.37  2003/06/01 19:47:34  atnak
-// PRESET tweak
-//
-// Revision 1.36  2003/03/23 00:20:52  atnak
-// Removed state management for DMA and IRQ registers
-//
-// Revision 1.35  2003/03/02 17:03:48  atnak
-// Fixed broken manage state lines
-//
-// Revision 1.34  2003/02/06 21:30:43  ittarnavsky
-// changes to support primetv 7133
-//
-// Revision 1.33  2003/01/28 07:22:28  atnak
-// Visual changes
-//
-// Revision 1.32  2003/01/27 22:16:05  laurentg
-// Always set a value for audio decoder type in the hardware info dialog box
-//
-// Revision 1.31  2003/01/27 22:04:11  laurentg
-// First step to merge setup hardware and hardware info dialog boxes
-// CPU flag information moved in the general hardware dialog box
-// Hardware info dialog box available for CX2388x
-//
-// Revision 1.30  2003/01/15 15:54:23  adcockj
-// Fixed some keyboard focus issues
-//
-// Revision 1.29  2002/12/09 00:32:13  atnak
-// Added new muting stuff
-//
-// Revision 1.28  2002/11/08 06:15:34  atnak
-// Added state saving
-//
-// Revision 1.27  2002/11/07 20:33:17  adcockj
-// Promoted ACPI functions so that state management works properly
-//
-// Revision 1.26  2002/11/07 18:54:21  atnak
-// Redid getting next field -- fixes some issues
-//
-// Revision 1.25  2002/11/07 13:37:43  adcockj
-// Added State restoration code to PCICard
-// Functionality disabled prior to testing and not done for SAA7134
-//
-// Revision 1.24  2002/10/31 05:02:55  atnak
-// Settings cleanup and audio tweaks
-//
-// Revision 1.23  2002/10/30 04:35:48  atnak
-// Added attempt to reduce driver conflict instability
-//
-// Revision 1.22  2002/10/28 11:10:15  atnak
-// Various changes and revamp to settings
-//
-// Revision 1.21  2002/10/26 06:58:33  atnak
-// Fixed the odd field only problem when there is no signal
-//
-// Revision 1.20  2002/10/26 05:24:23  atnak
-// Minor cleanups
-//
-// Revision 1.19  2002/10/26 04:41:44  atnak
-// Clean up + added auto card detection
-//
-// Revision 1.18  2002/10/23 17:05:56  atnak
-// Fix to trigger error recovery
-//
-// Revision 1.17  2002/10/20 07:41:50  atnak
-// minor syncs
-//
-// Revision 1.16  2002/10/16 11:37:59  atnak
-// added saa7130 support
-//
-// Revision 1.15  2002/10/12 20:01:52  atnak
-// added some automatic error recovery
-//
-// Revision 1.14  2002/10/12 01:37:45  atnak
-// insignificant
-//
-// Revision 1.13  2002/10/10 12:12:15  atnak
-// fixed writing byte to SAA7134_SOURCE_TIMING should be word
-//
-// Revision 1.12  2002/10/09 13:20:16  atnak
-// fixed up field start lines
-//
-// Revision 1.11  2002/10/08 19:35:45  atnak
-// various fixes, tweaks, cleanups
-//
-// Revision 1.10  2002/10/08 12:22:47  atnak
-// added software card reset in ResetHardware(), etc
-//
-// Revision 1.9  2002/10/06 12:14:52  atnak
-// cleaned up SetPageTable(...)
-//
-// Revision 1.8  2002/10/04 23:40:46  atnak
-// proper support for audio channels mono,stereo,lang1,lang2 added
-//
-// Revision 1.7  2002/10/04 13:24:46  atnak
-// Audio mux select through GPIO added (for 7130 cards)
-//
-// Revision 1.6  2002/10/03 23:36:23  atnak
-// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
-//
-// Revision 1.5  2002/09/15 14:28:07  atnak
-// Tweaked VBI and VDelay settings
-//
-// Revision 1.4  2002/09/14 19:40:48  atnak
-// various changes
-//
-// Revision 1.3  2002/09/10 12:14:35  atnak
-// Some changes to eAudioStandard stuff
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SAA7134Card.cpp CSAA7134Card Implementation
@@ -410,10 +263,10 @@ void CSAA7134Card::ManageMyState()
     ManageByte(SAA7134_I2S_AUDIO_OUTPUT);
     ManageByte(SAA7134_SPECIAL_MODE);
 
-	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
-	{
-		ManageData(SAA7133_ANALOG_IO_SELECT);
-	}
+    if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
+    {
+        ManageData(SAA7133_ANALOG_IO_SELECT);
+    }
 
     // do these ones last
     /* It is probably safer if we leave DMA
@@ -722,10 +575,10 @@ WORD CSAA7134Card::CalculateLinesAvailable(eRegionID RegionID, WORD wBytesPerLin
 
     MinimumBytesAvailable = m_DMAChannelMemorySize[Channel];
 
-	if (MinimumBytesAvailable < MaxBaseOffset)
-	{
-		return 0;
-	}
+    if (MinimumBytesAvailable < MaxBaseOffset)
+    {
+        return 0;
+    }
 
     MinimumBytesAvailable -= MaxBaseOffset;
     if (MinimumBytesAvailable < wBytesPerLine)

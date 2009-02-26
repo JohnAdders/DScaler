@@ -28,22 +28,22 @@
 class CMy2388xCard  
 {
 public:
-	void WriteByte(DWORD Offset, BYTE Data);
-	void WriteDword(DWORD Offset, DWORD Data);
-	DWORD ReadDword(DWORD Offset);
-	BOOL OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex);
-	CMy2388xCard(CHardwareDriver* pDriver);
-	~CMy2388xCard();
+    void WriteByte(DWORD Offset, BYTE Data);
+    void WriteDword(DWORD Offset, DWORD Data);
+    DWORD ReadDword(DWORD Offset);
+    BOOL OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex);
+    CMy2388xCard(CHardwareDriver* pDriver);
+    ~CMy2388xCard();
 
 protected:
-	void ClosePCICard();
+    void ClosePCICard();
     
-	DWORD   m_SubSystemId;
+    DWORD   m_SubSystemId;
     WORD    m_DeviceId;
     WORD    m_VendorId;
     DWORD   m_BusNumber;
     DWORD   m_SlotNumber;
-	BOOL	m_bOpen;
+    BOOL    m_bOpen;
 
 private:
     DWORD   m_MemoryAddress;

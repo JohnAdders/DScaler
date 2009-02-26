@@ -23,34 +23,34 @@ class CTSCompressionDlg : public CDialog
 {
 // Construction
 public:
-	CTSCompressionDlg(CWnd* pParent = NULL, TS_OPTIONS *options = NULL);
+    CTSCompressionDlg(CWnd* pParent = NULL, TS_OPTIONS *options = NULL);
 
 // Dialog Data
-	//{{AFX_DATA(CTSCompressionDlg)
-	enum { IDD = IDD_TSCOMPRESSION };
-	CString	m_AudioFormat;
-	CString	m_VideoFormat;
-	//}}AFX_DATA
+    //{{AFX_DATA(CTSCompressionDlg)
+    enum { IDD = IDD_TSCOMPRESSION };
+    CString    m_AudioFormat;
+    CString    m_VideoFormat;
+    //}}AFX_DATA
 
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CTSCompressionDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CTSCompressionDlg)
+    protected:
+    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+    //}}AFX_VIRTUAL
 
 // Implementation
 protected:
 
-	// Generated message map functions
-	//{{AFX_MSG(CTSCompressionDlg)
-	afx_msg void OnConfigVideo();
-	afx_msg void OnConfigAudio();
-	virtual void OnOK();
-	virtual BOOL OnInitDialog();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+    // Generated message map functions
+    //{{AFX_MSG(CTSCompressionDlg)
+    afx_msg void OnConfigVideo();
+    afx_msg void OnConfigAudio();
+    virtual void OnOK();
+    virtual BOOL OnInitDialog();
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 
 private:
     TS_OPTIONS *options;

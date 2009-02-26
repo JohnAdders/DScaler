@@ -16,9 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "I2CBusForLineInterface.h"
@@ -119,17 +116,17 @@ bool CI2CBusForLineInterface::Write(BYTE byte)
     {
         SetSCLLo();
         
-		if ((byte & mask) != 0)
+        if ((byte & mask) != 0)
         {
             SetSDAHi();
         }
         
-		else 
+        else 
         {
             SetSDALo();
         }
         
-		SetSCLHi();  
+        SetSCLHi();  
     }
 
     return GetAcknowledge();
@@ -154,17 +151,17 @@ unsigned char CI2CBusForLineInterface::Read(bool last)
         }
     }
     
-	if (last)
+    if (last)
     {
         SendNAK();
     }
     
-	else
+    else
     {
         SendACK();
     }
     
-	return result;
+    return result;
 }
 
 void CI2CBusForLineInterface::SendNAK()

@@ -22,21 +22,6 @@
 //  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2003/05/26 15:54:36  adcockj
-// Improved Performance of motion detection
-// Fixed bug with pBobP
-//
-// Revision 1.2  2003/02/11 15:41:05  adcockj
-// New implementation of StrangeBob based off paper
-// Tidy up sources
-//
-// Revision 1.1  2003/01/02 13:15:01  adcockj
-// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 // This file contains an implementation of the alogorithm described in:
@@ -47,23 +32,23 @@
 
 __asm
 {
-	
-	// First, get and save our possible Bob values
-	// Assume our pixels are layed out as follows with x the calc'd bob value
-	// and the other pixels are from the current field
-	//  
-	//		   a b c 		current field
-	//           x			calculated line
-	//         d e f 		current field
-	//
+    
+    // First, get and save our possible Bob values
+    // Assume our pixels are layed out as follows with x the calc'd bob value
+    // and the other pixels are from the current field
+    //  
+    //           a b c         current field
+    //           x            calculated line
+    //         d e f         current field
+    //
 
-	movq    mm1, qword ptr[ebx-2]
-	movq    mm2, qword ptr[ebx]
-	movq    mm3, qword ptr[ebx + 2]
+    movq    mm1, qword ptr[ebx-2]
+    movq    mm2, qword ptr[ebx]
+    movq    mm3, qword ptr[ebx + 2]
 
-	movq    mm4, qword ptr[ebx+ecx - 2]
-	movq    mm5, qword ptr[ebx+ecx]
-	movq    mm6, qword ptr[ebx+ecx + 2]
+    movq    mm4, qword ptr[ebx+ecx - 2]
+    movq    mm5, qword ptr[ebx+ecx]
+    movq    mm6, qword ptr[ebx+ecx + 2]
 
     // mm1 = a
     // mm2 = b
@@ -106,10 +91,10 @@ __asm
     // Save1 = avg(a, f)
     // Save2 = avg(c, d)
     
-	pxor	mm7, mm7			
-	pxor	mm0, mm0			
-	psubusb mm4, mm6			// nonzero where mm4 > mm6 
-	pcmpeqb mm4, mm0			// now ff where mm4 <= mm6
+    pxor    mm7, mm7            
+    pxor    mm0, mm0            
+    psubusb mm4, mm6            // nonzero where mm4 > mm6 
+    pcmpeqb mm4, mm0            // now ff where mm4 <= mm6
     movq    mm6, mm4
     pcmpeqb mm6, mm0            // now ff where mm6 < mm4
 
@@ -121,7 +106,7 @@ __asm
     movq mm4, mm1
     movq mm6, mm3
     psubusb mm1, mm3            // nonzero  where (|a - f| > |c - d|)
-	pcmpeqb mm1, mm0			// now ff where (|a - f| < |c - d|)
+    pcmpeqb mm1, mm0            // now ff where (|a - f| < |c - d|)
     movq mm7, mm1
     COMBINE(mm4, mm6, mm1)
     movq mm6, Save1
@@ -132,10 +117,10 @@ __asm
     // of the diagonals
     movq    mm1, mm2           // save |b - e|
     psubusb mm2, mm4           // nonzero  where (|b - e| >= Best)
-	pcmpeqb mm2, mm0		   // now ff where (|b - e| < Best)
+    pcmpeqb mm2, mm0           // now ff where (|b - e| < Best)
     por mm2, UVMask            // we only want luma from diagonals
     psubusb mm1, MOVE          // nonzero where |b - e| > MOVE is Bob is visible
-	pcmpeqb mm1, mm0		   // now ff where (|b - e| <= MOVE)
+    pcmpeqb mm1, mm0           // now ff where (|b - e| <= MOVE)
     por mm2, mm1               // we'll let bob through always if the diff is small
 
     COMBINE(mm5, mm6, mm2)     

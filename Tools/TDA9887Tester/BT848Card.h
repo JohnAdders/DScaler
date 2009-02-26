@@ -16,9 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_BT848CARD_H__05A58E2D_A725_456B_94F1_2B73901079CE__INCLUDED_)
 #define AFX_BT848CARD_H__05A58E2D_A725_456B_94F1_2B73901079CE__INCLUDED_
@@ -31,27 +28,27 @@
 #include "I2CLineInterface.h"
 #include "I2CBusForLineInterface.h"
 
-class CBT848Card :	public CPCICard,
-					public II2CLineInterface
+class CBT848Card :    public CPCICard,
+                    public II2CLineInterface
 {
 public:
-	bool WriteToI2C(const BYTE *writeBuffer, size_t writeBufferSize);
-	CBT848Card(CHardwareDriver* pDriver);
-	~CBT848Card();
+    bool WriteToI2C(const BYTE *writeBuffer, size_t writeBufferSize);
+    CBT848Card(CHardwareDriver* pDriver);
+    ~CBT848Card();
 
 private:
-	bool GetSCL();
-	bool GetSDA();
-	void SetSCL(bool value);
-	void SetSDA(bool value);
+    bool GetSCL();
+    bool GetSDA();
+    void SetSCL(bool value);
+    void SetSDA(bool value);
 
-	void Sleep();
-	void InitializeI2C();
+    void Sleep();
+    void InitializeI2C();
 
-	bool			m_I2CInitialized;
+    bool            m_I2CInitialized;
     CI2CBus*        m_I2CBus;
-    DWORD			m_I2CSleepCycle;
-    DWORD			m_I2CRegister;
+    DWORD            m_I2CSleepCycle;
+    DWORD            m_I2CRegister;
 };
 
 #endif // !defined(AFX_BT848CARD_H__05A58E2D_A725_456B_94F1_2B73901079CE__INCLUDED_)

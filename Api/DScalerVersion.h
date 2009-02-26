@@ -25,9 +25,9 @@
 
 // need to have an extra macro for stingify otherwise we get the 
 // name of the definition not the value
-#define MAKESTRING(Stuff) 	#Stuff
-#define MAKEVERSTRING(Maj, Min, Rev) 	MAKESTRING(Maj) "." MAKESTRING(Min) "." MAKESTRING(Rev)
-#define MAKEVERSTRING_ZT(Maj, Min, Rev) 	MAKESTRING(Maj) "." MAKESTRING(Min) "." MAKESTRING(Rev) "\0"
+#define MAKESTRING(Stuff)     #Stuff
+#define MAKEVERSTRING(Maj, Min, Rev)     MAKESTRING(Maj) "." MAKESTRING(Min) "." MAKESTRING(Rev)
+#define MAKEVERSTRING_ZT(Maj, Min, Rev)     MAKESTRING(Maj) "." MAKESTRING(Min) "." MAKESTRING(Rev) "\0"
 
 #define VERSTRING MAKEVERSTRING(DSCALERVERSION_MAJOR, DSCALERVERSION_MINOR, DSCALERVERSION_REVISION)
 #define VERSTRING_ZT MAKEVERSTRING_ZT(DSCALERVERSION_MAJOR, DSCALERVERSION_MINOR, DSCALERVERSION_REVISION)

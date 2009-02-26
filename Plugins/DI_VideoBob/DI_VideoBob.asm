@@ -16,17 +16,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2001/11/21 15:21:41  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.2  2001/07/13 16:13:33  adcockj
-// Added CVS tags and removed tabs
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #if defined(IS_SSE)
 #define MAINLOOP_LABEL DoNext8Bytes_SSE

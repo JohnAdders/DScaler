@@ -20,336 +20,6 @@
 // Copyright (c) 2001 John Adcock.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Sep 2002   Atsushi Nakagawa      Initial Release
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.101  2007/02/18 17:19:22  robmuller
-// Patch from Bill Randle to fix problems with new video formats.
-//
-// Revision 1.100  2006/09/24 14:14:44  robmuller
-// Enable gamma control by default.
-//
-// Revision 1.99  2005/07/26 22:19:31  laurentg
-// Use the new function Channel_GetVBIName
-//
-// Revision 1.98  2005/05/18 12:18:32  robmuller
-// Added gamma control.
-//
-// Revision 1.97  2005/03/29 13:07:00  adcockj
-// Avoid tight loops in processing
-//
-// Revision 1.96  2005/03/23 14:21:00  adcockj
-// Test fix for threading issues
-//
-// Revision 1.95  2005/03/06 15:53:03  atnak
-// Fixed card name not saved by initial card  setup dialog if auto-detected.
-//
-// Revision 1.94  2005/03/06 00:35:26  robmuller
-// Changed default value for automatic volume leveling.
-//
-// Revision 1.93  2004/11/20 14:23:55  atnak
-// Added SAA7134 card name setting for storing the card selection as text.
-//
-// Revision 1.92  2004/11/16 08:58:58  atnak
-// Renumbered eAudioInputSource constants for consistency to actual values
-//
-// Revision 1.91  2004/08/06 16:23:00  atnak
-// Added typecast to make some warnings go away.
-//
-// Revision 1.90  2004/04/24 11:13:25  atnak
-// fixed memory page table boundary checking code
-//
-// Revision 1.89  2004/04/06 12:20:48  adcockj
-// Added .NET 2003 project files and some fixes to support this
-//
-// Revision 1.88  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.87  2003/08/15 18:22:57  laurentg
-// Save in the source if it is the first setup
-//
-// Revision 1.86  2003/08/15 14:26:30  laurentg
-// Management of volume
-//
-// Revision 1.85  2003/08/15 12:18:39  laurentg
-// Volume update in the toolbar when changing source
-//
-// Revision 1.84  2003/07/05 10:55:57  laurentg
-// New method SetWidth
-//
-// Revision 1.83  2003/06/15 07:12:18  laurentg
-// Calls to Stop_Capture and Start_Capture temporally removed in HDelayOnChange and VDelayOnChange methods
-// Call to NotifySizeChange added in Start method
-//
-// Revision 1.82  2003/05/31 18:46:27  laurentg
-// Possibility to save video format per video input corrected
-//
-// Revision 1.81  2003/05/30 12:21:20  laurentg
-// Don't forget to notify video format change if necessary when switching source and video input of destination source is tuner
-//
-// Revision 1.80  2003/05/29 17:07:28  laurentg
-// no message
-//
-// Revision 1.79  2003/05/29 15:55:25  laurentg
-// Settings management updated (saving of video format per video input deactivated)
-//
-// Revision 1.78  2003/05/26 20:49:04  laurentg
-// Corrections for datacasting
-// Enable the Cancel button in the setup card dialog box
-//
-// Revision 1.77  2003/04/17 09:48:36  atnak
-// Changed the default for White Peak to be off.
-//
-// Revision 1.76  2003/04/07 09:17:14  adcockj
-// Fixes for correct operation of IsFirstInSeries
-//
-// Revision 1.75  2003/03/09 19:48:28  laurentg
-// Updated field statistics
-//
-// Revision 1.74  2003/03/08 20:01:26  laurentg
-// New setting "always sleep"
-//
-// Revision 1.73  2003/02/26 20:53:33  laurentg
-// New timing setting MaxFieldShift
-//
-// Revision 1.72  2003/02/25 21:47:05  laurentg
-// Slightly update relative to preceeding updates
-//
-// Revision 1.71  2003/02/22 13:42:42  laurentg
-// New counter to count fields runnign late
-// Update input frequency on cleanish field changes only which means when the field is no running late
-//
-// Revision 1.70  2003/02/06 19:45:47  ittarnavsky
-// removed dependency on BT848_Defines.h
-//
-// Revision 1.69  2003/01/27 22:04:12  laurentg
-// First step to merge setup hardware and hardware info dialog boxes
-// CPU flag information moved in the general hardware dialog box
-// Hardware info dialog box available for CX2388x
-//
-// Revision 1.68  2003/01/23 02:18:45  atnak
-// Minor changes
-//
-// Revision 1.67  2003/01/23 01:52:22  atnak
-// Fixed settings
-//
-// Revision 1.66  2003/01/20 11:35:37  adcockj
-// Made Reset call Consistent with other sources
-//
-// Revision 1.65  2003/01/18 13:55:43  laurentg
-// New methods GetHDelay and GetVDelay
-//
-// Revision 1.64  2003/01/18 10:52:11  laurentg
-// SetOverscan renamed SetAspectRatioData
-// Unnecessary call to SetOverscan deleted
-// Overscan setting specific to calibration deleted
-//
-// Revision 1.63  2003/01/16 13:30:49  adcockj
-// Fixes for various settings problems reported by Laurent 15/Jan/2003
-//
-// Revision 1.62  2003/01/13 13:56:28  adcockj
-// First attemp at SAA7134 setting groups
-//
-// Revision 1.61  2003/01/12 16:19:34  adcockj
-// Added SettingsGroup activity setting
-// Corrected event sequence and channel change behaviour
-//
-// Revision 1.60  2003/01/11 15:22:27  adcockj
-// Interim Checkin of setting code rewrite
-//  - Remove CSettingsGroupList class
-//  - Fixed bugs in format switching
-//  - Some new CSettingGroup code
-//
-// Revision 1.59  2003/01/11 12:53:58  adcockj
-// Interim Check in of settings changes
-//  - bug fixes for overlay settings changes
-//  - Bug fixes for new settings changes
-//  - disables settings per channel completely
-//
-// Revision 1.58  2003/01/10 17:38:15  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.57  2003/01/08 19:59:38  laurentg
-// Analogue Blanking setting by source
-//
-// Revision 1.56  2003/01/08 00:22:41  atnak
-// Put back VBI upscale divisor
-//
-// Revision 1.55  2003/01/07 23:27:03  laurentg
-// New overscan settings
-//
-// Revision 1.54  2003/01/07 22:59:59  atnak
-// Removed variable upscale devisor and locked in at 0x200 scaling
-// for 27Mhz VBI stepping
-//
-// Revision 1.53  2003/01/05 18:35:45  laurentg
-// Init function for VBI added
-//
-// Revision 1.52  2003/01/05 16:54:54  laurentg
-// Updated parameters for VBI_DecodeLine
-//
-// Revision 1.51  2003/01/01 20:56:45  atnak
-// Updates for various VideoText changes
-//
-// Revision 1.50  2002/12/10 12:58:07  adcockj
-// Removed NotifyInputChange and NotifyVideoFormatChange functions and replaced with
-//  calls to EventCollector->RaiseEvent
-//
-// Revision 1.49  2002/12/10 12:17:31  atnak
-// NotifyInputChange() + VIDEOFORMAT to NotifyVideoFormatChange()
-//
-// Revision 1.48  2002/12/10 11:05:45  atnak
-// Fixed FlyVideo 3000 audio for external inputs
-//
-// Revision 1.47  2002/12/09 00:32:13  atnak
-// Added new muting stuff
-//
-// Revision 1.46  2002/12/07 15:59:06  adcockj
-// Modified mute behaviour
-//
-// Revision 1.45  2002/11/10 09:30:57  atnak
-// Added Chroma only comb filter mode for SECAM
-//
-// Revision 1.44  2002/11/10 05:11:23  atnak
-// Added adjustable audio input level
-//
-// Revision 1.43  2002/11/08 12:16:12  atnak
-// Fixed settings not being set at startup
-//
-// Revision 1.42  2002/11/07 20:33:17  adcockj
-// Promoted ACPI functions so that state management works properly
-//
-// Revision 1.41  2002/11/07 18:54:21  atnak
-// Redid getting next field -- fixes some issues
-//
-// Revision 1.40  2002/10/31 05:39:02  atnak
-// Added SoundChannel change event for toolbar
-//
-// Revision 1.39  2002/10/31 05:02:55  atnak
-// Settings cleanup and audio tweaks
-//
-// Revision 1.38  2002/10/31 03:10:55  atnak
-// Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
-//
-// Revision 1.37  2002/10/30 04:35:47  atnak
-// Added attempt to reduce driver conflict instability
-//
-// Revision 1.36  2002/10/30 03:28:21  atnak
-// Added helpid to SAA713x Advanced tree settings page
-//
-// Revision 1.35  2002/10/29 03:07:18  atnak
-// Added SAA713x TreeSettings Page
-//
-// Revision 1.34  2002/10/28 11:10:12  atnak
-// Various changes and revamp to settings
-//
-// Revision 1.33  2002/10/26 17:51:53  adcockj
-// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
-//
-// Revision 1.32  2002/10/26 16:18:34  atnak
-// Added SAA7134_SETTING summing check
-//
-// Revision 1.31  2002/10/26 05:24:23  atnak
-// Minor cleanups
-//
-// Revision 1.30  2002/10/26 04:42:50  atnak
-// Added AGC config and automatic volume leveling control
-//
-// Revision 1.29  2002/10/23 17:05:19  atnak
-// Added variable VBI sample rate scaling
-//
-// Revision 1.28  2002/10/22 04:08:50  flibuste2
-// -- Modified CSource to include virtual ITuner* GetTuner();
-// -- Modified HasTuner() and GetTunerId() when relevant
-//
-// Revision 1.27  2002/10/20 09:27:55  atnak
-// Fixes negative dropped frames for accurate
-//
-// Revision 1.26  2002/10/20 07:41:04  atnak
-// custom audio standard setup + etc
-//
-// Revision 1.25  2002/10/15 04:34:26  atnak
-// increased the amount of VBI samples to get better decoding
-//
-// Revision 1.24  2002/10/12 20:03:12  atnak
-// added half second wait for DecodeVBI() after channel change
-//
-// Revision 1.23  2002/10/12 01:37:28  atnak
-// fixes negative dropped frames bug
-//
-// Revision 1.22  2002/10/10 12:13:19  atnak
-// fixed reverse polarity for odd before even
-//
-// Revision 1.21  2002/10/09 13:20:15  atnak
-// fixed up field start lines
-//
-// Revision 1.20  2002/10/08 20:42:05  atnak
-// forgot to comment out debug line
-//
-// Revision 1.19  2002/10/08 20:35:39  atnak
-// whitepeak, colorpeak, comb filter UI options
-//
-// Revision 1.18  2002/10/08 12:30:38  atnak
-// tweaks and fixes
-//
-// Revision 1.17  2002/10/06 09:49:19  atnak
-// Smarter GetNextField sleeping
-//
-// Revision 1.16  2002/10/04 23:40:46  atnak
-// proper support for audio channels mono,stereo,lang1,lang2 added
-//
-// Revision 1.15  2002/10/03 23:36:22  atnak
-// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
-//
-// Revision 1.14  2002/09/29 13:53:40  adcockj
-// Ensure Correct History stored
-//
-// Revision 1.13  2002/09/29 10:14:15  adcockj
-// Fixed problem with history in OutThreads
-//
-// Revision 1.12  2002/09/28 13:33:04  kooiman
-// Added sender object to events and added setting flag to treesettingsgeneric.
-//
-// Revision 1.11  2002/09/26 11:33:42  kooiman
-// Use event collector
-//
-// Revision 1.10  2002/09/25 15:11:12  adcockj
-// Preliminary code for format specific support for settings per channel
-//
-// Revision 1.9  2002/09/16 20:08:21  adcockj
-// fixed format detect for cx2388x
-//
-// Revision 1.8  2002/09/16 19:34:19  adcockj
-// Fix for auto format change
-//
-// Revision 1.7  2002/09/16 17:52:34  atnak
-// Support for SAA7134Res.dll dialogs
-//
-// Revision 1.6  2002/09/15 14:28:07  atnak
-// Tweaked VBI and VDelay settings
-//
-// Revision 1.5  2002/09/15 14:20:38  adcockj
-// Fixed timing problems for cx2388x chips
-//
-// Revision 1.4  2002/09/14 19:40:48  atnak
-// various changes
-//
-// Revision 1.3  2002/09/10 12:24:03  atnak
-// changed some UI stuff
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SAA7134Source.cpp CSAA7134Source Implementation
@@ -404,7 +74,7 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     m_hSAA7134ResourceInst(NULL),
     m_DetectedAudioChannel((eAudioChannel)-1),
     m_bSelectCardCancelButton(TRUE),
-	m_InitialSetup(FALSE)
+    m_InitialSetup(FALSE)
 {
     CreateSettings(IniSection);
 
@@ -485,11 +155,11 @@ void CSAA7134Source::SetSourceAsCurrent()
     {
         Channel_Reset();
     }
-	else
-	{
-		// We read what is the video format saved for this video input
-	    SettingsMaster->LoadOneSetting(m_VideoFormat);
-	}
+    else
+    {
+        // We read what is the video format saved for this video input
+        SettingsMaster->LoadOneSetting(m_VideoFormat);
+    }
     
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
@@ -497,8 +167,8 @@ void CSAA7134Source::SetSourceAsCurrent()
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
-		// We save the video format attached to this video input
-	    SettingsMaster->WriteOneSetting(m_VideoFormat);
+        // We save the video format attached to this video input
+        SettingsMaster->WriteOneSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
@@ -680,8 +350,8 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_RightOverscan);
 
-	m_CardName = new CStringSetting("Card Name", reinterpret_cast<long>(""), IniSection, "CardName");
-	m_Settings.push_back(m_CardName);
+    m_CardName = new CStringSetting("Card Name", reinterpret_cast<long>(""), IniSection, "CardName");
+    m_Settings.push_back(m_CardName);
 
 #ifdef _DEBUG    
     if (SAA7134_SETTING_LASTONE != m_Settings.size())
@@ -759,8 +429,8 @@ void CSAA7134Source::SetupVideoStandard()
     m_pSAA7134Card->SetSaturation((BYTE)m_Saturation->GetValue());
     m_pSAA7134Card->SetHue((BYTE)m_Hue->GetValue());
     m_pSAA7134Card->SetCombFilter((eCombFilter)m_AdaptiveCombFilter->GetValue());
-	m_pSAA7134Card->SetGammaControl((BOOL)m_GammaControl->GetValue());
-	m_pSAA7134Card->SetGammaLevel((WORD)m_GammaLevel->GetValue());
+    m_pSAA7134Card->SetGammaControl((BOOL)m_GammaControl->GetValue());
+    m_pSAA7134Card->SetGammaLevel((WORD)m_GammaLevel->GetValue());
 
     NotifySizeChange();
 
@@ -999,23 +669,23 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     int         FieldDistance;
     BOOL        bTryToCatchUp = TRUE;
     BOOL        bSlept = FALSE;
-	BOOL        bWaited;
+    BOOL        bWaited;
 
     // This function waits for the next field
-	bWaited = PollForNextField(&NextFieldID, &FieldDistance, TRUE);
+    bWaited = PollForNextField(&NextFieldID, &FieldDistance, TRUE);
     if (bWaited)
     {
         // if we waited then we are not late
         pInfo->bRunningLate = FALSE;
     }
-	else
-	{
-		if (bAlwaysSleep)
-		{
-			// A sleep must be done
-		}
-		Timing_IncrementNotWaitedFields();
-	}
+    else
+    {
+        if (bAlwaysSleep)
+        {
+            // A sleep must be done
+        }
+        Timing_IncrementNotWaitedFields();
+    }
 
     // The distance from the new field the field card
     // is currently working on
@@ -1024,15 +694,15 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         // No skipped fields
         pInfo->bMissedFrame = FALSE;
 
-		if (!bWaited)
-		{
+        if (!bWaited)
+        {
             LOG(2, " Running late but right field");
-			if (pInfo->bRunningLate)
-			{
-				// Not sure why we need to do this
-				Timing_AddDroppedFields(1);
-			}
-		}
+            if (pInfo->bRunningLate)
+            {
+                // Not sure why we need to do this
+                Timing_AddDroppedFields(1);
+            }
+        }
     }
     else if (bTryToCatchUp && FieldDistance <= (MaxFieldShift+1))
     {
@@ -1063,29 +733,29 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     TFieldID    NextFieldID;
     int         FieldDistance;
     BOOL        bSlept = FALSE;
-	BOOL        bWaited;
+    BOOL        bWaited;
 
     // This function waits for the next field
-	bWaited = PollForNextField(&NextFieldID, &FieldDistance, FALSE);
+    bWaited = PollForNextField(&NextFieldID, &FieldDistance, FALSE);
     if (bWaited)
     {
         // if we waited then we are not late
         pInfo->bRunningLate = FALSE;
     }
-	else
-	{
-		Timing_IncrementNotWaitedFields();
-	}
+    else
+    {
+        Timing_IncrementNotWaitedFields();
+    }
 
     // The distance from the new field the field card
     // is currently working on
     if (FieldDistance == 1)
     {
         // No skipped fields, do nothing
-		if (!bWaited)
-		{
+        if (!bWaited)
+        {
             LOG(2, " Running late but right field");
-		}
+        }
     }
     else if (FieldDistance <= (MaxFieldShift+1))
     {
@@ -1119,10 +789,10 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         Timing_UpdateRunningAverage(pInfo, 2);
     }
 
-	if (bAlwaysSleep || bWaited)
-	{
-	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
-	}
+    if (bAlwaysSleep || bWaited)
+    {
+        Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+    }
 }
 
 
@@ -1349,36 +1019,36 @@ void CSAA7134Source::SetupCard()
 {
     long OrigTuner = m_TunerType->GetValue();
 
-	LPSTR cardName = reinterpret_cast<char*>(m_CardName->GetValue());
+    LPSTR cardName = reinterpret_cast<char*>(m_CardName->GetValue());
 
-	// If the string card name is set, recalculate the card type based on
-	// the given name.
-	if (*cardName != '\0')
-	{
-		m_CardType->SetValue(m_pSAA7134Card->GetCardByName(cardName));
-	}
-	else
-	{
-		// Otherwise set the card name setting based on the card type for
-		// future use.
-		m_CardName->SetValue(reinterpret_cast<long>(
-			m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue())));
-	}
+    // If the string card name is set, recalculate the card type based on
+    // the given name.
+    if (*cardName != '\0')
+    {
+        m_CardType->SetValue(m_pSAA7134Card->GetCardByName(cardName));
+    }
+    else
+    {
+        // Otherwise set the card name setting based on the card type for
+        // future use.
+        m_CardName->SetValue(reinterpret_cast<long>(
+            m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue())));
+    }
 
     if (m_CardType->GetValue() == SAA7134CARDID_UNKNOWN)
     {
-		m_InitialSetup = TRUE;
+        m_InitialSetup = TRUE;
 
         // try to detect the card
         m_CardType->SetValue(m_pSAA7134Card->AutoDetectCardType());
         m_TunerType->SetValue(m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)m_CardType->GetValue()));
 
-		// Synchronize m_CardName to match the auto-detected m_CardType value.
-		if (m_CardType->GetValue() != SAA7134CARDID_UNKNOWN)
-		{
-			m_CardName->SetValue(reinterpret_cast<long>(
-				m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue())));
-		}
+        // Synchronize m_CardName to match the auto-detected m_CardType value.
+        if (m_CardType->GetValue() != SAA7134CARDID_UNKNOWN)
+        {
+            m_CardName->SetValue(reinterpret_cast<long>(
+                m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue())));
+        }
 
         // then display the hardware setup dialog
         m_bSelectCardCancelButton = FALSE;
@@ -1486,7 +1156,7 @@ int CSAA7134Source::GetWidth()
 
 void CSAA7134Source::SetWidth(int w)
 {
-	m_PixelWidth->SetValue(w);
+    m_PixelWidth->SetValue(w);
 }
 
 int CSAA7134Source::GetHeight()
@@ -1693,27 +1363,27 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
     {
         Channel_SetCurrent();
     }
-	else
-	{
-		// We read what is the video format saved for this video input
-	    SettingsMaster->LoadOneSetting(m_VideoFormat);
-	}
+    else
+    {
+        // We read what is the video format saved for this video input
+        SettingsMaster->LoadOneSetting(m_VideoFormat);
+    }
 
-	// tell the world if the format has changed
-	if(OldFormat != m_VideoFormat->GetValue())
-	{
-		EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
-		EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
+    // tell the world if the format has changed
+    if(OldFormat != m_VideoFormat->GetValue())
+    {
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
-		// We save the video format attached to this video input
-	    SettingsMaster->WriteOneSetting(m_VideoFormat);
-	}
+        // We save the video format attached to this video input
+        SettingsMaster->WriteOneSetting(m_VideoFormat);
+    }
 
-	// make sure the defaults are correct
+    // make sure the defaults are correct
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
-	SettingsMaster->LoadSettings();
+    SettingsMaster->LoadSettings();
 
     // reset here when we have all the settings
     Reset();
@@ -1776,14 +1446,14 @@ void CSAA7134Source::PixelWidthOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::HDelayOnChange(long HDelay, long OldValue)
 {
-	// Laurent 06/15/2003
-	// Call to Stop_Capture put in comments
-	// We must check if this call was really necessary
+    // Laurent 06/15/2003
+    // Call to Stop_Capture put in comments
+    // We must check if this call was really necessary
     //Stop_Capture();
     m_pSAA7134Card->SetGeometry((WORD)m_CurrentX, (WORD)m_CurrentY, (WORD)HDelay, (WORD)m_VDelay->GetValue());
-	// Laurent 06/15/2003
-	// Call to Start_Capture put in comments
-	// We must check if this call was really necessary
+    // Laurent 06/15/2003
+    // Call to Start_Capture put in comments
+    // We must check if this call was really necessary
     //Start_Capture();
 }
 
@@ -1812,14 +1482,14 @@ void CSAA7134Source::VDelayOnChange(long VDelay, long OldValue)
         }
     }
 
-	// Laurent 06/15/2003
-	// Call to Stop_Capture put in comments
-	// We must check if this call was really necessary
+    // Laurent 06/15/2003
+    // Call to Stop_Capture put in comments
+    // We must check if this call was really necessary
     //Stop_Capture();
     m_pSAA7134Card->SetGeometry((WORD)m_CurrentX, (WORD)m_CurrentY, (WORD)m_HDelay->GetValue(), (WORD)VDelay);
-	// Laurent 06/15/2003
-	// Call to Start_Capture put in comments
-	// We must check if this call was really necessary
+    // Laurent 06/15/2003
+    // Call to Start_Capture put in comments
+    // We must check if this call was really necessary
     //Start_Capture();
 }
 
@@ -1925,13 +1595,13 @@ void CSAA7134Source::GainControlLevelOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::GammaControlOnChange(long NewValue, long OldValue)
 {
-	m_pSAA7134Card->SetGammaControl(NewValue);
+    m_pSAA7134Card->SetGammaControl(NewValue);
 }
 
 
 void CSAA7134Source::GammaLevelOnChange(long NewValue, long OldValue)
 {
-	m_pSAA7134Card->SetGammaLevel((WORD)NewValue);
+    m_pSAA7134Card->SetGammaLevel((WORD)NewValue);
 }
 
 

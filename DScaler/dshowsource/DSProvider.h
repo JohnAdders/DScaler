@@ -15,31 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2002/12/03 22:02:23  tobbej
-// added some checks before enabling dshow support,
-// currently it checks that dsrend is properly installed
-//
-// Revision 1.3  2002/08/20 16:22:59  tobbej
-// split CDSSource into 3 different classes
-//
-// Revision 1.2  2001/12/17 19:36:45  tobbej
-// renamed a few classes
-//
-// Revision 1.1  2001/12/09 22:01:48  tobbej
-// experimental dshow support, doesnt work yet
-// define WANT_DSHOW_SUPPORT if you want to try it
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DSProvider.h interface for the CDSProvider class.
@@ -67,20 +42,20 @@
 class CDSProvider : public ISourceProvider  
 {
 public:
-	CDSProvider();
-	virtual ~CDSProvider();
+    CDSProvider();
+    virtual ~CDSProvider();
 
     virtual int GetNumberOfSources();
     virtual CSource* GetSource(int SourceIndex);
-	
-	string GetSourceName(int SourceIndex);
+    
+    string GetSourceName(int SourceIndex);
 
 private:
-	///checks if dshow support can be enabled
-	bool CanUseDShow(std::string &FailMsg);
-	vector<CDSSourceBase*> m_DSSources;
-	map<int,string> m_SourceNames;
-	
+    ///checks if dshow support can be enabled
+    bool CanUseDShow(std::string &FailMsg);
+    vector<CDSSourceBase*> m_DSSources;
+    map<int,string> m_SourceNames;
+    
 };
 
 #endif // !defined(AFX_DSPROVIDER_H__D8D191FB_3156_439A_9261_F81B9EB3B9E4__INCLUDED_)

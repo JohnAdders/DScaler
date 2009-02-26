@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 11 Aug 2000   John Adcock           Better support for error messages
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file errorbox.h errorbox Header file

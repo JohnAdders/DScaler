@@ -15,9 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file GradientStatic.h header file for CGradientStatic
@@ -40,12 +37,12 @@ typedef UINT (CALLBACK* LPFNGRADIENTFILL)(HDC,CONST PTRIVERTEX,DWORD,CONST PVOID
 class CGradientStatic : public CStatic
 {
 public:
-	CGradientStatic();
-	virtual ~CGradientStatic();
-	void SetGradientColor(COLORREF clLeft,COLORREF clRight);
-	void SetTextColor(COLORREF cl);
-	void SetSpacing(int iNoOfPixels);
-	
+    CGradientStatic();
+    virtual ~CGradientStatic();
+    void SetGradientColor(COLORREF clLeft,COLORREF clRight);
+    void SetTextColor(COLORREF cl);
+    void SetSpacing(int iNoOfPixels);
+    
 // Attributes
 public:
 
@@ -53,34 +50,34 @@ public:
 public:
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CGradientStatic)
-	//}}AFX_VIRTUAL
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CGradientStatic)
+    //}}AFX_VIRTUAL
 
 // Implementation
 public:
-	
+    
 
-	// Generated message map functions
+    // Generated message map functions
 protected:
-	//{{AFX_MSG(CGradientStatic)
-	afx_msg void OnPaint();
-	afx_msg void OnSysColorChange();
-	//}}AFX_MSG
+    //{{AFX_MSG(CGradientStatic)
+    afx_msg void OnPaint();
+    afx_msg void OnSysColorChange();
+    //}}AFX_MSG
 
-	DECLARE_MESSAGE_MAP()
+    DECLARE_MESSAGE_MAP()
 
 private:
-	void PaintRect(CDC& dc, int x, int y, int w, int h, COLORREF color);
-	int m_iSpacing;
-	
-	long m_clLeft;
-	long m_clRight;
-	long m_clText;
-	bool m_bUsingDefaultColors;
+    void PaintRect(CDC& dc, int x, int y, int w, int h, COLORREF color);
+    int m_iSpacing;
+    
+    long m_clLeft;
+    long m_clRight;
+    long m_clText;
+    bool m_bUsingDefaultColors;
 
-	HINSTANCE m_hMsimg32;
-	LPFNGRADIENTFILL m_pfnGradientFill;
+    HINSTANCE m_hMsimg32;
+    LPFNGRADIENTFILL m_pfnGradientFill;
 };
 
 /////////////////////////////////////////////////////////////////////////////

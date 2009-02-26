@@ -21,17 +21,6 @@
 // Those parts are probably (c) Connexant 2002
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2007/02/18 21:15:31  robmuller
-// Added option to not compile BT8x8 code.
-//
-// Revision 1.1  2006/12/28 14:18:35  adcockj
-// Added patch for Curtiss-Wright cards from Bill Randle
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file BT848Card_Atlas.cpp CBT848Card Implementation (Atlas)
@@ -125,7 +114,7 @@ void CBT848Card::SetAtlasFormat(int nInput, eVideoFormat TVFormat)
         return;
     }
 
-	//SetupAD9882();
+    //SetupAD9882();
 
     #ifdef _DEBUG
     if(m_AD9882->GetVersion() > 0)

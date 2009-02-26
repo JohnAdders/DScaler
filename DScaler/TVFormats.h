@@ -15,27 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.9  2006/12/28 14:18:36  adcockj
-// Added patch for Curtiss-Wright cards from Bill Randle
-//
-// Revision 1.8  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.7  2003/05/30 10:06:25  adcockj
-// Fix for format names in ini file
-//
-// Revision 1.6  2003/01/07 16:49:08  adcockj
-// Changes to allow variable sampling rates for VBI
-//
-// Revision 1.5  2002/10/18 11:41:47  adcockj
-// Updated Fsc values
-//
-// Revision 1.4  2001/12/05 21:45:11  ittarnavsky
-// added changes for the AudioDecoder and AudioControls support
-//
-/////////////////////////////////////////////////////////////////////////////
 
 
 /** 

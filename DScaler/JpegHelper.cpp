@@ -15,49 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.12  2003/03/05 22:08:43  laurentg
-// Updated management of 16 bytes aligned buffer for stills
-//
-// Revision 1.11  2003/01/19 11:09:10  laurentg
-// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
-//
-// Revision 1.10  2002/11/01 13:09:19  laurentg
-// Management of the still capture context slightly updated - works now even with stills in memory
-//
-// Revision 1.9  2002/10/26 17:56:19  laurentg
-// Possibility to take stills in memory added
-//
-// Revision 1.8  2002/06/21 23:14:19  laurentg
-// New way to store address of allocated memory buffer for still source
-//
-// Revision 1.7  2002/05/27 22:21:14  laurentg
-// Take into account difference of range for Y between overlay and JPEG format
-//
-// Revision 1.6  2002/05/06 15:48:53  laurentg
-// Informations saved in a DScaler still updated
-// Use of the comments field to show informations about a DScaler still
-//
-// Revision 1.5  2002/05/05 12:09:22  laurentg
-// All lines have now a pitch which is a multiple of 16
-// Width of picture is now forced to an even value
-//
-// Revision 1.4  2002/05/04 12:03:23  laurentg
-// Use of marker APP1 and APP2 to save DScaler information
-//
-// Revision 1.3  2002/05/03 20:36:49  laurentg
-// 16 byte aligned data
-//
-// Revision 1.2  2002/05/02 20:16:27  laurentg
-// JPEG format added to take still
-//
-// Revision 1.1  2002/05/01 12:57:19  laurentg
-// Support of JPEG files added
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file JpegHelper.cpp Jpeg Helper functions
@@ -78,11 +35,11 @@ extern "C"
 /* Expanded data source object for stdio input */
 
 typedef struct {
-  struct jpeg_source_mgr pub;	/* public fields */
+  struct jpeg_source_mgr pub;    /* public fields */
 
-  FILE * infile;		/* source stream */
-  JOCTET * buffer;		/* start of buffer */
-  boolean start_of_file;	/* have we gotten any data yet? */
+  FILE * infile;        /* source stream */
+  JOCTET * buffer;        /* start of buffer */
+  boolean start_of_file;    /* have we gotten any data yet? */
 } my_source_mgr;
 
 typedef my_source_mgr * my_src_ptr;
@@ -92,8 +49,8 @@ typedef my_source_mgr * my_src_ptr;
 typedef struct {
   struct jpeg_destination_mgr pub; /* public fields */
 
-  FILE * outfile;		/* target stream */
-  JOCTET * buffer;		/* start of buffer */
+  FILE * outfile;        /* target stream */
+  JOCTET * buffer;        /* start of buffer */
 } my_destination_mgr;
 
 typedef my_destination_mgr * my_dest_ptr;
@@ -102,8 +59,8 @@ typedef my_destination_mgr * my_dest_ptr;
 #define LIMIT_Y(x)      (((x)<16)?16:((x)>235)?235:(x))
 #define LIMIT_CbCr(x)   (((x)<16)?16:((x)>240)?240:(x))
 
-#define INPUT_BUF_SIZE  4096	/* choose an efficiently fread'able size */
-#define OUTPUT_BUF_SIZE 4096	/* choose an efficiently fwrite'able size */
+#define INPUT_BUF_SIZE  4096    /* choose an efficiently fread'able size */
+#define OUTPUT_BUF_SIZE 4096    /* choose an efficiently fwrite'able size */
 #define SQUARE_MODE_ON  "DScaler:Square Pixels Mode:ON"
 #define SQUARE_MODE_OFF "DScaler:Square Pixels Mode:OFF"
 
@@ -177,7 +134,7 @@ fill_input_buffer (j_decompress_ptr cinfo)
 
   if (nbytes <= 0)
   {
-    if (src->start_of_file)	/* Treat empty input file as fatal error */
+    if (src->start_of_file)    /* Treat empty input file as fatal error */
     {
       ERREXIT(cinfo, JERR_INPUT_EMPTY);
     }
@@ -271,11 +228,11 @@ my_jpeg_stdio_src (j_decompress_ptr cinfo, FILE * infile)
   {
     cinfo->src = (struct jpeg_source_mgr *)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-				  (size_t) sizeof(my_source_mgr));
+                  (size_t) sizeof(my_source_mgr));
     src = (my_src_ptr) cinfo->src;
     src->buffer = (JOCTET *)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-				  INPUT_BUF_SIZE * (size_t) sizeof(JOCTET));
+                  INPUT_BUF_SIZE * (size_t) sizeof(JOCTET));
   }
 
   src = (my_src_ptr) cinfo->src;
@@ -303,7 +260,7 @@ init_destination (j_compress_ptr cinfo)
   /* Allocate the output buffer --- it will be released when done with image */
   dest->buffer = (JOCTET *)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-				  OUTPUT_BUF_SIZE * (size_t) sizeof(JOCTET));
+                  OUTPUT_BUF_SIZE * (size_t) sizeof(JOCTET));
 
   dest->pub.next_output_byte = dest->buffer;
   dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
@@ -400,11 +357,11 @@ my_jpeg_stdio_dest (j_compress_ptr cinfo, FILE * outfile)
    * manager serially with the same JPEG object, because their private object
    * sizes may be different.  Caveat programmer.
    */
-  if (cinfo->dest == NULL)	/* first time for this JPEG object? */
+  if (cinfo->dest == NULL)    /* first time for this JPEG object? */
   {
     cinfo->dest = (struct jpeg_destination_mgr *)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-				  (size_t) sizeof(my_destination_mgr));
+                  (size_t) sizeof(my_destination_mgr));
   }
 
   dest = (my_dest_ptr) cinfo->dest;
@@ -453,10 +410,10 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     BYTE* pStartFrame;
     BYTE* pDestBuf;
     BYTE* pDestBuf2;
-	struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr jerr;
+    struct jpeg_decompress_struct cinfo;
+    struct jpeg_error_mgr jerr;
     jpeg_saved_marker_ptr pMarker;
-	FILE* infile;
+    FILE* infile;
     JDIMENSION num_scanlines;
     JSAMPARRAY buffer;
     JDIMENSION buffer_height;
@@ -465,10 +422,10 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     jmp_buf jmp_mark;
 
     // Open the input stream (file)
-	if ((infile = fopen(FileName, "rb")) == NULL)
+    if ((infile = fopen(FileName, "rb")) == NULL)
     {
         return FALSE;
-	}
+    }
 
     // Error handling
     cinfo.err = jpeg_std_error(&jerr);
@@ -492,17 +449,17 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     }
 
     // Initialize the JPEG decompression object
-	jpeg_create_decompress(&cinfo);
+    jpeg_create_decompress(&cinfo);
 
-	// Specify the source of the compressed data (eg, a file)
-	my_jpeg_stdio_src(&cinfo, infile);
+    // Specify the source of the compressed data (eg, a file)
+    my_jpeg_stdio_src(&cinfo, infile);
 
     // Read DScaler markers APP1 and APP2
     jpeg_save_markers(&cinfo, JPEG_APP0+1, 0xFFFF);
     jpeg_save_markers(&cinfo, JPEG_APP0+2, 0xFFFF);
 
     // Call jpeg_read_header() to obtain image info
-	(void)jpeg_read_header(&cinfo, TRUE);
+    (void)jpeg_read_header(&cinfo, TRUE);
 
     LOG(2, "image_height %d - image_width %d", cinfo.image_height, cinfo.image_width);
     LOG(2, "num_components %d", cinfo.num_components);
@@ -543,7 +500,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     cinfo.do_block_smoothing = FALSE;
 
     // Start decompression
-	(void)jpeg_start_decompress(&cinfo);
+    (void)jpeg_start_decompress(&cinfo);
 
     LOG(2, "output_height %d - output_width %d", cinfo.output_height, cinfo.output_width);
     LOG(2, "out_color_components %d", cinfo.out_color_components);
@@ -570,7 +527,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
         fclose(infile);
         return FALSE;
     }
-	pStartFrame = START_ALIGNED16(pFrameBuf);
+    pStartFrame = START_ALIGNED16(pFrameBuf);
 
     // Process data
     while (cinfo.output_scanline < h)
@@ -604,15 +561,15 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     }
 
     // Finish decompression
-	(void)jpeg_finish_decompress(&cinfo);
+    (void)jpeg_finish_decompress(&cinfo);
 
-	// Release the JPEG decompression object
+    // Release the JPEG decompression object
     jpeg_destroy_decompress(&cinfo);
 
     // Close the input stream (file)
     fclose(infile);
 
-	m_pParent->FreeOriginalFrameBuffer();
+    m_pParent->FreeOriginalFrameBuffer();
     m_pParent->m_OriginalFrameBuffer = pFrameBuf;
     m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;
@@ -645,11 +602,11 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     }
 
     // Open the output stream (file)
-	if ((outfile = fopen(FilePath, "wb")) == NULL)
+    if ((outfile = fopen(FilePath, "wb")) == NULL)
     {
         free(pLineBuf);
         return;
-	}
+    }
 
     // Error handling
     cinfo.err = jpeg_std_error(&jerr);
@@ -672,8 +629,8 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     // Initialize the JPEG compression object
     jpeg_create_compress(&cinfo);
 
-	// Specify the destination of the compressed data (eg, a file)
-	my_jpeg_stdio_dest(&cinfo, outfile);
+    // Specify the destination of the compressed data (eg, a file)
+    my_jpeg_stdio_dest(&cinfo, outfile);
 
     // Set parameters for compression
     cinfo.image_width = Width;
@@ -735,7 +692,7 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     // Finish compression
     jpeg_finish_compress(&cinfo);
 
-	// Release the JPEG decompression object
+    // Release the JPEG decompression object
     jpeg_destroy_compress(&cinfo);
 
     // Close the input stream (file)

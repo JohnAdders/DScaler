@@ -15,51 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 10 Apr 2001   John Adcock           Initial Version
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.17  2006/12/13 01:10:01  robmuller
-// Fix compile warnings with Visual Studio 2005 Express.
-//
-// Revision 1.16  2002/12/10 12:33:39  adcockj
-// Fixed bug in pic support
-//
-// Revision 1.15  2002/06/03 17:50:07  tobbej
-// added missing emms instruction
-//
-// Revision 1.14  2002/02/03 18:15:32  adcockj
-// Fixed plugtest
-//
-// Revision 1.13  2001/12/07 17:52:38  adcockj
-// Plugtest fixes
-//
-// Revision 1.12  2001/12/03 20:40:32  adcockj
-// Plugtest fixes
-//
-// Revision 1.11  2001/11/22 17:41:08  adcockj
-// Updated plugtest to be compatable with new structure
-//
-// Revision 1.10  2001/11/21 15:21:39  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.9  2001/08/03 12:28:32  adcockj
-// Added CPU id capability
-//
-// Revision 1.8  2001/07/16 18:27:28  adcockj
-// Fixed Typos and made menus more friendly
-//
-// Revision 1.7  2001/07/13 16:15:44  adcockj
-// Changed lots of variables to match Coding standards
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "..\DScaler\CPU.h"
@@ -110,7 +65,7 @@ CopyLoop2:
         dec ecx
         jne near CopyLoop2
 EndCopyLoop:
-		emms
+        emms
     }
 }
 
@@ -169,11 +124,11 @@ BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
         }
     }
 
-	pInfo->InputPitch = pInfo->LineLength;
-	if(pInfo->OverlayPitch == 0)
-	{
-		pInfo->OverlayPitch = 1024 * 2;
-	}
+    pInfo->InputPitch = pInfo->LineLength;
+    if(pInfo->OverlayPitch == 0)
+    {
+        pInfo->OverlayPitch = 1024 * 2;
+    }
     pInfo->Overlay = (BYTE*)malloc(pInfo->OverlayPitch * pInfo->FrameHeight);
     pInfo->CpuFeatureFlags = CpuFeatureFlags;
     pInfo->pMemcpy = memcpyMMX;

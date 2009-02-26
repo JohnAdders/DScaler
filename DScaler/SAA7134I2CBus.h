@@ -20,31 +20,6 @@
 // copyleft 2001 itt@myself.com.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 13 Sep 2002   Atsushi Nakagawa      Moved I2C stuff into new file
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2005/03/24 17:57:58  adcockj
-// Card access from one thread at a time
-//
-// Revision 1.3  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.2  2002/10/30 04:36:43  atnak
-// Moved back I2C sleep init to reduce startup delay
-//
-// Revision 1.1  2002/09/14 19:40:48  atnak
-// various changes
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file saa7134i2cbus.h saa7134i2cbus Header file

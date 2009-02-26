@@ -15,49 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.12  2005/03/06 01:05:48  robmuller
-// Never use JudderTerminator as a result of the General Hardware Setup dialog.
-//
-// Revision 1.11  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.10  2003/03/15 13:15:51  laurentg
-// DScaler usage choice
-//
-// Revision 1.9  2003/03/08 20:50:59  laurentg
-// Updated combobox to select the usage of DScaler
-//
-// Revision 1.8  2003/01/27 22:04:10  laurentg
-// First step to merge setup hardware and hardware info dialog boxes
-// CPU flag information moved in the general hardware dialog box
-// Hardware info dialog box available for CX2388x
-//
-// Revision 1.7  2003/01/18 10:24:45  laurentg
-// Suppression of the video card field from the general hardware setup dialog box
-//
-// Revision 1.6  2003/01/15 15:54:22  adcockj
-// Fixed some keyboard focus issues
-//
-// Revision 1.5  2002/08/12 19:54:27  laurentg
-// Selection of video card to adjust DScaler settings
-//
-// Revision 1.4  2002/08/11 22:59:52  laurentg
-// Call to WriteSettingsToIni with bOptimizeFileAccess set to TRUE
-//
-// Revision 1.3  2002/08/11 16:14:36  laurentg
-// New setting to choose between keep CPU for other applications or use full CPU for best results
-//
-// Revision 1.2  2002/08/11 13:52:03  laurentg
-// Show automatically the general hardware setup dialog box the first time DScaler is started
-//
-// Revision 1.1  2002/08/11 12:14:02  laurentg
-// Cut BT Card setup and general hardware setup in two different windows
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file HardwareSettings.cpp Hardware settings functions

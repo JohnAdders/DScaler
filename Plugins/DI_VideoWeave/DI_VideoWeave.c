@@ -15,26 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 30 Dec 2000   Mark Rejhon           Split into separate module
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.6  2002/06/18 19:46:08  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.5  2002/06/13 12:10:25  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.4  2001/07/13 16:13:33  adcockj
-// Added CVS tags and removed tabs
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Deinterlace.h"

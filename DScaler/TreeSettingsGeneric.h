@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 22 Jun 2001   Torbjörn Jansson      Initial release
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file TreeSettingsGeneric.h Header file for CTreeSettingsGeneric class
@@ -56,23 +49,23 @@ class CTreeSettingsGeneric : public CTreeSettingsPage
 public:
 
     /**
-	 * @param name name used in the tree
-	 * @param settings pointer to array of SETTING
+     * @param name name used in the tree
+     * @param settings pointer to array of SETTING
      * @param count size of settings array
-	 */
+     */
     CTreeSettingsGeneric(CString name,SETTING* settings,long count);
     
-	/**
-	 * @param name name used in the tree
-	 * @param psettings pointer to array of SETTING pointers
-	 * @param count size of settings array
-	 */
-	CTreeSettingsGeneric(CString name,SETTING** psettings,long count);
+    /**
+     * @param name name used in the tree
+     * @param psettings pointer to array of SETTING pointers
+     * @param count size of settings array
+     */
+    CTreeSettingsGeneric(CString name,SETTING** psettings,long count);
     
-	/**
-	 * @param name name used in the tree
-	 */
-	CTreeSettingsGeneric(CString name,vector<CSimpleSetting*> settings); 
+    /**
+     * @param name name used in the tree
+     */
+    CTreeSettingsGeneric(CString name,vector<CSimpleSetting*> settings); 
     ~CTreeSettingsGeneric();
 
 // Dialog Data
@@ -86,15 +79,15 @@ public:
     CEdit   m_EditString;
     CButton m_DefaultButton;
     CHSListBox  m_ListBox;
-	CButton m_CheckGlobal;
-	CButton m_CheckGlobalBox;
-	CButton m_CheckSourceBox;
-	CButton m_CheckVideoInputBox;
-	CButton m_CheckAudioInputBox;
-	CButton m_CheckVideoFormatBox;
-	CButton m_CheckChannelBox;
-	CStatic	m_SavePerInfoBox;
-	CStatic m_TopGroupBox;
+    CButton m_CheckGlobal;
+    CButton m_CheckGlobalBox;
+    CButton m_CheckSourceBox;
+    CButton m_CheckVideoInputBox;
+    CButton m_CheckAudioInputBox;
+    CButton m_CheckVideoFormatBox;
+    CButton m_CheckChannelBox;
+    CStatic    m_SavePerInfoBox;
+    CStatic m_TopGroupBox;
     //}}AFX_DATA
 
     // ClassWizard generated virtual function overrides
@@ -117,16 +110,16 @@ protected:
     afx_msg void OnCheckClick();
     afx_msg void OnSelchangeChoosefromlist();
     afx_msg void OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnCheckGlobalClick();
-	afx_msg void OnCheckSourceClick();
-	afx_msg void OnCheckVideoInputClick();
-	afx_msg void OnCheckAudioInputClick();
-	afx_msg void OnCheckVideoFormatClick();
-	afx_msg void OnCheckChannelClick();
+    afx_msg void OnCheckGlobalClick();
+    afx_msg void OnCheckSourceClick();
+    afx_msg void OnCheckVideoInputClick();
+    afx_msg void OnCheckAudioInputClick();
+    afx_msg void OnCheckVideoFormatClick();
+    afx_msg void OnCheckChannelClick();
     afx_msg void OnSize(UINT nType, int cx, int cy);
-	//}}AFX_MSG
+    //}}AFX_MSG
     DECLARE_MESSAGE_MAP()
-	void OnOK();
+    void OnOK();
 private:
     void UpdateControls(CWnd* pChangedControl);
     long m_SettingsCount;

@@ -15,20 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2001/12/17 19:22:33  tobbej
-// new crossbar classes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SingleCrossbar.cpp implementation of the CDShowSingleCrossbar class.
@@ -54,7 +40,7 @@ static char THIS_FILE[]=__FILE__;
 CDShowSingleCrossbar::CDShowSingleCrossbar(CComPtr<IAMCrossbar> &pCrossbar,IGraphBuilder *pGraph)
 :m_crossbar(pCrossbar),CDShowBaseCrossbar(pGraph)
 {
-	ASSERT(m_crossbar!=NULL);
+    ASSERT(m_crossbar!=NULL);
 }
 
 CDShowSingleCrossbar::~CDShowSingleCrossbar()
@@ -63,110 +49,110 @@ CDShowSingleCrossbar::~CDShowSingleCrossbar()
 }
 
 void CDShowSingleCrossbar::GetPinCounts(long &cIn,long &cOut)
-{	
-	HRESULT hr=m_crossbar->get_PinCounts(&cOut,&cIn);
-	if(FAILED(hr))
-	{
-		throw CCrossbarException("get_PinCounts failed",hr);
-	}
+{    
+    HRESULT hr=m_crossbar->get_PinCounts(&cOut,&cIn);
+    if(FAILED(hr))
+    {
+        throw CCrossbarException("get_PinCounts failed",hr);
+    }
 }
 
 PhysicalConnectorType CDShowSingleCrossbar::GetInputType(long Index)
 {
-	long cPinRelated,type;
-	HRESULT hr=m_crossbar->get_CrossbarPinInfo(TRUE,Index,&cPinRelated,&type);
-	if(FAILED(hr))
-	{
-		throw CCrossbarException("get_CrossbarPinInfo failed",hr);
-	}
-	return (PhysicalConnectorType)type;
+    long cPinRelated,type;
+    HRESULT hr=m_crossbar->get_CrossbarPinInfo(TRUE,Index,&cPinRelated,&type);
+    if(FAILED(hr))
+    {
+        throw CCrossbarException("get_CrossbarPinInfo failed",hr);
+    }
+    return (PhysicalConnectorType)type;
 }
 
 void CDShowSingleCrossbar::SetInputIndex(long Index,bool bSetRelated)
 {
-	long cInputPinRelated,cOutputPinRelated,type;
-	long cInput,cOutput;
-	
-	HRESULT hr=m_crossbar->get_PinCounts(&cOutput,&cInput);
-	if(FAILED(hr))
-	{
-		throw CCrossbarException("get_PinCounts failed",hr);
-	}
+    long cInputPinRelated,cOutputPinRelated,type;
+    long cInput,cOutput;
+    
+    HRESULT hr=m_crossbar->get_PinCounts(&cOutput,&cInput);
+    if(FAILED(hr))
+    {
+        throw CCrossbarException("get_PinCounts failed",hr);
+    }
 
-	//set the related pin too?
-	if(bSetRelated==true)
-	{
-		hr=m_crossbar->get_CrossbarPinInfo(TRUE,Index,&cInputPinRelated,&type);
-		if(FAILED(hr))
-		{
-			throw CCrossbarException("get_CrossbarPinInfo faile",hr);
-		}
-	}
-	
-	//check all outputs to see if its posibel to connect with selected input
-	bool bInputRouted=false;
-	for(int i=0;i<cOutput;i++)
-	{
-		//CanRoute returns S_FALSE if it cant route
-		if(m_crossbar->CanRoute(i,Index)==S_OK)
-		{
-			hr=m_crossbar->Route(i,Index);
-			if(FAILED(hr))
-			{
-				throw CCrossbarException("failed to route",hr);
-			}
-			
-			//output pin for related pin
-			hr=m_crossbar->get_CrossbarPinInfo(FALSE,i,&cOutputPinRelated,&type);
-			
-			bInputRouted=true;
-			break;
-		}
-	}
-	
-	//successfull?
-	if(bInputRouted==false)
-	{
-		throw CCrossbarException("Cant find route");
-	}
+    //set the related pin too?
+    if(bSetRelated==true)
+    {
+        hr=m_crossbar->get_CrossbarPinInfo(TRUE,Index,&cInputPinRelated,&type);
+        if(FAILED(hr))
+        {
+            throw CCrossbarException("get_CrossbarPinInfo faile",hr);
+        }
+    }
+    
+    //check all outputs to see if its posibel to connect with selected input
+    bool bInputRouted=false;
+    for(int i=0;i<cOutput;i++)
+    {
+        //CanRoute returns S_FALSE if it cant route
+        if(m_crossbar->CanRoute(i,Index)==S_OK)
+        {
+            hr=m_crossbar->Route(i,Index);
+            if(FAILED(hr))
+            {
+                throw CCrossbarException("failed to route",hr);
+            }
+            
+            //output pin for related pin
+            hr=m_crossbar->get_CrossbarPinInfo(FALSE,i,&cOutputPinRelated,&type);
+            
+            bInputRouted=true;
+            break;
+        }
+    }
+    
+    //successfull?
+    if(bInputRouted==false)
+    {
+        throw CCrossbarException("Cant find route");
+    }
 
-	if(bSetRelated==true)
-	{
-		if(SUCCEEDED(m_crossbar->CanRoute(cOutputPinRelated,cInputPinRelated)))
-		{
-			if(FAILED(m_crossbar->Route(cOutputPinRelated,cInputPinRelated)))
-			{
-				throw CCrossbarException("failed to route related pin",hr);
-			}
+    if(bSetRelated==true)
+    {
+        if(SUCCEEDED(m_crossbar->CanRoute(cOutputPinRelated,cInputPinRelated)))
+        {
+            if(FAILED(m_crossbar->Route(cOutputPinRelated,cInputPinRelated)))
+            {
+                throw CCrossbarException("failed to route related pin",hr);
+            }
 
-		}
-	}
+        }
+    }
 }
 
 long CDShowSingleCrossbar::GetInputIndex(long OutIndex)
 {
-	long InputIndex=0;
-	HRESULT hr=m_crossbar->get_IsRoutedTo(OutIndex,&InputIndex);
-	if(FAILED(hr))
-	{
-		throw CCrossbarException("IAMCrossbar::get_IsRoutedTo failed",hr);
-	}
-	return InputIndex;
+    long InputIndex=0;
+    HRESULT hr=m_crossbar->get_IsRoutedTo(OutIndex,&InputIndex);
+    if(FAILED(hr))
+    {
+        throw CCrossbarException("IAMCrossbar::get_IsRoutedTo failed",hr);
+    }
+    return InputIndex;
 }
 
 bool CDShowSingleCrossbar::IsInputSelected(long index)
 {
-	long cInput,cOutput;
-	GetPinCounts(cInput,cOutput);
+    long cInput,cOutput;
+    GetPinCounts(cInput,cOutput);
 
-	for(int i=0;i<cOutput;i++)
-	{
-		long inputIndex=GetInputIndex(i);
-		if(index==inputIndex)
-		{
-			return true;
-		}
-	}
-	return false;
+    for(int i=0;i<cOutput;i++)
+    {
+        long inputIndex=GetInputIndex(i);
+        if(index==inputIndex)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 #endif

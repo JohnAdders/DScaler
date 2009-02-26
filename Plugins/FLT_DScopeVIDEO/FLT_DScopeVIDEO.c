@@ -19,29 +19,6 @@
 //  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.6  2006/10/06 13:35:31  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.5  2006/09/24 21:09:29  robmuller
-// OutputDebugString only in debug builds.
-//
-// Revision 1.4  2006/09/24 02:44:46  robmuller
-// Added missing emms instructions. Should fix problems on non-sse machines.
-//
-// Revision 1.3  2003/04/20 10:54:58  laurentg
-// Last updates from Michael Joubert
-//
-// Revision 1.2  2003/04/01 20:58:38  laurentg
-// Compile without warnings and few bugs fixed (from Michael Joubert)
-//
-// Revision 1.1  2003/03/22 13:13:02  laurentg
-// New filter from Michael Joubert (TheHealer@msn.com.au)
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 //to do
 /*
@@ -178,7 +155,7 @@ long FilterDScopeVIDEO(TDeinterlaceInfo* pInfo)
         return (1000);
     }
 
-	DisplayScope(pInfo);
+    DisplayScope(pInfo);
     return 1000;
 }
 
@@ -381,21 +358,21 @@ FILTER_METHOD DScopeVideoMethod =
 //----------------------------------------------------------------------------
 int LineNumber_OnChange(long NewValue)
 {
-	VideoLine = NewValue;
+    VideoLine = NewValue;
     DScopeUpdateParameters();
     return FALSE;
 }
 //----------------------------------------------------------------------------
 int Y_Scale_OnChange(long NewValue)
 {
-	Y_ScalePercent = (int) NewValue;
+    Y_ScalePercent = (int) NewValue;
     DScopeUpdateParameters();
     return FALSE;
 }
 //----------------------------------------------------------------------------
 int Y1_BaseLine_OnChange(long NewValue)
 {
-	Y1_BaseLine = NewValue;
+    Y1_BaseLine = NewValue;
     return FALSE;
 }
 //----------------------------------------------------------------------------
@@ -413,13 +390,13 @@ BOOL UseLineMarker_OnChange(long NewValue)
 //----------------------------------------------------------------------------
 BOOL UseGrid_OnChange(long NewValue)
 {
-	bGrid = NewValue;
+    bGrid = NewValue;
     return FALSE;
 }
 //----------------------------------------------------------------------------
 int GridColor_OnChange(long NewValue)      // crude colour change..
 {
-	GridColor   = NewValue;
+    GridColor   = NewValue;
     pGrid_Temp  = (BYTE*) &dwGrid_Color;   // mj fix here, create startup defaults         
     pGrid_Temp  = pGrid_Temp + 1;
     *pGrid_Temp = (BYTE) GridColor;
@@ -430,7 +407,7 @@ int GridColor_OnChange(long NewValue)      // crude colour change..
 //----------------------------------------------------------------------------
 int GridIntensity_OnChange(long NewValue)
 {
-	GridIntensity = NewValue;
+    GridIntensity = NewValue;
     pGrid_Temp  = (BYTE*) &dwGrid_Color;    // mj fix here, create startup defaults       
     *pGrid_Temp = (BYTE) GridIntensity;
     pGrid_Temp  = pGrid_Temp + 2;
@@ -440,13 +417,13 @@ int GridIntensity_OnChange(long NewValue)
 //----------------------------------------------------------------------------
 BOOL UsePictureFill_OnChange(long NewValue)
 {
-	bPictureFill = NewValue;
+    bPictureFill = NewValue;
     return FALSE;
 }
 //----------------------------------------------------------------------------
 BOOL UseSolidBackground_OnChange(long NewValue)
 {
-	bSolidBackground = NewValue;
+    bSolidBackground = NewValue;
     return FALSE;
 }
 
@@ -461,10 +438,10 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
     BYTE* pLineSource;
     BYTE* pLineDestination;
     BYTE  Pixel_Y;
-	DWORD LineSegmentStart = 0;
-	DWORD LineSegmentEnd = 2048;
-	DWORD LineSegmentLength = LineSegmentEnd - LineSegmentStart;
-	DWORD i;
+    DWORD LineSegmentStart = 0;
+    DWORD LineSegmentEnd = 2048;
+    DWORD LineSegmentLength = LineSegmentEnd - LineSegmentStart;
+    DWORD i;
     int   Y1_PlotValue;
     int   X1_PlotValue;
 
@@ -544,7 +521,7 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
         emms
     }
     
-	// draw Y grid-lines
+    // draw Y grid-lines
     if (bGrid)               // check start position zero mj ************
     {
         DrawGrid((DWORD*) pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameHeight, pInfo->FrameWidth);
@@ -560,13 +537,13 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
         
         // align 'Y' (YUYV) values, skipping color bytes
         X1_PlotValue = (X1_PlotValue * 2);               
-		
+        
         // prevent line over-run...
-		if (X1_PlotValue > ((int)pInfo->LineLength))
-			continue; 
-		
-		// calc and scale data values to y axis 
-		Y1_PlotValue = Y1_BaseLine - (int) (LineBuffer[i] * Y_Scale); 
+        if (X1_PlotValue > ((int)pInfo->LineLength))
+            continue; 
+        
+        // calc and scale data values to y axis 
+        Y1_PlotValue = Y1_BaseLine - (int) (LineBuffer[i] * Y_Scale); 
         
         // use inverted luminance ('Y') to draw plot?
         if (bPlotIntensityInvert)
@@ -598,7 +575,7 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
     }
 
 
-	// draw line marker  
+    // draw line marker  
     if (bLineMarker) 
     {
         DrawLineMarker( pInfo->Overlay,             //
@@ -691,11 +668,11 @@ void DScopeVideoStart( void )
 #endif
     
     hPrevWindow = FindWindow((LPCTSTR) "DScaler", NULL); 
-	
+    
 #ifdef _DEBUG
     if (hPrevWindow == NULL)
-	{
-		OutputDebugString ( "Could not find DScaler !!" );
+    {
+        OutputDebugString ( "Could not find DScaler !!" );
     }
 #endif
     
@@ -772,10 +749,10 @@ void DrawGrid( DWORD* pDestination, int pitch, int height, int width )
         //fsubr   dword ptr[pGridLine_Lower]     // (rev)subtract st(0) from pGridLine_Lower not working???
         
         fistp   temp   //dword ptr[pGridLine_Upper]  // store as integer, and pop fpu stack
-    	mov	eax, temp
-	    mov	ecx, dword ptr[pGridLine_Lower]
-        sub	ecx, eax
-	    mov	dword ptr[pGridLine_Upper], ecx
+        mov    eax, temp
+        mov    ecx, dword ptr[pGridLine_Lower]
+        sub    ecx, eax
+        mov    dword ptr[pGridLine_Upper], ecx
     }
 
     if (pGridLine_Upper < pDestination )               // 

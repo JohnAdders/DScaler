@@ -20,48 +20,6 @@
 // Copyright (c) 2001 John Adcock.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Sep 2002   Atsushi Nakagawa      Initial Release
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.12  2004/11/19 23:45:45  atnak
-// Changes to get rid of warnings.
-//
-// Revision 1.11  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.10  2002/12/24 08:22:14  atnak
-// Added Prime 7133 card
-//
-// Revision 1.9  2002/10/26 05:24:23  atnak
-// Minor cleanups
-//
-// Revision 1.8  2002/10/16 11:37:59  atnak
-// added saa7130 support
-//
-// Revision 1.7  2002/10/10 12:11:31  atnak
-// fixes crash on exit
-//
-// Revision 1.6  2002/10/03 23:36:22  atnak
-// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
-//
-// Revision 1.5  2002/09/15 09:52:23  atnak
-// fixed memory leak (pagetable block)
-//
-// Revision 1.4  2002/09/14 19:40:48  atnak
-// various changes
-//
-// Revision 1.2  2002/09/09 14:11:28  atnak
-// Fixed up the SAA7134 chip name.  --Fixes Advanced Settings crash.
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SAA7134Provider.cpp CSAA7134Provider Implementation

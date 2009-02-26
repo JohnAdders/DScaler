@@ -31,76 +31,6 @@
 // Copyright (C) 1999-2000 Zoltán Sinkovics and Szabolcs Seláf
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 21 Dec 2002   Atsushi Nakagawa      Remodularized videotext elements
-//                                     Moved and redid decoding functionality
-//                                     into this VTDecoder.cpp file.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.19  2005/10/25 08:17:59  adcockj
-// added winver and got to clean compile
-//
-// Revision 1.18  2005/07/27 22:49:33  laurentg
-// Use WORD instead of DWORD
-//
-// Revision 1.17  2005/07/26 19:36:03  laurentg
-// New functions to get network ID from P8/30/1,2
-// History of 2 consecutive values for NetworkIDCode inside P8/30/1
-//
-// Revision 1.16  2005/07/25 22:43:38  laurentg
-// m_PDC buffer cleared when decoder reset
-//
-// Revision 1.15  2005/07/25 22:32:51  laurentg
-// Mutex added to access m_BroadcastServiceData and m_PDC
-//
-// Revision 1.14  2005/07/25 21:57:13  laurentg
-// Bug fixed in PDC CNI decoding
-//
-// Revision 1.13  2004/10/11 22:21:45  atnak
-// Added cautionary notes for 1-based vs 0-based indexing.
-//
-// Revision 1.12  2004/10/11 21:57:12  atnak
-// Corrected parsing offset error in 8/30 packets.  (Thanks Rani Feldman)
-//
-// Revision 1.11  2004/05/16 19:54:54  atnak
-// changed to not accept duplicate lines for same page in one reception
-//
-// Revision 1.10  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.9  2003/01/12 22:58:32  atnak
-// Small bug fix
-//
-// Revision 1.8  2003/01/12 17:12:45  atnak
-// Added hex pages display and goto dialog
-//
-// Revision 1.6  2003/01/08 00:23:40  atnak
-// Bug fix
-//
-// Revision 1.5  2003/01/07 07:37:38  atnak
-// Fixed page subcodes
-//
-// Revision 1.4  2003/01/05 16:09:44  atnak
-// Updated TopText for new teletext
-//
-// Revision 1.3  2003/01/03 13:46:10  atnak
-// Fixed editorial link page number
-//
-// Revision 1.2  2003/01/02 23:36:24  robmuller
-// Small bug fix.
-//
-// Revision 1.1  2003/01/01 20:38:11  atnak
-// New videotext decoder
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file VTDecoder.cpp CVTDecoder Implementation
@@ -181,31 +111,31 @@ void CVTDecoder::ResetDecoder()
 
     m_pVTTopText->Reset();
 
-	EnterCriticalSection(&m_ServiceDataStoreMutex);
+    EnterCriticalSection(&m_ServiceDataStoreMutex);
     m_BroadcastServiceData.InitialPage = 0UL;
-	int i;
-	for (i = 0; i < 2; i++)
-	{
-	    m_BroadcastServiceData.NetworkIDCode[i] = 0;
-	}
+    int i;
+    for (i = 0; i < 2; i++)
+    {
+        m_BroadcastServiceData.NetworkIDCode[i] = 0;
+    }
     m_BroadcastServiceData.TimeOffset = 0;
     m_BroadcastServiceData.ModifiedJulianDate = 45000;
     m_BroadcastServiceData.UTCHours = 0;
     m_BroadcastServiceData.UTCMinutes = 0;
     m_BroadcastServiceData.UTCSeconds = 0;
     FillMemory(m_BroadcastServiceData.StatusDisplay, 20, 0x20);
-	for (i = 0; i < 4; i++)
-	{
-		m_PDC[i].LCI = 0;
-		m_PDC[i].LUF = 0;
-		m_PDC[i].PRF = 0;
-		m_PDC[i].PCS = 0;
-		m_PDC[i].MI = 0;
-		m_PDC[i].CNI = 0;
-		m_PDC[i].PIL = 0;
-		m_PDC[i].PTY = 0;
-	}
-	LeaveCriticalSection(&m_ServiceDataStoreMutex);
+    for (i = 0; i < 4; i++)
+    {
+        m_PDC[i].LCI = 0;
+        m_PDC[i].LUF = 0;
+        m_PDC[i].PRF = 0;
+        m_PDC[i].PCS = 0;
+        m_PDC[i].MI = 0;
+        m_PDC[i].CNI = 0;
+        m_PDC[i].PIL = 0;
+        m_PDC[i].PTY = 0;
+    }
+    LeaveCriticalSection(&m_ServiceDataStoreMutex);
 
     m_bMagazineSerial = FALSE;
     m_CharacterSubset = 0;
@@ -520,7 +450,7 @@ void CVTDecoder::DecodeLine(BYTE* data)
         break;
 
     case 30:
-		EnterCriticalSection(&m_ServiceDataStoreMutex);
+        EnterCriticalSection(&m_ServiceDataStoreMutex);
 
         // 8/30/0,1 is Format 1 Broadcast Service Data
         // 8/30/2,3 is Format 2 Broadcast Service Data
@@ -555,9 +485,9 @@ void CVTDecoder::DecodeLine(BYTE* data)
                 WORD wNetworkIDCode = ReverseBits(data[13]) | ReverseBits(data[12]) << 8;
                 m_BroadcastServiceData.NetworkIDCode[1] = m_BroadcastServiceData.NetworkIDCode[0];
                 m_BroadcastServiceData.NetworkIDCode[0] = wNetworkIDCode;
-				/*
-				LOG(1, "m_BroadcastServiceData.NetworkIDCode[0] %x", m_BroadcastServiceData.NetworkIDCode[0]);
-				*/
+                /*
+                LOG(1, "m_BroadcastServiceData.NetworkIDCode[0] %x", m_BroadcastServiceData.NetworkIDCode[0]);
+                */
 
                 // Time offset from UTC in half hour units
                 char timeOffset = (data[14] >> 1) * ((data[14] & 0x40) ? -1 : 1);
@@ -652,12 +582,12 @@ void CVTDecoder::DecodeLine(BYTE* data)
                         m_PDC[LCI].PTY = PTY;
                     }
 
-					/*
-					LOG(1, "LCI = %d, Country = %x, Network = %x", LCI, (m_PDC[LCI].CNI >> 8) & 0xFF, (m_PDC[LCI].CNI & 0xFF));
-					LOG(1, "Day = %d, Month = %d, %d:%d", (m_PDC[LCI].PIL & 0x1F), (m_PDC[LCI].PIL >> 5) & 0x0F,
-														  (m_PDC[LCI].PIL >> 9) & 0x1F, (m_PDC[LCI].PIL >> 14) & 0x3F);
-					LOG(1, "Program Type = %d", m_PDC[LCI].PTY);
-					*/
+                    /*
+                    LOG(1, "LCI = %d, Country = %x, Network = %x", LCI, (m_PDC[LCI].CNI >> 8) & 0xFF, (m_PDC[LCI].CNI & 0xFF));
+                    LOG(1, "Day = %d, Month = %d, %d:%d", (m_PDC[LCI].PIL & 0x1F), (m_PDC[LCI].PIL >> 5) & 0x0F,
+                                                          (m_PDC[LCI].PIL >> 9) & 0x1F, (m_PDC[LCI].PIL >> 14) & 0x3F);
+                    LOG(1, "Program Type = %d", m_PDC[LCI].PTY);
+                    */
 
                     NotifyDecoderEvent(DECODEREVENT_PDCUPDATE, 0);
 
@@ -667,7 +597,7 @@ void CVTDecoder::DecodeLine(BYTE* data)
             CopyMemory(m_BroadcastServiceData.StatusDisplay, data + 25, 20);
         }
 
-		LeaveCriticalSection(&m_ServiceDataStoreMutex);
+        LeaveCriticalSection(&m_ServiceDataStoreMutex);
         break;
 
     case 31:  // Independent data services
@@ -1784,9 +1714,9 @@ void CVTDecoder::GetStatusDisplay(LPSTR lpBuffer, LONG nLength)
     ASSERT(nLength > 0);
 
     lpBuffer[--nLength] = '\0';
-	EnterCriticalSection(&m_ServiceDataStoreMutex);
+    EnterCriticalSection(&m_ServiceDataStoreMutex);
     memcpy(lpBuffer, m_BroadcastServiceData.StatusDisplay, nLength);
-	LeaveCriticalSection(&m_ServiceDataStoreMutex);
+    LeaveCriticalSection(&m_ServiceDataStoreMutex);
     CheckParity((BYTE*)lpBuffer, nLength, TRUE);
 
     while (nLength-- > 0 && lpBuffer[nLength] == 0x20)
@@ -1798,34 +1728,34 @@ void CVTDecoder::GetStatusDisplay(LPSTR lpBuffer, LONG nLength)
 
 WORD CVTDecoder::GetNetworkIDFromP8301()
 {
-	WORD wCode = 0;
-	EnterCriticalSection(&m_ServiceDataStoreMutex);
-	// Check that there are at leat two values received
-	// and with same values
-	if (   (m_BroadcastServiceData.NetworkIDCode[0] != 0)
-		&& (m_BroadcastServiceData.NetworkIDCode[0] == m_BroadcastServiceData.NetworkIDCode[1]) )
-	{
-		wCode = m_BroadcastServiceData.NetworkIDCode[0];
-	}
-	LeaveCriticalSection(&m_ServiceDataStoreMutex);
-	return wCode;
+    WORD wCode = 0;
+    EnterCriticalSection(&m_ServiceDataStoreMutex);
+    // Check that there are at leat two values received
+    // and with same values
+    if (   (m_BroadcastServiceData.NetworkIDCode[0] != 0)
+        && (m_BroadcastServiceData.NetworkIDCode[0] == m_BroadcastServiceData.NetworkIDCode[1]) )
+    {
+        wCode = m_BroadcastServiceData.NetworkIDCode[0];
+    }
+    LeaveCriticalSection(&m_ServiceDataStoreMutex);
+    return wCode;
 }
 
 
 WORD CVTDecoder::GetCNIFromPDC()
 {
-	WORD wCode = 0;
-	EnterCriticalSection(&m_ServiceDataStoreMutex);
-	for (int i=0;i<4;i++)
-	{
-		if (m_PDC[i].CNI != 0)
-		{
-			wCode = m_PDC[i].CNI;
-			break;
-		}
-	}
-	LeaveCriticalSection(&m_ServiceDataStoreMutex);
-	return wCode;
+    WORD wCode = 0;
+    EnterCriticalSection(&m_ServiceDataStoreMutex);
+    for (int i=0;i<4;i++)
+    {
+        if (m_PDC[i].CNI != 0)
+        {
+            wCode = m_PDC[i].CNI;
+            break;
+        }
+    }
+    LeaveCriticalSection(&m_ServiceDataStoreMutex);
+    return wCode;
 }
 
 

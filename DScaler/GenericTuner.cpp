@@ -20,71 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.20  2005/07/17 09:39:02  to_see
-// Added some tuner
-//
-// Revision 1.19  2005/03/11 14:54:40  adcockj
-// Get rid of a load of compilation warnings in vs.net
-//
-// Revision 1.18  2005/03/06 12:50:50  to_see
-// Added some tuner
-//
-// Revision 1.17  2004/12/29 20:17:19  to_see
-// Added TCL 2002N tuner (from v4l2)
-//
-// Revision 1.16  2004/08/27 13:11:27  to_see
-// Added Philips 4in1 tuner (from v4l2)
-//
-// Revision 1.15  2004/06/30 17:39:00  to_see
-// Added some fixes for Philips MK3 tuner & TDA9887
-//
-// Revision 1.14  2004/01/29 15:19:49  adcockj
-// Generic tuner radio patch from Sven Grothklags
-//
-// Revision 1.13  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.12  2003/02/06 21:28:33  ittarnavsky
-// added the Philips M-J tuner for primetv 7133
-//
-// Revision 1.11  2002/10/08 20:43:16  kooiman
-// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
-//
-// Revision 1.10  2002/09/04 11:58:45  kooiman
-// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
-//
-// Revision 1.9  2002/08/20 09:48:43  kooiman
-// Fixed wrong byte swapping for Philips SECAM tuner. Prevented crash when m_I2CBus is NULL.
-//
-// Revision 1.8  2002/08/17 11:27:23  kooiman
-// Fixed tuning for Temic 4046FM5 and Philips FQ1216ME.
-//
-// Revision 1.7  2002/08/03 17:57:52  kooiman
-// Added new cards & tuners. Changed the tuner combobox into a sorted list.
-//
-// Revision 1.6  2002/01/16 19:16:20  adcockj
-// added support for LG NTSC (TAPCH701P)
-//
-// Revision 1.5  2001/12/18 23:36:01  adcockj
-// Split up the MSP chip support into two parts to avoid probelms when deleting objects
-//
-// Revision 1.4  2001/12/05 21:45:11  ittarnavsky
-// added changes for the AudioDecoder and AudioControls support
-//
-// Revision 1.3  2001/11/29 17:30:52  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.2  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
-// initial checkin of the new I2C code
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file GenericTuner.cpp CGenericTuner Implementation
@@ -122,24 +57,24 @@
 /* tv tuner system standard selection for Philips FQ1216ME
    this value takes the low bits of control byte 2
    from datasheet "1999 Nov 16" (supersedes "1999 Mar 23")
-     standard 		BG	DK	I	L	L`
-     picture carrier	38.90	38.90	38.90	38.90	33.95
-     colour		34.47	34.47	34.47	34.47	38.38
-     sound 1		33.40	32.40	32.90	32.40	40.45
-     sound 2		33.16	-	-	-	-
-     NICAM		33.05	33.05	32.35	33.05	39.80
+     standard         BG    DK    I    L    L`
+     picture carrier    38.90    38.90    38.90    38.90    33.95
+     colour        34.47    34.47    34.47    34.47    38.38
+     sound 1        33.40    32.40    32.90    32.40    40.45
+     sound 2        33.16    -    -    -    -
+     NICAM        33.05    33.05    32.35    33.05    39.80
  */
-#define PHILIPS_SET_PAL_I		0x01 /* Bit 2 always zero !*/
-#define PHILIPS_SET_PAL_BGDK	0x09
-#define PHILIPS_SET_PAL_L2		0x0a
-#define PHILIPS_SET_PAL_L		0x0b	
+#define PHILIPS_SET_PAL_I        0x01 /* Bit 2 always zero !*/
+#define PHILIPS_SET_PAL_BGDK    0x09
+#define PHILIPS_SET_PAL_L2        0x0a
+#define PHILIPS_SET_PAL_L        0x0b    
 
 /* system switching for Philips FI1216MF MK2
    from datasheet "1996 Jul 09",
  */
-#define PHILIPS_MF_SET_BG		0x01 /* Bit 2 must be zero, Bit 3 is system output */
-#define PHILIPS_MF_SET_PAL_L	0x03
-#define PHILIPS_MF_SET_PAL_L2	0x02
+#define PHILIPS_MF_SET_BG        0x01 /* Bit 2 must be zero, Bit 3 is system output */
+#define PHILIPS_MF_SET_PAL_L    0x03
+#define PHILIPS_MF_SET_PAL_L2    0x02
 
 
 
@@ -594,8 +529,8 @@ bool CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
     }
 
     //if (FastTune) {
-		//    config |= 0x40;
-	  //}
+        //    config |= 0x40;
+      //}
     
     div &= 0x7fff;
 
@@ -619,19 +554,19 @@ bool CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
 
     if (m_I2CBus != NULL)
     {
-		if (m_ExternalIFDemodulator != NULL)
-		{
-			m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
-		}
+        if (m_ExternalIFDemodulator != NULL)
+        {
+            m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
+        }
 
         bool result = m_I2CBus->Write(buffer, sizeof(buffer));
 
-		if (m_ExternalIFDemodulator != NULL)
-		{
-			m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
-		}
+        if (m_ExternalIFDemodulator != NULL)
+        {
+            m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
+        }
         
-		return result;
+        return result;
     }
     else
     {
@@ -678,24 +613,24 @@ bool CGenericTuner::SetRadioFrequency(long nFrequencyHz)
 
     if (m_I2CBus != NULL)
     {
-		// not working but needed for FM Radio
-		/*
-		if (m_ExternalIFDemodulator != NULL)
-		{
-			m_ExternalIFDemodulator->TunerSet(TRUE, VIDEOFORMAT_LASTONE+1);
-		}
-		*/
+        // not working but needed for FM Radio
+        /*
+        if (m_ExternalIFDemodulator != NULL)
+        {
+            m_ExternalIFDemodulator->TunerSet(TRUE, VIDEOFORMAT_LASTONE+1);
+        }
+        */
 
         bool result = m_I2CBus->Write(buffer, sizeof(buffer));
 
-		/*
-		if (m_ExternalIFDemodulator != NULL)
-		{
-			m_ExternalIFDemodulator->TunerSet(FALSE, VIDEOFORMAT_LASTONE+1);
-		}
+        /*
+        if (m_ExternalIFDemodulator != NULL)
+        {
+            m_ExternalIFDemodulator->TunerSet(FALSE, VIDEOFORMAT_LASTONE+1);
+        }
         */
 
-		return result;
+        return result;
     }
     else
     {
@@ -741,44 +676,44 @@ eTunerAFCStatus CGenericTuner::GetAFCStatus(long &nFreqDeviation)
     if (m_I2CBus != NULL)
     {
         if (m_ExternalIFDemodulator != NULL)
-		{
-			eTunerAFCStatus AFCStatus = m_ExternalIFDemodulator->GetAFCStatus(nFreqDeviation);
-			return AFCStatus;
-		}
+        {
+            eTunerAFCStatus AFCStatus = m_ExternalIFDemodulator->GetAFCStatus(nFreqDeviation);
+            return AFCStatus;
+        }
 
-		else
-		{
-			BYTE addr;
-			BYTE result;
-			addr = (BYTE)(m_DeviceAddress << 1);
-			if (m_I2CBus->Read(&addr, 1, &result, 1))
-			{
-				int afc = (result&I2CTUNER_AFC);
+        else
+        {
+            BYTE addr;
+            BYTE result;
+            addr = (BYTE)(m_DeviceAddress << 1);
+            if (m_I2CBus->Read(&addr, 1, &result, 1))
+            {
+                int afc = (result&I2CTUNER_AFC);
 
-				afc -= 2;
-				switch (afc)
-				{
-				case -2:
-					nFreqDeviation = -125000;
-					break;
-				case -1:
-					nFreqDeviation = -62500;
-					break;
-				case 0:
-					nFreqDeviation = 0;
-					break;
-				case 1:
-					nFreqDeviation = 62500;
-					break;
-				//case 2:
-				//    nFreqDeviation = 125000;
-				//   break;
-				default:
-					return TUNER_AFC_NOCARRIER;
-				}
-				return TUNER_AFC_CARRIER;
-			}
-		}
+                afc -= 2;
+                switch (afc)
+                {
+                case -2:
+                    nFreqDeviation = -125000;
+                    break;
+                case -1:
+                    nFreqDeviation = -62500;
+                    break;
+                case 0:
+                    nFreqDeviation = 0;
+                    break;
+                case 1:
+                    nFreqDeviation = 62500;
+                    break;
+                //case 2:
+                //    nFreqDeviation = 125000;
+                //   break;
+                default:
+                    return TUNER_AFC_NOCARRIER;
+                }
+                return TUNER_AFC_CARRIER;
+            }
+        }
     }
     return TUNER_AFC_NOTSUPPORTED;
 }

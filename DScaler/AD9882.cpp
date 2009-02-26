@@ -17,13 +17,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2006/12/28 14:18:35  adcockj
-// Added patch for Curtiss-Wright cards from Bill Randle
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file AD9882.cpp CAD9882 Implementation

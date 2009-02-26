@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 10 Jan 2001   John Adcock           Original Release
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file slider.h slider Header file

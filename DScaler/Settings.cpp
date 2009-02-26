@@ -15,205 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           changed to windows Ini file functions
-//
-//  3 Nov 2000   Michael Eskin         Added override of initial BDELAY setting
-//               Conexant Systems      by adding non-zero InitialBDelay in .ini
-//                                     File. Changed NTSC defaults to 0x5C
-//
-// 21 Dec 2000   John Adcock           Added function to setup ini file name
-//
-// 26 Dec 2000   Eric Schmidt          Fixed remember-last-channel-on-startup.
-//
-// 05 Jan 2001   John Adcock           Added GetRefreshRate function
-//                                     Added DoAccurateFlips parameter
-//                                     Added gPALFilmFallbackMode setting
-//
-// 07 Jan 2001   John Adcock           Added gNTSCFilmFallbackMode setting
-//                                     Changed saving of gPulldownMode
-//                                     so that we don't ever restart in film Mode
-//                                     when we're doing autodetect  
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 08 Jan 2001   John Adcock           Made all ini file reads use initial values
-//                                     of variables rather than hardcoded values here
-//
-// 26 Dec 2001   Eric Schmidt          Added Custom Channel Order.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.63  2006/12/20 07:45:07  adcockj
-// added DirectX code from Daniel Sabel
-//
-// Revision 1.62  2006/09/28 18:13:04  robmuller
-// Fixed: Antivir causes DScaler to forget all settings.
-//
-// Revision 1.61  2005/09/24 18:40:51  dosx86
-// Removed the TimeShift settings
-//
-// Revision 1.60  2005/03/27 20:22:20  laurentg
-// EPG: new improvements
-//
-// Revision 1.59  2005/03/23 14:21:00  adcockj
-// Test fix for threading issues
-//
-// Revision 1.58  2004/04/06 12:20:48  adcockj
-// Added .NET 2003 project files and some fixes to support this
-//
-// Revision 1.57  2003/12/18 15:57:41  adcockj
-// Added MT2050 tuner type support (untested)
-//
-// Revision 1.56  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.55  2003/09/14 08:45:30  adcockj
-// Fixed crash with fresj install
-//
-// Revision 1.54  2003/07/29 12:04:23  atnak
-// Minor changes
-//
-// Revision 1.53  2003/07/02 21:44:19  laurentg
-// TimeShift settings
-//
-// Revision 1.52  2003/06/14 13:27:48  laurentg
-// Use default value when the current value in ini file is out of range, and correct the value in the ini file
-//
-// Revision 1.51  2003/06/02 13:15:34  adcockj
-// Fixes for CHARSTRING problems
-//
-// Revision 1.50  2003/04/28 12:42:22  laurentg
-// Management of character string settings updated
-//
-// Revision 1.49  2003/04/26 23:19:15  laurentg
-// Character string settings
-//
-// Revision 1.48  2003/04/26 19:02:41  laurentg
-// Character string settings and memory management
-//
-// Revision 1.47  2003/04/26 16:04:54  laurentg
-// Character string settings
-//
-// Revision 1.46  2003/01/24 01:55:17  atnak
-// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
-// got rid of the pink overlay colorkey for Teletext.
-//
-// Revision 1.45  2003/01/13 19:22:51  adcockj
-// Setttings bug fixes
-//
-// Revision 1.44  2003/01/11 12:53:58  adcockj
-// Interim Check in of settings changes
-//  - bug fixes for overlay settings changes
-//  - Bug fixes for new settings changes
-//  - disables settings per channel completely
-//
-// Revision 1.43  2003/01/10 17:38:28  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.42  2003/01/03 12:38:13  adcockj
-// Fixed API bugs
-//
-// Revision 1.41  2002/10/29 11:05:28  adcockj
-// Renamed CT2388x to CX2388x
-//
-// Revision 1.40  2002/09/11 18:19:44  adcockj
-// Prelimainary support for CX2388x based cards
-//
-// Revision 1.39  2002/08/21 20:26:31  kooiman
-// Added option to ChangeDefault to only change the current value if you want it.
-//
-// Revision 1.38  2002/08/13 21:21:24  kooiman
-// Improved settings per channel to account for source and input changes.
-//
-// Revision 1.37  2002/08/08 12:13:23  kooiman
-// Bit more flexibility.
-//
-// Revision 1.36  2002/08/07 09:54:52  kooiman
-// Added 'save per channel' settings.
-//
-// Revision 1.35  2002/08/06 18:31:10  kooiman
-// Bit more flexibility.
-//
-// Revision 1.34  2002/06/13 11:43:55  robmuller
-// Settings at default value that did not exist in the ini file were not written to the ini file.
-//
-// Revision 1.33  2002/06/13 10:40:37  robmuller
-// Made anti plop mute delay configurable.
-//
-// Revision 1.32  2002/06/12 18:41:11  robmuller
-// Fixed duplicating lines in dscaler.ini.
-//
-// Revision 1.31  2002/06/10 23:56:28  robmuller
-// Add an empty line before each new section in the ini file.
-//
-// Revision 1.30  2002/02/27 20:47:21  laurentg
-// Still settings
-//
-// Revision 1.29  2002/01/24 00:00:13  robmuller
-// Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
-//
-// Revision 1.28  2002/01/18 15:39:46  robmuller
-// Prevent unnecessary actions taken when Setting_SetValue() is called with an unchanged value.
-//
-// Revision 1.27  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.26  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.25  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.24  2001/09/25 22:31:53  laurentg
-// New control settings added for calibration
-//
-// Revision 1.23.2.5  2001/08/21 16:42:16  adcockj
-// Per format/input settings and ini file fixes
-//
-// Revision 1.23.2.4  2001/08/21 09:43:01  adcockj
-// Brought branch up to date with latest code fixes
-//
-// Revision 1.23.2.3  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.23.2.2  2001/08/17 16:35:14  adcockj
-// Another interim check-in still doesn't compile. Getting closer ...
-//
-// Revision 1.23.2.1  2001/08/14 16:41:37  adcockj
-// Renamed driver
-// Got to compile with new class based card
-//
-// Revision 1.23  2001/08/03 09:52:42  adcockj
-// Added range checking on settings and fixed setting with out of range errors
-//
-// Revision 1.22  2001/07/28 13:24:40  adcockj
-// Added UI for Overlay Controls and fixed issues with SettingsDlg
-//
-// Revision 1.21  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.20  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.19  2001/07/12 19:24:35  adcockj
-// Fixes for vertical sliders
-//
-// Revision 1.18  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file Settings.cpp Settings Functions
@@ -272,154 +73,154 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)Debug_GetSetting,
         Debug_ReadSettingsFromIni,
         Debug_WriteSettingsToIni,
-		Debug_FreeSettings,
+        Debug_FreeSettings,
     },
     {
         WM_ASPECT_GETVALUE,
         (GENERICGETSETTING*)Aspect_GetSetting,
         Aspect_ReadSettingsFromIni,
         Aspect_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_DSCALER_GETVALUE,
         (GENERICGETSETTING*)DScaler_GetSetting,
         DScaler_ReadSettingsFromIni,
         DScaler_WriteSettingsToIni,
-		DScaler_FreeSettings,
+        DScaler_FreeSettings,
     },
     {
         WM_OUTTHREADS_GETVALUE,
         (GENERICGETSETTING*)OutThreads_GetSetting,
         OutThreads_ReadSettingsFromIni,
         OutThreads_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_OTHER_GETVALUE,
         (GENERICGETSETTING*)Overlay_GetSetting,
         Overlay_ReadSettingsFromIni,
         Overlay_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_FD50_GETVALUE,
         (GENERICGETSETTING*)FD50_GetSetting,
         FD50_ReadSettingsFromIni,
         FD50_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_FD60_GETVALUE,
         (GENERICGETSETTING*)FD60_GetSetting,
         FD60_ReadSettingsFromIni,
         FD60_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_FD_COMMON_GETVALUE,
         (GENERICGETSETTING*)FD_Common_GetSetting,
         FD_Common_ReadSettingsFromIni,
         FD_Common_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_OSD_GETVALUE,
         (GENERICGETSETTING*)OSD_GetSetting,
         OSD_ReadSettingsFromIni,
         OSD_WriteSettingsToIni,
-		OSD_FreeSettings,
+        OSD_FreeSettings,
     },
     {
         WM_VBI_GETVALUE,
         (GENERICGETSETTING*)VBI_GetSetting,
         VBI_ReadSettingsFromIni,
         VBI_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_TIMING_GETVALUE,
         (GENERICGETSETTING*)Timing_GetSetting,
         Timing_ReadSettingsFromIni,
         Timing_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_MIXERDEV_GETVALUE,
         (GENERICGETSETTING*)MixerDev_GetSetting,
         MixerDev_ReadSettingsFromIni,
         MixerDev_WriteSettingsToIni,
-		MixerDev_FreeSettings,
+        MixerDev_FreeSettings,
     },
     {
         WM_CHANNELS_GETVALUE,
         (GENERICGETSETTING*)Channels_GetSetting,
         Channels_ReadSettingsFromIni,
         Channels_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_AUDIO_GETVALUE,
         (GENERICGETSETTING*)Audio_GetSetting,
         Audio_ReadSettingsFromIni,
         Audio_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_VT_GETVALUE,
         (GENERICGETSETTING*)VT_GetSetting,
         VT_ReadSettingsFromIni,
         VT_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_CALIBR_GETVALUE,
         (GENERICGETSETTING*)Calibr_GetSetting,
         Calibr_ReadSettingsFromIni,
         Calibr_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_STILL_GETVALUE,
         (GENERICGETSETTING*)Still_GetSetting,
         Still_ReadSettingsFromIni,
         Still_WriteSettingsToIni,
-		Still_FreeSettings,
+        Still_FreeSettings,
     },
     {
         WM_ANTIPLOP_GETVALUE,
         (GENERICGETSETTING*)AntiPlop_GetSetting,
         AntiPlop_ReadSettingsFromIni,
         AntiPlop_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_SETTINGSPERCHANNEL_GETVALUE,
         (GENERICGETSETTING*)SettingsPerChannel_GetSetting,
         SettingsPerChannel_ReadSettingsFromIni,
         SettingsPerChannel_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_FDPROG_GETVALUE,
         (GENERICGETSETTING*)FDProg_GetSetting,
         FDProg_ReadSettingsFromIni,
         FDProg_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
     {
         WM_EPG_GETVALUE,
         (GENERICGETSETTING*)EPG_GetSetting,
         EPG_ReadSettingsFromIni,
         EPG_WriteSettingsToIni,
-		EPG_FreeSettings,
+        EPG_FreeSettings,
     },
     {
         WM_D3D9_GETVALUE,
         (GENERICGETSETTING*)D3D9_GetSetting,
         D3D9_ReadSettingsFromIni,
         D3D9_WriteSettingsToIni,
-		NULL,
+        NULL,
     },
 };
 
@@ -623,25 +424,25 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
     }
     remove(lpIniFileName);
 
-	// RM Sept 28 2006: The following while loop and Sleep statement should not be needed.
-	// It was added because Antivir Personal Edition Classic was causing problems when
-	// the win32 file heuristic of the Antivir Guard was set to the medium level.
-	// Antivir causes a delay in removing the ini file which causes the rename to fail.
-	//
-	int i = 0;
-	while(rename(szTempFile, lpIniFileName) != 0)
-	{
-		Sleep(1);
-	    if(i++ > 100)
-		{
-			LOG(1, "BeautifyIniFile: rename failed.");
-			break;
-		}
-	}
-	if(i != 0)
-	{
-		LOG(1, "BeautifyIniFile: Sleep needed %d time(s) before rename.", i);
-	}
+    // RM Sept 28 2006: The following while loop and Sleep statement should not be needed.
+    // It was added because Antivir Personal Edition Classic was causing problems when
+    // the win32 file heuristic of the Antivir Guard was set to the medium level.
+    // Antivir causes a delay in removing the ini file which causes the rename to fail.
+    //
+    int i = 0;
+    while(rename(szTempFile, lpIniFileName) != 0)
+    {
+        Sleep(1);
+        if(i++ > 100)
+        {
+            LOG(1, "BeautifyIniFile: rename failed.");
+            break;
+        }
+    }
+    if(i != 0)
+    {
+        LOG(1, "BeautifyIniFile: Sleep needed %d time(s) before rename.", i);
+    }
 }
 
 void WriteSettingsToIni(BOOL bOptimizeFileAccess)
@@ -668,12 +469,12 @@ void FreeSettings()
 {
     for(int i(0); i < NUMSETTINGS; ++i)
     {
-		if (Settings[i].pfnFreeSettings != NULL)
-		{
-	        Settings[i].pfnFreeSettings();
-		}
+        if (Settings[i].pfnFreeSettings != NULL)
+        {
+            Settings[i].pfnFreeSettings();
+        }
     }
-	Deinterlace_FreeSettings();
+    Deinterlace_FreeSettings();
 }
 
 void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, LPCTSTR lpFileName)
@@ -745,20 +546,20 @@ BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange)
     
     // If no action is needed, bail out early. This prevents the long delays when
     // pSetting->pfnOnChange() takes a while.
-	if (pSetting->Type == CHARSTRING && *pSetting->pValue != NULL)
-	{
-		if (!strcmp((char *)(*pSetting->pValue), (char *)NewValue) && (iForceOnChange!=1))
-		{
-			return FALSE;
-		}
-	}
-	else
-	{
-		if ((*pSetting->pValue == NewValue) && (iForceOnChange!=1))
-		{
-			return FALSE;
-		}
-	}
+    if (pSetting->Type == CHARSTRING && *pSetting->pValue != NULL)
+    {
+        if (!strcmp((char *)(*pSetting->pValue), (char *)NewValue) && (iForceOnChange!=1))
+        {
+            return FALSE;
+        }
+    }
+    else
+    {
+        if ((*pSetting->pValue == NewValue) && (iForceOnChange!=1))
+        {
+            return FALSE;
+        }
+    }
 
     if ((pSetting->pfnOnChange != NULL) && (iForceOnChange>=0))
     {
@@ -766,20 +567,20 @@ BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange)
     }
     else
     {
-		if (pSetting->Type == CHARSTRING)
-		{
-			if (*pSetting->pValue != NULL)
-			{
-				delete [] (char *)(*pSetting->pValue);
-			}
-			char* str = new char[strlen((char *)NewValue) + 1];
-			strcpy(str, (char *)NewValue);
-			*pSetting->pValue = (long)str;
-		}
-		else
-		{
-	        *pSetting->pValue = NewValue;
-		}
+        if (pSetting->Type == CHARSTRING)
+        {
+            if (*pSetting->pValue != NULL)
+            {
+                delete [] (char *)(*pSetting->pValue);
+            }
+            char* str = new char[strlen((char *)NewValue) + 1];
+            strcpy(str, (char *)NewValue);
+            *pSetting->pValue = (long)str;
+        }
+        else
+        {
+            *pSetting->pValue = NewValue;
+        }
         return FALSE;
     }
 }
@@ -864,7 +665,7 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
         break;
     
     default:
-		return FALSE;
+        return FALSE;
         break;
     }
     return Setting_SetValue(pSetting, nValue);
@@ -878,71 +679,71 @@ BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
 
     if(pSetting->szIniSection != NULL)
     {
-		if (pSetting->Type == CHARSTRING)
-		{
-			char szDefaultString[] = {0};
-			char szBuffer[256];
-			char* szValue;
-			nValue = GetPrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, szDefaultString, szBuffer, 255, szIniFile);
-			if (nValue <= 0)
-			{
-				IsSettingInIniFile = FALSE;
-				szValue = (char *)(pSetting->Default);            
-			}
-			else
-			{
-				IsSettingInIniFile = TRUE;
-				szValue = (char *)szBuffer;
-			}
-			if (IsSettingInIniFile || !bDontSetDefault)
-			{
-				if (*pSetting->pValue != NULL)
-				{
-					delete [] (char *)(*pSetting->pValue);
-				}
-				char* str = new char[strlen(szValue) + 1];
-				strcpy(str, szValue);
-				*pSetting->pValue = (long)str;
-			}
-			LOG(2, " Setting_ReadFromIni %s %s Value %s", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
-		}
-		else
-		{
-			nValue = GetPrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, pSetting->MinValue - 100, szIniFile);
-			LOG(2, " Setting_ReadFromIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-			nSavedValue = nValue;
-			if(nValue == pSetting->MinValue - 100)
-			{
-				nValue = pSetting->Default;            
-				IsSettingInIniFile = FALSE;
-			}
-			// If the value is out of range, set it to its default value
-			if ( (nValue < pSetting->MinValue)
-			  || (nValue > pSetting->MaxValue) )
-			{
-				if(nValue < pSetting->MinValue)
-				{
-					LOG(1, "%s %s Was out of range - %d is too low", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-				}
-				else
-				{
-					LOG(1, "%s %s Was out of range - %d is too high", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-				}
-				nValue = pSetting->Default;
-			}
-			if (IsSettingInIniFile || !bDontSetDefault)
-			{
-				*pSetting->pValue = nValue;
-			}
-			if(IsSettingInIniFile)
-			{
-				pSetting->LastSavedValue = nSavedValue;
-			}
-			else
-			{
-				pSetting->LastSavedValue = pSetting->MinValue - 100;
-			}
-		}
+        if (pSetting->Type == CHARSTRING)
+        {
+            char szDefaultString[] = {0};
+            char szBuffer[256];
+            char* szValue;
+            nValue = GetPrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, szDefaultString, szBuffer, 255, szIniFile);
+            if (nValue <= 0)
+            {
+                IsSettingInIniFile = FALSE;
+                szValue = (char *)(pSetting->Default);            
+            }
+            else
+            {
+                IsSettingInIniFile = TRUE;
+                szValue = (char *)szBuffer;
+            }
+            if (IsSettingInIniFile || !bDontSetDefault)
+            {
+                if (*pSetting->pValue != NULL)
+                {
+                    delete [] (char *)(*pSetting->pValue);
+                }
+                char* str = new char[strlen(szValue) + 1];
+                strcpy(str, szValue);
+                *pSetting->pValue = (long)str;
+            }
+            LOG(2, " Setting_ReadFromIni %s %s Value %s", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
+        }
+        else
+        {
+            nValue = GetPrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, pSetting->MinValue - 100, szIniFile);
+            LOG(2, " Setting_ReadFromIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+            nSavedValue = nValue;
+            if(nValue == pSetting->MinValue - 100)
+            {
+                nValue = pSetting->Default;            
+                IsSettingInIniFile = FALSE;
+            }
+            // If the value is out of range, set it to its default value
+            if ( (nValue < pSetting->MinValue)
+              || (nValue > pSetting->MaxValue) )
+            {
+                if(nValue < pSetting->MinValue)
+                {
+                    LOG(1, "%s %s Was out of range - %d is too low", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+                }
+                else
+                {
+                    LOG(1, "%s %s Was out of range - %d is too high", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+                }
+                nValue = pSetting->Default;
+            }
+            if (IsSettingInIniFile || !bDontSetDefault)
+            {
+                *pSetting->pValue = nValue;
+            }
+            if(IsSettingInIniFile)
+            {
+                pSetting->LastSavedValue = nSavedValue;
+            }
+            else
+            {
+                pSetting->LastSavedValue = pSetting->MinValue - 100;
+            }
+        }
     }
     else
     {
@@ -955,20 +756,20 @@ void Setting_WriteToIni(SETTING* pSetting, BOOL bOptimizeFileAccess)
 {
     if(pSetting->szIniSection != NULL)
     {
-		if( !bOptimizeFileAccess || (pSetting->Type == CHARSTRING) || (pSetting->LastSavedValue != *pSetting->pValue) )
-		{
-			if (pSetting->Type == CHARSTRING)
-			{
-				WritePrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, (char *)(*pSetting->pValue), szIniFile);
-	            LOG(2, " Setting_WriteToIni %s %s Value %s", pSetting->szIniSection, pSetting->szIniEntry, (char*)(*pSetting->pValue));
-			}
-			else
-			{
-		        WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
-		        pSetting->LastSavedValue = *pSetting->pValue;
-	            LOG(2, " Setting_WriteToIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
-			}
-		}
+        if( !bOptimizeFileAccess || (pSetting->Type == CHARSTRING) || (pSetting->LastSavedValue != *pSetting->pValue) )
+        {
+            if (pSetting->Type == CHARSTRING)
+            {
+                WritePrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, (char *)(*pSetting->pValue), szIniFile);
+                LOG(2, " Setting_WriteToIni %s %s Value %s", pSetting->szIniSection, pSetting->szIniEntry, (char*)(*pSetting->pValue));
+            }
+            else
+            {
+                WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
+                pSetting->LastSavedValue = *pSetting->pValue;
+                LOG(2, " Setting_WriteToIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
+            }
+        }
     }
 }
 
@@ -1101,10 +902,10 @@ void Setting_Up(SETTING* pSetting)
 {
     int nStep = 0;
 
-	if (pSetting->Type == CHARSTRING)
-		return;
+    if (pSetting->Type == CHARSTRING)
+        return;
 
-	if (*pSetting->pValue < pSetting->MaxValue)
+    if (*pSetting->pValue < pSetting->MaxValue)
     {
         nStep = GetCurrentAdjustmentStepCount(pSetting) * pSetting->StepValue;
         Setting_SetValue(pSetting, *pSetting->pValue + nStep);
@@ -1115,8 +916,8 @@ void Setting_Down(SETTING* pSetting)
 {
     int nStep = 0;
 
-	if (pSetting->Type == CHARSTRING)
-		return;
+    if (pSetting->Type == CHARSTRING)
+        return;
 
     if (*pSetting->pValue > pSetting->MinValue)
     {
@@ -1127,8 +928,8 @@ void Setting_Down(SETTING* pSetting)
 
 void Setting_ChangeDefault(SETTING* pSetting, long Default, BOOL bDontTouchValue)
 {
-	if (pSetting->Type == CHARSTRING)
-		return;
+    if (pSetting->Type == CHARSTRING)
+        return;
 
     pSetting->Default = Default;
     if (!bDontTouchValue)
@@ -1149,32 +950,32 @@ void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)
         Setting_OSDShow(pSetting, GetMainWnd());
         break;
     case ADJUSTUP:
-		if (pSetting->Type != CHARSTRING)
-		{
-			Setting_Up(pSetting);
-			Setting_OSDShow(pSetting, GetMainWnd());
-		}
+        if (pSetting->Type != CHARSTRING)
+        {
+            Setting_Up(pSetting);
+            Setting_OSDShow(pSetting, GetMainWnd());
+        }
         break;
     case ADJUSTDOWN:
-		if (pSetting->Type != CHARSTRING)
-		{
-			Setting_Down(pSetting);
-			Setting_OSDShow(pSetting, GetMainWnd());
-		}
+        if (pSetting->Type != CHARSTRING)
+        {
+            Setting_Down(pSetting);
+            Setting_OSDShow(pSetting, GetMainWnd());
+        }
         break;
     case INCREMENT:
-		if (pSetting->Type != CHARSTRING)
-		{
-			Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
-			Setting_OSDShow(pSetting, GetMainWnd());
-		}
+        if (pSetting->Type != CHARSTRING)
+        {
+            Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
+            Setting_OSDShow(pSetting, GetMainWnd());
+        }
         break;
     case DECREMENT:
-		if (pSetting->Type != CHARSTRING)
-		{
-			Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
-			Setting_OSDShow(pSetting, GetMainWnd());
-		}
+        if (pSetting->Type != CHARSTRING)
+        {
+            Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
+            Setting_OSDShow(pSetting, GetMainWnd());
+        }
         break;
     case RESET:
         Setting_SetDefault(pSetting);
@@ -1188,28 +989,28 @@ void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)
         }
         break;
     case ADJUSTUP_SILENT:
-		if (pSetting->Type != CHARSTRING)
-		{
-	        Setting_Up(pSetting);
-		}
+        if (pSetting->Type != CHARSTRING)
+        {
+            Setting_Up(pSetting);
+        }
         break;
     case ADJUSTDOWN_SILENT:
-		if (pSetting->Type != CHARSTRING)
-		{
-	        Setting_Down(pSetting);
-		}
+        if (pSetting->Type != CHARSTRING)
+        {
+            Setting_Down(pSetting);
+        }
         break;
     case INCREMENT_SILENT:
-		if (pSetting->Type != CHARSTRING)
-		{
-	        Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
-		}
+        if (pSetting->Type != CHARSTRING)
+        {
+            Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
+        }
         break;
     case DECREMENT_SILENT:
-		if (pSetting->Type != CHARSTRING)
-		{
-	        Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
-		}
+        if (pSetting->Type != CHARSTRING)
+        {
+            Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
+        }
         break;
     case RESET_SILENT:
         Setting_SetDefault(pSetting);
@@ -1228,10 +1029,10 @@ void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)
 void Setting_Free(SETTING* pSetting)
 {
     if ( (pSetting != NULL)
-	  && (pSetting->Type == CHARSTRING)
-	  && (*pSetting->pValue != NULL) )
+      && (pSetting->Type == CHARSTRING)
+      && (*pSetting->pValue != NULL) )
     {
-		delete [] (char *)(*pSetting->pValue);
+        delete [] (char *)(*pSetting->pValue);
         *pSetting->pValue = NULL;
     }
 }

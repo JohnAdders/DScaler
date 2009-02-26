@@ -15,14 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2003/01/16 22:34:21  laurentg
-// First step to add a new dialog box to adjust image size
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file sizesettings.h sizesettings Header file

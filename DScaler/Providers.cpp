@@ -15,269 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.76  2007/02/18 21:32:44  robmuller
-// Added option to not compile cx2388x code.
-//
-// Revision 1.75  2007/02/18 21:15:31  robmuller
-// Added option to not compile BT8x8 code.
-//
-// Revision 1.74  2005/03/23 14:20:59  adcockj
-// Test fix for threading issues
-//
-// Revision 1.73  2004/12/04 00:06:51  atnak
-// Got rid of warnings in VC++ .Net 2003.
-//
-// Revision 1.72  2004/07/10 11:17:31  adcockj
-// Fix compile error
-//
-// Revision 1.71  2004/07/08 08:17:52  adcockj
-// Horrible work around for cx2388x issues
-//
-// Revision 1.70  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.69  2003/10/10 11:16:37  laurentg
-// Bug fixed : access to the audio mixer
-//
-// Revision 1.68  2003/09/14 09:20:59  adcockj
-// Put repeated code in function
-//
-// Revision 1.67  2003/08/25 04:04:00  atnak
-// Moved the initial Mixer_Init() call to the correct place
-//
-// Revision 1.66  2003/08/16 18:40:43  laurentg
-// Disable access to the audio mixer dialog box for the movie file source
-// Display the audio mixer dialog box at first setup of a DShow capture source
-//
-// Revision 1.65  2003/08/16 09:20:57  laurentg
-// Disable access to audio mixer dialog box when the current source is a still
-//
-// Revision 1.64  2003/08/16 08:06:04  laurentg
-// New message box to introduce audio mixer dialog box
-//
-// Revision 1.63  2003/08/15 18:26:56  laurentg
-// Display the mixer setup dialog box at first init of a card
-//
-// Revision 1.62  2003/05/30 12:22:51  laurentg
-// Avoid a double saving of the settings
-//
-// Revision 1.61  2003/03/27 14:10:21  laurentg
-// Restore still sources before DShow sources to avoid problems when opening stills
-//
-// Revision 1.60  2003/03/25 00:02:11  laurentg
-// DShow sources moved before the stills sources and "(DShow)" added at end of DirectShow sources
-//
-// Revision 1.59  2003/02/22 16:45:02  tobbej
-// added a new open file dialog that allows entering urls
-//
-// Revision 1.58  2003/02/05 19:39:49  tobbej
-// renamed some functions
-//
-// Revision 1.57  2003/01/11 12:53:58  adcockj
-// Interim Check in of settings changes
-//  - bug fixes for overlay settings changes
-//  - Bug fixes for new settings changes
-//  - disables settings per channel completely
-//
-// Revision 1.56  2003/01/10 17:38:13  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.55  2002/12/07 15:59:06  adcockj
-// Modified mute behaviour
-//
-// Revision 1.54  2002/11/03 06:00:29  atnak
-// Added redrawing the menu bar when it changes
-//
-// Revision 1.53  2002/11/02 12:40:28  laurentg
-// Error message relative to DScaler.d3u updated
-//
-// Revision 1.52  2002/10/29 11:05:28  adcockj
-// Renamed CT2388x to CX2388x
-//
-// Revision 1.51  2002/10/26 17:51:53  adcockj
-// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
-//
-// Revision 1.50  2002/10/08 20:39:01  atnak
-// enabled saa7134 stuff
-//
-// Revision 1.49  2002/10/08 20:17:48  laurentg
-// Calls to PreShowDialogOrMenu / PostShowDialogOrMenu added
-//
-// Revision 1.48  2002/10/07 22:30:57  kooiman
-// Fixed NewValue=pSource.
-//
-// Revision 1.47  2002/09/28 13:31:41  kooiman
-// Added sender object to events and added setting flag to treesettingsgeneric.
-//
-// Revision 1.46  2002/09/26 11:33:42  kooiman
-// Use event collector
-//
-// Revision 1.45  2002/09/17 21:38:48  laurentg
-// By default, use the first BT8x8/CX2388x/SAA7134 source as initial source
-//
-// Revision 1.44  2002/09/16 19:34:19  adcockj
-// Fix for auto format change
-//
-// Revision 1.43  2002/09/14 20:18:16  atnak
-// Prelimainary support for SAA713x based cards
-//
-// Revision 1.42  2002/09/11 18:19:43  adcockj
-// Prelimainary support for CX2388x based cards
-//
-// Revision 1.41  2002/08/13 21:16:06  kooiman
-// Added source change notification.
-//
-// Revision 1.40  2002/08/11 12:12:10  laurentg
-// Cut BT Card setup and general hardware setup in two different windows
-//
-// Revision 1.39  2002/07/29 17:43:29  tobbej
-// support for opening graphedit saved filter graphs
-//
-// Revision 1.38  2002/07/26 22:40:55  laurentg
-// Menus updates
-//
-// Revision 1.37  2002/05/01 13:00:18  laurentg
-// Support of JPEG files added
-//
-// Revision 1.36  2002/04/28 16:46:49  laurentg
-// Reinit WSS data when switching source
-//
-// Revision 1.35  2002/04/27 16:02:59  laurentg
-// Initial source
-//
-// Revision 1.34  2002/04/27 11:21:04  tobbej
-// fixed crashing, dont use c style malloc to allocate memory for structs with c++ members
-//
-// Revision 1.33  2002/04/27 00:38:33  laurentg
-// New default source (still) used at DScaler startup or when there is no more source accessible
-//
-// Revision 1.32  2002/04/13 21:52:40  laurentg
-// Management of no current source
-//
-// Revision 1.31  2002/04/13 18:56:23  laurentg
-// Checks added to manage case where the current source is not yet defined
-//
-// Revision 1.30  2002/04/07 14:55:04  tobbej
-// added asf and wmv filetypes to file-open dialog
-//
-// Revision 1.29  2002/04/06 11:46:45  laurentg
-// Check that the current source is not NULL to avoid DScaler exits
-//
-// Revision 1.28  2002/03/02 18:33:56  laurentg
-// At startup, mute the audio of all unused cards
-//
-// Revision 1.27  2002/02/19 16:03:36  tobbej
-// removed CurrentX and CurrentY
-// added new member in CSource, NotifySizeChange
-//
-// Revision 1.26  2002/02/18 23:25:01  laurentg
-// At startup, go to the first source having a content
-// Order of still sources changed (Patterns before Snapshots)
-//
-// Revision 1.25  2002/02/17 00:35:35  laurentg
-// Problem to modify source submenu when menubar is hidden is solved
-//
-// Revision 1.24  2002/02/12 16:33:40  tobbej
-// updated file-open menu with filetype for media files (avi for example)
-//
-// Revision 1.23  2002/02/11 21:33:13  laurentg
-// Patterns as a new source from the Still provider
-//
-// Revision 1.22  2002/02/09 21:12:28  laurentg
-// Old test patterns restored
-// Loading of d3u files improved (absolute or relative path)
-//
-// Revision 1.21  2002/02/09 14:46:04  laurentg
-// OSD main screen updated to display the correct input name (or channel)
-// OSD main screen updated to display only activated filters
-// Menu label for the BT848 providers now displays the name of the card
-//
-// Revision 1.20  2002/02/09 02:51:38  laurentg
-// Grayed the channels when the source has no tuner
-//
-// Revision 1.19  2002/02/08 00:36:06  laurentg
-// Support of a new type of file : DScaler patterns
-//
-// Revision 1.18  2002/02/02 12:41:44  laurentg
-// CurrentX and CurrentY set when changing source and when switching between still files
-//
-// Revision 1.17  2002/02/02 01:31:18  laurentg
-// Access to the files of the playlist added in the menus
-// Save Playlist added
-// "Video Adjustments ..." restored in the popup menu
-//
-// Revision 1.16  2002/02/01 00:41:58  laurentg
-// Playlist code updated
-//
-// Revision 1.15  2002/01/24 00:00:13  robmuller
-// Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
-//
-// Revision 1.14  2001/12/09 22:00:42  tobbej
-// experimental dshow support, doesnt work yet
-// define WANT_DSHOW_SUPPORT if you want to try it
-//
-// Revision 1.13  2001/12/08 20:00:24  laurentg
-// Access control on sources
-//
-// Revision 1.12  2001/12/08 13:48:40  laurentg
-// New StillSource for snapshots done during the DScaler session
-//
-// Revision 1.11  2001/12/08 12:01:26  laurentg
-// Providers_AddSource and Providers_RemoveSource deleted
-//
-// Revision 1.10  2001/11/28 16:04:50  adcockj
-// Major reorganization of STill support
-//
-// Revision 1.9  2001/11/25 21:29:50  laurentg
-// Take still, Open file, Close file callbacks updated
-//
-// Revision 1.8  2001/11/24 22:54:25  laurentg
-// Close file added for still source
-//
-// Revision 1.7  2001/11/24 17:58:06  laurentg
-// Still source
-//
-// Revision 1.6  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.5  2001/11/21 12:32:11  adcockj
-// Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
-//
-// Revision 1.4  2001/11/14 11:28:03  adcockj
-// Bug fixes
-//
-// Revision 1.3  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.2  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.1.2.6  2001/08/23 16:04:57  adcockj
-// Improvements to dynamic menus to remove requirement that they are not empty
-//
-// Revision 1.1.2.5  2001/08/21 16:42:16  adcockj
-// Per format/input settings and ini file fixes
-//
-// Revision 1.1.2.4  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.1.2.3  2001/08/18 17:09:30  adcockj
-// Got to compile, still lots to do...
-//
-// Revision 1.1.2.2  2001/08/17 16:35:14  adcockj
-// Another interim check-in still doesn't compile. Getting closer ...
-//
-// Revision 1.1.2.1  2001/08/15 14:44:05  adcockj
-// Starting to put some flesh onto the new structure
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file Providers.cpp Providers functions
@@ -345,18 +82,18 @@ extern char szIniFile[MAX_PATH];
 
 void Providers_MixerSetup()
 {
-	MessageBox(GetMainWnd(),
-		"The following dialog will allow you to configure how "
-		"DScaler uses the system mixer.  Configuring DScaler to use the "
-		"system mixer allows DScaler to change the volume level and the "
-		"mute state of your sound card by using the Windows mixer.  This is a "
-		"must for cards that do not support these functions in hardware. "
-		"You should specify the line into which your TV card's loopback "
-		"sound cable is attached.\n"
-		"\n"
-		"If you do not wish to let DScaler use the system mixer, leave "
-		"the \"Use the system mixer\" option unchecked.  If unsure, it "
-		"is recommended you use the system mixer.", "Next...", MB_OK);
+    MessageBox(GetMainWnd(),
+        "The following dialog will allow you to configure how "
+        "DScaler uses the system mixer.  Configuring DScaler to use the "
+        "system mixer allows DScaler to change the volume level and the "
+        "mute state of your sound card by using the Windows mixer.  This is a "
+        "must for cards that do not support these functions in hardware. "
+        "You should specify the line into which your TV card's loopback "
+        "sound cable is attached.\n"
+        "\n"
+        "If you do not wish to let DScaler use the system mixer, leave "
+        "the \"Use the system mixer\" option unchecked.  If unsure, it "
+        "is recommended you use the system mixer.", "Next...", MB_OK);
 
     Mixer_SetupDlg(GetMainWnd());
 }
@@ -393,14 +130,14 @@ int Providers_Load(HMENU hMenu)
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
 
-			// Set CurrentSource for Providers_GetCurrentSource function
-			// used in mixer code
+            // Set CurrentSource for Providers_GetCurrentSource function
+            // used in mixer code
             CurrentSource = Sources.size()-1;
-			// The first time, setup the audio mixer for the card
-			if (((CBT848Source*)(BT848Provider->GetSource(i)))->IsInitialSetup())
-			{
+            // The first time, setup the audio mixer for the card
+            if (((CBT848Source*)(BT848Provider->GetSource(i)))->IsInitialSetup())
+            {
                 Providers_MixerSetup();
-			}
+            }
 
             // Mute the audio of each source
             BT848Provider->GetSource(i)->Mute();
@@ -453,12 +190,12 @@ int Providers_Load(HMENU hMenu)
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
 
-			// Set CurrentSource for Providers_GetCurrentSource function
-			// used in mixer code
+            // Set CurrentSource for Providers_GetCurrentSource function
+            // used in mixer code
             CurrentSource = Sources.size()-1;
-			// The first time, setup the audio mixer for the card
-			if (((CCX2388xSource*)(CX2388xProvider->GetSource(i)))->IsInitialSetup())
-			{
+            // The first time, setup the audio mixer for the card
+            if (((CCX2388xSource*)(CX2388xProvider->GetSource(i)))->IsInitialSetup())
+            {
                 Providers_MixerSetup();
             }
 
@@ -484,26 +221,26 @@ int Providers_Load(HMENU hMenu)
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
 
-			// Set CurrentSource for Providers_GetCurrentSource function
-			// used in mixer code
+            // Set CurrentSource for Providers_GetCurrentSource function
+            // used in mixer code
             CurrentSource = Sources.size()-1;
-			// The first time, setup the audio mixer for the card
-			if (((CSAA7134Source*)(SAA7134Provider->GetSource(i)))->IsInitialSetup())
-			{
+            // The first time, setup the audio mixer for the card
+            if (((CSAA7134Source*)(SAA7134Provider->GetSource(i)))->IsInitialSetup())
+            {
                 Providers_MixerSetup();
-			}
+            }
 
             // Mute the audio of each source
             SAA7134Provider->GetSource(i)->Mute();
         }
 #endif//xxx
 
-		// Use by default the first BT8x8/CX2388x/SAA7134 source as initial source
-		// Do that before loading other sources
-		if (InitSourceIdx == -1)
-		{
+        // Use by default the first BT8x8/CX2388x/SAA7134 source as initial source
+        // Do that before loading other sources
+        if (InitSourceIdx == -1)
+        {
             InitSourceIdx = Providers_FindSource();
-		}
+        }
     }
     else
     {
@@ -542,14 +279,14 @@ int Providers_Load(HMENU hMenu)
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
 
-		    // Set CurrentSource for Providers_GetCurrentSource function
-		    // used in mixer code
+            // Set CurrentSource for Providers_GetCurrentSource function
+            // used in mixer code
             CurrentSource = Sources.size()-1;
-		    // The first time, setup the audio mixer for the card
-		    if (((CDSSourceBase*)(DSProvider->GetSource(i)))->IsInitialSetup())
-		    {
+            // The first time, setup the audio mixer for the card
+            if (((CDSSourceBase*)(DSProvider->GetSource(i)))->IsInitialSetup())
+            {
                 Providers_MixerSetup();
-		    }
+            }
 
             DSProvider->GetSource(i)->Mute();
         }
@@ -621,11 +358,11 @@ int Providers_Load(HMENU hMenu)
 void Providers_Unload()
 {
 #ifdef WANT_DSHOW_SUPPORT
-	if(DSProvider!=NULL)
-	{
-		delete DSProvider;
-		DSProvider=NULL;
-	}
+    if(DSProvider!=NULL)
+    {
+        delete DSProvider;
+        DSProvider=NULL;
+    }
 #endif
     if(StillProvider != NULL)
     {
@@ -714,17 +451,17 @@ CSource* Providers_GetIntroSource()
 
 BOOL Providers_IsStillSource(CSource* source)
 {
-	if (StillProvider != NULL)
-	{
-		for (int i=0 ; i<StillProvider->GetNumberOfSources() ; i++)
-		{
-			if (StillProvider->GetSource(i) == source)
-			{
-				return TRUE;
-			}
-		}
-	}
-	return FALSE;
+    if (StillProvider != NULL)
+    {
+        for (int i=0 ; i<StillProvider->GetNumberOfSources() ; i++)
+        {
+            if (StillProvider->GetSource(i) == source)
+            {
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
 }
 
 int Providers_FindSource()
@@ -814,7 +551,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     else if (LOWORD(wParam) == IDM_OPEN_FILE)
     {
         CString file;
-		if(COpenDlg::ShowOpenDialog(hWnd,file))
+        if(COpenDlg::ShowOpenDialog(hWnd,file))
         {
             Stop_Capture();
             for(size_t i = 0; i < Sources.size(); ++i)
@@ -920,8 +657,8 @@ void Providers_NotifySourcePreChange()
     {
         Providers_GetCurrentSource()->UnsetSourceAsCurrent();
     }
-	// Laurent 30/05/2003 Not necessary because it is done two lines below
-	// when calling UnsetSourceAsCurrent
+    // Laurent 30/05/2003 Not necessary because it is done two lines below
+    // when calling UnsetSourceAsCurrent
     // good time to save the current settings
     // SettingsMaster->SaveSettings();
 }

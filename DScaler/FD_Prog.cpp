@@ -15,16 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.1  2002/09/11 18:32:43  adcockj
-// Preliminary support for H3D card
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file FD_Prog.cpp Progressive film mode functions
@@ -305,10 +295,10 @@ BOOL ProgMode(TDeinterlaceInfo* pInfo)
                 lpOverlay += pInfo->OverlayPitch;
                 CurrentLine += pInfo->InputPitch;
             }
-			_asm
-			{
-				emms
-			}
+            _asm
+            {
+                emms
+            }
             return TRUE;
         }
         else

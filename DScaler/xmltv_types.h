@@ -84,8 +84,8 @@ typedef   signed long  slong;    // >=32 bit signed
 #define  UINT2PVOID(X)   ((void *)((ulong)(X)))
 
 #ifdef WIN32
-#define strcasecmp	_stricmp
-#define strncasecmp	_strnicmp
+#define strcasecmp    _stricmp
+#define strncasecmp    _strnicmp
 #endif
 
 #endif // __XMLTV_TYPES_H

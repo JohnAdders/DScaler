@@ -20,16 +20,6 @@
 // Copyright (C) Mathias Ellinger
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 20 Jun 1994   Mathias Ellinger      initial version
-//
-// 24 Jul 2000   John Adcock           Original dTV Release
-//                                     Added Memory Alloc functions
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #if ! defined (__DEBUGOUT_H)
 #define __DEBUGOUT_H

@@ -21,58 +21,6 @@
 // Copyright (c) 2001,02 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 03 Oct 2002   Atsushi Nakagawa      Moved video setting stuff in here
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.13  2005/05/18 12:18:32  robmuller
-// Added gamma control.
-//
-// Revision 1.12  2004/11/19 23:47:21  atnak
-// Changes to get rid of warnings.
-//
-// Revision 1.11  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.10  2003/01/07 23:00:00  atnak
-// Removed variable upscale devisor and locked in at 0x200 scaling
-// for 27Mhz VBI stepping
-//
-// Revision 1.9  2002/11/10 09:30:57  atnak
-// Added Chroma only comb filter mode for SECAM
-//
-// Revision 1.8  2002/10/26 04:42:50  atnak
-// Added AGC config and automatic volume leveling control
-//
-// Revision 1.7  2002/10/23 17:05:19  atnak
-// Added variable VBI sample rate scaling
-//
-// Revision 1.6  2002/10/20 07:41:04  atnak
-// custom audio standard setup + etc
-//
-// Revision 1.5  2002/10/15 04:34:26  atnak
-// increased the amount of VBI samples to get better decoding
-//
-// Revision 1.4  2002/10/08 20:35:39  atnak
-// whitepeak, colorpeak, comb filter UI options
-//
-// Revision 1.3  2002/10/08 19:35:45  atnak
-// various fixes, tweaks, cleanups
-//
-// Revision 1.2  2002/10/06 11:11:29  atnak
-// Added SetVSync recovery
-//
-// Revision 1.1  2002/10/03 23:42:07  atnak
-// SAA7134Common.h SAA7134Common.cpp SAA7134Card_Video.cpp added
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SAA7134Card.cpp CSAA7134Card Implementation (Video)
@@ -549,27 +497,27 @@ void CSAA7134Card::SetGainControl(WORD GainControl)
 
 void CSAA7134Card::SetGammaControl(BOOL bGammaControl)
 {
-	// bit 0: ??? (this one is not explained in the documentation. Set to bypass RGB to YUV matrix?)
-	// bit 1: set to bypass YUV to RGB matrix 
-	// bit 2: set to enable transformation via LUT curve
-	
-	if(bGammaControl)
-	{
-		AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), ~3);
-		OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), 4);
+    // bit 0: ??? (this one is not explained in the documentation. Set to bypass RGB to YUV matrix?)
+    // bit 1: set to bypass YUV to RGB matrix 
+    // bit 2: set to enable transformation via LUT curve
+    
+    if(bGammaControl)
+    {
+        AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), ~3);
+        OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), 4);
 
-		AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), ~3);
-		OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), 4);
+        AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), ~3);
+        OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), 4);
 
-	}
-	else
-	{
-		AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), ~4);
-		OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), 3);
+    }
+    else
+    {
+        AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), ~4);
+        OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), 3);
 
-		AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), ~4);
-		OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), 3);
-	}
+        AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), ~4);
+        OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), 3);
+    }
 }
 
 void CSAA7134Card::SetGammaLevel(WORD bGammaLevel)
@@ -580,7 +528,7 @@ void CSAA7134Card::SetGammaLevel(WORD bGammaLevel)
 
     for (int i = 0; i < 0x0F; i++)
     {
-		BYTE AdjustedValue = (BYTE)(255.0 * pow(((i+1)<<4)/255.0, 1000/(double)bGammaLevel));
+        BYTE AdjustedValue = (BYTE)(255.0 * pow(((i+1)<<4)/255.0, 1000/(double)bGammaLevel));
 
         WriteByte(SAA7134_GREEN_PATH(i), AdjustedValue);
         WriteByte(SAA7134_BLUE_PATH(i), AdjustedValue);

@@ -20,13 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 13 Apr 2001   John Adcock           Split timing code out of OutThreads.c
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file fieldtiming.h fieldtiming Header file

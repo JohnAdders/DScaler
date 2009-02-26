@@ -33,16 +33,16 @@ class CSAA7118 : public CI2CDevice
 {
 public:
     CSAA7118();
-	void SetBrightness(BYTE Brightness);
-	void SetContrast(BYTE Contrast);
-	void SetHue(BYTE Hue);
-	void SetSaturation(BYTE Saturation);
-	void SetComponentBrightness(BYTE Brightness);
-	void SetComponentContrast(BYTE Contrast);
-	void SetComponentSaturation(BYTE Saturation);
+    void SetBrightness(BYTE Brightness);
+    void SetContrast(BYTE Contrast);
+    void SetHue(BYTE Hue);
+    void SetSaturation(BYTE Saturation);
+    void SetComponentBrightness(BYTE Brightness);
+    void SetComponentContrast(BYTE Contrast);
+    void SetComponentSaturation(BYTE Saturation);
 
-	BYTE GetVersion();
-	void DumpSettings(LPCSTR Filename);
+    BYTE GetVersion();
+    void DumpSettings(LPCSTR Filename);
 
     void SetRegister(BYTE Register, BYTE Value);
     BYTE GetRegister(BYTE Register);

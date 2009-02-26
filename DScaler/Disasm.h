@@ -23,16 +23,6 @@
 // VirtualDub - Video processing and capture application
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2003/01/20 15:19:38  adcockj
-// Brought crash code into line iwth latest vdub code
-//
-// Revision 1.3  2002/09/17 17:28:24  tobbej
-// updated crashloging to same version as in latest virtualdub
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file disasm.h disasm Header file

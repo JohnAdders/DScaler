@@ -15,22 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2003/06/26 11:42:54  adcockj
-// Reduced teh size of some of the dlls
-//
-// Revision 1.3  2003/01/03 17:26:27  adcockj
-// First cut of the chroma filter - sssslllloooowwwww
-//
-// Revision 1.2  2003/01/02 16:22:57  adcockj
-// Variable rename
-//
-// Revision 1.1  2003/01/02 13:15:01  adcockj
-// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 // This is the long awaited chroma filter

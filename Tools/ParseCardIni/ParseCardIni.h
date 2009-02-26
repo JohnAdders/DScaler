@@ -19,10 +19,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_PARSECARDINI_H__8B13BE69_DF8E_471A_8B21_ED4A325E0029__INCLUDED_)
 #define AFX_PARSECARDINI_H__8B13BE69_DF8E_471A_8B21_ED4A325E0029__INCLUDED_
@@ -32,25 +28,25 @@
 #endif // _MSC_VER > 1000
 
 #ifndef __AFXWIN_H__
-	#error include 'stdafx.h' before including this file for PCH
+    #error include 'stdafx.h' before including this file for PCH
 #endif
 
-#include "resource.h"		// Hauptsymbole
+#include "resource.h"        // Hauptsymbole
 
 class CParseCardIniApp : public CWinApp
 {
 public:
-	CParseCardIniApp();
+    CParseCardIniApp();
 
-	//{{AFX_VIRTUAL(CParseCardIniApp)
-	public:
-	virtual BOOL InitInstance();
-	//}}AFX_VIRTUAL
+    //{{AFX_VIRTUAL(CParseCardIniApp)
+    public:
+    virtual BOOL InitInstance();
+    //}}AFX_VIRTUAL
 
 
-	//{{AFX_MSG(CParseCardIniApp)
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+    //{{AFX_MSG(CParseCardIniApp)
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 };
 
 

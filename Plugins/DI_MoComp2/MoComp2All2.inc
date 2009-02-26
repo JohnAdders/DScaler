@@ -22,17 +22,10 @@
 //  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2003/01/02 13:15:01  adcockj
-// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
-//
-/////////////////////////////////////////////////////////////////////////////
 
 void DoMoComp2_SimpleWeave()
 {
-    #include "SearchLoopTop.inc"	
-    #include "SimpleWeave.inc"	
+    #include "SearchLoopTop.inc"    
+    #include "SimpleWeave.inc"    
     #include "SearchLoopBottom.inc"
 }

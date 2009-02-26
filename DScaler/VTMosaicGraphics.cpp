@@ -15,25 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU Library General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 03 Jan 2003   Atsushi Nakagawa      Enclosed the functions into a class.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2003/01/01 20:42:13  atnak
-// Enclosed the functions into a class
-//
-// Revision 1.1  2002/01/15 11:16:03  temperton
-// New teletext drawing code.
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 
 /**

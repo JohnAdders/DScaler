@@ -16,12 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2004/10/30 19:30:22  to_see
-// initial checkin
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_SAA7134CARD_H__13F16573_35A0_403E_BCA0_A187A8E7F745__INCLUDED_)
 #define AFX_SAA7134CARD_H__13F16573_35A0_403E_BCA0_A187A8E7F745__INCLUDED_
@@ -38,9 +32,9 @@ class CSAA7134Card : public CPCICard,
                      public ISAA7134I2CInterface
 {
 public:
-	bool WriteToI2C(const BYTE *writeBuffer, size_t writeBufferSize);
-	CSAA7134Card(CHardwareDriver* pDriver);
-	~CSAA7134Card();
+    bool WriteToI2C(const BYTE *writeBuffer, size_t writeBufferSize);
+    CSAA7134Card(CHardwareDriver* pDriver);
+    ~CSAA7134Card();
 
 private:
     CI2CBus*         m_I2CBus;

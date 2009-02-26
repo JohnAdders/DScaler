@@ -15,25 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//  This file is part of the SettingRepository module.  See
-//  SettingRepository.h for more information.
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2004/08/20 07:27:09  atnak
-// Removed the title value.
-//
-// Revision 1.3  2004/08/12 14:04:39  atnak
-// Changed blocked dependents code plus other changes.
-//
-// Revision 1.2  2004/08/08 17:03:38  atnak
-// Minor fixes and added Begin() and End() general methods.
-//
-// Revision 1.1  2004/08/06 17:12:10  atnak
-// Setting repository initial upload.
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SETTINGCONFIG_H__
 #define __SETTINGCONFIG_H__
@@ -48,15 +29,15 @@
 
 enum eSettingConfigType
 {
-	SETTING_CONFIG_NULL,
-	SETTING_CONFIG_CHECKBOX,
-	SETTING_CONFIG_EDITBOX,
-	SETTING_CONFIG_LISTBOX,
-	SETTING_CONFIG_SLIDER,
-	SETTING_CONFIG_DEPENDENT,
+    SETTING_CONFIG_NULL,
+    SETTING_CONFIG_CHECKBOX,
+    SETTING_CONFIG_EDITBOX,
+    SETTING_CONFIG_LISTBOX,
+    SETTING_CONFIG_SLIDER,
+    SETTING_CONFIG_DEPENDENT,
 
-	SETTING_CONFIG_CONTAINER,
-	SETTING_CONFIG_ASSOCIATION,
+    SETTING_CONFIG_CONTAINER,
+    SETTING_CONFIG_ASSOCIATION,
 };
 
 
@@ -69,31 +50,31 @@ typedef class CSettingConfig* PSETTINGCONFIG;
 class CSettingConfig
 {
 public:
-	CSettingConfig();
-	virtual ~CSettingConfig();
+    CSettingConfig();
+    virtual ~CSettingConfig();
 
-	// Get the type of the configurator.
-	virtual inline BYTE GetType()=0;
-	// Gets the setting's title.
-	virtual std::string GetTitle()=0;
+    // Get the type of the configurator.
+    virtual inline BYTE GetType()=0;
+    // Gets the setting's title.
+    virtual std::string GetTitle()=0;
 
-	// Called when the OK or Apply button is pressed.
-	virtual void ApplyValue()=0;
-	// Called when the Cancel button is pressed.
-	virtual void ResetValue()=0;
+    // Called when the OK or Apply button is pressed.
+    virtual void ApplyValue()=0;
+    // Called when the Cancel button is pressed.
+    virtual void ResetValue()=0;
 
-	// Called when the configuration interface begins.
-	virtual void Begin();
-	// Called when the configuration interface ends.
-	virtual void End();
+    // Called when the configuration interface begins.
+    virtual void Begin();
+    // Called when the configuration interface ends.
+    virtual void End();
 
-	// Sets if object can be purged automatically.  TRUE by default.
-	virtual inline void SetPurgable(BOOL purgable);
-	// Gets if object can be purged automatically.
-	virtual inline BOOL IsPurgable();
+    // Sets if object can be purged automatically.  TRUE by default.
+    virtual inline void SetPurgable(BOOL purgable);
+    // Gets if object can be purged automatically.
+    virtual inline BOOL IsPurgable();
 
 protected:
-	BOOL			m_purgable;
+    BOOL            m_purgable;
 };
 
 
@@ -103,35 +84,35 @@ protected:
 class CSettingConfigSetting : public CSettingConfig
 {
 public:
-	CSettingConfigSetting(PSETTINGKEY key, BOOL activeChange = TRUE);
-	CSettingConfigSetting(PSETTINGGROUP group, HSETTING setting,
-		BOOL activeChange = TRUE);
-	virtual ~CSettingConfigSetting();
+    CSettingConfigSetting(PSETTINGKEY key, BOOL activeChange = TRUE);
+    CSettingConfigSetting(PSETTINGGROUP group, HSETTING setting,
+        BOOL activeChange = TRUE);
+    virtual ~CSettingConfigSetting();
 
-	virtual inline BYTE GetType()=0;
+    virtual inline BYTE GetType()=0;
 
-	// Gets the setting's title.
-	virtual std::string GetTitle();
+    // Gets the setting's title.
+    virtual std::string GetTitle();
 
-	virtual CSettingValue SetValue(RCSETTINGVALUE value);
-	virtual CSettingValue GetValue();
+    virtual CSettingValue SetValue(RCSETTINGVALUE value);
+    virtual CSettingValue GetValue();
 
-	virtual CSettingValue UseDefault();
-	virtual CSettingValue GetDefault();
+    virtual CSettingValue UseDefault();
+    virtual CSettingValue GetDefault();
 
-	// Called to apply any pending values when the OK button is pressed.
-	virtual void ApplyValue();
-	// Called to reset the value when the Cancel button is pressed.
-	virtual void ResetValue();
+    // Called to apply any pending values when the OK button is pressed.
+    virtual void ApplyValue();
+    // Called to reset the value when the Cancel button is pressed.
+    virtual void ResetValue();
 
-	// Called when the configuration interface begins.
-	virtual void Begin();
+    // Called when the configuration interface begins.
+    virtual void Begin();
 
 protected:
-	PSETTINGGROUP	m_settingGroup;
-	HSETTING		m_settingIdentifier;
-	BOOL			m_activeChange;
-	CSettingValue	m_pendingValue;
+    PSETTINGGROUP    m_settingGroup;
+    HSETTING        m_settingIdentifier;
+    BOOL            m_activeChange;
+    CSettingValue    m_pendingValue;
 };
 
 
@@ -141,15 +122,15 @@ protected:
 class CSettingConfigCheckbox : public CSettingConfigSetting
 {
 public:
-	CSettingConfigCheckbox(PSETTINGKEY key, BOOL activeChange = TRUE);
-	CSettingConfigCheckbox(PSETTINGGROUP group, HSETTING setting,
-		BOOL activeChange = TRUE);
-	virtual ~CSettingConfigCheckbox();
+    CSettingConfigCheckbox(PSETTINGKEY key, BOOL activeChange = TRUE);
+    CSettingConfigCheckbox(PSETTINGGROUP group, HSETTING setting,
+        BOOL activeChange = TRUE);
+    virtual ~CSettingConfigCheckbox();
 
-	virtual inline BYTE GetType() { return SETTING_CONFIG_CHECKBOX; };
+    virtual inline BYTE GetType() { return SETTING_CONFIG_CHECKBOX; };
 
-	virtual BOOL GetCheckboxState();
-	virtual BOOL SetCheckboxState(BOOL checked);
+    virtual BOOL GetCheckboxState();
+    virtual BOOL SetCheckboxState(BOOL checked);
 };
 
 
@@ -159,19 +140,19 @@ public:
 class CSettingConfigEditBox : public CSettingConfigSetting
 {
 public:
-	CSettingConfigEditBox(PSETTINGKEY key, ULONG maxLength, BOOL activeChange = TRUE);
-	CSettingConfigEditBox(PSETTINGGROUP group, HSETTING setting,
-		ULONG maxLength, BOOL activeChange = TRUE);
-	virtual ~CSettingConfigEditBox();
+    CSettingConfigEditBox(PSETTINGKEY key, ULONG maxLength, BOOL activeChange = TRUE);
+    CSettingConfigEditBox(PSETTINGGROUP group, HSETTING setting,
+        ULONG maxLength, BOOL activeChange = TRUE);
+    virtual ~CSettingConfigEditBox();
 
-	virtual inline BYTE GetType() { return SETTING_CONFIG_EDITBOX; };
-	virtual ULONG GetMaxLength();
+    virtual inline BYTE GetType() { return SETTING_CONFIG_EDITBOX; };
+    virtual ULONG GetMaxLength();
 
-	virtual std::string GetEditBoxText();
-	virtual std::string SetEditBoxText(std::string text);
+    virtual std::string GetEditBoxText();
+    virtual std::string SetEditBoxText(std::string text);
 
 protected:
-	ULONG m_maxLength;
+    ULONG m_maxLength;
 };
 
 
@@ -181,34 +162,34 @@ protected:
 class CSettingConfigListBox : public CSettingConfigSetting
 {
 public:
-	// Reserves space for count amount elemnts.  Use AddElement() to add.
-	CSettingConfigListBox(PSETTINGKEY key, ULONG count,
-		BOOL sorted, BOOL activeChange = TRUE);
-	CSettingConfigListBox(PSETTINGGROUP group, HSETTING setting,
-		ULONG count, BOOL sorted, BOOL activeChange = TRUE);
+    // Reserves space for count amount elemnts.  Use AddElement() to add.
+    CSettingConfigListBox(PSETTINGKEY key, ULONG count,
+        BOOL sorted, BOOL activeChange = TRUE);
+    CSettingConfigListBox(PSETTINGGROUP group, HSETTING setting,
+        ULONG count, BOOL sorted, BOOL activeChange = TRUE);
 
-	// Adds count elements pointed to by elements[] to the list.
-	CSettingConfigListBox(PSETTINGKEY key, LPCSTR elements[],
-		ULONG count, BOOL activeChange = TRUE);
-	CSettingConfigListBox(std::string title,
-		PSETTINGGROUP group, HSETTING setting, LPCSTR elements[],
-		ULONG count, BOOL activeChange = TRUE);
-	virtual ~CSettingConfigListBox();
+    // Adds count elements pointed to by elements[] to the list.
+    CSettingConfigListBox(PSETTINGKEY key, LPCSTR elements[],
+        ULONG count, BOOL activeChange = TRUE);
+    CSettingConfigListBox(std::string title,
+        PSETTINGGROUP group, HSETTING setting, LPCSTR elements[],
+        ULONG count, BOOL activeChange = TRUE);
+    virtual ~CSettingConfigListBox();
 
-	virtual inline BYTE GetType() { return SETTING_CONFIG_LISTBOX; };
-	virtual void AddElement(std::string element);
+    virtual inline BYTE GetType() { return SETTING_CONFIG_LISTBOX; };
+    virtual void AddElement(std::string element);
 
-	virtual LPCSTR GetElement(ULONG index);
-	virtual ULONG GetCount();
+    virtual LPCSTR GetElement(ULONG index);
+    virtual ULONG GetCount();
 
-	virtual inline BOOL IsSorted();
+    virtual inline BOOL IsSorted();
 
-	virtual ULONG GetListBoxSelected();
-	virtual ULONG SetListBoxSelected(ULONG selected);
+    virtual ULONG GetListBoxSelected();
+    virtual ULONG SetListBoxSelected(ULONG selected);
 
 protected:
-	std::vector<std::string>	m_elements;
-	BOOL						m_sorted;
+    std::vector<std::string>    m_elements;
+    BOOL                        m_sorted;
 };
 
 
@@ -218,25 +199,25 @@ protected:
 class CSettingConfigSlider : public CSettingConfigSetting
 {
 public:
-	CSettingConfigSlider(PSETTINGKEY key, INT minimum, INT maximum,
-		INT step = 1, BOOL activeChange = TRUE);
-	CSettingConfigSlider(PSETTINGGROUP group, HSETTING setting,
-		INT minimum, INT maximum, INT step = 1, BOOL activeChange = TRUE);
-	virtual ~CSettingConfigSlider();
+    CSettingConfigSlider(PSETTINGKEY key, INT minimum, INT maximum,
+        INT step = 1, BOOL activeChange = TRUE);
+    CSettingConfigSlider(PSETTINGGROUP group, HSETTING setting,
+        INT minimum, INT maximum, INT step = 1, BOOL activeChange = TRUE);
+    virtual ~CSettingConfigSlider();
 
-	virtual inline BYTE GetType() { return SETTING_CONFIG_SLIDER; };
-	virtual INT GetMin();
-	virtual INT GetMax();
-	virtual INT GetStep();
+    virtual inline BYTE GetType() { return SETTING_CONFIG_SLIDER; };
+    virtual INT GetMin();
+    virtual INT GetMax();
+    virtual INT GetStep();
 
-	virtual INT GetSliderValue();
-	virtual INT SetSliderValue(INT slide);
-	virtual INT GetSliderDefaultValue();
+    virtual INT GetSliderValue();
+    virtual INT SetSliderValue(INT slide);
+    virtual INT GetSliderDefaultValue();
 
 protected:
-	INT m_minimum;
-	INT m_maximum;
-	INT m_step;
+    INT m_minimum;
+    INT m_maximum;
+    INT m_step;
 };
 
 
@@ -246,38 +227,38 @@ protected:
 class CSettingConfigDependent : public CSettingConfig
 {
 public:
-	CSettingConfigDependent(PSETTINGKEY key);
-	CSettingConfigDependent(PSETTINGGROUPEX group, HSETTING setting);
-	virtual ~CSettingConfigDependent();
+    CSettingConfigDependent(PSETTINGKEY key);
+    CSettingConfigDependent(PSETTINGGROUPEX group, HSETTING setting);
+    virtual ~CSettingConfigDependent();
 
-	virtual inline BYTE GetType() { return SETTING_CONFIG_DEPENDENT; };
+    virtual inline BYTE GetType() { return SETTING_CONFIG_DEPENDENT; };
 
-	// Gets the setting's title
-	virtual std::string GetTitle();
+    // Gets the setting's title
+    virtual std::string GetTitle();
 
-	virtual inline BOOL IsDependee();
-	virtual inline BOOL IsDependee(BYTE dependencyIndex);
+    virtual inline BOOL IsDependee();
+    virtual inline BOOL IsDependee(BYTE dependencyIndex);
 
-	virtual inline BOOL IsDependent(BYTE dependencyIndex);
-	virtual inline BOOL IsDependentLocked(BYTE dependencyIndex);
-	virtual inline BOOL SetDependent(BYTE dependencyIndex, BOOL set);
+    virtual inline BOOL IsDependent(BYTE dependencyIndex);
+    virtual inline BOOL IsDependentLocked(BYTE dependencyIndex);
+    virtual inline BOOL SetDependent(BYTE dependencyIndex, BOOL set);
 
-	// Called when the OK or Apply button is pressed.
-	virtual void ApplyValue();
-	// Called when the Cancel button is pressed.
-	virtual void ResetValue();
+    // Called when the OK or Apply button is pressed.
+    virtual void ApplyValue();
+    // Called when the Cancel button is pressed.
+    virtual void ResetValue();
 
-	// Called when the configuration interface begins.
-	virtual void Begin();
+    // Called when the configuration interface begins.
+    virtual void Begin();
 
 private:
-	friend class CSettingConfigAssociation;
-	PSETTINGGROUPEX	m_settingGroupEx;
-	HSETTING		m_settingIdentifier;
-	DBIT			m_dependeeBits;
-	DBIT			m_dependentBits;
-	DBIT			m_dependentLockedBits;
-	DBIT			m_originalDependentBits;
+    friend class CSettingConfigAssociation;
+    PSETTINGGROUPEX    m_settingGroupEx;
+    HSETTING        m_settingIdentifier;
+    DBIT            m_dependeeBits;
+    DBIT            m_dependentBits;
+    DBIT            m_dependentLockedBits;
+    DBIT            m_originalDependentBits;
 };
 
 
@@ -287,36 +268,36 @@ private:
 class CSettingConfigContainer : public CSettingConfig
 {
 public:
-	CSettingConfigContainer(std::string title, ULONG reserveCount = 0);
-	virtual ~CSettingConfigContainer();
+    CSettingConfigContainer(std::string title, ULONG reserveCount = 0);
+    virtual ~CSettingConfigContainer();
 
-	virtual inline BYTE GetType() { return SETTING_CONFIG_CONTAINER; };
+    virtual inline BYTE GetType() { return SETTING_CONFIG_CONTAINER; };
 
-	// Gets the setting group's title.
-	virtual std::string GetTitle();
+    // Gets the setting group's title.
+    virtual std::string GetTitle();
 
-	// Adds a CSettingConfig as a sub-config of the container class.  The
-	// value of purgable defines whether the passed object can be deleted
-	// by CSettingConfigContainer when the destructor is called.
-	virtual ULONG AddConfig(CSettingConfig* config, BOOL purgable = TRUE);
+    // Adds a CSettingConfig as a sub-config of the container class.  The
+    // value of purgable defines whether the passed object can be deleted
+    // by CSettingConfigContainer when the destructor is called.
+    virtual ULONG AddConfig(CSettingConfig* config, BOOL purgable = TRUE);
 
-	virtual ULONG GetConfigCount();
-	virtual CSettingConfig* GetConfig(ULONG index);
+    virtual ULONG GetConfigCount();
+    virtual CSettingConfig* GetConfig(ULONG index);
 
-	// Called when the OK or Apply button is pressed.
-	virtual void ApplyValue();
-	// Called when the Cancel button is pressed.
-	virtual void ResetValue();
+    // Called when the OK or Apply button is pressed.
+    virtual void ApplyValue();
+    // Called when the Cancel button is pressed.
+    virtual void ResetValue();
 
-	// Called when the configuration interface begins.
-	virtual void Begin();
-	// Called when the configuration interface ends.
-	virtual void End();
+    // Called when the configuration interface begins.
+    virtual void Begin();
+    // Called when the configuration interface ends.
+    virtual void End();
 
 protected:
-	typedef std::vector<CSettingConfig*> CONFIGVECTOR;
-	CONFIGVECTOR m_configVector;
-	std::string m_title;
+    typedef std::vector<CSettingConfig*> CONFIGVECTOR;
+    CONFIGVECTOR m_configVector;
+    std::string m_title;
 };
 
 
@@ -326,60 +307,60 @@ protected:
 class CSettingConfigAssociation : public CSettingConfigContainer
 {
 public:
-	CSettingConfigAssociation(std::string title, PSETTINGGROUPEX group,
-		BYTE reserveDependencyCount, ULONG reserveConfigCount = 0);
-	virtual ~CSettingConfigAssociation();
+    CSettingConfigAssociation(std::string title, PSETTINGGROUPEX group,
+        BYTE reserveDependencyCount, ULONG reserveConfigCount = 0);
+    virtual ~CSettingConfigAssociation();
 
-	virtual inline BYTE GetType() { return SETTING_CONFIG_ASSOCIATION; };
+    virtual inline BYTE GetType() { return SETTING_CONFIG_ASSOCIATION; };
 
-	// Override.  Adds a CSettingConfig as a sub-config of the container
-	// class.  The value of purgable defines whether the passed object can
-	// be deleted by CSettingConfigContainer when the destructor is called.
-	virtual ULONG AddConfig(CSettingConfig* config, BOOL purgable = TRUE);
+    // Override.  Adds a CSettingConfig as a sub-config of the container
+    // class.  The value of purgable defines whether the passed object can
+    // be deleted by CSettingConfigContainer when the destructor is called.
+    virtual ULONG AddConfig(CSettingConfig* config, BOOL purgable = TRUE);
 
-	// Adds a dependency in the association.
-	virtual void AddDependency(std::string title);
+    // Adds a dependency in the association.
+    virtual void AddDependency(std::string title);
 
-	// Gets the number of dependencies in the associations.
-	virtual inline BYTE GetDependencyCount();
-	// Gets the title of a single dependency.
-	virtual inline std::string GetDependencyTitle(BYTE dependencyIndex);
+    // Gets the number of dependencies in the associations.
+    virtual inline BYTE GetDependencyCount();
+    // Gets the title of a single dependency.
+    virtual inline std::string GetDependencyTitle(BYTE dependencyIndex);
 
-	// Enables the dependency bit.
-	virtual inline BOOL EnableDependency(BYTE dependencyIndex, BOOL enable);
-	virtual inline BOOL IsDependencyEnabled(BYTE dependencyIndex);
+    // Enables the dependency bit.
+    virtual inline BOOL EnableDependency(BYTE dependencyIndex, BOOL enable);
+    virtual inline BOOL IsDependencyEnabled(BYTE dependencyIndex);
 
-	// For the dependency setting at index given, IsDependentBlocked()
-	// returns if the dependencyIndex cannot be set as dependent a because
-	// of cyclic dependencies.
-	virtual BOOL IsDependentBlocked(ULONG index, BYTE dependencyIndex);
-	// Since IsDependentBlocked() uses cached values for performance,
-	// RecalculateBlocked() needs to be called to update blocked bits when
-	// a master setting has changed dependents.
-	virtual void RecalculateBlocked();
+    // For the dependency setting at index given, IsDependentBlocked()
+    // returns if the dependencyIndex cannot be set as dependent a because
+    // of cyclic dependencies.
+    virtual BOOL IsDependentBlocked(ULONG index, BYTE dependencyIndex);
+    // Since IsDependentBlocked() uses cached values for performance,
+    // RecalculateBlocked() needs to be called to update blocked bits when
+    // a master setting has changed dependents.
+    virtual void RecalculateBlocked();
 
-	// Called when the OK or Apply button is pressed.
-	virtual void ApplyValue();
+    // Called when the OK or Apply button is pressed.
+    virtual void ApplyValue();
 
-	// Called when the configuration interface begins.
-	virtual void Begin();
+    // Called when the configuration interface begins.
+    virtual void Begin();
 
 protected:
-	class CAssociation
-	{
-	public:
-		CAssociation(std::string title) : title(title), dependee(NULL), blockedBits(0) { };
-		std::string					title;
-		CSettingConfigDependent*	dependee;
-		DBIT						blockedBits;
-	};
-	typedef std::vector<CAssociation> ASSOCIATIONVECTOR;
+    class CAssociation
+    {
+    public:
+        CAssociation(std::string title) : title(title), dependee(NULL), blockedBits(0) { };
+        std::string                    title;
+        CSettingConfigDependent*    dependee;
+        DBIT                        blockedBits;
+    };
+    typedef std::vector<CAssociation> ASSOCIATIONVECTOR;
 
-	virtual void RecalculateBlocked(BYTE dependencyIndex);
+    virtual void RecalculateBlocked(BYTE dependencyIndex);
 
-	PSETTINGGROUPEX		m_associationGroup;
-	ASSOCIATIONVECTOR	m_associationVector;
-	DBIT				m_enabledDependencyBits;
+    PSETTINGGROUPEX        m_associationGroup;
+    ASSOCIATIONVECTOR    m_associationVector;
+    DBIT                m_enabledDependencyBits;
 };
 
 

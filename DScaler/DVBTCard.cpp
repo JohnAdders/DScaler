@@ -15,16 +15,12 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "DVBTCard.h"
 
 CDVBTCard::CDVBTCard(CHardwareDriver* pDriver) :
-	CPCICard(pDriver)
+    CPCICard(pDriver)
 
 {
     ;

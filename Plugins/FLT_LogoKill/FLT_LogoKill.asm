@@ -15,36 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// This code is based on the 
-// LogoAway VirtualDub filter by Krzysztof Wojdon (c) 2000
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.7  2002/11/06 21:03:15  adcockj
-// Fixed black feature in logo killer ;) (note to self must test before checking in....)
-//
-// Revision 1.6  2002/11/06 20:54:07  adcockj
-// Added black as option in logo killer
-//
-// Revision 1.5  2002/11/05 13:07:08  adcockj
-// Logo Killer Smoothing patch from Jochen Trenner
-//
-// Revision 1.4  2002/10/16 12:21:50  adcockj
-// Fixed a few bugs in new weighted average mode
-// Removed old weighted average modes
-//
-// Revision 1.3  2002/10/14 21:55:36  robmuller
-// Dynamic Max also scans left and right boundaries for max luma value.
-//
-// Revision 1.2  2002/10/14 20:43:42  robmuller
-// Changed into input filter. New mode added. Miscellaneous improvements.
-//
-// Revision 1.1  2002/10/09 22:16:35  robmuller
-// Implemented 3dnow and MMX versions.
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 // These macro's are borrowed from TomsMoComp:
@@ -57,14 +27,14 @@
 #define V_PAVGB(mmr1,mmr2,mmrw,smask) {pavgusb mmr1,mmr2 }
 #else
 #define V_PAVGB(mmr1,mmr2,mmrw,smask) __asm \
-	{ \
-	__asm movq mmrw,mmr2 \
-	__asm pand mmrw, smask \
-	__asm psrlw mmrw,1 \
-	__asm pand mmr1,smask \
-	__asm psrlw mmr1,1 \
-	__asm paddusb mmr1,mmrw \
-	}
+    { \
+    __asm movq mmrw,mmr2 \
+    __asm pand mmrw, smask \
+    __asm psrlw mmrw,1 \
+    __asm pand mmr1,smask \
+    __asm psrlw mmr1,1 \
+    __asm paddusb mmr1,mmrw \
+    }
 #endif
 
 #undef V_PMAXUB
@@ -72,7 +42,7 @@
 #define V_PMAXUB(mmr1,mmr2) {pmaxub mmr1,mmr2 }
 #else
 #define V_PMAXUB(mmr1,mmr2)     __asm \
-	{ \
+    { \
     __asm psubusb mmr1,mmr2 \
     __asm paddusb mmr1,mmr2 \
     }
@@ -83,12 +53,12 @@
 #define V_PMINUB(mmr1,mmr2,mmrw) {pminub mmr1,mmr2}
 #else
 #define V_PMINUB(mmr1,mmr2,mmrw) __asm \
-	{ \
+    { \
     __asm pcmpeqb mmrw, mmrw     \
     __asm psubusb mmrw, mmr2     \
     __asm paddusb mmr1, mmrw     \
     __asm psubusb mmr1, mmrw     \
-	}
+    }
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -259,7 +229,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
         break;
 
     case MODE_WEIGHTED:
-		{
+        {
             int i, j;
             BYTE* pByte;
             TwoPixel* pTwoPixel;
@@ -269,7 +239,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
 
             pFirstLine = (TwoPixel*)lpLogoRect;
             pLastLine = (TwoPixel*)(lpLogoRect + Height*Pitch);
-			
+            
             for(j = 1; j < Height; j++)
             {
                 pByte = lpLogoRect + j*Pitch;
@@ -304,7 +274,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
                 _wcsnset((wchar_t*)(lpLogoRect + i*Pitch), 0x7f00, Width);
             }
         }
-		break;
+        break;
     case MODE_SMOOTHING_ONLY:
         break;
     case MODE_GREY:
@@ -319,86 +289,86 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
         }
         break;
     }
-	
+    
     // Patch from Jochen Trener to add adjustable smoothing (Gaussian blur)
     // It is based ón the paper ' An efficient algorithm for Gaussian
     // blur using finite state machines' by F. Waltz and J. Miller
     if((Mode == MODE_SMOOTHING_ONLY || gUseSmoothing) && Top > 0 && Left > 0)
-	{
-		int smoothing_runs=5;
+    {
+        int smoothing_runs=5;
         int i, j, n, z=0;
         TwoPixel* pTwoPixel;
-		TwoByte*  pTwoByte;
-		TwoByte*  pTwoByteA;
+        TwoByte*  pTwoByte;
+        TwoByte*  pTwoByteA;
         TwoPixel* pTwoAbove;
-		int Ltmp1,Ltmp2;
-		int Utmp1,Utmp2;
-		int Vtmp1,Vtmp2;
+        int Ltmp1,Ltmp2;
+        int Utmp1,Utmp2;
+        int Vtmp1,Vtmp2;
 
-		smoothing_runs = gSmoothingValue;
-		lpLogoRect -= (2+Pitch);
+        smoothing_runs = gSmoothingValue;
+        lpLogoRect -= (2+Pitch);
 
-		for(n = 0; n < smoothing_runs;++n) 
-		{		
-			memset(LSC0, 0, 768*sizeof(int));
-			memset(USC0, 0, 768*sizeof(int));
-			memset(USC1, 0, 768*sizeof(int));
-			memset(VSC0, 0, 768*sizeof(int));
-			memset(VSC1, 0, 768*sizeof(int));
+        for(n = 0; n < smoothing_runs;++n) 
+        {        
+            memset(LSC0, 0, 768*sizeof(int));
+            memset(USC0, 0, 768*sizeof(int));
+            memset(USC1, 0, 768*sizeof(int));
+            memset(VSC0, 0, 768*sizeof(int));
+            memset(VSC1, 0, 768*sizeof(int));
 
             for(j = 0; j < Height+2; j++)
             {
                 pTwoByteA = (TwoByte*)(lpLogoRect + (j-1)*Pitch);
                 pTwoByte = (TwoByte*)(lpLogoRect + j*Pitch);
-				pTwoAbove = (TwoPixel*)(lpLogoRect + (j-1)*Pitch);
+                pTwoAbove = (TwoPixel*)(lpLogoRect + (j-1)*Pitch);
                 pTwoPixel = (TwoPixel*)(lpLogoRect + j*Pitch);
                 LSR0=0;
-				LSR1=0;
+                LSR1=0;
                 USR0=0;
-				USR1=0;
+                USR1=0;
                 VSR0=0;
-				VSR1=0;
+                VSR1=0;
                 for(i = 0; i < Width+2; ++i)
                 {
-					Ltmp1 = pTwoByte[i].Lumi;
-					Ltmp2 = LSR0+Ltmp1;
-					LSR0 = Ltmp1;
-					Ltmp1 = LSR1+Ltmp2;
-					LSR1 = Ltmp2;
-					Ltmp2 = LSC0[i]+Ltmp1;
-					LSC0[i] = Ltmp1;
-					if(i > 1 && j > 1)
-					{
-						pTwoByteA[i-1].Lumi = (BYTE)((8+LSC1[i]+Ltmp2)/16);
-					}
-					LSC1[i] = Ltmp2;
-				}
+                    Ltmp1 = pTwoByte[i].Lumi;
+                    Ltmp2 = LSR0+Ltmp1;
+                    LSR0 = Ltmp1;
+                    Ltmp1 = LSR1+Ltmp2;
+                    LSR1 = Ltmp2;
+                    Ltmp2 = LSC0[i]+Ltmp1;
+                    LSC0[i] = Ltmp1;
+                    if(i > 1 && j > 1)
+                    {
+                        pTwoByteA[i-1].Lumi = (BYTE)((8+LSC1[i]+Ltmp2)/16);
+                    }
+                    LSC1[i] = Ltmp2;
+                }
                 for(i = 0; i < Width/2+2; i++)
                 {
-					Utmp1 = pTwoPixel[i].Chroma1;
-					Vtmp1 = pTwoPixel[i].Chroma2;
-					Utmp2 = USR0+Utmp1;
-					Vtmp2 = VSR0+Vtmp1;
-					USR0 = Utmp1;
-					VSR0 = Vtmp1;
-					Utmp1 = USR1+Utmp2;
-					Vtmp1 = VSR1+Vtmp2;
-					USR1 = Utmp2;
-					VSR1 = Vtmp2;
-					Utmp2 = USC0[i]+Utmp1;
-					Vtmp2 = VSC0[i]+Vtmp1;
-					USC0[i] = Utmp1;
-					VSC0[i] = Vtmp1;
-					if(i > 1 && j > 1)
-					{
-						pTwoAbove[i-1].Chroma1 = (BYTE)((8+USC1[i]+Utmp2)/16);
-						pTwoAbove[i-1].Chroma2 = (BYTE)((8+VSC1[i]+Vtmp2)/16);
-					}
-					USC1[i] = Utmp2;
-					VSC1[i] = Vtmp2;
-				}
-			}
-		}
+                    Utmp1 = pTwoPixel[i].Chroma1;
+                    Vtmp1 = pTwoPixel[i].Chroma2;
+                    Utmp2 = USR0+Utmp1;
+                    Vtmp2 = VSR0+Vtmp1;
+                    USR0 = Utmp1;
+                    VSR0 = Vtmp1;
+                    Utmp1 = USR1+Utmp2;
+                    Vtmp1 = VSR1+Vtmp2;
+                    USR1 = Utmp2;
+                    VSR1 = Vtmp2;
+                    Utmp2 = USC0[i]+Utmp1;
+                    Vtmp2 = VSC0[i]+Vtmp1;
+                    USC0[i] = Utmp1;
+                    VSC0[i] = Vtmp1;
+                    if(i > 1 && j > 1)
+                    {
+                        pTwoAbove[i-1].Chroma1 = (BYTE)((8+USC1[i]+Utmp2)/16);
+                        pTwoAbove[i-1].Chroma2 = (BYTE)((8+VSC1[i]+Vtmp2)/16);
+                    }
+                    USC1[i] = Utmp2;
+                    VSC1[i] = Vtmp2;
+                }
+            }
+        }
     }    
     
     _asm

@@ -15,90 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.20  2006/09/24 02:44:46  robmuller
-// Added missing emms instructions. Should fix problems on non-sse machines.
-//
-// Revision 1.19  2003/06/26 11:42:54  adcockj
-// Reduced teh size of some of the dlls
-//
-// Revision 1.18  2002/11/04 23:34:58  lindsey
-// Corrected an obsolete comment
-//
-// Revision 1.17  2002/11/04 23:31:25  lindsey
-// Corrected buffer reallocation to occur when input pitch is changed
-// Now reports the true minimum necessary fields on initialization of filter
-//
-// Revision 1.16  2002/10/14 01:37:14  lindsey
-// Changed FilterMethod.HistoryRequired to equal the actual number of required fields instead
-// of the maximum number which might be needed.
-//
-// Revision 1.15  2002/10/13 07:42:55  lindsey
-// Changed name of "trade speed for accuracy" to "high quality"
-// Corrected the reported HistoryRequired
-// Removed an unnecessary check for all fields when in "high quality" mode
-//
-// Revision 1.14  2002/08/29 23:52:54  lindsey
-// Corrected comb filter for PAL video
-//
-// Revision 1.13  2002/08/07 00:41:59  lindsey
-// Made prefetching into a user option.
-//
-// Revision 1.12  2002/06/18 19:46:10  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.11  2002/06/13 12:10:26  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.10  2002/03/11 01:49:25  lindsey
-// Adjusted for use with progressive source
-// Changed to use Tom's aligned memory allocation
-// Added unbiased averaging code
-//
-// Revision 1.9  2002/02/23 03:22:16  lindsey
-// Exposed the "Use this filter" settings
-//
-// Revision 1.8  2002/01/05 22:53:27  lindsey
-// Greatly reduced roundoff error for smaller decay values
-// Consolidated the 'in phase difference' settings into one 'color variation' setting
-// Improved formatting
-//
-// Revision 1.7  2001/12/20 03:06:20  lindsey
-// Fixed use of incorrect algorithm (hopefully for good)
-// Made the “Use temporal comb filter” setting invisible from the settings box (since
-//  this is redundant with the menu checkmark)
-// Added a compile-time debug flag to make it easier to see what the filter is doing
-//
-// Revision 1.6  2001/12/16 01:32:53  lindsey
-// Fixed use of incorrect algorithm on Athlon (MMXEXT) machines
-// Adjusted to use PictureHistory array instead of the old EvenLines/OldLines
-// Simplified the field buffering structure
-// Improved handling of dropped fields when the field buffer is in use
-//
-// Revision 1.5  2001/11/26 15:27:19  adcockj
-// Changed filter structure
-//
-// Revision 1.4  2001/11/21 15:21:41  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.3  2001/08/30 10:04:59  adcockj
-// Added a "trade speed for accuracy" mode which improves detection and
-//  correction of dot crawl by removing a feedback problem -- at the
-//  cost of 2MB of memory, which also slows things down a bit
-// Changed szIniSection for the parameters from "NoiseFilter" to "TCombFilter"
-// Made some small changes to the comments
-// (Added on behalf of Lindsey Dubb)
-//
-// Revision 1.2  2001/08/23 06:48:57  adcockj
-// Fixed control header for TemporalComb filter
-//
-// Revision 1.1  2001/08/23 06:38:44  adcockj
-// Added First version of Lindsey Dubb's filter
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include <limits.h>
 #include "windows.h"
@@ -244,7 +160,7 @@ LONG            UpdateBuffers( TDeinterlaceInfo* pInfo );
 
 // Look back 4 or 8 fields?
 
-combMODE				gMode = MODE_NTSC;
+combMODE                gMode = MODE_NTSC;
 
 
 static long             gUsePrefetching = TRUE;
@@ -553,19 +469,19 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
 
 BYTE* DumbAlignedMalloc(int siz)
 {
-	BYTE* x = (BYTE*)malloc(siz+16);
-	BYTE** y = (BYTE**) (x+16);
-	y = (BYTE**) (((unsigned int) y & 0xfffffff0) - 4);
-	*y = x;
-	return (BYTE*) y+4;
+    BYTE* x = (BYTE*)malloc(siz+16);
+    BYTE** y = (BYTE**) (x+16);
+    y = (BYTE**) (((unsigned int) y & 0xfffffff0) - 4);
+    *y = x;
+    return (BYTE*) y+4;
 }
 
 
 BYTE* DumbAlignedFree(BYTE* x)
 {
-	BYTE* y =  *(BYTE**)(x-4);
-	free(y);
-	return 0;
+    BYTE* y =  *(BYTE**)(x-4);
+    free(y);
+    return 0;
 }
 
 
@@ -587,8 +503,8 @@ BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 
 LONG UpdateBuffers( TDeinterlaceInfo* pInfo )
 {
-	// NTSC needs to save 4 past fields, PAL needs to save 8
-	const LONG		kUsedBuffers[2] = {5, 9};
+    // NTSC needs to save 4 past fields, PAL needs to save 8
+    const LONG        kUsedBuffers[2] = {5, 9};
     int             Index = 0;
     static LONG     sHistoryWait = 0;
     BYTE*           pTempBuffer = NULL;

@@ -15,22 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//  This file is part of the SettingRepository module.  See
-//  SettingRepository.h for more information.
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2005/03/17 03:55:19  atnak
-// Syncing wip.
-//
-// Revision 1.2  2004/08/14 13:45:23  adcockj
-// Fixes to get new settings code working under VS6
-//
-// Revision 1.1  2004/08/06 17:12:10  atnak
-// Setting repository initial upload.
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SETTINGLIMITER_H__
 #define __SETTINGLIMITER_H__
@@ -46,16 +30,16 @@ typedef class CSettingLimiter *PSETTINGLIMITER;
 class CSettingLimiter
 {
 public:
-	CSettingLimiter() { };
-	virtual ~CSettingLimiter() { };
+    CSettingLimiter() { };
+    virtual ~CSettingLimiter() { };
 
-	// Returns TRUE if the value is out of bounds of the
-	// programmed limit
-	virtual BOOL OutOfLimit(IN const CSettingValue& value) const =0;
+    // Returns TRUE if the value is out of bounds of the
+    // programmed limit
+    virtual BOOL OutOfLimit(IN const CSettingValue& value) const =0;
 
-	// Applys an arbitrary programmed limit on value and
-	// returns TRUE if the value was changed.
-	virtual BOOL ApplyLimit(IN OUT CSettingValue& value) const =0;
+    // Applys an arbitrary programmed limit on value and
+    // returns TRUE if the value was changed.
+    virtual BOOL ApplyLimit(IN OUT CSettingValue& value) const =0;
 };
 
 
@@ -65,20 +49,20 @@ public:
 class CSettingLimiterClampInt : public CSettingLimiter
 {
 public:
-	CSettingLimiterClampInt(IN INT minimum, IN INT maximum);
-	virtual ~CSettingLimiterClampInt();
+    CSettingLimiterClampInt(IN INT minimum, IN INT maximum);
+    virtual ~CSettingLimiterClampInt();
 
-	virtual void SetMax(IN INT maximum);
-	virtual void SetMin(IN INT minimum);
-	virtual INT GetMax() const;
-	virtual INT GetMin() const;
+    virtual void SetMax(IN INT maximum);
+    virtual void SetMin(IN INT minimum);
+    virtual INT GetMax() const;
+    virtual INT GetMin() const;
 
-	virtual BOOL OutOfLimit(IN const CSettingValue& value) const;
-	virtual BOOL ApplyLimit(IN OUT CSettingValue& value) const;
+    virtual BOOL OutOfLimit(IN const CSettingValue& value) const;
+    virtual BOOL ApplyLimit(IN OUT CSettingValue& value) const;
 
 private:
-	INT		m_minimum;
-	INT		m_maximum;
+    INT        m_minimum;
+    INT        m_maximum;
 };
 
 
@@ -88,17 +72,17 @@ private:
 class CSettingLimiterStringLength : public CSettingLimiter
 {
 public:
-	CSettingLimiterStringLength(IN ULONG maxLength);
-	virtual ~CSettingLimiterStringLength();
+    CSettingLimiterStringLength(IN ULONG maxLength);
+    virtual ~CSettingLimiterStringLength();
 
-	virtual void SetMaxLength(IN ULONG);
-	virtual ULONG SetMaxLength() const;
+    virtual void SetMaxLength(IN ULONG);
+    virtual ULONG SetMaxLength() const;
 
-	virtual BOOL OutOfLimit(IN const CSettingValue& value) const;
-	virtual BOOL ApplyLimit(IN OUT CSettingValue& value) const;
+    virtual BOOL OutOfLimit(IN const CSettingValue& value) const;
+    virtual BOOL ApplyLimit(IN OUT CSettingValue& value) const;
 
 private:
-	ULONG	m_maxLength;
+    ULONG    m_maxLength;
 };
 
 #endif

@@ -30,41 +30,41 @@
 
 class CPage2 : public CPropertyPage
 {
-	DECLARE_DYNCREATE(CPage2)
+    DECLARE_DYNCREATE(CPage2)
 
 // Konstruktion
 public:
-	CPage2();
-	~CPage2();
+    CPage2();
+    ~CPage2();
 
 // Dialogfelddaten
-	//{{AFX_DATA(CPage2)
-	enum { IDD = IDD_PAGE2 };
-	int		m_iPalNtsc;
-	//}}AFX_DATA
+    //{{AFX_DATA(CPage2)
+    enum { IDD = IDD_PAGE2 };
+    int        m_iPalNtsc;
+    //}}AFX_DATA
 
 
 // Überschreibungen
-	// Der Klassen-Assistent generiert virtuelle Funktionsüberschreibungen
-	//{{AFX_VIRTUAL(CPage2)
-	public:
-	virtual BOOL OnSetActive();
-	virtual LRESULT OnWizardNext();
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV-Unterstützung
-	//}}AFX_VIRTUAL
+    // Der Klassen-Assistent generiert virtuelle Funktionsüberschreibungen
+    //{{AFX_VIRTUAL(CPage2)
+    public:
+    virtual BOOL OnSetActive();
+    virtual LRESULT OnWizardNext();
+    protected:
+    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV-Unterstützung
+    //}}AFX_VIRTUAL
 
 // Implementierung
 protected:
-	// Generierte Nachrichtenzuordnungsfunktionen
-	//{{AFX_MSG(CPage2)
-	afx_msg void OnRadioNtsc();
-	afx_msg void OnRadioPal();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+    // Generierte Nachrichtenzuordnungsfunktionen
+    //{{AFX_MSG(CPage2)
+    afx_msg void OnRadioNtsc();
+    afx_msg void OnRadioPal();
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 
 private:
-	void EnableButtons();
+    void EnableButtons();
 };
 
 //{{AFX_INSERT_LOCATION}}

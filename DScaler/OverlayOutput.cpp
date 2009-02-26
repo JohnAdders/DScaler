@@ -15,34 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.10  2007/12/14 19:31:47  adcockj
-// Fixes for Vista crashing
-// Consistent exception handling as references
-//
-// Revision 1.9  2007/07/27 00:49:03  robmuller
-// Reduce cpu usage (and hopefully dropped frames) when waiting for the vsync.
-//
-// Revision 1.8  2007/02/19 14:48:50  adcockj
-// Fixed various issues with d3d9 code and settings
-//
-// Revision 1.7  2007/02/19 10:13:45  adcockj
-// Fixes for Critical thread and RECT issuesin D3D9 and overlay code
-//
-// Revision 1.6  2007/02/19 03:09:21  robmuller
-// Fix: overlay settings in Advanced Settings dialog did not work.
-//
-// Revision 1.5  2007/02/18 20:16:12  robmuller
-// Applied coding standards.
-//
-// Revision 1.4  2007/02/18 15:00:37  robmuller
-// Added CVS log.
-//
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 //
 // The name of this file used to be "other.cpp".
 // The revision log of "other.cpp" follows:
@@ -296,46 +268,46 @@ COverlayOutput OverlayOutputInstance;
 //-----------------------------------------------------------------------------
 // Callback function used by DirectDrawEnumerateEx to find all monitors
 BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR pszDriverName,
-							 VOID* pContext, HMONITOR hMonitor )
+                             VOID* pContext, HMONITOR hMonitor )
 {
-	MONITORINFO MonInfo;
-	LPDIRECTDRAW lpDD;
-	
-	if (NbMonitors == MAX_MONITORS)
-		return DDENUMRET_CANCEL;
+    MONITORINFO MonInfo;
+    LPDIRECTDRAW lpDD;
+    
+    if (NbMonitors == MAX_MONITORS)
+        return DDENUMRET_CANCEL;
 
-	// DirectDrawEnumerateEx returns hMonitor = NULL on single monitor configuration 
-	// and both NULL and non-NULL value for the primary monitor in multiple monitors context !
-	// However MonitorFromWindow/Rect functions always return non-NULL HMONITOR handles
-	// so we need to replace the NULL handle in single monitor context with the non-NULL value
-	if (hMonitor == NULL)
-	{
-		hMonitor = OverlayOutputInstance.lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
-	}	
-	LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
+    // DirectDrawEnumerateEx returns hMonitor = NULL on single monitor configuration 
+    // and both NULL and non-NULL value for the primary monitor in multiple monitors context !
+    // However MonitorFromWindow/Rect functions always return non-NULL HMONITOR handles
+    // so we need to replace the NULL handle in single monitor context with the non-NULL value
+    if (hMonitor == NULL)
+    {
+        hMonitor = OverlayOutputInstance.lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+    }    
+    LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
 
-	// and therefore test if we found again the same monitor !
-	for (int i = 0; i < NbMonitors; i++)
-	{
-		if (Monitors[i].hMon == hMonitor)
-		{
-			LOG(2, "Monitor alrady listed");
-			return DDENUMRET_OK;
-		}
-	}
+    // and therefore test if we found again the same monitor !
+    for (int i = 0; i < NbMonitors; i++)
+    {
+        if (Monitors[i].hMon == hMonitor)
+        {
+            LOG(2, "Monitor alrady listed");
+            return DDENUMRET_OK;
+        }
+    }
 
-	MonInfo.cbSize = sizeof(MONITORINFO);
-	if (OverlayOutputInstance.lpGetMonitorInfoA(hMonitor, &MonInfo))
-	{
-		if (SUCCEEDED(OverlayOutputInstance.lpDirectDrawCreate(pGuid, &lpDD, NULL)))
-		{
-			Monitors[NbMonitors].hMon = hMonitor;
-			Monitors[NbMonitors].lpDD = lpDD;
-			NbMonitors++;
-			LOG(1, "Monitor %d (%d %d %d %d)", NbMonitors, MonInfo.rcMonitor.left, MonInfo.rcMonitor.right, MonInfo.rcMonitor.top, MonInfo.rcMonitor.bottom);
-		}
-	}
-	
+    MonInfo.cbSize = sizeof(MONITORINFO);
+    if (OverlayOutputInstance.lpGetMonitorInfoA(hMonitor, &MonInfo))
+    {
+        if (SUCCEEDED(OverlayOutputInstance.lpDirectDrawCreate(pGuid, &lpDD, NULL)))
+        {
+            Monitors[NbMonitors].hMon = hMonitor;
+            Monitors[NbMonitors].lpDD = lpDD;
+            NbMonitors++;
+            LOG(1, "Monitor %d (%d %d %d %d)", NbMonitors, MonInfo.rcMonitor.left, MonInfo.rcMonitor.right, MonInfo.rcMonitor.top, MonInfo.rcMonitor.bottom);
+        }
+    }
+    
     return DDENUMRET_OK; // Keep enumerating
 }
 
@@ -344,24 +316,24 @@ BOOL COverlayOutput::ListMonitors(HWND hWnd)
 {
     BOOL RetVal = TRUE;
 
-	HINSTANCE h = LoadLibrary("ddraw.dll");
+    HINSTANCE h = LoadLibrary("ddraw.dll");
 
     // If ddraw.dll doesn't exist in the search path,
     // then DirectX probably isn't installed, so fail.
     if(h != NULL)
     {
-	    // Retrieve the function from the DDL
+        // Retrieve the function from the DDL
         LPDIRECTDRAWENUMERATEEX lpDDEnumEx;
         lpDDEnumEx = (LPDIRECTDRAWENUMERATEEX) GetProcAddress(h,"DirectDrawEnumerateExA");
         if (lpDDEnumEx)
-	    {
-		    // If the function is there, call it to enumerate all display 
-		    // devices attached to the desktop
-		    if(lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES) != DD_OK)
+        {
+            // If the function is there, call it to enumerate all display 
+            // devices attached to the desktop
+            if(lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES) != DD_OK)
             {
                 RetVal = FALSE;
             }
-	    }
+        }
         else
         {
             RetVal = FALSE;
@@ -370,19 +342,19 @@ BOOL COverlayOutput::ListMonitors(HWND hWnd)
         // If the library was loaded by calling LoadLibrary(),
         // then you must use FreeLibrary() to let go of it.
         FreeLibrary(h);
-	}
+    }
     else
     {
         RetVal = FALSE;
     }
-	return RetVal;
+    return RetVal;
 }
 
 void COverlayOutput::LoadDynamicFunctions()
 {
     // we've got to load these functions dynamically 
     // so that we continue to run on NT 4
-	hUserLib = LoadLibrary("user32.dll");
+    hUserLib = LoadLibrary("user32.dll");
     lpMonitorFromWindow = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(hUserLib, "MonitorFromWindow");
     lpGetMonitorInfoA = (BOOL (WINAPI *)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi)) GetProcAddress(hUserLib, "GetMonitorInfoA");
 
@@ -405,16 +377,16 @@ LPDIRECTDRAW COverlayOutput::GetCurrentDD(HWND hWnd)
     }
 
     // got the list of monitors then get the DD context from the current one
-	HMONITOR hMonitor = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    HMONITOR hMonitor = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
-	for (int i=0 ; i<NbMonitors ; i++)
-	{
-		if (Monitors[i].hMon == hMonitor)
-		{
-			return Monitors[i].lpDD;
-		}
-	}
-	return NULL;
+    for (int i=0 ; i<NbMonitors ; i++)
+    {
+        if (Monitors[i].hMon == hMonitor)
+        {
+            return Monitors[i].lpDD;
+        }
+    }
+    return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -422,7 +394,7 @@ void COverlayOutput::SetCurrentMonitor(HWND hWnd)
 {
     if(lpMonitorFromWindow != NULL)
     {
-    	hCurrentMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+        hCurrentMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
     }
 }
 
@@ -431,30 +403,30 @@ void COverlayOutput::CheckChangeMonitor(HWND hWnd)
 {
     if(lpMonitorFromWindow == NULL)
     {
-    	return;
+        return;
     }
 
-	HMONITOR hMon = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    HMONITOR hMon = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
-	if (hCurrentMon == NULL)
-	{
-		return;
-	}
+    if (hCurrentMon == NULL)
+    {
+        return;
+    }
 
-	if (hMon != hCurrentMon)
-	{
-		hCurrentMon = hMon;
-		Overlay_Stop(hWnd);
-		if (lpDD != NULL)
-		{
-			Overlay_Destroy();
-			lpDD = NULL;
-		}
-		if (InitDD(hWnd))
-		{
-			Overlay_Start(hWnd);
-		}
-	}
+    if (hMon != hCurrentMon)
+    {
+        hCurrentMon = hMon;
+        Overlay_Stop(hWnd);
+        if (lpDD != NULL)
+        {
+            Overlay_Destroy();
+            lpDD = NULL;
+        }
+        if (InitDD(hWnd))
+        {
+            Overlay_Start(hWnd);
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -584,18 +556,18 @@ BOOL COverlayOutput::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwF
         {
             dwFlags |= DDOVER_KEYDESTOVERRIDE;
 
-			COLORREF overlayColour;
-			HDC hDC;
+            COLORREF overlayColour;
+            HDC hDC;
 
-			if (SUCCEEDED(lpDDSurface->GetDC(&hDC)))
-			{
-				overlayColour = Overlay_GetCorrectedColor(hDC);
-				lpDDSurface->ReleaseDC(hDC);
-			}
-			else
-			{
-				overlayColour = Overlay_GetColor();
-			}
+            if (SUCCEEDED(lpDDSurface->GetDC(&hDC)))
+            {
+                overlayColour = Overlay_GetCorrectedColor(hDC);
+                lpDDSurface->ReleaseDC(hDC);
+            }
+            else
+            {
+                overlayColour = Overlay_GetColor();
+            }
 
             DWORD dwPhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, overlayColour);
             if (dwPhysicalOverlayColor == 0 && overlayColour != 0)      // sometimes we glitch and can't get the Value
@@ -616,7 +588,7 @@ BOOL COverlayOutput::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwF
         }
 
         ddrval = lpDDOverlay->UpdateOverlay(pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
-		
+        
         // if another device has requested exclusive access then we
         // can get the no hardware error, just wait a bit and try again
         while(ddrval == DDERR_NOOVERLAYHW)
@@ -701,8 +673,8 @@ void COverlayOutput::Overlay_ResetColorControls()
     if(OriginalColorControls.dwFlags != 0)
     {
         HRESULT ddrval = pDDColorControl->SetColorControls(&OriginalColorControls);
-		// if we have lost the surface e.g Ctrl-alt-del
-		// just carry on
+        // if we have lost the surface e.g Ctrl-alt-del
+        // just carry on
         if(ddrval != DDERR_SURFACELOST && FAILED(ddrval))
         {
             char szErrorMsg[200];
@@ -812,14 +784,14 @@ BOOL COverlayOutput::Overlay_Create()
     SurfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
     ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDSurface, NULL);
 
-	// handle the case where we are in a funny in between state
-	// by looping, this happens sometimes with Ctrl-alt-delete on
-	// some graphics cards.
-	while(ddrval == DDERR_UNSUPPORTEDMODE && loopcounter++ < 20)
-	{
-		Sleep(100);
-	    ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDSurface, NULL);
-	}
+    // handle the case where we are in a funny in between state
+    // by looping, this happens sometimes with Ctrl-alt-delete on
+    // some graphics cards.
+    while(ddrval == DDERR_UNSUPPORTEDMODE && loopcounter++ < 20)
+    {
+        Sleep(100);
+        ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDSurface, NULL);
+    }
     if (FAILED(ddrval))
     {
         sprintf(msg, "Error creating primary surface: %x", ddrval);
@@ -874,14 +846,14 @@ BOOL COverlayOutput::Overlay_Create()
         }
         ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDOverlay, NULL);
 
-		// stop trying if we succeeded
-		// or if we are told there is not enough memory
-		// maybe E_INVALIDARG means that the card doesn't support that many
-		// buffers so loop if we get that too
+        // stop trying if we succeeded
+        // or if we are told there is not enough memory
+        // maybe E_INVALIDARG means that the card doesn't support that many
+        // buffers so loop if we get that too
         if (SUCCEEDED(ddrval) || (ddrval != DDERR_OUTOFVIDEOMEMORY && ddrval != E_INVALIDARG))
-		{
+        {
             break;
-		}
+        }
     }
 
     if (FAILED(ddrval))
@@ -1025,7 +997,7 @@ BOOL COverlayOutput::Overlay_Create()
     ddrval = lpDDOverlay->QueryInterface(IID_IDirectDrawColorControl, (void **) &pDDColorControl);
     if(SUCCEEDED(ddrval))
     {
-		OriginalColorControls.dwSize = sizeof(DDCOLORCONTROL);
+        OriginalColorControls.dwSize = sizeof(DDCOLORCONTROL);
         ddrval = pDDColorControl->GetColorControls(&OriginalColorControls);
         if(SUCCEEDED(ddrval))
         {
@@ -1043,12 +1015,12 @@ BOOL COverlayOutput::Overlay_Create()
         else
         {
             pDDColorControl->Release();
-			pDDColorControl = NULL;
+            pDDColorControl = NULL;
         }
     }
     else
     {
-		pDDColorControl = NULL;
+        pDDColorControl = NULL;
     }
 
 
@@ -1231,8 +1203,8 @@ COLORREF COverlayOutput::Overlay_GetColor()
 
 COLORREF COverlayOutput::Overlay_GetCorrectedColor(HDC hDC)
 {
-	COLORREF nearest = GetNearestColor(hDC, g_OverlayColor);
-	return (nearest == CLR_INVALID) ? g_OverlayColor : nearest;
+    COLORREF nearest = GetNearestColor(hDC, g_OverlayColor);
+    return (nearest == CLR_INVALID) ? g_OverlayColor : nearest;
 }
 
 BOOL COverlayOutput::Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
@@ -1291,14 +1263,14 @@ BOOL COverlayOutput::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUse
     memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
     SurfaceDesc.dwSize = sizeof(SurfaceDesc);
     while(ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, dwFlags & !DDLOCK_WAIT, NULL) == DDERR_WASSTILLDRAWING)
-	{
+    {
         // RM 7-27-7: We are probably waiting for the vertical sync. 
         // To prevent spending useless cpu cycles waiting for the vsync we release control
         // so other applications can do their thing. This not only reduces cpu usage but 
         // hopefully it reduces frame dropping as well since there is never such a large
         // amount of time to spare then at this moment.
-		Sleep(1);
-	}
+        Sleep(1);
+    }
 
     // fix suggested by christoph for NT 4.0 sp6
     if(ddrval == E_INVALIDARG && (dwFlags & DDLOCK_NOSYSLOCK))
@@ -1322,11 +1294,11 @@ BOOL COverlayOutput::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUse
 
     pInfo->OverlayPitch = SurfaceDesc.lPitch;         // Set new pitch, may change
     pInfo->Overlay = (BYTE*)SurfaceDesc.lpSurface;
-	if(pInfo->Overlay == NULL)
-	{
-		LeaveCriticalSection(&hDDCritSect);
+    if(pInfo->Overlay == NULL)
+    {
+        LeaveCriticalSection(&hDDCritSect);
         return FALSE;
-	}
+    }
 
     // stay in critical section
     return TRUE;
@@ -1384,13 +1356,13 @@ BOOL COverlayOutput::Overlay_Lock(TDeinterlaceInfo* pInfo)
 
     pInfo->OverlayPitch = SurfaceDesc.lPitch;         // Set new pitch, may change
     pInfo->Overlay = (BYTE*)SurfaceDesc.lpSurface;
-	if(pInfo->Overlay == NULL)
-	{
-		LeaveCriticalSection(&hDDCritSect);
+    if(pInfo->Overlay == NULL)
+    {
+        LeaveCriticalSection(&hDDCritSect);
         return FALSE;
-	}
+    }
 
-	
+    
     // stay in critical section
     return TRUE;
 }
@@ -1519,7 +1491,7 @@ BOOL COverlayOutput::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lp
     }
 
 
-	
+    
 
     EnterCriticalSection(&hDDCritSect);
 
@@ -1571,7 +1543,7 @@ BOOL COverlayOutput::InitDD(HWND hWnd)
     HRESULT ddrval;
     DDCAPS DriverCaps;
 
-	lpDD = GetCurrentDD(hWnd);
+    lpDD = GetCurrentDD(hWnd);
 
     // can we use Overlay ??
     memset(&DriverCaps, 0x00, sizeof(DriverCaps));
@@ -1638,15 +1610,15 @@ void COverlayOutput::ExitDD(void)
         Overlay_Destroy();
         if(lpMonitorFromWindow != NULL)
         {
-	        for (int i=0 ; i<NbMonitors ; i++)
-	        {
+            for (int i=0 ; i<NbMonitors ; i++)
+            {
                 if(Monitors[i].lpDD!=NULL)
                 {
-		            Monitors[i].lpDD->Release();
+                    Monitors[i].lpDD->Release();
                 }
                 Monitors[i].lpDD = NULL;
                 Monitors[i].hMon = 0;
-	        }
+            }
         }
         else
         {
@@ -1658,7 +1630,7 @@ void COverlayOutput::ExitDD(void)
 
 IOutput::OUTPUTTYPES COverlayOutput::Type() 
 {
-	return OUT_OVERLAY;
+    return OUT_OVERLAY;
 }
 
 BOOL COverlayOutput::Overlay_ColorKey_OnChange(long NewValue)
@@ -1733,7 +1705,7 @@ BOOL COverlayOutput::Overlay_Sharpness_OnChange(long NewValue)
 
 BOOL COverlayOutput::Overlay_UseControls_OnChange(long NewValue)
 {
-	OverlayOutputInstance.bUseOverlayControls = NewValue;
+    OverlayOutputInstance.bUseOverlayControls = NewValue;
     if(GetActiveOutput()->Type() == OUT_OVERLAY)
     {
         if(OverlayOutputInstance.bUseOverlayControls)
@@ -1772,114 +1744,114 @@ BOOL COverlayOutput::Overlay_BackBuffers_OnChange(long NewValue)
 
 void COverlayOutput::WaitForVerticalBlank()
 {
-	if (lpDD != NULL)
-	{
-		lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
-	}
+    if (lpDD != NULL)
+    {
+        lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+    }
 }
 
 
 void COverlayOutput::InitOtherSettings()
 {    
     const SETTING LocalOtherSettings[OTHER_SETTING_LASTONE] =
-	{
-		{
-			"Back Buffers", SLIDER, 0, (long*)&BackBuffers,
-			-1, -1, 2, 1, 1,
-			NULL,
-			"Overlay", "BackBuffers", Overlay_BackBuffers_OnChange,
-		},
-		{
-			"Overlay Colorkey", SLIDER, 0, (long*)&g_OverlayColor,
-			RGB(32,16,16), 0, RGB(255,255,255), 1, 1,
-			NULL,
-			"Overlay", "OverlayColor", Overlay_ColorKey_OnChange,
-		},
-		{
-			"Use Overlay Controls", ONOFF, 0, (long*)&bUseOverlayControls,
-			FALSE, 0, 1, 1, 1,
-			NULL,
-			"Overlay", "UseOverlayControls", Overlay_UseControls_OnChange,
-		},
-		// DirectX docs say brightness value should be 0 to 10,000
-		// which would mean a range of 0 to 1000.
-		// however nVidia cards seem to have a range of -200 to 200
-		// so the curreent range allows for this and leaves a lage margin
-		// of error
-		{
-			"Overlay Brightness", SLIDER, 0, (long*)&OverlayBrightness,
-			75, -1000, 1000, 5, 10,
-			NULL,
-			"Overlay", "OverlayBrightness", Overlay_Brightness_OnChange,
-		},
-		{
-			"Overlay Contrast", SLIDER, 0, (long*)&OverlayContrast,
-			100, 0, 200, 1, 1,
-			NULL,
-			"Overlay", "OverlayContrast", Overlay_Contrast_OnChange,
-		},
-		{
-			"Overlay Hue", SLIDER, 0, (long*)&OverlayHue,
-			0, -180, 180, 1, 1,
-			NULL,
-			"Overlay", "OverlayHue", Overlay_Hue_OnChange,
-		},
-		{
-			"Overlay Saturation", SLIDER, 0, (long*)&OverlaySaturation,
-			100, 0, 200, 1, 1,
-			NULL,
-			"Overlay", "OverlaySaturation", Overlay_Saturation_OnChange,
-		},
-		{
-			"Overlay Gamma", SLIDER, 0, (long*)&OverlayGamma,
-			1, 1, 500, 1, 1,
-			NULL,
-			"Overlay", "OverlayGamma", Overlay_Gamma_OnChange,
-		},
-		{
-			"Overlay Sharpness", SLIDER, 0, (long*)&OverlaySharpness,
-			5, 0, 10, 1, 1,
-			NULL,
-			"Overlay", "OverlaySharpness", Overlay_Sharpness_OnChange,
-		},
-		{
-			"Allow Bob Mode", ONOFF, 0, (long*)&bAllowBobMode,
-			FALSE, 0, 1, 1, 1,
-			NULL,
-			"Overlay", "AllowBobMode", Overlay_AllowBobMode_OnChange,
-		},
-	};
-	memmove(OtherSettings, LocalOtherSettings, sizeof(OtherSettings));
+    {
+        {
+            "Back Buffers", SLIDER, 0, (long*)&BackBuffers,
+            -1, -1, 2, 1, 1,
+            NULL,
+            "Overlay", "BackBuffers", Overlay_BackBuffers_OnChange,
+        },
+        {
+            "Overlay Colorkey", SLIDER, 0, (long*)&g_OverlayColor,
+            RGB(32,16,16), 0, RGB(255,255,255), 1, 1,
+            NULL,
+            "Overlay", "OverlayColor", Overlay_ColorKey_OnChange,
+        },
+        {
+            "Use Overlay Controls", ONOFF, 0, (long*)&bUseOverlayControls,
+            FALSE, 0, 1, 1, 1,
+            NULL,
+            "Overlay", "UseOverlayControls", Overlay_UseControls_OnChange,
+        },
+        // DirectX docs say brightness value should be 0 to 10,000
+        // which would mean a range of 0 to 1000.
+        // however nVidia cards seem to have a range of -200 to 200
+        // so the curreent range allows for this and leaves a lage margin
+        // of error
+        {
+            "Overlay Brightness", SLIDER, 0, (long*)&OverlayBrightness,
+            75, -1000, 1000, 5, 10,
+            NULL,
+            "Overlay", "OverlayBrightness", Overlay_Brightness_OnChange,
+        },
+        {
+            "Overlay Contrast", SLIDER, 0, (long*)&OverlayContrast,
+            100, 0, 200, 1, 1,
+            NULL,
+            "Overlay", "OverlayContrast", Overlay_Contrast_OnChange,
+        },
+        {
+            "Overlay Hue", SLIDER, 0, (long*)&OverlayHue,
+            0, -180, 180, 1, 1,
+            NULL,
+            "Overlay", "OverlayHue", Overlay_Hue_OnChange,
+        },
+        {
+            "Overlay Saturation", SLIDER, 0, (long*)&OverlaySaturation,
+            100, 0, 200, 1, 1,
+            NULL,
+            "Overlay", "OverlaySaturation", Overlay_Saturation_OnChange,
+        },
+        {
+            "Overlay Gamma", SLIDER, 0, (long*)&OverlayGamma,
+            1, 1, 500, 1, 1,
+            NULL,
+            "Overlay", "OverlayGamma", Overlay_Gamma_OnChange,
+        },
+        {
+            "Overlay Sharpness", SLIDER, 0, (long*)&OverlaySharpness,
+            5, 0, 10, 1, 1,
+            NULL,
+            "Overlay", "OverlaySharpness", Overlay_Sharpness_OnChange,
+        },
+        {
+            "Allow Bob Mode", ONOFF, 0, (long*)&bAllowBobMode,
+            FALSE, 0, 1, 1, 1,
+            NULL,
+            "Overlay", "AllowBobMode", Overlay_AllowBobMode_OnChange,
+        },
+    };
+    memmove(OtherSettings, LocalOtherSettings, sizeof(OtherSettings));
 }
 
 COverlayOutput::COverlayOutput(void)
 {
-	lpDD=NULL;
-	lpDDSurface=NULL;
-	lpDDOverlay=NULL;
-	lpDDOverlayBack=NULL;
-	lpExtraMemoryForFilters=NULL;
-	g_OverlayColor = RGB(32, 16, 16);
-	bCanColorKey=FALSE;
-	BackBuffers=-1;
-	bCanDoBob=false;
-	bCanDoFlipInterval=false;
-	bCanDoColorKey=false;
-	pDDColorControl=NULL;
-	bUseOverlayControls=FALSE;
-	bAllowBobMode=FALSE;
-	OutputTicksPerFrame=0;
-	OverlayBrightness=75;
-	OverlayContrast = 100;
-	OverlayHue = 0;
-	OverlaySaturation = 100;
-	OverlayGamma = 1;
-	OverlaySharpness = 5;
-	FlipResult=0;
-	DestSizeAlign=1;
-	SrcSizeAlign=1;
+    lpDD=NULL;
+    lpDDSurface=NULL;
+    lpDDOverlay=NULL;
+    lpDDOverlayBack=NULL;
+    lpExtraMemoryForFilters=NULL;
+    g_OverlayColor = RGB(32, 16, 16);
+    bCanColorKey=FALSE;
+    BackBuffers=-1;
+    bCanDoBob=false;
+    bCanDoFlipInterval=false;
+    bCanDoColorKey=false;
+    pDDColorControl=NULL;
+    bUseOverlayControls=FALSE;
+    bAllowBobMode=FALSE;
+    OutputTicksPerFrame=0;
+    OverlayBrightness=75;
+    OverlayContrast = 100;
+    OverlayHue = 0;
+    OverlaySaturation = 100;
+    OverlayGamma = 1;
+    OverlaySharpness = 5;
+    FlipResult=0;
+    DestSizeAlign=1;
+    SrcSizeAlign=1;
     m_bSettingInitialized = false;
-	bIsRGB = FALSE;
+    bIsRGB = FALSE;
     
     LoadDynamicFunctions();
 

@@ -20,51 +20,6 @@
 // Copyright (C) Mathias Ellinger
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 19 Nov 1998   Mathias Ellinger      initial version
-//
-// 24 Jul 2000   John Adcock           Original dTV Release
-//                                     Added Memory Alloc functions
-//
-//  1 Nov 2000   Michael Eskin         Fixed Win95 PCI device enum for systems
-//               Conexant Systems      that have had several boards installed
-//                                     over the life of the system.
-//                                     
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.11  2006/03/16 17:20:56  adcockj
-// Added Michael Lutz's 64 bit code
-//
-// Revision 1.10  2004/04/14 10:02:02  adcockj
-// Added new offset functions for manipulating PCI config space
-//
-// Revision 1.9  2002/06/16 18:53:36  robmuller
-// Renamed pciGetDeviceConfig() to pciGetDeviceInfo().
-// Implemented pciGetDeviceConfig() and pciSetDeviceConfig().
-//
-// Revision 1.8  2002/03/24 21:25:14  robmuller
-// Fixed include directive (debugout.h).
-//
-// Revision 1.7  2001/11/02 16:36:54  adcockj
-// Merge code from Multiple cards into main trunk
-//
-// Revision 1.4  2001/08/08 16:37:50  adcockj
-// Made drivers stateless to support multiple cards
-// Added version check
-// Changed meaning of memory access functions so that you no longer pass just the offset
-//
-// Revision 1.3  2001/08/08 10:53:30  adcockj
-// Preliminary changes to driver to support multiple cards
-//
-// Revision 1.2  2001/07/13 16:13:53  adcockj
-// Added CVS tags and removed tabs
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "ioclass.h"
 #include "debugout.h"

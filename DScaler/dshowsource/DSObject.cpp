@@ -15,17 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DSObject.cpp implementation of the CDSObject class.
@@ -50,7 +39,7 @@ static char THIS_FILE[]=__FILE__;
 CDShowObject::CDShowObject(IGraphBuilder *pGraph)
 :m_pGraph(pGraph)
 {
-	ASSERT(pGraph!=NULL);
+    ASSERT(pGraph!=NULL);
 }
 
 CDShowObject::~CDShowObject()

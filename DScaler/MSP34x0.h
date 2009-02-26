@@ -20,84 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.24  2007/02/18 21:15:31  robmuller
-// Added option to not compile BT8x8 code.
-//
-// Revision 1.23  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.22  2002/10/27 12:33:33  adcockj
-// Fixed UseInputPin1 code
-//
-// Revision 1.21  2002/10/11 21:50:02  ittarnavsky
-// moved the CMSP34x0Decoder to a separate file and renamed to CMSP34x0AudioDecoder
-//
-// Revision 1.20  2002/09/27 14:14:22  kooiman
-// MSP34xx fixes.
-//
-// Revision 1.19  2002/09/17 17:58:29  kooiman
-// Small additions/fixes.
-//
-// Revision 1.18  2002/09/16 14:37:36  kooiman
-// Added stereo autodetection.
-//
-// Revision 1.17  2002/09/15 15:58:33  kooiman
-// Added Audio standard detection & some MSP fixes.
-//
-// Revision 1.16  2002/09/12 21:44:44  ittarnavsky
-// split the MSP34x0 in two files one for the AudioControls the other foe AudioDecoder
-//
-// Revision 1.15  2002/09/07 20:54:49  kooiman
-// Added equalizer, loudness, spatial effects for MSP34xx
-//
-// Revision 1.14  2002/07/02 20:00:10  adcockj
-// New setting for MSP input pin selection
-//
-// Revision 1.13  2002/03/04 20:03:50  adcockj
-// About box changes
-//
-// Revision 1.12  2002/02/01 04:43:56  ittarnavsky
-// some more audio related fixes
-// removed the handletimermessages and getaudioname methods
-// which break the separation of concerns oo principle
-//
-// Revision 1.11  2002/01/27 23:54:32  robmuller
-// Removed the Auto Standard Detect of the rev G chips. + some reorganization of code.
-//
-// Revision 1.10  2002/01/23 22:57:28  robmuller
-// Revision D/G improvements. The code is following the documentation much closer now.
-//
-// Revision 1.9  2001/12/21 11:07:31  adcockj
-// Even more RevA fixes
-//
-// Revision 1.8  2001/12/20 23:46:21  ittarnavsky
-// further RevA programming changes
-//
-// Revision 1.7  2001/12/20 12:55:54  adcockj
-// First stab at supporting older MSP chips
-//
-// Revision 1.6  2001/12/19 19:26:17  ittarnavsky
-// started rewrite of the sound standard selection
-//
-// Revision 1.5  2001/12/18 23:36:01  adcockj
-// Split up the MSP chip support into two parts to avoid probelms when deleting objects
-//
-// Revision 1.4  2001/12/05 21:45:11  ittarnavsky
-// added changes for the AudioDecoder and AudioControls support
-//
-// Revision 1.3  2001/11/29 14:04:07  adcockj
-// Added Javadoc comments
-//
-// Revision 1.2  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
-// initial checkin of the new I2C code
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file msp34x0.h msp34x0 Header
@@ -126,7 +48,7 @@ class CMSP34x0 : public CI2CDevice
 {
 public:
     CMSP34x0();
-	virtual ~CMSP34x0() {};
+    virtual ~CMSP34x0() {};
     WORD GetVersion();
     WORD GetProductCode();
     void Reset();
@@ -274,12 +196,12 @@ protected:
         DSP_WR_FM_DEEMPH = 0x000F,
         DSP_WR_IDENT_MODE = 0x0015,
         DSP_WR_FM_FC_NOTCH = 0x0017,
-		DSP_WR_AVC = 0x0029,
-		DSP_WR_SURROUND_PROCESSING = 0x0048,
-		DSP_WR_SURROUND_NOISE = 0x004D,
-		DSP_WR_SURROUND_SPATIAL = 0x0049,
-		DSP_WR_SURROUND_PANORAMA = 0x004A,
-		DSP_WR_SURROUND_PANORAMA_MODE = 0x004B
+        DSP_WR_AVC = 0x0029,
+        DSP_WR_SURROUND_PROCESSING = 0x0048,
+        DSP_WR_SURROUND_NOISE = 0x004D,
+        DSP_WR_SURROUND_SPATIAL = 0x0049,
+        DSP_WR_SURROUND_PANORAMA = 0x004A,
+        DSP_WR_SURROUND_PANORAMA_MODE = 0x004B
     };
     void SetDSPRegister(eDSPWriteRegister reg, WORD value);
 

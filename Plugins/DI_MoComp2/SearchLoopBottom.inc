@@ -22,21 +22,6 @@
 //  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2003/05/26 15:54:36  adcockj
-// Improved Performance of motion detection
-// Fixed bug with pBobP
-//
-// Revision 1.2  2003/02/11 15:40:54  adcockj
-// New implementation of StrangeBob based off paper
-// Tidy up sources
-//
-// Revision 1.1  2003/01/02 13:15:01  adcockj
-// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
-//
-/////////////////////////////////////////////////////////////////////////////
 
 __asm
 {
@@ -49,14 +34,14 @@ __asm
     // operate only on luma as we will always bob the chroma
     pand    mm3, YMask
 
-    movq	mm2, qword ptr[ebx]
-    movq	mm4, qword ptr[eax]
+    movq    mm2, qword ptr[ebx]
+    movq    mm4, qword ptr[eax]
 
     PABS(mm2, mm4, mm5)
     pand    mm2, YMask
 
-    movq	mm4, qword ptr[ebx + ecx]
-    movq	mm7, qword ptr[eax + ecx]
+    movq    mm4, qword ptr[ebx + ecx]
+    movq    mm7, qword ptr[eax + ecx]
 
     PABS(mm4, mm7, mm5)
     pand    mm4, YMask

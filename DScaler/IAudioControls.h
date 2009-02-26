@@ -20,15 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2001/12/18 23:36:01  adcockj
-// Split up the MSP chip support into two parts to avoid probelms when deleting objects
-//
-// Revision 1.1  2001/12/05 21:45:11  ittarnavsky
-// added changes for the AudioDecoder and AudioControls support
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file iaudiocontrols.h iaudiocontrols Header
@@ -44,7 +35,7 @@
 class IAudioControls
 {
 public:
-	virtual ~IAudioControls() {};
+    virtual ~IAudioControls() {};
     virtual void SetMute(bool mute=true) = 0;
     virtual bool IsMuted() = 0;
     virtual void SetVolume(WORD volume) = 0;

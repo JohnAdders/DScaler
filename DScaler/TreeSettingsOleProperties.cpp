@@ -15,38 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.9  2002/10/15 15:03:24  kooiman
-// Resizable tree setting dialog
-//
-// Revision 1.8  2002/08/17 18:04:53  tobbej
-// changed parent window to be the tab controll and not the dialog
-//
-// Revision 1.7  2002/07/11 17:56:38  tobbej
-// take care of case when IPropertyPage::Activate fails
-//
-// Revision 1.6  2002/07/09 17:40:33  tobbej
-// add a litle extra space at the botom so large propertypages is shown properly
-//
-// Revision 1.5  2002/07/06 16:46:13  tobbej
-// only deactivate page if it previously was activated
-//
-// Revision 1.4  2002/05/19 12:01:42  tobbej
-// fixed sizing of propertypage
-//
-// Revision 1.3  2002/05/09 17:20:15  tobbej
-// fixed resize problem in CTreeSettingsOleProperties
-// (everytime a new page was activated the dialog size incresed)
-//
-// Revision 1.2  2002/05/02 20:05:51  tobbej
-// removed an assert
-//
-// Revision 1.1  2002/04/24 19:04:01  tobbej
-// new treebased settings dialog
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file TreeSettingsOleProperties.cpp implementation of the CTreeSettingsOleProperties class.
@@ -68,280 +36,280 @@ static char THIS_FILE[]=__FILE__;
 CTreeSettingsOleProperties::CTreeSettingsOleProperties(CString name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid)
 :CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE)
 {
-	//{{AFX_DATA_INIT(CTreeSettingsOleProperties)
-		// NOTE: the ClassWizard will add member initialization here
-	//}}AFX_DATA_INIT
+    //{{AFX_DATA_INIT(CTreeSettingsOleProperties)
+        // NOTE: the ClassWizard will add member initialization here
+    //}}AFX_DATA_INIT
 
-	for(int i=0;i<cPages;i++)
-	{
-		CComPtr<IPropertyPage> pPage;
-		HRESULT hr=pPage.CoCreateInstance(lpPageClsID[i]);
-		if(FAILED(hr))
-		{
-			continue;
-			//handle error, exception?
-		}
-		CPageInfo *pInfo=new CPageInfo;
-		pInfo->m_pPropertyPage=pPage;
-		pInfo->m_pPageSite=new CPageSite(lcid);
-		pInfo->m_pPageSite->AddRef();
-		
-		hr=pInfo->m_pPropertyPage->SetPageSite(pInfo->m_pPageSite);
-		ASSERT(SUCCEEDED(hr));
-		hr=pInfo->m_pPropertyPage->SetObjects(cObjects,lplpUnk);
-		ASSERT(SUCCEEDED(hr));
-		m_pages.push_back(pInfo);
-	}
+    for(int i=0;i<cPages;i++)
+    {
+        CComPtr<IPropertyPage> pPage;
+        HRESULT hr=pPage.CoCreateInstance(lpPageClsID[i]);
+        if(FAILED(hr))
+        {
+            continue;
+            //handle error, exception?
+        }
+        CPageInfo *pInfo=new CPageInfo;
+        pInfo->m_pPropertyPage=pPage;
+        pInfo->m_pPageSite=new CPageSite(lcid);
+        pInfo->m_pPageSite->AddRef();
+        
+        hr=pInfo->m_pPropertyPage->SetPageSite(pInfo->m_pPageSite);
+        ASSERT(SUCCEEDED(hr));
+        hr=pInfo->m_pPropertyPage->SetObjects(cObjects,lplpUnk);
+        ASSERT(SUCCEEDED(hr));
+        m_pages.push_back(pInfo);
+    }
 }
 
 CTreeSettingsOleProperties::~CTreeSettingsOleProperties()
 {
-	for(int i=0;i<m_pages.size();i++)
-	{
-		CPageInfo *pPage=m_pages[i];
-		HRESULT hr;
-		
-		//only deactivate propetypages if it previously has been activated
-		if(pPage->m_bActivated)
-		{
-			hr=pPage->m_pPropertyPage->Deactivate();
-		}
-		hr=pPage->m_pPropertyPage->SetPageSite(NULL);
+    for(int i=0;i<m_pages.size();i++)
+    {
+        CPageInfo *pPage=m_pages[i];
+        HRESULT hr;
+        
+        //only deactivate propetypages if it previously has been activated
+        if(pPage->m_bActivated)
+        {
+            hr=pPage->m_pPropertyPage->Deactivate();
+        }
+        hr=pPage->m_pPropertyPage->SetPageSite(NULL);
 
-		//it looks like this makes the crossbar property page create an
-		//access voilation, propably cause by trying to delete a pointer
-		//that poits to 0xBADF00D
-		hr=pPage->m_pPropertyPage->SetObjects(0,NULL);
-		//ASSERT(SUCCEEDED(hr));
-		pPage->m_pPropertyPage.Release();
-		pPage->m_pPageSite->Release();
-		pPage->m_pPageSite=NULL;
-		delete pPage;
-	}
-	m_pages.erase(m_pages.begin(),m_pages.end());
+        //it looks like this makes the crossbar property page create an
+        //access voilation, propably cause by trying to delete a pointer
+        //that poits to 0xBADF00D
+        hr=pPage->m_pPropertyPage->SetObjects(0,NULL);
+        //ASSERT(SUCCEEDED(hr));
+        pPage->m_pPropertyPage.Release();
+        pPage->m_pPageSite->Release();
+        pPage->m_pPageSite=NULL;
+        delete pPage;
+    }
+    m_pages.erase(m_pages.begin(),m_pages.end());
 }
 
 void CTreeSettingsOleProperties::DoDataExchange(CDataExchange* pDX)
 {
-	CTreeSettingsPage::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CTreeSettingsOleProperties)
-	DDX_Control(pDX, IDD_TREESETTINGS_TAB, m_tabCtrl);
-	//}}AFX_DATA_MAP
+    CTreeSettingsPage::DoDataExchange(pDX);
+    //{{AFX_DATA_MAP(CTreeSettingsOleProperties)
+    DDX_Control(pDX, IDD_TREESETTINGS_TAB, m_tabCtrl);
+    //}}AFX_DATA_MAP
 }
 
 
 BEGIN_MESSAGE_MAP(CTreeSettingsOleProperties, CTreeSettingsPage)
-	//{{AFX_MSG_MAP(CTreeSettingsOleProperties)
-	ON_NOTIFY(TCN_SELCHANGE, IDD_TREESETTINGS_TAB, OnSelchangeTreesettingsTab)
-	ON_NOTIFY(TCN_SELCHANGING, IDD_TREESETTINGS_TAB, OnSelchangingTreesettingsTab)
-	ON_WM_SIZE()
-	//}}AFX_MSG_MAP
+    //{{AFX_MSG_MAP(CTreeSettingsOleProperties)
+    ON_NOTIFY(TCN_SELCHANGE, IDD_TREESETTINGS_TAB, OnSelchangeTreesettingsTab)
+    ON_NOTIFY(TCN_SELCHANGING, IDD_TREESETTINGS_TAB, OnSelchangingTreesettingsTab)
+    ON_WM_SIZE()
+    //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 BOOL CTreeSettingsOleProperties::OnInitDialog()
 {
-	USES_CONVERSION;
-	CTreeSettingsPage::OnInitDialog();
-	
-	//find maximum width and height of the pages
+    USES_CONVERSION;
+    CTreeSettingsPage::OnInitDialog();
+    
+    //find maximum width and height of the pages
     int i;
-	for(i=0;i<m_pages.size();i++)
-	{
-		PROPPAGEINFO pageInfo;
-		HRESULT hr=m_pages[i]->m_pPropertyPage->GetPageInfo(&pageInfo);
-		if(SUCCEEDED(hr))
-		{
-			if(pageInfo.size.cx>m_minWidth)
-			{
-				m_minWidth=pageInfo.size.cx+8;
-			}
-			if(pageInfo.size.cy>m_minHeight)
-			{
-				m_minHeight=pageInfo.size.cy+20;
-			}
-		}
-	}
-	m_bInitMinSize=false;
+    for(i=0;i<m_pages.size();i++)
+    {
+        PROPPAGEINFO pageInfo;
+        HRESULT hr=m_pages[i]->m_pPropertyPage->GetPageInfo(&pageInfo);
+        if(SUCCEEDED(hr))
+        {
+            if(pageInfo.size.cx>m_minWidth)
+            {
+                m_minWidth=pageInfo.size.cx+8;
+            }
+            if(pageInfo.size.cy>m_minHeight)
+            {
+                m_minHeight=pageInfo.size.cy+20;
+            }
+        }
+    }
+    m_bInitMinSize=false;
 
-	CRect rect(0,0,0,0);
-	//add the border size of the tab controll
-	m_tabCtrl.AdjustRect(TRUE,&rect);
-	m_minWidth+=rect.Width();
-	m_minHeight+=rect.Height();
-	
-	m_tabCtrl.GetClientRect(&rect);
+    CRect rect(0,0,0,0);
+    //add the border size of the tab controll
+    m_tabCtrl.AdjustRect(TRUE,&rect);
+    m_minWidth+=rect.Width();
+    m_minHeight+=rect.Height();
+    
+    m_tabCtrl.GetClientRect(&rect);
 
-	m_tabCtrl.ClientToScreen(&rect);
-	ScreenToClient(&rect);
+    m_tabCtrl.ClientToScreen(&rect);
+    ScreenToClient(&rect);
 
-	m_tabCtrl.AdjustRect(FALSE,&rect);
-	for(i=0;i<m_pages.size();i++)
-	{
-		PROPPAGEINFO pageInfo;
-		HRESULT hr=m_pages[i]->m_pPropertyPage->GetPageInfo(&pageInfo);
-		if(SUCCEEDED(hr))
-		{
-			m_tabCtrl.InsertItem(i,OLE2T(pageInfo.pszTitle));	
-			hr=m_pages[i]->m_pPropertyPage->Activate(m_tabCtrl.m_hWnd,rect,FALSE);
-			if(SUCCEEDED(hr))
-			{
-				m_pages[i]->m_bActivated=true;
-			}
-			else
-			{
-				m_pages[i]->m_bActivated=false;
-			}
-		}
-	}
-	
-	return TRUE;
+    m_tabCtrl.AdjustRect(FALSE,&rect);
+    for(i=0;i<m_pages.size();i++)
+    {
+        PROPPAGEINFO pageInfo;
+        HRESULT hr=m_pages[i]->m_pPropertyPage->GetPageInfo(&pageInfo);
+        if(SUCCEEDED(hr))
+        {
+            m_tabCtrl.InsertItem(i,OLE2T(pageInfo.pszTitle));    
+            hr=m_pages[i]->m_pPropertyPage->Activate(m_tabCtrl.m_hWnd,rect,FALSE);
+            if(SUCCEEDED(hr))
+            {
+                m_pages[i]->m_bActivated=true;
+            }
+            else
+            {
+                m_pages[i]->m_bActivated=false;
+            }
+        }
+    }
+    
+    return TRUE;
 }
 
 bool CTreeSettingsOleProperties::OnSetActive()
 {
-	//try to activate a tab, if no tab can be activated, return false 
-	//so access to this whole page will be denied
-	bool bActivated=false;
-	for(int i=0;i<m_pages.size();i++)
-	{
-		m_tabCtrl.SetCurSel(i);
-		//simulate a click on one of the tabs
-		LRESULT result;
-		OnSelchangingTreesettingsTab(NULL,&result);
-		if(result==FALSE)
-		{
-			OnSelchangeTreesettingsTab(NULL,&result);
-			bActivated=true;
-			break;
-		}
-	}
-	return bActivated;
+    //try to activate a tab, if no tab can be activated, return false 
+    //so access to this whole page will be denied
+    bool bActivated=false;
+    for(int i=0;i<m_pages.size();i++)
+    {
+        m_tabCtrl.SetCurSel(i);
+        //simulate a click on one of the tabs
+        LRESULT result;
+        OnSelchangingTreesettingsTab(NULL,&result);
+        if(result==FALSE)
+        {
+            OnSelchangeTreesettingsTab(NULL,&result);
+            bActivated=true;
+            break;
+        }
+    }
+    return bActivated;
 }
 
 void CTreeSettingsOleProperties::OnSelchangingTreesettingsTab(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	int cursel=m_tabCtrl.GetCurSel();
-	if(!m_pages[cursel]->m_bActivated)
-	{
-		AfxMessageBox(_T("This page can not be activated"),MB_OK|MB_ICONINFORMATION);
-		*pResult=TRUE;
-	}
-	else
-	{
-		*pResult=FALSE;
-	}
+    int cursel=m_tabCtrl.GetCurSel();
+    if(!m_pages[cursel]->m_bActivated)
+    {
+        AfxMessageBox(_T("This page can not be activated"),MB_OK|MB_ICONINFORMATION);
+        *pResult=TRUE;
+    }
+    else
+    {
+        *pResult=FALSE;
+    }
 }
 
 void CTreeSettingsOleProperties::OnSelchangeTreesettingsTab(NMHDR* pNMHDR, LRESULT* pResult) 
 {
-	//activate and deactivate the proper pages
-	int cursel=m_tabCtrl.GetCurSel();
-	for(int i=0;i<m_pages.size();i++)
-	{
-		if(i==cursel)
-		{
-			m_pages[i]->m_pPropertyPage->Show(SW_SHOWNORMAL);
-		}
-		else
-		{
-			m_pages[i]->m_pPropertyPage->Show(SW_HIDE);
-		}
-	}
-	
-	//make sure the page is properly positioned
-	CRect rect;
-	GetClientRect(&rect);
-	PostMessage(WM_SIZE,SIZE_RESTORED,MAKELPARAM(rect.Width(),rect.Height()));
+    //activate and deactivate the proper pages
+    int cursel=m_tabCtrl.GetCurSel();
+    for(int i=0;i<m_pages.size();i++)
+    {
+        if(i==cursel)
+        {
+            m_pages[i]->m_pPropertyPage->Show(SW_SHOWNORMAL);
+        }
+        else
+        {
+            m_pages[i]->m_pPropertyPage->Show(SW_HIDE);
+        }
+    }
+    
+    //make sure the page is properly positioned
+    CRect rect;
+    GetClientRect(&rect);
+    PostMessage(WM_SIZE,SIZE_RESTORED,MAKELPARAM(rect.Width(),rect.Height()));
 
-	*pResult = 0;
+    *pResult = 0;
 }
 
 void CTreeSettingsOleProperties::OnSize(UINT nType, int cx, int cy) 
 {
-	CTreeSettingsPage::OnSize(nType, cx, cy);
-	
-	if(m_tabCtrl.m_hWnd==NULL)
-		return;
-	
-	CRect rect;
-	GetClientRect(&rect);
+    CTreeSettingsPage::OnSize(nType, cx, cy);
+    
+    if(m_tabCtrl.m_hWnd==NULL)
+        return;
+    
+    CRect rect;
+    GetClientRect(&rect);
     rect.right = cx;
     rect.bottom = cy;
-	m_tabCtrl.MoveWindow(&rect);
+    m_tabCtrl.MoveWindow(&rect);
 
-	m_tabCtrl.AdjustRect(FALSE,&rect);
-	int cursel=m_tabCtrl.GetCurSel();
-	HRESULT hr=m_pages[cursel]->m_pPropertyPage->Move(&rect);
+    m_tabCtrl.AdjustRect(FALSE,&rect);
+    int cursel=m_tabCtrl.GetCurSel();
+    HRESULT hr=m_pages[cursel]->m_pPropertyPage->Move(&rect);
 }
 
 void CTreeSettingsOleProperties::OnOK()
 {
-	//check if any settings in the pages need to be aplied
-	for(int i=0;i<m_pages.size();i++)
-	{
-		if(m_pages[i]->m_pPropertyPage->IsPageDirty()==S_OK)
-		{
-			HRESULT hr=m_pages[i]->m_pPropertyPage->Apply();
-			//FIXME: log error if any
-		}
-	}
+    //check if any settings in the pages need to be aplied
+    for(int i=0;i<m_pages.size();i++)
+    {
+        if(m_pages[i]->m_pPropertyPage->IsPageDirty()==S_OK)
+        {
+            HRESULT hr=m_pages[i]->m_pPropertyPage->Apply();
+            //FIXME: log error if any
+        }
+    }
 }
 
 ULONG CTreeSettingsOleProperties::CPageSite::AddRef()
 {
-	return InterlockedIncrement(&m_dwRef);
+    return InterlockedIncrement(&m_dwRef);
 }
 
 HRESULT CTreeSettingsOleProperties::CPageSite::QueryInterface(REFIID iid,void ** ppvObject)
 {
-	if(iid==IID_IUnknown)
-	{
-		*ppvObject=this;
-		AddRef();
-		return S_OK;
-	}
-	else if(iid==IID_IPropertyPageSite)
-	{
-		*ppvObject=this;
-		AddRef();
-		return S_OK;
-	}	
-	else
-	{
-		return E_NOINTERFACE;
-	}
+    if(iid==IID_IUnknown)
+    {
+        *ppvObject=this;
+        AddRef();
+        return S_OK;
+    }
+    else if(iid==IID_IPropertyPageSite)
+    {
+        *ppvObject=this;
+        AddRef();
+        return S_OK;
+    }    
+    else
+    {
+        return E_NOINTERFACE;
+    }
 }
 
 ULONG CTreeSettingsOleProperties::CPageSite::Release()
 {
-	long l=InterlockedDecrement(&m_dwRef);
-	if(l==0)
-		delete this;
-	return l;
+    long l=InterlockedDecrement(&m_dwRef);
+    if(l==0)
+        delete this;
+    return l;
 }
 
 HRESULT CTreeSettingsOleProperties::CPageSite::OnStatusChange(DWORD dwFlags)
 {
-	m_dwStatus=dwFlags;
-	return S_OK;
+    m_dwStatus=dwFlags;
+    return S_OK;
 }
 
 HRESULT CTreeSettingsOleProperties::CPageSite::GetLocaleID(LCID *pLocaleID)
 {
-	if(pLocaleID==NULL)
-		return E_POINTER;
-	*pLocaleID=m_lcid;
-	return E_FAIL;
+    if(pLocaleID==NULL)
+        return E_POINTER;
+    *pLocaleID=m_lcid;
+    return E_FAIL;
 }
 
 HRESULT CTreeSettingsOleProperties::CPageSite::GetPageContainer(IUnknown **ppUnk)
 {
-	//OleCreatePropertyFrame also returns E_NOTIMPL
-	return E_NOTIMPL;
+    //OleCreatePropertyFrame also returns E_NOTIMPL
+    return E_NOTIMPL;
 }
 
 HRESULT CTreeSettingsOleProperties::CPageSite::TranslateAccelerator(MSG *pMsg)
 {
-	//OleCreatePropertyFrame also returns E_NOTIMPL
-	return E_NOTIMPL;
+    //OleCreatePropertyFrame also returns E_NOTIMPL
+    return E_NOTIMPL;
 }

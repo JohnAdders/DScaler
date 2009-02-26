@@ -20,43 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.11  2005/07/17 15:58:28  to_see
-// Corrected tuner defines
-// Updated m_TunerHauppaugeAnalog
-//
-// Revision 1.10  2005/07/17 09:39:02  to_see
-// Added some tuner
-//
-// Revision 1.9  2005/05/12 20:06:22  to_see
-// Moved m_TunerHauppaugeAnalog to TunerID.h for common using for BT and CX cards.
-//
-// Revision 1.8  2005/03/09 07:53:41  atnak
-// Added the TDA8275 tuner.
-//
-// Revision 1.7  2005/03/06 12:43:13  to_see
-// Added some tuner
-//
-// Revision 1.6  2004/12/29 20:17:19  to_see
-// Added TCL 2002N tuner (from v4l2)
-//
-// Revision 1.5  2004/08/27 13:11:27  to_see
-// Added Philips 4in1 tuner (from v4l2)
-//
-// Revision 1.4  2003/12/18 15:57:41  adcockj
-// Added MT2050 tuner type support (untested)
-//
-// Revision 1.3  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.2  2003/02/06 21:27:05  ittarnavsky
-// moved the tuner names here
-//
-// Revision 1.1  2003/02/06 19:40:00  ittarnavsky
-// contains definition of eTunerId
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file tunerid.h tunerid Header
@@ -120,7 +83,7 @@ enum eTunerId
     TUNER_PHILIPS_FI1286_NTSC_M_J,
     TUNER_MT2050,
     TUNER_MT2050_PAL,
-	TUNER_PHILIPS_4IN1,
+    TUNER_PHILIPS_4IN1,
     TUNER_TCL_2002N,
     TUNER_HITACHI_NTSC,
     TUNER_PHILIPS_PAL_MK,
@@ -142,63 +105,63 @@ enum eTunerId
 
 const eTunerId m_TunerHauppaugeAnalog[]=
 {
-	/* 0-9 */
+    /* 0-9 */
     TUNER_ABSENT,                       //"None"
-	TUNER_ABSENT,						//"External"
-	TUNER_ABSENT,						//"Unspecified"
-	TUNER_PHILIPS_PAL,					//"Philips FI1216"
-	TUNER_PHILIPS_SECAM,				//"Philips FI1216MF"
-	TUNER_PHILIPS_NTSC,					//"Philips FI1236"
-	TUNER_PHILIPS_PAL_I,				//"Philips FI1246"
-	TUNER_PHILIPS_PAL_DK,				//"Philips FI1256"
-	TUNER_PHILIPS_PAL,					//"Philips FI1216 MK2"
-	TUNER_PHILIPS_SECAM,				//"Philips FI1216MF MK2"
-	/* 10-19 */
-    TUNER_PHILIPS_NTSC,					//"Philips FI1236 MK2"
-	TUNER_PHILIPS_PAL_I,				//"Philips FI1246 MK2"
-	TUNER_PHILIPS_PAL_DK,				//"Philips FI1256 MK2"
-	TUNER_TEMIC_4032FY5_NTSC,			//"Temic 4032FY5"
-	TUNER_TEMIC_4002FH5_PAL,			//"Temic 4002FH5"
-	TUNER_TEMIC_4062FY5_PAL_I,			//"Temic 4062FY5"
-	TUNER_PHILIPS_PAL,					//"Philips FR1216 MK2"
-	TUNER_PHILIPS_SECAM,				//"Philips FR1216MF MK2"
-	TUNER_PHILIPS_NTSC,					//"Philips FR1236 MK2"
-	TUNER_PHILIPS_PAL_I,				//"Philips FR1246 MK2"
-	/* 20-29 */
-	TUNER_PHILIPS_PAL_DK,				//"Philips FR1256 MK2"
-	TUNER_PHILIPS_PAL,					//"Philips FM1216"
-	TUNER_PHILIPS_SECAM,				//"Philips FM1216MF"
-	TUNER_PHILIPS_NTSC,					//"Philips FM1236"
-	TUNER_PHILIPS_PAL_I,				//"Philips FM1246"
-	TUNER_PHILIPS_PAL_DK,				//"Philips FM1256"
-	TUNER_TEMIC_4036FY5_NTSC,			//"Temic 4036FY5"
-	TUNER_ABSENT,						//"Samsung TCPN9082D"
-	TUNER_ABSENT,						//"Samsung TCPM9092P"
-	TUNER_TEMIC_4006FH5_PAL,			//"Temic 4006FH5"
-	/* 30-39 */
-    TUNER_ABSENT,						//"Samsung TCPN9085D"
-	TUNER_ABSENT,						//"Samsung TCPB9085P"
-	TUNER_ABSENT,						//"Samsung TCPL9091P"
-	TUNER_TEMIC_4039FR5_NTSC,			//"Temic 4039FR5"
-	TUNER_PHILIPS_MULTI,				//"Philips FQ1216 ME"
-	TUNER_TEMIC_4066FY5_PAL_I,			//"Temic 4066FY5"
-	TUNER_PHILIPS_NTSC,					//"Philips TD1536"
-	TUNER_PHILIPS_NTSC,					//"Philips TD1536D"
-	TUNER_PHILIPS_NTSC,					//"Philips FMR1236"
-    TUNER_ABSENT,						//"Philips FI1256MP"
-	/* 40-49 */
-	TUNER_ABSENT,						//"Samsung TCPQ9091P"
-	TUNER_TEMIC_4006FN5_PAL,			//"Temic 4006FN5"
-	TUNER_TEMIC_4009FR5_PAL,			//"Temic 4009FR5"
-	TUNER_TEMIC_4046FM5_MULTI,			//"Temic 4046FM5"
-	TUNER_TEMIC_4009FN5_PAL,			//"Temic 4009FN5"
-	TUNER_ABSENT,						//"Philips TD1536D_FH_44"
-	TUNER_LG_R01F_NTSC,					//"LG TPI8NSR01F"
-	TUNER_LG_B01D_PAL,					//"LG TPI8PSB01D"
-	TUNER_LG_B11D_PAL,					//"LG TPI8PSB11D"
-	TUNER_LG_I001D_PAL_I,				//"LG TAPC-I001D"
-	/* 50-59 */
-    TUNER_LG_I701D_PAL_I,				//"LG TAPC-I701D"
+    TUNER_ABSENT,                        //"External"
+    TUNER_ABSENT,                        //"Unspecified"
+    TUNER_PHILIPS_PAL,                    //"Philips FI1216"
+    TUNER_PHILIPS_SECAM,                //"Philips FI1216MF"
+    TUNER_PHILIPS_NTSC,                    //"Philips FI1236"
+    TUNER_PHILIPS_PAL_I,                //"Philips FI1246"
+    TUNER_PHILIPS_PAL_DK,                //"Philips FI1256"
+    TUNER_PHILIPS_PAL,                    //"Philips FI1216 MK2"
+    TUNER_PHILIPS_SECAM,                //"Philips FI1216MF MK2"
+    /* 10-19 */
+    TUNER_PHILIPS_NTSC,                    //"Philips FI1236 MK2"
+    TUNER_PHILIPS_PAL_I,                //"Philips FI1246 MK2"
+    TUNER_PHILIPS_PAL_DK,                //"Philips FI1256 MK2"
+    TUNER_TEMIC_4032FY5_NTSC,            //"Temic 4032FY5"
+    TUNER_TEMIC_4002FH5_PAL,            //"Temic 4002FH5"
+    TUNER_TEMIC_4062FY5_PAL_I,            //"Temic 4062FY5"
+    TUNER_PHILIPS_PAL,                    //"Philips FR1216 MK2"
+    TUNER_PHILIPS_SECAM,                //"Philips FR1216MF MK2"
+    TUNER_PHILIPS_NTSC,                    //"Philips FR1236 MK2"
+    TUNER_PHILIPS_PAL_I,                //"Philips FR1246 MK2"
+    /* 20-29 */
+    TUNER_PHILIPS_PAL_DK,                //"Philips FR1256 MK2"
+    TUNER_PHILIPS_PAL,                    //"Philips FM1216"
+    TUNER_PHILIPS_SECAM,                //"Philips FM1216MF"
+    TUNER_PHILIPS_NTSC,                    //"Philips FM1236"
+    TUNER_PHILIPS_PAL_I,                //"Philips FM1246"
+    TUNER_PHILIPS_PAL_DK,                //"Philips FM1256"
+    TUNER_TEMIC_4036FY5_NTSC,            //"Temic 4036FY5"
+    TUNER_ABSENT,                        //"Samsung TCPN9082D"
+    TUNER_ABSENT,                        //"Samsung TCPM9092P"
+    TUNER_TEMIC_4006FH5_PAL,            //"Temic 4006FH5"
+    /* 30-39 */
+    TUNER_ABSENT,                        //"Samsung TCPN9085D"
+    TUNER_ABSENT,                        //"Samsung TCPB9085P"
+    TUNER_ABSENT,                        //"Samsung TCPL9091P"
+    TUNER_TEMIC_4039FR5_NTSC,            //"Temic 4039FR5"
+    TUNER_PHILIPS_MULTI,                //"Philips FQ1216 ME"
+    TUNER_TEMIC_4066FY5_PAL_I,            //"Temic 4066FY5"
+    TUNER_PHILIPS_NTSC,                    //"Philips TD1536"
+    TUNER_PHILIPS_NTSC,                    //"Philips TD1536D"
+    TUNER_PHILIPS_NTSC,                    //"Philips FMR1236"
+    TUNER_ABSENT,                        //"Philips FI1256MP"
+    /* 40-49 */
+    TUNER_ABSENT,                        //"Samsung TCPQ9091P"
+    TUNER_TEMIC_4006FN5_PAL,            //"Temic 4006FN5"
+    TUNER_TEMIC_4009FR5_PAL,            //"Temic 4009FR5"
+    TUNER_TEMIC_4046FM5_MULTI,            //"Temic 4046FM5"
+    TUNER_TEMIC_4009FN5_PAL,            //"Temic 4009FN5"
+    TUNER_ABSENT,                        //"Philips TD1536D_FH_44"
+    TUNER_LG_R01F_NTSC,                    //"LG TPI8NSR01F"
+    TUNER_LG_B01D_PAL,                    //"LG TPI8PSB01D"
+    TUNER_LG_B11D_PAL,                    //"LG TPI8PSB11D"
+    TUNER_LG_I001D_PAL_I,                //"LG TAPC-I001D"
+    /* 50-59 */
+    TUNER_LG_I701D_PAL_I,                //"LG TAPC-I701D"
     TUNER_ABSENT,                       //"Temic 4042FI5"
     TUNER_ABSENT,                       //"Microtune 4049 FM5"
     TUNER_ABSENT,                       //"LG TPI8NSR11F"
@@ -219,7 +182,7 @@ const eTunerId m_TunerHauppaugeAnalog[]=
     TUNER_ABSENT,                       //"Philips FQ1216LMP MK3"
     TUNER_LG_NTSC_TAPE,                 //"LG TAPE H001F MK3"
     TUNER_ABSENT,                       //"LG TAPE H701F MK3"
-	/* 70-79 */
+    /* 70-79 */
     TUNER_ABSENT,                       //"LG TALN H200T"
     TUNER_ABSENT,                       //"LG TALN H250T"
     TUNER_ABSENT,                       //"LG TALN M200T"
@@ -230,7 +193,7 @@ const eTunerId m_TunerHauppaugeAnalog[]=
     TUNER_ABSENT,                       //"Silicon TDA8275C1 8290"
     TUNER_ABSENT,                       //"Silicon TDA8275C1 8290 FM"
     TUNER_ABSENT,                       //"Thompson DTT757"
-	/* 80-89 */
+    /* 80-89 */
     TUNER_ABSENT,                       //"Philips FQ1216LME MK3"
     TUNER_ABSENT,                       //"LG TAPC G701D"
     TUNER_LG_TAPCNEW_NTSC,              //"LG TAPC H791F"
@@ -241,7 +204,7 @@ const eTunerId m_TunerHauppaugeAnalog[]=
     TUNER_ABSENT,                       //"Samsung TCPN 2121P30A"
     TUNER_ABSENT,                       //"Samsung TCPE 4121P30A"
     TUNER_PHILIPS_FM1216ME_MK3,         //"TCL MFPE05 2"
-	/* 90-99 */
+    /* 90-99 */
     TUNER_ABSENT,                       //"LG TALN H202T"
     TUNER_PHILIPS_FQ1216AME_MK4,        //"Philips FQ1216AME MK4"
     TUNER_PHILIPS_FQ1236A_MK4,          //"Philips FQ1236A MK4"

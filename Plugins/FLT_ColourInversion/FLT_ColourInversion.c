@@ -41,11 +41,11 @@ long FilterInversion(TDeinterlaceInfo* pInfo)
     for (y = 0; y < pInfo->FieldHeight; ++y)
     {
         Pixels = (short*)pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch/2;
-		for (x = 0; x < Cycles; x++)
-		{
-			*Pixels = 255 - *Pixels;
-			Pixels++;
-		}
+        for (x = 0; x < Cycles; x++)
+        {
+            *Pixels = 255 - *Pixels;
+            Pixels++;
+        }
     }
     
 

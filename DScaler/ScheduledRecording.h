@@ -15,47 +15,33 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2007/10/04 20:04:47  to_see
-// Fixed crash in ScheduledRecordingDlg when StartTime changed too fast
-//
-// Revision 1.2  2007/03/09 16:57:37  to_see
-// Updated scheduling code from Radoslav Masaryk
-//
-// Revision 1.1  2007/02/19 00:28:04  robmuller
-// New scheduling code from Radoslav Masaryk.
-//
-//
-///////////////////////////////////////////////////////////////////////////////
 
 class CScheduleDlg : public CDialog
 {
 public:
-	CScheduleDlg(CWnd *pParent = NULL);   // standard constructor
-	~CScheduleDlg();
-	static void OnDscalerExit();
+    CScheduleDlg(CWnd *pParent = NULL);   // standard constructor
+    ~CScheduleDlg();
+    static void OnDscalerExit();
 
 protected:
     //{{AFX_MSG(ScheduleDlg)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnAddClicked();
-	afx_msg void OnRemoveClicked();
-	afx_msg void OnOkClicked();
-	afx_msg void OnDurationUpdate();
-	afx_msg void OnTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult);
-	afx_msg void OnEndTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult);
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+    virtual BOOL OnInitDialog();
+    afx_msg void OnAddClicked();
+    afx_msg void OnRemoveClicked();
+    afx_msg void OnOkClicked();
+    afx_msg void OnDurationUpdate();
+    afx_msg void OnTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult);
+    afx_msg void OnEndTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult);
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 
 private:
-	void InitCtrls();
-	void SetDurationCtrl(int minutes);
+    void InitCtrls();
+    void SetDurationCtrl(int minutes);
 
-	SYSTEMTIME prev_time;
-	bool m_bPrevTimeSet;
-	bool m_bCtrlsInit;
+    SYSTEMTIME prev_time;
+    bool m_bPrevTimeSet;
+    bool m_bCtrlsInit;
 };
 
 void ShowSchedRecDlg();
@@ -64,64 +50,64 @@ DWORD WINAPI RecordThreadProc();
 class CSchedule
 {
 public:
-	CSchedule(){};
-	CSchedule(char* schedule_name, char* program_name, int duration, int state, CTime time);
-	~CSchedule(){};
-		
-	const char* getName()         const   {return m_name;};
-	const char* getProgramName()  const   {return m_program_name;};
-	void getDateStr(char* chDate) const   {strcpy(chDate,m_time_start.Format("%m.%d.%Y").GetBuffer(0));};  
-	void getTimeStr(char* chTime) const   {strcpy(chTime,m_time_start.Format("%H:%M").GetBuffer(0));};  
-	int getDuration()             const   {return m_duration;};
-	CTime getStartTime()          const   {return m_time_start;};
-	CTime getTimeEnd()            const   {return m_time_end;};
-	int getState()                const   {return m_state;};
-	
-	void setTimeEnd(CTime time) {m_time_end = time;};
-	void setState(int state) {m_state = state;};
+    CSchedule(){};
+    CSchedule(char* schedule_name, char* program_name, int duration, int state, CTime time);
+    ~CSchedule(){};
+        
+    const char* getName()         const   {return m_name;};
+    const char* getProgramName()  const   {return m_program_name;};
+    void getDateStr(char* chDate) const   {strcpy(chDate,m_time_start.Format("%m.%d.%Y").GetBuffer(0));};  
+    void getTimeStr(char* chTime) const   {strcpy(chTime,m_time_start.Format("%H:%M").GetBuffer(0));};  
+    int getDuration()             const   {return m_duration;};
+    CTime getStartTime()          const   {return m_time_start;};
+    CTime getTimeEnd()            const   {return m_time_end;};
+    int getState()                const   {return m_state;};
+    
+    void setTimeEnd(CTime time) {m_time_end = time;};
+    void setState(int state) {m_state = state;};
 
 private:
-	char m_name[20];
-	char m_program_name[15];
-	
-	CTime m_time_start;
-	CTime m_time_end;
-	
-	int m_duration;
-	int m_state;
+    char m_name[20];
+    char m_program_name[15];
+    
+    CTime m_time_start;
+    CTime m_time_end;
+    
+    int m_duration;
+    int m_state;
 };
 
 class CScheduledRecording
 {
 public:
-	CScheduledRecording();
-	
-	static void initScheduledRecordingThreadProc();
-	void exitScheduledRecording();
+    CScheduledRecording();
+    
+    static void initScheduledRecordingThreadProc();
+    void exitScheduledRecording();
 
-	void showRecords();
-	void addSchedule();
-	void removeSchedule();
-	void saveOnClose();
-	
-	void getChannels(std::vector<std::string> &channels);
-	
-	bool run();
-				
+    void showRecords();
+    void addSchedule();
+    void removeSchedule();
+    void saveOnClose();
+    
+    void getChannels(std::vector<std::string> &channels);
+    
+    bool run();
+                
 private:
-	void loadFromXml();
-	void saveToXml(std::vector<CSchedule> schedules);
-	void setRecordState(const char* schedule_name, int state);
-	int  getRecordsCount();
-	
-	bool IsEndOfRecording();
-	bool processSchedules();
-	void stopRecording(int state);
-	void startRecording(CSchedule recording_program, CTime time_start);
+    void loadFromXml();
+    void saveToXml(std::vector<CSchedule> schedules);
+    void setRecordState(const char* schedule_name, int state);
+    int  getRecordsCount();
+    
+    bool IsEndOfRecording();
+    bool processSchedules();
+    void stopRecording(int state);
+    void startRecording(CSchedule recording_program, CTime time_start);
 
-	bool m_bSchedulesUpdate;
-	bool m_bExitThread;
+    bool m_bSchedulesUpdate;
+    bool m_bExitThread;
 
-	std::vector<CSchedule> m_schedules;
-	CSchedule m_recording_program;
+    std::vector<CSchedule> m_schedules;
+    CSchedule m_recording_program;
 };

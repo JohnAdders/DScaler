@@ -20,18 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2002/10/15 19:16:29  kooiman
-// Fixed Spatial effect for Audio decoder & MSP
-//
-// Revision 1.2  2002/09/15 15:57:27  kooiman
-// Added Audio standard support.
-//
-// Revision 1.1  2002/09/12 21:50:59  ittarnavsky
-// Added for the change from IAudioControls to CAudioControls
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file AudioControl.cpp Audio Control Classes

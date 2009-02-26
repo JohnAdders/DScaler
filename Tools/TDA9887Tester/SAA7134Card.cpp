@@ -16,12 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2004/10/30 19:30:22  to_see
-// initial checkin
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "..\..\DScaler\SAA7134_Defines.h"
@@ -74,10 +68,10 @@ BYTE CSAA7134Card::GetI2CData()
 
 bool CSAA7134Card::WriteToI2C(const BYTE *writeBuffer, size_t writeBufferSize)
 {
-	if(m_I2CBus->Write(writeBuffer, writeBufferSize))
-	{
-		return true;
-	}
+    if(m_I2CBus->Write(writeBuffer, writeBufferSize))
+    {
+        return true;
+    }
 
-	return false;
+    return false;
 }

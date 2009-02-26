@@ -15,56 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.11  2006/12/28 14:18:36  adcockj
-// Added patch for Curtiss-Wright cards from Bill Randle
-//
-// Revision 1.10  2005/03/11 14:54:38  adcockj
-// Get rid of a load of compilation warnings in vs.net
-//
-// Revision 1.9  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.8  2002/08/11 16:56:34  laurentg
-// More information displayed in the title of the BT card setup dialog box
-//
-// Revision 1.7  2001/11/30 10:46:43  adcockj
-// Fixed crashes and leaks
-//
-// Revision 1.6  2001/11/29 22:16:22  adcockj
-// Fixed memory leak
-//
-// Revision 1.5  2001/11/29 17:30:51  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.4  2001/11/23 10:49:16  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.3  2001/11/21 12:32:11  adcockj
-// Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
-//
-// Revision 1.2  2001/11/02 16:30:07  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.1.2.5  2001/08/19 14:43:47  adcockj
-// Fixed memory leaks
-//
-// Revision 1.1.2.4  2001/08/18 17:09:30  adcockj
-// Got to compile, still lots to do...
-//
-// Revision 1.1.2.3  2001/08/17 16:35:14  adcockj
-// Another interim check-in still doesn't compile. Getting closer ...
-//
-// Revision 1.1.2.2  2001/08/16 06:43:34  adcockj
-// moved more stuff into the new file (deonsn't compile)
-//
-// Revision 1.1.2.1  2001/08/15 14:44:05  adcockj
-// Starting to put some flesh onto the new structure
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file BT848Provider.cpp CBT848Provider Implementation

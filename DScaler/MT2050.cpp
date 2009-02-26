@@ -21,24 +21,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.5  2004/04/06 12:20:48  adcockj
-// Added .NET 2003 project files and some fixes to support this
-//
-// Revision 1.4  2004/02/11 15:29:52  robmuller
-// Register tweak thanks to Pityu.
-//
-// Revision 1.3  2004/01/14 17:06:44  robmuller
-// New line character from LOG call removed.
-//
-// Revision 1.2  2004/01/05 13:12:24  adcockj
-// Added patch from Lavrenov Dmitrij (midimaker)
-//
-// Revision 1.1  2003/12/18 15:57:41  adcockj
-// Added MT2050 tuner type support (untested)
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file MT2050.cpp CMT2050 Implementation
@@ -124,22 +106,22 @@ void CMT2050::Initialize()
     }
 
     /* Initialize Registers per spec. */
-	SetRegister(1, 0x2F);
+    SetRegister(1, 0x2F);
     SetRegister(2, 0x25);
     SetRegister(3, 0xC1);
     SetRegister(4, 0x00);
-	SetRegister(5, 0x63);
+    SetRegister(5, 0x63);
     SetRegister(6, 0x11);
     SetRegister(10, 0x85);
     SetRegister(13, 0x28);
     SetRegister(15, 0x0F);
     SetRegister(16, 0x24);
 
-	SRO = GetRegister(13);
-	if ((SRO & 0x40) != 0)
-	{
-		LOG(1, "MT2050: SRO Crystal problem - tuner will not function!");
-	}
+    SRO = GetRegister(13);
+    if ((SRO & 0x40) != 0)
+    {
+        LOG(1, "MT2050: SRO Crystal problem - tuner will not function!");
+    }
 
     if (m_ExternalIFDemodulator != NULL)
     {
@@ -152,28 +134,28 @@ void CMT2050::Initialize()
 int CMT2050::SpurCheck(int flos1, int flos2, int fifbw, int fout)
 {
     int n1 = 1, n2, f, nmax = 11;
-	long Band;
+    long Band;
 
     flos1 = flos1 / 1000;     /* scale to kHz to avoid 32bit overflows */
     flos2 = flos2 / 1000;
     fifbw /= 1000;
     fout /= 1000;
 
-	Band = fout + fifbw / 2;
+    Band = fout + fifbw / 2;
 
-	do {
-		n2 = -n1;
-		f = n1 * (flos1 - flos2);
-		do {
-			n2--;
-			f = f - flos2;
-			if (abs((abs(f) - fout)) < (fifbw >> 1))
-			{
-				return 1;
-			}
-		} while ((f > (flos2 - fout - (fifbw >> 1))) && (n2 > -nmax));
-		n1++;
-	} while (n1 < nmax);
+    do {
+        n2 = -n1;
+        f = n1 * (flos1 - flos2);
+        do {
+            n2--;
+            f = f - flos2;
+            if (abs((abs(f) - fout)) < (fifbw >> 1))
+            {
+                return 1;
+            }
+        } while ((f > (flos2 - fout - (fifbw >> 1))) && (n2 > -nmax));
+        n1++;
+    } while (n1 < nmax);
 
     return 0;
 }
@@ -182,107 +164,107 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
 {
     unsigned char   buf[5];
 
-	long flo1, flo2;
+    long flo1, flo2;
 //3.1 Calculate LO frequencies
-	flo1 = rfin + if1;
-	flo1 = flo1 / 1000000;
-	flo1 = flo1 * 1000000;
-	flo2 = flo1 - rfin - if2;
+    flo1 = rfin + if1;
+    flo1 = flo1 / 1000000;
+    flo1 = flo1 * 1000000;
+    flo2 = flo1 - rfin - if2;
 //3.2 Avoid spurs
-	int n = 0;
-	long flos1, flos2, fifbw, fif1_bw;
-	long ftest;
-	char SpurInBand;
-	flos1 = flo1;
-	flos2 = flo2;
-	fif1_bw = 16000000;
+    int n = 0;
+    long flos1, flos2, fifbw, fif1_bw;
+    long ftest;
+    char SpurInBand;
+    flos1 = flo1;
+    flos2 = flo2;
+    fif1_bw = 16000000;
     if (IsNTSCVideoFormat(videoFormat))
     {
-		fifbw = 6750000;
+        fifbw = 6750000;
     }
     else
     {   /* PAL */
-		fifbw = 8750000;
+        fifbw = 8750000;
     }
 
-	do {
-		if ((n & 1) == 0)
-		{
-			flos1 = flos1 - 1000000 * n;
-			flos2 = flos2 - 1000000 * n;
-		}
-		else
-		{
-			flos1 = flos1 + 1000000 * n;
-			flos2 = flos2 + 1000000 * n;
-		}
+    do {
+        if ((n & 1) == 0)
+        {
+            flos1 = flos1 - 1000000 * n;
+            flos2 = flos2 - 1000000 * n;
+        }
+        else
+        {
+            flos1 = flos1 + 1000000 * n;
+            flos2 = flos2 + 1000000 * n;
+        }
 //check we are still in bandwidth
-		ftest = abs(flos1 - rfin - if1 + (fifbw >> 1));
-		if (ftest > (fif1_bw >> 1))
-		{
-			flos1 = flo1;
-			flos2 = flo2;
-			LOG(1, "No spur");
-			break;
-		}
-		n++;
-		SpurInBand = SpurCheck(flos1, flos2, fifbw, if2);
-	} while(SpurInBand != 0);
+        ftest = abs(flos1 - rfin - if1 + (fifbw >> 1));
+        if (ftest > (fif1_bw >> 1))
+        {
+            flos1 = flo1;
+            flos2 = flo2;
+            LOG(1, "No spur");
+            break;
+        }
+        n++;
+        SpurInBand = SpurCheck(flos1, flos2, fifbw, if2);
+    } while(SpurInBand != 0);
 
-	flo1 = flos1;
-	flo2 = flos2;
+    flo1 = flos1;
+    flo2 = flos2;
 //3.3 Calculate LO registers
-	long LO1I, LO2I, flo1step, flo2step;
-	long flo1rem, flo2rem, flo1tune, flo2tune;
-	int num1, num2, Denom1, Denom2;
-	int div1a, div1b, div2a, div2b;
+    long LO1I, LO2I, flo1step, flo2step;
+    long flo1rem, flo2rem, flo1tune, flo2tune;
+    int num1, num2, Denom1, Denom2;
+    int div1a, div1b, div2a, div2b;
 
-	flo1step = 1000000;
-	flo2step = 50000;
-	LO1I = (long)floor(flo1 / 4000000.0);
-	LO2I = (long)floor(flo2 / 4000000.0);
-	flo1rem = flo1 % 4000000;
-	flo2rem = flo2 % 4000000;
-	flo1tune = flo1step * (long)floor((flo1rem + flo1step / 2.0) / flo1step);
-	flo2tune = flo2step * (long)floor((flo2rem + flo2step / 2.0) / flo2step);
-	Denom1 = 4;
-	Denom2 = 4095;
-	num1 = (int)floor(flo1tune / (4000000.0 / Denom1) + 0.5);
-	num2 = (int)floor(flo2tune / (4000000.0 / Denom2) + 0.5);
-	if (num1 >= Denom1)
-	{
-		num1 = 0;
-		LO1I++;
-	}
-	if (num2 >= Denom2)
-	{
-		num2 = 0;
-		LO2I++;
-	}
-	div1a = (int)floor((double)(LO1I / 12.0)) - 1;
-	div1b = LO1I % 12;
-	div2a = (int)floor(double(LO2I / 8.0)) - 1;
-	div2b = LO2I % 8;
+    flo1step = 1000000;
+    flo2step = 50000;
+    LO1I = (long)floor(flo1 / 4000000.0);
+    LO2I = (long)floor(flo2 / 4000000.0);
+    flo1rem = flo1 % 4000000;
+    flo2rem = flo2 % 4000000;
+    flo1tune = flo1step * (long)floor((flo1rem + flo1step / 2.0) / flo1step);
+    flo2tune = flo2step * (long)floor((flo2rem + flo2step / 2.0) / flo2step);
+    Denom1 = 4;
+    Denom2 = 4095;
+    num1 = (int)floor(flo1tune / (4000000.0 / Denom1) + 0.5);
+    num2 = (int)floor(flo2tune / (4000000.0 / Denom2) + 0.5);
+    if (num1 >= Denom1)
+    {
+        num1 = 0;
+        LO1I++;
+    }
+    if (num2 >= Denom2)
+    {
+        num2 = 0;
+        LO2I++;
+    }
+    div1a = (int)floor((double)(LO1I / 12.0)) - 1;
+    div1b = LO1I % 12;
+    div2a = (int)floor(double(LO2I / 8.0)) - 1;
+    div2b = LO2I % 8;
 //3.4 Writing registers
-	if (rfin < 277000000)
-	{
-		buf[0] = 128 + 4 * div1b + num1;
-	}
-	else
-	{
-		buf [0] = 4 * div1b + num1;
-	}
-	buf [1] = div1a;
-	buf [2] = 32 * div2b + (UCHAR)floor(num2 / 256.0);
-	buf [3] = num2 % 256;
-	if (num2 == 0)
-	{
-		buf [4] = div2a;
-	}
-	else
-	{
-		buf [4] = 64 + div2a;
-	}
+    if (rfin < 277000000)
+    {
+        buf[0] = 128 + 4 * div1b + num1;
+    }
+    else
+    {
+        buf [0] = 4 * div1b + num1;
+    }
+    buf [1] = div1a;
+    buf [2] = 32 * div2b + (UCHAR)floor(num2 / 256.0);
+    buf [3] = num2 % 256;
+    if (num2 == 0)
+    {
+        buf [4] = div2a;
+    }
+    else
+    {
+        buf [4] = 64 + div2a;
+    }
 
     if (m_ExternalIFDemodulator != NULL)
     {
@@ -296,20 +278,20 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
     SetRegister(5, buf[0x04]);
 
 //3.5 Allow LO to lock
-	m_Locked = false;
-	Sleep(50);
-	int nlock = 0, Status;
-	do {
-		Status = GetRegister(7);
-		Status &= 0x88;
-		if (Status == 0x88)
-		{
-			m_Locked = true;
-			break;
-		}
-		Sleep(2);
-		nlock++;
-	} while(nlock < 100);
+    m_Locked = false;
+    Sleep(50);
+    int nlock = 0, Status;
+    do {
+        Status = GetRegister(7);
+        Status &= 0x88;
+        if (Status == 0x88)
+        {
+            m_Locked = true;
+            break;
+        }
+        Sleep(2);
+        nlock++;
+    } while(nlock < 100);
 
     if (m_ExternalIFDemodulator != NULL)
     {
@@ -332,7 +314,7 @@ bool CMT2050::SetTVFrequency(long frequency, eVideoFormat videoFormat)
     }
     else
     {   /* PAL */
-		if2 = 38900 * 1000;
+        if2 = 38900 * 1000;
     }
 
     m_Frequency = frequency;
@@ -343,7 +325,7 @@ bool CMT2050::SetTVFrequency(long frequency, eVideoFormat videoFormat)
 
 bool CMT2050::SetRadioFrequency(long nFrequency)
 {
-	return false;
+    return false;
 }
 
 long CMT2050::GetFrequency()

@@ -22,12 +22,12 @@ static char THIS_FILE[] = __FILE__;
 
 CTSCompressionDlg::CTSCompressionDlg(CWnd *pParent /*=NULL*/,
                                      TS_OPTIONS *options)
-	: CDialog(CTSCompressionDlg::IDD, pParent)
+    : CDialog(CTSCompressionDlg::IDD, pParent)
 {
-	//{{AFX_DATA_INIT(CTSCompressionDlg)
-	m_AudioFormat = _T("");
-	m_VideoFormat = _T("");
-	//}}AFX_DATA_INIT
+    //{{AFX_DATA_INIT(CTSCompressionDlg)
+    m_AudioFormat = _T("");
+    m_VideoFormat = _T("");
+    //}}AFX_DATA_INIT
 
     this->options = options;
     m_fcc         = options->fcc;
@@ -38,11 +38,11 @@ void CTSCompressionDlg::DoDataExchange(CDataExchange* pDX)
 {
     char buffer[256];
 
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CTSCompressionDlg)
-	DDX_Text(pDX, IDC_TSAUDIOFORMAT, m_AudioFormat);
-	DDX_Text(pDX, IDC_TSVIDEOFORMAT, m_VideoFormat);
-	//}}AFX_DATA_MAP
+    CDialog::DoDataExchange(pDX);
+    //{{AFX_DATA_MAP(CTSCompressionDlg)
+    DDX_Text(pDX, IDC_TSAUDIOFORMAT, m_AudioFormat);
+    DDX_Text(pDX, IDC_TSVIDEOFORMAT, m_VideoFormat);
+    //}}AFX_DATA_MAP
 
     if (!pDX->m_bSaveAndValidate)
     {
@@ -58,10 +58,10 @@ void CTSCompressionDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CTSCompressionDlg, CDialog)
-	//{{AFX_MSG_MAP(CTSCompressionDlg)
-	ON_BN_CLICKED(IDC_TSCONFIGVIDEO, OnConfigVideo)
-	ON_BN_CLICKED(IDC_TSCONFIGAUDIO, OnConfigAudio)
-	//}}AFX_MSG_MAP
+    //{{AFX_MSG_MAP(CTSCompressionDlg)
+    ON_BN_CLICKED(IDC_TSCONFIGVIDEO, OnConfigVideo)
+    ON_BN_CLICKED(IDC_TSCONFIGAUDIO, OnConfigAudio)
+    //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

@@ -15,47 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.20  2006/09/24 02:44:46  robmuller
-// Added missing emms instructions. Should fix problems on non-sse machines.
-//
-// Revision 1.19  2002/06/18 19:46:09  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.18  2002/06/13 12:10:26  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.17  2002/06/01 09:38:12  robmuller
-// Update for progressive mode.
-//
-// Revision 1.16  2002/01/18 14:17:48  robmuller
-// Initialization is now done if the filter is used for the first time. This saves 1 second startup time on slow machines.
-//
-// Revision 1.15  2001/11/26 15:27:19  adcockj
-// Changed filter structure
-//
-// Revision 1.14  2001/11/21 15:21:41  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.13  2001/09/11 18:07:05  adcockj
-// Fix to prevent crashing with extream values
-//
-// Revision 1.12  2001/09/11 14:33:48  adcockj
-// Fixes to allow parameters to be updated as you change them
-//
-// Revision 1.11  2001/08/30 12:04:37  adcockj
-// Replaced numbers with defines in mask mode setting
-//
-// Revision 1.10  2001/08/30 11:58:10  adcockj
-// Changed mode setting to be select fom list
-//
-// Revision 1.9  2001/07/13 16:13:33  adcockj
-// Added CVS tags and removed tabs
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Filter.h"

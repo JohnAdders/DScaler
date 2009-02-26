@@ -20,26 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Original Release
-//                                     Translated most code from German
-//                                     Combined Header files
-//                                     Cut out all decoding
-//                                     Cut out digital hardware stuff
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 11 Mar 2001   Laurent Garnier       Previous Channel feature added
-//
-// 06 Apr 2001   Laurent Garnier       New menu to select channel
-//
-// 26 May 2001   Eric Schmidt          Added Custom Channel Order.
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file programlist.h programlist Header file

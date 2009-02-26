@@ -15,17 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2002/11/01 13:09:19  laurentg
-// Management of the still capture context slightly updated - works now even with stills in memory
-//
-// Revision 1.1  2002/05/01 12:57:19  laurentg
-// Support of JPEG files added
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file jpeghelper.h jpeghelper Header file

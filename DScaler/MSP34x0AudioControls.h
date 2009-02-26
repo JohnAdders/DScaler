@@ -20,21 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.3  2002/10/15 19:16:29  kooiman
-// Fixed Spatial effect for Audio decoder & MSP
-//
-// Revision 1.2  2002/09/15 15:58:33  kooiman
-// Added Audio standard detection & some MSP fixes.
-//
-// Revision 1.1  2002/09/12 21:44:27  ittarnavsky
-// split the MSP34x0 in two files one for the AudioControls the other foe AudioDecoder
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file msp34x0audiocontrols.h msp34x0audiocontrols Header
@@ -58,8 +43,8 @@ class CMSP34x0AudioControls : public CMSP34x0, public CAudioControls
 {
 public:
     CMSP34x0AudioControls();
-	virtual ~CMSP34x0AudioControls() {};    
-	void SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);	
+    virtual ~CMSP34x0AudioControls() {};    
+    void SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);    
 
     // from IAudioControls
     bool HasMute();

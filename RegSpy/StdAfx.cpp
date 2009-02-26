@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2002/11/27 17:39:31  adcockj
-// Added headers
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 

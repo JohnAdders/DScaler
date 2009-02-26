@@ -21,40 +21,6 @@
 //  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 04 May 2002   Tom Barry             Added TomsMoComp Deinterlace method
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.7  2003/06/17 12:46:29  adcockj
-// Added Help for new deinterlace methods
-//
-// Revision 1.6  2003/03/25 10:13:10  laurentg
-// Allow running of TomsMoComp SSE and 3DNOW methods with Toms'agreement
-//
-// Revision 1.5  2002/12/10 16:32:19  adcockj
-// Fix StrangeBob for MMX
-//
-// Revision 1.4  2002/11/26 21:32:14  adcockj
-// Made new strange bob method optional
-//
-// Revision 1.3  2002/07/08 18:16:43  adcockj
-// final fixes fro alpha 3
-//
-// Revision 1.2  2002/07/08 17:44:58  adcockj
-// Corrected Settings messages
-//
-// Revision 1.1  2002/07/07 20:07:24  trbarry
-// First cut at TomsMoComp, motion compensated deinterlace
-//
-// Revision 1.0  2002/05/04 16:13:33  trbarry
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include <DS_Deinterlace.h>
@@ -116,7 +82,7 @@ DEINTERLACE_METHOD TomsMoCompMethod =
     NULL,
     NULL,
     NULL,
-    4,									// number fields needed
+    4,                                    // number fields needed
     0,
     0,
     WM_DI_TOMSMOCOMP_GETVALUE - WM_APP,
@@ -132,18 +98,18 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
 {
     if (CpuFeatureFlags & FEATURE_SSE2)
     {
-		// there doesn't really seem to be much advantage in performance
-		// of the SSE2 version of this. Let's not maintain it for now
-	    TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_SSE; 
-//	    TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_SSE2; 
+        // there doesn't really seem to be much advantage in performance
+        // of the SSE2 version of this. Let's not maintain it for now
+        TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_SSE; 
+//        TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_SSE2; 
     }
     else if (CpuFeatureFlags & FEATURE_SSE)
     {
-	    TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_SSE;
+        TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_SSE;
     }
     else if (CpuFeatureFlags & FEATURE_3DNOW)
     {
-		TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_3DNOW;
+        TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_3DNOW;
     }
     else
     {

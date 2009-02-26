@@ -24,21 +24,6 @@
 // different aspect ratios.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 12 Sep 2000   Mark Rejhon           Centralized aspect ratio code
-//                                     into separate module
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 13 Mar 2001   Michael Samblanet     Split AspectRatio.c into 3 files
-//                                     Moved settings into a structure, declared some functions
-// 08 Jun 2001   Eric Schmidt          added bounce amplitude to ini
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file AspectRatio.h AspectRatio Header file
@@ -56,7 +41,7 @@ void Aspect_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Aspect_FinalSetup();
 CTreeSettingsGeneric* Aspect_GetTreeSettingsPage();
 
-#define	MAX_RATIO_STATISTICS 20
+#define    MAX_RATIO_STATISTICS 20
 
 #define DEFAULT_OVERSCAN_NTSC 12
 #define DEFAULT_OVERSCAN_PAL 4
@@ -259,7 +244,7 @@ typedef struct
     BOOL bUseWSS;
 
     /** Default source aspect ratio to use when using WSS signal to set
-	    the ratio, and no WSS signal is embedded in the signal
+        the ratio, and no WSS signal is embedded in the signal
     */
     int DefaultSourceAspect;
     int DefaultAspectMode;

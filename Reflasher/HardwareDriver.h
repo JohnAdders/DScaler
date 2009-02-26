@@ -29,11 +29,11 @@
 static const LPSTR NTDriverName = "DSDrv4";
 
 #define FILE_ANY_ACCESS                 0
-#define FILE_READ_ACCESS				( 0x0001 )    // file & pipe
-#define FILE_WRITE_ACCESS				( 0x0002 )    // file & pipe
+#define FILE_READ_ACCESS                ( 0x0001 )    // file & pipe
+#define FILE_WRITE_ACCESS                ( 0x0002 )    // file & pipe
 
-#define FILE_DEVICE_DSCALER				0x8D00
-#define DSDRV_BASE						0xA00
+#define FILE_DEVICE_DSCALER                0x8D00
+#define DSDRV_BASE                        0xA00
 
 #define IOCTL_DSDRV_GETPCIINFO \
     CTL_CODE(FILE_DEVICE_DSCALER, (DSDRV_BASE + 9), METHOD_OUT_DIRECT, FILE_ANY_ACCESS)
@@ -58,33 +58,33 @@ static const LPSTR NTDriverName = "DSDrv4";
 
 typedef struct tagDSDrvParam
 {
-	DWORD   dwAddress;
-	DWORD   dwValue;
-	DWORD   dwFlags;
+    DWORD   dwAddress;
+    DWORD   dwValue;
+    DWORD   dwFlags;
 } TDSDrvParam, * PDSDrvParam;
 
 typedef struct
 {
-	DWORD  dwMemoryAddress;
-	DWORD  dwMemoryLength;
-	DWORD  dwSubSystemId;
-	DWORD  dwBusNumber;
-	DWORD  dwSlotNumber;
+    DWORD  dwMemoryAddress;
+    DWORD  dwMemoryLength;
+    DWORD  dwSubSystemId;
+    DWORD  dwBusNumber;
+    DWORD  dwSlotNumber;
 } TPCICARDINFO;
 
 class CHardwareDriver  
 {
 public:
-	CHardwareDriver();
-	virtual ~CHardwareDriver();
+    CHardwareDriver();
+    virtual ~CHardwareDriver();
 
-	BOOL DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD& SubSystemId);
-	BOOL UnInstallNTDriver();
-	BOOL InstallNTDriver();
-	void UnloadDriver();
-	BOOL LoadDriver();
+    BOOL DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD& SubSystemId);
+    BOOL UnInstallNTDriver();
+    BOOL InstallNTDriver();
+    void UnloadDriver();
+    BOOL LoadDriver();
    
-	DWORD SendCommand(  DWORD dwIOCommand,
+    DWORD SendCommand(  DWORD dwIOCommand,
                         LPVOID pvInput,
                         DWORD dwInputLength,
                         LPVOID pvOutput,
@@ -98,8 +98,8 @@ public:
                      );
 
 private:
-	DWORD		StopService( SC_HANDLE hSCM, SC_HANDLE hService, BOOL fStopDependencies, DWORD dwTimeout);
-	BOOL		AdjustAccessRights();
+    DWORD        StopService( SC_HANDLE hSCM, SC_HANDLE hService, BOOL fStopDependencies, DWORD dwTimeout);
+    BOOL        AdjustAccessRights();
     SC_HANDLE   m_hService;
     HANDLE      m_hFile;
     BOOL        m_bWindows95;

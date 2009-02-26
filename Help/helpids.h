@@ -12,7 +12,7 @@
 #define IDH_INVERSION                   131084
 #define IDH_BLACK_WHITE                 131085
 #define IDH_DSCOPE_VIDEO                131086
-#define IDH_LUMINCHROMASHIFT		131087
+#define IDH_LUMINCHROMASHIFT            131087
 
 
 #define IDH_DEINTERLACE                 131090

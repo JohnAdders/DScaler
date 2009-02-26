@@ -20,33 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Oct 2002   Denis Balazuc         Original Release
-//                                     mostly cut/paste from ProgramList.cpp
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.13  2006/12/13 01:10:00  robmuller
-// Fix compile warnings with Visual Studio 2005 Express.
-//
-// Revision 1.12  2006/10/06 13:35:28  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.11  2005/03/26 18:53:22  laurentg
-// EPG code improved
-// => possibility to set the EPG channel name in the channel setup dialog box
-// => automatic loading of new data when needed
-// => OSD scrrens updated
-// => first step for programs "browser"
-//
-// Revision 1.10  2005/03/08 03:25:26  robmuller
-// Added CVS keywords.
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file Channels.cpp Channels Classes
@@ -61,7 +34,7 @@
 CChannel::CChannel(LPCSTR Name, LPCSTR EPGName, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active)
 {        
     m_Name = Name;
-	m_EPGName = EPGName;
+    m_EPGName = EPGName;
     m_Freq = Freq;
     m_Chan = ChannelNumber;
     m_Format = Format;
@@ -71,7 +44,7 @@ CChannel::CChannel(LPCSTR Name, LPCSTR EPGName, DWORD Freq, int ChannelNumber, e
 CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active)
 {        
     m_Name = Name;
-	m_EPGName = m_Name;
+    m_EPGName = m_Name;
     m_Freq = Freq;
     m_Chan = ChannelNumber;
     m_Format = Format;
@@ -556,7 +529,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
             {
                 Name = "Empty";
             }
-			EPGName = Name;
+            EPGName = Name;
             Frequency = -1;
             ++Channel;
             Format = -1;
@@ -643,8 +616,8 @@ BOOL CUserChannels::WriteASCIIImpl(FILE* SettingFile)  const
     for(int i = 0; i < GetSize(); i++)
     {
         fprintf(SettingFile, "Name: %s\n", GetChannelName(i));
-		if (strcmp(GetChannelName(i), GetChannelEPGName(i)))
-	        fprintf(SettingFile, "EPGName: %s\n", GetChannelEPGName(i));
+        if (strcmp(GetChannelName(i), GetChannelEPGName(i)))
+            fprintf(SettingFile, "EPGName: %s\n", GetChannelEPGName(i));
         //fprintf(SettingFile, "Freq2: %ld\n", MulDiv((*it)->GetFrequency(),16,1000000));
         fprintf(SettingFile, "Freq: %ld\n", GetChannelFrequency(i)/1000);
         fprintf(SettingFile, "Chan: %d\n", GetChannelNumber(i));
@@ -681,8 +654,8 @@ BOOL CUserChannels::WriteXMLImpl(FILE* SettingFile)  const
     {
         fprintf(SettingFile, "\t<channel id=\"%d\">\n", i);
         fprintf(SettingFile, "\t\t<name>%s</name>\n", GetChannelName(i));            
-		if (strcmp(GetChannelName(i), GetChannelEPGName(i)))
-	        fprintf(SettingFile, "\t\t<EPGname>%s</EPGname>\n", GetChannelEPGName(i));            
+        if (strcmp(GetChannelName(i), GetChannelEPGName(i)))
+            fprintf(SettingFile, "\t\t<EPGname>%s</EPGname>\n", GetChannelEPGName(i));            
         fprintf(SettingFile, "\t\t<frequency>%ld</frequency>\n", GetChannelFrequency(i));//watch out. ASCII has freq/1000
         fprintf(SettingFile, "\t\t<number>%d</number>\n", GetChannelNumber(i));
         fprintf(SettingFile, "\t\t<active>%d</active>\n", GetChannelActive(i));

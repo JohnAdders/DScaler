@@ -20,35 +20,6 @@
 // others at Connexant.  Those parts are probably (c) Connexant 2002
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2005/03/11 14:54:38  adcockj
-// Get rid of a load of compilation warnings in vs.net
-//
-// Revision 1.7  2005/03/09 09:35:16  atnak
-// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
-// non-intrusive nature.
-//
-// Revision 1.6  2004/05/12 16:52:42  adcockj
-// Added channel gains fgor PMS cards
-//
-// Revision 1.5  2003/11/14 13:24:54  adcockj
-// PMS card fixes
-//
-// Revision 1.4  2003/11/13 17:32:48  adcockj
-// Added BT8x8 register debugger
-//
-// Revision 1.3  2003/11/03 17:29:47  adcockj
-// Fixes for new PMS deluxe
-//
-// Revision 1.2  2003/10/30 22:05:15  adcockj
-// Fix some bugs with new PMS card
-//
-// Revision 1.1  2003/10/27 16:22:56  adcockj
-// Added preliminary support for PMS PDI Deluxe card
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file BT848Card_PMS.cpp CBT848Card Implementation (PMS)
@@ -337,7 +308,7 @@ void CBT848Card::SetPMSDeluxeFormat(int nInput, eVideoFormat TVFormat)
         // doesn't really matter for these inputs
         // but we'll set the default
         ChrominanceControl = 0x89;
-	    m_SAA7118->SetRegister(0x29, 0x40);
+        m_SAA7118->SetRegister(0x29, 0x40);
         break;
     case PMS_SVIDEO:
     case PMS_SVIDEO2:
@@ -348,7 +319,7 @@ void CBT848Card::SetPMSDeluxeFormat(int nInput, eVideoFormat TVFormat)
     case PMS_COMPOSITE_SV_2: // Composite over S-Video
     case PMS_COMPOSITE_SV_3: // Composite over S-Video
     case PMS_COMPOSITE_SV_4: // Composite over S-Video
-	    m_SAA7118->SetRegister(0x29, 0x00);
+        m_SAA7118->SetRegister(0x29, 0x00);
         switch(TVFormat)
         {
         case VIDEOFORMAT_PAL_M:

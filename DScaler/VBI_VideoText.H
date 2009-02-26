@@ -20,28 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Original Release
-//                                     Translated most code from German
-//                                     Combined Header files
-//                                     Cut out all decoding
-//                                     Cut out digital hardware stuff
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 02 Jan 2003   Atsushi Nakagawa      Redid VBI_VideoText.* to link in
-//                                     with the new and updated CVTDecoder and
-//                                     CVTDrawer classes.  CVS Log entries
-//                                     prior to and including rev 1.27 may
-//                                     no longer have direct validity but
-//                                     their cumulative changes still remain
-//                                     valid.
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file vbi_videotext.h vbi_videotext Header file
@@ -62,14 +40,14 @@ enum eVTState
 
 
 typedef struct {
-	char*	sCountry;
-	char*	sNetwork;
-	WORD	wNI_P8301;
-	BYTE	uC_P8302;
-	BYTE	uNI_P8302;
-	BYTE	uA_X26;
-	BYTE	uB_X26;
-	WORD	wCNI_VPS;
+    char*    sCountry;
+    char*    sNetwork;
+    WORD    wNI_P8301;
+    BYTE    uC_P8302;
+    BYTE    uNI_P8302;
+    BYTE    uA_X26;
+    BYTE    uB_X26;
+    WORD    wCNI_VPS;
 } TChannelIdentif;
 
 

@@ -20,38 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.9  2002/10/26 15:37:57  adcockj
-// Made ITuner more abstract by removing inheritance from CI2CDevice
-// New class II2CTuner created for tuners that are controled by I2C
-//
-// Revision 1.8  2002/10/16 21:42:36  kooiman
-// Created seperate class for External IF Demodulator chips like TDA9887
-//
-// Revision 1.7  2002/10/11 13:38:14  kooiman
-// Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
-//
-// Revision 1.6  2002/10/08 20:43:16  kooiman
-// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
-//
-// Revision 1.5  2002/10/07 20:32:00  kooiman
-// Added/fixed TDA9887 support for new Pinnacle cards
-//
-// Revision 1.4  2002/09/04 11:58:45  kooiman
-// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
-//
-// Revision 1.3  2001/11/29 14:04:07  adcockj
-// Added Javadoc comments
-//
-// Revision 1.2  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
-// initial checkin of the new I2C code
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file mt2032.h mt2032 Header

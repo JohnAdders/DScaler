@@ -20,47 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.12  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.11  2002/10/31 21:42:56  adcockj
-// Patch for GetAFCStatus supplied by Denis Balazuc
-//
-// Revision 1.10  2002/10/16 21:42:36  kooiman
-// Created seperate class for External IF Demodulator chips like TDA9887
-//
-// Revision 1.9  2002/10/11 13:38:14  kooiman
-// Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
-//
-// Revision 1.8  2002/10/08 20:43:16  kooiman
-// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
-//
-// Revision 1.7  2002/10/07 20:32:00  kooiman
-// Added/fixed TDA9887 support for new Pinnacle cards
-//
-// Revision 1.6  2002/09/04 11:58:45  kooiman
-// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
-//
-// Revision 1.5  2002/01/16 20:49:30  adcockj
-// Added Rob Muller's fixes for Radio
-//
-// Revision 1.4  2001/12/05 21:45:11  ittarnavsky
-// added changes for the AudioDecoder and AudioControls support
-//
-// Revision 1.3  2001/11/29 17:30:52  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.2  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
-// initial checkin of the new I2C code
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file MT2032.cpp CMT2032 Implementation
@@ -524,7 +483,7 @@ bool CMT2032::SetRadioFrequency(long nFrequency)
 
     //SetIFFreq(nFrequency * 1000 / 16 * 1000, 1085 * 1000 * 1000, if2, from, to, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
 
-	SetIFFreq(nFrequency, 1085 * 1000 * 1000, if2, if2, if2, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
+    SetIFFreq(nFrequency, 1085 * 1000 * 1000, if2, if2, if2, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
     return true;
 }
 

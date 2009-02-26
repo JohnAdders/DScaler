@@ -20,155 +20,6 @@
 // others at Connexant.  Those parts are probably (c) Connexant 2002
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.33  2006/12/13 01:10:00  robmuller
-// Fix compile warnings with Visual Studio 2005 Express.
-//
-// Revision 1.32  2006/10/06 13:35:28  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.31  2004/12/25 22:40:18  to_see
-// Changed the card list to an ini file
-//
-// Revision 1.30  2004/09/29 20:36:02  to_see
-// Added Card AverTV303, Thanks to Zbigniew Pluta
-//
-// Revision 1.29  2004/08/31 17:54:50  to_see
-// New entry for PixelView PlayTV Ultra + on chip audio
-// Minor fixes
-//
-// Revision 1.28  2004/08/27 13:12:40  to_see
-// Added audio support for Ati Tv Wonder Pro
-//
-// Revision 1.27  2004/08/26 16:55:56  to_see
-// WinTV - cleaned tuner detection
-// ATI TV Wonder Pro - corrected GPIO's
-//
-// Revision 1.26  2004/08/19 20:17:46  to_see
-// Changed write order GPIO's for Leadtek Expert card. It's importand to write first to MO_GP3_IO.
-//
-// Revision 1.25  2004/06/28 20:17:22  to_see
-// Added Patch for INPUTTYPE_COMPOSITE in card "Prolink PlayTV HD" from jstwo@...
-//
-// Revision 1.24  2004/06/19 20:11:59  to_see
-// Fix to reset GPIO Mode to Normal Mode
-//
-// Revision 1.23  2004/03/28 19:34:11  to_see
-// added TVFormat for an call to CCX2388xCard::AudioInitxxx
-// more on chip sound; BTSC and Nicam for PAL(I)
-// set to LOG(2) when an tuner in CCX2388xCard::AutoDetectTuner was found
-// added GPIO Settings for Leadtek WinFast TV2000 XP Expert
-//
-// Revision 1.22  2004/03/10 17:44:03  to_see
-// corrected Card inf for "PixelView PlayTV Ultra"
-//
-// Revision 1.21  2004/03/07 17:34:49  to_see
-// moved CCX2388xCard::AutoDetectTuner from CX2388xCard.cpp to CX2388xCard_Types.cpp
-// to can use correct sizeof(m_Tuners_Hauppauge_CX2388x_Card)
-//
-// Revision 1.20  2004/03/07 12:20:12  to_see
-// added 2 Cards
-// working Nicam-Sound
-// Submenus in CX-Card for Soundsettings
-// Click in "Autodetect" in "Setup card CX2388x" is now working
-// added "Automute if no Tunersignal" in CX2388x Advanced
-//
-// Revision 1.19  2004/02/21 21:47:06  to_see
-// Added AutodetectTuner for Hauppauge
-//
-// Revision 1.18  2004/01/27 22:48:57  robmuller
-// Use correct GPIO settings for TV@nywhere Master.
-//
-// Revision 1.17  2004/01/19 14:31:20  adcockj
-// Test code for Hauppauge cards inspired by Torsten's diagram
-//
-// Revision 1.16  2004/01/07 10:08:12  adcockj
-// Added setting GPIO pins for sound support and added ATI card
-//
-// Revision 1.15  2004/01/05 13:12:24  adcockj
-// Added patch from Lavrenov Dmitrij (midimaker)
-//
-// Revision 1.14  2003/12/17 08:28:57  adcockj
-// Added Leadtek Winfast Expert (Thanks to Tom Zoerner)
-//
-// Revision 1.13  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.12  2003/07/18 09:41:23  adcockj
-// Added PDI input to holo3d (doesn't yet work)
-//
-// Revision 1.11  2003/06/17 12:45:19  adcockj
-// Added new card for use with PDI
-//
-// Revision 1.10  2003/03/10 17:43:19  adcockj
-// Added support for Hauppauge WinTV PCI-FM : patch from Tom Zoerner
-//
-// Revision 1.9  2003/02/24 11:19:51  adcockj
-// Futher fix for issues with PlayHD
-//
-// Revision 1.8  2003/02/03 17:25:23  adcockj
-// Fixes for PlayHD
-//
-// Revision 1.7  2002/12/05 17:11:11  adcockj
-// Sound fixes
-//
-// Revision 1.6  2002/12/04 17:43:49  adcockj
-// Contrast and Brightness adjustments so that h3d card behaves in expected way
-//
-// Revision 1.5  2002/11/15 17:10:51  adcockj
-// Setting of GPIO pins for MSI TV@nywhere
-//
-// Revision 1.4  2002/11/03 18:38:32  adcockj
-// Fixes for cx2388x and PAL & NTSC
-//
-// Revision 1.3  2002/11/03 15:54:10  adcockj
-// Added cx2388x register tweaker support
-//
-// Revision 1.2  2002/10/29 16:20:30  adcockj
-// Added card setup for MSI TV@nywhere (no work done on sound)
-//
-// Revision 1.1  2002/10/29 11:05:28  adcockj
-// Renamed CT2388x to CX2388x
-//
-// 
-// CVS Log while file was called CT2388xCard_Types.cpp
-//
-// Revision 1.11  2002/10/27 19:17:25  adcockj
-// Fixes for cx2388x - PAL & NTSC tested
-//
-// Revision 1.10  2002/10/25 14:44:26  laurentg
-// filter setup updated to have something working even for SECAM
-//
-// Revision 1.9  2002/10/24 16:03:00  adcockj
-// Minor tidy up
-//
-// Revision 1.8  2002/10/23 20:26:53  adcockj
-// Bug fixes for cx2388x
-//
-// Revision 1.7  2002/10/23 16:10:50  adcockj
-// Fixed some filter setting bugs and added SECAM tests for Laurent
-//
-// Revision 1.6  2002/10/21 16:07:26  adcockj
-// Added H & V delay options for CX2388x cards
-//
-// Revision 1.5  2002/10/21 07:19:33  adcockj
-// Preliminary Support for PixelView XCapture
-//
-// Revision 1.4  2002/10/17 13:31:37  adcockj
-// Give Holo3d different menu and updated settings
-//
-// Revision 1.3  2002/09/22 17:47:04  adcockj
-// Fixes for holo3d
-//
-// Revision 1.2  2002/09/11 19:33:06  adcockj
-// a few tidy ups
-//
-// Revision 1.1  2002/09/11 18:19:37  adcockj
-// Prelimainary support for CX2388x based cards
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file CX2388xCard.cpp CCX2388xCard Implementation (Types)
@@ -194,7 +45,7 @@ static const char* k_CX2388xCardListFilename = "CX2388xCards.ini";
 const CCX2388xCard::TCardType CCX2388xCard::m_CX2388xUnknownCard = 
 {
     "*Unknown Card*",
-	MODE_STANDARD,
+    MODE_STANDARD,
     4,
     {
         {
@@ -223,8 +74,8 @@ const CCX2388xCard::TCardType CCX2388xCard::m_CX2388xUnknownCard =
         },
     },
     TUNER_PHILIPS_NTSC,
-	{ NULL },
-	FALSE,
+    { NULL },
+    FALSE,
 };
 
 std::vector<CCX2388xCard::CCardTypeEx> CCX2388xCard::m_CX2388xCards;
@@ -250,7 +101,7 @@ const CParseConstant CCX2388xCard::k_parseCardModeConstants[] =
 };
 
 //////////////////////////////////////////////////////////////////////////
-// CX2388x card	list parsing values
+// CX2388x card    list parsing values
 //////////////////////////////////////////////////////////////////////////
 const CParseTag CCX2388xCard::k_parseCardGPIOSet[] =
 {
@@ -280,13 +131,13 @@ const CParseTag CCX2388xCard::k_parseCardAutoDetectID[] =
 
 const CParseTag CCX2388xCard::k_parseCard[] =
 {
-    PT( "Name",           PARSE_STRING,                 1, 127,			       NULL,                     ReadCardInfoProc         ), 
+    PT( "Name",           PARSE_STRING,                 1, 127,                   NULL,                     ReadCardInfoProc         ), 
     PT( "CardMode",       PARSE_CONSTANT,               0, 32,                 k_parseCardModeConstants, ReadCardInfoProc         ),
     PT( "DefaultTuner",   PARSE_CONSTANT|PARSE_NUMERIC, 0, 32,                 k_parseTunerConstants,    ReadCardDefaultTunerProc ),
-    PT( "AutoDetectID",   PARSE_CHILDREN,               0, 1,				   k_parseCardAutoDetectID,  NULL                     ),
+    PT( "AutoDetectID",   PARSE_CHILDREN,               0, 1,                   k_parseCardAutoDetectID,  NULL                     ),
     PT( "Input",          PARSE_CHILDREN,               0, CX_INPUTS_PER_CARD, k_parseCardInput,         ReadCardInputProc        ),
     PT( "Final",          PARSE_CHILDREN,               0, CX_INPUTS_PER_CARD, k_parseCardInput+2,       ReadCardInputProc        ),
-    PT( "UseTDA9887",     PARSE_CHILDREN,               0, 1,				   k_parseUseTDA9887,        ReadCardUseTDA9887Proc   ),
+    PT( "UseTDA9887",     PARSE_CHILDREN,               0, 1,                   k_parseUseTDA9887,        ReadCardUseTDA9887Proc   ),
     PT( NULL )
 };
 
@@ -327,37 +178,37 @@ void CCX2388xCard::ReadCardInputInfoProc(int report, const CParseTag* tag, unsig
     else if (tag == k_parseCardInput + 2)
     {
         // 0...3
-		int n = value->GetNumber();
+        int n = value->GetNumber();
         if (n < 0 || n > 3)
         {
             throw string("MuxSelect must be between 0 and 3");
         }
 
-		input->MuxSelect = n;
+        input->MuxSelect = n;
     }
 
     // GPIOSet->GPIO_0
     else if (tag == k_parseCardGPIOSet + 0)
     {
-		input->GPIOSet.GPIO_0 = static_cast<DWORD>(value->GetNumber());
+        input->GPIOSet.GPIO_0 = static_cast<DWORD>(value->GetNumber());
     }
 
     // GPIOSet->GPIO_1
     else if (tag == k_parseCardGPIOSet + 1)
     {
-		input->GPIOSet.GPIO_1 = static_cast<DWORD>(value->GetNumber());
+        input->GPIOSet.GPIO_1 = static_cast<DWORD>(value->GetNumber());
     }
     
-	// GPIOSet->GPIO_2
+    // GPIOSet->GPIO_2
     else if (tag == k_parseCardGPIOSet + 2)
     {
-		input->GPIOSet.GPIO_2 = static_cast<DWORD>(value->GetNumber());
+        input->GPIOSet.GPIO_2 = static_cast<DWORD>(value->GetNumber());
     }
 
     // GPIOSet->GPIO_3
     else if (tag == k_parseCardGPIOSet + 3)
     {
-		input->GPIOSet.GPIO_3 = static_cast<DWORD>(value->GetNumber());
+        input->GPIOSet.GPIO_3 = static_cast<DWORD>(value->GetNumber());
     }
 }
 
@@ -468,15 +319,15 @@ void CCX2388xCard::ReadCardInfoProc(int report, const CParseTag* tag, unsigned c
                 throw string("A card was already specified with this name");
             }
         }
-		
+        
         strcpy(parseInfo->pCurrentCard->szName, value->GetString());
     }
 
-	// Card Mode
-	else if (tag == k_parseCard + 1)
-	{
-		parseInfo->pCurrentCard->CardMode = static_cast<eCardMode>(value->GetNumber());
-	}
+    // Card Mode
+    else if (tag == k_parseCard + 1)
+    {
+        parseInfo->pCurrentCard->CardMode = static_cast<eCardMode>(value->GetNumber());
+    }
 }
 
 void CCX2388xCard::ReadCardAutoDetectIDProc(int report, const CParseTag* tag, unsigned char,
@@ -849,20 +700,20 @@ HMENU CCX2388xCard::GetCardSpecificMenu()
 {
     if(IsCurCardH3D())
     {
-	    return LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_CX2388X_H3D));
+        return LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_CX2388X_H3D));
     }
     else
     {
-	    return LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_CX2388X));
+        return LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_CX2388X));
     }
 }
 
 BOOL CCX2388xCard::IsCurCardH3D()
 {
-	if(m_CX2388xCards[m_CardType].CardMode == MODE_H3D)
-	{
-		return TRUE;
-	}
+    if(m_CX2388xCards[m_CardType].CardMode == MODE_H3D)
+    {
+        return TRUE;
+    }
     else
     {
         return FALSE;
@@ -871,10 +722,10 @@ BOOL CCX2388xCard::IsCurCardH3D()
 
 BOOL CCX2388xCard::IsThisCardH3D(eCX2388xCardId CardId)
 {
-	if(m_CX2388xCards[CardId].CardMode == MODE_H3D)
-	{
-		return TRUE;
-	}
+    if(m_CX2388xCards[CardId].CardMode == MODE_H3D)
+    {
+        return TRUE;
+    }
     else
     {
         return FALSE;

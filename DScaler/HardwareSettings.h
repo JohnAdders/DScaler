@@ -15,14 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2002/08/11 12:14:02  laurentg
-// Cut BT Card setup and general hardware setup in two different windows
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file hardwaresettings.h hardwaresettings Header file

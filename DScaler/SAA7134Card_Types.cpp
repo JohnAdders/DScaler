@@ -24,110 +24,6 @@
 // Copyright (c) 2001 John Adcock.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Sep 2002   Atsushi Nakagawa      Initial Release
-// 19 Nov 2004   Atsushi Nakagawa      Changed to INI card list and trimmed
-//                                     the CVS Log by removing all card adding
-//                                     related entries by me.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.60  2006/12/13 01:10:01  robmuller
-// Fix compile warnings with Visual Studio 2005 Express.
-//
-// Revision 1.59  2006/10/06 13:35:28  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.58  2004/12/16 04:53:51  atnak
-// Added "auto detect" and "user setup" to tuner parsing.
-//
-// Revision 1.57  2004/12/12 12:01:42  atnak
-// Audio crystal units were actually in MHz.
-//
-// Revision 1.56  2004/12/08 21:26:16  atnak
-// Fixed parsing audio crystal units "Hz" to "kHz" among other minor changes.
-//
-// Revision 1.55  2004/12/01 22:01:18  atnak
-// Fix the VC++ 6 incompatibility introduced by last change.
-//
-// Revision 1.54  2004/12/01 17:57:08  atnak
-// Updates to HierarchicalConfigParser.
-//
-// Revision 1.53  2004/11/28 20:46:35  atnak
-// Made changes to satisfy VC++ 6.
-//
-// Revision 1.52  2004/11/27 19:11:56  atnak
-// Added settings specific tor TDA9887 to the card list.
-//
-// Revision 1.51  2004/11/20 17:58:03  atnak
-// Code change for VS6 compatibility.
-//
-// Revision 1.50  2004/11/20 14:20:09  atnak
-// Changed the card list to an ini file.
-//
-// Revision 1.41  2004/02/18 06:39:47  atnak
-// Changed Setup Card / Tuner so that only cards of the same device are
-// shown in the card list.
-//
-// Revision 1.36  2004/02/14 04:03:44  atnak
-// Put GPIO settings and AutoDetect IDs into the main card definition
-// to remove the need for extra tables and custom functions.
-//
-// Revision 1.35  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.34  2003/08/23 10:00:33  atnak
-// Added a missing break in a switch statement
-//
-// Revision 1.29  2003/04/16 15:11:50  atnak
-// Fixed Medion TV-Tuner 7134 MK2/3 audio clock and default tuner
-//
-// Revision 1.24  2003/02/06 21:30:44  ittarnavsky
-// changes to support primetv 7133
-//
-// Revision 1.22  2003/01/30 07:19:47  ittarnavsky
-// fixed the autodetect
-//
-// Revision 1.15  2002/12/22 03:52:11  atnak
-// Fixed FlyVideo2000 GPIO settings for input change
-//
-// Revision 1.13  2002/12/10 11:05:46  atnak
-// Fixed FlyVideo 3000 audio for external inputs
-//
-// Revision 1.12  2002/11/12 01:26:25  atnak
-// Changed the define name of a card
-//
-// Revision 1.11  2002/10/28 11:10:13  atnak
-// Various changes and revamp to settings
-//
-// Revision 1.10  2002/10/26 05:24:23  atnak
-// Minor cleanups
-//
-// Revision 1.9  2002/10/26 04:41:44  atnak
-// Clean up + added auto card detection
-//
-// Revision 1.8  2002/10/16 22:10:56  atnak
-// fixed some cards to available FM1216ME_MK3 tuner
-//
-// Revision 1.6  2002/10/06 11:09:48  atnak
-// SoundChannel function from TCardType
-//
-// Revision 1.5  2002/10/04 13:24:46  atnak
-// Audio mux select through GPIO added (for 7130 cards)
-//
-// Revision 1.4  2002/10/03 23:36:23  atnak
-// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
-//
-// Revision 1.3  2002/09/14 19:40:48  atnak
-// various changes
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SAA7134Card.cpp CSAA7134Card Implementation (Types)
@@ -199,81 +95,81 @@ std::vector<CSAA7134Card::CCardTypeEx> CSAA7134Card::m_SAA713xCards;
 //////////////////////////////////////////////////////////////////////////
 const CParseConstant CSAA7134Card::k_parseAudioPinConstants[] =
 {
-	PC(	"NONE",			AUDIOINPUTSOURCE_NONE	),
-	PC(	"LINE1",		AUDIOINPUTSOURCE_LINE1	),
-	PC(	"LINE2",		AUDIOINPUTSOURCE_LINE2	),
-	PC(	"DAC",			AUDIOINPUTSOURCE_DAC	),
-	PC(	NULL )
+    PC(    "NONE",            AUDIOINPUTSOURCE_NONE    ),
+    PC(    "LINE1",        AUDIOINPUTSOURCE_LINE1    ),
+    PC(    "LINE2",        AUDIOINPUTSOURCE_LINE2    ),
+    PC(    "DAC",            AUDIOINPUTSOURCE_DAC    ),
+    PC(    NULL )
 };
 
 const CParseConstant CSAA7134Card::k_parseInputTypeConstants[] =
 {
-	PC(	"COMPOSITE",	INPUTTYPE_COMPOSITE		),
-	PC(	"SVIDEO",		INPUTTYPE_SVIDEO		),
-	PC(	"TUNER",		INPUTTYPE_TUNER			),
-	PC(	"CCIR",			INPUTTYPE_CCIR			),
-	PC(	"RADIO",		INPUTTYPE_RADIO			),
-// MUTE	input was defined but not currently	used by	CSAA7134Card.
-//	PC(	"MUTE",			INPUTTYPE_MUTE			),
+    PC(    "COMPOSITE",    INPUTTYPE_COMPOSITE        ),
+    PC(    "SVIDEO",        INPUTTYPE_SVIDEO        ),
+    PC(    "TUNER",        INPUTTYPE_TUNER            ),
+    PC(    "CCIR",            INPUTTYPE_CCIR            ),
+    PC(    "RADIO",        INPUTTYPE_RADIO            ),
+// MUTE    input was defined but not currently    used by    CSAA7134Card.
+//    PC(    "MUTE",            INPUTTYPE_MUTE            ),
 // FINAL isn't necessary because Final() does the same thing.
-//	PC(	"FINAL",		INPUTTYPE_FINAL		),
-	PC(	NULL )
+//    PC(    "FINAL",        INPUTTYPE_FINAL        ),
+    PC(    NULL )
 };
 
 const CParseConstant CSAA7134Card::k_parseAudioCrystalConstants[] =
 {
-	PC(	"NONE",			AUDIOCRYSTAL_NONE		),
-	PC(	"32MHz",		AUDIOCRYSTAL_32110kHz	),
-	PC(	"24MHz",		AUDIOCRYSTAL_24576kHz	),
-	PC(	NULL )
+    PC(    "NONE",            AUDIOCRYSTAL_NONE        ),
+    PC(    "32MHz",        AUDIOCRYSTAL_32110kHz    ),
+    PC(    "24MHz",        AUDIOCRYSTAL_24576kHz    ),
+    PC(    NULL )
 };
 
 //////////////////////////////////////////////////////////////////////////
-// SAA713x card	list parsing values
+// SAA713x card    list parsing values
 //////////////////////////////////////////////////////////////////////////
-const CParseTag	CSAA7134Card::k_parseInputGPIOSet[]	=
+const CParseTag    CSAA7134Card::k_parseInputGPIOSet[]    =
 {
-	PT(	"Bits",				PARSE_NUMERIC,		1,	16,	NULL,							ReadCardInputInfoProc		),
-	PT(	"Mask",				PARSE_NUMERIC,		1,	16,	NULL,							ReadCardInputInfoProc		),
-	PT(	NULL )
+    PT(    "Bits",                PARSE_NUMERIC,        1,    16,    NULL,                            ReadCardInputInfoProc        ),
+    PT(    "Mask",                PARSE_NUMERIC,        1,    16,    NULL,                            ReadCardInputInfoProc        ),
+    PT(    NULL )
 };
 
-const CParseTag	CSAA7134Card::k_parseCardInput[] =
+const CParseTag    CSAA7134Card::k_parseCardInput[] =
 {
-	PT(	"Name",				PARSE_STRING,		1, 63,	NULL,							ReadCardInputInfoProc		),
-	PT(	"Type",				PARSE_CONSTANT,		1, 16,	k_parseInputTypeConstants,		ReadCardInputInfoProc		),
-	PT(	"VideoPin",			PARSE_NUMERIC,		0, 8,	NULL,							ReadCardInputInfoProc		),
-	PT(	"AudioPin",			PARSE_NUM_OR_CONST,	0, 8,	k_parseAudioPinConstants,		ReadCardInputInfoProc		),
-	PT(	"GPIOSet",			PARSE_CHILDREN,		0, 1,	k_parseInputGPIOSet,			NULL						),
-	PT(	NULL )
+    PT(    "Name",                PARSE_STRING,        1, 63,    NULL,                            ReadCardInputInfoProc        ),
+    PT(    "Type",                PARSE_CONSTANT,        1, 16,    k_parseInputTypeConstants,        ReadCardInputInfoProc        ),
+    PT(    "VideoPin",            PARSE_NUMERIC,        0, 8,    NULL,                            ReadCardInputInfoProc        ),
+    PT(    "AudioPin",            PARSE_NUM_OR_CONST,    0, 8,    k_parseAudioPinConstants,        ReadCardInputInfoProc        ),
+    PT(    "GPIOSet",            PARSE_CHILDREN,        0, 1,    k_parseInputGPIOSet,            NULL                        ),
+    PT(    NULL )
 };
 
-const CParseTag	CSAA7134Card::k_parseAutoDetectID[]	=
+const CParseTag    CSAA7134Card::k_parseAutoDetectID[]    =
 {
-	PT(	"0",				PARSE_NUMERIC,		0, 16,	NULL,							ReadCardAutoDetectIDProc	),
-	PT(	"1",				PARSE_NUMERIC,		0, 16,	NULL,							ReadCardAutoDetectIDProc	),
-	PT(	"2",				PARSE_NUMERIC,		0, 16,	NULL,							ReadCardAutoDetectIDProc	),
-	PT(	NULL )
+    PT(    "0",                PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardAutoDetectIDProc    ),
+    PT(    "1",                PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardAutoDetectIDProc    ),
+    PT(    "2",                PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardAutoDetectIDProc    ),
+    PT(    NULL )
 };
 
-const CParseTag	CSAA7134Card::k_parseCard[]	=
+const CParseTag    CSAA7134Card::k_parseCard[]    =
 {
-	PT(	"Name",				PARSE_STRING,		1, 127,	NULL,							ReadCardInfoProc			), 
-	PT(	"DeviceID",			PARSE_NUMERIC,		1, 8,	NULL,							ReadCardInfoProc			),
-	PT(	"DefaultTuner",		PARSE_NUM_OR_CONST,	0, 32,	k_parseTunerConstants,			ReadCardDefaultTunerProc	),
-	PT(	"AudioCrystal",		PARSE_CONSTANT,		0, 8,	k_parseAudioCrystalConstants,	ReadCardInfoProc			),
-	PT(	"GPIOMask",			PARSE_NUMERIC,		0, 16,	NULL,							ReadCardInfoProc			),
-	PT(	"AutoDetectID",		PARSE_CHILDREN,		0, 1,	k_parseAutoDetectID,			NULL						),
-	PT(	"Input",			PARSE_CHILDREN,		0, 7,	k_parseCardInput,				ReadCardInputProc			),
-	PT(	"Final",			PARSE_CHILDREN,		0, 7,	k_parseCardInput+2,				ReadCardInputProc			),
-	PT(	"UseTDA9887",		PARSE_CHILDREN,		0, 1,	k_parseUseTDA9887,				ReadCardUseTDA9887Proc		),
-	PT(	NULL )
+    PT(    "Name",                PARSE_STRING,        1, 127,    NULL,                            ReadCardInfoProc            ), 
+    PT(    "DeviceID",            PARSE_NUMERIC,        1, 8,    NULL,                            ReadCardInfoProc            ),
+    PT(    "DefaultTuner",        PARSE_NUM_OR_CONST,    0, 32,    k_parseTunerConstants,            ReadCardDefaultTunerProc    ),
+    PT(    "AudioCrystal",        PARSE_CONSTANT,        0, 8,    k_parseAudioCrystalConstants,    ReadCardInfoProc            ),
+    PT(    "GPIOMask",            PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardInfoProc            ),
+    PT(    "AutoDetectID",        PARSE_CHILDREN,        0, 1,    k_parseAutoDetectID,            NULL                        ),
+    PT(    "Input",            PARSE_CHILDREN,        0, 7,    k_parseCardInput,                ReadCardInputProc            ),
+    PT(    "Final",            PARSE_CHILDREN,        0, 7,    k_parseCardInput+2,                ReadCardInputProc            ),
+    PT(    "UseTDA9887",        PARSE_CHILDREN,        0, 1,    k_parseUseTDA9887,                ReadCardUseTDA9887Proc        ),
+    PT(    NULL )
 };
 
-const CParseTag	CSAA7134Card::k_parseCardList[]	=
+const CParseTag    CSAA7134Card::k_parseCardList[]    =
 {
-	PT(	"Card",				PARSE_CHILDREN,		0, 512,	k_parseCard,					ReadCardProc				),
-	PT(	NULL )
+    PT(    "Card",                PARSE_CHILDREN,        0, 512,    k_parseCard,                    ReadCardProc                ),
+    PT(    NULL )
 };
 
 

@@ -15,24 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2003/03/05 21:44:22  tobbej
-// new debuging functions
-//
-// Revision 1.1  2001/12/09 22:01:48  tobbej
-// experimental dshow support, doesnt work yet
-// define WANT_DSHOW_SUPPORT if you want to try it
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file debug.h some dshow debuging functions

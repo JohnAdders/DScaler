@@ -15,68 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 02 Jan 2001   John Adcock           Made PAL pulldown detect remember last video
-//                                     Mode
-//
-// 07 Jan 2001   John Adcock           Fixed PAL detection bug
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 09 Jan 2001   John Adcock           Split out into new file
-//                                     Changed functions to use TDeinterlaceInfo
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.23  2002/06/13 12:10:22  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.22  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.21  2001/11/22 22:27:00  adcockj
-// Bug Fixes
-//
-// Revision 1.20  2001/11/22 13:32:03  adcockj
-// Finished changes caused by changes to TDeinterlaceInfo - Compiles
-//
-// Revision 1.19  2001/11/21 15:21:39  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.18  2001/09/05 15:08:43  adcockj
-// Updated Loging
-//
-// Revision 1.17  2001/08/09 21:34:59  adcockj
-// Fixed bugs raise by Timo and Keld
-//
-// Revision 1.16  2001/08/08 08:54:32  adcockj
-// Added Delay option to film modes
-// Switched comb modes to use greedy (low) on bad cadence instead of doings it's own thing
-//
-// Revision 1.15  2001/08/02 16:43:05  adcockj
-// Added Debug level to LOG function
-//
-// Revision 1.14  2001/07/24 12:19:00  adcockj
-// Added code and tools for crash logging from VirtualDub
-//
-// Revision 1.13  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.12  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.11  2001/07/12 16:16:39  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file FD_50Hz.cpp PAL film mode functions
@@ -142,10 +80,10 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
         return;
     }
 
-	if(pInfo->PictureHistory[0] == NULL)
-	{
-		return;
-	}
+    if(pInfo->PictureHistory[0] == NULL)
+    {
+        return;
+    }
 
     BOOL IsOdd = ((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
     

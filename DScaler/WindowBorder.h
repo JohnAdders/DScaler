@@ -104,7 +104,7 @@ protected:
     COLORREF DefaultColorRef;
     HBRUSH m_hBrush;
     BOOL bBitmapsChanged;
-	BOOL m_IsSkinned;
+    BOOL m_IsSkinned;
 
     vector<RECT> Locations;
     vector<LPRECT> RegionList;
@@ -150,7 +150,7 @@ public:
 
     virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache = NULL);
     virtual void ClearSkin();
-	BOOL IsSkinned() { return m_IsSkinned; }
+    BOOL IsSkinned() { return m_IsSkinned; }
 };
 
 

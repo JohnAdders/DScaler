@@ -22,17 +22,6 @@
 //  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2003/02/11 15:41:04  adcockj
-// New implementation of StrangeBob based off paper
-// Tidy up sources
-//
-// Revision 1.1  2003/01/02 13:15:01  adcockj
-// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 // Just gets the values for a simple weave
@@ -46,8 +35,8 @@ __asm
 
     movq mm1, qword ptr[edi+ecx]
     movq mm2, qword ptr[esi+ecx]
-    movq mm3, mm1			/* another copy of our pixel1 value */ 
-    movq mm4, mm2			/* another copy of our pixel2 value */ 
+    movq mm3, mm1            /* another copy of our pixel1 value */ 
+    movq mm4, mm2            /* another copy of our pixel2 value */ 
 
     PABS(mm3, mm4, mm5)
 

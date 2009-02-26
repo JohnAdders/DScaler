@@ -22,91 +22,84 @@
 //  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2003/01/02 13:15:01  adcockj
-// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
-//
-/////////////////////////////////////////////////////////////////////////////
 
-BYTE*	pDest;
-const BYTE*	pSrcP;
-const BYTE*	pSrc;
-const BYTE*	pBob;
-const BYTE*	pBobP;
+BYTE*    pDest;
+const BYTE*    pSrcP;
+const BYTE*    pSrc;
+const BYTE*    pBob;
+const BYTE*    pBobP;
 
-int	    src_pitch2 = src_pitch;			// even & odd lines are not interleaved in DScaler
+int        src_pitch2 = src_pitch;            // even & odd lines are not interleaved in DScaler
 
-int	    dst_pitch2 = 2 * dst_pitch;
+int        dst_pitch2 = 2 * dst_pitch;
 int     y;
 
-int     Last8 = (rowsize-8);			// ofs to last 8 bytes in row
+int     Last8 = (rowsize-8);            // ofs to last 8 bytes in row
 
-int		SaveMotion = 0;
-int		dst_pitchw = dst_pitch; // local stor so asm can ref
-	pSrc  = pWeaveSrc;			// points 1 weave line above
-	pSrcP = pWeaveSrcP;			// " 
-	pDest = pWeaveDest + dst_pitch2;
+int        SaveMotion = 0;
+int        dst_pitchw = dst_pitch; // local stor so asm can ref
+    pSrc  = pWeaveSrc;            // points 1 weave line above
+    pSrcP = pWeaveSrcP;            // " 
+    pDest = pWeaveDest + dst_pitch2;
 
-	if (TopFirst)
-	{
-		pBob = pCopySrc + src_pitch2;      // remember one weave line just copied previously
-		pBobP = pCopySrcP + src_pitch2;
-	}
-	else
-	{
-		pBob =  pCopySrc;
-		pBobP =  pCopySrcP;
-	}
+    if (TopFirst)
+    {
+        pBob = pCopySrc + src_pitch2;      // remember one weave line just copied previously
+        pBobP = pCopySrcP + src_pitch2;
+    }
+    else
+    {
+        pBob =  pCopySrc;
+        pBobP =  pCopySrcP;
+    }
 
-	for (y=1; y < FldHeight-1; y++)	
-	{
+    for (y=1; y < FldHeight-1; y++)    
+    {
 
-		// pretend it's indented -->>
-		__asm
-		{
-		// Loop general reg usage
-		//
-		// eax - pBobP, then pDest 
-		// ebx - pBob
-		// ecx - src_pitch2
-		// edx - current offset
-		// edi - prev weave pixels, 1 line up
-		// esi - next weave pixels, 1 line up
-
-
+        // pretend it's indented -->>
+        __asm
+        {
+        // Loop general reg usage
+        //
+        // eax - pBobP, then pDest 
+        // ebx - pBob
+        // ecx - src_pitch2
+        // edx - current offset
+        // edi - prev weave pixels, 1 line up
+        // esi - next weave pixels, 1 line up
 
 
-		// simple bob first 8 bytes
-		mov		ebx, pBob
-		mov		ecx, src_pitch2
 
-		movq	mm0, qword ptr[ebx]
-//		pavgb	mm0, qword ptr[ebx+ecx]
-		V_PAVGB (mm0, qword ptr[ebx+ecx], mm2, ShiftMask)
-		mov		edi, pDest
-		V_MOVNTQ	(qword ptr[edi], mm0)
 
-		// simple bob last 8 bytes
-		mov		edx, Last8
-		lea		esi, [ebx+edx]
-		movq	mm0, qword ptr[esi]
-//		pavgb	mm0, qword ptr[esi+ecx]
-		V_PAVGB	(mm0, qword ptr[esi+ecx], mm2, ShiftMask)
-		V_MOVNTQ	(qword ptr[edi+edx], mm0)
+        // simple bob first 8 bytes
+        mov        ebx, pBob
+        mov        ecx, src_pitch2
 
-		// now loop and get the middle qwords
-		mov		esi, pSrc
-		mov		edi, pSrcP
-		mov		edx, 8				// curr offset into all lines
+        movq    mm0, qword ptr[ebx]
+//        pavgb    mm0, qword ptr[ebx+ecx]
+        V_PAVGB (mm0, qword ptr[ebx+ecx], mm2, ShiftMask)
+        mov        edi, pDest
+        V_MOVNTQ    (qword ptr[edi], mm0)
 
-LoopQ:	
-		mov		eax, pBobP
-		add		edi, 8		
-		add		esi, 8		
-		add		ebx, 8
-		add		eax, edx
-		}
+        // simple bob last 8 bytes
+        mov        edx, Last8
+        lea        esi, [ebx+edx]
+        movq    mm0, qword ptr[esi]
+//        pavgb    mm0, qword ptr[esi+ecx]
+        V_PAVGB    (mm0, qword ptr[esi+ecx], mm2, ShiftMask)
+        V_MOVNTQ    (qword ptr[edi+edx], mm0)
+
+        // now loop and get the middle qwords
+        mov        esi, pSrc
+        mov        edi, pSrcP
+        mov        edx, 8                // curr offset into all lines
+
+LoopQ:    
+        mov        eax, pBobP
+        add        edi, 8        
+        add        esi, 8        
+        add        ebx, 8
+        add        eax, edx
+        }
 
 #include "StrangeBob.inc"

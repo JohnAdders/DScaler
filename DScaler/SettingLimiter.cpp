@@ -15,16 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//  This file is part of the SettingRepository module.  See
-//  SettingRepository.h for more information.
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2004/08/06 17:12:10  atnak
-// Setting repository initial upload.
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "SettingLimiter.h"
@@ -36,13 +26,13 @@
 //////////////////////////////////////////////////////////////////////////
 
 CSettingLimiterClampInt::CSettingLimiterClampInt(INT minimum, INT maximum) :
-	m_minimum(minimum),
-	m_maximum(maximum)
+    m_minimum(minimum),
+    m_maximum(maximum)
 {
-	if (m_maximum < m_minimum)
-	{
-		m_maximum = m_minimum;
-	}
+    if (m_maximum < m_minimum)
+    {
+        m_maximum = m_minimum;
+    }
 }
 
 
@@ -53,59 +43,59 @@ CSettingLimiterClampInt::~CSettingLimiterClampInt()
 
 void CSettingLimiterClampInt::SetMax(IN INT maximum)
 {
-	m_maximum = maximum;
-	if (m_minimum > m_maximum)
-	{
-		m_minimum = m_maximum;
-	}
+    m_maximum = maximum;
+    if (m_minimum > m_maximum)
+    {
+        m_minimum = m_maximum;
+    }
 }
 
 
 void CSettingLimiterClampInt::SetMin(IN INT minimum)
 {
-	m_minimum = minimum;
-	if (m_maximum < m_minimum)
-	{
-		m_maximum = m_minimum;
-	}
+    m_minimum = minimum;
+    if (m_maximum < m_minimum)
+    {
+        m_maximum = m_minimum;
+    }
 }
 
 
 INT CSettingLimiterClampInt::GetMax() const
 {
-	return m_maximum;
+    return m_maximum;
 }
 
 
 INT CSettingLimiterClampInt::GetMin() const
 {
-	return m_minimum;
+    return m_minimum;
 }
 
 
 BOOL CSettingLimiterClampInt::OutOfLimit(IN const CSettingValue& value) const
 {
-	if (value.GetType() != SETTING_VALUE_INT)
-		return FALSE;
+    if (value.GetType() != SETTING_VALUE_INT)
+        return FALSE;
 
-	INT number = value.GetInt();
-	return number < m_minimum || number > m_maximum;
+    INT number = value.GetInt();
+    return number < m_minimum || number > m_maximum;
 }
 
 
 BOOL CSettingLimiterClampInt::ApplyLimit(CSettingValue& value) const
 {
-	if (value.GetType() != SETTING_VALUE_INT)
-		return FALSE;
+    if (value.GetType() != SETTING_VALUE_INT)
+        return FALSE;
 
-	INT number = value.GetInt();
-	if (number < m_minimum || number > m_maximum)
-	{
-		number = number < m_minimum ? m_minimum : m_maximum;
-		value.SetInt(number);
-		return TRUE;
-	}
-	return FALSE;
+    INT number = value.GetInt();
+    if (number < m_minimum || number > m_maximum)
+    {
+        number = number < m_minimum ? m_minimum : m_maximum;
+        value.SetInt(number);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 
@@ -114,7 +104,7 @@ BOOL CSettingLimiterClampInt::ApplyLimit(CSettingValue& value) const
 //////////////////////////////////////////////////////////////////////////
 
 CSettingLimiterStringLength::CSettingLimiterStringLength(IN ULONG maxLength) :
-	m_maxLength(maxLength)
+    m_maxLength(maxLength)
 {
 }
 
@@ -126,39 +116,39 @@ CSettingLimiterStringLength::~CSettingLimiterStringLength()
 
 void CSettingLimiterStringLength::SetMaxLength(IN ULONG maxLength)
 {
-	m_maxLength = maxLength;
+    m_maxLength = maxLength;
 }
 
 
 ULONG CSettingLimiterStringLength::SetMaxLength() const
 {
-	return m_maxLength;
+    return m_maxLength;
 }
 
 
 BOOL CSettingLimiterStringLength::OutOfLimit(IN const CSettingValue& value) const
 {
-	if (value.GetType() != SETTING_VALUE_STRING)
-		return FALSE;
+    if (value.GetType() != SETTING_VALUE_STRING)
+        return FALSE;
 
-	return value.GetString().length() > m_maxLength;
+    return value.GetString().length() > m_maxLength;
 }
 
 
 BOOL CSettingLimiterStringLength::ApplyLimit(IN OUT CSettingValue& value) const
 {
-	if (value.GetType() != SETTING_VALUE_STRING)
-		return FALSE;
+    if (value.GetType() != SETTING_VALUE_STRING)
+        return FALSE;
 
-	std::string s = value.GetString();
+    std::string s = value.GetString();
 
-	if (s.length() > m_maxLength)
-	{
-		s.resize(m_maxLength);
-		value.SetString(s);
-		return TRUE;
-	}
+    if (s.length() > m_maxLength)
+    {
+        s.resize(m_maxLength);
+        value.SetString(s);
+        return TRUE;
+    }
 
-	return FALSE;
+    return FALSE;
 }
 

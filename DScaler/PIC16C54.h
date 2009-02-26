@@ -17,9 +17,6 @@
 //  Copyright (C) 2000-2005 Quenotte  All rights reserved.
 //  Copyright (C) 2000 - 2002 by Eduardo José Tagle.
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file PIC16C54.h PIC16C54 Header file
@@ -35,7 +32,7 @@
 /* audio chip descriptions - defines+functions for pic16c54 (PV951)       */
 
 /* the registers of 16C54, I2C sub address. */
-#define PIC16C54_REG_KEY_CODE     0x01	       /* Not use. */
+#define PIC16C54_REG_KEY_CODE     0x01           /* Not use. */
 #define PIC16C54_REG_MISC         0x02
 
 /* bit definition of the RESET register, I2C data. */
@@ -46,18 +43,18 @@
 #define PIC16C54_MISC_MTS_BOTH         0x08 /* bit 3 */
 #define PIC16C54_MISC_SND_MUTE         0x10 /* bit 4, Mute Audio(Line-in and Tuner) */
 #define PIC16C54_MISC_SND_NOTMUTE      0x20 /* bit 5 */
-#define PIC16C54_MISC_SWITCH_TUNER     0x40 /* bit 6	, Switch to Tuner */
-#define PIC16C54_MISC_SWITCH_LINE      0x80 /* bit 7	, Switch to Line-In */
+#define PIC16C54_MISC_SWITCH_TUNER     0x40 /* bit 6    , Switch to Tuner */
+#define PIC16C54_MISC_SWITCH_LINE      0x80 /* bit 7    , Switch to Line-In */
 
 class CPIC16C54 : public CI2CDevice
 {
 public:
-	CPIC16C54(void);
+    CPIC16C54(void);
 
-	BYTE GetDefaultAddress() const;
-	bool IsDevicePresent();
+    BYTE GetDefaultAddress() const;
+    bool IsDevicePresent();
 
-	virtual ~CPIC16C54(void);
+    virtual ~CPIC16C54(void);
 
 };
 

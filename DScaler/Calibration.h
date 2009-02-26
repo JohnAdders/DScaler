@@ -15,21 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.34  2003/01/30 22:32:40  laurentg
-// Restriction to maximum range for the settings deleted
-//
-// Revision 1.33  2002/10/29 21:02:55  laurentg
-// Change log added
-//
-//
-// Date          Developer             Changes
-//
-// 23 Jul 2001   Laurent Garnier       File created
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file calibration.h calibration Header file
@@ -87,7 +72,7 @@ protected:
 private:
     int min;
     int max;
-	int mask_nb;
+    int mask_nb;
     int current_value;
     int saved_value;
     unsigned int min_diff;

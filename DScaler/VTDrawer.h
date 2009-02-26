@@ -19,63 +19,6 @@
 //  Portions Copyright (C) 2000 John Adcock
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 02 Jan 2003   Atsushi Nakagawa      Redid the CVTDrawer class to tie in
-//                                     with the new CVTCommon class.  CVS
-//                                     Log entries prior to and including
-//                                     rev 1.9 may no longer have direct
-//                                     validity but their cumulative changes
-//                                     still remain valid.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.12  2003/01/24 01:55:17  atnak
-// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
-// got rid of the pink overlay colorkey for Teletext.
-//
-// Revision 1.11  2003/01/05 16:09:44  atnak
-// Updated TopText for new teletext
-//
-// Revision 1.10  2003/01/01 20:43:13  atnak
-// New drawer for new videotext layout
-//
-// Revision 1.9  2002/10/30 03:31:47  atnak
-// Made mixed mode use nonantialias fonts iff there is a transparent background.
-//
-// Revision 1.8  2002/10/15 11:53:38  atnak
-// Added UI feedback for some videotext stuff
-//
-// Revision 1.7  2002/10/12 18:43:32  atnak
-// some changes for tranparency and boxed background
-//
-// Revision 1.6  2002/10/12 00:38:07  atnak
-// Changed Draw() to be BBC specs compatible
-//
-// Revision 1.5  2002/06/20 20:00:31  robmuller
-// Implemented videotext search highlighting.
-//
-// Revision 1.4  2002/05/23 22:16:32  robmuller
-// Applied patch #559111 by PietOO.
-// Teletext: less sparse look for ttf fonts.
-//
-// Revision 1.3  2002/02/24 16:41:40  temperton
-// Bug fixes
-//
-// Revision 1.2  2002/01/19 12:53:00  temperton
-// Teletext pages updates at correct time.
-// Teletext can use variable-width font.
-//
-// Revision 1.1  2002/01/15 11:16:03  temperton
-// New teletext drawing code.
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file vtdrawer.h vtdrawer Header file
@@ -168,7 +111,7 @@ private:
 
     HFONT       m_hNormalFont;
     HFONT       m_hDoubleFont;
-	HFONT       m_hNormalFontSmaller;
+    HFONT       m_hNormalFontSmaller;
     HFONT       m_hDoubleFontSmaller;
 
     HFONT       m_hLowQNormalFont;

@@ -20,39 +20,6 @@
 // copyleft 2001 itt@myself.com.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 13 Sep 2002   Atsushi Nakagawa      Moved some I2C stuff around
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.7  2007/02/18 15:18:00  robmuller
-// Improve accuracy of sleep() (used for i2c timing).
-//
-// Revision 1.6  2005/06/09 23:22:01  robmuller
-// Fixed bug in GetTickCount().
-//
-// Revision 1.5  2005/03/24 17:57:58  adcockj
-// Card access from one thread at a time
-//
-// Revision 1.4  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.3  2002/10/30 04:36:43  atnak
-// Moved back I2C sleep init to reduce startup delay
-//
-// Revision 1.2  2002/10/26 05:24:23  atnak
-// Minor cleanups
-//
-// Revision 1.1  2002/09/14 19:40:48  atnak
-// various changes
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SAA7134I2CBus.cpp CSAA7134I2CBus Implementation
@@ -213,14 +180,14 @@ bool CSAA7134I2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
 void CSAA7134I2CBus::Sleep()
 {
     ULONGLONG ticks = 0;
-	ULONGLONG start;
+    ULONGLONG start;
 
     QueryPerformanceCounter((PLARGE_INTEGER)&start);
 
-	while(start + m_I2CSleepCycle > ticks)
-	{
-		QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
-	}
+    while(start + m_I2CSleepCycle > ticks)
+    {
+        QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
+    }
 }
 
 
@@ -324,10 +291,10 @@ bool CSAA7134I2CBus::I2CContinue()
 
 void CSAA7134I2CBus::InitializeSleep()
 {
-	ULONGLONG frequency;
-	QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
-	
-	m_I2CSleepCycle = (unsigned long)(frequency / 50000);
+    ULONGLONG frequency;
+    QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
+    
+    m_I2CSleepCycle = (unsigned long)(frequency / 50000);
 
     m_InitializedSleep = TRUE;
 }
@@ -342,7 +309,7 @@ ULONG CSAA7134I2CBus::GetTickCount()
     QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
     QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
 
-	ticks = ticks * 1000 / frequency;
+    ticks = ticks * 1000 / frequency;
     return (ULONG)ticks;
 }
 

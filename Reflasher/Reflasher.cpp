@@ -15,10 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "Reflasher.h"
@@ -37,11 +33,11 @@ static char THIS_FILE[] = __FILE__;
 // CReflasherApp
 
 BEGIN_MESSAGE_MAP(CReflasherApp, CWinApp)
-	//{{AFX_MSG_MAP(CReflasherApp)
-		// HINWEIS - Hier werden Mapping-Makros vom Klassen-Assistenten eingefügt und entfernt.
-		//    Innerhalb dieser generierten Quelltextabschnitte NICHTS VERÄNDERN!
-	//}}AFX_MSG
-	ON_COMMAND(ID_HELP, CWinApp::OnHelp)
+    //{{AFX_MSG_MAP(CReflasherApp)
+        // HINWEIS - Hier werden Mapping-Makros vom Klassen-Assistenten eingefügt und entfernt.
+        //    Innerhalb dieser generierten Quelltextabschnitte NICHTS VERÄNDERN!
+    //}}AFX_MSG
+    ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -49,8 +45,8 @@ END_MESSAGE_MAP()
 
 CReflasherApp::CReflasherApp()
 {
-	// ZU ERLEDIGEN: Hier Code zur Konstruktion einfügen
-	// Alle wichtigen Initialisierungen in InitInstance platzieren
+    // ZU ERLEDIGEN: Hier Code zur Konstruktion einfügen
+    // Alle wichtigen Initialisierungen in InitInstance platzieren
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -63,59 +59,59 @@ CReflasherApp theApp;
 
 BOOL CReflasherApp::InitInstance()
 {
-	// Standardinitialisierung
-	// Wenn Sie diese Funktionen nicht nutzen und die Größe Ihrer fertigen 
-	//  ausführbaren Datei reduzieren wollen, sollten Sie die nachfolgenden
-	//  spezifischen Initialisierungsroutinen, die Sie nicht benötigen, entfernen.
+    // Standardinitialisierung
+    // Wenn Sie diese Funktionen nicht nutzen und die Größe Ihrer fertigen 
+    //  ausführbaren Datei reduzieren wollen, sollten Sie die nachfolgenden
+    //  spezifischen Initialisierungsroutinen, die Sie nicht benötigen, entfernen.
 
 #ifdef _AFXDLL
-	Enable3dControls();			// Diese Funktion bei Verwendung von MFC in gemeinsam genutzten DLLs aufrufen
+    Enable3dControls();            // Diese Funktion bei Verwendung von MFC in gemeinsam genutzten DLLs aufrufen
 #else
-	Enable3dControlsStatic();	// Diese Funktion bei statischen MFC-Anbindungen aufrufen
+    Enable3dControlsStatic();    // Diese Funktion bei statischen MFC-Anbindungen aufrufen
 #endif
-	
+    
     CHardwareDriver* m_pDriver = new CHardwareDriver();
-	if(m_pDriver->LoadDriver() == FALSE)
+    if(m_pDriver->LoadDriver() == FALSE)
     {
         delete m_pDriver;
-		m_pDriver = NULL;
+        m_pDriver = NULL;
         AfxMessageBox("Can't open driver", MB_OK);
         return -1;
     }
       
-    DWORD	dwSubSystemId	= NULL;
-    int		iDeviceIndex	= NULL;
-	if(m_pDriver->DoesThisPCICardExist(0x14F1, 0x8800, iDeviceIndex, dwSubSystemId) == FALSE)
+    DWORD    dwSubSystemId    = NULL;
+    int        iDeviceIndex    = NULL;
+    if(m_pDriver->DoesThisPCICardExist(0x14F1, 0x8800, iDeviceIndex, dwSubSystemId) == FALSE)
     {
         delete m_pDriver;
-		m_pDriver = NULL;
+        m_pDriver = NULL;
 
         AfxMessageBox("Card not Found", MB_OK);
         return -1;
     }
 
-	CMy2388xCard* m_pCard = new CMy2388xCard(m_pDriver);
-	if (m_pCard->OpenPCICard(0x14F1, 0x8800, iDeviceIndex) == FALSE)
-	{
+    CMy2388xCard* m_pCard = new CMy2388xCard(m_pDriver);
+    if (m_pCard->OpenPCICard(0x14F1, 0x8800, iDeviceIndex) == FALSE)
+    {
         delete m_pCard;
-		m_pCard = NULL;
+        m_pCard = NULL;
 
         delete m_pDriver;
-		m_pDriver = NULL;
+        m_pDriver = NULL;
 
         AfxMessageBox("Error at Open PCI-Card", MB_OK);
         return -1;
-	}
+    }
 
-	CWizard wizard("Reflasher");
-	wizard.m_psh.hInstance = ::GetModuleHandle(NULL);
-	wizard.m_pCard = m_pCard;
-	
-	m_pMainWnd = &wizard;
-	wizard.DoModal();
+    CWizard wizard("Reflasher");
+    wizard.m_psh.hInstance = ::GetModuleHandle(NULL);
+    wizard.m_pCard = m_pCard;
+    
+    m_pMainWnd = &wizard;
+    wizard.DoModal();
 
-	delete m_pCard;
+    delete m_pCard;
     delete m_pDriver;
 
-	return FALSE;
+    return FALSE;
 }

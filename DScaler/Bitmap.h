@@ -88,20 +88,20 @@ public:
 class CBitmapCache
 {
 protected:
-	typedef struct 
-	{
-		HBITMAP hBmp;
-		string sFileName;
-		BOOL bFreeOnDestroy;
-	} TBitmapChangeInfo;
+    typedef struct 
+    {
+        HBITMAP hBmp;
+        string sFileName;
+        BOOL bFreeOnDestroy;
+    } TBitmapChangeInfo;
 
-	vector<TBitmapChangeInfo> vCacheList;
+    vector<TBitmapChangeInfo> vCacheList;
 public:
-	CBitmapCache();
-	~CBitmapCache();
-	
-	HBITMAP Read(LPCSTR szFileName, BOOL bFreeOnDestroy = TRUE);
-	void Clear();
+    CBitmapCache();
+    ~CBitmapCache();
+    
+    HBITMAP Read(LPCSTR szFileName, BOOL bFreeOnDestroy = TRUE);
+    void Clear();
 };
 
 
@@ -116,10 +116,10 @@ protected:
         HBITMAP hBmp;
         HBITMAP hBmpMask;
         string sExtraInfo;
-        int	Result;
+        int    Result;
     } TBitmapIniInfo;
     
-    vector<TBitmapIniInfo> BIList;		
+    vector<TBitmapIniInfo> BIList;        
 public:
     CBitmapsFromIniSection();
     ~CBitmapsFromIniSection();

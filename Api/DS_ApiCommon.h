@@ -13,40 +13,6 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Library General Public License for more details
 ///////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 27 Mar 2001   John Adcock           Separated code to support plug-ins
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.16  2002/09/29 10:14:14  adcockj
-// Fixed problem with history in OutThreads
-//
-// Revision 1.15  2001/11/29 17:30:51  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.14  2001/11/22 13:32:03  adcockj
-// Finished changes caused by changes to TDeinterlaceInfo - Compiles
-//
-// Revision 1.13  2001/11/21 15:21:39  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.12  2001/11/10 10:36:27  pgubanov
-// Need to specify _cdecl on memcpy() - plugins assume cdecl while DShow filter assumes _stdcall
-//
-// Revision 1.11  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.10  2001/07/13 16:15:43  adcockj
-// Changed lots of variables to match Coding standards
-//
-/////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // This file contains #define directives that control compilation of CPU-specific
@@ -100,8 +66,8 @@ typedef enum
     ITEMFROMLIST,
     // select value using slider
     SLIDER,
-	// character string
-	CHARSTRING,
+    // character string
+    CHARSTRING,
 } SETTING_TYPE;
 
 /** Function called when setting Value changes

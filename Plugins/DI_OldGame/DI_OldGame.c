@@ -17,35 +17,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.6  2002/06/13 12:10:24  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.5  2002/01/04 01:38:56  lindsey
-// Turned off the debug flag
-//
-// Revision 1.4  2001/12/20 03:42:58  lindsey
-// Corrected processor detection
-// Miscellaneous reorganization
-//
-// Revision 1.3  2001/11/21 15:21:40  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.2  2001/08/30 10:03:52  adcockj
-// Slightly improved the color averaging
-// Added a "composite mode" switch to force averaging when crosstalk is more important than blur.
-// Commented the code
-// Reorganized and edited to follow the coding guidelines
-// Most importantly: Added a silly quote
-// (Changes made on behalf of Lindsey Dubb)
-//
-// Revision 1.1  2001/07/30 08:25:22  adcockj
-// Added Lindsey Dubb's method
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Deinterlace.h"

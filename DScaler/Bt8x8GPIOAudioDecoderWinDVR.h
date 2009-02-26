@@ -20,15 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.1  2002/09/12 21:47:34  ittarnavsky
-// Bt8x8 GPIO based AudioDecoders (actually sound channel selectors)
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file bt8x8gpioaudiodecoderwindvr.h bt8x8gpioaudiodecoderwindvr Header

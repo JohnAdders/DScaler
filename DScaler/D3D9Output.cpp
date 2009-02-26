@@ -15,36 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.12  2007/12/14 19:31:47  adcockj
-// Fixes for Vista crashing
-// Consistent exception handling as references
-//
-// Revision 1.11  2007/02/20 19:06:44  robmuller
-// Release surface.
-//
-// Revision 1.10  2007/02/19 22:10:51  robmuller
-// Add missing LeaveCriticalSection() calls.
-//
-// Revision 1.9  2007/02/19 14:48:50  adcockj
-// Fixed various issues with d3d9 code and settings
-//
-// Revision 1.8  2007/02/19 10:13:45  adcockj
-// Fixes for Critical thread and RECT issuesin D3D9 and overlay code
-//
-// Revision 1.7  2007/02/18 20:16:12  robmuller
-// Applied coding standards.
-//
-// Revision 1.6  2007/02/18 18:40:08  robmuller
-// Wait for vsync.
-//
-// Revision 1.5  2007/02/18 16:31:53  robmuller
-// Added CVS log.
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "d3d9output.h"
@@ -70,10 +40,10 @@ extern CPaintingHDC OffscreenHDC;
 // Our custom vertex type
 struct CUSTOMVERTEX
 {
-	FLOAT x, y, z;
-	FLOAT rhw;
-	DWORD color;
-	FLOAT tu, tv;   // The texture coordinates
+    FLOAT x, y, z;
+    FLOAT rhw;
+    DWORD color;
+    FLOAT tu, tv;   // The texture coordinates
 };
 #define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
@@ -87,161 +57,161 @@ void CD3D9Output::SetCurrentMonitor(HWND hWnd)
 
 void CD3D9Output::CheckChangeMonitor(HWND hWnd) 
 {
-	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
-	if (hCurrentMon == NULL)
-	{
-		return;
-	}
+    if (hCurrentMon == NULL)
+    {
+        return;
+    }
 
-	if (hMon != hCurrentMon)
-	{
-		hCurrentMon = hMon;
-		Overlay_Stop(hWnd);
-		Overlay_Destroy();		
-		ExitDD();
-		if (InitDD(hWnd))
-		{
-			Overlay_Start(hWnd);
-		}
-	}
+    if (hMon != hCurrentMon)
+    {
+        hCurrentMon = hMon;
+        Overlay_Stop(hWnd);
+        Overlay_Destroy();        
+        ExitDD();
+        if (InitDD(hWnd))
+        {
+            Overlay_Start(hWnd);
+        }
+    }
 }
 
 BOOL CD3D9Output::CanDoOverlayColorControl()
 {
-	return false;
+    return false;
 }
-	
+    
 BOOL CD3D9Output::OverlayActive()
 {
-	return lpDDOverlay!=NULL;
+    return lpDDOverlay!=NULL;
 }
-	
+    
 void CD3D9Output::Overlay_Clean()
 {
 }
 
 HWND CD3D9Output::GetHWnd()
 {
-	return m_hWnd;
+    return m_hWnd;
 }
-	
+    
 BOOL CD3D9Output::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
 {
-	if( g_pD3D==NULL || pDevice==NULL || lpDDOverlay==NULL)
-	{
-		return false;
-	}
-
-	EnterCriticalSection(&hDDCritSect);
-	if (pSrcRect == NULL)
+    if( g_pD3D==NULL || pDevice==NULL || lpDDOverlay==NULL)
     {
-		// do nothing, we do not need to hide anything, because drawing is done in Overlay_Flip
-	}
-	else 
-	{
+        return false;
+    }
+
+    EnterCriticalSection(&hDDCritSect);
+    if (pSrcRect == NULL)
+    {
+        // do nothing, we do not need to hide anything, because drawing is done in Overlay_Flip
+    }
+    else 
+    {
         RECT oldSrc(srcrect);
-		CopyRect(&srcrect, pSrcRect);
-		// scale srcrect
-		srcrect.left=(int)((float)BUFFERWIDTH/(float)DSCALER_MAX_WIDTH*srcrect.left);
-		srcrect.right=(int)((float)BUFFERWIDTH/(float)DSCALER_MAX_WIDTH*srcrect.right);
-		srcrect.top=(int)((float)BUFFERHEIGHT/(float)DSCALER_MAX_HEIGHT*srcrect.top);
-		srcrect.bottom=(int)((float)BUFFERHEIGHT/(float)DSCALER_MAX_HEIGHT*srcrect.bottom);
+        CopyRect(&srcrect, pSrcRect);
+        // scale srcrect
+        srcrect.left=(int)((float)BUFFERWIDTH/(float)DSCALER_MAX_WIDTH*srcrect.left);
+        srcrect.right=(int)((float)BUFFERWIDTH/(float)DSCALER_MAX_WIDTH*srcrect.right);
+        srcrect.top=(int)((float)BUFFERHEIGHT/(float)DSCALER_MAX_HEIGHT*srcrect.top);
+        srcrect.bottom=(int)((float)BUFFERHEIGHT/(float)DSCALER_MAX_HEIGHT*srcrect.bottom);
 
         if(srcrect.right > oldSrc.right || srcrect.bottom > oldSrc.bottom)
         {
             OffscreenHDC.ReleaseD3DBuffer();
         }
-		
-		CopyRect(&destrect, pDestRect);		
-		MapWindowPoints(HWND_DESKTOP, m_hWnd, (LPPOINT)&destrect, 2);
+        
+        CopyRect(&destrect, pDestRect);        
+        MapWindowPoints(HWND_DESKTOP, m_hWnd, (LPPOINT)&destrect, 2);
 
-		// Fix for multi mon
-		RECT ScreenRect;
-		GetActiveOutput()->GetMonitorRect(GetMainWnd(), &ScreenRect);
+        // Fix for multi mon
+        RECT ScreenRect;
+        GetActiveOutput()->GetMonitorRect(GetMainWnd(), &ScreenRect);
 
-		OffsetRect(&destrect, ScreenRect.left, ScreenRect.top);
-	}
+        OffsetRect(&destrect, ScreenRect.left, ScreenRect.top);
+    }
 
-	VT_SetOverlayColour((COLORREF)0x00101020);
+    VT_SetOverlayColour((COLORREF)0x00101020);
 
-	LeaveCriticalSection(&hDDCritSect);
+    LeaveCriticalSection(&hDDCritSect);
 
-	return true;
+    return true;
 }
 
 void CD3D9Output::Overlay_ResetColorControls()
 {
 }
-	
+    
 void CD3D9Output::Overlay_SetColorControls()
 {
 }
-	
+    
 BOOL CD3D9Output::Overlay_Create()
 {
-	char msg[500];
+    char msg[500];
 
-	if (lpDDOverlay)
+    if (lpDDOverlay)
     {
         return FALSE;
     }
 
-	EnterCriticalSection(&hDDCritSect);
+    EnterCriticalSection(&hDDCritSect);
 
-	if(FlipResult==D3DERR_DEVICELOST || FlipResult==D3DERR_DRIVERINTERNALERROR)
-	{
-		LOG(1, "D3D Device lost .. trying reset");
-		// Device lost .. try to reset
+    if(FlipResult==D3DERR_DEVICELOST || FlipResult==D3DERR_DRIVERINTERNALERROR)
+    {
+        LOG(1, "D3D Device lost .. trying reset");
+        // Device lost .. try to reset
         OffscreenHDC.ReleaseD3DBuffer();
-		if(pDevice->TestCooperativeLevel()==D3DERR_DEVICENOTRESET)
-		{
-			// ok to reset
-			if(SUCCEEDED(pDevice->Reset(&d3dpp)))
-			{                
-				Overlay_Update(&srcrect, &destrect, SW_SHOW);
-			}
-			else
-			{
-				LeaveCriticalSection(&hDDCritSect);
-				return false;
-			}
-		}
-		else
-		{
-			LeaveCriticalSection(&hDDCritSect);
-			return false;
-		}		
-	}
+        if(pDevice->TestCooperativeLevel()==D3DERR_DEVICENOTRESET)
+        {
+            // ok to reset
+            if(SUCCEEDED(pDevice->Reset(&d3dpp)))
+            {                
+                Overlay_Update(&srcrect, &destrect, SW_SHOW);
+            }
+            else
+            {
+                LeaveCriticalSection(&hDDCritSect);
+                return false;
+            }
+        }
+        else
+        {
+            LeaveCriticalSection(&hDDCritSect);
+            return false;
+        }        
+    }
 
-	if(FAILED(pDevice->CreateOffscreenPlainSurface(DSCALER_MAX_WIDTH, DSCALER_MAX_HEIGHT, (bIsRGB ? D3DFMT_R5G6B5 : D3DFMT_YUY2), D3DPOOL_DEFAULT,
-		&lpDDOverlay, NULL))) 
-	{
-		LeaveCriticalSection(&hDDCritSect);
-		ErrorBox("CreateOffscreenPlainSurface failed");
-		return false;
-	}
+    if(FAILED(pDevice->CreateOffscreenPlainSurface(DSCALER_MAX_WIDTH, DSCALER_MAX_HEIGHT, (bIsRGB ? D3DFMT_R5G6B5 : D3DFMT_YUY2), D3DPOOL_DEFAULT,
+        &lpDDOverlay, NULL))) 
+    {
+        LeaveCriticalSection(&hDDCritSect);
+        ErrorBox("CreateOffscreenPlainSurface failed");
+        return false;
+    }
 
-	
+    
 
-	if(FAILED(pDevice->CreateTexture(BUFFERWIDTH, BUFFERHEIGHT, 1, D3DUSAGE_RENDERTARGET ,D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_lpOsdTexture, NULL))) 
-	{
-		LeaveCriticalSection(&hDDCritSect);
-		ErrorBox("Creating OSD texture failed");
-		return false;
-	}
-	
-	if(FAILED(m_lpOsdTexture->GetSurfaceLevel(0, &lpDDOSD))) 
-	{
-		LeaveCriticalSection(&hDDCritSect);
-		ErrorBox("Getting surface from OSD texture failed");
-		return false;
-	}
+    if(FAILED(pDevice->CreateTexture(BUFFERWIDTH, BUFFERHEIGHT, 1, D3DUSAGE_RENDERTARGET ,D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_lpOsdTexture, NULL))) 
+    {
+        LeaveCriticalSection(&hDDCritSect);
+        ErrorBox("Creating OSD texture failed");
+        return false;
+    }
+    
+    if(FAILED(m_lpOsdTexture->GetSurfaceLevel(0, &lpDDOSD))) 
+    {
+        LeaveCriticalSection(&hDDCritSect);
+        ErrorBox("Getting surface from OSD texture failed");
+        return false;
+    }
 
-	sprintf(msg, "Using Direct3D output");
+    sprintf(msg, "Using Direct3D output");
     AddSplashTextLine(msg);
 
-	// try to create a memory buffer
+    // try to create a memory buffer
     // that we can use if any output filters are switched
     // on.  This is required because reading and writing back to 
     // video memory is very slow
@@ -253,17 +223,17 @@ BOOL CD3D9Output::Overlay_Create()
        LOG(1, "Couldn't create additional buffer for output filters");
        lpExtraMemoryForFilters = NULL;
     }
-	
-	LeaveCriticalSection(&hDDCritSect);
+    
+    LeaveCriticalSection(&hDDCritSect);
 
-	return true;
+    return true;
 }
-	
+    
 DWORD CD3D9Output::Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
 {
-	return 1;
+    return 1;
 }
-	
+    
 BOOL CD3D9Output::Overlay_Destroy()
 {
     EnterCriticalSection(&hDDCritSect);
@@ -275,41 +245,41 @@ BOOL CD3D9Output::Overlay_Destroy()
         lpExtraMemoryForFilters = NULL;
     }
 
-	if(lpDDOSD!=NULL)
-	{
-		lpDDOSD->Release();
-		lpDDOSD = NULL;
-	}
+    if(lpDDOSD!=NULL)
+    {
+        lpDDOSD->Release();
+        lpDDOSD = NULL;
+    }
 
-	if(m_lpOsdTexture!=NULL) 
-	{
-		m_lpOsdTexture->Release();
-		m_lpOsdTexture = NULL;
-	}
+    if(m_lpOsdTexture!=NULL) 
+    {
+        m_lpOsdTexture->Release();
+        m_lpOsdTexture = NULL;
+    }
 
-	if(lpDDOverlay!=NULL)
-	{
-		lpDDOverlay->Release();
-		lpDDOverlay=NULL;
-	}	
+    if(lpDDOverlay!=NULL)
+    {
+        lpDDOverlay->Release();
+        lpDDOverlay=NULL;
+    }    
 
-	LeaveCriticalSection(&hDDCritSect);
-	return true;
+    LeaveCriticalSection(&hDDCritSect);
+    return true;
 }
-	
+    
 COLORREF CD3D9Output::Overlay_GetColor()
 {
-	return (COLORREF)0x00101020;
+    return (COLORREF)0x00101020;
 }
-	
+    
 COLORREF CD3D9Output::Overlay_GetCorrectedColor(HDC hDC)
 {
-		return (COLORREF)0x00101020;
+        return (COLORREF)0x00101020;
 }
-	
+    
 BOOL CD3D9Output::Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
 {
-	if(lpExtraMemoryForFilters == NULL)
+    if(lpExtraMemoryForFilters == NULL)
     {
         LOG(1, "Extra Buffer has been deleted");
         return FALSE;
@@ -321,43 +291,43 @@ BOOL CD3D9Output::Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
     pInfo->Overlay = lpExtraMemoryForFilters + (16 - ((DWORD)lpExtraMemoryForFilters % 16));
     return TRUE;
 }
-	
+    
 BOOL CD3D9Output::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer)
 {
-	HRESULT ddrval;
+    HRESULT ddrval;
 
-	if(lpDDOverlay == NULL)
-	{
-		return FALSE;
-	}
-	
-	if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
+    if(lpDDOverlay == NULL)
+    {
+        return FALSE;
+    }
+    
+    if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
     {
         return Overlay_Lock_Extra_Buffer(pInfo);
     }
-	EnterCriticalSection(&hDDCritSect);
+    EnterCriticalSection(&hDDCritSect);
 
-	D3DLOCKED_RECT r;
-	
-	ddrval=lpDDOverlay->LockRect(&r, NULL, D3DLOCK_DISCARD);
-	if(FAILED(ddrval))
+    D3DLOCKED_RECT r;
+    
+    ddrval=lpDDOverlay->LockRect(&r, NULL, D3DLOCK_DISCARD);
+    if(FAILED(ddrval))
     {
         LOG(1, "Lock failed %8x", ddrval);
         LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
 
-	
-	pInfo->OverlayPitch = r.Pitch;       // Set new pitch, may change
-	pInfo->Overlay = (BYTE*)r.pBits;
+    
+    pInfo->OverlayPitch = r.Pitch;       // Set new pitch, may change
+    pInfo->Overlay = (BYTE*)r.pBits;
 
-	
+    
 
-	// stay in critical section
-	
-	return true;
+    // stay in critical section
+    
+    return true;
 }
-	
+    
 BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
 {
     // \todo this doesn't really work for now (GetFrontBufferData always fails) .. do we need this anyway?????
@@ -432,9 +402,9 @@ BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
     pInfo->OverlayPitch = lr.Pitch;         // Set new pitch, may change
     pInfo->Overlay = (BYTE*)lr.pBits;
 
-	
+    
     // stay in critical section
-    return TRUE;	
+    return TRUE;    
 }
 
 BOOL CD3D9Output::Overlay_Unlock() 
@@ -457,103 +427,103 @@ BOOL CD3D9Output::Overlay_Unlock()
     return TRUE;
 }
 
-	
+    
 BOOL CD3D9Output::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer) 
 {
-	if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
+    if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
     {
         return TRUE;
     }
 
     // make sure we always release the critical section
     BOOL RetVal = TRUE;
-	if(FAILED( lpDDOverlay->UnlockRect()))
-	{
-		RetVal=false;
-	} 
-	else
-	{
-		// ok, now update the backbuffer
-		LPDIRECT3DSURFACE9 back;
-	
-		if(SUCCEEDED(pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO, &back))) 
+    if(FAILED( lpDDOverlay->UnlockRect()))
+    {
+        RetVal=false;
+    } 
+    else
+    {
+        // ok, now update the backbuffer
+        LPDIRECT3DSURFACE9 back;
+    
+        if(SUCCEEDED(pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO, &back))) 
         {
-			// draw tv picture
-			pDevice->StretchRect(lpDDOverlay, NULL, back, NULL, D3DTEXF_NONE);
-			
-			
-			// drawing OSD
-			// with DrawPrimitive because of alpha channel
-			
-			pDevice->BeginScene();
+            // draw tv picture
+            pDevice->StretchRect(lpDDOverlay, NULL, back, NULL, D3DTEXF_NONE);
+            
+            
+            // drawing OSD
+            // with DrawPrimitive because of alpha channel
+            
+            pDevice->BeginScene();
 
-			LPDIRECT3DVERTEXBUFFER9 g_pVB;
-			
-			if(SUCCEEDED(pDevice->CreateVertexBuffer(6*sizeof(CUSTOMVERTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pVB, NULL ))) 
-			{
-				VOID* pVertices;
-				CUSTOMVERTEX vertexArray[] =
-				{
-					// x, y, z, rhw, color
-					{ 0.0f,               0.0f,                0.0f, 1.0f, 0xffffffff, 0.0, 0.0, },
-					{ (FLOAT)BUFFERWIDTH, 0.0f,                0.0f, 1.0f, 0xffffffff, 1.0, 0.0, },
-					{ (FLOAT)BUFFERWIDTH, (FLOAT)BUFFERHEIGHT, 0.0f, 1.0f, 0xffffffff, 1.0, 1.0, },
+            LPDIRECT3DVERTEXBUFFER9 g_pVB;
+            
+            if(SUCCEEDED(pDevice->CreateVertexBuffer(6*sizeof(CUSTOMVERTEX), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pVB, NULL ))) 
+            {
+                VOID* pVertices;
+                CUSTOMVERTEX vertexArray[] =
+                {
+                    // x, y, z, rhw, color
+                    { 0.0f,               0.0f,                0.0f, 1.0f, 0xffffffff, 0.0, 0.0, },
+                    { (FLOAT)BUFFERWIDTH, 0.0f,                0.0f, 1.0f, 0xffffffff, 1.0, 0.0, },
+                    { (FLOAT)BUFFERWIDTH, (FLOAT)BUFFERHEIGHT, 0.0f, 1.0f, 0xffffffff, 1.0, 1.0, },
 
-					{ (FLOAT)BUFFERWIDTH, (FLOAT)BUFFERHEIGHT, 0.0f, 1.0f, 0xffffffff, 1.0, 1.0, },
-					{ 0.0f,               (FLOAT)BUFFERHEIGHT, 0.0f, 1.0f, 0xffffffff, 0.0, 1.0, },
-					{ 0.0f,               0.0f,                0.0f, 1.0f, 0xffffffff, 0.0, 0.0, },
-				};
-
-
-				if(SUCCEEDED(g_pVB->Lock(0, sizeof(vertexArray), (void**)&pVertices, 0 )))
-				{
-					memcpy(pVertices, vertexArray, sizeof(vertexArray));
-					g_pVB->Unlock();
-				}
-
-				pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
- 				pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-				pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-
-				pDevice->SetTexture(0, m_lpOsdTexture);
-				//pDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-				//pDevice->SetTextureStageState(0, D3DTSS_CONSTANT, 0xA0);
-				//pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEMP);
+                    { (FLOAT)BUFFERWIDTH, (FLOAT)BUFFERHEIGHT, 0.0f, 1.0f, 0xffffffff, 1.0, 1.0, },
+                    { 0.0f,               (FLOAT)BUFFERHEIGHT, 0.0f, 1.0f, 0xffffffff, 0.0, 1.0, },
+                    { 0.0f,               0.0f,                0.0f, 1.0f, 0xffffffff, 0.0, 0.0, },
+                };
 
 
-				pDevice->SetStreamSource( 0, g_pVB, 0, sizeof(CUSTOMVERTEX) );
-				pDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
-				
-				pDevice->DrawPrimitive( D3DPT_TRIANGLELIST, 0, 2 );
+                if(SUCCEEDED(g_pVB->Lock(0, sizeof(vertexArray), (void**)&pVertices, 0 )))
+                {
+                    memcpy(pVertices, vertexArray, sizeof(vertexArray));
+                    g_pVB->Unlock();
+                }
 
-				pDevice->SetTexture(0,NULL);
+                pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+                 pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+                pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 
-				g_pVB->Release();
-			}
-			pDevice->EndScene();
-		
-			back->Release();
-		}
-	}
+                pDevice->SetTexture(0, m_lpOsdTexture);
+                //pDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+                //pDevice->SetTextureStageState(0, D3DTSS_CONSTANT, 0xA0);
+                //pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEMP);
 
-	LeaveCriticalSection(&hDDCritSect);
-	return RetVal;
+
+                pDevice->SetStreamSource( 0, g_pVB, 0, sizeof(CUSTOMVERTEX) );
+                pDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
+                
+                pDevice->DrawPrimitive( D3DPT_TRIANGLELIST, 0, 2 );
+
+                pDevice->SetTexture(0,NULL);
+
+                g_pVB->Release();
+            }
+            pDevice->EndScene();
+        
+            back->Release();
+        }
+    }
+
+    LeaveCriticalSection(&hDDCritSect);
+    return RetVal;
 }
-	
+    
 
 RECT CD3D9Output::Overlay_GetCurrentDestRect() 
 {
-	return destrect;
+    return destrect;
 }
 
 RECT CD3D9Output::Overlay_GetCurrentSrcRect() 
 {
-	return srcrect;
+    return srcrect;
 }
-	
+    
 void CD3D9Output::Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)
 {
-	BYTE* FromPtr = lpExternalMemoryBuffer + (16 - ((DWORD)lpExternalMemoryBuffer % 16));
+    BYTE* FromPtr = lpExternalMemoryBuffer + (16 - ((DWORD)lpExternalMemoryBuffer % 16));
     long FromPitch = ExternalPitch;
     // careful as we need to ensure this is always unlocked
     if(Overlay_Lock_Back_Buffer(pInfo, FALSE))
@@ -577,7 +547,7 @@ void CD3D9Output::Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int Extern
 
 void CD3D9Output::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo) 
 {
-	Overlay_Lock_Extra_Buffer(pInfo);
+    Overlay_Lock_Extra_Buffer(pInfo);
     BYTE* FromPtr = pInfo->Overlay;
     long FromPitch = pInfo->OverlayPitch;
     // careful as we need to ensure this is always unlocked
@@ -600,13 +570,13 @@ void CD3D9Output::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
     }
 }
 
-	
+    
 BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)
 {
-	if(lpDDOverlay == NULL)
+    if(lpDDOverlay == NULL)
     {
         LOG(1, "D3DDevice has been deleted - trying to reset");
-		return FALSE;		
+        return FALSE;        
     }
 
     if(bUseExtraBuffer && lpExternalMemoryBuffer != NULL)
@@ -620,78 +590,78 @@ BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExt
     {
         Overlay_Copy_Extra(pInfo);
     }
-	
+    
     EnterCriticalSection(&hDDCritSect);
 
     BOOL RetVal = TRUE;
-	FlipResult = pDevice->Present(&srcrect, &destrect, m_hWnd, NULL);
-	
+    FlipResult = pDevice->Present(&srcrect, &destrect, m_hWnd, NULL);
+    
     
     if(FlipResult==D3DERR_DEVICELOST || FlipResult==D3DERR_DRIVERINTERNALERROR)
-	{
-		// Device lost .. 
-		LeaveCriticalSection(&hDDCritSect);
-		return FALSE;		
-	}
-	else
-	{
-		m_FramesPresented++;
-	}
+    {
+        // Device lost .. 
+        LeaveCriticalSection(&hDDCritSect);
+        return FALSE;        
+    }
+    else
+    {
+        m_FramesPresented++;
+    }
     
     LeaveCriticalSection(&hDDCritSect);
-	
-    return RetVal;	
+    
+    return RetVal;    
 }
 
 BOOL CD3D9Output::InitDD(HWND hWnd) 
 {
-	if( NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION))) 
+    if( NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION))) 
     {
-		ErrorBox("Direct3DCreate9 failed");
+        ErrorBox("Direct3DCreate9 failed");
         return false;
-	}
+    }
 
-	m_hWnd=hWnd;
+    m_hWnd=hWnd;
     
 
-	// find display adapter
-	HMONITOR hmon=MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
-	D3DADAPTER_IDENTIFIER9 adapter;	
-	int adapter_id=D3DADAPTER_DEFAULT;
-	for(int i=0;i<g_pD3D->GetAdapterCount();i++)
-	{
-		if(g_pD3D->GetAdapterMonitor(i)==hmon)
-		{
-			// this is ours we want to use			
-			if(SUCCEEDED(g_pD3D->GetAdapterIdentifier(i, 0, &adapter)))
-			{
-				adapter_id=i;
-				break;
-			}
-		}
-	}
-	
+    // find display adapter
+    HMONITOR hmon=MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    D3DADAPTER_IDENTIFIER9 adapter;    
+    int adapter_id=D3DADAPTER_DEFAULT;
+    for(int i=0;i<g_pD3D->GetAdapterCount();i++)
+    {
+        if(g_pD3D->GetAdapterMonitor(i)==hmon)
+        {
+            // this is ours we want to use            
+            if(SUCCEEDED(g_pD3D->GetAdapterIdentifier(i, 0, &adapter)))
+            {
+                adapter_id=i;
+                break;
+            }
+        }
+    }
+    
 
-	ZeroMemory( &d3dpp, sizeof(d3dpp) );
-	d3dpp.Windowed   = TRUE;
-	d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
-	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-	d3dpp.BackBufferWidth=BUFFERWIDTH;
-	d3dpp.BackBufferHeight=BUFFERHEIGHT;
-	d3dpp.Flags=D3DPRESENTFLAG_VIDEO | D3DPRESENTFLAG_DEVICECLIP;
-	
+    ZeroMemory( &d3dpp, sizeof(d3dpp) );
+    d3dpp.Windowed   = TRUE;
+    d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
+    d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+    d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+    d3dpp.BackBufferWidth=BUFFERWIDTH;
+    d3dpp.BackBufferHeight=BUFFERHEIGHT;
+    d3dpp.Flags=D3DPRESENTFLAG_VIDEO | D3DPRESENTFLAG_DEVICECLIP;
+    
 
-	if( FAILED( g_pD3D->CreateDevice( adapter_id, D3DDEVTYPE_HAL, hWnd,
+    if( FAILED( g_pD3D->CreateDevice( adapter_id, D3DDEVTYPE_HAL, hWnd,
                                   D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_MULTITHREADED,
-								  &d3dpp, &pDevice ) ) )
-	{
-		ErrorBox("D3D CreateDevice failed");
-		return false;
-	}
+                                  &d3dpp, &pDevice ) ) )
+    {
+        ErrorBox("D3D CreateDevice failed");
+        return false;
+    }
 
 
-	return true;
+    return true;
 }
 
 void CD3D9Output::Overlay_SetRGB(BOOL IsRGB)
@@ -707,27 +677,27 @@ BOOL CD3D9Output::Overlay_GetRGB()
 void CD3D9Output::ExitDD(void) 
 {
     EnterCriticalSection(&hDDCritSect);
-	if(pDevice!=NULL)
-	{
-		pDevice->Release();
-		pDevice=NULL;
-	}
+    if(pDevice!=NULL)
+    {
+        pDevice->Release();
+        pDevice=NULL;
+    }
 
-	if(g_pD3D!=NULL)
-	{
-		g_pD3D->Release();	
-		g_pD3D=NULL;
-	}
+    if(g_pD3D!=NULL)
+    {
+        g_pD3D->Release();    
+        g_pD3D=NULL;
+    }
 
     OffscreenHDC.ReleaseD3DBuffer();
     
     LeaveCriticalSection(&hDDCritSect);
 }
 
-	
+    
 IOutput::OUTPUTTYPES CD3D9Output::Type()
 {
-	return OUT_D3D;
+    return OUT_D3D;
 }
 
 void CD3D9Output::InitOtherSettings()
@@ -737,28 +707,28 @@ void CD3D9Output::InitOtherSettings()
 
 CD3D9Output::CD3D9Output(void)
 {
-	g_pD3D=NULL;
-	pDevice=NULL;
-	lpDDOverlay=NULL;
-	SrcSizeAlign = 1;
-	DestSizeAlign = 1;
-	memset(&srcrect, 0, sizeof(RECT));
-	memset(&destrect, 0, sizeof(RECT));
-	m_FramesPresented=0;
-	FlipResult=S_OK;
-	hCurrentMon =NULL;
+    g_pD3D=NULL;
+    pDevice=NULL;
+    lpDDOverlay=NULL;
+    SrcSizeAlign = 1;
+    DestSizeAlign = 1;
+    memset(&srcrect, 0, sizeof(RECT));
+    memset(&destrect, 0, sizeof(RECT));
+    m_FramesPresented=0;
+    FlipResult=S_OK;
+    hCurrentMon =NULL;
     lpDDFrontBuffer=NULL;
-	bIsRGB = FALSE;
+    bIsRGB = FALSE;
 
-	BUFFERWIDTH=GetSystemMetrics(SM_CXFULLSCREEN);
-	BUFFERHEIGHT=GetSystemMetrics(SM_CYFULLSCREEN);
+    BUFFERWIDTH=GetSystemMetrics(SM_CXFULLSCREEN);
+    BUFFERHEIGHT=GetSystemMetrics(SM_CYFULLSCREEN);
 
     InitializeCriticalSection(&hDDCritSect);
 }
 
 CD3D9Output::~CD3D9Output(void)
 {
-	Overlay_Destroy();
+    Overlay_Destroy();
     DeleteCriticalSection(&hDDCritSect);
 }
 
@@ -799,6 +769,6 @@ void D3D9_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 }
 
 CTreeSettingsGeneric* D3D9_GetTreeSettingsPage()
-{	
-	return new CTreeSettingsGeneric("Direct3D Settings", D3D9OutputInstance.GetOtherSettings(), 0);
+{    
+    return new CTreeSettingsGeneric("Direct3D Settings", D3D9OutputInstance.GetOtherSettings(), 0);
 }

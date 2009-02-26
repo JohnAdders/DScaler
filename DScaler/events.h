@@ -15,25 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.11  2003/10/03 11:40:11  laurentg
-// Update the combobox in the channel toolbar when exiting the channel setup dialog box
-//
-// Revision 1.10  2003/08/15 16:51:11  laurentg
-// New event type EVENT_NO_VOLUME
-// Update the volume toolbar when exiting from the audio mixer setup dialog box
-//
-// Revision 1.9  2003/08/11 22:50:50  laurentg
-// Time slider in the media player toolbar
-//
-// Revision 1.8  2002/12/02 17:06:33  adcockj
-// Changed Events to use messages instead of timer
-//
-// Revision 1.7  2002/10/11 21:49:11  ittarnavsky
-// added rcs/cvs log tag
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file events.h events Header file
@@ -62,16 +43,16 @@ enum eEventType
     EVENT_VIDEOFORMAT_CHANGE,
     EVENT_CHANNEL_PRECHANGE,
     EVENT_CHANNEL_CHANGE,
-	EVENT_MUTE,
-	EVENT_VOLUME,
-	EVENT_MIXERVOLUME,
-	EVENT_AUDIOSTANDARD_DETECTED,
-	EVENT_AUDIOCHANNELSUPPORT_DETECTED,
-	EVENT_SOUNDCHANNEL,
-	EVENT_DURATION,
-	EVENT_CURRENT_POSITION,
-	EVENT_NO_VOLUME,
-	EVENT_CHANNELLIST_CHANGE
+    EVENT_MUTE,
+    EVENT_VOLUME,
+    EVENT_MIXERVOLUME,
+    EVENT_AUDIOSTANDARD_DETECTED,
+    EVENT_AUDIOCHANNELSUPPORT_DETECTED,
+    EVENT_SOUNDCHANNEL,
+    EVENT_DURATION,
+    EVENT_CURRENT_POSITION,
+    EVENT_NO_VOLUME,
+    EVENT_CHANNELLIST_CHANGE
 };
 #define EVENT_ENDOFLIST EVENT_NONE
 
@@ -102,32 +83,32 @@ protected:
     
     vector<TEventCallbackInfo> m_EventObjects;
 
-	typedef struct
-	{
-		CEventObject *pEventObject;
-		eEventType Event;
-		long	   OldValue;
-		long	   NewValue;
-		eEventType *ComingUp;
-	} TEventInfo;
+    typedef struct
+    {
+        CEventObject *pEventObject;
+        eEventType Event;
+        long       OldValue;
+        long       NewValue;
+        eEventType *ComingUp;
+    } TEventInfo;
 
-	deque<TEventInfo> m_ScheduledEventList;
-	CRITICAL_SECTION  m_EventCriticalSection;
-	CRITICAL_SECTION  m_LastEventCriticalSection;
-	long			  m_ScheduleTimerID;
+    deque<TEventInfo> m_ScheduledEventList;
+    CRITICAL_SECTION  m_EventCriticalSection;
+    CRITICAL_SECTION  m_LastEventCriticalSection;
+    long              m_ScheduleTimerID;
 
-	HANDLE			  m_EventCollectorThread;		
-    BOOL			  m_bStopThread;
+    HANDLE              m_EventCollectorThread;        
+    BOOL              m_bStopThread;
 
-	vector<TEventInfo> m_LastEvents;
+    vector<TEventInfo> m_LastEvents;
     
 protected:
     eEventType *CEventCollector::CopyEventList(eEventType *EventList);
 
-	void RaiseScheduledEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+    void RaiseScheduledEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
     void ScheduleEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
-	static VOID CALLBACK StaticEventTimerWrap(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+    static VOID CALLBACK StaticEventTimerWrap(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 public:
     CEventCollector();
     ~CEventCollector();
@@ -138,14 +119,14 @@ public:
     void Register(CEventObject *pObject, eEventType *EventList);
     void Unregister(CEventObject *pObject);
 
-	void ProcessEvents();
+    void ProcessEvents();
 
     void RaiseEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp = NULL);    
 
-	int LastEventValues(eEventType Event, CEventObject **pObject, long *OldValue, long *NewValue);
-	int LastEventValues(CEventObject *pObject, eEventType Event, long *OldValue, long *NewValue);
-	int NumEventsWaiting();
-	
+    int LastEventValues(eEventType Event, CEventObject **pObject, long *OldValue, long *NewValue);
+    int LastEventValues(CEventObject *pObject, eEventType Event, long *OldValue, long *NewValue);
+    int NumEventsWaiting();
+    
 };
 
 //Defined, allocated & destroyed in Dscaler.cpp

@@ -20,172 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Original Release
-//                                     Translated most code from German
-//                                     Combined Header files
-//                                     Cut out all decoding
-//                                     Cut out digital hardware stuff
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.53  2005/03/06 03:46:13  atnak
-// Changed to a more proper way of temporary setting the source.
-//
-// Revision 1.52  2005/03/04 09:58:44  atnak
-// - Added some much needed comments and changed some code to be less
-// cryptic.  Changed code to removed all warnings in the .Net compiler.
-// - Fix to the problem where first run mixer setup settings were not saved.
-//
-// Revision 1.51  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.50  2003/10/10 11:16:37  laurentg
-// Bug fixed : access to the audio mixer
-//
-// Revision 1.49  2003/09/14 09:20:30  adcockj
-// Fix so that inputs display in mixer dialog on first run
-//
-// Revision 1.48  2003/08/16 18:40:43  laurentg
-// Disable access to the audio mixer dialog box for the movie file source
-// Display the audio mixer dialog box at first setup of a DShow capture source
-//
-// Revision 1.47  2003/08/16 09:20:57  laurentg
-// Disable access to audio mixer dialog box when the current source is a still
-//
-// Revision 1.46  2003/08/15 17:18:36  laurentg
-// Factorize treatments
-//
-// Revision 1.45  2003/08/15 09:56:49  atnak
-// Another update
-//
-// Revision 1.44  2003/08/15 09:29:08  atnak
-// Minor updates
-//
-// Revision 1.43  2003/07/30 03:24:34  atnak
-// Added NOHARDWAREMUTE to list of saved settings
-//
-// Revision 1.42  2003/07/29 13:40:02  atnak
-// Hide IDC_MIXER_INPUTNAME_ALL too fix
-//
-// Revision 1.41  2003/07/29 13:33:07  atnak
-// Overhauled mixer code
-//
-// Revision 1.40  2003/06/02 13:15:32  adcockj
-// Fixes for CHARSTRING problems
-//
-// Revision 1.39  2003/04/26 19:39:10  laurentg
-// New character string settings
-//
-// Revision 1.38  2003/01/15 15:54:22  adcockj
-// Fixed some keyboard focus issues
-//
-// Revision 1.37  2002/12/10 12:15:59  atnak
-// Tweaked Mixer_OnInputChange() to what I thought was better.
-//
-// Revision 1.36  2002/12/09 00:32:14  atnak
-// Added new muting stuff
-//
-// Revision 1.35  2002/10/26 17:51:53  adcockj
-// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
-//
-// Revision 1.34  2002/10/18 03:33:00  flibuste2
-// Added Mixer_IsMuted()
-// (need by Audio.Audio_IsMuted())
-// and factorized some code
-//
-// Revision 1.33  2002/10/08 20:17:48  laurentg
-// Calls to PreShowDialogOrMenu / PostShowDialogOrMenu added
-//
-// Revision 1.32  2002/10/07 22:30:31  kooiman
-// Fixed some mixer channel mute issues.
-//
-// Revision 1.31  2002/09/29 13:56:30  adcockj
-// Fixed some cursor hide problems
-//
-// Revision 1.30  2002/09/28 13:31:41  kooiman
-// Added sender object to events and added setting flag to treesettingsgeneric.
-//
-// Revision 1.29  2002/09/26 16:35:20  kooiman
-// Volume event support.
-//
-// Revision 1.28  2002/09/26 11:33:42  kooiman
-// Use event collector
-//
-// Revision 1.27  2002/09/06 15:08:10  kooiman
-// Mixer lines now source dependent.
-//
-// Revision 1.26  2002/08/27 22:05:21  kooiman
-// Fixed wave mute. Finished mixer channel change per video input. Use video input names for mixer lines.
-//
-// Revision 1.25  2002/08/18 13:30:38  tobbej
-// fixed problem with "other 2" line always geting the wrong value (0 in ini file)
-//
-// Revision 1.24  2002/04/13 18:56:23  laurentg
-// Checks added to manage case where the current source is not yet defined
-//
-// Revision 1.23  2001/12/18 13:12:11  adcockj
-// Interim check-in for redesign of card specific settings
-//
-// Revision 1.22  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.21  2001/11/19 11:11:45  temperton
-// Store mixer name instead of index in ini.
-//
-// Revision 1.20  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.19  2001/11/02 16:32:54  adcockj
-// Removed conflict tags
-//
-// Revision 1.18  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.17  2001/10/22 10:32:58  temperton
-// bugfix.
-//
-// Revision 1.16  2001/08/18 17:24:12  adcockj
-// Removed free causing crash on exit
-//
-// Revision 1.15  2001/08/14 11:36:03  adcockj
-// Mixer change to allow restore of initial mixer settings
-//
-// Revision 1.14.2.3  2001/08/21 09:43:01  adcockj
-// Brought branch up to date with latest code fixes
-//
-// Revision 1.14.2.2  2001/08/17 16:35:14  adcockj
-// Another interim check-in still doesn't compile. Getting closer ...
-//
-// Revision 1.14.2.1  2001/08/14 16:41:37  adcockj
-// Renamed driver
-// Got to compile with new class based card
-//
-// Revision 1.14  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.13  2001/07/15 13:24:05  adcockj
-// Fixed crashing after overlay failure with mixer on
-//
-// Revision 1.12  2001/07/13 18:13:24  adcockj
-// Changed Mute to not be persisted and to work properly
-//
-// Revision 1.11  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.10  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file MixerDev.cpp Mixer Classes
@@ -362,7 +196,7 @@ void Mixer_SetVolume(long newVolume)
 
         pLineSrc->SetVolume(newVolume);
 
-		EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, oldVolume, newVolume);
+        EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, oldVolume, newVolume);
     }
 }
 
@@ -400,7 +234,7 @@ void Mixer_AdjustVolume(long delta)
 
         pLineSrc->SetVolume(newVolume);
 
-		EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, oldVolume, newVolume);
+        EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, oldVolume, newVolume);
     }
 }
 
@@ -419,53 +253,53 @@ void Mixer_Volume_Down()
 
 void Mixer_SetupDlg(HWND hWndParent)
 {
-	CSource* source = Providers_GetCurrentSource();
-	if ((source == NULL) || !source->IsAudioMixerAccessAllowed())
-	{
+    CSource* source = Providers_GetCurrentSource();
+    if ((source == NULL) || !source->IsAudioMixerAccessAllowed())
+    {
         MessageBox(GetMainWnd(), "No audio mixer setup needed for the current source", "DScaler Warning", MB_OK);
-	}
-	else
-	{
-		CMixerFinder mixerFinder;
+    }
+    else
+    {
+        CMixerFinder mixerFinder;
 
-		if (mixerFinder.GetMixerCount() > 0)
-		{
-			BOOL bWasInvalidSection = g_bMixerDevInvalidSection;
+        if (mixerFinder.GetMixerCount() > 0)
+        {
+            BOOL bWasInvalidSection = g_bMixerDevInvalidSection;
 
-			// This Mixer_SetupDlg(...) function can be called in the early stages of
-			// configuration, before a "current source" is properly set from a raised
-			// EVENT_SOURCE_CHANGE event.  As such, g_bMixerDevInvalidSection can be
-			// TRUE to indicate that this file is working with a "null-source".  If
-			// this is the case, temporary set the "current source" based on the return
-			// value of 'source = Providers_GetCurrentSource()'.  (Because there is no
-			// point for the user to configure the null-source.)
-			if (bWasInvalidSection)
-			{
-				// Change the mixer settings to the given source.
-				Mixer_OnSourceChange(source);
-			}
+            // This Mixer_SetupDlg(...) function can be called in the early stages of
+            // configuration, before a "current source" is properly set from a raised
+            // EVENT_SOURCE_CHANGE event.  As such, g_bMixerDevInvalidSection can be
+            // TRUE to indicate that this file is working with a "null-source".  If
+            // this is the case, temporary set the "current source" based on the return
+            // value of 'source = Providers_GetCurrentSource()'.  (Because there is no
+            // point for the user to configure the null-source.)
+            if (bWasInvalidSection)
+            {
+                // Change the mixer settings to the given source.
+                Mixer_OnSourceChange(source);
+            }
 
-			DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
 
-			if (source->GetVolume() != NULL)
-			{
-				EventCollector->RaiseEvent(source, EVENT_VOLUME, 0, source->GetVolume()->GetValue());
-			}
-			else
-			{
-				EventCollector->RaiseEvent(source, EVENT_NO_VOLUME, 0, 1);
-			}
+            if (source->GetVolume() != NULL)
+            {
+                EventCollector->RaiseEvent(source, EVENT_VOLUME, 0, source->GetVolume()->GetValue());
+            }
+            else
+            {
+                EventCollector->RaiseEvent(source, EVENT_NO_VOLUME, 0, 1);
+            }
 
-			if (bWasInvalidSection)
-			{
-				// Restore the mixer source to the null-source.
-				Mixer_OnSourceChange(NULL);
-			}
-		}
-		else
-		{
-			MessageBox(GetMainWnd(), "No mixer hardware found", "DScaler Error", MB_OK);
-		}
+            if (bWasInvalidSection)
+            {
+                // Restore the mixer source to the null-source.
+                Mixer_OnSourceChange(NULL);
+            }
+        }
+        else
+        {
+            MessageBox(GetMainWnd(), "No mixer hardware found", "DScaler Error", MB_OK);
+        }
     }
 }
 
@@ -1502,14 +1336,14 @@ static long LongArrayUnique(const long* source, long size, long* dest)
 
     if (size > 0)
     {
-		// Copy the first element over.
+        // Copy the first element over.
         dest[0] = source[0];
-		resultCount = 1;
+        resultCount = 1;
 
-		// Run through every value in source.
+        // Run through every value in source.
         for (i = 1; i < size; i++)
         {
-			// See if this source[i] value is already in the destination.
+            // See if this source[i] value is already in the destination.
             for (j = 0; j < resultCount; j++)
             {
                 if (dest[j] == source[i])
@@ -1518,7 +1352,7 @@ static long LongArrayUnique(const long* source, long size, long* dest)
                 }
             }
 
-			// If the value was not already in the destination, add it.
+            // If the value was not already in the destination, add it.
             if (j == resultCount)
             {
                 dest[resultCount++] = source[i];
@@ -1541,10 +1375,10 @@ static void LongArraySubstract(long* values, long* valuesSize,
 {
     int i, j;
 
-	// Run through every value in the array 'subtract'.
+    // Run through every value in the array 'subtract'.
     for (i = 0; i < substractSize; i++)
     {
-		// See if this subtract[i] value is also in 'values'.
+        // See if this subtract[i] value is also in 'values'.
         for (j = 0; j < *valuesSize; j++)
         {
             if (values[j] == subtract[i])
@@ -1553,19 +1387,19 @@ static void LongArraySubstract(long* values, long* valuesSize,
             }
         }
 
-		// If the value WAS found (i.e. the above loop broke early).
+        // If the value WAS found (i.e. the above loop broke early).
         if (j != *valuesSize)
         {
-			// Subtract one from the size of 'values' array.
-			*valuesSize -= 1;
+            // Subtract one from the size of 'values' array.
+            *valuesSize -= 1;
 
-			// 'j' is the index of the value that is being removed.
-			// *valueSize is now representing the new size of the array
-			// where there is one less element.  This new size value is
-			// also the same as the index of the last element from the
-			// previous/ size (i.e. because: last index = size - 1).  If
-			// 'j' was not the last index, put the value at the last index
-			// where 'j' is.
+            // 'j' is the index of the value that is being removed.
+            // *valueSize is now representing the new size of the array
+            // where there is one less element.  This new size value is
+            // also the same as the index of the last element from the
+            // previous/ size (i.e. because: last index = size - 1).  If
+            // 'j' was not the last index, put the value at the last index
+            // where 'j' is.
             if (j != *valuesSize)
             {
                 values[j] = values[*valuesSize];
@@ -1589,10 +1423,10 @@ static void LongArrayDivide(long* dividend, long *dividendSize,
     long resultCount = 0;
     int i, j;
 
-	// Run through every element in the array 'dividend'.
+    // Run through every element in the array 'dividend'.
     for (i = 0; i < *dividendSize; i++)
     {
-		// See if this dividend[i] value is also in 'divisor'.
+        // See if this dividend[i] value is also in 'divisor'.
         for (j = 0; j < *divisorSize; j++)
         {
             if (divisor[j] == dividend[i])
@@ -1601,19 +1435,19 @@ static void LongArrayDivide(long* dividend, long *dividendSize,
             }
         }
 
-		// If the value was not also in 'divisor'.
+        // If the value was not also in 'divisor'.
         if (j == *divisorSize)
         {
-			// Put the value in the result array.
+            // Put the value in the result array.
             dividend[resultCount++] = dividend[i];
         }
-		// If the value was also in 'divisor'.
+        // If the value was also in 'divisor'.
         else
         {
-			// Remove the value from 'divisor' in the same way
-			// commented in LongArraySubstract().  (i.e. reduce the
-			// size of the array and shuffle the last element into the
-			// newly created gap.)
+            // Remove the value from 'divisor' in the same way
+            // commented in LongArraySubstract().  (i.e. reduce the
+            // size of the array and shuffle the last element into the
+            // newly created gap.)
             if (--(*divisorSize) != j)
             {
                 divisor[j] = divisor[*divisorSize];
@@ -1621,8 +1455,8 @@ static void LongArrayDivide(long* dividend, long *dividendSize,
         }
     }
 
-	// The resulting array was created "in place" over the 'dividend'
-	// array.  Update the correct size of 'dividend' before returning.
+    // The resulting array was created "in place" over the 'dividend'
+    // array.  Update the correct size of 'dividend' before returning.
     *dividendSize = resultCount;
 }
 

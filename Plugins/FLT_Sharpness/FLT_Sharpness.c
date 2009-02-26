@@ -15,41 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.9  2002/08/07 00:43:41  lindsey
-// Made prefetching into a user option.
-//
-// Revision 1.8  2002/06/18 19:46:09  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.7  2002/06/13 12:10:26  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.6  2002/01/31 04:57:11  lindsey
-// Added code for use on machines without SSE instructions
-// Corrected bias in averaging and weighting
-// Added prefetching for a speed up
-// Moved core code to a separate file to allow processor specific customization
-//
-// Revision 1.5  2001/11/26 15:27:19  adcockj
-// Changed filter structure
-//
-// Revision 1.4  2001/11/21 15:21:41  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.3  2001/08/09 21:34:59  adcockj
-// Fixed bugs raise by Timo and Keld
-//
-// Revision 1.2  2001/08/03 14:24:06  adcockj
-// fixed settings
-//
-// Revision 1.1  2001/08/03 12:27:17  adcockj
-// Added Sharpness filter (copy of code from GreedyH)
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Filter.h"

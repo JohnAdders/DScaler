@@ -15,113 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.29  2003/03/05 22:08:48  laurentg
-// Updated management of 16 bytes aligned buffer for stills
-//
-// Revision 1.28  2003/01/19 11:09:11  laurentg
-// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
-//
-// Revision 1.27  2002/11/01 13:09:19  laurentg
-// Management of the still capture context slightly updated - works now even with stills in memory
-//
-// Revision 1.26  2002/10/26 17:56:19  laurentg
-// Possibility to take stills in memory added
-//
-// Revision 1.25  2002/06/21 23:14:19  laurentg
-// New way to store address of allocated memory buffer for still source
-//
-// Revision 1.24  2002/05/27 22:24:27  laurentg
-// When taking a still using a TIFF (RGB colorspace), overlay values are first normalized before the conversion in RGB
-//
-// Revision 1.23  2002/05/10 20:34:38  laurentg
-// Formula for conversion RGB <=> YCbCr updated
-//
-// Revision 1.22  2002/05/06 15:48:53  laurentg
-// Informations saved in a DScaler still updated
-// Use of the comments field to show informations about a DScaler still
-//
-// Revision 1.21  2002/05/05 12:09:22  laurentg
-// All lines have now a pitch which is a multiple of 16
-// Width of picture is now forced to an even value
-//
-// Revision 1.20  2002/05/03 20:36:49  laurentg
-// 16 byte aligned data
-//
-// Revision 1.19  2002/04/27 14:08:07  laurentg
-// Automatic square pixels mode handling updated
-//
-// Revision 1.18  2002/04/15 22:50:09  laurentg
-// Change again the available formats for still saving
-// Automatic switch to "square pixels" AR mode when needed
-//
-// Revision 1.17  2002/04/14 17:25:26  laurentg
-// New formats of TIFF files supported to take stills : Class R (RGB) with compression LZW or Packbits or JPEG
-//
-// Revision 1.16  2002/04/14 10:16:23  laurentg
-// Table of TIFF compatibility updated due to update to LibTiff 3.5.7 + LibJpeg
-//
-// Revision 1.15  2002/04/14 00:46:49  laurentg
-// Table of compatibility TIFF updated
-// Log messages suppressed
-//
-// Revision 1.14  2002/04/13 23:51:30  laurentg
-// Table of compatibility (class, compression) added
-//
-// Revision 1.13  2002/04/13 18:47:53  laurentg
-// Management of still files improved
-//
-// Revision 1.12  2002/04/10 22:18:12  laurentg
-// Checks to avoid loading of certain TIFF files with unsupported compression modes
-//
-// Revision 1.11  2002/02/26 21:24:25  laurentg
-// Move the test on the still file size in order to have a global treatment later
-//
-// Revision 1.10  2002/02/23 00:30:47  laurentg
-// NotifySizeChange
-//
-// Revision 1.9  2002/02/22 09:07:13  tobbej
-// fixed small race condition when calling notifysizechange, workoutoverlaysize might have used the old size
-//
-// Revision 1.8  2002/02/19 16:03:36  tobbej
-// removed CurrentX and CurrentY
-// added new member in CSource, NotifySizeChange
-//
-// Revision 1.7  2002/02/14 23:16:59  laurentg
-// Stop / start capture never needed when switching between files of the playlist
-// CurrentX / CurrentY not updated in StillSource but in the main decoding loop
-//
-// Revision 1.6  2002/02/02 21:19:05  laurentg
-// Read/write of TIFF files updated
-//
-// Revision 1.5  2002/02/02 12:41:44  laurentg
-// CurrentX and CurrentY set when changing source and when switching between still files
-//
-// Revision 1.4  2001/12/08 13:43:20  adcockj
-// Fixed logging and memory leak bugs
-//
-// Revision 1.3  2001/12/05 00:08:41  laurentg
-// Use of LibTiff DLL
-//
-// Revision 1.2  2001/11/30 10:46:43  adcockj
-// Fixed crashes and leaks
-//
-// Revision 1.1  2001/11/28 16:04:50  adcockj
-// Major reorganization of STill support
-//
-// Revision 1.3  2001/11/25 10:41:26  laurentg
-// TIFF code moved from Other.cpp to TiffSource.c + still capture updated
-//
-// Revision 1.2  2001/11/24 22:51:20  laurentg
-// Bug fixes regarding still source
-//
-// Revision 1.1  2001/11/24 17:55:23  laurentg
-// CTiffHelper class added
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file TiffHelper.cpp Tiff Helper Functions
@@ -266,7 +159,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         TIFFClose(tif);
         return FALSE;
     }
-	pStartFrame = START_ALIGNED16(pFrameBuf);
+    pStartFrame = START_ALIGNED16(pFrameBuf);
 
     if ((Class == PHOTOMETRIC_YCBCR) && (Compression == COMPRESSION_NONE))
     {
@@ -401,7 +294,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     // Close the file
     TIFFClose(tif);
 
-	m_pParent->FreeOriginalFrameBuffer();
+    m_pParent->FreeOriginalFrameBuffer();
     m_pParent->m_OriginalFrameBuffer = pFrameBuf;
     m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;

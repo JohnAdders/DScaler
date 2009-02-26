@@ -20,32 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.7  2005/03/09 09:35:16  atnak
-// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
-// non-intrusive nature.
-//
-// Revision 1.6  2005/03/07 09:12:18  atnak
-// Added a function for simplifying a single byte write to subaddress.
-//
-// Revision 1.5  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.4  2001/12/18 23:36:01  adcockj
-// Split up the MSP chip support into two parts to avoid probelms when deleting objects
-//
-// Revision 1.3  2001/11/29 14:04:07  adcockj
-// Added Javadoc comments
-//
-// Revision 1.2  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
-// initial checkin of the new I2C code
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file i2cdevice.h i2cdevice Header

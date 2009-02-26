@@ -17,12 +17,6 @@
 //  Copyright (C) 2000-2005 Quenotte  All rights reserved.
 //  Copyright (C) 2000 - 2002 by Eduardo JosETagle.
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2004/09/26 16:43:39  to_see
-// Renamed id, log to Id, Log
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "TDA9874.h"
@@ -32,50 +26,50 @@
 
 CTDA9874::CTDA9874()
 {
-	m_iMode		= 1;	/* 0: A2, 1: NICAM */
-	m_iGCONR	= 0xc0;	/* default config. input pin: SIFSEL=0 */
-	m_iNCONR	= 0x01;	/* default NICAM config.: AMSEL=0,AMUTE=1 */
-	m_iESP		= 0x06;	/* default standard: NICAM B/G */
-	m_iDic		= 0x11;	/* device id. code */
+    m_iMode        = 1;    /* 0: A2, 1: NICAM */
+    m_iGCONR    = 0xc0;    /* default config. input pin: SIFSEL=0 */
+    m_iNCONR    = 0x01;    /* default NICAM config.: AMSEL=0,AMUTE=1 */
+    m_iESP        = 0x06;    /* default standard: NICAM B/G */
+    m_iDic        = 0x11;    /* device id. code */
 }
 
 BYTE CTDA9874::GetDefaultAddress()const
 {
     //TODO
-	LOG(1,"CTDA9874::GetDefaultAddress()");
-	return I2C_TDA9874 >> 1;
+    LOG(1,"CTDA9874::GetDefaultAddress()");
+    return I2C_TDA9874 >> 1;
 }
 
 void CTDA9874::Reset()
 {
-	//TODO
+    //TODO
 }
 
 bool CTDA9874::IsDevicePresent(int& dic, int& sic)
 {
     // since 0 is a true value make sure we get a change
-	BYTE result[1] = {3};
+    BYTE result[1] = {3};
 
-	if(ReadFromSubAddress(TDA9874A_DIC, 0, 0, result, sizeof(result)) == false)
+    if(ReadFromSubAddress(TDA9874A_DIC, 0, 0, result, sizeof(result)) == false)
     {
         return false;
     }
 
-	dic = result[0];
-	
-	if(ReadFromSubAddress(TDA9874A_SIC, 0, 0, result, sizeof(result)) == false)
+    dic = result[0];
+    
+    if(ReadFromSubAddress(TDA9874A_SIC, 0, 0, result, sizeof(result)) == false)
     {
         return false;
     }
 
     sic = result[0];
-	
-	if (dic == 0x11 || dic == 0x07)
-	{
-		LOG(1, "TDA9874%s audio decoder found: dic=0x%x, sic=0x%x", (dic == 0x11) ? "a":"h", dic, sic);
-		m_iDic = dic;
-		return true;
-	}
+    
+    if (dic == 0x11 || dic == 0x07)
+    {
+        LOG(1, "TDA9874%s audio decoder found: dic=0x%x, sic=0x%x", (dic == 0x11) ? "a":"h", dic, sic);
+        m_iDic = dic;
+        return true;
+    }
 
-	return false; 
+    return false; 
 }

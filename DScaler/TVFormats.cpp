@@ -15,46 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.12  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.11  2003/05/30 10:06:25  adcockj
-// Fix for format names in ini file
-//
-// Revision 1.10  2003/02/02 15:24:54  adcockj
-// Fix for PAL60 issues with cx2388x
-//
-// Revision 1.9  2003/01/07 16:49:07  adcockj
-// Changes to allow variable sampling rates for VBI
-//
-// Revision 1.8  2002/10/27 19:17:25  adcockj
-// Fixes for cx2388x - PAL & NTSC tested
-//
-// Revision 1.7  2002/10/18 11:41:47  adcockj
-// Updated Fsc values
-//
-// Revision 1.6  2001/12/05 21:45:11  ittarnavsky
-// added changes for the AudioDecoder and AudioControls support
-//
-// Revision 1.5  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.4  2001/11/18 10:07:00  temperton
-// Bug fix.
-//
-// Revision 1.3  2001/11/02 17:03:59  adcockj
-// Merge in PAL_NC change again
-//
-// Revision 1.2  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.1.2.1  2001/08/17 16:35:14  adcockj
-// Another interim check-in still doesn't compile. Getting closer ...
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file TVFormats.cpp TV Format definitions and functions

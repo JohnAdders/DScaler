@@ -15,36 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU Library General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2003/01/27 11:45:58  atnak
-// Fixed crash when accessing TOP-Text info on page 899
-//
-// Revision 1.7  2003/01/07 07:37:38  atnak
-// Fixed page subcodes
-//
-// Revision 1.6  2003/01/05 16:09:44  atnak
-// Updated TopText for new teletext
-//
-// Revision 1.5  2003/01/01 20:30:12  atnak
-// Commented out everything so I can redo TopText for the new CVTCommon
-// functions later
-//
-// Revision 1.4  2002/10/24 09:34:58  atnak
-// Changed '-' dash to minus to fix codepage difference
-//
-// Revision 1.3  2002/10/24 01:38:32  atnak
-// Added subtitle message
-//
-// Revision 1.2  2002/10/23 16:53:43  atnak
-// small adjustment
-//
-// Revision 1.1  2002/10/23 16:51:01  atnak
-// TOP-Text support initial release
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file VTTopText.cpp CVTTopText Implementation

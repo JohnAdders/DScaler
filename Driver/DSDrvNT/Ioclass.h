@@ -20,18 +20,6 @@
 // Copyright (C) Mathias Ellinger
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 19 Nov 1998   Mathias Ellinger      initial version
-//
-// 24 Jul 2000   John Adcock           Original dTV Release
-//                                     Added Memory Alloc functions
-//
-// 13 Mar 2006   Michael Lutz          Modifications for Win64
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #if ! defined (__IOCLASS_H)
 #define __IOCLASS_H

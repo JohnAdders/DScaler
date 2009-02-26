@@ -20,12 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.6  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file ISetting.cpp Settings classes implementation

@@ -15,47 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.19  2008/02/08 13:43:21  adcockj
-// Changes to support cmake compilation
-//
-// Revision 1.18  2006/10/06 13:35:32  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.17  2004/04/06 12:20:56  adcockj
-// Added .NET 2003 project files and some fixes to support this
-//
-// Revision 1.16  2003/09/13 08:36:16  adcockj
-// Crash patch from Steve Gotthardt (Patch-805174)
-//
-// Revision 1.15  2003/06/26 11:42:54  adcockj
-// Reduced teh size of some of the dlls
-//
-// Revision 1.14  2002/06/18 19:46:08  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.13  2002/06/13 12:10:25  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.12  2001/11/28 16:04:50  adcockj
-// Major reorganization of STill support
-//
-// Revision 1.11  2001/11/26 15:27:18  adcockj
-// Changed filter structure
-//
-// Revision 1.10  2001/11/21 15:21:41  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.9  2001/10/17 11:45:17  adcockj
-// Corrected gamma settings and made gamma number similar to industry standard
-//
-// Revision 1.8  2001/07/13 16:13:33  adcockj
-// Added CVS tags and removed tabs
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Filter.h"
@@ -125,10 +84,10 @@ double GetGammaAdjustedValue(double Input, double Gamma)
     }
     else
     {
-		// make gamma consistent with
-		// industry standard
-		// above 1 is brighter
-		// below 1 is darker
+        // make gamma consistent with
+        // industry standard
+        // above 1 is brighter
+        // below 1 is darker
         return pow(Input, 1.0 / Gamma);
     }
 }

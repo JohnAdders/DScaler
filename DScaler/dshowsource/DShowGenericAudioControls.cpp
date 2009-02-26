@@ -15,16 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * DShowGenericAudioControls.cpp: implementation of the CDShowGenericAudioControls class.
@@ -48,7 +38,7 @@ static char THIS_FILE[]=__FILE__;
 CDShowGenericAudioControls::CDShowGenericAudioControls(CComPtr<IBasicAudio> pAudio)
 :m_pAudio(pAudio)
 {
-	ASSERT(pAudio!=NULL);
+    ASSERT(pAudio!=NULL);
 }
 
 CDShowGenericAudioControls::~CDShowGenericAudioControls()
@@ -58,83 +48,83 @@ CDShowGenericAudioControls::~CDShowGenericAudioControls()
 
 int CDShowGenericAudioControls::GetAudioCaps()
 {
-	if(m_pAudio!=NULL)
-	{
-		return DSHOW_AUDIOCAPS_HAS_VOLUME|DSHOW_AUDIOCAPS_HAS_BALANCE;
-	}
-	else
-	{
-		return 0;
-	}
+    if(m_pAudio!=NULL)
+    {
+        return DSHOW_AUDIOCAPS_HAS_VOLUME|DSHOW_AUDIOCAPS_HAS_BALANCE;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 long CDShowGenericAudioControls::GetVolume()
 {
-	if(m_pAudio==NULL)
-	{
-		return 0;
-	}
-	long volume=0;
-	HRESULT hr=m_pAudio->get_Volume(&volume);
-	if(FAILED(hr))
-	{
-		throw CDShowException("get_Volume failed",hr);
-	}
-	return volume/100;
+    if(m_pAudio==NULL)
+    {
+        return 0;
+    }
+    long volume=0;
+    HRESULT hr=m_pAudio->get_Volume(&volume);
+    if(FAILED(hr))
+    {
+        throw CDShowException("get_Volume failed",hr);
+    }
+    return volume/100;
 }
 
 void CDShowGenericAudioControls::SetVolume(long volume)
 {
-	ASSERT((volume/100)<=0 && (volume/100)>=-10000);
-	if(m_pAudio==NULL)
-	{
-		return;
-	}
-	HRESULT hr=m_pAudio->put_Volume(volume*100);
-	if(FAILED(hr))
-	{
-		throw CDShowException("put_Volume failed",hr);
-	}
+    ASSERT((volume/100)<=0 && (volume/100)>=-10000);
+    if(m_pAudio==NULL)
+    {
+        return;
+    }
+    HRESULT hr=m_pAudio->put_Volume(volume*100);
+    if(FAILED(hr))
+    {
+        throw CDShowException("put_Volume failed",hr);
+    }
 }
 
 void CDShowGenericAudioControls::GetVolumeMinMax(long &min,long &max)
 {
-	max=0;
-	min=-10000/100;
+    max=0;
+    min=-10000/100;
 }
 
 long CDShowGenericAudioControls::GetBalance()
 {
-	if(m_pAudio==NULL)
-	{
-		return 0;
-	}
-	long balance=0;
-	HRESULT hr=m_pAudio->get_Balance(&balance);
-	if(FAILED(hr))
-	{
-		throw CDShowException("get_Balance failed",hr);
-	}
-	return balance/100;
+    if(m_pAudio==NULL)
+    {
+        return 0;
+    }
+    long balance=0;
+    HRESULT hr=m_pAudio->get_Balance(&balance);
+    if(FAILED(hr))
+    {
+        throw CDShowException("get_Balance failed",hr);
+    }
+    return balance/100;
 }
 
 void CDShowGenericAudioControls::SetBalance(long balance)
 {
-	ASSERT((balance/100)<=10000 && (balance/100)>=-10000);
-	if(m_pAudio==NULL)
-	{
-		return;
-	}
-	HRESULT hr=m_pAudio->put_Balance(balance*100);
-	if(FAILED(hr))
-	{
-		throw CDShowException("put_Balance failed",hr);
-	}
+    ASSERT((balance/100)<=10000 && (balance/100)>=-10000);
+    if(m_pAudio==NULL)
+    {
+        return;
+    }
+    HRESULT hr=m_pAudio->put_Balance(balance*100);
+    if(FAILED(hr))
+    {
+        throw CDShowException("put_Balance failed",hr);
+    }
 }
 
 void CDShowGenericAudioControls::GetBalanceMinMax(long &min,long &max)
 {
-	min=-10000/100;
-	max=10000/100;
+    min=-10000/100;
+    max=10000/100;
 }
 #endif

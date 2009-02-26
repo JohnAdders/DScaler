@@ -16,12 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2004/10/30 19:30:22  to_see
-// initial checkin
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "PCICard.h"
@@ -31,23 +25,23 @@
 //////////////////////////////////////////////////////////////////////
 
 CPCICard::CPCICard(CHardwareDriver* pDriver) :
-	m_pDriver(pDriver),
-	m_bOpen(FALSE)
+    m_pDriver(pDriver),
+    m_bOpen(FALSE)
 {
     strcpy(m_szChipName,"n/a");
 }
 
 CPCICard::~CPCICard()
 {
-	ClosePCICard();
+    ClosePCICard();
 }
 
 BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
 {
-	if(m_bOpen)
-	{
-		ClosePCICard();
-	}
+    if(m_bOpen)
+    {
+        ClosePCICard();
+    }
 
     m_DeviceId = DeviceID;
     m_VendorId = VendorID;
@@ -55,9 +49,9 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
     DWORD dwReturnedLength;
 
     TDSDrvParam hwParam;
-    hwParam.dwAddress	= VendorID;
-    hwParam.dwValue		= DeviceID;
-    hwParam.dwFlags		= DeviceIndex;
+    hwParam.dwAddress    = VendorID;
+    hwParam.dwValue        = DeviceID;
+    hwParam.dwFlags        = DeviceIndex;
 
     TPCICARDINFO PCICardInfo;
     DWORD dwLength;
@@ -65,31 +59,31 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
 
     if (dwStatus == ERROR_SUCCESS)
     {
-        m_MemoryAddress	= PCICardInfo.dwMemoryAddress;
-        m_MemoryLength	= PCICardInfo.dwMemoryLength;
-        m_SubSystemId	= PCICardInfo.dwSubSystemId;
-        m_BusNumber		= PCICardInfo.dwBusNumber;
-        m_SlotNumber	= PCICardInfo.dwSlotNumber;
+        m_MemoryAddress    = PCICardInfo.dwMemoryAddress;
+        m_MemoryLength    = PCICardInfo.dwMemoryLength;
+        m_SubSystemId    = PCICardInfo.dwSubSystemId;
+        m_BusNumber        = PCICardInfo.dwBusNumber;
+        m_SlotNumber    = PCICardInfo.dwSlotNumber;
 
-        hwParam.dwAddress	= m_BusNumber;
-        hwParam.dwValue		= m_MemoryAddress;
+        hwParam.dwAddress    = m_BusNumber;
+        hwParam.dwValue        = m_MemoryAddress;
 
-		if((VendorID == 0x14F1) && (DeviceID == 0x8800))
-		{
-			hwParam.dwFlags = 0x400000;
-		}
-		
-		else
-		{
-			hwParam.dwFlags = m_MemoryLength;
-		}
+        if((VendorID == 0x14F1) && (DeviceID == 0x8800))
+        {
+            hwParam.dwFlags = 0x400000;
+        }
+        
+        else
+        {
+            hwParam.dwFlags = m_MemoryLength;
+        }
 
         dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_MAPMEMORY, &hwParam, sizeof(hwParam), &(m_MemoryBase), sizeof(DWORD), &dwReturnedLength);
 
         if (dwStatus == ERROR_SUCCESS)
-		{
+        {
             m_bOpen = TRUE;
-		}
+        }
     }
 
     return m_bOpen;
@@ -117,7 +111,7 @@ ULONG CPCICard::GetTickCount()
     QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
     QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
 
-	ticks = ticks * 1000 / frequency;
+    ticks = ticks * 1000 / frequency;
     return (ULONG)ticks;
 }
 
@@ -138,11 +132,11 @@ DWORD CPCICard::ReadDword(DWORD Offset)
     TDSDrvParam hwParam;
     hwParam.dwAddress = m_MemoryBase + Offset;
     
-	DWORD dwReturnedLength;
+    DWORD dwReturnedLength;
     DWORD dwValue(0);
 
     DWORD dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_READMEMORYDWORD, &hwParam, sizeof(hwParam.dwAddress), &dwValue, sizeof(dwValue), &dwReturnedLength);
-	return dwValue;
+    return dwValue;
 }
 
 void CPCICard::WriteByte(DWORD Offset, BYTE Data)
@@ -172,10 +166,10 @@ void CPCICard::MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask)
 
 void CPCICard::SetChipName(const char* ChipName)
 {
-	strcpy(m_szChipName, ChipName);
+    strcpy(m_szChipName, ChipName);
 }
 
 const char* CPCICard::GetChipName()
 {
-	return m_szChipName;
+    return m_szChipName;
 }

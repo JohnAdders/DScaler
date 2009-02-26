@@ -15,25 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.12  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.11  2003/05/31 18:45:21  laurentg
-// Possibility to save video format per video input corrected
-//
-// Revision 1.10  2003/05/30 10:06:24  adcockj
-// Fix for format names in ini file
-//
-// Revision 1.9  2003/04/23 08:30:57  adcockj
-// Prevent section names from having square brackets
-//
-// Revision 1.8  2003/01/21 10:41:40  adcockj
-// Added header
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SettingsMaster.cpp CSettingsMaster Implementation
@@ -77,7 +58,7 @@ void CSettingsMaster::LoadOneSetting(CSimpleSetting* pSetting)
                 MakeSubSection(SubSection, pGroup);
                 if(SubSection.length() > 0)
                 {
-					pSetting->ReadFromIniSubSection(SubSection.c_str());
+                    pSetting->ReadFromIniSubSection(SubSection.c_str());
                 }
             }
         }
@@ -114,7 +95,7 @@ void CSettingsMaster::ParseAllSettings(bool IsLoad)
     for (int i = 0; i < m_Holders.size(); i++)
     {
         if ((m_Holders[i].bIsSource) && (m_Holders[i].pHolder!=NULL))  //only save/load setting of its own 
-		{
+        {
             CSource* pSource;
             try 
             {
@@ -125,26 +106,26 @@ void CSettingsMaster::ParseAllSettings(bool IsLoad)
                 pSource = NULL;
             }
             // Skip the holder if the source isn't the current one
-			if ((pSource != NULL) && (pSource != Providers_GetCurrentSource()))
-			{
-				continue;
-			}
-		}
+            if ((pSource != NULL) && (pSource != Providers_GetCurrentSource()))
+            {
+                continue;
+            }
+        }
         
-		int Num = m_Holders[i].pHolder->GetNumSettings();
+        int Num = m_Holders[i].pHolder->GetNumSettings();
         
-		BOOL bAction = FALSE;
+        BOOL bAction = FALSE;
         
         for (int n = 0; n < Num; n++)
         {
-			if (IsLoad)
-			{
-				LoadOneSetting((CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n));
-			}
-			else
-			{
-				WriteOneSetting((CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n));
-			}
+            if (IsLoad)
+            {
+                LoadOneSetting((CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n));
+            }
+            else
+            {
+                WriteOneSetting((CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n));
+            }
         }
     }
 }
@@ -283,7 +264,7 @@ void CSettingsMaster::Register(CSettingsHolder* pHolder)
     {
         bIsSource = FALSE;
     }
-	shi.bIsSource = bIsSource;
+    shi.bIsSource = bIsSource;
 
     //Add to holder list
     m_Holders.push_back(shi);  

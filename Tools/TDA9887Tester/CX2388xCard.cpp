@@ -16,9 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "CX2388xCard.h"
@@ -67,7 +64,7 @@ void CCX2388xCard::InitializeI2C()
     }
     // calculate how many cycles a 50kHZ is (half I2C bus cycle)
     m_I2CSleepCycle = m_I2CSleepCycle / elapsed * 1000L / 50000L;
-	m_I2CInitialized = true;
+    m_I2CInitialized = true;
 }
 
 void CCX2388xCard::SetSDA(bool value)
@@ -134,10 +131,10 @@ bool CCX2388xCard::GetSCL()
 
 bool CCX2388xCard::WriteToI2C(const BYTE *writeBuffer, size_t writeBufferSize)
 {
-	if(m_I2CBus->Write(writeBuffer, writeBufferSize))
-	{
-		return true;
-	}
+    if(m_I2CBus->Write(writeBuffer, writeBufferSize))
+    {
+        return true;
+    }
 
-	return false;
+    return false;
 }

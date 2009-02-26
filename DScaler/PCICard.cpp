@@ -15,82 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.21  2005/03/24 17:57:58  adcockj
-// Card access from one thread at a time
-//
-// Revision 1.20  2005/02/03 04:09:31  atnak
-// Fixed compile problem introduced in the last commit.
-//
-// Revision 1.19  2005/02/03 03:39:21  atnak
-// Added function ManageData(...)
-//
-// Revision 1.18  2004/12/06 09:01:40  atnak
-// Added arbitrary data size PCI read and write functions.
-//
-// Revision 1.17  2004/04/18 12:01:04  adcockj
-// Fixes for eeprom corruption
-//
-// Revision 1.16  2004/04/14 10:02:00  adcockj
-// Added new offset functions for manipulating PCI config space
-//
-// Revision 1.15  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.14  2002/11/07 21:06:12  adcockj
-// Fixes to prevent hanging with card that's not been initilaised
-//
-// Revision 1.13  2002/11/07 20:33:17  adcockj
-// Promoted ACPI functions so that state management works properly
-//
-// Revision 1.12  2002/11/07 13:37:43  adcockj
-// Added State restoration code to PCICard
-// Functionality disabled prior to testing and not done for SAA7134
-//
-// Revision 1.11  2002/10/29 11:05:28  adcockj
-// Renamed CT2388x to CX2388x
-//
-// Revision 1.10  2002/10/22 16:01:42  adcockj
-// Changed definition of IOCTLs
-//
-// Revision 1.9  2002/09/11 18:19:43  adcockj
-// Prelimainary support for CX2388x based cards
-//
-// Revision 1.8  2002/09/10 12:13:37  atnak
-// Fixed MaskDataDword() and AndDataDword()
-//
-// Revision 1.7  2002/06/16 18:53:36  robmuller
-// Renamed pciGetDeviceConfig() to pciGetDeviceInfo().
-// Implemented pciGetDeviceConfig() and pciSetDeviceConfig().
-//
-// Revision 1.6  2002/02/12 02:29:40  ittarnavsky
-// fixed the hardware info dialog
-//
-// Revision 1.5  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.4  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.2.2.3  2001/08/15 09:19:58  adcockj
-// Updated channels per Tronic
-//
-// Revision 1.2.2.2  2001/08/15 07:10:19  adcockj
-// Fixed memory leak
-//
-// Revision 1.2.2.1  2001/08/14 09:40:19  adcockj
-// Interim version of code for multiple card support
-//
-// Revision 1.2  2001/08/13 12:05:12  adcockj
-// Updated range for contrast and saturation
-// Added more code for new driver interface
-//
-// Revision 1.1  2001/08/09 16:44:50  adcockj
-// Added extra files (Unused) for better hardware handling
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file PCICard.cpp CPCICard Implementation
@@ -183,12 +107,12 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
         hwParam.dwAddress = m_BusNumber;
         hwParam.dwValue = m_MemoryAddress;
 
-		// we need to map much more memory for the CX2388x
-		// \todo should make this a parameter
-		if((VendorID == 0x14F1) && (DeviceID == 0x8800))
-		{
-			m_MemoryLength = 0x400000;
-		}
+        // we need to map much more memory for the CX2388x
+        // \todo should make this a parameter
+        if((VendorID == 0x14F1) && (DeviceID == 0x8800))
+        {
+            m_MemoryLength = 0x400000;
+        }
 
         hwParam.dwFlags = m_MemoryLength;
 

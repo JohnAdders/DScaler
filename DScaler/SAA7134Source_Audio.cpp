@@ -20,78 +20,6 @@
 // Copyright (c) 2001 John Adcock.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Sep 2002   Atsushi Nakagawa      Initial Release
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.20  2005/03/16 15:03:56  atnak
-// Fixed problem with Audio Channel reverting to Stereo automatically on
-// load with external lines.
-//
-// Revision 1.19  2004/08/06 16:23:02  atnak
-// Added typecast to make some warnings go away.
-//
-// Revision 1.18  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.17  2003/06/01 19:42:32  atnak
-// Adds "external" sound type for either stereo or mono
-//
-// Revision 1.16  2003/02/06 19:44:46  ittarnavsky
-// changes due to the new SoundChannel.h
-//
-// Revision 1.15  2003/01/10 17:38:18  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.14  2002/12/09 00:32:13  atnak
-// Added new muting stuff
-//
-// Revision 1.13  2002/10/31 05:39:02  atnak
-// Added SoundChannel change event for toolbar
-//
-// Revision 1.12  2002/10/31 05:02:54  atnak
-// Settings cleanup and audio tweaks
-//
-// Revision 1.11  2002/10/28 11:10:11  atnak
-// Various changes and revamp to settings
-//
-// Revision 1.10  2002/10/26 05:24:23  atnak
-// Minor cleanups
-//
-// Revision 1.9  2002/10/20 07:41:04  atnak
-// custom audio standard setup + etc
-//
-// Revision 1.8  2002/10/16 11:37:58  atnak
-// added saa7130 support
-//
-// Revision 1.7  2002/10/04 23:40:46  atnak
-// proper support for audio channels mono,stereo,lang1,lang2 added
-//
-// Revision 1.6  2002/10/03 23:36:22  atnak
-// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
-//
-// Revision 1.5  2002/09/28 13:33:04  kooiman
-// Added sender object to events and added setting flag to treesettingsgeneric.
-//
-// Revision 1.4  2002/09/26 16:34:19  kooiman
-// Lots of toolbar fixes &added EVENT_VOLUME support.
-//
-// Revision 1.3  2002/09/14 19:40:48  atnak
-// various changes
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SAA7134Source.cpp CSAA7134Source Implementation (Audio)
@@ -199,9 +127,9 @@ void CSAA7134Source::UpdateAudioStatus()
             }
         case AUDIOCHANNEL_EXTERNAL:
             {
-				// External means it could either be stereo
-				// or mono but we don't know because it comes
-				// from an external source.
+                // External means it could either be stereo
+                // or mono but we don't know because it comes
+                // from an external source.
                 BtSoundChannel = SOUNDCHANNEL_STEREO;
                 sprintf(szAudioChannel,"External");
                 break;
@@ -277,7 +205,7 @@ void CSAA7134Source::AudioSourceOnChange(long NewValue, long OldValue)
 void CSAA7134Source::AudioChannelOnChange(long AudioChannel, long OldValue)
 {
     if (AudioChannel == AUDIOCHANNEL_MONO &&
-		m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC)
+        m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC)
     {
         if (m_AutoStereoSelect->GetValue())
         {
@@ -289,20 +217,20 @@ void CSAA7134Source::AudioChannelOnChange(long AudioChannel, long OldValue)
 
 void CSAA7134Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
 {
-	if (m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC)
-	{
-		if (NewValue)
-		{
-			m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_STEREO);
-		}
-		else
-		{
-			if (m_AudioChannel->GetValue() == AUDIOCHANNEL_MONO)
-			{
-				m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_MONO);
-			}
-		}
-	}
+    if (m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC)
+    {
+        if (NewValue)
+        {
+            m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_STEREO);
+        }
+        else
+        {
+            if (m_AudioChannel->GetValue() == AUDIOCHANNEL_MONO)
+            {
+                m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_MONO);
+            }
+        }
+    }
 }
 
 void CSAA7134Source::CustomAudioStandardOnChange(long NewValue, long OldValue)

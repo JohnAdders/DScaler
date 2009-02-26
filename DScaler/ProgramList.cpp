@@ -20,359 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Original Release
-//                                     Translated most code from German
-//                                     Combined Header files
-//                                     Cut out all decoding
-//                                     Cut out digital hardware stuff
-//
-// 26 Dec 2000   Eric Schmidt          Made it possible to have whitespace in
-//                                     your channel names in program.txt.
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 11 Mar 2001   Laurent Garnier       Previous Channel feature added
-//
-// 06 Apr 2001   Laurent Garnier       New menu to select channel
-//
-// 26 May 2001   Eric Schmidt          Added Custom Channel Order.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.115  2007/02/18 17:19:21  robmuller
-// Patch from Bill Randle to fix problems with new video formats.
-//
-// Revision 1.114  2005/09/03 21:54:11  to_see
-// Deleted: VPS_GetChannelName because it is not usefull for detecting channel names
-// Fixed: Same channel names in some cases after doing auto channel search
-//
-// Revision 1.113  2005/07/27 22:59:02  laurentg
-// Use new function to search the channel with the VPS CNI
-//
-// Revision 1.112  2005/07/27 20:27:56  laurentg
-// Use VBI_ChannelChange instead of VT_ChannelChange
-//
-// Revision 1.111  2005/07/27 19:34:01  laurentg
-// Separate PDC and P8/30/1
-//
-// Revision 1.110  2005/07/27 00:39:07  robmuller
-// Improved UI handling while scanning.
-//
-// Revision 1.109  2005/07/26 22:17:44  laurentg
-// New function to get channel name from VBI
-// Used when scanning the channels
-//
-// Revision 1.108  2005/03/26 18:53:24  laurentg
-// EPG code improved
-// => possibility to set the EPG channel name in the channel setup dialog box
-// => automatic loading of new data when needed
-// => OSD scrrens updated
-// => first step for programs "browser"
-//
-// Revision 1.107  2005/03/23 14:20:59  adcockj
-// Test fix for threading issues
-//
-// Revision 1.106  2005/03/21 22:39:15  laurentg
-// EPG: changes regarding OSD
-//
-// Revision 1.105  2005/03/08 03:32:23  robmuller
-// Don't scan duplicate frequencies when in non-US style.
-//
-// Revision 1.104  2005/03/06 00:23:04  robmuller
-// Increased post switch mute delay.
-//
-// Revision 1.103  2004/01/05 13:12:24  adcockj
-// Added patch from Lavrenov Dmitrij (midimaker)
-//
-// Revision 1.102  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.101  2003/03/21 22:48:07  laurentg
-// Preview mode (multiple frames) improved
-//
-// Revision 1.100  2003/03/19 23:56:36  laurentg
-// Second step for the navigation through channels in preview mode
-//
-// Revision 1.99  2003/02/05 15:11:44  laurentg
-// Channel name as tip for the DScaler icon in the systray (patch from Kristian Trenskow)
-//
-// Revision 1.98  2003/01/24 01:55:17  atnak
-// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
-// got rid of the pink overlay colorkey for Teletext.
-//
-// Revision 1.97  2003/01/16 18:50:34  adcockj
-// Added code to get channel name from teletext during scan
-//
-// Revision 1.96  2003/01/15 15:38:08  adcockj
-// Fixed crash on exit
-//
-// Revision 1.95  2003/01/12 16:19:34  adcockj
-// Added SettingsGroup activity setting
-// Corrected event sequence and channel change behaviour
-//
-// Revision 1.94  2002/12/10 12:33:16  adcockj
-// Fixed problem with resetting last channel when cancel is pressed
-//
-// Revision 1.93  2002/12/09 00:32:13  atnak
-// Added new muting stuff
-//
-// Revision 1.92  2002/12/07 15:59:06  adcockj
-// Modified mute behaviour
-//
-// Revision 1.91  2002/11/26 19:29:48  tobbej
-// fixed crash with empty channel list (Channel_ChangeToNumber with invalid channel number)
-//
-// Revision 1.90  2002/11/03 06:00:29  atnak
-// Added redrawing the menu bar when it changes
-//
-// Revision 1.89  2002/10/31 14:02:53  adcockj
-// Added Help Button
-//
-// Revision 1.88  2002/10/29 19:23:49  adcockj
-// Fix for duplicate channels on editing last entry
-//
-// Revision 1.87  2002/10/29 12:57:36  adcockj
-// Fixed channel numbering problem, crash with no channel.txt and curent program select on start
-//
-// Revision 1.86  2002/10/28 17:50:02  adcockj
-// Fixes for channels combo
-// Reorganized scanning
-//
-// Revision 1.85  2002/10/28 08:09:33  adcockj
-// Fix for zero frequencies on inactive channels supplied by Denis Balazuc
-//
-// Revision 1.84  2002/10/26 07:37:54  atnak
-// Fixed "pre switch mute delay".  (Reverted to the way it was in Rev 1.77)
-//
-// Revision 1.83  2002/10/25 15:04:39  adcockj
-// Made sure current channels are loaded in the list
-//
-// Revision 1.82  2002/10/25 12:53:44  adcockj
-// First cut at making new ProgramList dialog behave properly
-//
-// Revision 1.81  2002/10/22 05:29:43  flibuste2
-// -- Activated AFC option for auto-scanning
-//
-// Revision 1.80  2002/10/22 00:13:50  flibuste2
-// Reverted to 4.01 behaviour
-// --Changed : clicking on "keys" no longer clear channe list (clear is done on "scan")
-// --Added : auto scan
-// --Added mute option
-// Fixed a few bugs
-// Tidied up code
-//
-// Revision 1.79  2002/10/17 06:49:27  flibuste2
-// -- Adapted to changes from channels
-// -- Fixed a numerous number of bug
-// -- Removed the drag/drop from channel list to channel settings panel feature
-//
-// Revision 1.78  2002/10/17 00:28:41  flibuste2
-// Channels.h / Channels.cpp define the current CHANNELLIST and COUNTRYLIST
-// This first check-in is prior to other enhancements and mostly reproduces
-// the existing data structures for channel settings and user program list
-//
-// Revision 1.77  2002/10/08 20:48:29  kooiman
-// Changed to Hz instead of multiple of 62500 Hz.
-//
-// Revision 1.76  2002/09/30 16:25:18  adcockj
-// Corrected problem with API and channel change
-//
-// Revision 1.75  2002/09/28 13:31:41  kooiman
-// Added sender object to events and added setting flag to treesettingsgeneric.
-//
-// Revision 1.74  2002/09/26 11:33:42  kooiman
-// Use event collector
-//
-// Revision 1.73  2002/09/25 15:11:12  adcockj
-// Preliminary code for format specific support for settings per channel
-//
-// Revision 1.72  2002/09/04 11:58:45  kooiman
-// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
-//
-// Revision 1.71  2002/08/18 14:35:29  robmuller
-// Changed default.
-//
-// Revision 1.70  2002/08/16 18:45:56  kooiman
-// Added optional screen update delay during tuner frequency switch.
-//
-// Revision 1.69  2002/08/11 19:53:32  robmuller
-// Increased default value of PostSwitchMuteDelay from 20 to 100.
-//
-// Revision 1.68  2002/08/06 18:35:43  kooiman
-// Expandable and more independent channel change notification.
-//
-// Revision 1.67  2002/08/05 12:04:26  kooiman
-// Added functions for channel change notification
-//
-// Revision 1.66  2002/08/04 12:28:32  kooiman
-// Fixed previous channel feature.
-//
-// Revision 1.65  2002/08/02 21:59:03  laurentg
-// Hide the menu "Channels" from the menu bar when the source has no tuner or when the tuner is not the selected input
-//
-// Revision 1.64  2002/08/02 20:33:52  laurentg
-// Menu for channels without inactive channels and cut on several columns
-//
-// Revision 1.63  2002/08/02 19:33:24  robmuller
-// Hide disabled channels from the menu.
-//
-// Revision 1.62  2002/08/02 18:37:35  robmuller
-// Patch #588554 by Markus Debus. Change channel on remove added.
-//
-// Revision 1.61  2002/07/27 15:20:34  laurentg
-// Channels menu updated
-//
-// Revision 1.60  2002/07/09 17:37:10  robmuller
-// Retry on tuner write error.
-//
-// Revision 1.59  2002/06/18 19:46:06  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.58  2002/06/13 14:00:41  adcockj
-// Removed old Settings dialog header
-//
-// Revision 1.57  2002/06/13 12:10:22  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.56  2002/06/13 10:40:37  robmuller
-// Made anti plop mute delay configurable.
-//
-// Revision 1.55  2002/05/28 11:51:12  robmuller
-// Prevent fine tuning to a negative frequency.
-//
-// Revision 1.54  2002/04/13 18:56:23  laurentg
-// Checks added to manage case where the current source is not yet defined
-//
-// Revision 1.53  2002/03/13 15:32:45  robmuller
-// Fixed problem when selecting None from the channel combo box.
-//
-// Revision 1.52  2002/03/11 21:38:24  robmuller
-// Enabled auto scroll to the program list box.
-// Insert icon from the program list is now visible before the channel has moved.
-// Moving channel up/down does not scroll the list box anymore.
-//
-// Revision 1.51  2002/03/10 23:14:45  robmuller
-// Added Clear List button.
-// Scan no longer clears the program list.
-// Position in program list is maintained when removing an item.
-// Added support for the delete key in the program list.
-// Fixed typos.
-//
-// Revision 1.50  2002/02/26 19:21:32  adcockj
-// Add Format to Channel.txt file changes by Mike Temperton with some extra stuff by me
-//
-// Revision 1.49  2002/02/24 20:20:12  temperton
-// Now we use currently selected video format instead of tuner default
-//
-// Revision 1.48  2002/02/11 21:23:54  laurentg
-// Grayed certain items in the Channels menu when the current input is not the tuner
-//
-// Revision 1.47  2002/02/09 02:51:38  laurentg
-// Grayed the channels when the source has no tuner
-//
-// Revision 1.46  2002/02/08 08:14:42  adcockj
-// Select saved channel on startup if in tuner mode
-//
-// Revision 1.45  2002/01/26 17:55:13  robmuller
-// Added ability to enter frequency directly.
-// Fixed: When using the channel combo box the tuner was not set to the new frequency.
-//
-// Revision 1.44  2002/01/19 17:23:43  robmuller
-// Added patch #504738 submitted by Keng Hoo Chuah (hoo)
-// (fixed crash if channel.txt does not start with [country])
-//
-// Revision 1.43  2002/01/17 22:25:23  robmuller
-// Channel searching is no longer dependant on the duration of Sleep(3).
-// MT2032 channel searching speedup.
-//
-// Revision 1.42  2001/12/18 14:45:05  adcockj
-// Moved to Common Controls status bar
-//
-// Revision 1.41  2001/12/05 21:45:11  ittarnavsky
-// added changes for the AudioDecoder and AudioControls support
-//
-// Revision 1.40  2001/11/29 17:30:52  adcockj
-// Reorgainised bt848 initilization
-// More Javadoc-ing
-//
-// Revision 1.39  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.38  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.37  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.36  2001/11/01 12:05:21  laurentg
-// Coorection of bug item #477091
-//
-// Revision 1.35  2001/10/17 11:46:11  adcockj
-// Bug fixes
-//
-// Revision 1.34  2001/09/12 15:59:18  adcockj
-// Added mute during scan code
-//
-// Revision 1.33  2001/08/23 18:54:21  adcockj
-// Menu and Settings fixes
-//
-// Revision 1.32  2001/08/23 16:03:26  adcockj
-// Improvements to dynamic menus to remove requirement that they are not empty
-//
-// Revision 1.31.2.7  2001/08/24 12:35:09  adcockj
-// Menu handling changes
-//
-// Revision 1.31.2.6  2001/08/23 16:04:57  adcockj
-// Improvements to dynamic menus to remove requirement that they are not empty
-//
-// Revision 1.31.2.5  2001/08/22 10:40:58  adcockj
-// Added basic tuner support
-// Fixed recusive bug
-//
-// Revision 1.31.2.4  2001/08/21 09:43:01  adcockj
-// Brought branch up to date with latest code fixes
-//
-// Revision 1.31.2.3  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.31.2.2  2001/08/18 17:09:30  adcockj
-// Got to compile, still lots to do...
-//
-// Revision 1.31.2.1  2001/08/14 16:41:37  adcockj
-// Renamed driver
-// Got to compile with new class based card
-//
-// Revision 1.31  2001/08/08 08:47:26  adcockj
-// Stopped resetting program list when not in US mode
-//
-// Revision 1.30  2001/08/06 03:00:17  ericschmidt
-// solidified auto-pixel-width detection
-// preliminary pausing-of-live-tv work
-//
-// Revision 1.29  2001/08/05 16:31:34  adcockj
-// Fixed crashing with PgUp
-//
-// Revision 1.28  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.27  2001/07/13 18:13:24  adcockj
-// Changed Mute to not be persisted and to work properly
-//
-// Revision 1.26  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.25  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file ProgramList.cpp Program List functions
@@ -498,61 +145,61 @@ const char* Channel_GetEPGName()
 }
 
 
-//#define	DEBUG_CHANNEL_IDENTIFICATION
+//#define    DEBUG_CHANNEL_IDENTIFICATION
 
 const char* Channel_GetVBIName(BOOL bOnlyWithCodes)
 {
-	static char szName[24];
+    static char szName[24];
 
-	VT_GetStationFromPDC(szName, sizeof(szName));
-	//LOG(1, "VT_GetStationFromPDC => %s", szName);
+    VT_GetStationFromPDC(szName, sizeof(szName));
+    //LOG(1, "VT_GetStationFromPDC => %s", szName);
 #ifdef DEBUG_CHANNEL_IDENTIFICATION
-	if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
-	{
-		strcat(szName, "#1");
-	}
+    if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
+    {
+        strcat(szName, "#1");
+    }
 #endif
 
-	if (*szName == '\0')
-	{
-		VPS_GetChannelNameFromCNI(szName, sizeof(szName));
-		//LOG(1, "VPS_GetChannelNameFromCNI => %s", szName);
+    if (*szName == '\0')
+    {
+        VPS_GetChannelNameFromCNI(szName, sizeof(szName));
+        //LOG(1, "VPS_GetChannelNameFromCNI => %s", szName);
 #ifdef DEBUG_CHANNEL_IDENTIFICATION
-		if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
-		{
-			strcat(szName, "#2");
-		}
+        if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
+        {
+            strcat(szName, "#2");
+        }
 #endif
-	}
+    }
 
-	if (*szName == '\0')
-	{
-		VT_GetStationFromIDP8301(szName, sizeof(szName));
-		//LOG(1, "VT_GetStationFromIDP8301 => %s", szName);
+    if (*szName == '\0')
+    {
+        VT_GetStationFromIDP8301(szName, sizeof(szName));
+        //LOG(1, "VT_GetStationFromIDP8301 => %s", szName);
 #ifdef DEBUG_CHANNEL_IDENTIFICATION
-		if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
-		{
-			strcat(szName, "#3");
-		}
+        if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
+        {
+            strcat(szName, "#3");
+        }
 #endif
-	}
+    }
 
-	if (bOnlyWithCodes == FALSE)
-	{
-		if (*szName == '\0')
-		{
-			VT_GetStation(szName, sizeof(szName));
-			//LOG(1, "VT_GetStation => %s", szName);
+    if (bOnlyWithCodes == FALSE)
+    {
+        if (*szName == '\0')
+        {
+            VT_GetStation(szName, sizeof(szName));
+            //LOG(1, "VT_GetStation => %s", szName);
 #ifdef DEBUG_CHANNEL_IDENTIFICATION
-			if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
-			{
-				strcat(szName, "#4");
-			}
+            if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
+            {
+                strcat(szName, "#4");
+            }
 #endif
-		}
-	}
+        }
+    }
 
-	return szName;
+    return szName;
 }
 
 
@@ -646,7 +293,7 @@ void UpdateDetails(HWND hDlg, const CChannel* const pChannel)
 void UpdateDetails(HWND hDlg, int iCurrentProgramIndex)
 {    
     if (   (iCurrentProgramIndex >= 0)
-		&& (iCurrentProgramIndex < MyChannels.GetSize()) )
+        && (iCurrentProgramIndex < MyChannels.GetSize()) )
     {
         UpdateDetails(hDlg, MyChannels.GetChannel(iCurrentProgramIndex));
     }
@@ -700,11 +347,11 @@ void RefreshProgramList(HWND hDlg, int ProgToSelect)
         index = 0;
     }
 
-	if (index != -1)
-	{
-		ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), index);           
-		ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), index);  
-	}
+    if (index != -1)
+    {
+        ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), index);           
+        ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), index);  
+    }
     UpdateDetails(hDlg, index); 
     CurrentProgram = index;        
     MyInUpdate = FALSE;
@@ -855,8 +502,8 @@ DWORD FindFrequency(DWORD Freq, int Format, DWORD dwAFCFrequencyDeviationThresho
         // so 120ms seems to be a safe value.
     case TUNER_MT2032:
     case TUNER_MT2032_PAL:
-	case TUNER_MT2050:
-	case TUNER_MT2050_PAL:
+    case TUNER_MT2050:
+    case TUNER_MT2050_PAL:
         MaxTuneDelay = 120;
         break;
     default:
@@ -979,70 +626,70 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
     CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex);
     UpdateDetails(hDlg, channel);
 
-	// don't attempt to scan duplicate frequencies
-	if(!MyChannels.GetChannelByFrequency(channel->GetFrequency()))
-	{
-		DWORD ReturnedFreq = FindFrequency(channel->GetFrequency(), channel->GetFormat(), 0);
+    // don't attempt to scan duplicate frequencies
+    if(!MyChannels.GetChannelByFrequency(channel->GetFrequency()))
+    {
+        DWORD ReturnedFreq = FindFrequency(channel->GetFrequency(), channel->GetFormat(), 0);
 
-		// add channel if frequency found
-		if (ReturnedFreq != 0)
-		{
-			char sbuf[256] = "";
+        // add channel if frequency found
+        if (ReturnedFreq != 0)
+        {
+            char sbuf[256] = "";
 
-			// if teletext is active then get channel names
-			if (   bCaptureVBI
-			    && (   Setting_GetValue(VBI_GetSetting(DOTELETEXT))
-					|| Setting_GetValue(VBI_GetSetting(DOVPS)) ) )
-			{
+            // if teletext is active then get channel names
+            if (   bCaptureVBI
+                && (   Setting_GetValue(VBI_GetSetting(DOTELETEXT))
+                    || Setting_GetValue(VBI_GetSetting(DOVPS)) ) )
+            {
                 // Torsten's comment:
                 // Because VBI decoding is not stopped before tuned
                 // into the new channel we got in some cases old vbi data
                 // from the previous tuned channel. So let's at first wait
                 // some time to get stable signals from tuner. *After* waiting
                 // is done then clear all buffers in vbi decoding and try again.
-				Sleep(50);
-				VBI_ChannelChange();
+                Sleep(50);
+                VBI_ChannelChange();
                 
                 int i = 0;
-				while(i < 12 && (sbuf[0] == '\0' || sbuf[0] == ' '))
-				{
-					MSG msg;
-					while (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
-					{
-						SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
-					}
+                while(i < 12 && (sbuf[0] == '\0' || sbuf[0] == ' '))
+                {
+                    MSG msg;
+                    while (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
+                    {
+                        SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
+                    }
 
-				    // Laurent's comment: Increase the search duration because
-				    // 10 * 200 seems to be sometimes not enough for some networks.
-				    // The fact that the code ID in P8/30/1 needs to be received
-				    // twice with the same value before being used is the main reason.
-					Sleep(200);
-					strcpy(sbuf, Channel_GetVBIName(TRUE));
-					++i;
-				}
-				if(sbuf[0] == '\0' || sbuf[0] == ' ')
-				{
-					strcpy(sbuf, Channel_GetVBIName(FALSE));
-				}
-				if(sbuf[0] == '\0' || sbuf[0] == ' ')
-				{
-					sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
-				}
-			}
-			else
-			{
-				sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
-			}
-			CChannel* NewChannel = new CChannel(
-										sbuf,
-										ReturnedFreq,
-										channel->GetChannelNumber(),
-										channel->GetFormat(),
-										TRUE
-									 );
-			AddScannedChannel(hDlg, NewChannel);
-		}   
-	}
+                    // Laurent's comment: Increase the search duration because
+                    // 10 * 200 seems to be sometimes not enough for some networks.
+                    // The fact that the code ID in P8/30/1 needs to be received
+                    // twice with the same value before being used is the main reason.
+                    Sleep(200);
+                    strcpy(sbuf, Channel_GetVBIName(TRUE));
+                    ++i;
+                }
+                if(sbuf[0] == '\0' || sbuf[0] == ' ')
+                {
+                    strcpy(sbuf, Channel_GetVBIName(FALSE));
+                }
+                if(sbuf[0] == '\0' || sbuf[0] == ' ')
+                {
+                    sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
+                }
+            }
+            else
+            {
+                sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
+            }
+            CChannel* NewChannel = new CChannel(
+                                        sbuf,
+                                        ReturnedFreq,
+                                        channel->GetChannelNumber(),
+                                        channel->GetFormat(),
+                                        TRUE
+                                     );
+            AddScannedChannel(hDlg, NewChannel);
+        }   
+    }
 
     MyInUpdate = FALSE;
 }
@@ -1279,8 +926,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), VideoFormatNames[i]);
             }
-		    ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "Tuner default");
-		    ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "FM Radio");
+            ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "Tuner default");
+            ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "FM Radio");
 
             // load up the country settings and update the dialog controls 
             // with country setting info if relevant
@@ -1726,7 +1373,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     dummy.Empty();
                 }
                 WriteSettingsToIni(TRUE);
-				MyEPG.ReloadEPGData();	// Reload EPG data
+                MyEPG.ReloadEPGData();    // Reload EPG data
                 EndDialog(hDlg, TRUE);
             }
             break;
@@ -1851,7 +1498,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
         {
             if (MyChannels.GetChannelFrequency(NewChannel) != 0)
             {
-				int OldChannel = CurrentProgram;                
+                int OldChannel = CurrentProgram;                
 
                 Audio_Mute(PreSwitchMuteDelay);
 
@@ -1922,9 +1569,9 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 VBI_ChannelChange();   
 
                 StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-				OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
-				MyEPG.ShowOSD();
-				SetTrayTip(MyChannels.GetChannel(CurrentProgram)->GetName());
+                OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+                MyEPG.ShowOSD();
+                SetTrayTip(MyChannels.GetChannel(CurrentProgram)->GetName());
             }
         }
     }

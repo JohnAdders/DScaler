@@ -15,110 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Jan 2001   John Adcock           Split out into new file
-//                                     Changed functions to use TDeinterlaceInfo
-//
-// 17 Jun 2001   John Adcock           Added autoformat detection based on input
-//                                     frequency
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.40  2003/11/14 13:24:55  adcockj
-// PMS card fixes
-//
-// Revision 1.39  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.38  2003/09/27 13:39:14  adcockj
-// Changed default to off for auto format
-//
-// Revision 1.37  2003/07/18 09:39:05  adcockj
-// Added option to release processor during JT
-//
-// Revision 1.36  2003/07/14 19:18:46  adcockj
-// Made format change cope better with dropped frames
-//
-// Revision 1.35  2003/03/09 19:46:25  laurentg
-// Updated field statistics
-//
-// Revision 1.34  2003/03/08 20:01:26  laurentg
-// New setting "always sleep"
-//
-// Revision 1.33  2003/02/26 20:53:31  laurentg
-// New timing setting MaxFieldShift
-//
-// Revision 1.32  2003/02/22 13:36:36  laurentg
-// New statistics to check fields runnign late and no flip at time
-//
-// Revision 1.31  2003/01/24 08:57:55  adcockj
-// Fixed autodetect bug (fix by Laurent)
-//
-// Revision 1.30  2002/09/19 17:33:44  adcockj
-// Made looging for format detect less noisy
-//
-// Revision 1.29  2002/09/16 20:08:21  adcockj
-// fixed format detect for cx2388x
-//
-// Revision 1.28  2002/09/15 14:20:38  adcockj
-// Fixed timing problems for cx2388x chips
-//
-// Revision 1.27  2002/08/26 18:25:10  adcockj
-// Fixed problem with PAL/NTSC detection
-//
-// Revision 1.26  2002/06/13 12:10:22  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.25  2001/12/05 21:45:11  ittarnavsky
-// added changes for the AudioDecoder and AudioControls support
-//
-// Revision 1.24  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.23  2001/11/22 13:32:03  adcockj
-// Finished changes caused by changes to TDeinterlaceInfo - Compiles
-//
-// Revision 1.22  2001/11/21 15:21:39  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.21  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.20  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.16.2.2  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.16.2.1  2001/08/17 16:35:14  adcockj
-// Another interim check-in still doesn't compile. Getting closer ...
-//
-// Revision 1.16  2001/08/11 12:02:13  adcockj
-// Updated SleepInterval default
-//
-// Revision 1.15  2001/08/02 16:43:05  adcockj
-// Added Debug level to LOG function
-//
-// Revision 1.14  2001/07/28 13:24:40  adcockj
-// Added UI for Overlay Controls and fixed issues with SettingsDlg
-//
-// Revision 1.13  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.12  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.11  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file FieldTiming.cpp Field Timing functions
@@ -157,8 +53,8 @@ long FormatChangeThreshold = 2;
 long SleepInterval = 1;         // " , default=0, how long to wait for BT chip
 long SleepSkipFields = 0;       // Number of fields to skip before doing sleep interval
 long SleepSkipFieldsLate = 0;   // Number of fields to skip before doing sleep interval, when we're running late
-long MaxFieldShift = 1;		// Maximum shift beween the last received field and the field to process
-BOOL bAlwaysSleep = FALSE;	// Define if sleep must be called in all circonstances
+long MaxFieldShift = 1;        // Maximum shift beween the last received field and the field to process
+BOOL bAlwaysSleep = FALSE;    // Define if sleep must be called in all circonstances
 BOOL bGiveUpProcDuringJT = FALSE;
 
 void Timing_Setup()
@@ -283,7 +179,7 @@ void Timing_SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate, BOOL& bSleptA
 void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
 {
     static long RepeatCount = 0;
-	static LARGE_INTEGER LastTenFieldTime = {LONGLONG(0)};
+    static LARGE_INTEGER LastTenFieldTime = {LONGLONG(0)};
     static long Counted = 0;
     static long LastFrame = 0;
 
@@ -327,7 +223,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
                         ++RepeatCount;
                         if(RepeatCount > FormatChangeThreshold)
                         {
-						    Providers_GetCurrentSource()->SetFormat(FiftyHzFormat);
+                            Providers_GetCurrentSource()->SetFormat(FiftyHzFormat);
                             LOG(1, "Went to 50Hz Mode - Last Ten Count %d", TenFieldTime);
                         }
                     }
@@ -342,7 +238,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
                         ++RepeatCount;
                         if(RepeatCount > FormatChangeThreshold)
                         {
-						    Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
+                            Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
                             LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
                         }
                     }
@@ -357,7 +253,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
                         ++RepeatCount;
                         if(RepeatCount > FormatChangeThreshold)
                         {
-						    Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
+                            Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
                             LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
                         }
                     }
@@ -384,7 +280,7 @@ void Timing_Reset()
 
 void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* CurrentMethod, BOOL* bStopThread)
 {
-	BOOL bWait = FALSE;
+    BOOL bWait = FALSE;
 
     if(pInfo->bMissedFrame == FALSE && FlipAdjust == FALSE)
     {
@@ -445,7 +341,7 @@ void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* Curre
             while(!(*bStopThread) && (CurrentFlipTime.QuadPart - LastFlipTime.QuadPart) < TicksToWait)
             {
                 QueryPerformanceCounter(&CurrentFlipTime);
-				bWait = TRUE;
+                bWait = TRUE;
             }
             LastFlipTime.QuadPart = CurrentFlipTime.QuadPart;
         }
@@ -454,10 +350,10 @@ void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* Curre
     {
         QueryPerformanceCounter(&LastFlipTime);
     }
-	if (!bWait)
-	{
-		Timing_IncrementNoFlipAtTime();
-	}
+    if (!bWait)
+    {
+        Timing_IncrementNoFlipAtTime();
+    }
     FlipAdjust = FALSE;
 }
 

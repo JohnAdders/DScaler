@@ -17,9 +17,6 @@
 //  Copyright (C) 2000-2005 Quenotte  All rights reserved.
 //  Copyright (C) 2000 - 2002 by Eduardo José Tagle.
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #if !defined(__TDA9874AUDIODECODER_H__)
 #define __TDA9874AUDIODECODER_H__
@@ -48,7 +45,7 @@ public:
 
     // Inputs
     void SetAudioInput(eAudioInput AudioInput);
-	
+    
     // Standard
     void SetAudioStandard(long Standard, eVideoFormat VideoFormat);
     const char* GetAudioStandardName(long Standard);
@@ -57,53 +54,53 @@ public:
     long GetAudioStandardFromVideoFormat(eVideoFormat VideoFormat);
     void DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel);
     long GetAudioStandardMajorCarrier(long Standard);
-	long GetAudioStandardMinorCarrier(long Standard);	
-	int DetectThread();
+    long GetAudioStandardMinorCarrier(long Standard);    
+    int DetectThread();
 
-	
+    
 
-private:	
-	enum eStandard
+private:    
+    enum eStandard
     {
-		TDA9874_STANDARD_NONE = 0x0000,
+        TDA9874_STANDARD_NONE = 0x0000,
         TDA9874_STANDARD_AUTO = 0x0001,
 
-		//ANALOG
+        //ANALOG
         TDA9874_STANDARD_M_ANALOG_FM_NONE = 0x0010,
         TDA9874_STANDARD_M_ANALOG_FM_FM = 0x0011,
         TDA9874_STANDARD_BG_ANALOG_FM_FM = 0x0012,
         TDA9874_STANDARD_I_ANALOG_FM_NONE = 0x0013,
         TDA9874_STANDARD_DK1_ANALOG_FM_FM = 0x0014,
         TDA9874_STANDARD_DK2_ANALOG_FM_FM = 0x0015,
-		TDA9874_STANDARD_DK3_ANALOG_FM_FM = 0x0016,
+        TDA9874_STANDARD_DK3_ANALOG_FM_FM = 0x0016,
 
-		//NICAM
+        //NICAM
         TDA9874_STANDARD_BG_DIGITAL_FM_NICAM = 0x0030,
         TDA9874_STANDARD_I_DIGITAL_FM_NICAM = 0x0031,
         TDA9874_STANDARD_DK_DIGITAL_FM_NICAM = 0x0032,
         TDA9874_STANDARD_L_DIGITAL_AM_NICAM = 0x0033,
-		
-		//AUTODETECT
+        
+        //AUTODETECT
         TDA9874_STANDARD_AUTODETECTION_IN_PROGRESS  = 0x07ff
-	};
+    };
 
-	typedef struct
-	{
-		char* Name;		// Videonorms name
-		DWORD Standard;	// Videonorms that use this
-		DWORD c1,c2;	// Carrier 1 and Carrier 2 frequencies
-		BYTE  DCR;		// Demodulator control register
-		BYTE  FMER;		// FM deemphasis	(only for FM, NICAM ignores it)
-		BYTE  FMMR;		// FM dematrix		(only for FM, NICAM ignores it). User can override it
-		BOOL  Nicam;	// Is it is NICAM mode
-		BOOL  AGCOff;	// If AGC must be turned off
-	} ANInfo;
+    typedef struct
+    {
+        char* Name;        // Videonorms name
+        DWORD Standard;    // Videonorms that use this
+        DWORD c1,c2;    // Carrier 1 and Carrier 2 frequencies
+        BYTE  DCR;        // Demodulator control register
+        BYTE  FMER;        // FM deemphasis    (only for FM, NICAM ignores it)
+        BYTE  FMMR;        // FM dematrix        (only for FM, NICAM ignores it). User can override it
+        BOOL  Nicam;    // Is it is NICAM mode
+        BOOL  AGCOff;    // If AGC must be turned off
+    } ANInfo;
 
-	eSoundChannel m_desiredam;
-	int m_SIF;
+    eSoundChannel m_desiredam;
+    int m_SIF;
     eAudioDecoderType GetAudioDecoderType();
 
-	static ANInfo m_TDA9874Standards[];	
+    static ANInfo m_TDA9874Standards[];    
       
     HANDLE m_TDA9874Thread;
     volatile bool m_StopThread;
@@ -112,7 +109,7 @@ private:
     volatile eSoundChannel m_TargetSoundChannel;
     volatile long m_DetectInterval10ms;
     volatile int m_AutoDetecting;
-    volatile eSupportedSoundChannels m_SupportedSoundChannels;    	
+    volatile eSupportedSoundChannels m_SupportedSoundChannels;        
     
 
     void SetChipStandard(bool FastCheck);

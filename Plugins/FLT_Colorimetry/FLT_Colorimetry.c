@@ -15,25 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.5  2005/03/11 13:31:54  adcockj
-// Get rid of a load of compilation warnings in vs.net
-//
-// Revision 1.4  2003/11/13 13:57:26  robmuller
-// Don't load when SSE is not available.
-//
-// Revision 1.3  2003/06/26 11:42:54  adcockj
-// Reduced teh size of some of the dlls
-//
-// Revision 1.2  2003/04/15 13:07:50  adcockj
-// Change type from int to list
-//
-// Revision 1.1  2003/04/14 12:14:51  adcockj
-// Added new Colorimetry Filter
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Filter.h"

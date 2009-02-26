@@ -17,13 +17,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2006/12/12 23:43:10  robmuller
-// Fix compile errors with Visual Studio 2005 Express.
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 // Make sure the multi-monitor stubs are included only once.
 // This also forces the code to be actually included, solving unresolved externals.

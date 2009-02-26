@@ -20,170 +20,6 @@
 // Copyright (c) 2001 John Adcock.
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Sep 2002   Atsushi Nakagawa      Initial Release
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.49  2005/05/18 12:18:32  robmuller
-// Added gamma control.
-//
-// Revision 1.48  2005/03/16 14:42:32  atnak
-// Fixed problem with Stereo not appearing selected in the Audio Channel
-// menu with external lines.
-//
-// Revision 1.47  2005/03/10 05:04:55  atnak
-// Fixed inconsistencies left from audio line reordering.  Audio Input menu was
-// broken.
-//
-// Revision 1.46  2004/11/20 14:23:56  atnak
-// Added SAA7134 card name setting for storing the card selection as text.
-//
-// Revision 1.45  2004/03/18 03:36:13  atnak
-// Fixed Bug: Tuner changes in card setup is not saved
-//
-// Revision 1.44  2004/02/18 06:39:46  atnak
-// Changed Setup Card / Tuner so that only cards of the same device are
-// shown in the card list.
-// Added new card Chronos Video Shuttle II (saa7134 version)
-//
-// Revision 1.43  2003/10/27 16:22:57  adcockj
-// Added preliminary support for PMS PDI Deluxe card
-//
-// Revision 1.42  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.41  2003/05/29 15:55:26  laurentg
-// Settings management updated (saving of video format per video input deactivated)
-//
-// Revision 1.40  2003/03/23 10:42:21  laurentg
-// Avoid to switch to an unknown video input when using 000...
-//
-// Revision 1.39  2003/03/23 10:25:23  laurentg
-// Use video input name as icon tips when not in tuner mode
-//
-// Revision 1.38  2003/01/28 07:22:28  atnak
-// Visual changes
-//
-// Revision 1.37  2003/01/27 22:04:15  laurentg
-// First step to merge setup hardware and hardware info dialog boxes
-// CPU flag information moved in the general hardware dialog box
-// Hardware info dialog box available for CX2388x
-//
-// Revision 1.36  2003/01/23 01:52:21  atnak
-// Fixed settings
-//
-// Revision 1.35  2003/01/19 10:39:56  laurentg
-// Disable selection of the tuner input when no tuner has been selected in the card setup dialog box
-//
-// Revision 1.34  2003/01/18 12:10:49  laurentg
-// Avoid double display in OSD (ADJUSTDOWN_SILENT and ADJUSTUP_SILENT instead of (ADJUSTDOWN and ADJUSTUP)
-//
-// Revision 1.33  2003/01/16 13:30:49  adcockj
-// Fixes for various settings problems reported by Laurent 15/Jan/2003
-//
-// Revision 1.32  2003/01/10 17:38:20  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.31  2003/01/08 00:22:42  atnak
-// Put back VBI upscale divisor
-//
-// Revision 1.30  2003/01/07 23:27:04  laurentg
-// New overscan settings
-//
-// Revision 1.29  2003/01/07 22:59:57  atnak
-// Removed variable upscale devisor and locked in at 0x200 scaling
-// for 27Mhz VBI stepping
-//
-// Revision 1.28  2003/01/04 16:54:39  adcockj
-// Disabled format menu when in tuner mode
-//
-// Revision 1.27  2002/12/31 13:21:22  adcockj
-// Fixes for SetDefault Problems (needs testing)
-//
-// Revision 1.26  2002/12/23 17:22:10  adcockj
-// Settings fixes
-//
-// Revision 1.25  2002/12/09 00:32:47  atnak
-// Code layout tweaks
-//
-// Revision 1.24  2002/12/05 08:08:08  atnak
-// Minor correction
-//
-// Revision 1.23  2002/12/04 15:54:09  adcockj
-// Hacky fix for settings by channel code with mutiple cards
-//
-// Revision 1.22  2002/11/28 13:38:01  atnak
-// Removed saa7134res.dll checking where it was unneeded
-//
-// Revision 1.21  2002/11/10 09:30:56  atnak
-// Added Chroma only comb filter mode for SECAM
-//
-// Revision 1.20  2002/11/10 05:11:23  atnak
-// Added adjustable audio input level
-//
-// Revision 1.19  2002/10/31 05:02:54  atnak
-// Settings cleanup and audio tweaks
-//
-// Revision 1.18  2002/10/29 03:07:18  atnak
-// Added SAA713x TreeSettings Page
-//
-// Revision 1.17  2002/10/28 12:04:37  atnak
-// Code to remove debug menus from Release code
-//
-// Revision 1.16  2002/10/28 11:10:09  atnak
-// Various changes and revamp to settings
-//
-// Revision 1.15  2002/10/26 17:51:53  adcockj
-// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
-//
-// Revision 1.14  2002/10/26 05:24:23  atnak
-// Minor cleanups
-//
-// Revision 1.13  2002/10/26 04:41:43  atnak
-// Clean up + added auto card detection
-//
-// Revision 1.12  2002/10/20 07:41:04  atnak
-// custom audio standard setup + etc
-//
-// Revision 1.11  2002/10/16 11:38:46  atnak
-// cleaned up audio standard stuff
-//
-// Revision 1.10  2002/10/08 20:35:39  atnak
-// whitepeak, colorpeak, comb filter UI options
-//
-// Revision 1.9  2002/10/04 23:40:46  atnak
-// proper support for audio channels mono,stereo,lang1,lang2 added
-//
-// Revision 1.8  2002/10/03 23:31:50  atnak
-// Changes for HPLLMode menu and other various minor
-//
-// Revision 1.7  2002/09/29 13:56:30  adcockj
-// Fixed some cursor hide problems
-//
-// Revision 1.6  2002/09/25 15:11:12  adcockj
-// Preliminary code for format specific support for settings per channel
-//
-// Revision 1.5  2002/09/16 17:52:34  atnak
-// Support for SAA7134Res.dll dialogs
-//
-// Revision 1.4  2002/09/14 19:40:48  atnak
-// various changes
-//
-// Revision 1.3  2002/09/10 12:24:03  atnak
-// changed some UI stuff
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file SAA7134Source.cpp CSAA7134Source Implementation (UI)
@@ -1340,7 +1176,7 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
     EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, m_pSAA7134Card->IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE1));
     EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, m_pSAA7134Card->IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE2));
 
-	eAudioChannel audioChannel = m_pSAA7134Card->GetAudioChannel();
+    eAudioChannel audioChannel = m_pSAA7134Card->GetAudioChannel();
     CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, audioChannel == AUDIOCHANNEL_MONO);
     CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, audioChannel == AUDIOCHANNEL_STEREO || audioChannel == AUDIOCHANNEL_EXTERNAL);
     CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, audioChannel == AUDIOCHANNEL_LANGUAGE1);
@@ -1523,21 +1359,21 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_AUDIO_0:
         case IDM_AUDIO_1:
         case IDM_AUDIO_2:
-			switch(LOWORD(wParam))
-			{
-			case IDM_AUDIO_0:
-				m_AudioSource->SetValue(AUDIOINPUTSOURCE_DAC);
-				ShowText(hWnd, "Audio Input - Tuner");
-				break;
-			case IDM_AUDIO_1:
-				m_AudioSource->SetValue(AUDIOINPUTSOURCE_LINE1);
-				ShowText(hWnd, "Audio Input - Line 1");
-				break;
-			case IDM_AUDIO_2:
-				m_AudioSource->SetValue(AUDIOINPUTSOURCE_LINE2);
-				ShowText(hWnd, "Audio Input - Line 2");
-				break;
-			}
+            switch(LOWORD(wParam))
+            {
+            case IDM_AUDIO_0:
+                m_AudioSource->SetValue(AUDIOINPUTSOURCE_DAC);
+                ShowText(hWnd, "Audio Input - Tuner");
+                break;
+            case IDM_AUDIO_1:
+                m_AudioSource->SetValue(AUDIOINPUTSOURCE_LINE1);
+                ShowText(hWnd, "Audio Input - Line 1");
+                break;
+            case IDM_AUDIO_2:
+                m_AudioSource->SetValue(AUDIOINPUTSOURCE_LINE2);
+                ShowText(hWnd, "Audio Input - Line 2");
+                break;
+            }
             break;
 
         case IDM_SOURCE_INPUT1:
@@ -1804,8 +1640,8 @@ CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
     vSettingsList.push_back(m_AutomaticGainControl);
     vSettingsList.push_back(m_AdaptiveCombFilter);
     vSettingsList.push_back(m_GainControlLevel);
-	vSettingsList.push_back(m_GammaControl);
-	vSettingsList.push_back(m_GammaLevel);
+    vSettingsList.push_back(m_GammaControl);
+    vSettingsList.push_back(m_GammaLevel);
     vSettingsList.push_back(m_VideoMirror);
     vSettingsList.push_back(m_CustomPixelWidth);
     vSettingsList.push_back(m_HDelay);

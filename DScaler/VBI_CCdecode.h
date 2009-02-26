@@ -15,15 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Added Header file
-//                                     removed xwindows calls
-//                                     put definitions in header
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file VBI_ccdecode.h ccdecode Header file

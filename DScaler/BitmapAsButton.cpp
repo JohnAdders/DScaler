@@ -20,25 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.3  2002/10/07 20:32:43  kooiman
-// Fixed small bugs. Added 3/4state button.
-//
-// Revision 1.2  2002/09/26 16:34:19  kooiman
-// Lots of toolbar fixes &added EVENT_VOLUME support.
-//
-// Revision 1.1  2002/09/25 22:32:09  kooiman
-// Bitmap as a button.
-//
-// Revision 1.0  2001/11/25 02:03:21  kooiman
-// initial version
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file BitmapAsButton.cpp CBitmapAsButton Implementation
@@ -130,8 +111,8 @@ BOOL CBitmapAsButton::Create(string sID, HWND hWndParent, int x, int y, HINSTANC
     }
 
     MDICREATESTRUCT mdic;
-	::memset(&mdic, 0, sizeof(mdic));
-	mdic.lParam = (LPARAM)this;
+    ::memset(&mdic, 0, sizeof(mdic));
+    mdic.lParam = (LPARAM)this;
 
     this->sID = sID;
     this->hWndParent = hWndParent;
@@ -169,9 +150,9 @@ BOOL CBitmapAsButton::Create(string sID, HWND hWndParent, int x, int y, HINSTANC
 BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, string sID, HWND hWndParent )
 {
     //Restore first if it was already taken over
-	RestoreBack(hTakeOver);
+    RestoreBack(hTakeOver);
 
-	bFailed = TRUE; //assume the worst
+    bFailed = TRUE; //assume the worst
 
     if (hCursorHand == NULL)
     {
@@ -227,10 +208,10 @@ BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, string sID, HWND hWndParent )
 BOOL CBitmapAsButton::RestoreBack(HWND hWnd)
 {
     if (hWnd == NULL)
-	{
-		hWnd = hWndButton;
-	}
-	if ((pOriginalProc != NULL) && (hWnd != NULL) && (hWnd==hWndButton))
+    {
+        hWnd = hWndButton;
+    }
+    if ((pOriginalProc != NULL) && (hWnd != NULL) && (hWnd==hWndButton))
     {
         SetWindowRgn(hWnd, NULL, FALSE);
         SetWindowLong(hWnd, GWL_WNDPROC, (LONG)pOriginalProc);    
@@ -316,20 +297,20 @@ void CBitmapAsButton::Draw(HDC hDC, LPRECT lpRect)
         m_bhBmp.Draw(hDC,pPBmpStart,lpRect,State);
     }
     else if ((ButtonType == BITMAPASBUTTON_CHECKBOX)
-			|| (ButtonType == BITMAPASBUTTON_3STATE) || (ButtonType == BITMAPASBUTTON_4STATE))
+            || (ButtonType == BITMAPASBUTTON_3STATE) || (ButtonType == BITMAPASBUTTON_4STATE))
     {
-        State += 3*ButtonState;		
+        State += 3*ButtonState;        
 
         if (m_bhBmp.GetBitmap(State) == NULL) 
         { 
             if (State>(3*ButtonState)) 
-			{ 
-				State=3*ButtonState; 
-			}
+            { 
+                State=3*ButtonState; 
+            }
         }
         if (m_bhBmp.GetBitmap(State) == NULL) 
-		{ 
-			State = 0; 
+        { 
+            State = 0; 
         }
 
         POINT P1;
@@ -427,7 +408,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
     ///// Mouse ///////////////////////////////////////////////
 
-    case WM_RBUTTONDOWN:			
+    case WM_RBUTTONDOWN:            
         m_mouserdown = TRUE;
         ::InvalidateRect( hDlg, NULL, false );
         break;
@@ -436,7 +417,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         ::InvalidateRect( hDlg, NULL, false );            
         break;
 
-    case WM_LBUTTONDOWN:			
+    case WM_LBUTTONDOWN:            
         m_mouseldown = TRUE;        
 
         if (ButtonType == BITMAPASBUTTON_SLIDER)
@@ -459,21 +440,21 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         {
             ButtonState = (ButtonState)?0:1;
         }
-		else if (ButtonType == BITMAPASBUTTON_3STATE)
+        else if (ButtonType == BITMAPASBUTTON_3STATE)
         {
             /*ButtonState++;
-			if (ButtonState>=3)
-			{
-				ButtonState=0;
-			}*/
+            if (ButtonState>=3)
+            {
+                ButtonState=0;
+            }*/
         }
-		else if (ButtonType == BITMAPASBUTTON_4STATE)
+        else if (ButtonType == BITMAPASBUTTON_4STATE)
         {
             /*ButtonState++;
-			if (ButtonState>=4)
-			{
-				ButtonState=0;
-			}*/
+            if (ButtonState>=4)
+            {
+                ButtonState=0;
+            }*/
         }
         ::InvalidateRect( hDlg, NULL, false );            
         break;
@@ -496,7 +477,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
             }
 
             if (wParam != MK_LBUTTON )
-            {	
+            {    
                 m_mouseldown = false;                    
             }
             if (wParam != MK_RBUTTON )
@@ -531,7 +512,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
             }                
         }
         break;
-    case WM_MOUSELEAVE:		    
+    case WM_MOUSELEAVE:            
         m_mouseover = false;
         m_mouseldown = false;
         m_mouserdown = false;
@@ -568,13 +549,13 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         //LOG(2,"BitmapButton: 0x%08x: [%s] erase bg",hDlg,sID.c_str());
         return TRUE;
     /////////////////////// Checkbox //////////////////////////////
-	/////////////////////// 3/4state //////////////////////////////
+    /////////////////////// 3/4state //////////////////////////////
     case BM_GETCHECK:
         if (ButtonType == BITMAPASBUTTON_CHECKBOX)
         {
             return (ButtonState)?BST_CHECKED:BST_UNCHECKED;            
         }
-		if ((ButtonType == BITMAPASBUTTON_3STATE)||(ButtonType == BITMAPASBUTTON_4STATE))
+        if ((ButtonType == BITMAPASBUTTON_3STATE)||(ButtonType == BITMAPASBUTTON_4STATE))
         {
             return ButtonState;
         }
@@ -586,13 +567,13 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
             ButtonState = (wParam == BST_CHECKED) ? 1:0;
             InvalidateRect(hDlg, NULL, false);
         }
-		if ((ButtonType == BITMAPASBUTTON_3STATE)||(ButtonType == BITMAPASBUTTON_4STATE))
+        if ((ButtonType == BITMAPASBUTTON_3STATE)||(ButtonType == BITMAPASBUTTON_4STATE))
         {
             ButtonState = wParam;
             InvalidateRect(hDlg, NULL, false);
         }
         break;
-	
+    
     ////////////////////////// Slider //////////////////////////////
     case TBM_SETRANGE:
         if (ButtonType == BITMAPASBUTTON_SLIDER)
@@ -667,21 +648,21 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
 LRESULT CALLBACK CBitmapAsButton::StaticButtonProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
-	CBitmapAsButton *pThis = NULL;
+    CBitmapAsButton *pThis = NULL;
 
     if ( message == WM_NCCREATE )
-	{
-		if (lParam == 0)
+    {
+        if (lParam == 0)
         {
             return FALSE;
         }
         MDICREATESTRUCT * pMDIC = (MDICREATESTRUCT *)((LPCREATESTRUCT) lParam)->lpCreateParams;
-		CBitmapAsButton *pThis = (CBitmapAsButton*) (pMDIC->lParam);
-		::SetWindowLong(hWnd, GWL_USERDATA, (LONG)pThis);        
+        CBitmapAsButton *pThis = (CBitmapAsButton*) (pMDIC->lParam);
+        ::SetWindowLong(hWnd, GWL_USERDATA, (LONG)pThis);        
         return TRUE;
-	}
+    }
     
-	pThis = (CBitmapAsButton*)::GetWindowLong(hWnd, GWL_USERDATA);    
+    pThis = (CBitmapAsButton*)::GetWindowLong(hWnd, GWL_USERDATA);    
     
     if (pThis != NULL)
     {

@@ -15,17 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.5  2007/02/19 10:13:45  adcockj
-// Fixes for Critical thread and RECT issuesin D3D9 and overlay code
-//
-// Revision 1.4  2007/02/18 15:02:16  robmuller
-// Added CVS log.
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #ifndef __IOUTPUT_H___
 #define __IOUTPUT_H___
@@ -45,27 +34,27 @@ public:
         OUT_D3D 
     };
 
-	IOutput(void);
-	virtual ~IOutput(void);
+    IOutput(void);
+    virtual ~IOutput(void);
 
-	// Get Hold of the Other.c file settings
+    // Get Hold of the Other.c file settings
 
-	virtual void SetCurrentMonitor(HWND hWnd)=0;
-	virtual void CheckChangeMonitor(HWND hWnd)=0;
-	virtual void GetMonitorRect(HWND hWnd, RECT* rect);
+    virtual void SetCurrentMonitor(HWND hWnd)=0;
+    virtual void CheckChangeMonitor(HWND hWnd)=0;
+    virtual void GetMonitorRect(HWND hWnd, RECT* rect);
 
-	virtual void ExitDD(void)=0;
-	virtual BOOL InitDD(HWND hWnd)=0;
-	virtual BOOL CanDoOverlayColorControl()=0;
-	virtual BOOL OverlayActive()=0;
-	virtual BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)=0;
-	virtual BOOL Overlay_Create()=0;
-	virtual void Overlay_Clean()=0;
-	virtual BOOL Overlay_Destroy()=0;
-	virtual DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)=0;
-	virtual COLORREF Overlay_GetColor()=0;
-	virtual COLORREF Overlay_GetCorrectedColor(HDC hDC)=0;
-	virtual void Overlay_SetColorControls()=0;
+    virtual void ExitDD(void)=0;
+    virtual BOOL InitDD(HWND hWnd)=0;
+    virtual BOOL CanDoOverlayColorControl()=0;
+    virtual BOOL OverlayActive()=0;
+    virtual BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)=0;
+    virtual BOOL Overlay_Create()=0;
+    virtual void Overlay_Clean()=0;
+    virtual BOOL Overlay_Destroy()=0;
+    virtual DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)=0;
+    virtual COLORREF Overlay_GetColor()=0;
+    virtual COLORREF Overlay_GetCorrectedColor(HDC hDC)=0;
+    virtual void Overlay_SetColorControls()=0;
 
     ///////////////////////////////////////////////////////////////////////////
     // The following 2 pairs of function hold the critical section
@@ -76,21 +65,21 @@ public:
     // This function is paired with Overlay_Unlock_Back_Buffer
     // If this function succeeds then Overlay_Unlock_Back_Buffer must be called
     // on ALL paths
-	virtual BOOL Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer)=0;
-	virtual BOOL Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)=0;
+    virtual BOOL Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer)=0;
+    virtual BOOL Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)=0;
     // **** WARNING ****
     // This function is paired with Overlay_Unlock
     // If this function succeeds then Overlay_Unlock must be called
     // on ALL paths
-	virtual BOOL Overlay_Lock(TDeinterlaceInfo* pInfo)=0;
-	virtual BOOL Overlay_Unlock()=0;
+    virtual BOOL Overlay_Lock(TDeinterlaceInfo* pInfo)=0;
+    virtual BOOL Overlay_Unlock()=0;
 
-	virtual BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)=0;
+    virtual BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)=0;
     virtual void WaitForVerticalBlank() = 0;
-	virtual void Overlay_SetRGB(BOOL IsRGB)=0;
-	virtual BOOL Overlay_GetRGB()=0;
+    virtual void Overlay_SetRGB(BOOL IsRGB)=0;
+    virtual BOOL Overlay_GetRGB()=0;
 
-	virtual OUTPUTTYPES Type()=0;
+    virtual OUTPUTTYPES Type()=0;
 
     virtual void InitOtherSettings()=0;
     SETTING* GetOtherSettings();
@@ -100,8 +89,8 @@ public:
 protected:
     bool m_bSettingInitialized;
     SETTING OtherSettings[OTHER_SETTING_LASTONE];   
-	DWORD DestSizeAlign;
-	DWORD SrcSizeAlign;
+    DWORD DestSizeAlign;
+    DWORD SrcSizeAlign;
 };
 
 IOutput* GetActiveOutput();

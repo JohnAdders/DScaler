@@ -20,23 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 11 Aug 2000   John Adcock           Reorganised code
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2003/01/26 10:34:57  tobbej
-// changed statusbar updates from output thread to be thread safe (PostMessage instead of SendMessage)
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file status.h status Header file

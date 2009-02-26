@@ -20,13 +20,6 @@
 // Copyright (C) Mathias Ellinger
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 11 Jun 2001   Torbörn Jansson       moved includes to precomp.h
-//
-/////////////////////////////////////////////////////////////////////////////
 
 //ddk build enviroment creates precompiled headers from this file
 

@@ -15,128 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.35  2005/11/08 21:51:19  laurentg
-// Possibility to import a merged database from NextViewEPG
-//
-// Revision 1.34  2005/10/24 19:36:36  laurentg
-// New EPG setting for using keys G and Ctrl+Shift+G as a toggle buttons
-//
-// Revision 1.33  2005/10/23 14:36:35  laurentg
-// EPG programmes sorting optimized
-//
-// Revision 1.32  2005/10/22 13:00:12  laurentg
-// New EPG setting for different programmes sorting
-//
-// Revision 1.31  2005/10/18 18:58:08  laurentg
-// New setting to store a default NextviewEPG provider
-//
-// Revision 1.30  2005/08/11 13:42:35  laurentg
-// EPG: detect changes of channel through a video input
-//
-// Revision 1.29  2005/07/26 22:19:31  laurentg
-// Use the new function Channel_GetVBIName
-//
-// Revision 1.28  2005/07/23 19:13:27  laurentg
-// EPG: put common code in a new function
-//
-// Revision 1.27  2005/07/23 18:56:08  laurentg
-// EPG with external tuner using teletext/VPS to get channel name
-//
-// Revision 1.26  2005/07/23 12:40:57  laurentg
-// EPG: switch between browser view and details view improved
-//
-// Revision 1.25  2005/07/20 22:29:05  laurentg
-// EPG: display of previous and next programmes improved
-//
-// Revision 1.24  2005/07/19 21:41:54  laurentg
-// EPG: shift programme description at screen using Shift+PgUp and Shift+PgDn
-//
-// Revision 1.23  2005/07/11 22:12:49  laurentg
-// Export NextViewEPG db using XLMTV 0.5 UTC
-//
-// Revision 1.22  2005/07/11 14:56:06  laurentg
-// New version (0.3) of Tom Zoerner's XMLTV parser
-//
-// Revision 1.21  2005/07/11 12:49:00  laurentg
-// New menus to browse EPG at a certain day and time
-//
-// Revision 1.20  2005/07/09 13:43:43  laurentg
-// Two new EPG settings + Possibility to display next and previous programmes info
-//
-// Revision 1.19  2005/07/06 20:27:54  laurentg
-// Copy the file if source different from destination
-//
-// Revision 1.18  2005/07/06 19:40:38  laurentg
-// New EPG code using Tom Zoerner's XMLTV parser
-//
-// Revision 1.17  2005/04/09 12:49:49  laurentg
-// EPG: choose the NextviewEPG provider
-//
-// Revision 1.16  2005/04/07 23:17:27  laurentg
-// EPG: import NextviewEPG database
-//
-// Revision 1.15  2005/04/02 14:23:44  laurentg
-// EPG: little bugs fixed
-//
-// Revision 1.14  2005/04/02 14:04:11  laurentg
-// EPG: navigation between the browser view and the programme view improved
-//
-// Revision 1.13  2005/04/01 22:16:32  laurentg
-// EPG: new menu "Hide EPG" + new setting to define the time frame duration
-//
-// Revision 1.12  2005/03/29 21:08:33  laurentg
-// program renamed programme
-//
-// Revision 1.11  2005/03/28 17:47:57  laurentg
-// Navigation into EPG + change of channel
-//
-// Revision 1.10  2005/03/28 13:42:02  laurentg
-// EPG: preparation for when new data (category, sub-title, description) will be available
-//
-// Revision 1.9  2005/03/28 13:11:16  laurentg
-// New EPG setting to shift times during import
-//
-// Revision 1.8  2005/03/28 12:53:20  laurentg
-// EPG: previous and next page to show programs
-//
-// Revision 1.7  2005/03/27 20:22:07  laurentg
-// EPG: new improvements
-//
-// Revision 1.6  2005/03/26 19:55:33  laurentg
-// Bug fixed when shifting time frame to the next or previous day
-//
-// Revision 1.5  2005/03/26 18:53:22  laurentg
-// EPG code improved
-// => possibility to set the EPG channel name in the channel setup dialog box
-// => automatic loading of new data when needed
-// => OSD scrrens updated
-// => first step for programs "browser"
-//
-// Revision 1.4  2005/03/21 22:39:15  laurentg
-// EPG: changes regarding OSD
-//
-// Revision 1.3  2005/03/20 22:56:22  laurentg
-// New OSD screens added for EPG
-//
-// Revision 1.2  2005/03/20 16:56:26  laurentg
-// Bug fixed regarding channel name containing special PERL REGEXP characters
-// Files now generated in the DScaler main directory
-//
-// Revision 1.1  2005/03/20 09:48:58  laurentg
-// XMLTV file import
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 16 Mar 2005   Laurent Garnier       File created
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include <string.h>
 #include <time.h>
@@ -156,11 +34,11 @@
 void XmltvParser_Start( const char * pFilename );
 
 
-#define	ONE_DAY				86400
-#define	ONE_HOUR			3600
-#define	PRELOADING_EARLIER	(4 * ONE_HOUR)
-#define	PRELOADING_LATER	(6 * ONE_HOUR)
-#define	DEFAULT_OUTPUT_FILE	"DScalerEPG.xml"
+#define    ONE_DAY                86400
+#define    ONE_HOUR            3600
+#define    PRELOADING_EARLIER    (4 * ONE_HOUR)
+#define    PRELOADING_LATER    (6 * ONE_HOUR)
+#define    DEFAULT_OUTPUT_FILE    "DScalerEPG.xml"
 
 
 CEPG MyEPG;
@@ -168,16 +46,16 @@ CEPG MyEPG;
 
 CProgramme::CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description)
 {
-	m_StartTime = StartTime;
-	m_EndTime = EndTime;
-	m_Title = Title;
-	m_ChannelName = ChannelName;
-	m_ChannelEPGName = ChannelEPGName;
-	m_ChannelNumber = ChannelNumber;
-	m_SubTitle = SubTitle;
-	m_Category = Category;
-	m_Description = Description;
-	m_Length = 0;
+    m_StartTime = StartTime;
+    m_EndTime = EndTime;
+    m_Title = Title;
+    m_ChannelName = ChannelName;
+    m_ChannelEPGName = ChannelEPGName;
+    m_ChannelNumber = ChannelNumber;
+    m_SubTitle = SubTitle;
+    m_Category = Category;
+    m_Description = Description;
+    m_Length = 0;
 }
 
 
@@ -192,21 +70,21 @@ CProgramme::~CProgramme()
 //
 BOOL CProgramme::IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Channel)
 {
-	if (   ( (DateMax == 0) || (DateMax >= m_StartTime) )
-		&& ( (DateMin == 0) || (DateMin < m_EndTime) )
-		&& ( (Channel == NULL) || !_stricmp(Channel, m_ChannelName.c_str()) )
-	   )
-	   return TRUE;
+    if (   ( (DateMax == 0) || (DateMax >= m_StartTime) )
+        && ( (DateMin == 0) || (DateMin < m_EndTime) )
+        && ( (Channel == NULL) || !_stricmp(Channel, m_ChannelName.c_str()) )
+       )
+       return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 
 // Get the programme dates : start and end time
 void CProgramme::GetProgrammeDates(time_t *StartTime, time_t *EndTime)
 {
-	*StartTime = m_StartTime;
-	*EndTime = m_EndTime;
+    *StartTime = m_StartTime;
+    *EndTime = m_EndTime;
 }
 
 
@@ -215,9 +93,9 @@ void CProgramme::GetProgrammeDates(time_t *StartTime, time_t *EndTime)
 //
 void CProgramme::GetProgrammeChannelData(string &ChannelName, string &ChannelEPGName, int *ChannelNumber)
 {
-	ChannelName = m_ChannelName;
-	ChannelEPGName = m_ChannelEPGName;
-	*ChannelNumber = m_ChannelNumber;
+    ChannelName = m_ChannelName;
+    ChannelEPGName = m_ChannelEPGName;
+    *ChannelNumber = m_ChannelNumber;
 }
 
 
@@ -226,11 +104,11 @@ void CProgramme::GetProgrammeChannelData(string &ChannelName, string &ChannelEPG
 //
 void CProgramme::GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category)
 {
-	*StartTime = m_StartTime;
-	*EndTime = m_EndTime;
-	Channel = m_ChannelName;
-	Title = m_Title;
-	Category = m_Category;
+    *StartTime = m_StartTime;
+    *EndTime = m_EndTime;
+    Channel = m_ChannelName;
+    Title = m_Title;
+    Category = m_Category;
 }
 
 
@@ -239,13 +117,13 @@ void CProgramme::GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string
 //
 void CProgramme::GetProgrammeData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description)
 {
-	*StartTime = m_StartTime;
-	*EndTime = m_EndTime;
-	Channel = m_ChannelName;
-	Title = m_Title;
-	SubTitle = m_SubTitle;
-	Category = m_Category;
-	Description = m_Description;
+    *StartTime = m_StartTime;
+    *EndTime = m_EndTime;
+    Channel = m_ChannelName;
+    Title = m_Title;
+    SubTitle = m_SubTitle;
+    Category = m_Category;
+    Description = m_Description;
 }
 
 
@@ -254,73 +132,73 @@ void CProgramme::GetProgrammeData(time_t *StartTime, time_t *EndTime, string &Ch
 //
 void CProgramme::DumpProgrammeMainData()
 {
-	char Date1[17];
-	char Date2[17];
-	struct tm *date_tm;
-	date_tm = localtime(&m_StartTime);
-	sprintf(Date1,
-			"%04u/%02u/%02u %02u:%02u",
-			date_tm->tm_year+1900, date_tm->tm_mon+1, date_tm->tm_mday, date_tm->tm_hour, date_tm->tm_min);
-	date_tm = localtime(&m_EndTime);
-	sprintf(Date2,
-			"%04u/%02u/%02u %02u:%02u",
-			date_tm->tm_year+1900, date_tm->tm_mon+1, date_tm->tm_mday, date_tm->tm_hour, date_tm->tm_min);
-	LOG(1, "%s - %s : %s : %s",
-		Date1, Date2, m_ChannelName.c_str(), m_Title.c_str());
+    char Date1[17];
+    char Date2[17];
+    struct tm *date_tm;
+    date_tm = localtime(&m_StartTime);
+    sprintf(Date1,
+            "%04u/%02u/%02u %02u:%02u",
+            date_tm->tm_year+1900, date_tm->tm_mon+1, date_tm->tm_mday, date_tm->tm_hour, date_tm->tm_min);
+    date_tm = localtime(&m_EndTime);
+    sprintf(Date2,
+            "%04u/%02u/%02u %02u:%02u",
+            date_tm->tm_year+1900, date_tm->tm_mon+1, date_tm->tm_mday, date_tm->tm_hour, date_tm->tm_min);
+    LOG(1, "%s - %s : %s : %s",
+        Date1, Date2, m_ChannelName.c_str(), m_Title.c_str());
 }
 
 
 CEPG::CEPG()
 {
-	char *windir = getenv("windir");
-	if (!windir)
-	{
-		m_CMDExe = "cmd.exe";
-	}
-	else
-	{
-		struct _stat buf;
-		int result;
-		m_CMDExe = windir;
-		m_CMDExe += "\\system32\\cmd.exe";
-		result = _stat(m_CMDExe.c_str(), &buf);
-		if (result != 0)
-		{
-			m_CMDExe = "cmd.exe";
-		}
-	}
+    char *windir = getenv("windir");
+    if (!windir)
+    {
+        m_CMDExe = "cmd.exe";
+    }
+    else
+    {
+        struct _stat buf;
+        int result;
+        m_CMDExe = windir;
+        m_CMDExe += "\\system32\\cmd.exe";
+        result = _stat(m_CMDExe.c_str(), &buf);
+        if (result != 0)
+        {
+            m_CMDExe = "cmd.exe";
+        }
+    }
 
     char Path[MAX_PATH];
     GetModuleFileName (NULL, Path, sizeof(Path));
     *strrchr(Path, '\\') = '\0';
 
-	m_FilesDir = Path;
+    m_FilesDir = Path;
 
-	m_LoadedTimeMin = 0;
-	m_LoadedTimeMax = 0;
+    m_LoadedTimeMin = 0;
+    m_LoadedTimeMax = 0;
 
-	m_SearchChannel = NULL;
-	m_SearchTimeMin = 0;
-	m_SearchTimeMax = 0;
+    m_SearchChannel = NULL;
+    m_SearchTimeMin = 0;
+    m_SearchTimeMax = 0;
 
-	SetDisplayIndexes(-1, -1, -1);
+    SetDisplayIndexes(-1, -1, -1);
 
-	m_ProgrammeSelected = NULL;
+    m_ProgrammeSelected = NULL;
 
-	m_UseProgFronBrowser = FALSE;
+    m_UseProgFronBrowser = FALSE;
 
-	m_SearchCurrent = TRUE;
+    m_SearchCurrent = TRUE;
 
-	m_ShiftLines = 0;
+    m_ShiftLines = 0;
 
-	m_Displayed = 0;
+    m_Displayed = 0;
 }
 
 
 CEPG::~CEPG()
 {
-	ClearProgrammes();
-	ClearNextviewEPGProviders();
+    ClearProgrammes();
+    ClearNextviewEPGProviders();
 }
 
 
@@ -329,40 +207,40 @@ CEPG::~CEPG()
 //
 int CEPG::ExecuteCommand(string command)
 {
-	STARTUPINFO si;
-	ZeroMemory(&si, sizeof(si));
-	si.cb = sizeof(si);
-	PROCESS_INFORMATION pi;
-	ZeroMemory(&pi, sizeof(pi));
+    STARTUPINFO si;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&pi, sizeof(pi));
 
-	// Run the command in a new process
-	// Using IDLE_PRIORITY_CLASS gives very low priority to the process
-	// Using CREATE_NO_WINDOW hides the window
-	//
-	// We use normal priority because with idle priority it takes too much time
-	// and I am even not sure what could happen when Judder Terminator is activated
-	// and DScaler is using 100% of CPU
-	if (!CreateProcess(NULL,
-					   (char*)(command.c_str()),
-					   (LPSECURITY_ATTRIBUTES) NULL,	// No security
-					   (LPSECURITY_ATTRIBUTES) NULL,	// No security
-					   FALSE,
-//					   IDLE_PRIORITY_CLASS | CREATE_NO_WINDOW,
-					   0,
-					   NULL,
-					   NULL,
-					   &si,
-					   &pi))
-		return -1;
+    // Run the command in a new process
+    // Using IDLE_PRIORITY_CLASS gives very low priority to the process
+    // Using CREATE_NO_WINDOW hides the window
+    //
+    // We use normal priority because with idle priority it takes too much time
+    // and I am even not sure what could happen when Judder Terminator is activated
+    // and DScaler is using 100% of CPU
+    if (!CreateProcess(NULL,
+                       (char*)(command.c_str()),
+                       (LPSECURITY_ATTRIBUTES) NULL,    // No security
+                       (LPSECURITY_ATTRIBUTES) NULL,    // No security
+                       FALSE,
+//                       IDLE_PRIORITY_CLASS | CREATE_NO_WINDOW,
+                       0,
+                       NULL,
+                       NULL,
+                       &si,
+                       &pi))
+        return -1;
 
-	// Wait until child process exits
+    // Wait until child process exits
     WaitForSingleObject(pi.hProcess, INFINITE);
 
-	// Close process and thread handles
-	CloseHandle(pi.hProcess); 
+    // Close process and thread handles
+    CloseHandle(pi.hProcess); 
     CloseHandle(pi.hThread); 
 
-	return 0;
+    return 0;
 }
 
 
@@ -372,15 +250,15 @@ int CEPG::ExecuteCommand(string command)
 //
 void CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 {
-	string Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
-	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
-	string command = "\"" + m_CMDExe + "\" /C echo NextviewEPG database export ... && \""
-		+ Exe + "\" -dump xml5 -provider " + Provider + " > \"" + OutputFile + "\"";
+    string Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
+    string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
+    string command = "\"" + m_CMDExe + "\" /C echo NextviewEPG database export ... && \""
+        + Exe + "\" -dump xml5 -provider " + Provider + " > \"" + OutputFile + "\"";
 
-	LOG(2, "NextviewEPG database import ... (%s)", command.c_str());
-	ExecuteCommand(command);
+    LOG(2, "NextviewEPG database import ... (%s)", command.c_str());
+    ExecuteCommand(command);
 
-	ReloadEPGData();
+    ReloadEPGData();
 }
 
 
@@ -389,16 +267,16 @@ void CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 //
 void CEPG::ImportXMLTVFile(LPCSTR file)
 {
-	string InputFile = file;
-	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
+    string InputFile = file;
+    string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
 
-	if (strcmp(InputFile.c_str(), OutputFile.c_str()))
-	{
-		LOG(2, "Copy file %s in %s ...", InputFile.c_str(), OutputFile.c_str());
-		CopyFile(InputFile.c_str(), OutputFile.c_str());
+    if (strcmp(InputFile.c_str(), OutputFile.c_str()))
+    {
+        LOG(2, "Copy file %s in %s ...", InputFile.c_str(), OutputFile.c_str());
+        CopyFile(InputFile.c_str(), OutputFile.c_str());
 
-		ReloadEPGData();
-	}
+        ReloadEPGData();
+    }
 }
 
 
@@ -409,688 +287,688 @@ void CEPG::ImportXMLTVFile(LPCSTR file)
 //
 void CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 {
-	ClearProgrammes();
+    ClearProgrammes();
 
-	time_t DateTime;
+    time_t DateTime;
 
-	// If dates not provided, load the data for the interval
-	// [current time - 2 hours, current time + one day]
-	if ( (DateMin == 0) || (DateMax == 0) )
-	{
-		time(&DateTime);
-		DateMin = DateTime - PRELOADING_EARLIER;
-		DateMax = DateTime + PRELOADING_LATER;
-	}
+    // If dates not provided, load the data for the interval
+    // [current time - 2 hours, current time + one day]
+    if ( (DateMin == 0) || (DateMax == 0) )
+    {
+        time(&DateTime);
+        DateMin = DateTime - PRELOADING_EARLIER;
+        DateMax = DateTime + PRELOADING_LATER;
+    }
 
-	m_LoadedTimeMin = DateMin;
-	m_LoadedTimeMax = DateMax;
+    m_LoadedTimeMin = DateMin;
+    m_LoadedTimeMax = DateMax;
 
-	string InputXMLFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
-	XmltvParser_Start(InputXMLFile.c_str());
+    string InputXMLFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
+    XmltvParser_Start(InputXMLFile.c_str());
 }
 
 
 void CEPG::ReloadEPGData()
 {
-	LoadEPGData(m_LoadedTimeMin, m_LoadedTimeMax);
-	OSD_Clear();
+    LoadEPGData(m_LoadedTimeMin, m_LoadedTimeMax);
+    OSD_Clear();
 }
 
 
 // Check if new EPG data have to be loaded
 BOOL CEPG::LoadEPGDataIfNeeded(time_t TimeMin, time_t TimeMax, int DeltaEarlier, int DeltaLater)
 {
-	BOOL LoadDone = FALSE;
+    BOOL LoadDone = FALSE;
 
-	if ( (TimeMin < m_LoadedTimeMin) && (TimeMax > m_LoadedTimeMax) )
-	{
-		LoadEPGData(TimeMin - DeltaEarlier, TimeMax + DeltaLater);
-		LoadDone = TRUE;
-	}
-	else if (TimeMin < m_LoadedTimeMin)
-	{
-		LoadEPGData(TimeMin - DeltaEarlier, m_LoadedTimeMax);
-		LoadDone = TRUE;
-	}
-	else if (TimeMax > m_LoadedTimeMax)
-	{
-		LoadEPGData(m_LoadedTimeMin, TimeMax + DeltaLater);
-		LoadDone = TRUE;
-	}
-	return LoadDone;
+    if ( (TimeMin < m_LoadedTimeMin) && (TimeMax > m_LoadedTimeMax) )
+    {
+        LoadEPGData(TimeMin - DeltaEarlier, TimeMax + DeltaLater);
+        LoadDone = TRUE;
+    }
+    else if (TimeMin < m_LoadedTimeMin)
+    {
+        LoadEPGData(TimeMin - DeltaEarlier, m_LoadedTimeMax);
+        LoadDone = TRUE;
+    }
+    else if (TimeMax > m_LoadedTimeMax)
+    {
+        LoadEPGData(m_LoadedTimeMin, TimeMax + DeltaLater);
+        LoadDone = TRUE;
+    }
+    return LoadDone;
 }
 
 
 int CEPG::GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax)
 {
-	if (ChannelName)
-		*ChannelName = m_SearchChannel;
-	*TimeMin = m_SearchTimeMin;
-	*TimeMax = m_SearchTimeMax;
-	return m_ProgrammesSelection.size();
+    if (ChannelName)
+        *ChannelName = m_SearchChannel;
+    *TimeMin = m_SearchTimeMin;
+    *TimeMax = m_SearchTimeMax;
+    return m_ProgrammesSelection.size();
 }
 
 
 BOOL CEPG::SearchForProgramme(string &Channel)
 {
-	BOOL resu = FALSE;
-	Channel = "";
-	if (m_UseProgFronBrowser == FALSE)
-	{
-		GetViewedChannelName(Channel);
-		if (Channel.length() > 0)
-		{
-			if (m_SearchCurrent == TRUE)
-			{
-				time_t TimeNow;
-				time(&TimeNow);
-				resu = SearchForProgramme(Channel.c_str(), TimeNow);
-			}
-			else
-			{
-				if (m_ProgrammeSelected)
-				{
-					resu = TRUE;
-				}
-			}
-		}
-		else
-		{
-			m_ProgrammeSelected = NULL;
-			m_ProgrammesSelection.clear();
-			SetDisplayIndexes(-1, -1, -1);
-		}
-	}
-	else
-	{
-		if (m_ProgrammeSelected)
-		{
-			string ChannelEPG;
-			int    Number;
-			m_ProgrammeSelected->GetProgrammeChannelData(Channel, ChannelEPG, &Number);
-			resu = TRUE;
-		}
-	}
+    BOOL resu = FALSE;
+    Channel = "";
+    if (m_UseProgFronBrowser == FALSE)
+    {
+        GetViewedChannelName(Channel);
+        if (Channel.length() > 0)
+        {
+            if (m_SearchCurrent == TRUE)
+            {
+                time_t TimeNow;
+                time(&TimeNow);
+                resu = SearchForProgramme(Channel.c_str(), TimeNow);
+            }
+            else
+            {
+                if (m_ProgrammeSelected)
+                {
+                    resu = TRUE;
+                }
+            }
+        }
+        else
+        {
+            m_ProgrammeSelected = NULL;
+            m_ProgrammesSelection.clear();
+            SetDisplayIndexes(-1, -1, -1);
+        }
+    }
+    else
+    {
+        if (m_ProgrammeSelected)
+        {
+            string ChannelEPG;
+            int    Number;
+            m_ProgrammeSelected->GetProgrammeChannelData(Channel, ChannelEPG, &Number);
+            resu = TRUE;
+        }
+    }
 
-	return resu;
+    return resu;
 }
 
 
 BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime)
 {
-	SearchForProgrammes(ChannelName);
-	m_ProgrammeSelected = NULL;
+    SearchForProgrammes(ChannelName);
+    m_ProgrammeSelected = NULL;
     for(CProgrammes::iterator it = m_ProgrammesSelection.begin();
         it != m_ProgrammesSelection.end();
         ++it)
     {
-		if ((*it)->IsProgrammeMatching(ThatTime, ThatTime, ChannelName) == TRUE)
-		{
-			m_ProgrammeSelected = *it;
-			SetDisplayIndexes(1, m_ProgrammesSelection.size(), it - m_ProgrammesSelection.begin() + 1);
-			return TRUE;
-		}
+        if ((*it)->IsProgrammeMatching(ThatTime, ThatTime, ChannelName) == TRUE)
+        {
+            m_ProgrammeSelected = *it;
+            SetDisplayIndexes(1, m_ProgrammesSelection.size(), it - m_ProgrammesSelection.begin() + 1);
+            return TRUE;
+        }
     }
     m_ProgrammesSelection.clear();
-	SetDisplayIndexes(-1, -1, -1);
-	return FALSE;
+    SetDisplayIndexes(-1, -1, -1);
+    return FALSE;
 }
 
 
 int CEPG::SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax)
 {
-	m_SearchChannel = ChannelName;
-	m_SearchTimeMin = TimeMin;
-	m_SearchTimeMax = TimeMax;
+    m_SearchChannel = ChannelName;
+    m_SearchTimeMin = TimeMin;
+    m_SearchTimeMax = TimeMax;
     m_ProgrammesSelection.clear();
-	SetDisplayIndexes(-1, -1, -1);
+    SetDisplayIndexes(-1, -1, -1);
     for(CProgrammes::iterator it = m_Programmes.begin();
         it != m_Programmes.end();
         ++it)
     {
-		if ((*it)->IsProgrammeMatching(TimeMin, TimeMax, ChannelName) == TRUE)
-		{
-			if (ChannelName != NULL)
-			{
-				InsertProgramme(*it, -1);
-			}
-			else
-			{
-				InsertProgramme(*it, Setting_GetValue(EPG_GetSetting(EPG_SORTING)));
-			}
-		}
+        if ((*it)->IsProgrammeMatching(TimeMin, TimeMax, ChannelName) == TRUE)
+        {
+            if (ChannelName != NULL)
+            {
+                InsertProgramme(*it, -1);
+            }
+            else
+            {
+                InsertProgramme(*it, Setting_GetValue(EPG_GetSetting(EPG_SORTING)));
+            }
+        }
     }
-	if (m_ProgrammesSelection.size() > 0)
-	{
-		SetDisplayIndexes(1, m_ProgrammesSelection.size(), 1);
-	}
-	return m_ProgrammesSelection.size();
+    if (m_ProgrammesSelection.size() > 0)
+    {
+        SetDisplayIndexes(1, m_ProgrammesSelection.size(), 1);
+    }
+    return m_ProgrammesSelection.size();
 }
 
 
 void CEPG::SetDisplayIndexes(int IdxMin, int IdxMax, int IdxCur)
 {
-	m_IdxShowSelectMin = IdxMin;
-	m_IdxShowSelectMax = IdxMax;
-	m_IdxShowSelectCur = IdxCur;
+    m_IdxShowSelectMin = IdxMin;
+    m_IdxShowSelectMax = IdxMax;
+    m_IdxShowSelectCur = IdxCur;
 }
 
 
 int CEPG::GetDisplayIndexes(int *IdxMin, int *IdxMax, int *IdxCur)
 {
-	*IdxMin = m_IdxShowSelectMin;
-	*IdxMax = m_IdxShowSelectMax;
-	*IdxCur = m_IdxShowSelectCur;
-	return m_ProgrammesSelection.size();
+    *IdxMin = m_IdxShowSelectMin;
+    *IdxMax = m_IdxShowSelectMax;
+    *IdxCur = m_IdxShowSelectCur;
+    return m_ProgrammesSelection.size();
 }
 
 
 int CEPG::GetDisplayLineShift(int NbLines)
 {
-	if (m_ShiftLines > NbLines)
-	{
-		m_ShiftLines = NbLines;
-	}
-	return m_ShiftLines;
+    if (m_ShiftLines > NbLines)
+    {
+        m_ShiftLines = NbLines;
+    }
+    return m_ShiftLines;
 }
 
 
 BOOL CEPG::GetProgrammeChannelData(int Index, string &ChannelName, string &ChannelEPGName, int *ChannelNumber)
 {
-	if ( (Index < 0) && (m_ProgrammeSelected == NULL))
-		return FALSE;
+    if ( (Index < 0) && (m_ProgrammeSelected == NULL))
+        return FALSE;
 
-	if ( (Index >= 0) && (Index >= m_ProgrammesSelection.size()) )
-		return FALSE;
+    if ( (Index >= 0) && (Index >= m_ProgrammesSelection.size()) )
+        return FALSE;
 
-	if (Index < 0)
-	{
-		m_ProgrammeSelected->GetProgrammeChannelData(ChannelName, ChannelEPGName, ChannelNumber);
-	}
-	else
-	{
-		m_ProgrammesSelection[Index]->GetProgrammeChannelData(ChannelName, ChannelEPGName, ChannelNumber);
-	}
+    if (Index < 0)
+    {
+        m_ProgrammeSelected->GetProgrammeChannelData(ChannelName, ChannelEPGName, ChannelNumber);
+    }
+    else
+    {
+        m_ProgrammesSelection[Index]->GetProgrammeChannelData(ChannelName, ChannelEPGName, ChannelNumber);
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 
 BOOL CEPG::GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category)
 {
-	if ( (Index < 0) && (m_ProgrammeSelected == NULL))
-		return FALSE;
+    if ( (Index < 0) && (m_ProgrammeSelected == NULL))
+        return FALSE;
 
-	if ( (Index >= 0) && (Index >= m_ProgrammesSelection.size()) )
-		return FALSE;
+    if ( (Index >= 0) && (Index >= m_ProgrammesSelection.size()) )
+        return FALSE;
 
-	if (Index < 0)
-	{
-		m_ProgrammeSelected->GetProgrammeMainData(StartTime, EndTime, Channel, Title, Category);
-	}
-	else
-	{
-		m_ProgrammesSelection[Index]->GetProgrammeMainData(StartTime, EndTime, Channel, Title, Category);
-	}
+    if (Index < 0)
+    {
+        m_ProgrammeSelected->GetProgrammeMainData(StartTime, EndTime, Channel, Title, Category);
+    }
+    else
+    {
+        m_ProgrammesSelection[Index]->GetProgrammeMainData(StartTime, EndTime, Channel, Title, Category);
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 
 BOOL CEPG::GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description)
 {
-	if ( (Index < 0) && (m_ProgrammeSelected == NULL))
-		return FALSE;
+    if ( (Index < 0) && (m_ProgrammeSelected == NULL))
+        return FALSE;
 
-	if ( (Index >= 0) && (Index >= m_ProgrammesSelection.size()) )
-		return FALSE;
+    if ( (Index >= 0) && (Index >= m_ProgrammesSelection.size()) )
+        return FALSE;
 
-	if (Index < 0)
-	{
-		m_ProgrammeSelected->GetProgrammeData(StartTime, EndTime, Channel, Title, SubTitle, Category, Description);
-	}
-	else
-	{
-		m_ProgrammesSelection[Index]->GetProgrammeData(StartTime, EndTime, Channel, Title, SubTitle, Category, Description);
-	}
+    if (Index < 0)
+    {
+        m_ProgrammeSelected->GetProgrammeData(StartTime, EndTime, Channel, Title, SubTitle, Category, Description);
+    }
+    else
+    {
+        m_ProgrammesSelection[Index]->GetProgrammeData(StartTime, EndTime, Channel, Title, SubTitle, Category, Description);
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 
 BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
-	OPENFILENAME OpenFileInfo;
-	char FilePath[MAX_PATH];
-	char* FileFilters;
-	time_t TimeNow;
-	time_t TimeMin;
-	time_t TimeMax;
-	struct tm *datetime_tm;
-	int sec, min, hour;
-	string Title;
-	string ChannelName;
-	string ChannelEPGName;
-	int ChannelNumber;
-	char* Exe;
+    OPENFILENAME OpenFileInfo;
+    char FilePath[MAX_PATH];
+    char* FileFilters;
+    time_t TimeNow;
+    time_t TimeMin;
+    time_t TimeMax;
+    struct tm *datetime_tm;
+    int sec, min, hour;
+    string Title;
+    string ChannelName;
+    string ChannelEPGName;
+    int ChannelNumber;
+    char* Exe;
     struct stat st;
-	int n;
-	LPCSTR Provider = NULL;
+    int n;
+    LPCSTR Provider = NULL;
 
-	switch(LOWORD(wParam))
+    switch(LOWORD(wParam))
     {
-	case IDM_IMPORT_XMLTV:
-		FileFilters = "XML Files\0*.xml\0";
-		FilePath[0] = 0;
-		ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
-		OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
-		OpenFileInfo.hwndOwner = hWnd;
-		OpenFileInfo.lpstrFilter = FileFilters;
-		OpenFileInfo.nFilterIndex = 1;
-		OpenFileInfo.lpstrCustomFilter = NULL;
-		OpenFileInfo.lpstrFile = FilePath;
-		OpenFileInfo.nMaxFile = sizeof(FilePath);
-		OpenFileInfo.lpstrFileTitle = NULL;
-		OpenFileInfo.lpstrInitialDir = NULL;
-		OpenFileInfo.lpstrTitle = NULL;
-		OpenFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-		OpenFileInfo.lpstrDefExt = NULL;
-		if(GetOpenFileName(&OpenFileInfo))
-		{
-			ImportXMLTVFile(FilePath);
-		}
-        return TRUE;
-		break;
-
-	case IDM_IMPORT_NEXTVIEW:
-		Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
-		if ((Exe == NULL) || stat(Exe, &st))
-		{
-			MessageBox(hWnd, "NextviewEPG application not found.\nPlease go to the advanced settings to update its location.", "DScaler Warning", MB_ICONWARNING | MB_OK);
-			return TRUE;
-		}
-
-		n = GetNextviewEPGProviders();
-		if (n == 0)
-		{
-			MessageBox(hWnd, "No NextviewEPG database found.", "DScaler Warning", MB_ICONWARNING | MB_OK);
-		}
-		else if (n == 1)
-		{
-			Provider = m_NextviewProviders[0]->c_str();
-		}
-		else
-		{
-			for (int i=0; i<n ; i++)
-			{
-				char MsgTxt[128];
-				sprintf(MsgTxt, "Do you want to import the database\ncorresponding to the provider %s ?", m_NextviewProviders[i]->c_str());
-				if (MessageBox(hWnd, MsgTxt, "DScaler - NextviewEPG Provider", MB_YESNO | MB_ICONQUESTION /*| MB_APPLMODAL*/) == IDYES)
-				{
-					Provider = m_NextviewProviders[i]->c_str();
-					break;
-				}
-			}
-		}
-		if (Provider != NULL)
-		{
-			ImportNxtvepgEPGDB(Provider);
-		}
-        return TRUE;
-		break;
-
-	case IDM_DISPLAY_EPG:
-		if (   (m_Displayed == 1)
-			&& (m_UseProgFronBrowser == FALSE)
-			&& (Setting_GetValue(EPG_GetSetting(EPG_TOGGLEBUTTONS)) == TRUE)
-		   )
-		{
-			OSD_Clear();
-			return TRUE;
-		}
-		if (   (m_Displayed == 1)
-			|| (m_UseProgFronBrowser == FALSE) )
-		{
-			m_UseProgFronBrowser = FALSE;
-			m_SearchCurrent = TRUE;
-			// Check if new EPG data have to be loaded
-			time(&TimeNow);
-			LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, PRELOADING_EARLIER, PRELOADING_LATER);
-			m_ShiftLines = 0;
-			// Display the OSD screen
-			OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-			m_Displayed = 1;
-		}
-		else if (m_IdxShowSelectCur != -1)
-		{
-			m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
-			m_SearchCurrent = FALSE;
-			m_ShiftLines = 0;
-			// Display the OSD screen
-			OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-			m_Displayed = 1;
-		}
-        return TRUE;
-		break;
-
-	case IDM_DISPLAY_EPG_NOW:
-		if (   (m_Displayed == 2)
-			&& (Setting_GetValue(EPG_GetSetting(EPG_TOGGLEBUTTONS)) == TRUE)
-		   )
-		{
-			OSD_Clear();
-			return TRUE;
-		}
-		if ( (m_Displayed == 1) && (m_UseProgFronBrowser == TRUE) )
-		{
-			// Force to recompute by the OSD which page to display
-			// (the one corresponding to the current selected programme)
-			SetDisplayIndexes(-1, -1, m_IdxShowSelectCur);
-		}
-		else
-		{
-			time(&TimeMin);
-			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
-			// Check if new EPG data have to be loaded
-			LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
-			// Select the corresponding programmes
-			SearchForProgrammes(NULL, TimeMin, TimeMax);
-		}
-		m_UseProgFronBrowser = TRUE;
-		// Display the OSD screen
-		OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-		m_Displayed = 2;
+    case IDM_IMPORT_XMLTV:
+        FileFilters = "XML Files\0*.xml\0";
+        FilePath[0] = 0;
+        ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
+        OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
+        OpenFileInfo.hwndOwner = hWnd;
+        OpenFileInfo.lpstrFilter = FileFilters;
+        OpenFileInfo.nFilterIndex = 1;
+        OpenFileInfo.lpstrCustomFilter = NULL;
+        OpenFileInfo.lpstrFile = FilePath;
+        OpenFileInfo.nMaxFile = sizeof(FilePath);
+        OpenFileInfo.lpstrFileTitle = NULL;
+        OpenFileInfo.lpstrInitialDir = NULL;
+        OpenFileInfo.lpstrTitle = NULL;
+        OpenFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+        OpenFileInfo.lpstrDefExt = NULL;
+        if(GetOpenFileName(&OpenFileInfo))
+        {
+            ImportXMLTVFile(FilePath);
+        }
         return TRUE;
         break;
 
-	case IDM_DISPLAY_EPG_EARLIER:
-		if (m_Displayed == 2)
-		{
-			// If we were not at the exact beginning of an hour
-			// then we shift to the beginning of that hour
-			// else we go one hour earlier
-			datetime_tm = localtime(&m_SearchTimeMin);
-			if (   (datetime_tm->tm_min != 0)
-				|| (datetime_tm->tm_sec != 0) )
-			{
-				datetime_tm->tm_sec = 0;
-				datetime_tm->tm_min = 0;
-				TimeMin = mktime(datetime_tm);
-			}
-			else
-			{
-				TimeMin = m_SearchTimeMin - ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
-			}
-			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
-			// Check if new EPG data have to be loaded
-			LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
-			// Select the corresponding programmes
-			SearchForProgrammes(NULL, TimeMin, TimeMax);
-		}
+    case IDM_IMPORT_NEXTVIEW:
+        Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
+        if ((Exe == NULL) || stat(Exe, &st))
+        {
+            MessageBox(hWnd, "NextviewEPG application not found.\nPlease go to the advanced settings to update its location.", "DScaler Warning", MB_ICONWARNING | MB_OK);
+            return TRUE;
+        }
+
+        n = GetNextviewEPGProviders();
+        if (n == 0)
+        {
+            MessageBox(hWnd, "No NextviewEPG database found.", "DScaler Warning", MB_ICONWARNING | MB_OK);
+        }
+        else if (n == 1)
+        {
+            Provider = m_NextviewProviders[0]->c_str();
+        }
+        else
+        {
+            for (int i=0; i<n ; i++)
+            {
+                char MsgTxt[128];
+                sprintf(MsgTxt, "Do you want to import the database\ncorresponding to the provider %s ?", m_NextviewProviders[i]->c_str());
+                if (MessageBox(hWnd, MsgTxt, "DScaler - NextviewEPG Provider", MB_YESNO | MB_ICONQUESTION /*| MB_APPLMODAL*/) == IDYES)
+                {
+                    Provider = m_NextviewProviders[i]->c_str();
+                    break;
+                }
+            }
+        }
+        if (Provider != NULL)
+        {
+            ImportNxtvepgEPGDB(Provider);
+        }
         return TRUE;
         break;
 
-	case IDM_DISPLAY_EPG_LATER:
-		if (m_Displayed == 2)
-		{
-			// If we were not at the exact beginning of an hour
-			// then we shift to the beginning of the next hour
-			// else we go one hour later
-			datetime_tm = localtime(&m_SearchTimeMin);
-			if (   (datetime_tm->tm_min != 0)
-				|| (datetime_tm->tm_sec != 0) )
-			{
-				datetime_tm->tm_sec = 0;
-				datetime_tm->tm_min = 0;
-				TimeMin = mktime(datetime_tm);
-				TimeMin += ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
-			}
-			else
-			{
-				TimeMin = m_SearchTimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
-			}
-			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
-			// Check if new EPG data have to be loaded
-			LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
-			// Select the corresponding programmes
-			SearchForProgrammes(NULL, TimeMin, TimeMax);
-		}
+    case IDM_DISPLAY_EPG:
+        if (   (m_Displayed == 1)
+            && (m_UseProgFronBrowser == FALSE)
+            && (Setting_GetValue(EPG_GetSetting(EPG_TOGGLEBUTTONS)) == TRUE)
+           )
+        {
+            OSD_Clear();
+            return TRUE;
+        }
+        if (   (m_Displayed == 1)
+            || (m_UseProgFronBrowser == FALSE) )
+        {
+            m_UseProgFronBrowser = FALSE;
+            m_SearchCurrent = TRUE;
+            // Check if new EPG data have to be loaded
+            time(&TimeNow);
+            LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, PRELOADING_EARLIER, PRELOADING_LATER);
+            m_ShiftLines = 0;
+            // Display the OSD screen
+            OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            m_Displayed = 1;
+        }
+        else if (m_IdxShowSelectCur != -1)
+        {
+            m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
+            m_SearchCurrent = FALSE;
+            m_ShiftLines = 0;
+            // Display the OSD screen
+            OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            m_Displayed = 1;
+        }
         return TRUE;
         break;
 
-	case IDM_DISPLAY_EPG_NEXT:
-		if (   (m_Displayed == 2)
-		    && (m_IdxShowSelectMax != -1)
-			&& (m_IdxShowSelectMax < m_ProgrammesSelection.size()) )
-		{
-			SetDisplayIndexes(m_IdxShowSelectMax + 1, -1, m_IdxShowSelectMax + 1);
-		}
-		else if (m_Displayed == 1)
-		{
-			m_ShiftLines++;
-			// Refresh the OSD screen immediately
-			OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-		}
+    case IDM_DISPLAY_EPG_NOW:
+        if (   (m_Displayed == 2)
+            && (Setting_GetValue(EPG_GetSetting(EPG_TOGGLEBUTTONS)) == TRUE)
+           )
+        {
+            OSD_Clear();
+            return TRUE;
+        }
+        if ( (m_Displayed == 1) && (m_UseProgFronBrowser == TRUE) )
+        {
+            // Force to recompute by the OSD which page to display
+            // (the one corresponding to the current selected programme)
+            SetDisplayIndexes(-1, -1, m_IdxShowSelectCur);
+        }
+        else
+        {
+            time(&TimeMin);
+            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+            // Check if new EPG data have to be loaded
+            LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
+            // Select the corresponding programmes
+            SearchForProgrammes(NULL, TimeMin, TimeMax);
+        }
+        m_UseProgFronBrowser = TRUE;
+        // Display the OSD screen
+        OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+        m_Displayed = 2;
         return TRUE;
         break;
 
-	case IDM_DISPLAY_EPG_PREV:
-		if (   (m_Displayed == 2)
-		    && (m_IdxShowSelectMin != -1)
-			&& (m_IdxShowSelectMin > 1) )
-		{
-			SetDisplayIndexes(-1, m_IdxShowSelectMin - 1, m_IdxShowSelectMin - 1);
-		}
-		else if (m_Displayed == 1)
-		{
-			if (m_ShiftLines > 0)
-			{
-				m_ShiftLines--;
-				// Refresh the OSD screen immediately
-				OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-			}
-		}
+    case IDM_DISPLAY_EPG_EARLIER:
+        if (m_Displayed == 2)
+        {
+            // If we were not at the exact beginning of an hour
+            // then we shift to the beginning of that hour
+            // else we go one hour earlier
+            datetime_tm = localtime(&m_SearchTimeMin);
+            if (   (datetime_tm->tm_min != 0)
+                || (datetime_tm->tm_sec != 0) )
+            {
+                datetime_tm->tm_sec = 0;
+                datetime_tm->tm_min = 0;
+                TimeMin = mktime(datetime_tm);
+            }
+            else
+            {
+                TimeMin = m_SearchTimeMin - ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
+            }
+            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+            // Check if new EPG data have to be loaded
+            LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
+            // Select the corresponding programmes
+            SearchForProgrammes(NULL, TimeMin, TimeMax);
+        }
         return TRUE;
         break;
 
-	case IDM_DISPLAY_EPG_NEXT_IN_PAGE:
-		if (m_Displayed == 2)
-		{
-			if (   (m_IdxShowSelectMin != -1)
-				&& (m_IdxShowSelectMax != -1)
-				&& (m_IdxShowSelectCur < m_IdxShowSelectMax) )
-			{
-				SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur + 1);
-			}
-			else if (   (m_IdxShowSelectMin != -1)
-					 && (m_IdxShowSelectMax != -1)
-					 && (m_IdxShowSelectCur == m_IdxShowSelectMax) )
-			{
-				PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_NEXT, 0);
-			}
-		}
-		else if (m_Displayed == 1)
-		{
-			// Show the details of the next programme on the same channel
-			if (   (m_IdxShowSelectMin != -1)
-				&& (m_IdxShowSelectMax != -1) )
-			{
-				if (m_IdxShowSelectCur < m_ProgrammesSelection.size())
-				{
-					m_IdxShowSelectCur++;
-					m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
-				}
-				else if (   (m_UseProgFronBrowser == FALSE)
-				         && (m_IdxShowSelectCur == m_ProgrammesSelection.size()) )
-				{
-					// TODO Load next programmes
-				}
-				m_SearchCurrent = FALSE;
-				m_ShiftLines = 0;
-				// Refresh the OSD screen immediately
-				OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-			}
-		}
+    case IDM_DISPLAY_EPG_LATER:
+        if (m_Displayed == 2)
+        {
+            // If we were not at the exact beginning of an hour
+            // then we shift to the beginning of the next hour
+            // else we go one hour later
+            datetime_tm = localtime(&m_SearchTimeMin);
+            if (   (datetime_tm->tm_min != 0)
+                || (datetime_tm->tm_sec != 0) )
+            {
+                datetime_tm->tm_sec = 0;
+                datetime_tm->tm_min = 0;
+                TimeMin = mktime(datetime_tm);
+                TimeMin += ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
+            }
+            else
+            {
+                TimeMin = m_SearchTimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
+            }
+            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+            // Check if new EPG data have to be loaded
+            LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
+            // Select the corresponding programmes
+            SearchForProgrammes(NULL, TimeMin, TimeMax);
+        }
         return TRUE;
         break;
 
-	case IDM_DISPLAY_EPG_PREV_IN_PAGE:
-		if (m_Displayed == 2)
-		{
-			if (   (m_IdxShowSelectMin != -1)
-				&& (m_IdxShowSelectMax != -1)
-				&& (m_IdxShowSelectCur > m_IdxShowSelectMin) )
-			{
-				SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur - 1);
-			}
-			else if (   (m_IdxShowSelectMin != -1)
-					 && (m_IdxShowSelectMax != -1)
-					 && (m_IdxShowSelectCur == m_IdxShowSelectMin) )
-			{
-				PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_PREV, 0);
-			}
-		}
-		else if (m_Displayed == 1)
-		{
-			// Show the details of the previous programme on the same channel
-			if (   (m_IdxShowSelectMin != -1)
-				&& (m_IdxShowSelectMax != -1) )
-			{
-				if (m_IdxShowSelectCur > 1)
-				{
-					m_IdxShowSelectCur--;
-					m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
-				}
-				else if (   (m_UseProgFronBrowser == FALSE)
-				         && (m_IdxShowSelectCur == 1) )
-				{
-					// TODO Load previous programmes
-				}
-				m_SearchCurrent = FALSE;
-				m_ShiftLines = 0;
-				// Refresh the OSD screen immediately
-				OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-			}
-		}
+    case IDM_DISPLAY_EPG_NEXT:
+        if (   (m_Displayed == 2)
+            && (m_IdxShowSelectMax != -1)
+            && (m_IdxShowSelectMax < m_ProgrammesSelection.size()) )
+        {
+            SetDisplayIndexes(m_IdxShowSelectMax + 1, -1, m_IdxShowSelectMax + 1);
+        }
+        else if (m_Displayed == 1)
+        {
+            m_ShiftLines++;
+            // Refresh the OSD screen immediately
+            OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+        }
         return TRUE;
         break;
 
-	case IDM_EPG_VIEW_PROG:
-		if (   (m_Displayed > 0)
-			&& (m_IdxShowSelectCur != -1)
-		    && (MyEPG.GetProgrammeChannelData(m_IdxShowSelectCur-1, ChannelName, ChannelEPGName, &ChannelNumber) == TRUE) )
-		{
-			if (ChannelNumber >= 0)
-			{
-				CSource *CurrentSource = Providers_GetCurrentSource();
-				if (CurrentSource && !CurrentSource->IsInTunerMode())
-				{
-					SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
-				}
-				Channel_Change(ChannelNumber);
-			}
-		}
+    case IDM_DISPLAY_EPG_PREV:
+        if (   (m_Displayed == 2)
+            && (m_IdxShowSelectMin != -1)
+            && (m_IdxShowSelectMin > 1) )
+        {
+            SetDisplayIndexes(-1, m_IdxShowSelectMin - 1, m_IdxShowSelectMin - 1);
+        }
+        else if (m_Displayed == 1)
+        {
+            if (m_ShiftLines > 0)
+            {
+                m_ShiftLines--;
+                // Refresh the OSD screen immediately
+                OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            }
+        }
         return TRUE;
         break;
 
-	case IDM_HIDE_EPG:
+    case IDM_DISPLAY_EPG_NEXT_IN_PAGE:
+        if (m_Displayed == 2)
+        {
+            if (   (m_IdxShowSelectMin != -1)
+                && (m_IdxShowSelectMax != -1)
+                && (m_IdxShowSelectCur < m_IdxShowSelectMax) )
+            {
+                SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur + 1);
+            }
+            else if (   (m_IdxShowSelectMin != -1)
+                     && (m_IdxShowSelectMax != -1)
+                     && (m_IdxShowSelectCur == m_IdxShowSelectMax) )
+            {
+                PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_NEXT, 0);
+            }
+        }
+        else if (m_Displayed == 1)
+        {
+            // Show the details of the next programme on the same channel
+            if (   (m_IdxShowSelectMin != -1)
+                && (m_IdxShowSelectMax != -1) )
+            {
+                if (m_IdxShowSelectCur < m_ProgrammesSelection.size())
+                {
+                    m_IdxShowSelectCur++;
+                    m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
+                }
+                else if (   (m_UseProgFronBrowser == FALSE)
+                         && (m_IdxShowSelectCur == m_ProgrammesSelection.size()) )
+                {
+                    // TODO Load next programmes
+                }
+                m_SearchCurrent = FALSE;
+                m_ShiftLines = 0;
+                // Refresh the OSD screen immediately
+                OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            }
+        }
+        return TRUE;
+        break;
+
+    case IDM_DISPLAY_EPG_PREV_IN_PAGE:
+        if (m_Displayed == 2)
+        {
+            if (   (m_IdxShowSelectMin != -1)
+                && (m_IdxShowSelectMax != -1)
+                && (m_IdxShowSelectCur > m_IdxShowSelectMin) )
+            {
+                SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur - 1);
+            }
+            else if (   (m_IdxShowSelectMin != -1)
+                     && (m_IdxShowSelectMax != -1)
+                     && (m_IdxShowSelectCur == m_IdxShowSelectMin) )
+            {
+                PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_PREV, 0);
+            }
+        }
+        else if (m_Displayed == 1)
+        {
+            // Show the details of the previous programme on the same channel
+            if (   (m_IdxShowSelectMin != -1)
+                && (m_IdxShowSelectMax != -1) )
+            {
+                if (m_IdxShowSelectCur > 1)
+                {
+                    m_IdxShowSelectCur--;
+                    m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
+                }
+                else if (   (m_UseProgFronBrowser == FALSE)
+                         && (m_IdxShowSelectCur == 1) )
+                {
+                    // TODO Load previous programmes
+                }
+                m_SearchCurrent = FALSE;
+                m_ShiftLines = 0;
+                // Refresh the OSD screen immediately
+                OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            }
+        }
+        return TRUE;
+        break;
+
+    case IDM_EPG_VIEW_PROG:
+        if (   (m_Displayed > 0)
+            && (m_IdxShowSelectCur != -1)
+            && (MyEPG.GetProgrammeChannelData(m_IdxShowSelectCur-1, ChannelName, ChannelEPGName, &ChannelNumber) == TRUE) )
+        {
+            if (ChannelNumber >= 0)
+            {
+                CSource *CurrentSource = Providers_GetCurrentSource();
+                if (CurrentSource && !CurrentSource->IsInTunerMode())
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
+                }
+                Channel_Change(ChannelNumber);
+            }
+        }
+        return TRUE;
+        break;
+
+    case IDM_HIDE_EPG:
         OSD_Clear();
         return TRUE;
         break;
 
-	case IDM_EPG_DAY0:
-	case IDM_EPG_DAY1:
-	case IDM_EPG_DAY2:
-	case IDM_EPG_DAY3:
-	case IDM_EPG_DAY4:
-	case IDM_EPG_DAY5:
-	case IDM_EPG_DAY6:
-	case IDM_EPG_DAY7:
-		if ( (m_Displayed != 1) || (m_UseProgFronBrowser == FALSE) )
-		{
-			time(&TimeMin);
-			TimeMin += (LOWORD(wParam) - IDM_EPG_DAY0 - 1) * ONE_DAY;
-			if ((m_Displayed != 1) && (m_SearchTimeMin != 0))
-			{
-				datetime_tm = localtime(&m_SearchTimeMin);
-				sec = datetime_tm->tm_sec;
-				min = datetime_tm->tm_min;
-				hour = datetime_tm->tm_hour;
-				datetime_tm = localtime(&TimeMin);
-				datetime_tm->tm_sec = sec;
-				datetime_tm->tm_min = min;
-				datetime_tm->tm_hour = hour;
-				TimeMin = mktime(datetime_tm);
-			}
-			else
-			{
-				datetime_tm = localtime(&TimeMin);
-				datetime_tm->tm_sec = 0;
-				datetime_tm->tm_min = 0;
-				TimeMin = mktime(datetime_tm);
-			}
-			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
-			// Check if new EPG data have to be loaded
-			LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
-			// Select the corresponding programmes
-			SearchForProgrammes(NULL, TimeMin, TimeMax);
-			m_UseProgFronBrowser = TRUE;
-			// Display the OSD screen
-			OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-			m_Displayed = 2;
-		}
+    case IDM_EPG_DAY0:
+    case IDM_EPG_DAY1:
+    case IDM_EPG_DAY2:
+    case IDM_EPG_DAY3:
+    case IDM_EPG_DAY4:
+    case IDM_EPG_DAY5:
+    case IDM_EPG_DAY6:
+    case IDM_EPG_DAY7:
+        if ( (m_Displayed != 1) || (m_UseProgFronBrowser == FALSE) )
+        {
+            time(&TimeMin);
+            TimeMin += (LOWORD(wParam) - IDM_EPG_DAY0 - 1) * ONE_DAY;
+            if ((m_Displayed != 1) && (m_SearchTimeMin != 0))
+            {
+                datetime_tm = localtime(&m_SearchTimeMin);
+                sec = datetime_tm->tm_sec;
+                min = datetime_tm->tm_min;
+                hour = datetime_tm->tm_hour;
+                datetime_tm = localtime(&TimeMin);
+                datetime_tm->tm_sec = sec;
+                datetime_tm->tm_min = min;
+                datetime_tm->tm_hour = hour;
+                TimeMin = mktime(datetime_tm);
+            }
+            else
+            {
+                datetime_tm = localtime(&TimeMin);
+                datetime_tm->tm_sec = 0;
+                datetime_tm->tm_min = 0;
+                TimeMin = mktime(datetime_tm);
+            }
+            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+            // Check if new EPG data have to be loaded
+            LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
+            // Select the corresponding programmes
+            SearchForProgrammes(NULL, TimeMin, TimeMax);
+            m_UseProgFronBrowser = TRUE;
+            // Display the OSD screen
+            OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            m_Displayed = 2;
+        }
         return TRUE;
         break;
 
-	case IDM_EPG_HOUR0:
-	case IDM_EPG_HOUR1:
-	case IDM_EPG_HOUR2:
-	case IDM_EPG_HOUR3:
-	case IDM_EPG_HOUR4:
-	case IDM_EPG_HOUR5:
-	case IDM_EPG_HOUR6:
-	case IDM_EPG_HOUR7:
-	case IDM_EPG_HOUR8:
-	case IDM_EPG_HOUR9:
-	case IDM_EPG_HOUR10:
-	case IDM_EPG_HOUR11:
-	case IDM_EPG_HOUR12:
-	case IDM_EPG_HOUR13:
-	case IDM_EPG_HOUR14:
-	case IDM_EPG_HOUR15:
-	case IDM_EPG_HOUR16:
-	case IDM_EPG_HOUR17:
-	case IDM_EPG_HOUR18:
-	case IDM_EPG_HOUR19:
-	case IDM_EPG_HOUR20:
-	case IDM_EPG_HOUR21:
-	case IDM_EPG_HOUR22:
-	case IDM_EPG_HOUR23:
-		if ( (m_Displayed != 1) || (m_UseProgFronBrowser == FALSE) )
-		{
-			if ((m_Displayed != 1) && (m_SearchTimeMin != 0))
-			{
-				TimeMin = m_SearchTimeMin;
-			}
-			else
-			{
-				time(&TimeMin);
-			}
-			datetime_tm = localtime(&TimeMin);
-			datetime_tm->tm_sec = 0;
-			datetime_tm->tm_min = 0;
-			datetime_tm->tm_hour = LOWORD(wParam) - IDM_EPG_HOUR0;
-			TimeMin = mktime(datetime_tm);
-			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
-			// Check if new EPG data have to be loaded
-			LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
-			// Select the corresponding programmes
-			SearchForProgrammes(NULL, TimeMin, TimeMax);
-			m_UseProgFronBrowser = TRUE;
-			// Display the OSD screen
-			OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-			m_Displayed = 2;
-		}
+    case IDM_EPG_HOUR0:
+    case IDM_EPG_HOUR1:
+    case IDM_EPG_HOUR2:
+    case IDM_EPG_HOUR3:
+    case IDM_EPG_HOUR4:
+    case IDM_EPG_HOUR5:
+    case IDM_EPG_HOUR6:
+    case IDM_EPG_HOUR7:
+    case IDM_EPG_HOUR8:
+    case IDM_EPG_HOUR9:
+    case IDM_EPG_HOUR10:
+    case IDM_EPG_HOUR11:
+    case IDM_EPG_HOUR12:
+    case IDM_EPG_HOUR13:
+    case IDM_EPG_HOUR14:
+    case IDM_EPG_HOUR15:
+    case IDM_EPG_HOUR16:
+    case IDM_EPG_HOUR17:
+    case IDM_EPG_HOUR18:
+    case IDM_EPG_HOUR19:
+    case IDM_EPG_HOUR20:
+    case IDM_EPG_HOUR21:
+    case IDM_EPG_HOUR22:
+    case IDM_EPG_HOUR23:
+        if ( (m_Displayed != 1) || (m_UseProgFronBrowser == FALSE) )
+        {
+            if ((m_Displayed != 1) && (m_SearchTimeMin != 0))
+            {
+                TimeMin = m_SearchTimeMin;
+            }
+            else
+            {
+                time(&TimeMin);
+            }
+            datetime_tm = localtime(&TimeMin);
+            datetime_tm->tm_sec = 0;
+            datetime_tm->tm_min = 0;
+            datetime_tm->tm_hour = LOWORD(wParam) - IDM_EPG_HOUR0;
+            TimeMin = mktime(datetime_tm);
+            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+            // Check if new EPG data have to be loaded
+            LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
+            // Select the corresponding programmes
+            SearchForProgrammes(NULL, TimeMin, TimeMax);
+            m_UseProgFronBrowser = TRUE;
+            // Display the OSD screen
+            OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            m_Displayed = 2;
+        }
         return TRUE;
         break;
 
@@ -1103,89 +981,89 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 void CEPG::ShowOSD()
 {
-	// Check if new EPG data have to be loaded
-	time_t TimeNow;
-	time(&TimeNow);
-	LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, PRELOADING_EARLIER, PRELOADING_LATER);
+    // Check if new EPG data have to be loaded
+    time_t TimeNow;
+    time(&TimeNow);
+    LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, PRELOADING_EARLIER, PRELOADING_LATER);
 
-	if (   (m_Programmes.size() > 0)
-		&& (m_UseProgFronBrowser == FALSE) )
-	{
-		string Channel;
-		GetViewedChannelName(Channel);
-		if (Channel.length() > 0)
-		{
-			// Search EPG info for the currently viewed channel
-			m_SearchCurrent = TRUE;
-			if (SearchForProgramme(Channel.c_str(), TimeNow) == TRUE)
-			{
-				if (m_Displayed == 0)
-				{
-					// Display the OSD screen
-					OSD_ShowInfosScreen(1, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-				}
-			}
-		}
-	}
+    if (   (m_Programmes.size() > 0)
+        && (m_UseProgFronBrowser == FALSE) )
+    {
+        string Channel;
+        GetViewedChannelName(Channel);
+        if (Channel.length() > 0)
+        {
+            // Search EPG info for the currently viewed channel
+            m_SearchCurrent = TRUE;
+            if (SearchForProgramme(Channel.c_str(), TimeNow) == TRUE)
+            {
+                if (m_Displayed == 0)
+                {
+                    // Display the OSD screen
+                    OSD_ShowInfosScreen(1, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+                }
+            }
+        }
+    }
 }
 
 
 void CEPG::HideOSD()
 {
-	m_SearchChannel = NULL;
-	m_SearchTimeMin = 0;
-	m_SearchTimeMax = 0;
+    m_SearchChannel = NULL;
+    m_SearchTimeMin = 0;
+    m_SearchTimeMax = 0;
 
-	SetDisplayIndexes(-1, -1, -1);
+    SetDisplayIndexes(-1, -1, -1);
 
-	m_ProgrammeSelected = NULL;
+    m_ProgrammeSelected = NULL;
     m_ProgrammesSelection.clear();
 
-	m_UseProgFronBrowser = FALSE;
+    m_UseProgFronBrowser = FALSE;
 
-	m_SearchCurrent = TRUE;
+    m_SearchCurrent = TRUE;
 
-	m_ShiftLines = 0;
+    m_ShiftLines = 0;
 
-	m_Displayed = 0;
+    m_Displayed = 0;
 }
 
 
 void CEPG::GetViewedChannelName(string &Channel)
 {
-	Channel = "";
-	static string LastChannel = "";
-	static time_t LastTime = 0;
-	CSource *CurrentSource = Providers_GetCurrentSource();
-	if (CurrentSource)
-	{
-		if (CurrentSource->IsInTunerMode())
-		{
-			Channel = Channel_GetName();
-		}
-		else if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
-		{
-			time_t CurrentTime;
-			time(&CurrentTime);
+    Channel = "";
+    static string LastChannel = "";
+    static time_t LastTime = 0;
+    CSource *CurrentSource = Providers_GetCurrentSource();
+    if (CurrentSource)
+    {
+        if (CurrentSource->IsInTunerMode())
+        {
+            Channel = Channel_GetName();
+        }
+        else if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+        {
+            time_t CurrentTime;
+            time(&CurrentTime);
 
-			LPCSTR pChannel = Channel_GetVBIName();
-			if (*pChannel != '\0')
-			{
-				Channel = pChannel;
-				// Reset data each second to detect change of channel
-				if ((LastTime > 0) && ((CurrentTime - LastTime) > 0))
-				{
-					VBI_ChannelChange();
-				}
-				LastChannel = pChannel;
-				LastTime = CurrentTime;
-			}
-			else if ((LastTime > 0) && ((CurrentTime - LastTime) < 5))
-			{
-				Channel = LastChannel;
-			}
-		}
-	}
+            LPCSTR pChannel = Channel_GetVBIName();
+            if (*pChannel != '\0')
+            {
+                Channel = pChannel;
+                // Reset data each second to detect change of channel
+                if ((LastTime > 0) && ((CurrentTime - LastTime) > 0))
+                {
+                    VBI_ChannelChange();
+                }
+                LastChannel = pChannel;
+                LastTime = CurrentTime;
+            }
+            else if ((LastTime > 0) && ((CurrentTime - LastTime) < 5))
+            {
+                Channel = LastChannel;
+            }
+        }
+    }
 }
 
 
@@ -1198,14 +1076,14 @@ void CEPG::DumpEPGData()
         it != m_Programmes.end();
         ++it)
     {
-		(*it)->DumpProgrammeMainData();
+        (*it)->DumpProgrammeMainData();
     }
 }
 
 
 void CEPG::ClearProgrammes()
 {
-	m_ProgrammeSelected = NULL;
+    m_ProgrammeSelected = NULL;
     m_ProgrammesSelection.clear();
     for(CProgrammes::iterator it = m_Programmes.begin();
         it != m_Programmes.end();
@@ -1219,13 +1097,13 @@ void CEPG::ClearProgrammes()
 
 int CEPG::CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCSTR ChannelName)
 {
-	if (   (Setting_GetValue(EPG_GetSetting(EPG_CHANNELFILTERING)) == TRUE)
-		&& !IsValidChannelName(ChannelName))
-		return 0;
-	// Keep only programmes scheduled between m_LoadedTimeMin and m_LoadedTimeMax
-	if ( (EndTime <= m_LoadedTimeMin) || (StartTime > m_LoadedTimeMax) )
-		return 0;
-	return 1;
+    if (   (Setting_GetValue(EPG_GetSetting(EPG_CHANNELFILTERING)) == TRUE)
+        && !IsValidChannelName(ChannelName))
+        return 0;
+    // Keep only programmes scheduled between m_LoadedTimeMin and m_LoadedTimeMax
+    if ( (EndTime <= m_LoadedTimeMin) || (StartTime > m_LoadedTimeMax) )
+        return 0;
+    return 1;
 }
 
 
@@ -1234,173 +1112,173 @@ int CEPG::CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCSTR Channe
 //
 void CEPG::InsertProgramme(CProgramme* NewProg, int Sorting)
 {
-	time_t NewProgStart, NewProgEnd;
-	time_t ProgStart, ProgEnd;
+    time_t NewProgStart, NewProgEnd;
+    time_t ProgStart, ProgEnd;
 
-	NewProg->GetProgrammeDates(&NewProgStart, &NewProgEnd);
+    NewProg->GetProgrammeDates(&NewProgStart, &NewProgEnd);
 
-	int added = 0;
+    int added = 0;
 
-	if (Sorting == 1)
-	{
-		string	NewChannel;
-		string	NewChannelEPG;
-		string	Channel;
-		string	ChannelEPG;
-		int		NewNumber, Number;
-		BOOL	bTime = FALSE;
+    if (Sorting == 1)
+    {
+        string    NewChannel;
+        string    NewChannelEPG;
+        string    Channel;
+        string    ChannelEPG;
+        int        NewNumber, Number;
+        BOOL    bTime = FALSE;
 
-		NewProg->GetProgrammeChannelData(NewChannel, NewChannelEPG, &NewNumber);
+        NewProg->GetProgrammeChannelData(NewChannel, NewChannelEPG, &NewNumber);
 
-		for(CProgrammes::iterator it = m_ProgrammesSelection.begin();
-			it != m_ProgrammesSelection.end();
-			)
-		{
-			(*it)->GetProgrammeChannelData(Channel, ChannelEPG, &Number);
-			if (bTime == TRUE)
-			{
-				if (   ( (NewNumber != -1) && (NewNumber != Number) )
-					|| ( (NewNumber == -1) && _stricmp(NewChannel.c_str(), Channel.c_str()) )
-				   )
-				{
-					m_ProgrammesSelection.insert(it, NewProg);
-					added = 1;
-					break;
-				}
-				(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
-				if (   (ProgStart > NewProgStart)
-					|| ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
-				   )
-				{
-					m_ProgrammesSelection.insert(it, NewProg);
-					added = 1;
-					break;
-				}
-				++it;
-			}
-			else
-			{
-				if (NewNumber != -1)
-				{
-					if (   (Number == -1)
-						|| (Number > NewNumber)
-					   )
-					{
-						m_ProgrammesSelection.insert(it, NewProg);
-						added = 1;
-						break;
-					}
-					else if (NewNumber == Number)
-					{
-						bTime = TRUE;
-					}
-					else
-					{
-						++it;
-					}
-				}
-				else
-				{
-					if (   (Number == -1)
-					    && !_stricmp(NewChannel.c_str(), Channel.c_str())
-					   )
-					{
-						bTime = TRUE;
-					}
-					else
-					{
-						++it;
-					}
-				}
-			}
-		}
-	}
-	else if (Sorting == 0)
-	{
-		// Search the first programme having a start time later
-		// or an identical start time but a end time later
-		for(CProgrammes::iterator it = m_ProgrammesSelection.begin();
-			it != m_ProgrammesSelection.end();
-			++it)
-		{
-			(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
-			if (   (ProgStart > NewProgStart)
-				|| ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
-			   )
-			{
-				m_ProgrammesSelection.insert(it, NewProg);
-				added = 1;
-				break;
-			}
-		}
-	}
-	else if (Sorting == -1)
-	{
-		if (m_ProgrammesSelection.size() > 0)
-		{
-			m_ProgrammesSelection[m_ProgrammesSelection.size()-1]->GetProgrammeDates(&ProgStart, &ProgEnd);
-			if (   (ProgStart > NewProgStart)
-				|| ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
-			   )
-			{
-				for(CProgrammes::iterator it = m_ProgrammesSelection.begin();
-					it != m_ProgrammesSelection.end();
-					++it)
-				{
-					(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
-					if (   (ProgStart > NewProgStart)
-						|| ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
-					   )
-					{
-						m_ProgrammesSelection.insert(it, NewProg);
-						added = 1;
-						break;
-					}
-				}
-			}
-		}
-	}
+        for(CProgrammes::iterator it = m_ProgrammesSelection.begin();
+            it != m_ProgrammesSelection.end();
+            )
+        {
+            (*it)->GetProgrammeChannelData(Channel, ChannelEPG, &Number);
+            if (bTime == TRUE)
+            {
+                if (   ( (NewNumber != -1) && (NewNumber != Number) )
+                    || ( (NewNumber == -1) && _stricmp(NewChannel.c_str(), Channel.c_str()) )
+                   )
+                {
+                    m_ProgrammesSelection.insert(it, NewProg);
+                    added = 1;
+                    break;
+                }
+                (*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
+                if (   (ProgStart > NewProgStart)
+                    || ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
+                   )
+                {
+                    m_ProgrammesSelection.insert(it, NewProg);
+                    added = 1;
+                    break;
+                }
+                ++it;
+            }
+            else
+            {
+                if (NewNumber != -1)
+                {
+                    if (   (Number == -1)
+                        || (Number > NewNumber)
+                       )
+                    {
+                        m_ProgrammesSelection.insert(it, NewProg);
+                        added = 1;
+                        break;
+                    }
+                    else if (NewNumber == Number)
+                    {
+                        bTime = TRUE;
+                    }
+                    else
+                    {
+                        ++it;
+                    }
+                }
+                else
+                {
+                    if (   (Number == -1)
+                        && !_stricmp(NewChannel.c_str(), Channel.c_str())
+                       )
+                    {
+                        bTime = TRUE;
+                    }
+                    else
+                    {
+                        ++it;
+                    }
+                }
+            }
+        }
+    }
+    else if (Sorting == 0)
+    {
+        // Search the first programme having a start time later
+        // or an identical start time but a end time later
+        for(CProgrammes::iterator it = m_ProgrammesSelection.begin();
+            it != m_ProgrammesSelection.end();
+            ++it)
+        {
+            (*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
+            if (   (ProgStart > NewProgStart)
+                || ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
+               )
+            {
+                m_ProgrammesSelection.insert(it, NewProg);
+                added = 1;
+                break;
+            }
+        }
+    }
+    else if (Sorting == -1)
+    {
+        if (m_ProgrammesSelection.size() > 0)
+        {
+            m_ProgrammesSelection[m_ProgrammesSelection.size()-1]->GetProgrammeDates(&ProgStart, &ProgEnd);
+            if (   (ProgStart > NewProgStart)
+                || ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
+               )
+            {
+                for(CProgrammes::iterator it = m_ProgrammesSelection.begin();
+                    it != m_ProgrammesSelection.end();
+                    ++it)
+                {
+                    (*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
+                    if (   (ProgStart > NewProgStart)
+                        || ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
+                       )
+                    {
+                        m_ProgrammesSelection.insert(it, NewProg);
+                        added = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
-	if (!added)
-	{
-		m_ProgrammesSelection.push_back(NewProg);
-	}
+    if (!added)
+    {
+        m_ProgrammesSelection.push_back(NewProg);
+    }
 }
 
 
 void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber)
 {
-	if ( (EndTime > m_LoadedTimeMin) && (StartTime <= m_LoadedTimeMax) )
-	{
-		CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, "", "", "");
-		m_Programmes.push_back(newProgramme);
-	}
+    if ( (EndTime > m_LoadedTimeMin) && (StartTime <= m_LoadedTimeMax) )
+    {
+        CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, "", "", "");
+        m_Programmes.push_back(newProgramme);
+    }
 }
 
 
 void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description)
 {
-	if ( (EndTime > m_LoadedTimeMin) && (StartTime <= m_LoadedTimeMax) )
-	{
-		CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, SubTitle, Category, Description);
-		m_Programmes.push_back(newProgramme);
-	}
+    if ( (EndTime > m_LoadedTimeMin) && (StartTime <= m_LoadedTimeMax) )
+    {
+        CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, SubTitle, Category, Description);
+        m_Programmes.push_back(newProgramme);
+    }
 }
 
 
 void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelEPGName, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description)
 {
-	LPCSTR ChannelName;
-	int  ChannelNumber;
+    LPCSTR ChannelName;
+    int  ChannelNumber;
 
-	if (IsValidChannelName(ChannelEPGName, &ChannelName, &ChannelNumber))
-	{
-		AddProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, SubTitle, Category, Description);
-	}
-	else if (Setting_GetValue(EPG_GetSetting(EPG_CHANNELFILTERING)) == FALSE)
-	{
-		AddProgramme(StartTime, EndTime, Title, ChannelEPGName, ChannelEPGName, -1, SubTitle, Category, Description);
-	}
+    if (IsValidChannelName(ChannelEPGName, &ChannelName, &ChannelNumber))
+    {
+        AddProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, SubTitle, Category, Description);
+    }
+    else if (Setting_GetValue(EPG_GetSetting(EPG_CHANNELFILTERING)) == FALSE)
+    {
+        AddProgramme(StartTime, EndTime, Title, ChannelEPGName, ChannelEPGName, -1, SubTitle, Category, Description);
+    }
 }
 
 
@@ -1410,30 +1288,30 @@ void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR C
 //
 BOOL CEPG::IsValidChannelName(LPCSTR EPGName, LPCSTR *Name, int *Number)
 {
-	if (Name)
-	{
-		*Name = NULL;
-	}
-	if (Number)
-	{
-		*Number = -1;
-	}
-	for (int i=0; (i < MyChannels.GetSize()); i++)
-	{
-		if (!_stricmp(EPGName, MyChannels.GetChannelEPGName(i)))
-		{
-			if (Name)
-			{
-				*Name = MyChannels.GetChannelName(i);
-			}
-			if (Number)
-			{
-				*Number = i;
-			}
-			return TRUE;
-		}
-	}
-	return FALSE;
+    if (Name)
+    {
+        *Name = NULL;
+    }
+    if (Number)
+    {
+        *Number = -1;
+    }
+    for (int i=0; (i < MyChannels.GetSize()); i++)
+    {
+        if (!_stricmp(EPGName, MyChannels.GetChannelEPGName(i)))
+        {
+            if (Name)
+            {
+                *Name = MyChannels.GetChannelName(i);
+            }
+            if (Number)
+            {
+                *Number = i;
+            }
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 
@@ -1442,32 +1320,32 @@ BOOL CEPG::IsValidChannelName(LPCSTR EPGName, LPCSTR *Name, int *Number)
 //
 BOOL CEPG::CopyFile(LPCSTR InPath, LPCSTR OutPath)
 {
-	FILE *InStream;
-	FILE *OutStream;
+    FILE *InStream;
+    FILE *OutStream;
 
-	InStream = fopen(InPath, "r");
-	if (InStream == NULL)
-	{
-		return FALSE;
-	}
-	OutStream = fopen(OutPath, "w");
-	if (OutStream == NULL)
-	{
-		fclose(InStream);
-		return FALSE;
-	}
+    InStream = fopen(InPath, "r");
+    if (InStream == NULL)
+    {
+        return FALSE;
+    }
+    OutStream = fopen(OutPath, "w");
+    if (OutStream == NULL)
+    {
+        fclose(InStream);
+        return FALSE;
+    }
 
-	while (feof(InStream) == 0)
-	{
-		char buffer[512];
-		int n = fread(buffer, 1, 512, InStream);
-		fwrite(buffer, 1, n, OutStream);
-	}
+    while (feof(InStream) == 0)
+    {
+        char buffer[512];
+        int n = fread(buffer, 1, 512, InStream);
+        fwrite(buffer, 1, n, OutStream);
+    }
 
-	fclose(InStream);
-	fclose(OutStream);
+    fclose(InStream);
+    fclose(OutStream);
 
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -1479,88 +1357,88 @@ void CEPG::ClearNextviewEPGProviders()
     {
         delete (*it);
     }
-	m_NextviewProviders.clear();
+    m_NextviewProviders.clear();
 }
 
 
 int CEPG::GetNextviewEPGProviders()
 {
-	ClearNextviewEPGProviders();
+    ClearNextviewEPGProviders();
 
     struct stat st;
-	char* Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
-	if ((Exe == NULL) || stat(Exe, &st))
-	{
-		return m_NextviewProviders.size();
-	}
+    char* Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
+    if ((Exe == NULL) || stat(Exe, &st))
+    {
+        return m_NextviewProviders.size();
+    }
 
     WIN32_FIND_DATA FindFileData;
     HANDLE hFindFile;
-	char SearchFiles[MAX_PATH];
+    char SearchFiles[MAX_PATH];
     BOOL RetVal;
-	char Provider[5];
-	string* newProvider;
-	char* c;
+    char Provider[5];
+    string* newProvider;
+    char* c;
 
-	char* DefaultProvider = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPROVIDER));
-	if (strlen(DefaultProvider) > 0)
-	{
-		if (!strcmp(DefaultProvider, "merged"))
-		{
-			newProvider = new string(DefaultProvider);
-			m_NextviewProviders.push_back(newProvider);
-			return m_NextviewProviders.size();
-		}
+    char* DefaultProvider = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPROVIDER));
+    if (strlen(DefaultProvider) > 0)
+    {
+        if (!strcmp(DefaultProvider, "merged"))
+        {
+            newProvider = new string(DefaultProvider);
+            m_NextviewProviders.push_back(newProvider);
+            return m_NextviewProviders.size();
+        }
 
-		strcpy(SearchFiles, Exe);
-		c = strrchr(SearchFiles, '\\');
-		if (c)
-		{
-			sprintf(c+1, "nxtv%s.epg", DefaultProvider);
-		}
-		else
-		{
-			sprintf(SearchFiles, "nxtv%s.epg", DefaultProvider);
-		}
-		if (!stat(SearchFiles, &st))
-		{
-			strncpy(Provider, &SearchFiles[strlen(SearchFiles)-8], 4);
-			Provider[4] = '\0';
-			newProvider = new string(Provider);
-			m_NextviewProviders.push_back(newProvider);
-			return m_NextviewProviders.size();
-		}
+        strcpy(SearchFiles, Exe);
+        c = strrchr(SearchFiles, '\\');
+        if (c)
+        {
+            sprintf(c+1, "nxtv%s.epg", DefaultProvider);
+        }
+        else
+        {
+            sprintf(SearchFiles, "nxtv%s.epg", DefaultProvider);
+        }
+        if (!stat(SearchFiles, &st))
+        {
+            strncpy(Provider, &SearchFiles[strlen(SearchFiles)-8], 4);
+            Provider[4] = '\0';
+            newProvider = new string(Provider);
+            m_NextviewProviders.push_back(newProvider);
+            return m_NextviewProviders.size();
+        }
 
-		strcpy(SearchFiles, Exe);
-		c = strrchr(SearchFiles, '\\');
-		if (c)
-		{
-			sprintf(c+1, "nxtvdb-%s", DefaultProvider);
-		}
-		else
-		{
-			sprintf(SearchFiles, "nxtvdb-%s", DefaultProvider);
-		}
-		if (!stat(SearchFiles, &st))
-		{
-			strncpy(Provider, &SearchFiles[strlen(SearchFiles)-4], 4);
-			Provider[4] = '\0';
-			newProvider = new string(Provider);
-			m_NextviewProviders.push_back(newProvider);
-			return m_NextviewProviders.size();
-		}
-	}
+        strcpy(SearchFiles, Exe);
+        c = strrchr(SearchFiles, '\\');
+        if (c)
+        {
+            sprintf(c+1, "nxtvdb-%s", DefaultProvider);
+        }
+        else
+        {
+            sprintf(SearchFiles, "nxtvdb-%s", DefaultProvider);
+        }
+        if (!stat(SearchFiles, &st))
+        {
+            strncpy(Provider, &SearchFiles[strlen(SearchFiles)-4], 4);
+            Provider[4] = '\0';
+            newProvider = new string(Provider);
+            m_NextviewProviders.push_back(newProvider);
+            return m_NextviewProviders.size();
+        }
+    }
 
-	strcpy(SearchFiles, Exe);
-	c = strrchr(SearchFiles, '\\');
-	if (c)
-	{
-		strcpy(c+1, "nxtv*.epg");
-	}
-	else
-	{
-		strcpy(SearchFiles, "nxtv*.epg");
-	}
+    strcpy(SearchFiles, Exe);
+    c = strrchr(SearchFiles, '\\');
+    if (c)
+    {
+        strcpy(c+1, "nxtv*.epg");
+    }
+    else
+    {
+        strcpy(SearchFiles, "nxtv*.epg");
+    }
 
     hFindFile = FindFirstFile(SearchFiles, &FindFileData);
 
@@ -1570,30 +1448,30 @@ int CEPG::GetNextviewEPGProviders()
         while(RetVal != 0)
         {
             // check to see if the extension is .epg
-			// and * matchs 4 characters
+            // and * matchs 4 characters
             if(   (_stricmp(".epg", &FindFileData.cFileName[strlen(FindFileData.cFileName)-4]) == 0)
-			   && (strlen(&FindFileData.cFileName[0]) == 12) )
+               && (strlen(&FindFileData.cFileName[0]) == 12) )
             {
-				strncpy(Provider, &FindFileData.cFileName[strlen(FindFileData.cFileName)-8], 4);
-				Provider[4] = '\0';
-				newProvider = new string(Provider);
-				m_NextviewProviders.push_back(newProvider);
+                strncpy(Provider, &FindFileData.cFileName[strlen(FindFileData.cFileName)-8], 4);
+                Provider[4] = '\0';
+                newProvider = new string(Provider);
+                m_NextviewProviders.push_back(newProvider);
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
         }
         FindClose(hFindFile);
     }
 
-	strcpy(SearchFiles, Exe);
-	c = strrchr(SearchFiles, '\\');
-	if (c)
-	{
-		strcpy(c+1, "nxtvdb-*");
-	}
-	else
-	{
-		strcpy(SearchFiles, "nxtvdb-*");
-	}
+    strcpy(SearchFiles, Exe);
+    c = strrchr(SearchFiles, '\\');
+    if (c)
+    {
+        strcpy(c+1, "nxtvdb-*");
+    }
+    else
+    {
+        strcpy(SearchFiles, "nxtvdb-*");
+    }
 
     hFindFile = FindFirstFile(SearchFiles, &FindFileData);
 
@@ -1605,42 +1483,42 @@ int CEPG::GetNextviewEPGProviders()
             // check * matchs 4 characters
             if(strlen(&FindFileData.cFileName[0]) == 11)
             {
-				strncpy(Provider, &FindFileData.cFileName[strlen(FindFileData.cFileName)-4], 4);
-				Provider[4] = '\0';
-				newProvider = new string(Provider);
-				m_NextviewProviders.push_back(newProvider);
+                strncpy(Provider, &FindFileData.cFileName[strlen(FindFileData.cFileName)-4], 4);
+                Provider[4] = '\0';
+                newProvider = new string(Provider);
+                m_NextviewProviders.push_back(newProvider);
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
         }
         FindClose(hFindFile);
     }
 
-	return m_NextviewProviders.size();
+    return m_NextviewProviders.size();
 }
 
 
 void CEPG::SetMenu(HMENU hMenu)
 {
-	static time_t	LastDay = 0;
-	time_t			Day;
-	struct tm		*datetime_tm;
-	char			*week_days[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+    static time_t    LastDay = 0;
+    time_t            Day;
+    struct tm        *datetime_tm;
+    char            *week_days[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 
-	time(&Day);
-	datetime_tm = localtime(&Day);
-	datetime_tm->tm_sec = 0;
-	datetime_tm->tm_min = 0;
-	datetime_tm->tm_hour = 0;
-	Day = mktime(datetime_tm);
-	if (LastDay != Day)
-	{
-		LastDay = Day;
+    time(&Day);
+    datetime_tm = localtime(&Day);
+    datetime_tm->tm_sec = 0;
+    datetime_tm->tm_min = 0;
+    datetime_tm->tm_hour = 0;
+    Day = mktime(datetime_tm);
+    if (LastDay != Day)
+    {
+        LastDay = Day;
 
-		HMENU hMenuEPGDay = GetEPGDaySubmenu();
-		if (hMenuEPGDay == NULL)
-		{
-			return;
-		}
+        HMENU hMenuEPGDay = GetEPGDaySubmenu();
+        if (hMenuEPGDay == NULL)
+        {
+            return;
+        }
 
         ModifyMenu(hMenuEPGDay, IDM_EPG_DAY3, MF_STRING, IDM_EPG_DAY3, week_days[(datetime_tm->tm_wday + 2) % 7]);
         ModifyMenu(hMenuEPGDay, IDM_EPG_DAY4, MF_STRING, IDM_EPG_DAY4, week_days[(datetime_tm->tm_wday + 3) % 7]);
@@ -1649,56 +1527,56 @@ void CEPG::SetMenu(HMENU hMenu)
         ModifyMenu(hMenuEPGDay, IDM_EPG_DAY7, MF_STRING, IDM_EPG_DAY7, week_days[(datetime_tm->tm_wday + 6) % 7]);
     }
 
-	BOOL bEnable = (m_Displayed != 1) || (m_UseProgFronBrowser == FALSE);
+    BOOL bEnable = (m_Displayed != 1) || (m_UseProgFronBrowser == FALSE);
 
-	EnableMenuItem(hMenu, IDM_EPG_DAY0, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_DAY1, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_DAY2, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_DAY3, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_DAY4, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_DAY5, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_DAY6, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_DAY7, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_DAY0, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_DAY1, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_DAY2, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_DAY3, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_DAY4, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_DAY5, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_DAY6, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_DAY7, bEnable ? MF_ENABLED : MF_GRAYED);
 
-	EnableMenuItem(hMenu, IDM_EPG_HOUR0, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR1, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR2, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR3, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR4, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR5, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR6, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR7, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR8, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR9, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR10, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR11, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR12, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR13, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR14, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR15, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR16, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR17, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR18, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR19, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR20, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR21, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR22, bEnable ? MF_ENABLED : MF_GRAYED);
-	EnableMenuItem(hMenu, IDM_EPG_HOUR23, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR0, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR1, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR2, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR3, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR4, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR5, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR6, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR7, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR8, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR9, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR10, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR11, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR12, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR13, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR14, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR15, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR16, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR17, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR18, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR19, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR20, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR21, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR22, bEnable ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_EPG_HOUR23, bEnable ? MF_ENABLED : MF_GRAYED);
 }
 
 
 // ---------------------- Settings ---------------------
 
 
-static char		ExePath[MAX_PATH] = {0};
-static char*	NextviewEPGExePath = NULL;
-static char*	NextviewEPGProvider = NULL;
-static long		EPG_DefaultSizePerc = 5;
-static long		EPG_FrameDuration = 1;
-static BOOL		EPG_ChannelFiltering = FALSE;
-static long		EPG_MaxCharsPerLine = 75;
-static int		EPG_ProgSorting = 0;
-static BOOL		EPG_ToggleButtons = FALSE;
+static char        ExePath[MAX_PATH] = {0};
+static char*    NextviewEPGExePath = NULL;
+static char*    NextviewEPGProvider = NULL;
+static long        EPG_DefaultSizePerc = 5;
+static long        EPG_FrameDuration = 1;
+static BOOL        EPG_ChannelFiltering = FALSE;
+static long        EPG_MaxCharsPerLine = 75;
+static int        EPG_ProgSorting = 0;
+static BOOL        EPG_ToggleButtons = FALSE;
 static const char* EPG_ProgSortingLabels[2] = 
 {
     "Programme start time",
@@ -1708,16 +1586,16 @@ static const char* EPG_ProgSortingLabels[2] =
 
 BOOL ChannelFiltering_OnChange(long NewValue)
 {
-	OSD_Clear();
-	MyEPG.ReloadEPGData();
+    OSD_Clear();
+    MyEPG.ReloadEPGData();
     return FALSE;
 }
 
 
 BOOL ProgSorting_OnChange(long NewValue)
 {
-	OSD_Clear();
-	MyEPG.ReloadEPGData();
+    OSD_Clear();
+    MyEPG.ReloadEPGData();
     return FALSE;
 }
 
@@ -1791,9 +1669,9 @@ void EPG_ReadSettingsFromIni()
 {
     int i;
 
-	GetModuleFileName (NULL, ExePath, sizeof(ExePath));
-	*(strrchr(ExePath, '\\')) = '\0';
-	strcat(ExePath, "\\nxtvepg.exe");
+    GetModuleFileName (NULL, ExePath, sizeof(ExePath));
+    *(strrchr(ExePath, '\\')) = '\0';
+    strcat(ExePath, "\\nxtvepg.exe");
 
     for(i = 0; i < EPG_SETTING_LASTONE; i++)
     {
@@ -1802,7 +1680,7 @@ void EPG_ReadSettingsFromIni()
 
     if (NextviewEPGExePath == NULL)
     {
-		Setting_SetValue(EPG_GetSetting(EPG_NXTVEPGPATH), (long)ExePath);
+        Setting_SetValue(EPG_GetSetting(EPG_NXTVEPGPATH), (long)ExePath);
     }
 }
 
@@ -1835,10 +1713,10 @@ void EPG_FreeSettings()
 
 int CheckProgrammeValidity(time_t StartTime, time_t EndTime, char * ChannelName)
 {
-	return 	MyEPG.CheckProgrammeValidity(StartTime, EndTime, ChannelName);
+    return     MyEPG.CheckProgrammeValidity(StartTime, EndTime, ChannelName);
 }
 
 void AddProgramme(time_t StartTime, time_t EndTime, char * Title, char * ChannelName, char * SubTitle, char * Category, char * Description)
 {
-	MyEPG.AddProgramme(StartTime, EndTime, Title, ChannelName, SubTitle, Category, Description);
+    MyEPG.AddProgramme(StartTime, EndTime, Title, ChannelName, SubTitle, Category, Description);
 }

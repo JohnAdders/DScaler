@@ -15,14 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 09 Jan 2001   John Adcock           Split into new file
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file fd_50hz.h fd_50hz Header file

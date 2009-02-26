@@ -19,38 +19,6 @@
 //  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 /////////////////////////////////////////////////////////////////////////////
-// This file was taken from VirtualDub
-// VirtualDub - Video processing and capture application
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2007/02/22 09:42:05  adcockj
-// fixed issues with VS2005
-//
-// Revision 1.7  2006/12/13 01:10:01  robmuller
-// Fix compile warnings with Visual Studio 2005 Express.
-//
-// Revision 1.6  2006/10/06 13:35:29  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.5  2005/03/11 13:31:52  adcockj
-// Get rid of a load of compilation warnings in vs.net
-//
-// Revision 1.4  2002/09/17 19:29:29  adcockj
-// Fixed compile warnings
-//
-// Revision 1.3  2002/09/17 17:29:55  tobbej
-// updated crashloging to same version as in latest virtualdub
-//
-// Revision 1.2  2001/12/09 20:46:17  tobbej
-// fixed crashing of mapconv when symbol names is very large
-// (for example when using a stl map)
-//
-// Revision 1.1  2001/07/24 12:19:00  adcockj
-// Added code and tools for crash logging from VirtualDub
-//
-//////////////////////////////////////////////////////////////////////////////
 
 //  mapconv - symbolic debugging info generator for VirtualDub
 //  Copyright (C) 2002 Avery Lee, All Rights Reserved

@@ -15,38 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.10  2002/08/07 00:44:12  lindsey
-// Made prefetching into a user option.
-//
-// Revision 1.9  2002/06/18 19:46:10  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.8  2002/06/13 12:10:26  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.7  2002/03/08 04:16:01  lindsey
-// Changed MMXEXT (Athlon) processors to use the SSE version
-//
-// Revision 1.6  2002/02/15 15:27:48  robmuller
-// pcmpgtw -> pcmpgtb. Solved signed compare problem with pcmpgt..
-// Replaced averaging code with the AVERAGE macro. Added prefetching.
-//
-// Revision 1.5  2002/02/01 19:51:30  robmuller
-// Changed the replacement value. The new value favors the new pixel value.
-// This reduces the speckles, posterization and noise reduction.
-// Changed the defaults of the thresholds to reflect the new situation.
-// Added Lock Thresholds option.
-//
-// Revision 1.4  2001/11/26 15:27:19  adcockj
-// Changed filter structure
-//
-// Revision 1.3  2001/07/13 16:13:33  adcockj
-// Added CVS tags and removed tabs
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Filter.h"

@@ -20,34 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.7  2006/10/06 13:35:28  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.6  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.5  2002/10/08 08:23:33  kooiman
-// Fixed lost border buttons.
-//
-// Revision 1.4  2002/10/07 20:32:43  kooiman
-// Fixed small bugs. Added 3/4state button.
-//
-// Revision 1.3  2002/09/29 10:07:39  adcockj
-// Fixed compile warning
-//
-// Revision 1.2  2002/09/26 16:34:19  kooiman
-// Lots of toolbar fixes &added EVENT_VOLUME support.
-//
-// Revision 1.1  2002/09/25 22:32:35  kooiman
-// Skinned window border.
-//
-// Revision 1.0  2001/11/25 02:03:21  kooiman
-// initial version
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file WindowBorder.cpp CWindowBorder Implementation
@@ -70,16 +42,16 @@ static char THIS_FILE[]=__FILE__;
 
 /**
 
-	Draws a border around an existing window using Windows GDI.
-	All border pieces are extracted from a big bitmap.
-	This big bitmap and the coordinaties for the border pieces
-	are specified in an .ini file.
+    Draws a border around an existing window using Windows GDI.
+    All border pieces are extracted from a big bitmap.
+    This big bitmap and the coordinaties for the border pieces
+    are specified in an .ini file.
 
-	With an additional mask bitmap (black&white), part of the 
-	border can be transparent (use SetWindowRgn).
+    With an additional mask bitmap (black&white), part of the 
+    border can be transparent (use SetWindowRgn).
 
-	In addition to this, buttons can be added to the border.
-	They are CBitmapAsButton classes.
+    In addition to this, buttons can be added to the border.
+    They are CBitmapAsButton classes.
 */
 
 const char* CWindowBorder::szBorderNames[] = {
@@ -255,17 +227,17 @@ void CWindowBorder::AdjustArea(RECT *ar, int Crop)
 HRGN CWindowBorder::MakeRegion(LPRECT lpRcExtra)
 {
     BOOL bMerge = TRUE;
-	if (RegionList.size()>0)
+    if (RegionList.size()>0)
     {  
        if (!FindLocations()) 
-	   {
-		   bMerge = FALSE;		   
-	   }
+       {
+           bMerge = FALSE;           
+       }
     }
-	else
-	{
-		FindLocations();
-	}
+    else
+    {
+        FindLocations();
+    }
    
    if (((rcWindow.right - rcWindow.left)==0) || ((rcWindow.bottom - rcWindow.top)==0))
    {
@@ -274,12 +246,12 @@ HRGN CWindowBorder::MakeRegion(LPRECT lpRcExtra)
    
    if (bMerge)
    {
-		for (int i = 0; i < RegionList.size(); i++)
-		{
-		   if (RegionList[i] != NULL) { delete RegionList[i]; }
-		}
-		RegionList.clear();
-		MergeBorderRegions(&RegionList, lpRcExtra);
+        for (int i = 0; i < RegionList.size(); i++)
+        {
+           if (RegionList[i] != NULL) { delete RegionList[i]; }
+        }
+        RegionList.clear();
+        MergeBorderRegions(&RegionList, lpRcExtra);
    }
    
    RECT rc;
@@ -696,7 +668,7 @@ void CWindowBorder::MergeBorderRegions(vector<LPRECT> *AllRegions, LPRECT lpRcEx
      {
          pRowList = new POINT[BottomSize * (TotalWidth+2)];
          pRowListSize = new int[BottomSize];
-		 int h;
+         int h;
          for (h = 0; h < BottomSize; h++)
          {
              p = &pRowList[h * (TotalWidth+2) + pRowListSize[h] ];
@@ -980,7 +952,7 @@ BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
         return FALSE;
     }
 
-	m_IsSkinned = TRUE;
+    m_IsSkinned = TRUE;
 
     // Load them
     for (Pos = 0; Pos < WINDOWBORDER_LASTONE; Pos++)
@@ -1134,7 +1106,7 @@ void CWindowBorder::ClearSkin()
     }
     RegionList.clear();
 
-	m_IsSkinned = FALSE;
+    m_IsSkinned = FALSE;
 
     FindBorderSizes();
     FindLocations();

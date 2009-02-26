@@ -4,45 +4,16 @@
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//    This file is subject to the terms of the GNU General Public License as
+//    published by the Free Software Foundation.  A copy of this license is
+//    included with this software distribution in the file COPYING.  If you
+//    do not have a copy, you may obtain a copy by writing to the Free
+//    Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
-//
-/////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 01 Feb 2001   Tom Barry		       New Greedy (High Motion)Deinterlace method
-//
-// 29 Jul 2001   Tom Barry		       Move CPU dependent code to DI_GreedyHF.asm
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.5  2001/07/30 18:18:59  trbarry
-// Fix new DJR bug
-//
-// Revision 1.4  2001/07/30 17:56:26  trbarry
-// Add Greedy High Motion MMX, K6-II, K6-III, and Celeron support.
-// Tweak defaults.
-//
-// Revision 1.3  2001/07/28 18:47:24  trbarry
-// Fix Sharpness with Median Filter
-// Increase Sharpness default to make obvious
-// Adjust deinterlace defaults for less jitter
-//
-// Revision 1.2  2001/07/25 12:04:31  adcockj
-// Moved Control stuff into DS_Control.h
-// Added $Id and $Log to comment blocks as per standards
+//    This software is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
 

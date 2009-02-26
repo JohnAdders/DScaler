@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2003/02/22 16:45:02  tobbej
-// added a new open file dialog that allows entering urls
-//
-//////////////////////////////////////////////////////////////////////////////
 
 
 /**
@@ -44,51 +37,51 @@ class COpenDlg : public CDialog
 {
 // Construction
 public:
-	COpenDlg(CWnd* pParent = NULL);   // standard constructor
-	virtual ~COpenDlg();
-	
-	/**
-	 * Creates a open dialog and shows it.
-	 * @param hParent parent window
-	 * @param FileName filename of selected file if returned true
-	 * @return true if a file was selected and closed with ok button
-	 */
-	static bool ShowOpenDialog(HWND hParent,CString &FileName);
+    COpenDlg(CWnd* pParent = NULL);   // standard constructor
+    virtual ~COpenDlg();
+    
+    /**
+     * Creates a open dialog and shows it.
+     * @param hParent parent window
+     * @param FileName filename of selected file if returned true
+     * @return true if a file was selected and closed with ok button
+     */
+    static bool ShowOpenDialog(HWND hParent,CString &FileName);
 
 // Dialog Data
-	//{{AFX_DATA(COpenDlg)
-	enum { IDD = IDD_OPEN };
-	CEdit	m_File;
-	//}}AFX_DATA
+    //{{AFX_DATA(COpenDlg)
+    enum { IDD = IDD_OPEN };
+    CEdit    m_File;
+    //}}AFX_DATA
 
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(COpenDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
-	
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(COpenDlg)
+    protected:
+    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+    //}}AFX_VIRTUAL
+    
 // Implementation
 protected:
 
-	// Generated message map functions
-	//{{AFX_MSG(COpenDlg)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnBrowse();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+    // Generated message map functions
+    //{{AFX_MSG(COpenDlg)
+    virtual BOOL OnInitDialog();
+    afx_msg void OnBrowse();
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 
-	void OnOK();
-	CString m_FileName;
+    void OnOK();
+    CString m_FileName;
 private:
-	/**
-	 * Makes the edit box auto complete.
-	 * This will only work with interlent explorer 5 or later installed,
-	 * if it is not installed this function will do nothing.
-	 */
-	void SetupAutoComplete();
-	HINSTANCE m_hSHLWAPIDLL;
+    /**
+     * Makes the edit box auto complete.
+     * This will only work with interlent explorer 5 or later installed,
+     * if it is not installed this function will do nothing.
+     */
+    void SetupAutoComplete();
+    HINSTANCE m_hSHLWAPIDLL;
 };
 
 //{{AFX_INSERT_LOCATION}}

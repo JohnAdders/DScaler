@@ -13,41 +13,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.10  2002/11/04 23:29:46  lindsey
-// Corrected U/V swap
-//
-// Revision 1.9  2002/11/04 01:43:42  lindsey
-// Minor modification to color correction list item name
-//
-// Revision 1.8  2002/11/03 00:26:28  lindsey
-// Changed the names of the comb mode option list items
-//
-// Revision 1.7  2002/11/02 01:33:34  lindsey
-// Corrected comb filter to work with PAL video
-// Changed color of histogram outside the CCIR-601 range
-//
-// Revision 1.6  2002/08/07 00:43:11  lindsey
-// Made prefetching into a user option.
-//
-// Revision 1.5  2002/06/18 19:46:09  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.4  2002/06/13 12:10:25  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.3  2002/02/18 01:23:46  lindsey
-// Changed an option name
-//
-// Revision 1.2  2002/02/16 00:24:57  lindsey
-// Added CVS tags
-//
-// Revision 1.1.1.1  2002/02/15  lindsey
-// Added Histogram Filter
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /*
 Some are red.  And some are blue.

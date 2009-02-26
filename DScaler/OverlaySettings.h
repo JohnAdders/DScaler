@@ -15,14 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2002/08/11 12:02:51  laurentg
-// Update header to have a version management
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file overlaysettings.h overlaysettings Header file

@@ -15,19 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2002/09/15 12:20:07  tobbej
-// implemented audio output device selection
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DSAudioDevicePage.h header file
@@ -51,42 +38,42 @@ class CDSAudioDevicePage : public CTreeSettingsPage
 {
 // Construction
 public:
-	CDSAudioDevicePage(CString name,std::string &AudioDevice);   // standard constructor
-	CDSAudioDevicePage(CString name,std::string &AudioDevice,bool *bConnectAudio);
+    CDSAudioDevicePage(CString name,std::string &AudioDevice);   // standard constructor
+    CDSAudioDevicePage(CString name,std::string &AudioDevice,bool *bConnectAudio);
 
 // Dialog Data
-	//{{AFX_DATA(CDSAudioDevicePage)
-	enum { IDD = IDD_DSHOW_AUDIODEVICE };
-	CComboBox m_AudioDevice;
-	CButton m_UseDefault;
-	CButton m_ConnectAudio;
-	//}}AFX_DATA
+    //{{AFX_DATA(CDSAudioDevicePage)
+    enum { IDD = IDD_DSHOW_AUDIODEVICE };
+    CComboBox m_AudioDevice;
+    CButton m_UseDefault;
+    CButton m_ConnectAudio;
+    //}}AFX_DATA
 
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CDSAudioDevicePage)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CDSAudioDevicePage)
+    protected:
+    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+    //}}AFX_VIRTUAL
 
 // Implementation
 protected:
 
-	// Generated message map functions
-	//{{AFX_MSG(CDSAudioDevicePage)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnSelEndOkAudioDevice();
-	afx_msg void OnClickedUseDefault();
-	afx_msg void OnClickedConnectAudio();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+    // Generated message map functions
+    //{{AFX_MSG(CDSAudioDevicePage)
+    virtual BOOL OnInitDialog();
+    afx_msg void OnSelEndOkAudioDevice();
+    afx_msg void OnClickedUseDefault();
+    afx_msg void OnClickedConnectAudio();
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 
-	void OnOK();
+    void OnOK();
 private:
-	vector<std::string> m_DeviceList;
-	std::string &m_AudioDeviceSetting;
-	bool *m_bConnectAudio;
+    vector<std::string> m_DeviceList;
+    std::string &m_AudioDeviceSetting;
+    bool *m_bConnectAudio;
 };
 
 //{{AFX_INSERT_LOCATION}}

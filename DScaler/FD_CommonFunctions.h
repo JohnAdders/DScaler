@@ -15,14 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 01 Jun 2001   John Adcock           Split into new file
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file FD_CommonFunctions.h Film detection common functions Header file

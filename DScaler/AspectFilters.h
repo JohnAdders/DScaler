@@ -15,18 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 23 Apr 2001   Michael Samblanet     File created
-//
-// 08 Jun 2001   Eric Schmidt          Added bounce amplitude to ini
-//
-// 03 Jul 2001   John Adcock           Reoganized code and changed behavious of pan
-//                                     and scan filter.
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file aspectfilters.h aspectfilters Header file

@@ -13,91 +13,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.21  2008/03/10 17:41:46  adcockj
-// Update to cmake files
-//
-// Revision 1.20  2008/02/08 13:43:20  adcockj
-// Changes to support cmake compilation
-//
-// Revision 1.19  2006/10/06 13:35:31  adcockj
-// Added projects for .NET 2005 and fixed most of the warnings and errors
-//
-// Revision 1.18  2003/06/26 11:42:54  adcockj
-// Reduced teh size of some of the dlls
-//
-// Revision 1.17  2002/11/04 02:09:32  lindsey
-// Removed the debug flag again
-//
-// Revision 1.16  2002/11/04 02:08:05  lindsey
-// Allowed stability values below 0.
-//
-// Revision 1.15  2002/11/02 02:05:13  lindsey
-// Corrected the default motion memory value
-//
-// Revision 1.14  2002/11/02 01:30:19  lindsey
-// Added spatial averaging
-// Changed response curve to amount of change to more closely approximate the modelled ideal
-// Accounted for reduction of variance due to averaging when evaluating motion vs. noise
-// Added a readout of the noise level
-//
-// Revision 1.13  2002/08/06 21:26:03  lindsey
-// Made prefetching a user option
-//
-// Revision 1.12  2002/06/18 19:46:08  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.11  2002/06/13 12:10:25  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.10  2002/03/11 01:47:32  lindsey
-// Corrected for use with progressive source
-// Changed to use Tom's aligned memory allocation
-//
-// Revision 1.9  2002/02/23 03:22:16  lindsey
-// Exposed the "Use this filter" settings
-//
-// Revision 1.8  2002/02/01 23:50:39  lindsey
-// Disbled the debug flag again
-//
-// Revision 1.7  2002/02/01 23:49:28  lindsey
-// Corrected filter disabling on MMX computers
-// Slightly changed starting values
-//
-// Revision 1.6  2002/01/26 01:03:11  lindsey
-// Fixed some comments
-// Effect of coefficient of varience on reliability scaled to the sample size
-//
-// Revision 1.5  2002/01/26 00:47:00  lindsey
-// Fixed big bug in noise threshold / motion correlation interaction
-// Fixed bug in parameterization
-// Changed to an additive filter for motion correlation
-// Changed parameterization
-// Changed use of coefficient of variation in reliability estimate
-// Reduced size of histogram
-// Optimized a little
-// Moved algorithm description to a separate file
-//
-// Revision 1.4  2002/01/17 07:55:12  lindsey
-// Turned off the debug flag
-//
-// Revision 1.3  2002/01/17 07:50:32  lindsey
-// Increased effect of nearby motion on averaging
-// Moved some magic numbers into #defines
-// Reduced artifacts with the "lock dot"
-// Slightly changed parameterization
-// Improved documentation and formatting
-//
-// Revision 1.2  2002/01/04 01:29:54  lindsey
-// Changed parameterization
-//
-// Revision 1.1.1.1  2001/12/31 01:25:19  lindsey
-// Added FLT_AdaptiveNoise
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 // #define ADAPTIVE_NOISE_DEBUG
 
@@ -547,19 +462,19 @@ void CleanupAdaptiveNoise( void )
 
 BYTE* DumbAlignedMalloc(int siz)
 {
-	BYTE* x = (BYTE*)malloc(siz+16);
-	BYTE** y = (BYTE**) (x+16);
-	y = (BYTE**) (((unsigned int) y & 0xfffffff0) - 4);
-	*y = x;
-	return (BYTE*) y+4;
+    BYTE* x = (BYTE*)malloc(siz+16);
+    BYTE** y = (BYTE**) (x+16);
+    y = (BYTE**) (((unsigned int) y & 0xfffffff0) - 4);
+    *y = x;
+    return (BYTE*) y+4;
 }
 
 
 BYTE* DumbAlignedFree(BYTE* x)
 {
-	BYTE* y =  *(BYTE**)(x-4);
-	free(y);
-	return 0;
+    BYTE* y =  *(BYTE**)(x-4);
+    free(y);
+    return 0;
 }
 
 

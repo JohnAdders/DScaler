@@ -15,50 +15,6 @@
 ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;   GNU General Public License for more details
 ;////////////////////////////////////////////////////////////////////////////
-;
-; Refinements made by Mark Rejhon and Steve Grimm
-;
-;////////////////////////////////////////////////////////////////////////////
-; Change Log
-;
-; Date          Developer             Changes
-;
-; 01 Jun 2001   John Adcock           Split out into new file
-;
-;////////////////////////////////////////////////////////////////////////////
-; CVS Log
-;
-; $Log: not supported by cvs2svn $
-; Revision 1.19  2003/07/14 19:18:07  adcockj
-; Bug fixes to new comb factor calc
-;
-; Revision 1.18  2003/04/17 16:25:18  adcockj
-; More changes to the as yet unused comb detection
-;
-; Revision 1.17  2003/04/17 07:13:25  adcockj
-; Bug fixes to new unused film detection code
-;
-; Revision 1.16  2003/04/15 13:05:36  adcockj
-; Unused test code for comb and diff
-;
-; Revision 1.15  2002/06/03 17:50:06  tobbej
-; added missing emms instruction
-;
-; Revision 1.14  2002/03/10 04:21:22  lindsey
-; Added acknowledgement for Gunnar Thalin's comb factor code
-;
-; Revision 1.13  2001/11/22 13:32:03  adcockj
-; Finished changes caused by changes to TDeinterlaceInfo - Compiles
-;
-; Revision 1.12  2001/07/13 16:14:56  adcockj
-; Changed lots of variables to match Coding standards
-;
-; Revision 1.11  2001/07/12 16:16:40  adcockj
-; Added CVS Id and Log
-;
-;
-;////////////////////////////////////////////////////////////////////////////
-
 
     .386p
     .mmx
@@ -484,12 +440,12 @@ CombAndDiff_Loop:
     psrlq mm7,32
     movd eax, mm7
     add ecx, eax
-	xor eax, eax
+    xor eax, eax
     mov ax, cx
     shr ecx, 16
     add eax, ecx
     shr eax, 1
-	mov ecx, CombFactor
+    mov ecx, CombFactor
     mov [ecx], eax
 
     ; return mm6 as return value
@@ -825,7 +781,7 @@ Memcpy_Loop:
     rep movsb
 
 Memcpy_End:
-	emms
+    emms
     pop esi
     pop edi
     ret 

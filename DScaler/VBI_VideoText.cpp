@@ -23,276 +23,6 @@
 // Copyright (C) 1999-2000 Zoltán Sinkovics and Szabolcs Seláf
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Original Release
-//                                     Translated most code from German
-//                                     Combined Header files
-//                                     Cut out all decoding
-//                                     Cut out digital hardware stuff
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-// 02 Jan 2003   Atsushi Nakagawa      Redid VBI_VideoText.cpp to link in
-//                                     with the new and updated CVTDecoder and
-//                                     CVTDrawer classes.  CVS Log entries
-//                                     prior to and including rev 1.52 may
-//                                     no longer have direct validity but
-//                                     their cumulative changes still remain
-//                                     valid.
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.84  2005/08/28 18:27:55  to_see
-// Updated RegisteredCNICodes - changed some station names and sorted the list by wNI_P8301
-//
-// Revision 1.83  2005/08/14 16:09:11  to_see
-// Fixed typo in RegisteredCNICodes
-//
-// Revision 1.82  2005/08/12 19:48:26  to_see
-// Added VPS CNI codes
-//
-// Revision 1.81  2005/08/02 19:57:17  to_see
-// Improved VPS decoding
-//
-// Revision 1.80  2005/08/01 12:49:09  laurentg
-// Display the channel identification codes in the VT status window
-//
-// Revision 1.79  2005/07/27 22:56:47  laurentg
-// Use WORD instead of DWORD for CNI codes
-// Table of registered codes updated
-//
-// Revision 1.78  2005/07/27 19:34:01  laurentg
-// Separate PDC and P8/30/1
-//
-// Revision 1.77  2005/07/26 23:13:59  laurentg
-// New part of table with registered CNI codes added
-//
-// Revision 1.76  2005/07/26 22:14:17  laurentg
-// Function to search network names using P8/30/1,2 and a table of registered CNI codes
-// Table not yet fully formatted
-//
-// Revision 1.75  2005/03/23 14:21:02  adcockj
-// Test fix for threading issues
-//
-// Revision 1.74  2004/11/08 18:15:24  atnak
-// Made UxTheme dynamically load for backwards compatibility
-//
-// Revision 1.73  2004/11/08 16:12:27  atnak
-// Fix to strange problem with vertical tab control when using XP visual style
-//
-// Revision 1.72  2004/04/24 11:34:51  atnak
-// minor fix
-//
-// Revision 1.71  2004/04/24 08:54:18  atnak
-// reverted part of last change because there was no need for a new setting
-// variable for input timeout, used ChannelEnterTime instead
-//
-// Revision 1.70  2004/04/24 08:36:28  atnak
-// new: user customizable teletext page number input timeout
-//
-// Revision 1.69  2003/10/27 10:39:54  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.68  2003/03/31 16:13:23  atnak
-// Changed default for page lines caching control
-//
-// Revision 1.67  2003/02/05 06:58:28  atnak
-// Added Danish codepage submitted by Kristian Trenskow (trenskow)
-//
-// Revision 1.66  2003/01/26 12:34:50  adcockj
-// Fixed crash with PAL60
-//
-// Revision 1.65  2003/01/24 01:55:17  atnak
-// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
-// got rid of the pink overlay colorkey for Teletext.
-//
-// Revision 1.64  2003/01/12 17:12:45  atnak
-// Added hex pages display and goto dialog
-//
-// Revision 1.63  2003/01/07 18:40:18  adcockj
-// Fixed silly bug in new teletext code
-//
-// Revision 1.62  2003/01/07 16:49:11  adcockj
-// Changes to allow variable sampling rates for VBI
-//
-// Revision 1.61  2003/01/07 07:37:38  atnak
-// Fixed page subcodes
-//
-// Revision 1.60  2003/01/05 18:35:45  laurentg
-// Init function for VBI added
-//
-// Revision 1.59  2003/01/05 16:09:44  atnak
-// Updated TopText for new teletext
-//
-// Revision 1.58  2003/01/03 14:44:19  robmuller
-// Removed wPageSubCode from VT_PerformFlofKey() as suggested by Atsushi.
-//
-// Revision 1.57  2003/01/02 21:26:33  atnak
-// Only redraw the clock if it changed
-//
-// Revision 1.56  2003/01/02 14:48:50  atnak
-// Added Teletext Settings page
-//
-// Revision 1.55  2003/01/02 11:05:24  atnak
-// Added missing InitialTextPage implementation
-//
-// Revision 1.54  2003/01/01 21:34:11  atnak
-// Added missing subtitles force double height filter
-//
-// Revision 1.53  2003/01/01 20:49:03  atnak
-// Updated VBI_VideoText.* files for new videotext structure
-//
-// Revision 1.52  2002/10/30 13:37:52  atnak
-// Added "Single key teletext toggle" option. (Enables mixed mode menu item)
-//
-// Revision 1.51  2002/10/23 16:57:13  atnak
-// Added TOP-Text support
-//
-// Revision 1.50  2002/10/15 11:53:38  atnak
-// Added UI feedback for some videotext stuff
-//
-// Revision 1.49  2002/10/15 03:36:29  atnak
-// removed rounding from last commit - it wasn't necessary
-//
-// Revision 1.48  2002/10/15 02:02:58  atnak
-// Added rounding in VT decoding to improve accuracy
-//
-// Revision 1.47  2002/10/13 08:36:14  atnak
-// fix to portions of page not updated after subtitle/newsflash change
-//
-// Revision 1.46  2002/10/12 04:33:53  atnak
-// flashing conceal teletext fix, header clear on channel change
-//
-// Revision 1.45  2002/09/07 20:59:45  kooiman
-// Small fixes.
-//
-// Revision 1.44  2002/06/20 20:00:35  robmuller
-// Implemented videotext search highlighting.
-//
-// Revision 1.43  2002/05/30 19:09:06  robmuller
-// Clear VisiblePage on channel change.
-//
-// Revision 1.42  2002/05/30 10:13:43  robmuller
-// Don't search the header line.
-//
-// Revision 1.41  2002/05/29 18:44:52  robmuller
-// Added option to disable font anti-aliasing in Teletext.
-//
-// Revision 1.40  2002/05/28 20:04:26  robmuller
-// Addition to patch #561180 by PietOO:
-// In auto code page mode the code page options are grayed and the current code page is checked.
-//
-// Revision 1.39  2002/05/27 20:17:05  robmuller
-// Patch #561180  by PietOO:
-// Autodetection of teletext code page.
-//
-// Revision 1.38  2002/05/24 16:49:00  robmuller
-// VideoText searching improved.
-//
-// Revision 1.37  2002/05/23 18:45:03  robmuller
-// Patch #559554 by PietOO.
-// Teletext: + text search ctrl-F & next F3
-//
-// Revision 1.36  2002/03/12 23:29:44  robmuller
-// Implemented functions VT_GetNextPage() and VT_GetPreviousPage().
-//
-// Revision 1.35  2002/02/24 08:18:03  temperton
-// TIMER_VTFLASHER set only when displayed page contains flashed elements and only in teletext modes.
-//
-// Revision 1.34  2002/02/07 13:04:54  temperton
-// Added Spanish and Polish teletext code pages. Thanks to Jazz (stawiarz).
-//
-// Revision 1.33  2002/01/19 17:50:41  robmuller
-// Clear more data on channel change.
-//
-// Revision 1.32  2002/01/19 12:53:00  temperton
-// Teletext pages updates at correct time.
-// Teletext can use variable-width font.
-//
-// Revision 1.31  2002/01/15 20:25:45  adcockj
-// removed old bitmap code
-//
-// Revision 1.30  2002/01/15 11:16:03  temperton
-// New teletext drawing code.
-//
-// Revision 1.29  2002/01/12 16:56:21  adcockj
-// Series of fixes to bring 4.0.0 into line with 3.1.1
-//
-// Revision 1.28  2001/11/26 12:48:01  temperton
-// Teletext corrections
-//
-// Revision 1.27  2001/11/23 10:45:32  adcockj
-// Added Hebrew and Hungarian codepages
-//
-// Revision 1.26  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.25  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.24  2001/10/22 17:28:40  temperton
-// Removed tabs to comply with coding standards
-//
-// Revision 1.23  2001/10/22 05:55:07  temperton
-// Teletext improvements
-//
-// Revision 1.22  2001/10/06 17:04:26  adcockj
-// Fixed teletext crashing problems
-//
-// Revision 1.21  2001/09/22 11:09:43  adcockj
-// Fixed crashing problems with new code with noisy input
-//
-// Revision 1.20  2001/09/21 16:43:54  adcockj
-// Teletext improvements by Mike Temperton
-//
-// Revision 1.19  2001/09/21 15:39:02  adcockj
-// Added Russian and German code pages
-// Corrected UK code page
-//
-// Revision 1.18  2001/09/05 16:22:34  adcockj
-// Fix for new teletext painting overwritting other apps
-//
-// Revision 1.17  2001/09/05 15:08:43  adcockj
-// Updated Loging
-//
-// Revision 1.16  2001/09/05 06:59:13  adcockj
-// Teletext fixes
-//
-// Revision 1.15  2001/09/02 14:17:51  adcockj
-// Improved teletext code
-//
-// Revision 1.14  2001/08/21 09:39:46  adcockj
-// Added Greek teletext Codepage
-//
-// Revision 1.13.2.2  2001/08/23 16:04:57  adcockj
-// Improvements to dynamic menus to remove requirement that they are not empty
-//
-// Revision 1.13.2.1  2001/08/21 09:43:01  adcockj
-// Brought branch up to date with latest code fixes
-//
-// Revision 1.13  2001/08/13 18:07:24  adcockj
-// Added Czech code page for teletext
-//
-// Revision 1.12  2001/08/02 16:43:05  adcockj
-// Added Debug level to LOG function
-//
-// Revision 1.11  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.10  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.9  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file VBI_VideoText.cpp VBI teletext functions
@@ -2694,21 +2424,21 @@ void VT_GetStationFromIDP8301(LPSTR lpBuffer, LONG nLength)
 
     lpBuffer[0] = '\0';
 
-	WORD wCode = VTDecoder.GetNetworkIDFromP8301();
-	if (wCode != 0)
-	{
-		// dwCode is a network ID code
-		//LOG(1, "P8/30/1 Network ID Code %x", dwCode);
-		for (int i(0); i < iNbRegisteredCNICodes; i++)
-		{
-			if (RegisteredCNICodes[i].wNI_P8301 == wCode)
-			{
-				strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
-				lpBuffer[nLength] = '\0';
-				break;
-			}
-		}
-	}
+    WORD wCode = VTDecoder.GetNetworkIDFromP8301();
+    if (wCode != 0)
+    {
+        // dwCode is a network ID code
+        //LOG(1, "P8/30/1 Network ID Code %x", dwCode);
+        for (int i(0); i < iNbRegisteredCNICodes; i++)
+        {
+            if (RegisteredCNICodes[i].wNI_P8301 == wCode)
+            {
+                strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
+                lpBuffer[nLength] = '\0';
+                break;
+            }
+        }
+    }
 }
 
 
@@ -2718,25 +2448,25 @@ void VT_GetStationFromPDC(LPSTR lpBuffer, LONG nLength)
 
     lpBuffer[0] = '\0';
 
-	// Search first with CNI from PDC (P8/30/2)
-	WORD wCode = VTDecoder.GetCNIFromPDC();
-	if (wCode != 0)
-	{
-		// dwCode is a CNI from PDC
-		BYTE uCountry = (wCode >> 8) & 0xFF;
-		BYTE uNetwork = wCode & 0xFF;
-		//LOG(1, "PDC Country %x Network %x", uCountry, uNetwork);
-		for (int i(0); i < iNbRegisteredCNICodes; i++)
-		{
-			if (   (RegisteredCNICodes[i].uC_P8302 == uCountry)
-				&& (RegisteredCNICodes[i].uNI_P8302 == uNetwork) )
-			{
-				strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
-				lpBuffer[nLength] = '\0';
-				break;
-			}
-		}
-	}
+    // Search first with CNI from PDC (P8/30/2)
+    WORD wCode = VTDecoder.GetCNIFromPDC();
+    if (wCode != 0)
+    {
+        // dwCode is a CNI from PDC
+        BYTE uCountry = (wCode >> 8) & 0xFF;
+        BYTE uNetwork = wCode & 0xFF;
+        //LOG(1, "PDC Country %x Network %x", uCountry, uNetwork);
+        for (int i(0); i < iNbRegisteredCNICodes; i++)
+        {
+            if (   (RegisteredCNICodes[i].uC_P8302 == uCountry)
+                && (RegisteredCNICodes[i].uNI_P8302 == uNetwork) )
+            {
+                strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
+                lpBuffer[nLength] = '\0';
+                break;
+            }
+        }
+    }
 }
 
 

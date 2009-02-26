@@ -15,10 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "reflasher.h"
@@ -37,10 +33,10 @@ IMPLEMENT_DYNCREATE(CPage4, CPropertyPage)
 
 CPage4::CPage4() : CPropertyPage(CPage4::IDD)
 {
-	//{{AFX_DATA_INIT(CPage4)
-		// HINWEIS: Der Klassen-Assistent fügt hier Elementinitialisierung ein
-	//}}AFX_DATA_INIT
-	m_psp.dwFlags &= ~PSP_HASHELP; 
+    //{{AFX_DATA_INIT(CPage4)
+        // HINWEIS: Der Klassen-Assistent fügt hier Elementinitialisierung ein
+    //}}AFX_DATA_INIT
+    m_psp.dwFlags &= ~PSP_HASHELP; 
 }
 
 CPage4::~CPage4()
@@ -49,17 +45,17 @@ CPage4::~CPage4()
 
 void CPage4::DoDataExchange(CDataExchange* pDX)
 {
-	CPropertyPage::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CPage4)
-		// HINWEIS: Der Klassen-Assistent fügt hier DDX- und DDV-Aufrufe ein
-	//}}AFX_DATA_MAP
+    CPropertyPage::DoDataExchange(pDX);
+    //{{AFX_DATA_MAP(CPage4)
+        // HINWEIS: Der Klassen-Assistent fügt hier DDX- und DDV-Aufrufe ein
+    //}}AFX_DATA_MAP
 }
 
 
 BEGIN_MESSAGE_MAP(CPage4, CPropertyPage)
-	//{{AFX_MSG_MAP(CPage4)
-		// HINWEIS: Der Klassen-Assistent fügt hier Zuordnungsmakros für Nachrichten ein
-	//}}AFX_MSG_MAP
+    //{{AFX_MSG_MAP(CPage4)
+        // HINWEIS: Der Klassen-Assistent fügt hier Zuordnungsmakros für Nachrichten ein
+    //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -67,8 +63,8 @@ END_MESSAGE_MAP()
 
 BOOL CPage4::OnSetActive() 
 {
-	CPropertySheet* parent = (CPropertySheet*)GetParent();
-	parent->SetWizardButtons(PSWIZB_FINISH);
-	
-	return CPropertyPage::OnSetActive();
+    CPropertySheet* parent = (CPropertySheet*)GetParent();
+    parent->SetWizardButtons(PSWIZB_FINISH);
+    
+    return CPropertyPage::OnSetActive();
 }

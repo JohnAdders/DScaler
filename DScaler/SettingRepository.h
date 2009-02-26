@@ -15,31 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//  This file is part of the SettingRepository module.  See
-//  SettingRepository.h for more information.
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.6  2005/03/18 16:19:06  atnak
-// Synchronizing work in progress.
-//
-// Revision 1.5  2005/03/05 12:15:20  atnak
-// Syncing files.
-//
-// Revision 1.4  2004/09/08 07:20:21  atnak
-// Sync with SettingGroup.h in HSETTING change to a more enforcable type.
-//
-// Revision 1.3  2004/08/14 13:45:23  adcockj
-// Fixes to get new settings code working under VS6
-//
-// Revision 1.2  2004/08/13 08:53:50  atnak
-// Added usage documentation for setting repository.
-//
-// Revision 1.1  2004/08/06 17:12:10  atnak
-// Setting repository initial upload.
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SETTINGREPOSITORY_H__
 #define __SETTINGREPOSITORY_H__
@@ -50,28 +25,28 @@
 
 #ifndef ASSERT
 #ifdef _DEBUG
-#define ASSERT(x)				{if (!(x)) _CrtDbgBreak();}
+#define ASSERT(x)                {if (!(x)) _CrtDbgBreak();}
 #else
 #define ASSERT(x)
 #endif
 #endif
 
-#define OUT_OF_MEMORY_ERROR		throw std::bad_alloc()
+#define OUT_OF_MEMORY_ERROR        throw std::bad_alloc()
 
 // Declaration of class pointers
-typedef class CSettingRepository*		PSETTINGREPOSITORY;
-typedef class CSettingGroup_*			PSETTINGGROUP;
-typedef class CSettingGroupEx*			PSETTINGGROUPEX;
-typedef class CSettingKey*				PSETTINGKEY;
-typedef class CSettingObject*			PSETTINGOBJECT;
-typedef const class CSettingObject*		PCSETTINGOBJECT;
-typedef class CSettingLimiter*			PSETTINGLIMITER;
-typedef class CSettingValue*			PSETTINGVALUE;
-typedef class CSettingConfig*			PSETTINGCONFIG;
+typedef class CSettingRepository*        PSETTINGREPOSITORY;
+typedef class CSettingGroup_*            PSETTINGGROUP;
+typedef class CSettingGroupEx*            PSETTINGGROUPEX;
+typedef class CSettingKey*                PSETTINGKEY;
+typedef class CSettingObject*            PSETTINGOBJECT;
+typedef const class CSettingObject*        PCSETTINGOBJECT;
+typedef class CSettingLimiter*            PSETTINGLIMITER;
+typedef class CSettingValue*            PSETTINGVALUE;
+typedef class CSettingConfig*            PSETTINGCONFIG;
 
 // Declaration of class references
-typedef class CSettingValue&			RSETTINGVALUE;
-typedef const class CSettingValue&		RCSETTINGVALUE;
+typedef class CSettingValue&            RSETTINGVALUE;
+typedef const class CSettingValue&        RCSETTINGVALUE;
 
 // Handle used by setting groups.
 typedef class _HSETTING *HSETTING;
@@ -271,23 +246,23 @@ typedef BYTE DBIT;
 class CSettingRepository
 {
 public:
-	CSettingRepository(LPCSTR repositoryFilename);
-	virtual ~CSettingRepository();
+    CSettingRepository(LPCSTR repositoryFilename);
+    virtual ~CSettingRepository();
 
-	virtual PSETTINGGROUP CreateGroup(IN LPCSTR section);
-	virtual PSETTINGGROUPEX CreateGroupEx(IN LPCSTR section);
-	virtual void DeleteGroup(IN PSETTINGGROUP group);
+    virtual PSETTINGGROUP CreateGroup(IN LPCSTR section);
+    virtual PSETTINGGROUPEX CreateGroupEx(IN LPCSTR section);
+    virtual void DeleteGroup(IN PSETTINGGROUP group);
 
-	virtual void SaveEveryGroupSettings();
+    virtual void SaveEveryGroupSettings();
 
-	virtual BOOL LoadSettingString(IN LPCSTR section, IN LPCSTR key, OUT LPSTR string, IN DWORD size);
-	virtual void SaveSettingString(IN LPCSTR section, IN LPCSTR key, IN LPCSTR string);
+    virtual BOOL LoadSettingString(IN LPCSTR section, IN LPCSTR key, OUT LPSTR string, IN DWORD size);
+    virtual void SaveSettingString(IN LPCSTR section, IN LPCSTR key, IN LPCSTR string);
 
 protected:
-	typedef std::list<PSETTINGGROUP> GROUPLIST;
+    typedef std::list<PSETTINGGROUP> GROUPLIST;
 
-	LPSTR					m_repositoryFilename;
-	GROUPLIST				m_groupList;
+    LPSTR                    m_repositoryFilename;
+    GROUPLIST                m_groupList;
 };
 
 

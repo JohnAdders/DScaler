@@ -20,35 +20,6 @@
 // others at Connexant.  Those parts are probably (c) Connexant 2002
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.3  2002/11/02 09:47:36  adcockj
-// Removed test code commited by accident
-//
-// Revision 1.2  2002/11/02 09:30:08  adcockj
-// Fixed SRAM overflow
-//
-// Revision 1.1  2002/10/29 11:05:28  adcockj
-// Renamed CT2388x to CX2388x
-//
-// 
-// CVS Log while file was called CT2388xProvider.cpp
-//
-// Revision 1.3  2002/10/27 19:17:25  adcockj
-// Fixes for cx2388x - PAL & NTSC tested
-//
-// Revision 1.2  2002/10/23 15:18:07  adcockj
-// Added preliminary code for VBI
-//
-// Revision 1.1  2002/09/11 18:19:37  adcockj
-// Prelimainary support for CX2388x based cards
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file CX2388xProvider.cpp CCX2388xProvider Implementation
@@ -90,7 +61,7 @@ CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
     {
         if(!IsMemoryInitialized)
         {
-			// need to allocate memory for display, VBI and RISC code once
+            // need to allocate memory for display, VBI and RISC code once
             if(MemoryInit(pHardwareDriver) == FALSE)
             {
                 return;
@@ -133,8 +104,8 @@ CCX2388xSource* CCX2388xProvider::CreateCorrectSource(CHardwareDriver* pHardware
     CCX2388xCard* pNewCard = new CCX2388xCard(pHardwareDriver);
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
-		// \todo remove this as it's just for testing
-		pNewCard->DumpChipStatus(szSection);
+        // \todo remove this as it's just for testing
+        pNewCard->DumpChipStatus(szSection);
         CCX2388xSource* pNewSource = new CCX2388xSource(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
         return pNewSource;
     }

@@ -101,7 +101,7 @@ public:
     virtual ISetting* GetHDelay() = 0;
     /// returns NULL if there is no control over this value
     virtual ISetting* GetVDelay() = 0;
-	/// Get the tuner Id - this method may (and should) be overriden
+    /// Get the tuner Id - this method may (and should) be overriden
     virtual eTunerId GetTunerId() 
     {
         ITuner* tuner = GetTuner();
@@ -180,7 +180,7 @@ public:
     virtual void Pause() = 0;
     virtual void UnPause() = 0;
 
-	virtual BOOL HasMediaControl() = 0;
+    virtual BOOL HasMediaControl() = 0;
 
     virtual BOOL IsAudioMixerAccessAllowed() = 0;
 
@@ -188,10 +188,10 @@ protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();
 
-	/**
-	 * Notify dscaler that the input size has changed.
-	 * Call this function when the width and/or height has changed.
-	 */
+    /**
+     * Notify dscaler that the input size has changed.
+     * Call this function when the width and/or height has changed.
+     */
     void NotifySizeChange();
 
     void NotifySquarePixelsCheck();

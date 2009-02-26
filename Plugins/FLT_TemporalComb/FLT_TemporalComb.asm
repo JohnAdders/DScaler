@@ -15,64 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// 
-// $Log: not supported by cvs2svn $
-// Revision 1.12  2002/10/13 07:45:14  lindsey
-// Syntax fix
-//
-// Revision 1.11  2002/10/13 07:42:55  lindsey
-// Changed name of "trade speed for accuracy" to "high quality"
-// Corrected the reported HistoryRequired
-// Removed an unnecessary check for all fields when in "high quality" mode
-//
-// Revision 1.10  2002/08/29 23:52:54  lindsey
-// Corrected comb filter for PAL video
-//
-// Revision 1.9  2002/08/07 00:41:59  lindsey
-// Made prefetching into a user option.
-//
-// Revision 1.8  2002/03/11 01:49:24  lindsey
-// Adjusted for use with progressive source
-// Changed to use Tom's aligned memory allocation
-// Added unbiased averaging code
-//
-// Revision 1.7  2002/01/05 22:53:27  lindsey
-// Greatly reduced roundoff error for smaller decay values
-// Consolidated the 'in phase difference' settings into one 'color variation' setting
-// Improved formatting
-//
-// Revision 1.6  2001/12/20 05:28:37  lindsey
-// Corrected a crash with small overscan values
-//
-// Revision 1.5  2001/12/20 03:06:58  lindsey
-// Fixed use of incorrect algorithm (hopefully for good)
-// Switched to a two pixel block for motion and shimmer detection
-//  This improves the averaging of chroma shimmer and increases sensitivity
-//  to motion and to shimmer, but also increases sensitivity to noise.
-// Added a compile-time debug flag to make it easier to see what the filter is doing
-//
-// Revision 1.4  2001/12/16 16:31:43  adcockj
-// Bug fixes
-//
-// Revision 1.3  2001/12/16 01:34:32  lindsey
-// Fixed use of incorrect algorithm on Athlon (MMXEXT) machines
-// Adjusted to use PictureHistory array instead of the old EvenLines/OldLines
-// Simplified the field buffering structure
-// Improved handling of dropped fields when the field buffer is in use
-//
-// Revision 1.2  2001/08/30 10:04:59  adcockj
-// Added a "trade speed for accuracy" mode which improves detection and
-//  correction of dot crawl by removing a feedback problem -- at the
-//  cost of 2MB of memory, which also slows things down a bit
-// Changed szIniSection for the parameters from "NoiseFilter" to "TCombFilter"
-// Made some small changes to the comments
-// (Added on behalf of Lindsey Dubb)
-//
-// Revision 1.1  2001/08/23 06:38:43  adcockj
-// Added First version of Lindsey Dubb's filter
-//
-/////////////////////////////////////////////////////////////////////////////
 
 // This is the implementation of the comb filter described in TemporalComb.c.
 // It is broken out into this separate file because almost all the code is

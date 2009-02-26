@@ -15,15 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 29 Jan 2001   John Adcock           Original Release
-//
-// 31 Mar 2001   Laurent Garnier       Last used format saved per video input
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file videosettings.h videosettings Header file

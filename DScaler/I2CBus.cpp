@@ -20,22 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2005/03/24 17:57:57  adcockj
-// Card access from one thread at a time
-//
-// Revision 1.3  2003/10/27 10:39:51  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.2  2002/09/27 14:10:25  kooiman
-// thread safe i2c bus access
-//
-// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
-// initial checkin of the new I2C code
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file I2CBus.cpp CI2CBus Implementation
@@ -74,7 +58,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
     if (writeBufferSize != 1)
     {
         ASSERT(writeBufferSize > 1);
-		
+        
         Start();
         
         // send the address
@@ -82,7 +66,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
         {
             LOGD("I2CBus::write(0x%x) returned true for write address in CI2CBus::read\n", address & ~1);
             Stop();
-		    Unlock();
+            Unlock();
             return false;
         }
 
@@ -91,7 +75,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
             if(!Write(writeBuffer[i]))
             {
                 Stop();
-    		    Unlock();
+                Unlock();
                 return false;
             }
         }
@@ -110,7 +94,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
     {
         LOGD("I2CBus::write(0x%x) returned false for read address in CI2CBus::read\n", address | 1);
         Stop();
-		Unlock();
+        Unlock();
         return false;
     }
     
@@ -120,7 +104,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
         readBuffer[i] = Read(false);
     readBuffer[i] = Read(true);
     Stop();
-	Unlock();
+    Unlock();
 
     return true;
 }
@@ -131,8 +115,8 @@ bool CI2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
     ASSERT(writeBufferSize >= 1);
     ASSERT((writeBuffer[0] & 1) == 0);
 
-	
-	Lock();
+    
+    Lock();
 
     Start();
 
@@ -141,13 +125,13 @@ bool CI2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
         if (!Write(writeBuffer[i]))
         {
             Stop();
-		    Unlock();
+            Unlock();
             return false;
         }
     }
 
     Stop();
-	Unlock();
+    Unlock();
 
     return true;
 }

@@ -20,73 +20,6 @@
 // Copyright (C) Mathias Ellinger
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 19 Nov 1998   Mathias Ellinger      initial version
-//
-// 24 Jul 2000   John Adcock           Original dTV Release
-//                                     Added Memory Alloc functions
-//
-// 13 Mar 2006   Michael Lutz          Modifications for Win64
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.19  2006/11/09 21:18:09  adcockj
-// Fixed error in previous patch
-//
-// Revision 1.18  2006/11/08 09:50:30  adcockj
-// fix for i386 driver issues from Michael Lutz
-//
-// Revision 1.17  2006/10/31 13:42:09  to_see
-// Added Michael's Patch (error on i386 platforms)
-//
-// Revision 1.16  2006/03/18 13:28:45  adcockj
-// fixed compile issues with vs 6
-//
-// Revision 1.15  2006/03/16 17:20:56  adcockj
-// Added Michael Lutz's 64 bit code
-//
-// Revision 1.14  2005/05/13 10:12:46  adcockj
-// fixed uninitialised variable
-//
-// Revision 1.13  2004/04/14 10:02:02  adcockj
-// Added new offset functions for manipulating PCI config space
-//
-// Revision 1.12  2002/10/22 16:01:45  adcockj
-// Changed definition of IOCTLs
-//
-// Revision 1.11  2002/06/16 18:53:36  robmuller
-// Renamed pciGetDeviceConfig() to pciGetDeviceInfo().
-// Implemented pciGetDeviceConfig() and pciSetDeviceConfig().
-//
-// Revision 1.10  2001/11/02 16:36:54  adcockj
-// Merge code from Multiple cards into main trunk
-//
-// Revision 1.7.2.1  2001/08/15 08:54:28  adcockj
-// Tidy up driver code
-//
-// Revision 1.7  2001/08/11 13:46:03  adcockj
-// Fix for driver problem
-//
-// Revision 1.6  2001/08/11 12:47:12  adcockj
-// Driver fixes
-//
-// Revision 1.5  2001/08/08 16:37:50  adcockj
-// Made drivers stateless to support multiple cards
-// Added version check
-// Changed meaning of memory access functions so that you no longer pass just the offset
-//
-// Revision 1.4  2001/08/08 10:53:30  adcockj
-// Preliminary changes to driver to support multiple cards
-//
-// Revision 1.3  2001/07/13 16:13:53  adcockj
-// Added CVS tags and removed tabs
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "precomp.h"
 #include "DSDrvNt.h"
@@ -964,7 +897,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
     }
     else
     {
-		DWORD_PTR i = 0;
+        DWORD_PTR i = 0;
         int Pages = 1;
         DWORD_PTR LastUserAddr = (DWORD_PTR)node->pUserAddress;
         ULONGLONG phys = GetPhysAddr(node->pUserAddress).QuadPart;
@@ -1015,7 +948,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode n
     }
     else
     {
-		DWORD_PTR i = 0;
+        DWORD_PTR i = 0;
         int Pages = 1;
         DWORD_PTR LastUserAddr = (DWORD_PTR)node->pUserAddress;
         pPages[0].llPhysical = GetPhysAddr(node->pUserAddress).QuadPart; 
@@ -1121,7 +1054,7 @@ NTSTATUS CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD_PTR dwPhysicalAddre
     for ( DWORD i = 0; i < MAX_FREE_MAPPING_NODES; i++ )
         if ( mappingList[i].pUser == NULL )
         {
-            node = &mappingList[i];	   
+            node = &mappingList[i];       
             break;
         }
 

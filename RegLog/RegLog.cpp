@@ -15,31 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.8  2002/12/05 17:11:11  adcockj
-// Sound fixes
-//
-// Revision 1.7  2002/12/04 14:15:06  adcockj
-// Fixed RegSpy Problems
-//
-// Revision 1.6  2002/11/29 17:19:09  adcockj
-// extra logging
-//
-// Revision 1.5  2002/11/28 14:56:19  adcockj
-// Fixed some register size issues
-//
-// Revision 1.4  2002/11/28 14:50:52  adcockj
-// Added set directory so that files aways go to the exe location
-//
-// Revision 1.3  2002/11/28 14:47:21  adcockj
-// Added bt848 logging
-//
-// Revision 1.2  2002/11/27 17:39:30  adcockj
-// Added headers
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "resource.h"
@@ -403,7 +378,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
         MessageBox(NULL, "Can't open driver", "RegLog", MB_OK);
     }
     delete pHardwareDriver;
-	return 0;
+    return 0;
 }
 
 void __cdecl LOG(int , LPCSTR, ...)

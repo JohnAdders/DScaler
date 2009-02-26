@@ -16,9 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_PCICARD_H__94F7340C_9987_4F50_BCEA_A703531B1F54__INCLUDED_)
 #define AFX_PCICARD_H__94F7340C_9987_4F50_BCEA_A703531B1F54__INCLUDED_
@@ -32,38 +29,38 @@
 class CPCICard  
 {
 public:
-	virtual bool WriteToI2C(const BYTE *writeBuffer, size_t writeBufferSize) = false;
-	const char* GetChipName();
-	void SetChipName(const char* ChipName);
-	BOOL OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex);
-	CPCICard(CHardwareDriver* pDriver);
-	virtual ~CPCICard();
+    virtual bool WriteToI2C(const BYTE *writeBuffer, size_t writeBufferSize) = false;
+    const char* GetChipName();
+    void SetChipName(const char* ChipName);
+    BOOL OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex);
+    CPCICard(CHardwareDriver* pDriver);
+    virtual ~CPCICard();
 
 private:
     CHardwareDriver* m_pDriver;
-    DWORD	m_MemoryAddress;
-    DWORD	m_MemoryLength;
-    DWORD	m_MemoryBase;
-	DWORD   m_SubSystemId;
+    DWORD    m_MemoryAddress;
+    DWORD    m_MemoryLength;
+    DWORD    m_MemoryBase;
+    DWORD   m_SubSystemId;
     WORD    m_DeviceId;
     WORD    m_VendorId;
     DWORD   m_BusNumber;
     DWORD   m_SlotNumber;
-	BOOL	m_bOpen;
+    BOOL    m_bOpen;
 
-	char	m_szChipName[20];
+    char    m_szChipName[20];
 
 protected:
-	void	WriteByte(DWORD Offset, BYTE Data);
-	BYTE	ReadByte(DWORD Offset);
-	void	WriteDword(DWORD Offset, DWORD Data);
-	DWORD	ReadDword(DWORD Offset);
-    void	MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask);
+    void    WriteByte(DWORD Offset, BYTE Data);
+    BYTE    ReadByte(DWORD Offset);
+    void    WriteDword(DWORD Offset, DWORD Data);
+    DWORD    ReadDword(DWORD Offset);
+    void    MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask);
 
-	ULONG	GetTickCount();
+    ULONG    GetTickCount();
 
 private:
-	void ClosePCICard();
+    void ClosePCICard();
 
 };
 

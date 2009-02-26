@@ -15,20 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2002/05/19 12:01:43  tobbej
-// fixed sizing of propertypage
-//
-// Revision 1.2  2002/05/09 17:20:15  tobbej
-// fixed resize problem in CTreeSettingsOleProperties
-// (everytime a new page was activated the dialog size incresed)
-//
-// Revision 1.1  2002/04/24 19:04:01  tobbej
-// new treebased settings dialog
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file TreeSettingsPage.cpp implementation file for CTreeSettingsPage
@@ -56,9 +42,9 @@ m_minHeight(0),
 m_minWidth(0),
 m_bInitMinSize(true)
 {
-	//{{AFX_DATA_INIT(CTreeSettingsPage)
-		// NOTE: the ClassWizard will add member initialization here
-	//}}AFX_DATA_INIT
+    //{{AFX_DATA_INIT(CTreeSettingsPage)
+        // NOTE: the ClassWizard will add member initialization here
+    //}}AFX_DATA_INIT
 }
 
 CTreeSettingsPage::CTreeSettingsPage(CString TreeName,CString HeaderName,UINT nIDTemplate)
@@ -75,17 +61,17 @@ m_bInitMinSize(true)
 
 void CTreeSettingsPage::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CTreeSettingsPage)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
-	//}}AFX_DATA_MAP
+    CDialog::DoDataExchange(pDX);
+    //{{AFX_DATA_MAP(CTreeSettingsPage)
+        // NOTE: the ClassWizard will add DDX and DDV calls here
+    //}}AFX_DATA_MAP
 }
 
 
 BEGIN_MESSAGE_MAP(CTreeSettingsPage, CDialog)
-	//{{AFX_MSG_MAP(CTreeSettingsPage)
-		// NOTE: the ClassWizard will add message map macros here
-	//}}AFX_MSG_MAP
+    //{{AFX_MSG_MAP(CTreeSettingsPage)
+        // NOTE: the ClassWizard will add message map macros here
+    //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -93,53 +79,53 @@ END_MESSAGE_MAP()
 
 BOOL CTreeSettingsPage::PreTranslateMessage(MSG* pMsg)
 {
-	//dont allow escape key to be processed by the page
-	//the escape key will normaly close the dialog
-	if((pMsg->message==WM_KEYDOWN) && (pMsg->wParam==VK_ESCAPE))
-	{
-		return TRUE;
-	}
+    //dont allow escape key to be processed by the page
+    //the escape key will normaly close the dialog
+    if((pMsg->message==WM_KEYDOWN) && (pMsg->wParam==VK_ESCAPE))
+    {
+        return TRUE;
+    }
 
-	return CDialog::PreTranslateMessage(pMsg);
+    return CDialog::PreTranslateMessage(pMsg);
 }
 
 void CTreeSettingsPage::GetMinSize(int &width,int &height)
 {
-	//check if minimum size is initialized
-	if(m_bInitMinSize && m_hWnd!=NULL)
-	{
-		//use current window width and height as minimum
-		CRect rect;
-		GetClientRect(&rect);
-		m_minHeight=rect.Height();
-		m_minWidth=rect.Width();
-		m_bInitMinSize=false;
-	}
-	width=m_minWidth;
-	height=m_minHeight;
+    //check if minimum size is initialized
+    if(m_bInitMinSize && m_hWnd!=NULL)
+    {
+        //use current window width and height as minimum
+        CRect rect;
+        GetClientRect(&rect);
+        m_minHeight=rect.Height();
+        m_minWidth=rect.Width();
+        m_bInitMinSize=false;
+    }
+    width=m_minWidth;
+    height=m_minHeight;
 }
 
 void CTreeSettingsPage::OnOK()
 {
-	EndDialog(IDOK);
+    EndDialog(IDOK);
 }
 
 void CTreeSettingsPage::OnCancel()
 {
-	EndDialog(IDCANCEL);
+    EndDialog(IDCANCEL);
 }
 
 bool CTreeSettingsPage::OnKillActive()
 {
-	return true;
+    return true;
 }
 
 bool CTreeSettingsPage::OnSetActive()
 {
-	return true;
+    return true;
 }
 
 bool CTreeSettingsPage::OnQueryCancel()
 {
-	return true;
+    return true;
 }

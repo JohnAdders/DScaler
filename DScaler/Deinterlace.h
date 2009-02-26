@@ -15,21 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Put all my deinterlacing code into this
-//                                     file
-//
-// 05 Jan 2001   John Adcock           Added flip frequencies to DeintMethods
-//
-// 07 Jan 2001   John Adcock           Added Adaptive deinterlacing method
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file deinterlace.h deinterlace Header file

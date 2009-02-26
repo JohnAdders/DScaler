@@ -189,8 +189,8 @@ public:
     void SetDefault();
     void ChangeDefault(long NewDefault, BOOL bDontSetValue = FALSE);
     void SetValue(long NewValue, BOOL bSupressOnChange = FALSE);
-	void Up();
-	void Down();
+    void Up();
+    void Down();
     void ChangeValue(eCHANGEVALUE NewValue);    
 
     BOOL ReadFromIni();

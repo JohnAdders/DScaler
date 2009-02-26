@@ -15,10 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DShowTVAudio.h interface for the CDShowTVAudio class.
@@ -37,25 +33,25 @@
 class CDShowTVAudio  
 {
 public:
-	CDShowTVAudio(CComPtr<IAMTVAudio> pTVAudio);
-	virtual ~CDShowTVAudio();
+    CDShowTVAudio(CComPtr<IAMTVAudio> pTVAudio);
+    virtual ~CDShowTVAudio();
 
-	/**
-	 * @return a bitmask of TVAudioMode enumeration
-	 */
-	long GetAvailableModes();
-	/**
-	 * @param mode new audio mode
-	 */
-	void SetMode(TVAudioMode mode);
+    /**
+     * @return a bitmask of TVAudioMode enumeration
+     */
+    long GetAvailableModes();
+    /**
+     * @param mode new audio mode
+     */
+    void SetMode(TVAudioMode mode);
 
-	/**
-	 * @return current TVAudioMode
-	 */
-	TVAudioMode GetMode();
+    /**
+     * @return current TVAudioMode
+     */
+    TVAudioMode GetMode();
 
 private:
-	CComPtr<IAMTVAudio> m_pTVAudio;
+    CComPtr<IAMTVAudio> m_pTVAudio;
 };
 
 #endif // !defined(AFX_DSHOWTVAUDIO_H__708EE14A_E2D0_434C_B249_720DDCF72A90__INCLUDED_)

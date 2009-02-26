@@ -15,68 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 22 Jun 2001   Torbjörn Jansson      Initial release
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.15  2004/10/22 20:01:26  to_see
-// New position for IDC_TREESETTINGS_GENERIC_EDIT2.
-//
-// Revision 1.14  2004/10/22 19:33:23  to_see
-// BugFix: EditBox2 needs moving + resizing
-//
-// Revision 1.13  2003/04/28 13:21:46  laurentg
-// New field to enter character string in tree settings dialog box
-//
-// Revision 1.12  2003/04/26 23:19:15  laurentg
-// Character string settings
-//
-// Revision 1.11  2003/01/10 17:38:38  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.10  2002/11/08 18:33:36  atnak
-// Fixed a problem with the last change
-//
-// Revision 1.9  2002/11/08 17:39:41  atnak
-// FIxed combo boxes not working properly with up/down arrows
-//
-// Revision 1.8  2002/10/24 12:03:18  atnak
-// Added a constructor that takes an array SETTING pointers
-//
-// Revision 1.7  2002/10/23 09:46:46  adcockj
-// Allow NULL entries in Settings lists sent to Generic settings dialog
-//
-// Revision 1.6  2002/10/19 15:15:42  tobbej
-// Implemented new gradient header above active page.
-// Changed resizing a bit to minimize flashing when repainting window
-//
-// Revision 1.5  2002/10/15 15:04:01  kooiman
-// Resizable tree setting dialog and use ISetting/CSimpleSetting as setting interface.
-//
-// Revision 1.4  2002/09/28 13:34:36  kooiman
-// Added sender object to events and added setting flag to treesettingsgeneric.
-//
-// Revision 1.3  2002/09/26 10:03:52  kooiman
-// Small adaptation for setting interface.
-//
-// Revision 1.2  2002/09/02 19:06:10  kooiman
-// It is now possible to modify CSimpleSetting style settings from the TreeSettingDialog
-//
-// Revision 1.1  2002/04/24 19:04:01  tobbej
-// new treebased settings dialog
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file TreeSettingsGeneric.cpp Implementation for CTreeSettingsGeneric class
@@ -99,8 +37,8 @@ static char THIS_FILE[] = __FILE__;
 // CTreeSettingsGeneric dialog
 
 CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTING* settings,long count)
-	:CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
-	m_CurrentSetting(0),
+    :CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
+    m_CurrentSetting(0),
     m_Settings(),
     m_DeleteSettingsOnExit(FALSE)
 {
@@ -112,8 +50,8 @@ CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTING* settings,long c
 }
 
 CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTING** settings,long count)
-	:CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
-	m_CurrentSetting(0),
+    :CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
+    m_CurrentSetting(0),
     m_Settings(),
     m_DeleteSettingsOnExit(FALSE)
 {
@@ -137,8 +75,8 @@ CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTING** settings,long 
 }
 
 CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,vector<CSimpleSetting*> csettings)
-	:CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
-	m_CurrentSetting(0),
+    :CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
+    m_CurrentSetting(0),
     m_Settings(),
     m_DeleteSettingsOnExit(FALSE)
 {
@@ -167,14 +105,14 @@ void CTreeSettingsGeneric::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_EDIT2, m_EditString);
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_DEFAULT, m_DefaultButton);
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_LIST, m_ListBox);
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL, m_CheckGlobalBox);
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE, m_CheckSourceBox);
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT, m_CheckVideoInputBox);
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT, m_CheckAudioInputBox);
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT, m_CheckVideoFormatBox);
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL, m_CheckChannelBox);
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SETTINGINFO, m_SavePerInfoBox);
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_TOPBOX, m_TopGroupBox);
+    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL, m_CheckGlobalBox);
+    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE, m_CheckSourceBox);
+    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT, m_CheckVideoInputBox);
+    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT, m_CheckAudioInputBox);
+    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT, m_CheckVideoFormatBox);
+    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL, m_CheckChannelBox);
+    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SETTINGINFO, m_SavePerInfoBox);
+    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_TOPBOX, m_TopGroupBox);
     //}}AFX_DATA_MAP
 }
 
@@ -188,14 +126,14 @@ BEGIN_MESSAGE_MAP(CTreeSettingsGeneric, CTreeSettingsPage)
     ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_CHECK, OnCheckClick)
     ON_CBN_SELCHANGE(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST, OnSelchangeChoosefromlist)
     ON_NOTIFY(UDN_DELTAPOS, IDC_TREESETTINGS_GENERIC_SPIN, OnDeltaposSettingsSpin)
-	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL, OnCheckGlobalClick)
-	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE, OnCheckSourceClick)
-	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT, OnCheckVideoInputClick)
-	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT, OnCheckAudioInputClick)
-	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT, OnCheckVideoFormatClick)
-	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL, OnCheckChannelClick)
+    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL, OnCheckGlobalClick)
+    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE, OnCheckSourceClick)
+    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT, OnCheckVideoInputClick)
+    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT, OnCheckAudioInputClick)
+    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT, OnCheckVideoFormatClick)
+    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL, OnCheckChannelClick)
     ON_WM_SIZE()
-	//}}AFX_MSG_MAP
+    //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -319,41 +257,41 @@ void CTreeSettingsGeneric::OnSelchangeList()
     // JA 10/Jan/2003
     // supressed display of boxes to avoid user confusion
     // boxes are invisible in dialog
-	BOOL bShowBoxes = FALSE;
-	if (bShowBoxes)
-	{
-		m_SavePerInfoBox.ShowWindow(SW_HIDE);
-		m_CheckGlobalBox.ShowWindow(SW_SHOW);
-		m_CheckSourceBox.ShowWindow(SW_SHOW);
-		m_CheckVideoInputBox.ShowWindow(SW_SHOW);
-		m_CheckAudioInputBox.ShowWindow(SW_SHOW);
-		m_CheckVideoFormatBox.ShowWindow(SW_SHOW);
-		m_CheckChannelBox.ShowWindow(SW_SHOW);
-
-		char szBuffer[200];
-
-		if (szName[0] != 0)
-		{
-			sprintf(szBuffer,"Load and save \"%s\" per",szName);
-		} else {
-			szBuffer[0] = 0;
-		}
-		m_TopGroupBox.SetWindowText(szBuffer);
-	}
-	else
-	{
-		m_CheckGlobalBox.ShowWindow(SW_HIDE);
-		m_CheckSourceBox.ShowWindow(SW_HIDE);
-		m_CheckVideoInputBox.ShowWindow(SW_HIDE);
-		m_CheckAudioInputBox.ShowWindow(SW_HIDE);
-		m_CheckVideoFormatBox.ShowWindow(SW_HIDE);
-		m_CheckChannelBox.ShowWindow(SW_HIDE);
-
-		m_TopGroupBox.SetWindowText("");
-		m_SavePerInfoBox.SetWindowText(szName);
-		//m_SavePerInfoBox.ShowWindow(SW_SHOW);
+    BOOL bShowBoxes = FALSE;
+    if (bShowBoxes)
+    {
         m_SavePerInfoBox.ShowWindow(SW_HIDE);
-	}
+        m_CheckGlobalBox.ShowWindow(SW_SHOW);
+        m_CheckSourceBox.ShowWindow(SW_SHOW);
+        m_CheckVideoInputBox.ShowWindow(SW_SHOW);
+        m_CheckAudioInputBox.ShowWindow(SW_SHOW);
+        m_CheckVideoFormatBox.ShowWindow(SW_SHOW);
+        m_CheckChannelBox.ShowWindow(SW_SHOW);
+
+        char szBuffer[200];
+
+        if (szName[0] != 0)
+        {
+            sprintf(szBuffer,"Load and save \"%s\" per",szName);
+        } else {
+            szBuffer[0] = 0;
+        }
+        m_TopGroupBox.SetWindowText(szBuffer);
+    }
+    else
+    {
+        m_CheckGlobalBox.ShowWindow(SW_HIDE);
+        m_CheckSourceBox.ShowWindow(SW_HIDE);
+        m_CheckVideoInputBox.ShowWindow(SW_HIDE);
+        m_CheckAudioInputBox.ShowWindow(SW_HIDE);
+        m_CheckVideoFormatBox.ShowWindow(SW_HIDE);
+        m_CheckChannelBox.ShowWindow(SW_HIDE);
+
+        m_TopGroupBox.SetWindowText("");
+        m_SavePerInfoBox.SetWindowText(szName);
+        //m_SavePerInfoBox.ShowWindow(SW_SHOW);
+        m_SavePerInfoBox.ShowWindow(SW_HIDE);
+    }
 
     UpdateControls(&m_ListBox);
 }
@@ -388,14 +326,14 @@ void CTreeSettingsGeneric::UpdateControls(CWnd* pChangedControl)
     if((m_Edit.GetStyle() & WS_VISIBLE) && (&m_Edit != pChangedControl))
     {
         CString newValue;
-	    newValue.Format("%d", m_Settings[m_CurrentSetting]->GetValue());
+        newValue.Format("%d", m_Settings[m_CurrentSetting]->GetValue());
         m_Edit.SetWindowText(newValue);
     }
 
     if((m_EditString.GetStyle() & WS_VISIBLE) && (&m_EditString != pChangedControl))
     {
         CString newValue;
-	    newValue.Format("%s", (char*)(m_Settings[m_CurrentSetting]->GetValue()));
+        newValue.Format("%s", (char*)(m_Settings[m_CurrentSetting]->GetValue()));
         m_EditString.SetWindowText(newValue);
     }
 
@@ -406,7 +344,7 @@ void CTreeSettingsGeneric::UpdateControls(CWnd* pChangedControl)
     }
 
     if((m_Slider.GetStyle() & WS_VISIBLE) &&
-		(m_Settings[m_CurrentSetting]->GetType() == SLIDER) && (&m_Slider != pChangedControl))
+        (m_Settings[m_CurrentSetting]->GetType() == SLIDER) && (&m_Slider != pChangedControl))
     {
         //Setting_SetupSlider(m_Settings[m_CurrentSetting], m_Slider.m_hWnd);
         CSliderSetting *pSetting = (CSliderSetting*)m_Settings[m_CurrentSetting];
@@ -414,7 +352,7 @@ void CTreeSettingsGeneric::UpdateControls(CWnd* pChangedControl)
     }
 
     if((m_Combo.GetStyle() & WS_VISIBLE) &&
-		(m_Settings[m_CurrentSetting]->GetType() == ITEMFROMLIST) && (&m_Combo != pChangedControl))
+        (m_Settings[m_CurrentSetting]->GetType() == ITEMFROMLIST) && (&m_Combo != pChangedControl))
     {
         CListSetting *pSetting = (CListSetting*)m_Settings[m_CurrentSetting];
         char **pszList = (char**)pSetting->GetList();
@@ -504,7 +442,7 @@ void CTreeSettingsGeneric::OnChangeEdit()
 
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-		m_Settings[m_CurrentSetting]->SetValue(atol(Value));
+        m_Settings[m_CurrentSetting]->SetValue(atol(Value));
     }
 
     UpdateControls(&m_Edit);
@@ -520,7 +458,7 @@ void CTreeSettingsGeneric::OnChangeEditString()
 
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-	    m_Settings[m_CurrentSetting]->SetValue((long)Value.GetBuffer(255));
+        m_Settings[m_CurrentSetting]->SetValue((long)Value.GetBuffer(255));
     }
 
     UpdateControls(&m_EditString);
@@ -561,33 +499,33 @@ void CTreeSettingsGeneric::OnCheckClick()
 
 void CTreeSettingsGeneric::OnCheckGlobalClick()
 {
-	UpdateControls(NULL);
+    UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckSourceClick()
 {
-	UpdateControls(NULL);
+    UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckVideoInputClick()
 {
-	UpdateControls(NULL);
+    UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckAudioInputClick()
 {
-	UpdateControls(NULL);
+    UpdateControls(NULL);
 }
 
 
 void CTreeSettingsGeneric::OnCheckVideoFormatClick()
 {
-	UpdateControls(NULL);
+    UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckChannelClick()
 {
-	UpdateControls(NULL);
+    UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnSelchangeChoosefromlist()
@@ -715,7 +653,7 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
             pEditBox->MoveWindow(&rect);
         }
 
-		// Edit box2
+        // Edit box2
         CWnd *pEditBox2 = GetDlgItem(IDC_TREESETTINGS_GENERIC_EDIT2);
         if (pEditBox2 != NULL)
         {

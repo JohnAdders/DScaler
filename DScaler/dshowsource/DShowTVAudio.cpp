@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.1  2003/01/15 20:55:46  tobbej
-// added audio channel selection menu
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DShowTVAudio.cpp implementation of the CDShowTVAudio class.
@@ -51,36 +44,36 @@ CDShowTVAudio::~CDShowTVAudio()
 
 long CDShowTVAudio::GetAvailableModes()
 {
-	HRESULT hr;
-	long modes;
-	hr=m_pTVAudio->GetAvailableTVAudioModes(&modes);
-	if(FAILED(hr))
-	{
-		throw CDShowException("CDShowTVAudio::GetAvailableModes failed",hr);
-	}
-	return modes;
+    HRESULT hr;
+    long modes;
+    hr=m_pTVAudio->GetAvailableTVAudioModes(&modes);
+    if(FAILED(hr))
+    {
+        throw CDShowException("CDShowTVAudio::GetAvailableModes failed",hr);
+    }
+    return modes;
 }
 
 void CDShowTVAudio::SetMode(TVAudioMode mode)
 {
-	HRESULT hr;
-	hr=m_pTVAudio->put_TVAudioMode(mode);
-	if(FAILED(hr))
-	{
-		throw CDShowException("CDShowTVAudio::SetMode failed",hr);
-	}
+    HRESULT hr;
+    hr=m_pTVAudio->put_TVAudioMode(mode);
+    if(FAILED(hr))
+    {
+        throw CDShowException("CDShowTVAudio::SetMode failed",hr);
+    }
 }
 
 TVAudioMode CDShowTVAudio::GetMode()
 {
-	HRESULT hr;
-	TVAudioMode mode;
-	hr=m_pTVAudio->get_TVAudioMode((long*)&mode);
-	if(FAILED(hr))
-	{
-		throw CDShowException("CDShowTVAudio::GetMode failed",hr);
-	}
-	return mode;
+    HRESULT hr;
+    TVAudioMode mode;
+    hr=m_pTVAudio->get_TVAudioMode((long*)&mode);
+    if(FAILED(hr))
+    {
+        throw CDShowException("CDShowTVAudio::GetMode failed",hr);
+    }
+    return mode;
 }
 
 #endif

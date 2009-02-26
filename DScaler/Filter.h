@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 03 Feb 2001   John Adcock           Initial Version
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file filter.h filter Header file

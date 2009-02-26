@@ -16,9 +16,6 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #if !defined(__I2CBUS_H__)
 #define __I2CBUS_H__
@@ -34,8 +31,8 @@
 class CI2CBus  
 {
 public:
-	CI2CBus();
-	~CI2CBus();
+    CI2CBus();
+    ~CI2CBus();
 
     /**
     @return true if sucessful
@@ -70,7 +67,7 @@ protected:
     /// Send NAK
     virtual void SendNAK()=0;
 private:
-	CRITICAL_SECTION I2CCriticalSection;	
+    CRITICAL_SECTION I2CCriticalSection;    
 };
 
 #endif // !defined(__I2CBUS_H__)

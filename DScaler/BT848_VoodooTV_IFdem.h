@@ -20,12 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.2  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file BT848_VOODOOTV_IFDEM.h  CPreTuneVoodooFM Header file

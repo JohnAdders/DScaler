@@ -15,99 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.21  2005/12/27 19:29:11  to_see
-// Added tea5767 auto-detection
-//
-// Revision 1.20  2005/03/09 15:10:45  atnak
-// Added support for TDA8275 tuner and TDA8290.
-//
-// Revision 1.19  2005/03/09 09:49:33  atnak
-// Added a new ITuner::InitializeTuner() function for performing tuner chip
-// initializations.
-//
-// Revision 1.18  2005/03/09 09:35:16  atnak
-// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
-// non-intrusive nature.
-//
-// Revision 1.17  2004/04/19 20:38:37  adcockj
-// Fix for previous fix (must learn to program...)
-//
-// Revision 1.16  2004/04/19 15:13:20  adcockj
-// Fix failing to find tda9887 at alternate addresses
-//
-// Revision 1.15  2004/02/11 20:33:59  adcockj
-// Support multiple locations of TDA9887 (thanks to Pityu)
-//
-// Revision 1.14  2003/12/18 15:57:41  adcockj
-// Added MT2050 tuner type support (untested)
-//
-// Revision 1.13  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.12  2002/10/16 21:42:36  kooiman
-// Created seperate class for External IF Demodulator chips like TDA9887
-//
-// Revision 1.11  2002/10/11 13:38:14  kooiman
-// Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
-//
-// Revision 1.10  2002/10/07 20:31:59  kooiman
-// Added/fixed TDA9887 support for new Pinnacle cards
-//
-// Revision 1.9  2002/09/04 11:58:45  kooiman
-// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
-//
-// Revision 1.8  2002/02/12 02:27:45  ittarnavsky
-// fixed the hardware info dialog
-//
-// Revision 1.7  2001/12/18 23:36:01  adcockj
-// Split up the MSP chip support into two parts to avoid probelms when deleting objects
-//
-// Revision 1.6  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.5  2001/11/25 01:58:34  ittarnavsky
-// initial checkin of the new I2C code
-//
-// Revision 1.4  2001/11/23 10:49:16  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.3  2001/11/18 02:47:08  ittarnavsky
-// added all v3.1 suported cards
-//
-// Revision 1.2  2001/11/02 16:30:07  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.1.2.2  2001/08/22 10:40:58  adcockj
-// Added basic tuner support
-// Fixed recusive bug
-//
-// Revision 1.1.2.1  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.1.2.5  2001/08/18 17:09:30  adcockj
-// Got to compile, still lots to do...
-//
-// Revision 1.1.2.4  2001/08/17 16:35:13  adcockj
-// Another interim check-in still doesn't compile. Getting closer ...
-//
-// Revision 1.1.2.3  2001/08/15 07:10:19  adcockj
-// Fixed memory leak
-//
-// Revision 1.1.2.2  2001/08/14 16:41:36  adcockj
-// Renamed driver
-// Got to compile with new class based card
-//
-// Revision 1.1.2.1  2001/08/14 09:40:19  adcockj
-// Interim version of code for multiple card support
-//
-// Revision 1.1  2001/08/13 12:05:12  adcockj
-// Updated range for contrast and saturation
-// Added more code for new driver interface
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file BT848Card.cpp CBT848Card Implementation (Tuner)
@@ -169,7 +76,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     case TUNER_TDA8275:
         m_Tuner = new CTDA8275();
         strcpy(m_TunerType, "TDA8275 ");
-		LookForIFDemod = TRUE;
+        LookForIFDemod = TRUE;
         break;
     case TUNER_AUTODETECT:
     case TUNER_USER_SETUP:
@@ -196,7 +103,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     }
 
 
-	// Look for possible external IF demodulator
+    // Look for possible external IF demodulator
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
     if (LookForIFDemod)
     {
@@ -226,9 +133,9 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
             pExternalIFDemodulator = new CPreTuneVoodooFM(this);
             break;
 
-		case TUNER_TDA8275:
-			pExternalIFDemodulator = new CTDA8290();
-			break;
+        case TUNER_TDA8275:
+            pExternalIFDemodulator = new CTDA8290();
+            break;
 
         default:
             //Detect TDA 9887
@@ -237,32 +144,32 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
         }
     }
 
-	eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
+    eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
 
-	// Detect and attach IF demodulator to the tuner
+    // Detect and attach IF demodulator to the tuner
     //  or delete the demodulator if the chip doesn't exist.
     if (pExternalIFDemodulator != NULL)
     {
-		if (pExternalIFDemodulator->SetDetectedI2CAddress(m_I2CBus))
-		{
-			m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
-			pExternalIFDemodulator->Init(TRUE, videoFormat);
-		}
-		else
-		{
-			// if didn't find anything then
-			// need to delete the instance
-			delete pExternalIFDemodulator;
-			pExternalIFDemodulator = NULL;
-		}
+        if (pExternalIFDemodulator->SetDetectedI2CAddress(m_I2CBus))
+        {
+            m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
+            pExternalIFDemodulator->Init(TRUE, videoFormat);
+        }
+        else
+        {
+            // if didn't find anything then
+            // need to delete the instance
+            delete pExternalIFDemodulator;
+            pExternalIFDemodulator = NULL;
+        }
     }
 
     // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
     BOOL bFoundTuner = FALSE;
 
-	// Scan the I2C bus addresses 0xC0 - 0xCF for tuners.
-	BYTE test = IsTEA5767PresentAtC0(m_I2CBus) ? 0xC2 : 0xC0;
-	for ( ; test < 0xCF; test += 0x02)
+    // Scan the I2C bus addresses 0xC0 - 0xCF for tuners.
+    BYTE test = IsTEA5767PresentAtC0(m_I2CBus) ? 0xC2 : 0xC0;
+    for ( ; test < 0xCF; test += 0x02)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
@@ -271,11 +178,11 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
             // Initialize the tuner.
             if (m_Tuner->InitializeTuner())
             {
-				bFoundTuner = TRUE;
-				int length = strlen(m_TunerType);
-				sprintf(m_TunerType + length, "@ I2C address 0x%02X", test);
-				LOG(1,"Tuner: Found at I2C address 0x%02x", test);
-				break;
+                bFoundTuner = TRUE;
+                int length = strlen(m_TunerType);
+                sprintf(m_TunerType + length, "@ I2C address 0x%02X", test);
+                LOG(1,"Tuner: Found at I2C address 0x%02x", test);
+                break;
             }
         }
     }

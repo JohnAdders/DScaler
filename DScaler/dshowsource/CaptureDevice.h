@@ -15,68 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.15  2003/01/15 20:56:19  tobbej
-// added audio channel selection menu
-//
-// Revision 1.14  2003/01/06 21:34:30  tobbej
-// implemented GetFormat (not working yet)
-// implemented fm radio support
-//
-// Revision 1.13  2002/10/29 19:32:22  tobbej
-// new tuner class for direct tuning to a frequency
-// implemented IsVideoPresent, channel scaning shoud work now
-//
-// Revision 1.12  2002/10/27 12:18:49  tobbej
-// renamed GetTVTuner
-// changed FindInterface
-//
-// Revision 1.11  2002/09/24 17:22:19  tobbej
-// a few renamed function
-//
-// Revision 1.10  2002/09/14 17:03:11  tobbej
-// implemented audio output device selection
-//
-// Revision 1.9  2002/08/14 22:03:23  kooiman
-// Added TV tuner support for DirectShow capture devices
-//
-// Revision 1.8  2002/07/17 19:18:09  tobbej
-// try to connect the videoport pin first if there is one.
-// commented out unused ir code
-//
-// Revision 1.7  2002/04/16 15:30:53  tobbej
-// fixed dropped frames counter, previously it didnt find the IAMDroppedFrames when it was on one of the output pins
-//
-// Revision 1.6  2002/03/15 23:08:59  tobbej
-// changed dropped frames counter to include dropped frames in source filter.
-// experimented a bit with btwincap:s ir support
-//
-// Revision 1.5  2002/02/13 16:58:22  tobbej
-// changed some comments
-//
-// Revision 1.4  2002/02/07 22:05:43  tobbej
-// new classes for file input
-// rearanged class inheritance a bit
-//
-// Revision 1.3  2002/02/05 17:24:13  tobbej
-// changed javadoc coments
-//
-// Revision 1.2  2002/02/03 11:04:01  tobbej
-// pal/ntsc selection support
-// picture controls support
-//
-// Revision 1.1  2001/12/17 19:28:26  tobbej
-// class for capture devices
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file CaptureDevice.h interface for the CDShowCaptureDevice class.
@@ -101,8 +39,8 @@
 class CDShowCaptureDeviceException: public CDShowException
 {
 public:
-	CDShowCaptureDeviceException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
-	CDShowCaptureDeviceException(CString msg):CDShowException(msg) {};
+    CDShowCaptureDeviceException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
+    CDShowCaptureDeviceException(CString msg):CDShowException(msg) {};
 };
 
  
@@ -112,65 +50,65 @@ public:
 class CDShowCaptureDevice : public CDShowBaseSource  
 {
 public:
-	CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName,bool bConnectAudio);
-	virtual ~CDShowCaptureDevice();
-	
-	eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_CAPTURE;}
+    CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName,bool bConnectAudio);
+    virtual ~CDShowCaptureDevice();
+    
+    eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_CAPTURE;}
 
-	void Connect(CComPtr<IBaseFilter> VideoFilter);
-	bool IsConnected() {return m_bIsConnected;};
-	long GetNumDroppedFrames();
+    void Connect(CComPtr<IBaseFilter> VideoFilter);
+    bool IsConnected() {return m_bIsConnected;};
+    long GetNumDroppedFrames();
 
-	/**
-	 * This method returns a pointer to the crossbar if any.
-	 * If no crossbar is present it returns NULL
-	 * @return pointer to the crossbar
-	 */
-	CDShowBaseCrossbar* getCrossbar();
+    /**
+     * This method returns a pointer to the crossbar if any.
+     * If no crossbar is present it returns NULL
+     * @return pointer to the crossbar
+     */
+    CDShowBaseCrossbar* getCrossbar();
 
-	// IAMTVTuner
-	CDShowDirectTuner *GetTuner();
-	
-	// IAMAnalogVideoDecoder
-	bool hasVideoDec() {return m_pAVideoDec!=NULL;}
-	long GetSupportedTVFormats();
-	AnalogVideoStandard GetTVFormat();
-	void PutTVFormat(AnalogVideoStandard format);
-	bool IsHorizontalLocked();
+    // IAMTVTuner
+    CDShowDirectTuner *GetTuner();
+    
+    // IAMAnalogVideoDecoder
+    bool hasVideoDec() {return m_pAVideoDec!=NULL;}
+    long GetSupportedTVFormats();
+    AnalogVideoStandard GetTVFormat();
+    void PutTVFormat(AnalogVideoStandard format);
+    bool IsHorizontalLocked();
 
-	// IAMVideoProcAmp
-	bool hasVideoProcAmp() {return m_pVideoProcAmp!=NULL;}
-	void set(long prop,long value,long flags);
-	void get(long prop,long *pValue,long *pFlags=NULL);
-	void getRange(long prop,long *pMin,long *pMax, long *pStepSize=NULL,long *pDefault=NULL,long *pFlags=NULL);
-	
-	/**
-	 * @return pointer to CDShowTVAudio class or NULL if there is no tvaudio
-	 */
-	CDShowTVAudio* GetTVAudio();
+    // IAMVideoProcAmp
+    bool hasVideoProcAmp() {return m_pVideoProcAmp!=NULL;}
+    void set(long prop,long value,long flags);
+    void get(long prop,long *pValue,long *pFlags=NULL);
+    void getRange(long prop,long *pMin,long *pMax, long *pStepSize=NULL,long *pDefault=NULL,long *pFlags=NULL);
+    
+    /**
+     * @return pointer to CDShowTVAudio class or NULL if there is no tvaudio
+     */
+    CDShowTVAudio* GetTVAudio();
 
-	//experimental btwincap style ir support
-	/*bool driverSupportsIR();
-	bool isRemotePresent();
-	ULONG getRemoteCode();*/
+    //experimental btwincap style ir support
+    /*bool driverSupportsIR();
+    bool isRemotePresent();
+    ULONG getRemoteCode();*/
 
 private:
-	
-	void findIAMDroppedFrames(CComPtr<IBaseFilter> filter);
-	bool m_bIsConnected;
-	bool m_bConnectAudio;
-	CDShowBaseCrossbar *m_pCrossbar;
-	CDShowDirectTuner *m_pTVTuner;
-	CDShowTVAudio *m_pTVAudio;
+    
+    void findIAMDroppedFrames(CComPtr<IBaseFilter> filter);
+    bool m_bIsConnected;
+    bool m_bConnectAudio;
+    CDShowBaseCrossbar *m_pCrossbar;
+    CDShowDirectTuner *m_pTVTuner;
+    CDShowTVAudio *m_pTVAudio;
 
-	///video capture device
-	CComPtr<IBaseFilter> m_vidDev;
-	CComPtr<ICaptureGraphBuilder2> m_pBuilder;
+    ///video capture device
+    CComPtr<IBaseFilter> m_vidDev;
+    CComPtr<ICaptureGraphBuilder2> m_pBuilder;
 
-	CComPtr<IAMAnalogVideoDecoder> m_pAVideoDec;
-	CComPtr<IAMVideoProcAmp> m_pVideoProcAmp;
+    CComPtr<IAMAnalogVideoDecoder> m_pAVideoDec;
+    CComPtr<IAMVideoProcAmp> m_pVideoProcAmp;
 
-	CComPtr<IAMDroppedFrames> m_pDroppedFrames;
+    CComPtr<IAMDroppedFrames> m_pDroppedFrames;
 };
 
 #endif // !defined(AFX_DSHOWCAPTUREDEVICE_H__50B8522B_CD99_471C_A39D_9BE98CACC7EB__INCLUDED_)

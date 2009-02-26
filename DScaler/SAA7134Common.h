@@ -15,104 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 01 Oct 2002   Atsushi Nakagawa      Initial Release
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.29  2005/03/10 05:06:06  atnak
-// Added auxiliary via DAC lines.
-//
-// Revision 1.28  2004/11/20 14:20:41  atnak
-// Tab to space changes.
-//
-// Revision 1.27  2004/11/16 08:58:58  atnak
-// Renumbered eAudioInputSource constants for consistency to actual values
-//
-// Revision 1.26  2004/02/14 04:03:44  atnak
-// Put GPIO settings and AutoDetect IDs into the main card definition
-// to remove the need for extra tables and custom functions.
-// Added card Medion Philips 7134 Chipset
-//
-// Revision 1.25  2003/10/27 10:39:53  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.24  2003/07/31 05:01:38  atnak
-// Added ASK Select AS-VCV300/PCI card
-//
-// Revision 1.23  2003/06/27 08:05:41  atnak
-// Added AOPEN VA1000 Lite2
-//
-// Revision 1.22  2003/06/01 19:42:32  atnak
-// Adds "external" sound type for either stereo or mono
-//
-// Revision 1.21  2003/04/28 06:28:04  atnak
-// Added ASUS TV/FM
-//
-// Revision 1.20  2003/04/17 09:17:45  atnak
-// Added V-Gear MyTV SAP PK
-//
-// Revision 1.19  2003/02/12 22:09:44  atnak
-// Added M-TV002
-//
-// Revision 1.18  2003/02/03 07:00:52  atnak
-// Added Typhoon TV-Radio 90031
-//
-// Revision 1.17  2003/01/27 03:17:46  atnak
-// Added card support for "MEDION TV-TUNER 7134 MK2/3"
-//
-// Revision 1.16  2003/01/08 00:22:41  atnak
-// Put back VBI upscale divisor
-//
-// Revision 1.14  2002/12/26 05:06:17  atnak
-// Added Terratec Cinergy 600 TV
-//
-// Revision 1.13  2002/12/24 08:22:14  atnak
-// Added Prime 7133 card
-//
-// Revision 1.12  2002/12/14 00:29:35  atnak
-// Added Manli M-TV001 card
-//
-// Revision 1.11  2002/11/12 01:26:25  atnak
-// Changed the define name of a card
-//
-// Revision 1.10  2002/11/10 09:30:57  atnak
-// Added Chroma only comb filter mode for SECAM
-//
-// Revision 1.9  2002/11/10 05:11:24  atnak
-// Added adjustable audio input level
-//
-// Revision 1.8  2002/11/07 18:54:21  atnak
-// Redid getting next field -- fixes some issues
-//
-// Revision 1.7  2002/10/29 03:07:19  atnak
-// Added SAA713x TreeSettings Page
-//
-// Revision 1.6  2002/10/26 06:59:30  atnak
-// Minor change to video standards definition
-//
-// Revision 1.5  2002/10/26 04:41:44  atnak
-// Clean up + added auto card detection
-//
-// Revision 1.4  2002/10/20 07:41:04  atnak
-// custom audio standard setup + etc
-//
-// Revision 1.3  2002/10/16 11:38:46  atnak
-// cleaned up audio standard stuff
-//
-// Revision 1.2  2002/10/04 23:40:46  atnak
-// proper support for audio channels mono,stereo,lang1,lang2 added
-//
-// Revision 1.1  2002/10/03 23:42:06  atnak
-// SAA7134Common.h SAA7134Common.cpp SAA7134Card_Video.cpp added
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file saa7134common.h saa7134common Header file
@@ -229,19 +131,19 @@ protected:
     enum eAudioInputSource
     {
         /// reserved, used in INPUTTYPE_FINAL
-        AUDIOINPUTSOURCE_NONE		= -1,
+        AUDIOINPUTSOURCE_NONE        = -1,
         /// auxiliary line 1 input - 0x00
-        AUDIOINPUTSOURCE_LINE1		= 0,
+        AUDIOINPUTSOURCE_LINE1        = 0,
         /// auxiliary line 2 input - 0x01
-        AUDIOINPUTSOURCE_LINE2		= 1,
+        AUDIOINPUTSOURCE_LINE2        = 1,
         /// standard tuner via dac - 0x02
-        AUDIOINPUTSOURCE_DAC		= 2,
+        AUDIOINPUTSOURCE_DAC        = 2,
 
-		/// These two are for SAA7133/5
-		/// auxiliary line 1 via dac - 0x02
-		AUDIOINPUTSOURCE_DAC_LINE1	= 3,
-		/// auxiliary line 2 via dac - 0x02
-		AUDIOINPUTSOURCE_DAC_LINE2	= 4,
+        /// These two are for SAA7133/5
+        /// auxiliary line 1 via dac - 0x02
+        AUDIOINPUTSOURCE_DAC_LINE1    = 3,
+        /// auxiliary line 2 via dac - 0x02
+        AUDIOINPUTSOURCE_DAC_LINE2    = 4,
     };
 
     enum eAudioStandard

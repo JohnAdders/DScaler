@@ -33,10 +33,10 @@ class CDVBTCard : public CPCICard,
 {
 public:
     CDVBTCard(CHardwareDriver* pDriver);
-	~CDVBTCard();
+    ~CDVBTCard();
 
-	BOOL FindCard(int CardIndex);
-	void CloseCard();
+    BOOL FindCard(int CardIndex);
+    void CloseCard();
     
     void ResetHardware();
 

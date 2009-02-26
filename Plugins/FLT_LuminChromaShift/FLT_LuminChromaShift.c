@@ -16,31 +16,17 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2003/06/26 11:42:54  adcockj
-// Reduced teh size of some of the dlls
-//
-// Revision 1.2  2003/05/31 12:19:22  laurentg
-// Adjusting by 1/16 of pixel is sufficient
-//
-// Revision 1.1  2003/03/29 22:33:57  laurentg
-// New filter
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include <windows.h>
 #include "DS_Filter.h"
 #include "..\help\helpids.h"
 
 // Taking a multiple of 2 for ONE_PIXEL_SHIFT is probably a good way to optimize the filter
-#define ONE_PIXEL_SHIFT		16
+#define ONE_PIXEL_SHIFT        16
 
 FILTER_METHOD LuminChromaShiftMethod;
 
-static BYTE WorkLine[768*2];	// Buffer to store one line of data
+static BYTE WorkLine[768*2];    // Buffer to store one line of data
 static int LuminShiftVal = 0;
 static int delta_x1 = 0;
 static int delta_x2 = 0;
@@ -49,30 +35,30 @@ static int coef_x2 = 0;
 
 void __cdecl LuminChromaShiftStart( void )
 {
-	int Shift = (LuminShiftVal >= 0) ? LuminShiftVal : -LuminShiftVal;
-	delta_x1 = Shift / ONE_PIXEL_SHIFT;
-	if ((Shift % ONE_PIXEL_SHIFT) == 0)
-	{
-		delta_x2 = delta_x1;
-	}
-	else
-	{
-		delta_x2 = delta_x1 + 1;
-	}
-	coef_x2 = Shift % ONE_PIXEL_SHIFT;
-	coef_x1 = ONE_PIXEL_SHIFT - coef_x2;
-	if (LuminShiftVal < 0)
-	{
-		delta_x1 *= -1;
-		delta_x2 *= -1;
-	}
+    int Shift = (LuminShiftVal >= 0) ? LuminShiftVal : -LuminShiftVal;
+    delta_x1 = Shift / ONE_PIXEL_SHIFT;
+    if ((Shift % ONE_PIXEL_SHIFT) == 0)
+    {
+        delta_x2 = delta_x1;
+    }
+    else
+    {
+        delta_x2 = delta_x1 + 1;
+    }
+    coef_x2 = Shift % ONE_PIXEL_SHIFT;
+    coef_x1 = ONE_PIXEL_SHIFT - coef_x2;
+    if (LuminShiftVal < 0)
+    {
+        delta_x1 *= -1;
+        delta_x2 *= -1;
+    }
     return;
 }
 
 long __cdecl LuminChromaShift(TDeinterlaceInfo* pInfo)
 {
-	BYTE* Pixels;
-	int x, y;
+    BYTE* Pixels;
+    int x, y;
 
     // Need to have the current field to do the filtering.
     if (pInfo->PictureHistory[0] == NULL)
@@ -80,41 +66,41 @@ long __cdecl LuminChromaShift(TDeinterlaceInfo* pInfo)
         return 1000;
     }
 
-	// Leave if there is no shift to apply
-	if (LuminShiftVal == 0)
-	{
+    // Leave if there is no shift to apply
+    if (LuminShiftVal == 0)
+    {
         return 1000;
-	}
+    }
 
     Pixels = pInfo->PictureHistory[0]->pData;
     for (y = 0; y < pInfo->FieldHeight; ++y)
     {
-		// Save the original line content in a buffer
-		// This buffer is then used to update the current line
-		memcpy(WorkLine, Pixels, pInfo->LineLength);
+        // Save the original line content in a buffer
+        // This buffer is then used to update the current line
+        memcpy(WorkLine, Pixels, pInfo->LineLength);
 
-		for (x = 0; x < pInfo->FrameWidth; ++x)
-		{
-			int x1 = x-delta_x1;
-			int x2 = x-delta_x2;
-			if (x1 < 0)
-			{
-				x1 = 0;
-			}
-			else if (x1 >= pInfo->FrameWidth)
-			{
-				x1 = pInfo->FrameWidth - 1;
-			}
-			if (x2 < 0)
-			{
-				x2 = 0;
-			}
-			else if (x2 >= pInfo->FrameWidth)
-			{
-				x2 = pInfo->FrameWidth - 1;
-			}
-			Pixels[x*2] = (WorkLine[x1*2] * coef_x1 + WorkLine[x2*2] * coef_x2) / ONE_PIXEL_SHIFT;
-		}
+        for (x = 0; x < pInfo->FrameWidth; ++x)
+        {
+            int x1 = x-delta_x1;
+            int x2 = x-delta_x2;
+            if (x1 < 0)
+            {
+                x1 = 0;
+            }
+            else if (x1 >= pInfo->FrameWidth)
+            {
+                x1 = pInfo->FrameWidth - 1;
+            }
+            if (x2 < 0)
+            {
+                x2 = 0;
+            }
+            else if (x2 >= pInfo->FrameWidth)
+            {
+                x2 = pInfo->FrameWidth - 1;
+            }
+            Pixels[x*2] = (WorkLine[x1*2] * coef_x1 + WorkLine[x2*2] * coef_x2) / ONE_PIXEL_SHIFT;
+        }
         Pixels += pInfo->InputPitch;
     }
 
@@ -127,9 +113,9 @@ long __cdecl LuminChromaShift(TDeinterlaceInfo* pInfo)
 
 BOOL LuminShiftVal_OnChange(long NewValue)
 {
-	LuminShiftVal = (int)NewValue;
-	LuminChromaShiftStart();
-	return FALSE;
+    LuminShiftVal = (int)NewValue;
+    LuminChromaShiftStart();
+    return FALSE;
 }
 
 SETTING FLT_LuminChromaShiftSettings[FLT_LUMINCHROMASHIFT_SETTING_LASTONE] =

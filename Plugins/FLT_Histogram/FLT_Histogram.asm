@@ -13,20 +13,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.3  2002/11/02 01:33:34  lindsey
-// Corrected comb filter to work with PAL video
-// Changed color of histogram outside the CCIR-601 range
-//
-// Revision 1.2  2002/02/16 00:24:57  lindsey
-// Added CVS tags
-//
-// Revision 1.1.1.1  2002/02/15  lindsey
-// Added Histogram Filter
-//
-/////////////////////////////////////////////////////////////////////////////
 
 // Processor specific averaging:
 // Set destMM to average of destMM and sourceMM

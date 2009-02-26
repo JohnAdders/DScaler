@@ -15,16 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DShowSeeking.h interface for the CDShowSeeking class.
@@ -44,15 +34,15 @@
 class CDShowSeeking  
 {
 public:
-	CDShowSeeking(CComPtr<IGraphBuilder> &pGraph);
-	virtual ~CDShowSeeking();
-	DWORD GetCaps();
-	LONGLONG GetCurrentPos();
-	LONGLONG GetDuration();
-	void SeekTo(LONGLONG position);
+    CDShowSeeking(CComPtr<IGraphBuilder> &pGraph);
+    virtual ~CDShowSeeking();
+    DWORD GetCaps();
+    LONGLONG GetCurrentPos();
+    LONGLONG GetDuration();
+    void SeekTo(LONGLONG position);
 
 private:
-	CComPtr<IMediaSeeking> m_pSeeking;
+    CComPtr<IMediaSeeking> m_pSeeking;
 
 };
 

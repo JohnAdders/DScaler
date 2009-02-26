@@ -20,22 +20,6 @@
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 24 Jul 2000   John Adcock           Original Release
-//                                     Translated most code from German
-//                                     Combined Header files
-//                                     Cut out all decoding
-//                                     Cut out digital hardware stuff
-//
-// 07 Jan 2001   John Adcock           Added gNTSCFilmFallbackMode setting
-//
-// 08 Jan 2001   John Adcock           Global Variable Tidy up
-//                                     Got rid of global.h structs.h defines.h
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file outthreads.h outthreads Header file
@@ -53,15 +37,15 @@ typedef enum
     REQ_STILL,
     REQ_SNAPSHOT,
 #ifdef WANT_DSHOW_SUPPORT
-	REQ_DSHOW_CHANGERES,
-	REQ_DSHOW_STOP,
+    REQ_DSHOW_CHANGERES,
+    REQ_DSHOW_STOP,
 #endif
 } eRequestType;
 
 typedef struct {
-	eRequestType	type;
-	int				param1;
-	int				param2;
+    eRequestType    type;
+    int                param1;
+    int                param2;
 } TGUIRequest;
 
 // Get Hold of the OutThreads.c file settings
@@ -95,13 +79,13 @@ BOOL WaitForNextField(BOOL LastField, BOOL* RunningLate);
 BOOL LockOverlay(TDeinterlaceInfo* pInfo);
 
 #ifdef _DEBUG
-	#define ASSERTONOUTTHREAD AssertOnOutThread()
-	void AssertOnOutThread();
+    #define ASSERTONOUTTHREAD AssertOnOutThread()
+    void AssertOnOutThread();
 #else
-	#define ASSERTONOUTTHREAD
+    #define ASSERTONOUTTHREAD
 #endif
 
-extern BOOL	bCheckSignalPresent;
-extern BOOL	bCheckSignalMissing;
+extern BOOL    bCheckSignalPresent;
+extern BOOL    bCheckSignalMissing;
 
 #endif

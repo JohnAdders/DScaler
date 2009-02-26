@@ -15,10 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "Reflasher.h"
@@ -38,11 +34,11 @@ IMPLEMENT_DYNCREATE(CPage1, CPropertyPage)
 
 CPage1::CPage1() : CPropertyPage(CPage1::IDD)
 {
-	//{{AFX_DATA_INIT(CPage1)
-		// HINWEIS: Der Klassen-Assistent fügt hier Elementinitialisierung ein
-	//}}AFX_DATA_INIT
+    //{{AFX_DATA_INIT(CPage1)
+        // HINWEIS: Der Klassen-Assistent fügt hier Elementinitialisierung ein
+    //}}AFX_DATA_INIT
 
-	m_psp.dwFlags &= ~PSP_HASHELP; 
+    m_psp.dwFlags &= ~PSP_HASHELP; 
 }
 
 CPage1::~CPage1()
@@ -51,17 +47,17 @@ CPage1::~CPage1()
 
 void CPage1::DoDataExchange(CDataExchange* pDX)
 {
-	CPropertyPage::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CPage1)
-		// HINWEIS: Der Klassen-Assistent fügt hier DDX- und DDV-Aufrufe ein
-	//}}AFX_DATA_MAP
+    CPropertyPage::DoDataExchange(pDX);
+    //{{AFX_DATA_MAP(CPage1)
+        // HINWEIS: Der Klassen-Assistent fügt hier DDX- und DDV-Aufrufe ein
+    //}}AFX_DATA_MAP
 }
 
 
 BEGIN_MESSAGE_MAP(CPage1, CPropertyPage)
-	//{{AFX_MSG_MAP(CPage1)
-		// HINWEIS: Der Klassen-Assistent fügt hier Zuordnungsmakros für Nachrichten ein
-	//}}AFX_MSG_MAP
+    //{{AFX_MSG_MAP(CPage1)
+        // HINWEIS: Der Klassen-Assistent fügt hier Zuordnungsmakros für Nachrichten ein
+    //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -69,61 +65,61 @@ END_MESSAGE_MAP()
 
 BOOL CPage1::OnSetActive() 
 {
-	BOOL bEnableNextButton = FALSE;
+    BOOL bEnableNextButton = FALSE;
 
-	if(IsAnMsiCard())
-	{
-		GetDlgItem(IDC_STATIC_CARD)->SetWindowText("MSI Master Card found.");
+    if(IsAnMsiCard())
+    {
+        GetDlgItem(IDC_STATIC_CARD)->SetWindowText("MSI Master Card found.");
 
-		if(IsEepromCorrupted())
-		{
-			GetDlgItem(IDC_STATIC_EEPROM)->SetWindowText("EEPROM is corrupted.");
-			bEnableNextButton = TRUE;
-		}
+        if(IsEepromCorrupted())
+        {
+            GetDlgItem(IDC_STATIC_EEPROM)->SetWindowText("EEPROM is corrupted.");
+            bEnableNextButton = TRUE;
+        }
 
-		else 
-		{
-			GetDlgItem(IDC_STATIC_EEPROM)->SetWindowText("EEPROM is not corrupted.");
-		}
-	}
+        else 
+        {
+            GetDlgItem(IDC_STATIC_EEPROM)->SetWindowText("EEPROM is not corrupted.");
+        }
+    }
 
-	else
-	{
-		GetDlgItem(IDC_STATIC_CARD)->SetWindowText("MSI Master Card not found.");
-	}
-	
-	CPropertySheet* parent = (CPropertySheet*)GetParent();
+    else
+    {
+        GetDlgItem(IDC_STATIC_CARD)->SetWindowText("MSI Master Card not found.");
+    }
+    
+    CPropertySheet* parent = (CPropertySheet*)GetParent();
 
-	bEnableNextButton == TRUE ?
-		parent->SetWizardButtons(PSWIZB_NEXT) :
-		parent->SetWizardButtons(NULL);
+    bEnableNextButton == TRUE ?
+        parent->SetWizardButtons(PSWIZB_NEXT) :
+        parent->SetWizardButtons(NULL);
 
-	return CPropertyPage::OnSetActive();
+    return CPropertyPage::OnSetActive();
 }
 
 
 BOOL CPage1::IsAnMsiCard()
 {
-	CWizard* parent = (CWizard*)GetParent();
-	return parent->m_pCard->ReadDword(0x00365000 + 4) == 0x86061462;
-	//return parent->m_pCard->ReadDword(0x00365000 + 4) == 0x34010070;
+    CWizard* parent = (CWizard*)GetParent();
+    return parent->m_pCard->ReadDword(0x00365000 + 4) == 0x86061462;
+    //return parent->m_pCard->ReadDword(0x00365000 + 4) == 0x34010070;
 }
 
 BOOL CPage1::IsEepromCorrupted()
 {
-	BOOL bReturn = TRUE;
+    BOOL bReturn = TRUE;
 
-	CWizard* parent = (CWizard*)GetParent();
-	DWORD dwTemp1 = parent->m_pCard->ReadDword(0x00365000 + 8);
-	DWORD dwTemp2 = parent->m_pCard->ReadDword(0x00365000 + 12);
+    CWizard* parent = (CWizard*)GetParent();
+    DWORD dwTemp1 = parent->m_pCard->ReadDword(0x00365000 + 8);
+    DWORD dwTemp2 = parent->m_pCard->ReadDword(0x00365000 + 12);
 
-	if(	(dwTemp1 == 0x014d5349) || (dwTemp1 == 0x004d5349))
-	{
-		if(dwTemp2 == 0xFFFFFFFF)
-		{
-			bReturn = FALSE;
-		}
-	}
+    if(    (dwTemp1 == 0x014d5349) || (dwTemp1 == 0x004d5349))
+    {
+        if(dwTemp2 == 0xFFFFFFFF)
+        {
+            bReturn = FALSE;
+        }
+    }
 
-	return bReturn;
+    return bReturn;
 }

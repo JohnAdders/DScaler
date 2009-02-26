@@ -20,30 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.6  2007/02/18 21:15:31  robmuller
-// Added option to not compile BT8x8 code.
-//
-// Revision 1.5  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.4  2002/10/26 17:51:53  adcockj
-// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
-//
-// Revision 1.3  2002/10/11 21:53:56  ittarnavsky
-// moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
-// renamed 3400 to RevA and 34x1G to RevG
-//
-// Revision 1.2  2002/09/27 14:14:22  kooiman
-// MSP34xx fixes.
-//
-// Revision 1.1  2002/09/26 11:29:52  kooiman
-// Split MSP code in 3 parts.
-//
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file MSP34x0AudioDecoder.cpp CMSP34x0AudioDecoder Implementation (Rev D)

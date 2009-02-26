@@ -15,42 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.9  2002/11/04 01:09:12  lindsey
-// Slightly changed the response curve to more closely resemble the
-// chi-squaredish optimum; Reduced the default parameter value
-//
-// Revision 1.8  2002/08/07 00:42:38  lindsey
-// Made prefetching into a user option.
-//
-// Revision 1.7  2002/03/11 01:45:41  lindsey
-// Corrected for use with progressive source
-//
-// Revision 1.6  2002/02/04 01:06:03  lindsey
-// Added 3DNow optimized version
-//
-// Revision 1.5  2002/02/02 00:57:54  lindsey
-// Removed an SSE instruction from the MMX version (Thanks to Rob for catching it!)
-//
-// Revision 1.4  2002/02/01 23:16:29  lindsey
-// Added code for MMX computers
-// Removed MMXEXT version (since it didn't do anything)
-//
-// Revision 1.3  2001/12/31 00:02:59  lindsey
-// Fixed crashing bug when pixel width not evenly divisible by 8
-// Added prefetching for a substantial speed up
-//
-// Revision 1.2  2001/12/28 02:51:44  lindsey
-// Improved assembly formatting
-// Improved assembly multiplication
-// Corrected the copyright
-//
-// Revision 1.1.1.1  2001/12/23 01:43:52  lindsey
-// Added Gradual Noise Filter
-//
-/////////////////////////////////////////////////////////////////////////////
 
 // Processor specific macros:
 

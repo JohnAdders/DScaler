@@ -20,24 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.4  2007/02/18 21:15:31  robmuller
-// Added option to not compile BT8x8 code.
-//
-// Revision 1.3  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.2  2002/10/11 21:53:56  ittarnavsky
-// moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
-// renamed 3400 to RevA and 34x1G to RevG
-//
-// Revision 1.1  2002/09/26 11:29:52  kooiman
-// Split MSP code in 3 parts.
-//
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file MSP34x0AudioDecoder.cpp CMSP34x0AudioDecoder Implementation (Rev A)
@@ -77,12 +59,12 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
     {                
         if (m_ForceAMSound && IsSECAMVideoFormat(m_VideoFormat))
         {
-		   // autodetect doesn't work well with AM ...		   
+           // autodetect doesn't work well with AM ...           
            return MSP34x0_STANDARD_L_NICAM_AM;
         }
 
         m_IndexVal1 = m_IndexVal2 = 0;
-	    m_IndexMax1 = m_IndexMax2 = -1;
+        m_IndexMax1 = m_IndexMax2 = -1;
 
         m_MajorIndex = 0;
         m_MinorIndex = 0;
@@ -100,7 +82,7 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
         if (val > 32768) val-= 65536;
         if (m_IndexVal1 < val)
         {
-		   m_IndexVal1 = val;
+           m_IndexVal1 = val;
            m_IndexMax1 = m_MajorIndex;
         }
 
@@ -162,7 +144,7 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
         if (val > 32768) val-= 65536;
         if (m_IndexVal2 < val)
         {
-		    m_IndexVal2 = val;
+            m_IndexVal2 = val;
             m_IndexMax2 = m_MinorIndex;
         }
         
@@ -284,7 +266,7 @@ eSupportedSoundChannels CMSP34x0AudioDecoder::DetectSoundChannelsRevA()
     case MSP34x0_STANDARD_DK2_DUAL_FM:
     case MSP34x0_STANDARD_DK_FM_MONO:
     case MSP34x0_STANDARD_DK3_DUAL_FM:
-    case MSP34x0_STANDARD_M_EIA_J:    	
+    case MSP34x0_STANDARD_M_EIA_J:        
         {
             int val = GetDSPRegister(DSP_RD_A2_STEREO_DETECT);
             if (val > 32767) { val -= 65536; }
@@ -361,12 +343,12 @@ eSupportedSoundChannels CMSP34x0AudioDecoder::DetectSoundChannelsRevA()
 void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
 {       
     WORD nicam = 0;  // channel source: FM/AM or nicam
-	WORD source = 0;
+    WORD source = 0;
 
     if (m_AudioInput == AUDIOINPUT_EXTERNAL)
     {
-	    nicam = 0x0200;
-	}
+        nicam = 0x0200;
+    }
     else
     {    
         // switch demodulator
@@ -396,7 +378,7 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
         case MSP34x0_STANDARD_DK2_DUAL_FM:
         case MSP34x0_STANDARD_DK_FM_MONO:
         case MSP34x0_STANDARD_DK3_DUAL_FM:
-        case MSP34x0_STANDARD_M_EIA_J:    	
+        case MSP34x0_STANDARD_M_EIA_J:        
             break;
         case MSP34x0_STANDARD_SAT_MONO:          
         case MSP34x0_STANDARD_SAT:        
@@ -405,7 +387,7 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
                 SetCarrierRevA(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_38);
             } 
             else if (SoundChannel == SOUNDCHANNEL_STEREO)
-            {			
+            {            
                 SetCarrierRevA(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_20);
             } 
             else 
@@ -441,23 +423,23 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
         }
   }
 
-	
+    
     if (SoundChannel == SOUNDCHANNEL_LANGUAGE1) 
     {
-	      source = 0x0000 | nicam;
-	} 
+          source = 0x0000 | nicam;
+    } 
     else if (SoundChannel == SOUNDCHANNEL_LANGUAGE2) 
     {
-		  source = 0x0010 | nicam;		
-	} 
+          source = 0x0010 | nicam;        
+    } 
     else if (SoundChannel == SOUNDCHANNEL_STEREO) 
     {
-		  source = 0x0020 | nicam;
-	} 
+          source = 0x0020 | nicam;
+    } 
     else 
     {
-        // Mono		
-		source = 0x0000 | nicam;
+        // Mono        
+        source = 0x0000 | nicam;
 
         if (m_AudioStandard == MSP34x0_STANDARD_L_NICAM_AM)
         {
@@ -465,14 +447,14 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
             /// AM mono decoding is handled by tuner, not MSP chip
             SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_MONO);            
             SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
-		 }
-	}
-	
+         }
+    }
+    
     SetDSPRegister(DSP_WR_LDSPK_SOURCE, source);
     SetDSPRegister(DSP_WR_HEADPH_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART2_SOURCE, source);
-    SetDSPRegister(DSP_WR_I2S_SOURCE, source);    	
+    SetDSPRegister(DSP_WR_I2S_SOURCE, source);        
 }
 
 
@@ -568,7 +550,7 @@ void CMSP34x0AudioDecoder::SetStandardRevA(eStandard standard, eVideoFormat vide
         SetDEMRegister(DEM_WR_FAW_ER_TOL, 2);
     }
 
-	
+    
     // FIR data
 
     int FIRType = StandardDefinition.FIRType;

@@ -27,187 +27,6 @@
 // Portions copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 13 Mar 2001   Michael Samblanet     File created from code in AspectRatio.c
-//                                     Split out to improve redability
-//
-// 08 Jun 2001   Eric Schmidt          Added bounce amplitude to ini
-//
-//////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.69  2007/02/19 14:48:50  adcockj
-// Fixed various issues with d3d9 code and settings
-//
-// Revision 1.68  2006/12/20 17:41:15  adcockj
-// reorganised the handling of mce remote
-//
-// Revision 1.67  2006/12/20 07:45:06  adcockj
-// added DirectX code from Daniel Sabel
-//
-// Revision 1.66  2006/01/23 12:39:08  robmuller
-// Moving the image now happens with 0.01 steps.
-//
-// Revision 1.65  2005/03/23 14:20:35  adcockj
-// Test fix for threading issues
-//
-// Revision 1.64  2005/01/12 21:42:04  robmuller
-// Zooming and zoom center now uses smaller steps.
-//
-// Revision 1.63  2004/05/02 14:09:32  atnak
-// Fixed possible problem of overlay colour getting dithered with < 32bit colour
-//
-// Revision 1.62  2003/10/27 10:39:50  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.61  2003/09/14 08:43:59  adcockj
-// Fixed Settings inconsistency
-//
-// Revision 1.60  2003/08/09 15:53:39  laurentg
-// Bad refresh of the toolbar when in full screen mode corrected
-//
-// Revision 1.59  2003/04/28 17:31:59  laurentg
-// Fix to avoid crash when exiting
-//
-// Revision 1.58  2003/04/20 11:34:37  laurentg
-// "Zoom Off" instead of "Zoom 1x" in OSD
-//
-// Revision 1.57  2003/02/17 11:39:00  adcockj
-// Added group flags for setting per channel on more settings
-//
-// Revision 1.56  2003/02/02 20:24:24  tobbej
-// added \n to debug messages
-//
-// Revision 1.55  2003/01/18 13:24:38  laurentg
-// Switching between square pixel mode and AR autodetect modes corrected
-//
-// Revision 1.54  2003/01/11 15:22:23  adcockj
-// Interim Checkin of setting code rewrite
-//  - Remove CSettingsGroupList class
-//  - Fixed bugs in format switching
-//  - Some new CSettingGroup code
-//
-// Revision 1.53  2003/01/10 17:37:41  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.52  2003/01/08 19:59:33  laurentg
-// Analogue Blanking setting by source
-//
-// Revision 1.51  2003/01/04 13:36:42  laurentg
-// Two modes for AR autodetection
-//
-// Revision 1.50  2003/01/03 00:54:19  laurentg
-// New mode for AR autodetection using only WSS
-//
-// Revision 1.49  2002/10/31 14:03:33  adcockj
-// Added Analogue blanking option to aspect code
-//
-// Revision 1.48  2002/10/15 18:56:20  kooiman
-// Fixed zooming bug. Zooming out and in brings you back to 1.00 (Zoom off) again.
-//
-// Revision 1.47  2002/09/18 11:38:05  kooiman
-// Preparations for skinned dscaler look.
-//
-// Revision 1.46  2002/08/13 19:35:01  laurentg
-// Change menu label to "Non Anamorphic" and "Anamorphic" when AR autodetection is ON
-//
-// Revision 1.45  2002/08/12 21:29:58  laurentg
-// Disable AR autodetection when switching to square pixel mode but restore it when exiting square pixel mode
-//
-// Revision 1.44  2002/08/08 12:47:22  kooiman
-// Added Aspect ratio settings to settings per channel.
-//
-// Revision 1.43  2002/08/05 22:33:38  laurentg
-// WSS decoding and VBI decoding locked when AR autodetection mode is ON and this mode used is set to use WSS
-//
-// Revision 1.42  2002/08/05 21:01:55  laurentg
-// Square pixels mode updated
-//
-// Revision 1.41  2002/07/28 08:09:41  laurentg
-// "Defer Setting Overlay" removed from the menus
-//
-// Revision 1.40  2002/06/24 21:49:28  laurentg
-// New option to use or not WSS data when doing AR detection
-//
-// Revision 1.39  2002/06/13 12:10:21  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.38  2002/04/28 16:43:37  laurentg
-// New setting for aspect ratio detect
-//
-// Revision 1.37  2002/04/27 14:08:05  laurentg
-// Automatic square pixels mode handling updated
-//
-// Revision 1.36  2002/02/23 19:07:06  laurentg
-// New AR mode for stills having square pixels
-//
-// Revision 1.35  2002/02/09 02:44:56  laurentg
-// Overscan now stored in a setting of the source
-//
-// Revision 1.34  2001/12/30 13:10:36  adcockj
-// Fix zoom bug
-//
-// Revision 1.33  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.32  2001/11/23 10:49:16  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.31  2001/11/09 12:42:07  adcockj
-// Separated most resources out into separate dll ready for localization
-//
-// Revision 1.30  2001/11/02 16:33:07  adcockj
-// Removed conflict tags
-//
-// Revision 1.29  2001/11/02 16:30:06  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.28  2001/11/02 10:15:20  temperton
-// Removed unnecessary painting of color key in middle part of screen in teletext mode.
-//
-// Revision 1.27  2001/10/18 18:53:14  adcockj
-// Corrected Mask color on change so that repaints always occur
-//
-// Revision 1.26  2001/10/18 16:24:07  adcockj
-// Added onchange for bblanking color
-//
-// Revision 1.25  2001/10/18 16:20:40  adcockj
-// Made Color of blanking adjustable
-//
-// Revision 1.24  2001/09/05 21:05:29  adcockj
-// Bug Fixes for new overlay code
-//
-// Revision 1.23  2001/09/03 13:06:49  adcockj
-// Increment version
-//
-// Revision 1.22.2.1  2001/08/20 16:14:19  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.22  2001/08/06 22:32:13  laurentg
-// Little improvments for AR autodetection
-//
-// Revision 1.21  2001/08/03 09:52:42  adcockj
-// Added range checking on settings and fixed setting with out of range errors
-//
-// Revision 1.20  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.19  2001/07/13 16:14:55  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.18  2001/07/12 16:16:39  adcockj
-// Added CVS Id and Log
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file AspectGUI.cpp Aspect Ratio GUI Functions
@@ -397,7 +216,7 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_WINPOS_BOUNCE, (AspectSettings.BounceEnabled));
     CheckMenuItemBool(hMenu, IDM_WINPOS_ORBIT, (AspectSettings.OrbitEnabled));
     CheckMenuItemBool(hMenu, IDM_WINPOS_AUTOSIZE, (AspectSettings.AutoResizeWindow));
-	CheckMenuItemBool(hMenu, IDM_ANALOGUE_BLANKING, (AspectSettings.bAnalogueBlanking));
+    CheckMenuItemBool(hMenu, IDM_ANALOGUE_BLANKING, (AspectSettings.bAnalogueBlanking));
     EnableMenuItem(hMenu, IDM_ANALOGUE_BLANKING, Providers_GetCurrentSource() && Providers_GetCurrentSource()->GetAnalogueBlanking() ? MF_ENABLED : MF_GRAYED);
 
     // Zoom
@@ -419,7 +238,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 {
     char Text[32];
     static BOOL WSSWasEnabled = FALSE;
-	CSource* pSource;
+    CSource* pSource;
 
     switch (wMenuID)
     {
@@ -440,10 +259,10 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             SwitchToRatio(AR_NONANAMORPHIC, 1333);
             ShowText(hWnd, "4:3 Fullscreen Signal");
         }
-		else
-		{
+        else
+        {
             ShowText(hWnd, "Command refused");
-		}
+        }
         break;
     case IDM_ASPECT_LETTERBOX:
         AspectSettings.SquarePixels = FALSE;
@@ -460,10 +279,10 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             SwitchToRatio(AR_NONANAMORPHIC, 1778);
             ShowText(hWnd, "1.78:1 Letterbox Signal");
         }
-		else
-		{
+        else
+        {
             ShowText(hWnd, "Command refused");
-		}
+        }
         break;
     case IDM_ASPECT_ANAMORPHIC:
         AspectSettings.SquarePixels = FALSE;
@@ -479,10 +298,10 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             SwitchToRatio(AR_ANAMORPHIC, 1778);
             ShowText(hWnd, "1.78:1 Anamorphic Signal");
         }
-		else
-		{
+        else
+        {
             ShowText(hWnd, "Command refused");
-		}
+        }
         break;
 
     //------------------------------------------------------------------
@@ -502,13 +321,13 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         break;
 
     case IDM_ANALOGUE_BLANKING:
-		pSource = Providers_GetCurrentSource();
-		if (pSource && pSource->GetAnalogueBlanking() != NULL)
-		{
-			pSource->GetAnalogueBlanking()->SetValue(!pSource->GetAnalogueBlanking()->GetValue());
-			AspectSettings.bAnalogueBlanking = pSource->GetAnalogueBlanking()->GetValue();
-			ShowText(hWnd, AspectSettings.bAnalogueBlanking ? "Analogue Blanking ON" : "Analogue Blanking OFF");
-		}
+        pSource = Providers_GetCurrentSource();
+        if (pSource && pSource->GetAnalogueBlanking() != NULL)
+        {
+            pSource->GetAnalogueBlanking()->SetValue(!pSource->GetAnalogueBlanking()->GetValue());
+            AspectSettings.bAnalogueBlanking = pSource->GetAnalogueBlanking()->GetValue();
+            ShowText(hWnd, AspectSettings.bAnalogueBlanking ? "Analogue Blanking ON" : "Analogue Blanking OFF");
+        }
         break;
 
 
@@ -540,52 +359,52 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     //-----------------------------------------------------------------
     // Autodetect aspect ratio toggles
     case IDM_SASPECT_AUTO_ON:
-		if (AspectSettings.AutoDetectAspect == 0)
-		{
-			UpdateSquarePixelsMode(FALSE);
-			AspectSettings.AutoDetectAspect = 1;
-			ShowText(hWnd, "Auto Detect Black Bars ON");
-			if (AspectSettings.bUseWSS)
-			{
-				if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
-				{
-					Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
-					WSSWasEnabled = TRUE;
-				}
-				if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
-				{
-					SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
-				}
-			}
-		}
+        if (AspectSettings.AutoDetectAspect == 0)
+        {
+            UpdateSquarePixelsMode(FALSE);
+            AspectSettings.AutoDetectAspect = 1;
+            ShowText(hWnd, "Auto Detect Black Bars ON");
+            if (AspectSettings.bUseWSS)
+            {
+                if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
+                {
+                    Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
+                    WSSWasEnabled = TRUE;
+                }
+                if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
+                }
+            }
+        }
         break;
     case IDM_SASPECT_AUTO_OFF:
-		if (AspectSettings.AutoDetectAspect == 1)
-		{
-			AspectSettings.AutoDetectAspect = 0;
-			ShowText(hWnd, "Auto Detect Black Bars OFF");
-			if (AspectSettings.bUseWSS && WSSWasEnabled)
-			{
-				if (Setting_GetValue(VBI_GetSetting(DOWSS)))
-				{
-					Setting_SetValue(VBI_GetSetting(DOWSS), FALSE);
-				}
-				WSSWasEnabled = FALSE;
-			}
-		}
+        if (AspectSettings.AutoDetectAspect == 1)
+        {
+            AspectSettings.AutoDetectAspect = 0;
+            ShowText(hWnd, "Auto Detect Black Bars OFF");
+            if (AspectSettings.bUseWSS && WSSWasEnabled)
+            {
+                if (Setting_GetValue(VBI_GetSetting(DOWSS)))
+                {
+                    Setting_SetValue(VBI_GetSetting(DOWSS), FALSE);
+                }
+                WSSWasEnabled = FALSE;
+            }
+        }
         break;
     case IDM_SASPECT_AUTO_TOGGLE:
-		if (AspectSettings.AutoDetectAspect != 0)
-		{
-			AspectSettings.AutoDetectAspect = 0;
+        if (AspectSettings.AutoDetectAspect != 0)
+        {
+            AspectSettings.AutoDetectAspect = 0;
             ShowText(hWnd, "Auto Detect Black Bars OFF");
-		}
-		else
-		{
-			UpdateSquarePixelsMode(FALSE);
-			AspectSettings.AutoDetectAspect = 1;
+        }
+        else
+        {
+            UpdateSquarePixelsMode(FALSE);
+            AspectSettings.AutoDetectAspect = 1;
             ShowText(hWnd, "Auto Detect Black Bars ON");
-		}
+        }
         if (AspectSettings.AutoDetectAspect && AspectSettings.bUseWSS)
         {
             if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
@@ -608,17 +427,17 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         break;
     case IDM_SASPECT_AUTO2_TOGGLE:
-		if (AspectSettings.AutoDetectAspect != 0)
-		{
-			AspectSettings.AutoDetectAspect = 0;
+        if (AspectSettings.AutoDetectAspect != 0)
+        {
+            AspectSettings.AutoDetectAspect = 0;
             ShowText(hWnd, "Use Signal Aspect Data OFF");
-		}
-		else
-		{
-	        UpdateSquarePixelsMode(FALSE);
-			AspectSettings.AutoDetectAspect = 2;
+        }
+        else
+        {
+            UpdateSquarePixelsMode(FALSE);
+            AspectSettings.AutoDetectAspect = 2;
             ShowText(hWnd, "Use Signal Aspect Data ON");
-		}
+        }
         if (AspectSettings.AutoDetectAspect)
         {
             if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
@@ -749,10 +568,10 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             ShowText(hWnd,"Zoom Off");
         }
         else
-		{
-			sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
-			ShowText(hWnd, Text);
-		}
+        {
+            sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
+            ShowText(hWnd, Text);
+        }
         break;
 
     case IDM_ZOOM_10:
@@ -1032,10 +851,10 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
         // the flashing has been much reduced by using dark grey as
         // overlay colour.  Also this may cause the pausing effect
         // on Teletext and CC
-		if (AspectSettings.bWaitForVerticalBlank == TRUE)
-		{
+        if (AspectSettings.bWaitForVerticalBlank == TRUE)
+        {
             GetActiveOutput()->WaitForVerticalBlank();
-		}
+        }
     }
 
     // Draw overlay color in the middle.

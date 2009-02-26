@@ -15,13 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 22 Jun 2001   Torbjörn Jansson      Initial release
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DScalerApp.h DScalerMFC Header
@@ -70,10 +63,10 @@ public:
 // Overrides
     // ClassWizard generated virtual function overrides
     //{{AFX_VIRTUAL(CDScalerApp)
-	public:
+    public:
     virtual BOOL InitInstance();
-	virtual void WinHelp(DWORD dwData, UINT nCmd = HELP_CONTEXT);
-	//}}AFX_VIRTUAL
+    virtual void WinHelp(DWORD dwData, UINT nCmd = HELP_CONTEXT);
+    //}}AFX_VIRTUAL
 
 // Implementation
 

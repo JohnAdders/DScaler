@@ -19,10 +19,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-//////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "ParseCardIni.h"
@@ -38,11 +34,11 @@ static char THIS_FILE[] = __FILE__;
 // CParseCardIniApp
 
 BEGIN_MESSAGE_MAP(CParseCardIniApp, CWinApp)
-	//{{AFX_MSG_MAP(CParseCardIniApp)
-		// HINWEIS - Hier werden Mapping-Makros vom Klassen-Assistenten eingefügt und entfernt.
-		//    Innerhalb dieser generierten Quelltextabschnitte NICHTS VERÄNDERN!
-	//}}AFX_MSG
-	ON_COMMAND(ID_HELP, CWinApp::OnHelp)
+    //{{AFX_MSG_MAP(CParseCardIniApp)
+        // HINWEIS - Hier werden Mapping-Makros vom Klassen-Assistenten eingefügt und entfernt.
+        //    Innerhalb dieser generierten Quelltextabschnitte NICHTS VERÄNDERN!
+    //}}AFX_MSG
+    ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
 CParseCardIniApp::CParseCardIniApp()
@@ -55,13 +51,13 @@ BOOL CParseCardIniApp::InitInstance()
 {
 
 #ifdef _AFXDLL
-	Enable3dControls();
+    Enable3dControls();
 #else
-	Enable3dControlsStatic();
+    Enable3dControlsStatic();
 #endif
 
-	CParseCardIniDlg dlg;
-	m_pMainWnd = &dlg;
-	dlg.DoModal();
-	return FALSE;
+    CParseCardIniDlg dlg;
+    m_pMainWnd = &dlg;
+    dlg.DoModal();
+    return FALSE;
 }

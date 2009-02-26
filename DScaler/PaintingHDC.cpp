@@ -15,36 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU Library General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.7  2007/02/19 14:48:50  adcockj
-// Fixed various issues with d3d9 code and settings
-//
-// Revision 1.6  2006/12/20 07:45:07  adcockj
-// added DirectX code from Daniel Sabel
-//
-// Revision 1.6  2006/12/01 16:07:52  sabeld
-// Added support for Direct3D output
-//
-// Revision 1.5  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.4  2003/02/27 01:28:03  atnak
-// Fixes bug with BeginPaint/EndPaint region
-//
-// Revision 1.3  2003/01/24 01:55:17  atnak
-// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
-// got rid of the pink overlay colorkey for Teletext.
-//
-// Revision 1.2  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.1  2001/11/22 13:19:37  temperton
-// Added CPaintingHDC class for double buffering painting
-//
-//
-/////////////////////////////////////////////////////////////////////////////
 
 /**
 * @file PaintingHDC.cpp CPaintingHDC Implementation
@@ -99,7 +69,7 @@ void CPaintingHDC::CreateD3DBuffer()
     {
         RECT src=((CD3D9Output *)GetActiveOutput())->Overlay_GetCurrentSrcRect();
         ((CD3D9Output *)GetActiveOutput())->pDevice->CreateOffscreenPlainSurface(src.right,src.bottom,
-                 D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &m_ddsurface, NULL);					
+                 D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &m_ddsurface, NULL);                    
         ((CD3D9Output *)GetActiveOutput())->pDevice->CreateOffscreenPlainSurface(src.right,src.bottom,
                  D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &m_alphasurface, NULL);
     }
@@ -147,7 +117,7 @@ BOOL CPaintingHDC::UpdateGeometry(HDC hDC, LPRECT pRect, BOOL bBufferTrim)
             DeleteDC(m_hBufferDC);
             m_hBufferDC = NULL;
 
-            ReleaseD3DBuffer();				
+            ReleaseD3DBuffer();                
         }
     }
 
@@ -200,7 +170,7 @@ BOOL CPaintingHDC::UpdateGeometry(HDC hDC, LPRECT pRect, BOOL bBufferTrim)
 
 
 void CPaintingHDC::BitBltRects(LPRECT pRectList, LONG nRectCount, HDC hDstDC)
-{	
+{    
     if (m_hBufferDC == NULL)
     {
         return;
@@ -260,7 +230,7 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
     // VT_BLACK gets painted directly
     RECT r;
     for (int i = 0; i < nRectCount; i++)
-    {					
+    {                    
         if(VT_GetState()!=VT_BLACK && IntersectRect(&r, &pRectList[i], &outRect))
         {
 
@@ -357,7 +327,7 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
                 if(SUCCEEDED(m_ddsurface->LockRect(&ddlr, &or, D3DLOCK_READONLY )))
                 {
                     if(SUCCEEDED(m_alphasurface->LockRect(&lr, &or, 0)))
-                    {		
+                    {        
                         COLORREF colorkey=GetActiveOutput()->Overlay_GetColor();                        
                         colorkey=((colorkey&0xFF)<<16)|(colorkey&0xFF00)|((colorkey&0xFF0000)>>16);
 
@@ -374,12 +344,12 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
                                 pPixel++;
                                 ddPixel++;
                             }
-                        }	                      
+                        }                          
 
                         m_alphasurface->UnlockRect();
                     }
                     m_ddsurface->UnlockRect();
-                }				
+                }                
 
             }
 
@@ -397,7 +367,7 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
 
     if(VT_GetState()!=VT_BLACK)
     {
-        ((CD3D9Output *)GetActiveOutput())->pDevice->UpdateSurface(m_alphasurface, NULL, target, NULL);				
+        ((CD3D9Output *)GetActiveOutput())->pDevice->UpdateSurface(m_alphasurface, NULL, target, NULL);                
     }
 }
 

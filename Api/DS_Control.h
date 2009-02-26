@@ -55,516 +55,6 @@
 // functions in Settings.h so that your setttings get loaded
 //
 /////////////////////////////////////////////////////////////////////////////
-// Change Log
-//
-// Date          Developer             Changes
-//
-// 16 Jan 2001   John Adcock           Moved all parts that could be used to
-//                                     Control DScaler externally to this file
-//
-// 20 Feb 2001   Michael Samblanet     Added new values for Aspect Control
-//                                     (bounce & clipping Modes)
-//
-// 08 Jun 2001   Eric Schmidt          Added bounce amplitude to ini
-//
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.179  2007/02/19 14:48:49  adcockj
-// Fixed various issues with d3d9 code and settings
-//
-// Revision 1.178  2007/02/18 17:34:34  robmuller
-// Sync video formats.
-//
-// Revision 1.177  2006/12/28 14:18:35  adcockj
-// Added patch for Curtiss-Wright cards from Bill Randle
-//
-// Revision 1.176  2006/12/20 17:42:18  adcockj
-// reorganised the handling of mce remote
-//
-// Revision 1.175  2006/12/20 07:45:06  adcockj
-// added DirectX code from Daniel Sabel
-//
-// Revision 1.174  2006/09/24 13:28:38  robmuller
-// Added missing SAA7134 settings.
-//
-// Revision 1.173  2006/09/24 01:08:16  robmuller
-// Removed unused variable bWaitForVsync.
-//
-// Revision 1.172  2005/10/24 19:35:43  laurentg
-// New EPG setting for using keys G and Ctrl+Shift+G as a toggle buttons
-//
-// Revision 1.171  2005/10/22 12:59:37  laurentg
-// New EPG setting for different programmes sorting
-//
-// Revision 1.170  2005/10/18 18:57:08  laurentg
-// New setting to store a default NextviewEPG provider
-//
-// Revision 1.169  2005/10/15 19:47:17  dosx86
-// Removed the old TimeShift settings
-//
-// Revision 1.168  2005/07/24 09:58:37  laurentg
-// timeshift setting suppressed
-//
-// Revision 1.167  2005/07/09 13:41:28  laurentg
-// Two new EPG settings
-//
-// Revision 1.166  2005/07/06 19:36:52  laurentg
-// Some old settings for EPG suppressed
-//
-// Revision 1.165  2005/04/07 23:16:01  laurentg
-// EPG: import NextviewEPG database
-//
-// Revision 1.164  2005/04/01 22:17:13  laurentg
-// EPG: new setting to define the time frame duration
-//
-// Revision 1.163  2005/03/28 13:10:14  laurentg
-// New EPG setting to shift times during import
-//
-// Revision 1.162  2005/03/28 12:54:11  laurentg
-// EPG settings
-//
-// Revision 1.161  2004/12/25 22:40:18  to_see
-// Changed the card list to an ini file
-//
-// Revision 1.160  2004/11/20 14:23:55  atnak
-// Added SAA7134 card name setting for storing the card selection as text.
-//
-// Revision 1.159  2004/11/13 21:45:57  to_see
-// - Some minor fixes
-// - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
-//   It reduces dead lock problems dramaticaly if no video signal is present. Faster videosignal detection.
-//
-// Revision 1.158  2004/07/12 20:17:21  to_see
-// Some minor fixes
-//
-// Revision 1.157  2004/04/24 08:54:18  atnak
-// reverted part of last change because there was no need for a new setting
-// variable for input timeout, used ChannelEnterTime instead
-//
-// Revision 1.156  2004/04/24 08:36:28  atnak
-// new: user customizable teletext page number input timeout
-//
-// Revision 1.155  2004/02/06 08:01:20  adcockj
-// Fixed a couple of minor issues with Torsten's changes
-//
-// Revision 1.154  2003/12/29 01:27:53  robmuller
-// Added AVI file splitting.
-//
-// Revision 1.153  2003/11/18 16:36:33  robmuller
-// Added option to disable the keyboard lock for dialog boxes.
-//
-// Revision 1.152  2003/11/11 22:16:30  robmuller
-// Add ability to include the performance statistics in a release build.
-//
-// Revision 1.151  2003/09/13 13:47:44  laurentg
-// New timeshift setting to enable/disable the warning message
-//
-// Revision 1.150  2003/08/02 12:01:43  laurentg
-// Two new settings to define how many channels to display in preview mode
-//
-// Revision 1.149  2003/07/30 03:24:34  atnak
-// Added NOHARDWAREMUTE to list of saved settings
-//
-// Revision 1.148  2003/07/18 09:39:53  adcockj
-// Added option to release processor during JT
-//
-// Revision 1.147  2003/07/02 21:43:16  laurentg
-// TimeShift settings
-//
-// Revision 1.146  2003/04/26 19:37:15  laurentg
-// New character string settings
-//
-// Revision 1.145  2003/04/26 16:04:13  laurentg
-// Character string settings
-//
-// Revision 1.144  2003/04/14 12:14:44  adcockj
-// Added new Colorimetry Filter
-//
-// Revision 1.143  2003/03/29 22:36:17  laurentg
-// New filter
-//
-// Revision 1.142  2003/03/25 13:07:18  laurentg
-// New settings for stills
-//
-// Revision 1.141  2003/03/22 13:10:23  laurentg
-// New filter from Michael Joubert
-//
-// Revision 1.140  2003/03/13 00:41:45  laurentg
-// New filter black & white
-//
-// Revision 1.139  2003/03/08 19:57:11  laurentg
-// New setting "always sleep"
-//
-// Revision 1.138  2003/02/26 20:52:03  laurentg
-// New timing setting MaxFieldShift
-//
-// Revision 1.137  2003/02/06 10:00:14  laurentg
-// Change resolution in full screen
-//
-// Revision 1.136  2003/02/05 16:39:29  laurentg
-// New option to stop capture when DScaler is minimized
-//
-// Revision 1.135  2003/02/05 14:40:07  laurentg
-// DScaler in Windows system tray (patch from Kristian Trenskow)
-//
-// Revision 1.134  2003/01/24 08:08:43  atnak
-// Changes to OSDB
-//
-// Revision 1.133  2003/01/18 10:53:57  laurentg
-// Overscan setting specific to calibration deleted
-//
-// Revision 1.132  2003/01/16 13:30:48  adcockj
-// Fixes for various settings problems reported by Laurent 15/Jan/2003
-//
-// Revision 1.131  2003/01/13 13:56:28  adcockj
-// First attemp at SAA7134 setting groups
-//
-// Revision 1.130  2003/01/12 20:10:47  adcockj
-// Put analogue blanking setting in properly
-//
-// Revision 1.129  2003/01/10 17:37:40  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.128  2003/01/08 19:57:40  laurentg
-// Analogue Blanking setting by source
-//
-// Revision 1.127  2003/01/08 00:23:09  atnak
-// Put back VBI upscale divisor
-//
-// Revision 1.126  2003/01/07 23:23:40  laurentg
-// New overscan settings
-//
-// Revision 1.125  2003/01/07 23:01:26  atnak
-// Removed an element from SAA7134_SETTINGS
-//
-// Revision 1.124  2003/01/04 13:34:27  laurentg
-// Settings for AR detection updated
-//
-// Revision 1.123  2003/01/02 16:24:14  adcockj
-// Corrected MoComp2 settings
-//
-// Revision 1.122  2003/01/02 13:14:59  adcockj
-// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
-//
-// Revision 1.121  2003/01/01 21:07:10  atnak
-// Updated VT_SETTING
-//
-// Revision 1.120  2002/12/10 14:53:14  adcockj
-// Sound fixes for cx2388x
-//
-// Revision 1.119  2002/12/02 13:47:01  adcockj
-// Allow fine control over white crush settings
-//
-// Revision 1.118  2002/11/26 21:32:14  adcockj
-// Made new strange bob method optional
-//
-// Revision 1.117  2002/11/12 15:22:44  adcockj
-// Made new flag settings have default setting
-// Added pixel width for CX2388x cards
-//
-// Revision 1.116  2002/11/10 09:39:48  laurentg
-// Settings "Use OSD screen..."
-//
-// Revision 1.115  2002/11/10 05:12:19  atnak
-// Updated SAA7134SETTINGS
-//
-// Revision 1.114  2002/11/09 20:56:46  laurentg
-// New CX2388x settings
-//
-// Revision 1.113  2002/11/09 01:11:09  laurentg
-// New settings for the CX2388x chip
-//
-// Revision 1.112  2002/11/06 11:11:22  adcockj
-// Added new Settings and applied Laurent's filter setup suggestions
-//
-// Revision 1.111  2002/11/05 13:07:08  adcockj
-// Logo Killer Smoothing patch from Jochen Trenner
-//
-// Revision 1.110  2002/11/02 01:36:40  lindsey
-// Added new settings for adaptive noise; Changed a name for histogram filter
-//
-// Revision 1.109  2002/11/01 16:17:14  laurentg
-// New option to keep ratio when taking a still and saving it in a file
-//
-// Revision 1.108  2002/10/31 14:47:19  adcockj
-// Added Sharpness
-//
-// Revision 1.107  2002/10/31 14:03:32  adcockj
-// Added Analogue blanking option to aspect code
-//
-// Revision 1.106  2002/10/30 13:41:02  atnak
-// Added SINGLEKEYTELETEXTTOGGLE to DSCALER_SETTING
-//
-// Revision 1.105  2002/10/29 22:00:30  adcockj
-// Added EatlLinesAtTop setting for SDI on holo3d
-//
-// Revision 1.104  2002/10/29 15:24:22  robmuller
-// Remove smoothing setting from logo killer since it is not used anymore.
-//
-// Revision 1.103  2002/10/29 11:05:27  adcockj
-// Renamed CT2388x to CX2388x
-//
-// Revision 1.102  2002/10/29 03:07:56  atnak
-// Updated SAA7134_SETTING
-//
-// Revision 1.101  2002/10/28 17:50:01  adcockj
-// Fixes for channels combo
-// Reorganized scanning
-//
-// Revision 1.100  2002/10/28 12:04:56  atnak
-// Updated SAA7134_SETTING
-//
-// Revision 1.99  2002/10/27 12:08:50  laurentg
-// New setting to define the number of consecutive stills
-//
-// Revision 1.98  2002/10/26 17:46:01  laurentg
-// New option to take stills in memory
-//
-// Revision 1.97  2002/10/26 16:17:24  atnak
-// Updated SAA7134_SETTING
-//
-// Revision 1.96  2002/10/26 15:48:59  adcockj
-// Updated format enum to be consistent with DScaler
-//
-// Revision 1.95  2002/10/21 19:47:43  adcockj
-// Corrected settings list for cx2388x
-//
-// Revision 1.94  2002/10/21 16:07:26  adcockj
-// Added H & V delay options for CX2388x cards
-//
-// Revision 1.93  2002/10/21 07:29:21  adcockj
-// Added new option for reversing scroll wheel intent
-//
-// Revision 1.92  2002/10/15 18:32:01  kooiman
-// Added stereo detect interval for continuous scanning for stereo mode.
-//
-// Revision 1.91  2002/10/15 15:46:49  kooiman
-// Updated BT848_SETTING
-//
-// Revision 1.90  2002/09/26 06:05:21  kooiman
-// Added toolbar settings
-//
-// Revision 1.89  2002/09/16 19:34:18  adcockj
-// Fix for auto format change
-//
-// Revision 1.88  2002/09/11 18:19:35  adcockj
-// Prelimainary support for CX2388X based cards
-//
-// Revision 1.87  2002/09/06 15:08:10  kooiman
-// Mixer lines now source dependent.
-//
-// Revision 1.86  2002/08/29 23:53:40  lindsey
-// Added video mode setting to temporal comb filter
-//
-// Revision 1.85  2002/08/17 11:42:06  kooiman
-// Applied LogoKiller Filter Smoothing option from Jochen Trenner.
-//
-// Revision 1.84  2002/08/16 18:46:34  kooiman
-// Added setting entry for optional screen update delay during tuner frequency switch.
-//
-// Revision 1.83  2002/08/12 19:52:14  laurentg
-// Selection of video card to adjust DScaler settings
-//
-// Revision 1.82  2002/08/11 16:08:20  laurentg
-// New setting to choose between keep CPU for other applications or use full CPU for best results
-//
-// Revision 1.81  2002/08/09 13:27:54  laurentg
-// Processor speed and trade off settings moved from BT source settings to DScaler settings
-//
-// Revision 1.80  2002/08/07 19:13:23  adcockj
-// Added Colour Inversion Filter
-//
-// Revision 1.79  2002/08/07 09:42:12  kooiman
-// Add settings for 'save per channel'
-//
-// Revision 1.78  2002/08/07 00:47:30  lindsey
-// Added a switch for the use of prefetching in the temporal noise filter.
-//
-// Revision 1.77  2002/08/06 22:18:08  lindsey
-// Added constants for a prefetch option with many of the filters
-//
-// Revision 1.76  2002/08/03 00:16:01  laurentg
-// Value for WM_DI_TOMSMOCOMP_SETVALUE and WM_DI_TOMSMOCOMP_CHANGEVALUE updated to avoid conflicts
-//
-// Revision 1.75  2002/07/25 20:41:46  laurentg
-// Setting added to take still always in the same file
-//
-// Revision 1.74  2002/07/24 21:37:00  laurentg
-// Take cyclic stills
-//
-// Revision 1.73  2002/07/20 13:01:06  laurentg
-// New setting for vertical mirror
-//
-// Revision 1.72  2002/07/20 10:26:34  laurentg
-// New settings to select the wished OSD screens
-//
-// Revision 1.71  2002/07/19 15:25:09  laurentg
-// New settings (other settings) added in the tree settings + related menu items deleted
-//
-// Revision 1.70  2002/07/08 17:44:58  adcockj
-// Corrected Settings messages
-//
-// Revision 1.69  2002/07/08 13:53:35  trbarry
-// First cut at motion compensated deinterlace
-//
-// Revision 1.68  2002/07/02 20:00:05  adcockj
-// New setting for MSP input pin selection
-//
-// Revision 1.67  2002/06/24 21:45:42  laurentg
-// New option to use or not WSS data when doing AR detection
-//
-// Revision 1.66  2002/06/20 20:00:42  robmuller
-// Implemented videotext search highlighting.
-//
-// Revision 1.65  2002/06/18 19:46:05  adcockj
-// Changed appliaction Messages to use WM_APP instead of WM_USER
-//
-// Revision 1.64  2002/06/13 11:24:32  robmuller
-// Channel enter time is now configurable.
-//
-// Revision 1.63  2002/06/13 10:40:37  robmuller
-// Made anti plop mute delay configurable.
-//
-// Revision 1.62  2002/06/06 12:48:18  robmuller
-// Added settings for the Mirror filter.
-//
-// Revision 1.61  2002/06/05 20:53:49  adcockj
-// Default changes and settings fixes
-//
-// Revision 1.60  2002/05/29 18:44:56  robmuller
-// Added option to disable font anti-aliasing in Teletext.
-//
-// Revision 1.59  2002/05/27 20:17:05  robmuller
-// Patch #561180  by PietOO:
-// Autodetection of teletext code page.
-//
-// Revision 1.58  2002/05/26 09:21:48  robmuller
-// Patch #560680 by PietOO:
-// Added option to disable screensaver.
-//
-// Revision 1.57  2002/05/03 11:15:46  laurentg
-// New settings added to define the size of the pattern
-//
-// Revision 1.56  2002/05/02 20:13:35  laurentg
-// JPEG quality setting added
-//
-// Revision 1.55  2002/04/28 16:41:16  laurentg
-// New setting for aspect ratio detect
-//
-// Revision 1.54  2002/04/27 16:06:15  laurentg
-// Initial source
-//
-// Revision 1.53  2002/04/07 10:37:53  adcockj
-// Made audio source work per input
-//
-// Revision 1.52  2002/02/27 20:41:08  laurentg
-// Still settings
-//
-// Revision 1.51  2002/02/16 00:20:20  lindsey
-// Added constants for FLT_Histogram
-//
-// Revision 1.50  2002/02/09 02:48:14  laurentg
-// Overscan now stored in a setting of the source
-//
-// Revision 1.49  2002/02/01 20:25:24  robmuller
-// Added new option to FLT_TNoise.
-//
-// Revision 1.48  2002/01/22 14:50:10  robmuller
-// Added keyboard lock option.
-//
-// Revision 1.47  2002/01/05 23:05:39  lindsey
-// Consolidated two settings into one from FLT_TemporalComb
-//
-// Revision 1.46  2001/12/31 00:55:55  lindsey
-// Added settings for FLT_AdaptiveNoise
-//
-// Revision 1.45  2001/12/23 00:51:55  lindsey
-// Added constants for Gradual Noise filter
-//
-// Revision 1.44  2001/12/16 17:04:37  adcockj
-// Debug Log improvements
-//
-// Revision 1.43  2001/11/26 12:26:07  trbarry
-// Missed update first commit?
-//
-// Revision 1.42  2001/11/02 10:45:29  adcockj
-// Merge in code from Multiple card branch
-//
-// Revision 1.41  2001/10/18 16:20:39  adcockj
-// Made Color of blanking adjustable
-//
-// Revision 1.40  2001/09/25 22:24:04  laurentg
-// New control settings for calibration
-//
-// Revision 1.39  2001/09/12 14:32:45  tobbej
-// fix for invalid DEINTERLACE_METHOD.nSettings (nSettings was more that the real number of settings)
-//
-// Revision 1.38  2001/08/30 10:06:29  adcockj
-// Added support for extra settings in DI_OldGamne and FLT_TemporalComb
-//
-// Revision 1.37  2001/08/23 06:48:57  adcockj
-// Fixed control header for TemporalComb filter
-//
-// Revision 1.36  2001/08/15 17:45:41  laurentg
-// UseRGB ini parameter suppressed
-//
-// Revision 1.35  2001/08/14 11:36:03  adcockj
-// Mixer change to allow restore of initial mixer settings
-//
-// Revision 1.34.2.3  2001/08/21 16:42:15  adcockj
-// Per format/input settings and ini file fixes
-//
-// Revision 1.34.2.2  2001/08/20 16:14:18  adcockj
-// Massive tidy up of code to new structure
-//
-// Revision 1.34.2.1  2001/08/17 16:35:13  adcockj
-// Another interim check-in still doesn't compile. Getting closer ...
-//
-// Revision 1.34  2001/08/09 21:34:59  adcockj
-// Fixed bugs raise by Timo and Keld
-//
-// Revision 1.33  2001/08/08 08:54:31  adcockj
-// Added Delay option to film modes
-// Switched comb modes to use greedy (low) on bad cadence instead of doings it's own thing
-//
-// Revision 1.32  2001/08/06 22:33:48  laurentg
-// Little improvments for AR autodetection
-//
-// Revision 1.31  2001/08/03 12:27:41  adcockj
-// Added sharpness filter
-//
-// Revision 1.30  2001/08/02 16:43:05  adcockj
-// Added Debug level to LOG function
-//
-// Revision 1.29  2001/07/30 12:18:14  adcockj
-// Added new OldGame plug-in
-//
-// Revision 1.28  2001/07/27 16:11:31  adcockj
-// Added support for new Crash dialog
-//
-// Revision 1.27  2001/07/27 12:30:09  adcockj
-// Added Overlay Color controls (Thanks to Muljadi Budiman)
-//
-// Revision 1.26  2001/07/26 21:59:15  laurentg
-// New entry in OSD section of ini file
-//
-// Revision 1.25  2001/07/25 12:04:31  adcockj
-// Moved Control stuff into DS_Control.h
-// Added $Id and $Log to comment blocks as per standards
-//
-// Revision 1.24  2001/07/13 18:13:24  adcockj
-// Changed Mute to not be persisted and to work properly
-//
-// Revision 1.23  2001/07/13 16:15:43  adcockj
-// Changed lots of variables to match Coding standards
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #ifndef __DS_CONTROL_H___
 #define __DS_CONTROL_H___
@@ -637,7 +127,7 @@ enum eVideoFormat
     VIDEOFORMAT_NTSC_M_Japan,
     VIDEOFORMAT_NTSC_50,
 
-	VIDEOFORMAT_LAST_TV,
+    VIDEOFORMAT_LAST_TV,
 
     // used on CWCEC Atlas card
     VIDEOFORMAT_RGB_640X480_60 = VIDEOFORMAT_LAST_TV,
@@ -742,7 +232,7 @@ typedef enum
     MASKGREYSHADE,
     USEWSS,
     DEFAULTSOURCEASPECT,
-	DEFAULTASPECTMODE,
+    DEFAULTASPECTMODE,
     ASPECT_SETTING_LASTONE,
 } ASPECT_SETTING;
 
@@ -881,7 +371,7 @@ typedef enum
     DISPLAYSPLASHSCREEN,
     AUTOHIDECURSOR,
     LOCKKEYBOARD,
-	LOCKKEYBOARDMAINWINDOWONLY,
+    LOCKKEYBOARDMAINWINDOWONLY,
     SCREENSAVEROFF,
     AUTOCODEPAGE,
     VTANTIALIAS,
@@ -891,17 +381,17 @@ typedef enum
     TRADEOFF,
     FULLCPU,
     VIDEOCARD,
-	REVERSECHANNELSCROLLING,
+    REVERSECHANNELSCROLLING,
     SINGLEKEYTELETEXTTOGGLE,
-	MINTOTRAY,
-	MINIMIZEHANDLING,
-	RESOFULLSCREEN,
-	PSTRIPRESO576I,
-	PSTRIPRESO480I,
-	SKINNAME,
-	CHANNELPREVIEWWNBCOLS,
-	CHANNELPREVIEWNBROWS,
-	OUTPUTMETHOD,
+    MINTOTRAY,
+    MINIMIZEHANDLING,
+    RESOFULLSCREEN,
+    PSTRIPRESO576I,
+    PSTRIPRESO480I,
+    SKINNAME,
+    CHANNELPREVIEWWNBCOLS,
+    CHANNELPREVIEWNBROWS,
+    OUTPUTMETHOD,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 
@@ -1156,7 +646,7 @@ typedef enum
     OSD_USE_STATISTICS_SCREEN,
     OSD_USE_WSS_SCREEN,
     OSD_USE_DEVELOPER_SCREEN,
-	OSD_FONT,
+    OSD_FONT,
     OSD_SETTING_LASTONE,
 } OSD_SETTING;
 #define WM_OSD_GETVALUE     (WM_APP + 18)
@@ -1267,7 +757,7 @@ typedef enum
     MIXERRESETONEXIT,
     INPUT5INDEX,
     INPUT6INDEX,    
-	MIXERNAME,
+    MIXERNAME,
     NOHARDWAREMUTE,
     MIXERDEV_SETTING_LASTONE,
 } MIXERDEV_SETTING;
@@ -1289,8 +779,8 @@ typedef enum
     SLEEPINTERVAL,
     SLEEPSKIPFIELDS,
     SLEEPSKIPFIELDSLATE,
-	MAXFIELDSHIFT,
-	ALWAYSSLEEP,
+    MAXFIELDSHIFT,
+    ALWAYSSLEEP,
     GIVEUPPROCDURINGJT,
     TIMING_SETTING_LASTONE,
 } TIMING_SETTING;
@@ -1322,7 +812,7 @@ typedef enum
 
 typedef enum
 {
-	SYSTEMINMUTE = 0,
+    SYSTEMINMUTE = 0,
     AUDIO_SETTING_LASTONE,
 } AUDIO_SETTING;
   
@@ -1339,7 +829,7 @@ typedef enum
     DEBUGLOG = 0,
     DEBUGLEVEL,
     DEBUGFLUSHAFTERWRITE,
-	DEBUGLOGFILE,
+    DEBUGLOGFILE,
     DEBUG_SETTING_LASTONE,
 } DEBUG_SETTING;
 
@@ -1359,8 +849,8 @@ typedef enum
     LOGOKILL_HEIGHT,
     LOGOKILL_MODE,
     LOGOKILL_MAX,
-	LOGOKILL_USE_SMOOTHING,
-	LOGOKILL_SMOOTHING_AMOUNT,
+    LOGOKILL_USE_SMOOTHING,
+    LOGOKILL_SMOOTHING_AMOUNT,
     USELOGOKILL,
     FLT_LOGOKILL_SETTING_LASTONE,
 } FLT_LOGOKILL_SETTING;
@@ -1397,27 +887,27 @@ typedef enum
 
 typedef enum
 {
-	GR_MAX_COMB = 0,
-	GR_MOTION_THRESHOLD,
-	GR_MOTION_SENSE,
-	GR_GOOD_PULLDOWN_LVL,
-	GR_BAD_PULLDOWN_LVL,
-	GR_H_SHARPNESS,			
-	GR_V_SHARPNESS,			
-	GR_MEDIAN_FILTER,
-	GR_LOW_MOTION_PD_LVL,
-	GR_USE_PULLDOWN,
-	GR_USE_IN_BETWEEN,
-	GR_USE_MEDIAN_FILTER,
-	GR_USE_V_SHARPNESS,
-	GR_USE_H_SHARPNESS,
-//	GR_USE_LOW_MOTION_ONLY, 
-	DI_GREEDYH_SETTING_LASTONE,
+    GR_MAX_COMB = 0,
+    GR_MOTION_THRESHOLD,
+    GR_MOTION_SENSE,
+    GR_GOOD_PULLDOWN_LVL,
+    GR_BAD_PULLDOWN_LVL,
+    GR_H_SHARPNESS,            
+    GR_V_SHARPNESS,            
+    GR_MEDIAN_FILTER,
+    GR_LOW_MOTION_PD_LVL,
+    GR_USE_PULLDOWN,
+    GR_USE_IN_BETWEEN,
+    GR_USE_MEDIAN_FILTER,
+    GR_USE_V_SHARPNESS,
+    GR_USE_H_SHARPNESS,
+//    GR_USE_LOW_MOTION_ONLY, 
+    DI_GREEDYH_SETTING_LASTONE,
 } DI_GREEDYH_SETTING;
 
-#define WM_DI_GREEDYH_GETVALUE		(WM_APP + 32)
-#define WM_DI_GREEDYH_SETVALUE		(WM_APP + 132)
-#define WM_DI_GREEDYH_CHANGEVALUE	(WM_APP + 232)
+#define WM_DI_GREEDYH_GETVALUE        (WM_APP + 32)
+#define WM_DI_GREEDYH_SETVALUE        (WM_APP + 132)
+#define WM_DI_GREEDYH_CHANGEVALUE    (WM_APP + 232)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_OldGame.c
@@ -1462,7 +952,7 @@ typedef enum
     TCOMB_SHIMMER_PERCENT,
     TCOMB_ACTIVATE,
     TCOMB_TRADE_SPEED_FOR_ACCURACY,
-	TCOMB_VIDOE_MODE,
+    TCOMB_VIDOE_MODE,
     FLT_TCOMB_SETTING_LASTONE,
 } FLT_TCOMB_SETTING;
 
@@ -1577,12 +1067,12 @@ typedef enum
     SAVEINSAMEFILE,
     STILLSINMEMORY,
     NBCONSECUTIVESTILLS,
-	KEEPORIGINALRATIO,
-	OSDFORSTILLS,
-	STILLPREVIEWWNBCOLS,
-	STILLPREVIEWNBROWS,
-	MAXMEMFORSTILLS,
-	SAVINGPATH,
+    KEEPORIGINALRATIO,
+    OSDFORSTILLS,
+    STILLPREVIEWWNBCOLS,
+    STILLPREVIEWNBROWS,
+    MAXMEMFORSTILLS,
+    SAVINGPATH,
     STILL_SETTING_LASTONE,
 } STILL_SETTING;
 
@@ -1792,15 +1282,15 @@ typedef enum
     SAA7134VBIDEBUGOVERLAY,
     SAA7134AUTOMATICGAINCONTROL,
     SAA7134GAINCONTROLLEVEL,
-	SAA7134GAMMACONTROL,
-	SAA7134GAMMALEVEL,
+    SAA7134GAMMACONTROL,
+    SAA7134GAMMALEVEL,
     SAA7134VIDEOMIRROR,
     SAA7134AUDIOLINE1VOLTAGE,
     SAA7134AUDIOLINE2VOLTAGE,
     SAA7134BOTTOMOVERSCAN,
     SAA7134LEFTOVERSCAN,
     SAA7134RIGHTOVERSCAN,
-	SAA7134CARDNAME,
+    SAA7134CARDNAME,
     SAA7134_SETTING_LASTONE,
 } SAA7134_SETTING;
 
@@ -1877,7 +1367,7 @@ typedef enum
 typedef enum
 {
     USE_DSVIDEO = 0,
-	DSV_LINE,
+    DSV_LINE,
     DSV_PLOTIINTENSITYINVERT,
     DSV_Y_SCALE,
     DSV_Y1_BASELINE,
@@ -1901,7 +1391,7 @@ typedef enum
 typedef enum
 {
     USELUMINCHROMASHIFT = 0,
-	SHIFTVALUE,
+    SHIFTVALUE,
     FLT_LUMINCHROMASHIFT_SETTING_LASTONE,
 } FLT_LUMINCHROMASHIFT_SETTING;
 
@@ -1931,13 +1421,13 @@ typedef enum
 typedef enum
 {
     EPG_PERCENTAGESIZE,
-	EPG_TIMEFRAMEDURATION,
-	EPG_NXTVEPGPATH,
-	EPG_CHANNELFILTERING,
-	EPG_MAXCHARSPERLINE,
-	EPG_NXTVEPGPROVIDER,
-	EPG_SORTING,
-	EPG_TOGGLEBUTTONS,
+    EPG_TIMEFRAMEDURATION,
+    EPG_NXTVEPGPATH,
+    EPG_CHANNELFILTERING,
+    EPG_MAXCHARSPERLINE,
+    EPG_NXTVEPGPROVIDER,
+    EPG_SORTING,
+    EPG_TOGGLEBUTTONS,
     EPG_SETTING_LASTONE,
 } EPG_SETTING;
 

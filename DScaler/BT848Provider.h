@@ -36,14 +36,13 @@
 class CBT848Provider : public ISourceProvider
 {
 public:
-    CBT848Provider(CHardwareDriver* pHardwareDriver);
-    virtual ~CBT848Provider();
+    CBT848Provider(SmartPtr<CHardwareDriver> pHardwareDriver);
     int GetNumberOfSources();
-    CSource* GetSource(int SourceIndex);
+    SmartPtr<CSource> GetSource(int SourceIndex);
 private:
     ///  uses the subsystem id to determin the correct source to create
-    CBT848Source* CreateCorrectSource(
-                                        CHardwareDriver* pHardwareDriver, 
+    SmartPtr<CBT848Source> CreateCorrectSource(
+                                        SmartPtr<CHardwareDriver> pHardwareDriver, 
                                         LPCSTR szSection, 
                                         WORD VendorID, 
                                         WORD DeviceID, 
@@ -51,15 +50,14 @@ private:
                                         DWORD SubSystemId,
                                         char* ChipName);
     /// creates the system accesable memory to be used by all cards
-    BOOL MemoryInit(CHardwareDriver* pHardwareDriver);
-    void MemoryFree();
-    vector<CBT848Source*> m_BT848Sources;
+    BOOL MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver);
+    vector< SmartPtr<CBT848Source> > m_BT848Sources;
     /// Memory used for the RISC code
-    CContigMemory* m_RiscDMAMem;
+    SmartPtr<CContigMemory> m_RiscDMAMem;
     /// Memory used for VBI
-    CUserMemory* m_VBIDMAMem[5];
+    SmartPtr<CUserMemory> m_VBIDMAMem[5];
     /// Memory used for captured frames
-    CUserMemory* m_DisplayDMAMem[5];
+    SmartPtr<CUserMemory> m_DisplayDMAMem[5];
 };
 
 #endif

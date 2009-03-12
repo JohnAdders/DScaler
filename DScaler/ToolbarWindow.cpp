@@ -788,10 +788,10 @@ void CToolbarWindow::PaintChildBG(HWND hWndChild, HDC hDC, LPRECT lpRect)
     }
 }
 
-BOOL CToolbarWindow::LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache)
+BOOL CToolbarWindow::LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results)
 {
     bChildOrderChanged = TRUE;
-    return CWindowBorder::LoadSkin(szSkinIniFile, szSection, Results, pBitmapCache);
+    return CWindowBorder::LoadSkin(szSkinIniFile, szSection, Results);
 }
 
 void CToolbarWindow::ClearSkin()
@@ -1037,7 +1037,7 @@ HWND CToolbarChild::CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst
 
 
 
-BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache)
+BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile)
 {
     vector<string>States;
     if (ButtonType == BITMAPASBUTTON_PUSH)
@@ -1099,9 +1099,9 @@ BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBit
     {
         BitmapsFromIniSection.Register(States[i]);   
     }
-    BitmapsFromIniSection.Read(sIniFile, sSection, "Bitmap", "Mask", pBitmapCache);
+    BitmapsFromIniSection.Read(sIniFile, sSection, "Bitmap", "Mask");
     
-    if ((hWndItem != NULL) && (BitmapsFromIniSection.Get(sIniEntry) != NULL))
+    if ((hWndItem != NULL) && (BitmapsFromIniSection.Get(sIniEntry)))
     {
         CBitmapAsButton *Button = NULL;
         int i;
@@ -1125,7 +1125,7 @@ BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBit
 
         for (i = 0 ; i < States.size(); i++)
         {
-            Button->AddBitmap(i, BitmapsFromIniSection.Get(States[i]), BitmapsFromIniSection.GetMask(States[i]));
+            Button->AddBitmap(i, BitmapsFromIniSection.Get(States[i]));
         }
         
         if (Button->TakeOver(hWndItem, sID.c_str(), hWnd))
@@ -1166,13 +1166,13 @@ BOOL CToolbarChild::RemoveSkin(string sID)
     return TRUE;
 }
 
-BOOL CToolbarChild::SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache)
+BOOL CToolbarChild::SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile)
 {
     HWND hWndItem = GetDlgItem(hWnd, uItemID); 
     char szID[20];
     sprintf(szID,"#%u", uItemID);
     
-    return SkinWindow(hWndItem, szID, sIniEntry, ButtonType, sSection, sIniFile, pBitmapCache);
+    return SkinWindow(hWndItem, szID, sIniEntry, ButtonType, sSection, sIniFile);
 }
 
 BOOL CToolbarChild::RemoveSkinDlgItem(UINT uItemID)

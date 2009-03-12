@@ -139,7 +139,7 @@ BOOL CBitmapAsButton::Create(string sID, HWND hWndParent, int x, int y, HINSTANC
             ButtonWidth=m_bhBmp.Width(0);
             ButtonHeight=m_bhBmp.Height(0);
             SetWindowPos(hWndButton, NULL, 0,0, ButtonWidth, ButtonHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);            
-            SetRegion(0);
+            SetRegion();
         }        
     }
     
@@ -193,7 +193,7 @@ BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, string sID, HWND hWndParent )
             }
         }
         SetWindowPos(hWndButton, NULL, 0,0, ButtonWidth, ButtonHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);            
-        SetRegion(0);    
+        SetRegion();    
     }        
     if (this->pOriginalProc == NULL)
     {
@@ -229,11 +229,11 @@ BOOL CBitmapAsButton::RestoreBack(HWND hWnd)
     return FALSE;
 }
 
-HRGN CBitmapAsButton::SetRegion(int State)
+HRGN CBitmapAsButton::SetRegion()
 {
     if (hWndButton != NULL)
     {
-        HRGN hRgn = m_bhBmp.GetWindowRegion(State);        
+        HRGN hRgn = m_bhBmp.GetWindowRegion();        
         SetWindowRgn(hWndButton, hRgn, TRUE);
         return hRgn;
     }
@@ -241,9 +241,9 @@ HRGN CBitmapAsButton::SetRegion(int State)
 }
 
 // Add bitmaps
-void CBitmapAsButton::AddBitmap(int State, HBITMAP hBmp, HBITMAP hBmpMask, BOOL bDeleteBitmapOnExit)
+void CBitmapAsButton::AddBitmap(int State, SmartPtr<CBitmapState> BitmapState)
 {
-    m_bhBmp.Add(hBmp, hBmpMask, State, bDeleteBitmapOnExit);    
+    m_bhBmp.Add(BitmapState, State);    
     if (State == 0)
     {
         int NewWidth = m_bhBmp.Width(State);
@@ -263,7 +263,7 @@ void CBitmapAsButton::AddBitmap(int State, HBITMAP hBmp, HBITMAP hBmpMask, BOOL 
             }
             SetWindowPos(hWndButton, NULL, 0,0, ButtonWidth, ButtonHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);            
         }
-        SetRegion(0);
+        SetRegion();
     }
 }
 

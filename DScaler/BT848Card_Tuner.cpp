@@ -45,11 +45,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     BOOL LookForIFDemod = FALSE;
 
     // clean up if we get called twice
-    if(m_Tuner != NULL)
-    {
-        delete m_Tuner;
-        m_Tuner = NULL;
-    }
+    m_Tuner = 0L;
 
     switch (tunerId)
     {
@@ -104,7 +100,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
 
 
     // Look for possible external IF demodulator
-    IExternalIFDemodulator *pExternalIFDemodulator = NULL;
+    SmartPtr<IExternalIFDemodulator> pExternalIFDemodulator;
     if (LookForIFDemod)
     {
         switch (m_CardType)
@@ -148,7 +144,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
 
     // Detect and attach IF demodulator to the tuner
     //  or delete the demodulator if the chip doesn't exist.
-    if (pExternalIFDemodulator != NULL)
+    if (pExternalIFDemodulator)
     {
         if (pExternalIFDemodulator->SetDetectedI2CAddress(m_I2CBus))
         {
@@ -159,8 +155,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
         {
             // if didn't find anything then
             // need to delete the instance
-            delete pExternalIFDemodulator;
-            pExternalIFDemodulator = NULL;
+            pExternalIFDemodulator = 0L;
         }
     }
 
@@ -187,7 +182,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
         }
     }
 
-    if (pExternalIFDemodulator != NULL)
+    if (pExternalIFDemodulator)
     {
         //End initialization
         pExternalIFDemodulator->Init(FALSE, videoFormat);
@@ -196,17 +191,16 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     if (!bFoundTuner)
     {
         LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF");
-
-        delete m_Tuner;
         m_Tuner = new CNoTuner();
         strcpy(m_TunerType, "None ");
     }
     return bFoundTuner;
 }
 
-ITuner* CBT848Card::GetTuner() const
+SmartPtr<ITuner> CBT848Card::GetTuner() const
 {
-    return m_Tuner;
+    SmartPtr<ITuner> retVal(m_Tuner);
+    return retVal;
 }
 
 #endif // WANT_BT8X8_SUPPORT

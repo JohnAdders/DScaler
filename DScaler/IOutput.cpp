@@ -87,3 +87,5 @@ void SetActiveOutput(IOutput::OUTPUTTYPES eType)
         ActiveOutput = &D3D9OutputInstance;
     }
 }
+
+

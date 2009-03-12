@@ -9065,6 +9065,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SmartHandle.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SmartPtr.h"
+				>
+			</File>
+			<File
 				RelativePath="SoundChannel.h"
 				>
 			</File>

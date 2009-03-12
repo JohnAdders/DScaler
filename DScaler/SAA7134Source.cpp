@@ -58,7 +58,7 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTableDMAMem[4], CUserMemory* DisplayDMAMem[2], CUserMemory* VBIDMAMem[2], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
+CSAA7134Source::CSAA7134Source(SmartPtr<CSAA7134Card> pSAA7134Card, SmartPtr<CContigMemory> PageTableDMAMem[4], SmartPtr<CUserMemory> DisplayDMAMem[2], SmartPtr<CUserMemory> VBIDMAMem[2], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
     CSource(WM_SAA7134_GETVALUE, IDC_SAA7134),
     m_pSAA7134Card(pSAA7134Card),
     m_CurrentX(768),
@@ -130,7 +130,6 @@ CSAA7134Source::~CSAA7134Source()
 
     // SAA7134 reserves input -1 as the clean up indicator
     m_pSAA7134Card->SetVideoSource(-1);
-    delete m_pSAA7134Card;
 }
 
 void CSAA7134Source::SetSourceAsCurrent()
@@ -546,7 +545,7 @@ DWORD CSAA7134Source::CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWante
 }
 
 
-CSAA7134Card* CSAA7134Source::GetCard()
+SmartPtr<CSAA7134Card> CSAA7134Source::GetCard()
 {
     return m_pSAA7134Card;
 }
@@ -1265,7 +1264,7 @@ BOOL CSAA7134Source::InputHasTuner(eSourceInputType InputType, int Nr)
 }
 
 
-ITuner* CSAA7134Source::GetTuner()
+SmartPtr<ITuner> CSAA7134Source::GetTuner()
 {
     return m_pSAA7134Card->GetTuner();
 }

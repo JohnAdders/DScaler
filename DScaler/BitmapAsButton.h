@@ -125,9 +125,9 @@ public:
     int Height() { return ButtonHeight; }
     string GetID() { return sID; }
 
-    void AddBitmap(int State, HBITMAP hBmp, HBITMAP hBmpMask, BOOL bDeleteBitmapOnExit = FALSE);
+    void AddBitmap(int State, SmartPtr<CBitmapState> BitmapState);
 
-    HRGN SetRegion(int State);
+    HRGN SetRegion();
     
     void SetProcessMessage(void *pThis, BUTTONPROC* pfnButtonProc) 
     { 

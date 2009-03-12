@@ -57,12 +57,6 @@ CStillProvider::CStillProvider()
 
 CStillProvider::~CStillProvider()
 {
-    for(vector<CStillSource*>::iterator it = m_StillSources.begin();
-        it != m_StillSources.end();
-        ++it)
-    {
-        delete *it;
-    }
 }
 
 int CStillProvider::GetNumberOfSources()
@@ -71,7 +65,7 @@ int CStillProvider::GetNumberOfSources()
 }
 
 
-CSource* CStillProvider::GetSource(int SourceIndex)
+SmartPtr<CSource> CStillProvider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_StillSources.size())
     {

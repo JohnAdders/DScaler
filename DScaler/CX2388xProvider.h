@@ -41,10 +41,10 @@ public:
     CCX2388xProvider(CHardwareDriver* pHardwareDriver);
     virtual ~CCX2388xProvider();
     int GetNumberOfSources();
-    CSource* GetSource(int SourceIndex);
+    SmartPtr<CSource> GetSource(int SourceIndex);
 private:
     ///  uses the subsystem id to determin the correct source to create
-    CCX2388xSource* CreateCorrectSource(
+    SmartPtr<CCX2388xSource> CreateCorrectSource(
                                         CHardwareDriver* pHardwareDriver, 
                                         LPCSTR szSection, 
                                         WORD VendorID, 
@@ -54,13 +54,13 @@ private:
     /// creates the system accesable memory to be used by all cards
     BOOL MemoryInit(CHardwareDriver* pHardwareDriver);
     void MemoryFree();
-    vector<CCX2388xSource*> m_Sources;
+    vector< SmartPtr<CCX2388xSource> > m_Sources;
     /// Memory used for the RISC code
-    CContigMemory* m_RiscDMAMem;
+    SmartPtr<CContigMemory> m_RiscDMAMem;
     /// Memory used for captured frames
-    CUserMemory* m_DisplayDMAMem[5];
+    SmartPtr<CUserMemory> m_DisplayDMAMem[5];
     /// Memory used for VBI
-    CUserMemory* m_VBIDMAMem[5];
+    SmartPtr<CUserMemory> m_VBIDMAMem[5];
 };
 
 #endif

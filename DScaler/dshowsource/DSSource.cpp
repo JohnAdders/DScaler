@@ -80,7 +80,8 @@ CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
     CDSSourceBase(0,IDC_DSHOWSOURCEMENU),
     m_Device(device),
     m_DeviceName(deviceName),
-    m_HaveInputList(FALSE)
+    m_HaveInputList(FALSE),
+    m_Tuner(new CDummyTuner)
 {
     m_IDString = std::string("DS_") + device;
     CreateSettings(device.c_str());
@@ -737,9 +738,9 @@ BOOL CDSCaptureSource::IsInTunerMode()
     return FALSE;
 }
 
-ITuner* CDSCaptureSource::GetTuner()
+SmartPtr<ITuner> CDSCaptureSource::GetTuner()
 {
-    return &m_Tuner;
+    return m_Tuner;
 }
 
 AnalogVideoStandard CDSCaptureSource::ConvertVideoStd(eVideoFormat fmt)

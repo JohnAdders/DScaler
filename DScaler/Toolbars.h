@@ -141,7 +141,7 @@ public:
     ~CToolbar1Bar();
     HWND Create(LPCSTR lpClassName, HINSTANCE hResourceInst);
     LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
-    BOOL LoadSkin(const char *szSkinIniFile, const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache);
+    BOOL LoadSkin(const char *szSkinIniFile, const char *szSection, vector<int> *Results);
     void ClearSkin();
     void Reset();
     HWND GethWndPicture() { return hWndPicture; }

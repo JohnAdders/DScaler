@@ -307,8 +307,6 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
         strcat(szSkinIniFile,"\\skin.ini");
         ///\todo check if the ini file exists
 
-        CBitmapCache BitmapCache;
-
         //Set default margin
         MarginsTop = MarginsDefault;
         MarginsBottom = MarginsDefault;
@@ -349,7 +347,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
         
         //Load border skin for main toolbar
         vector<int>Results;
-        Toolbar1->LoadSkin(szSkinIniFile,"Toolbar1",&Results, &BitmapCache);
+        Toolbar1->LoadSkin(szSkinIniFile,"Toolbar1",&Results);
         ///\todo Process errors
 
         //Load skin for toolbar separator window
@@ -359,7 +357,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
             {
                 char szID[40];
                 sprintf(szID,"Toolbar1Bar%d",i);
-                Toolbar1Bars[i]->SkinWindow(Toolbar1Bars[i]->GethWndPicture(), szID, "Bar", BITMAPASBUTTON_PUSH, "Toolbar1", szSkinIniFile, &BitmapCache);                
+                Toolbar1Bars[i]->SkinWindow(Toolbar1Bars[i]->GethWndPicture(), szID, "Bar", BITMAPASBUTTON_PUSH, "Toolbar1", szSkinIniFile);                
                 InvalidateRect(Toolbar1Bars[i]->GethWnd(), NULL, FALSE);
             }
         }
@@ -367,35 +365,35 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
         //Load skins for controls in subbar
         if (Toolbar1Channels != NULL)
         {
-            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_SPINUP, "SpinUp", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile, &BitmapCache);
-            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_SPINDOWN, "SpinDown", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile, &BitmapCache);
-            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_PREVIOUS, "Previous", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile, &BitmapCache);
+            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_SPINUP, "SpinUp", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile);
+            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_SPINDOWN, "SpinDown", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile);
+            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_PREVIOUS, "Previous", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile);
             Toolbar1Channels->Reset();
             InvalidateRect(Toolbar1Channels->GethWnd(), NULL, FALSE);
         }
 
         if (Toolbar1Volume != NULL)
         {
-            Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_MUTE, "Mute", BITMAPASBUTTON_CHECKBOX, "VolumeBar", szSkinIniFile, &BitmapCache);
-            Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_SLIDER, "Volume", BITMAPASBUTTON_SLIDER, "VolumeBar", szSkinIniFile, &BitmapCache);
-            Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_CHANNEL, "SoundChannel", BITMAPASBUTTON_4STATE, "VolumeBar", szSkinIniFile, &BitmapCache);
+            Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_MUTE, "Mute", BITMAPASBUTTON_CHECKBOX, "VolumeBar", szSkinIniFile);
+            Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_SLIDER, "Volume", BITMAPASBUTTON_SLIDER, "VolumeBar", szSkinIniFile);
+            Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_CHANNEL, "SoundChannel", BITMAPASBUTTON_4STATE, "VolumeBar", szSkinIniFile);
             Toolbar1Volume->Reset();
             InvalidateRect(Toolbar1Volume->GethWnd(), NULL, FALSE);
         }      
         
         if (Toolbar1MediaPlayer != NULL)
         {
-            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PLAY, "Play", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
-            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PAUSE, "Pause", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
-            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_STOP, "Stop", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
-            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER, "ElapsedTime", BITMAPASBUTTON_SLIDER, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
+            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PLAY, "Play", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile);
+            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PAUSE, "Pause", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile);
+            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_STOP, "Stop", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile);
+            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER, "ElapsedTime", BITMAPASBUTTON_SLIDER, "MediaPlayerBar", szSkinIniFile);
             Toolbar1MediaPlayer->Reset();
             InvalidateRect(Toolbar1MediaPlayer->GethWnd(), NULL, FALSE);
         }      
         
         if (Toolbar1Logo != NULL)
         {
-            Toolbar1Logo->SkinDlgItem(IDC_TOOLBAR_LOGO_LOGO, "Logo", BITMAPASBUTTON_PUSH, "LogoBar", szSkinIniFile, &BitmapCache);            
+            Toolbar1Logo->SkinDlgItem(IDC_TOOLBAR_LOGO_LOGO, "Logo", BITMAPASBUTTON_PUSH, "LogoBar", szSkinIniFile);            
             Toolbar1Logo->Reset();
             InvalidateRect(Toolbar1Logo->GethWnd(), NULL, FALSE);
         }

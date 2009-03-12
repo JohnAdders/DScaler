@@ -66,24 +66,12 @@ TSAA7134Chip SAA7134Chips[] =
     }
 };
 
-CSAA7134Provider::CSAA7134Provider(CHardwareDriver* pHardwareDriver)
+CSAA7134Provider::CSAA7134Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
 {
     char szSection[12];
     DWORD SubSystemId;
     BOOL IsMemoryInitialized = FALSE;
     int i;
-
-    for (i = 0; i < kMAX_PAGETABLES; i++)
-    {
-        m_PageTableDMAMem[i] = NULL;
-    }
-
-    for(i = 0; i < kMAX_FRAMEBUFFERS; ++i)
-    {
-        m_VBIDMAMem[i] = NULL;
-        m_DisplayDMAMem[i] = NULL;
-
-    }
 
     for(i = 0; i < sizeof(SAA7134Chips)/sizeof(TSAA7134Chip); ++i)
     {
@@ -107,7 +95,7 @@ CSAA7134Provider::CSAA7134Provider(CHardwareDriver* pHardwareDriver)
             }
 
             sprintf(szSection, "%s%d", SAA7134Chips[i].szName, CardsFound + 1);
-            CSAA7134Source* pNewSource = CreateCorrectSource(
+            SmartPtr<CSAA7134Source> pNewSource = CreateCorrectSource(
                                                                 pHardwareDriver,
                                                                 szSection,
                                                                 SAA7134Chips[i].VendorId,
@@ -116,7 +104,7 @@ CSAA7134Provider::CSAA7134Provider(CHardwareDriver* pHardwareDriver)
                                                                 SubSystemId,
                                                                 SAA7134Chips[i].szName
                                                           );
-            if(pNewSource != NULL)
+            if(pNewSource)
             {
                 m_SAA7134Sources.push_back(pNewSource);
             }
@@ -127,30 +115,19 @@ CSAA7134Provider::CSAA7134Provider(CHardwareDriver* pHardwareDriver)
 
 CSAA7134Provider::~CSAA7134Provider()
 {
-    MemoryFree();
-    for(vector<CSAA7134Source*>::iterator it = m_SAA7134Sources.begin();
-        it != m_SAA7134Sources.end();
-        ++it)
-    {
-        delete *it;
-    }
 }
 
 
-CSAA7134Source* CSAA7134Provider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, char* ChipName)
+SmartPtr<CSAA7134Source> CSAA7134Provider::CreateCorrectSource(SmartPtr<CHardwareDriver> pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, char* ChipName)
 {
     /// \todo use the subsystem id to create the correct specilized version of the card
-    CSAA7134Card* pNewCard = new CSAA7134Card(pHardwareDriver);
+    SmartPtr<CSAA7134Card> pNewCard = new CSAA7134Card(pHardwareDriver);
+    SmartPtr<CSAA7134Source> pNewSource;
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
-        CSAA7134Source* pNewSource = new CSAA7134Source(pNewCard, m_PageTableDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection, ChipName, DeviceIndex);
-        return pNewSource;
+        pNewSource = new CSAA7134Source(pNewCard, m_PageTableDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection, ChipName, DeviceIndex);
     }
-    else
-    {
-        delete pNewCard;
-        return NULL;
-    }
+    return pNewSource;
 }
 
 
@@ -159,7 +136,7 @@ int CSAA7134Provider::GetNumberOfSources()
     return m_SAA7134Sources.size();
 }
 
-CSource* CSAA7134Provider::GetSource(int SourceIndex)
+SmartPtr<CSource> CSAA7134Provider::GetSource(int SourceIndex)
 {
     if (SourceIndex >= 0 && SourceIndex < (int)m_SAA7134Sources.size())
     {
@@ -171,7 +148,7 @@ CSource* CSAA7134Provider::GetSource(int SourceIndex)
     }
 }
 
-BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
+BOOL CSAA7134Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
 {
     try
     {
@@ -182,7 +159,6 @@ BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        MemoryFree();
         ErrorBox("Can't create PageTable Memory");
         return FALSE;
     }
@@ -198,7 +174,6 @@ BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        MemoryFree();
         ErrorBox("Can't create Display Memory");
         return FALSE;
     }
@@ -212,40 +187,11 @@ BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        MemoryFree();
         ErrorBox("Can't create Display Memory");
         return FALSE;
     }
 
     return TRUE;
-}
-
-void CSAA7134Provider::MemoryFree()
-{
-    int i;
-
-    for (i = 0; i < kMAX_PAGETABLES; i++)
-    {
-        if(m_PageTableDMAMem[i] != NULL)
-        {
-            delete m_PageTableDMAMem[i];
-            m_PageTableDMAMem[i] = NULL;
-        }
-    }
-
-    for (i = 0; i < kMAX_FRAMEBUFFERS; i++)
-    {
-        if(m_VBIDMAMem[i] != NULL)
-        {
-            delete m_VBIDMAMem[i];
-            m_VBIDMAMem[i] = NULL;
-        }
-        if(m_DisplayDMAMem[i] != NULL)
-        {
-            delete m_DisplayDMAMem[i];
-            m_DisplayDMAMem[i] = NULL;
-        }
-    }
 }
 
 #endif//xxx

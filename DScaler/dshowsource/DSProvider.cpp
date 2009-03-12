@@ -88,11 +88,6 @@ CDSProvider::CDSProvider()
 
 CDSProvider::~CDSProvider()
 {
-    //remove all sources
-    for(vector<CDSSourceBase*>::iterator it=m_DSSources.begin();it!=m_DSSources.end();it++)
-    {
-        delete *it;
-    }
 }
 
 string CDSProvider::GetSourceName(int SourceIndex)
@@ -106,7 +101,7 @@ int CDSProvider::GetNumberOfSources()
     return m_DSSources.size();
 }
 
-CSource* CDSProvider::GetSource(int SourceIndex)
+SmartPtr<CSource> CDSProvider::GetSource(int SourceIndex)
 {
     ASSERT(SourceIndex>=0 && SourceIndex<m_DSSources.size());
 

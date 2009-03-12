@@ -100,7 +100,7 @@ const char* StereoTypeList[] =
     { "Alt2"        },
 };
 
-CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection) :
+CCX2388xSource::CCX2388xSource(SmartPtr<CCX2388xCard> pCard, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCSTR IniSection) :
     CSource(WM_CX2388X_GETVALUE, IDC_CX2388X),
     m_pCard(pCard),
     m_CurrentX(720),
@@ -151,7 +151,6 @@ CCX2388xSource::~CCX2388xSource()
     m_pCard->SetVideoSource(-1);
 
     EventCollector->Unregister(this);
-    delete m_pCard;
 
     if(m_bDriverStoped == TRUE)
     {
@@ -805,7 +804,7 @@ void CCX2388xSource::SetWidth(int w)
     m_PixelWidth->SetValue(w);
 }
 
-CCX2388xCard* CCX2388xSource::GetCard()
+SmartPtr<CCX2388xCard> CCX2388xSource::GetCard()
 {
     return m_pCard;
 }
@@ -1866,7 +1865,7 @@ BOOL CCX2388xSource::InputHasTuner(eSourceInputType InputType, int Nr)
     return FALSE;
 }
 
-ITuner* CCX2388xSource::GetTuner()
+SmartPtr<ITuner> CCX2388xSource::GetTuner()
 {
     return m_pCard->GetTuner();
 }

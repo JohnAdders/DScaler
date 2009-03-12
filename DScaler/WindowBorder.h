@@ -73,7 +73,7 @@ protected:
 
     int IsBorderVisible;
 
-    vector<CBitmapHolder*> Bitmaps;
+    vector< SmartPtr<CBitmapHolder> > Bitmaps;
     int SolidTopSize;
     int SolidRightSize;
     int SolidBottomSize;
@@ -82,7 +82,7 @@ protected:
     
     typedef struct {
       string sID;
-      CBitmapAsButton *Button;
+      SmartPtr<CBitmapAsButton> Button;
       POINT Location;
       int   RelativePosition;
       POINT LastLocation;
@@ -107,12 +107,12 @@ protected:
     BOOL m_IsSkinned;
 
     vector<RECT> Locations;
-    vector<LPRECT> RegionList;
+    vector<RECT> RegionList;
 
     HRGN hLastRegion;
 
-    void MergeLineRegion(int y,POINT *RowList,int RowListSize,int TotalWidth,vector<LPRECT> *AllRegions);
-    void MergeBorderRegions(vector<LPRECT> *AllRegions, LPRECT lpRcExtra);    
+    void MergeLineRegion(int y,POINT *RowList,int RowListSize,int TotalWidth,vector<RECT>& AllRegions);
+    void MergeBorderRegions(vector<RECT>& AllRegions, LPRECT lpRcExtra);    
     BOOL FindBorderSizes();
     BOOL FindLocations();
 
@@ -137,8 +137,8 @@ public:
     void SolidBorder(int left,int top, int right, int bottom, COLORREF Color);
     HRGN MakeRegion(LPRECT lpRcExtra);
     
-    BOOL SetBorderBitmap(eWindowBorderPosition Position, int State, HBITMAP hBmp, HBITMAP hBmpMask, int DrawMode, BOOL bDeleteBitmapOnExit = FALSE);
-    BOOL SetButtonBitmap(string sID, int WhichBitmap, eWindowBorderPosition RelPos, int x, int y, HBITMAP hBmp, HBITMAP hBmpMask, BOOL bDeleteBitmapOnExit = FALSE);
+    BOOL SetBorderBitmap(eWindowBorderPosition Position, int State, SmartPtr<CBitmapState> BitmapState, int DrawMode);
+    BOOL SetButtonBitmap(string sID, int WhichBitmap, eWindowBorderPosition RelPos, int x, int y, SmartPtr<CBitmapState> BitmapState);
     
     BOOL RegisterButton(string sID, eBitmapAsButtonType ButtonType, string sIniEntryDefault, string sIniEntryMouseOver, string sIniEntryClick, BUTTONPROC *pfnButtonProc);
     
@@ -148,7 +148,7 @@ public:
     BOOL Show() { IsBorderVisible=1; UpdateButtonLocations(); return TRUE; }
     BOOL Hide() { IsBorderVisible=0; UpdateButtonLocations(); return TRUE; }
 
-    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache = NULL);
+    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results);
     virtual void ClearSkin();
     BOOL IsSkinned() { return m_IsSkinned; }
 };

@@ -207,7 +207,7 @@ void PutRequest(TGUIRequest *req)
         switch (req->type)
         {
         case REQ_STILL:
-            if ((req->param1 > 0) && (Providers_GetSnapshotsSource() != NULL))
+            if ((req->param1 > 0) && Providers_GetSnapshotsSource())
             {
                 Request.type = req->type;
                 Request.param1 = req->param1;

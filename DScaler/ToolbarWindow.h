@@ -129,7 +129,7 @@ public:
     void UpdateWindowPosition(HWND hParentWnd);
     void ForceUpdateWindowPosition(HWND hParentWnd);
 
-    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache = NULL);
+    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results);
     virtual void ClearSkin();
 
     static LRESULT CALLBACK ToolbarProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -182,10 +182,10 @@ public:
     virtual HWND Create(LPCTSTR szClassName, HINSTANCE hResourceInst);
     virtual HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
 
-    virtual BOOL SkinWindow(HWND hWnd, string sID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache = NULL);
+    virtual BOOL SkinWindow(HWND hWnd, string sID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile);
     virtual BOOL RemoveSkin(string sID);
 
-    virtual BOOL SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache = NULL);
+    virtual BOOL SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile);
     virtual BOOL RemoveSkinDlgItem(UINT uItemID);
 
     virtual LRESULT ButtonChildProc(string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    

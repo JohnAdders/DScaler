@@ -27,7 +27,7 @@
 #include <afxdtctl.h>
 #include <vector>
 
-CScheduledRecording* pSchRec;
+SmartPtr<CScheduledRecording> pSchRec;
 CScheduleDlg* pSchDlg;
 
 enum STATE {READY,SUCCEED,CANCELED,RECORDING};

@@ -37,9 +37,9 @@ public:
     CStillProvider();
     virtual ~CStillProvider();
     int GetNumberOfSources();
-    CSource* GetSource(int SourceIndex);
+    SmartPtr<CSource> GetSource(int SourceIndex);
 private:
-    vector<CStillSource*> m_StillSources;
+    vector< SmartPtr<CStillSource> > m_StillSources;
 };
 
 #endif

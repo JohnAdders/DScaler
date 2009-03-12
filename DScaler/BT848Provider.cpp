@@ -60,22 +60,12 @@ TBT848Chip BT848Chips[4] =
     },
 };
 
-CBT848Provider::CBT848Provider(CHardwareDriver* pHardwareDriver)
+CBT848Provider::CBT848Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
 {
     char szSection[12];
     DWORD SubSystemId;
     BOOL IsMemoryInitialized = FALSE;
     int i;
-
-    // initilize memory pointers to NULL
-    // so that if we fail we can check 
-    // for NULL before destroying
-    m_RiscDMAMem = NULL;
-    for(i = 0; i < 5; ++i)
-    {
-        m_VBIDMAMem[i] = NULL;
-        m_DisplayDMAMem[i] = NULL;
-    }
 
     for(i = 0; i < sizeof(BT848Chips)/sizeof(TBT848Chip); ++i)
     {
@@ -99,7 +89,7 @@ CBT848Provider::CBT848Provider(CHardwareDriver* pHardwareDriver)
             }
 
             sprintf(szSection, "%s%d", BT848Chips[i].szName, CardsFound + 1);
-            CBT848Source* pNewSource = CreateCorrectSource(
+            SmartPtr<CBT848Source> pNewSource = CreateCorrectSource(
                                                                 pHardwareDriver,
                                                                 szSection, 
                                                                 BT848Chips[i].VendorId, 
@@ -108,7 +98,7 @@ CBT848Provider::CBT848Provider(CHardwareDriver* pHardwareDriver)
                                                                 SubSystemId,
                                                                 BT848Chips[i].szName
                                                           );
-            if(pNewSource != NULL)
+            if(pNewSource)
             {
                 m_BT848Sources.push_back(pNewSource);
             }
@@ -117,32 +107,17 @@ CBT848Provider::CBT848Provider(CHardwareDriver* pHardwareDriver)
     }
 }
 
-CBT848Provider::~CBT848Provider()
-{
-    MemoryFree();
-    for(vector<CBT848Source*>::iterator it = m_BT848Sources.begin();
-        it != m_BT848Sources.end();
-        ++it)
-    {
-        delete *it;
-    }
-}
 
-
-CBT848Source* CBT848Provider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, char* ChipName)
+SmartPtr<CBT848Source> CBT848Provider::CreateCorrectSource(SmartPtr<CHardwareDriver> pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, char* ChipName)
 {
     /// \todo use the subsystem id to create the correct specilized version of the card
-    CBT848Card* pNewCard = new CBT848Card(pHardwareDriver);
+    SmartPtr<CBT848Card> pNewCard = new CBT848Card(pHardwareDriver);
+    SmartPtr<CBT848Source> pNewSource;
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
-        CBT848Source* pNewSource = new CBT848Source(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection, ChipName, DeviceIndex);
-        return pNewSource;
+        pNewSource = new CBT848Source(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection, ChipName, DeviceIndex);
     }
-    else
-    {
-        delete pNewCard;
-        return NULL;
-    }
+    return pNewSource;
 }
 
 
@@ -151,7 +126,7 @@ int CBT848Provider::GetNumberOfSources()
     return m_BT848Sources.size();
 }
 
-CSource* CBT848Provider::GetSource(int SourceIndex)
+SmartPtr<CSource> CBT848Provider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_BT848Sources.size())
     {
@@ -163,7 +138,7 @@ CSource* CBT848Provider::GetSource(int SourceIndex)
     }
 }
 
-BOOL CBT848Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
+BOOL CBT848Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
 {
     try
     {
@@ -171,7 +146,6 @@ BOOL CBT848Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        MemoryFree();
         ErrorBox("Can't create RISC Memory");
         return FALSE;
     }
@@ -185,7 +159,6 @@ BOOL CBT848Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        MemoryFree();
         ErrorBox("Can't create Display Memory");
         return FALSE;
     }
@@ -199,35 +172,11 @@ BOOL CBT848Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        MemoryFree();
         ErrorBox("Can't create Display Memory");
         return FALSE;
     }
 
     return TRUE;
-}
-
-void CBT848Provider::MemoryFree()
-{
-    if(m_RiscDMAMem != NULL)
-    {
-        delete m_RiscDMAMem;
-        m_RiscDMAMem = NULL;
-    }
-
-    for(int i(0); i < 5; i++)
-    {
-        if(m_VBIDMAMem[i] != NULL)
-        {
-            delete m_VBIDMAMem[i];
-            m_VBIDMAMem[i] = NULL;
-        }
-        if(m_DisplayDMAMem[i] != NULL)
-        {
-            delete m_DisplayDMAMem[i];
-            m_DisplayDMAMem[i] = NULL;
-        }
-    }
 }
 
 #endif // WANT_BT8X8_SUPPORT

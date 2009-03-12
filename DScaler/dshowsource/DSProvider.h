@@ -46,14 +46,14 @@ public:
     virtual ~CDSProvider();
 
     virtual int GetNumberOfSources();
-    virtual CSource* GetSource(int SourceIndex);
+    virtual SmartPtr<CSource> GetSource(int SourceIndex);
     
     string GetSourceName(int SourceIndex);
 
 private:
     ///checks if dshow support can be enabled
     bool CanUseDShow(std::string &FailMsg);
-    vector<CDSSourceBase*> m_DSSources;
+    vector<SmartPtr<CDSSourceBase> > m_DSSources;
     map<int,string> m_SourceNames;
     
 };

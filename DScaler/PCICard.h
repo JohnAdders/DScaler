@@ -138,7 +138,7 @@ private:
     DWORD   m_MemoryAddress;
     DWORD   m_MemoryLength;
     DWORD   m_MemoryBase;
-    CHardwareDriver* m_pDriver;
+    SmartPtr<CHardwareDriver> m_pDriver;
     HANDLE  m_hStateFile;
     boolean m_bStateIsReading;
     int     m_InitialACPIStatus;

@@ -96,9 +96,9 @@ public:
     virtual BOOL adjustAspect(CAspectRectangles &ar) = 0; 
 
     virtual void DebugDump();
-    void SetChild(CAspectFilter* Child);
+    void SetChild(SmartPtr<CAspectFilter> Child);
 protected:
-    CAspectFilter* m_Child;
+    SmartPtr<CAspectFilter> m_Child;
 };
 
 /** This filter adjust for the m_Overscan area of the image.  It checks the orbit settings to ensure
@@ -144,14 +144,13 @@ class COrbitAspectFilter : public CAspectFilter
 {
 public:
     COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY, long OrbitSize);
-    ~COrbitAspectFilter();
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
     virtual void DebugDump();
 
 protected:
-    CPeriodBouncer* m_pXOrbitBouncer;
-    CPeriodBouncer* m_pYOrbitBouncer;
+    SmartPtr<CPeriodBouncer> m_pXOrbitBouncer;
+    SmartPtr<CPeriodBouncer> m_pYOrbitBouncer;
 };
 
 
@@ -160,13 +159,12 @@ class CBounceDestinationAspectFilter : public CAspectFilter
 {
 public:
     CBounceDestinationAspectFilter(time_t period);
-    ~CBounceDestinationAspectFilter();
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
     virtual void DebugDump();
 
 protected:
-    CPeriodBouncer* m_pBouncer;
+    SmartPtr<CPeriodBouncer> m_pBouncer;
 };
 
 /** Applys child filters than adjusts the position of the destination rectangle - this class fixed floating point positions
@@ -253,12 +251,10 @@ public:
 class CFilterChain
 {
 public:
-    CFilterChain();
-    ~CFilterChain();
     BOOL ApplyFilters(CAspectRectangles &ar, BOOL allowReadjust);
     void BuildFilterChain(int SrcWidth, int SrcHeight);
 protected:
-    vector<CAspectFilter*> m_FilterChain;
+    vector< SmartPtr<CAspectFilter> > m_FilterChain;
 };
 
 #endif

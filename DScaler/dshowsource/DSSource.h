@@ -99,7 +99,7 @@ public:
     void Start();
     void Stop();
 
-    ITuner* GetTuner();
+    SmartPtr<ITuner> GetTuner();
 
     BOOL IsAudioMixerAccessAllowed() {return TRUE;};
 
@@ -142,7 +142,7 @@ private:
     BOOL m_HaveInputList;
     vector<int> m_VideoInputList;
     vector<int> m_AudioInputList;
-    CDummyTuner m_Tuner;
+    SmartPtr<ITuner> m_Tuner;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Contrast);

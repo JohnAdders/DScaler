@@ -38,19 +38,8 @@ CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
 {
     char szSection[12];
     BOOL IsMemoryInitialized = FALSE;
-    int i;
     DWORD SubSystemId;
     int CardsFound(0);
-
-    // initilize memory pointers to NULL
-    // so that if we fail we can check 
-    // for NULL before destroying
-    m_RiscDMAMem = NULL;
-    for(i = 0; i < 5; ++i)
-    {
-        m_DisplayDMAMem[i] = NULL;
-        m_VBIDMAMem[i] = NULL;
-    }
 
     while(pHardwareDriver->DoesThisPCICardExist( 
                                                     0x14F1, 
@@ -70,50 +59,39 @@ CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
         }
 
         sprintf(szSection, "%s%d", "CX23880", CardsFound + 1);
-        CCX2388xSource* pNewSource = CreateCorrectSource(
+        SmartPtr<CCX2388xSource> pNewSource = CreateCorrectSource(
                                                             pHardwareDriver,
                                                             szSection, 
                                                             0x14F1, 
                                                             0x8800, 
                                                             CardsFound, 
                                                             SubSystemId
-                                                      );
-        if(pNewSource != NULL)
+                                                                      );
+        if(pNewSource)
         {
             m_Sources.push_back(pNewSource);
+            ++CardsFound;
         }
-        ++CardsFound;
     }
 }
 
 CCX2388xProvider::~CCX2388xProvider()
 {
-    MemoryFree();
-    for(vector<CCX2388xSource*>::iterator it = m_Sources.begin();
-        it != m_Sources.end();
-        ++it)
-    {
-        delete *it;
-    }
 }
 
 
-CCX2388xSource* CCX2388xProvider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
+SmartPtr<CCX2388xSource> CCX2388xProvider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
 {
     // \todo use the subsystem id to create the correct specilized version of the card
-    CCX2388xCard* pNewCard = new CCX2388xCard(pHardwareDriver);
+    SmartPtr<CCX2388xCard> pNewCard = new CCX2388xCard(pHardwareDriver);
+    SmartPtr<CCX2388xSource> pNewSource;
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
         // \todo remove this as it's just for testing
         pNewCard->DumpChipStatus(szSection);
-        CCX2388xSource* pNewSource = new CCX2388xSource(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
-        return pNewSource;
+        pNewSource = new CCX2388xSource(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
     }
-    else
-    {
-        delete pNewCard;
-        return NULL;
-    }
+    return pNewSource;
 }
 
 
@@ -122,7 +100,7 @@ int CCX2388xProvider::GetNumberOfSources()
     return m_Sources.size();
 }
 
-CSource* CCX2388xProvider::GetSource(int SourceIndex)
+SmartPtr<CSource> CCX2388xProvider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_Sources.size())
     {
@@ -142,7 +120,6 @@ BOOL CCX2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     { 
-        MemoryFree();
         ErrorBox("Can't create RISC Memory");
         return FALSE;
     }
@@ -156,7 +133,6 @@ BOOL CCX2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        MemoryFree();
         ErrorBox("Can't create Display Memory");
         return FALSE;
     }
@@ -170,35 +146,11 @@ BOOL CCX2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        MemoryFree();
         ErrorBox("Can't create Display Memory");
         return FALSE;
     }
 
     return TRUE;
-}
-
-void CCX2388xProvider::MemoryFree()
-{
-    if(m_RiscDMAMem != NULL)
-    {
-        delete m_RiscDMAMem;
-        m_RiscDMAMem = NULL;
-    }
-
-    for(int i(0); i < 5; i++)
-    {
-        if(m_VBIDMAMem[i] != NULL)
-        {
-            delete m_VBIDMAMem[i];
-            m_VBIDMAMem[i] = NULL;
-        }
-        if(m_DisplayDMAMem[i] != NULL)
-        {
-            delete m_DisplayDMAMem[i];
-            m_DisplayDMAMem[i] = NULL;
-        }
-    }
 }
 
 #endif // WANT_CX2388X_SUPPORT

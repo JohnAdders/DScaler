@@ -146,7 +146,7 @@ private:
 public:
     BOOL Is878Family();
     void HandleTimerMessages(int TimerId);
-    CBT848Card(CHardwareDriver* pDriver);
+    CBT848Card(SmartPtr<CHardwareDriver> pDriver);
     ~CBT848Card();
 
     void SetCardType(int CardType);
@@ -259,12 +259,12 @@ public:
 
     void SetPMSChannelGain(int ChannelNum, WORD Gain);
     
-    BOOL IsMyAudioDecoder(CAudioDecoder* pAudioDecoder);
+    BOOL IsMyAudioDecoder(SmartPtr<CAudioDecoder> pAudioDecoder);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
     BOOL IsSPISource(int nInput);
-    CAD9882* GetAD9882() { return m_AD9882; }
+    SmartPtr<CAD9882> GetAD9882() { return m_AD9882; }
 
     // I2C stuff
     void SetSDA(bool value);
@@ -274,7 +274,7 @@ public:
     void Sleep();
     void I2CLock();
     void I2CUnlock();
-    ITuner* GetTuner() const;
+    SmartPtr<ITuner> GetTuner() const;
 
     // GPIO stuff
     void SetGPOE(ULONG val);
@@ -299,7 +299,7 @@ private:
     void SetGeometryEvenOdd(BOOL bOdd, int wHScale, int wVScale, int wHActive, int wVActive, int wHDelay, int wVDelay, BYTE bCrop);
     void SetPLL(ePLLFreq PLL);
     BOOL IsCCIRSource(int nInput);
-    const TCardType* GetCardSetup();
+    SmartPtr<const TCardType> GetCardSetup();
 
     void StandardBT848InputSelect(int nInput);
     void Sasem4ChannelInputSelect(int nInput);
@@ -324,15 +324,15 @@ private:
 
     eTVCardId m_CardType;
 
-    CI2CBus*        m_I2CBus;
-    II2CTuner*      m_Tuner;
-    CAudioDecoder*  m_AudioDecoder;
-    CAudioControls* m_AudioControls;
+    SmartPtr<CI2CBus>        m_I2CBus;
+    SmartPtr<II2CTuner>      m_Tuner;
+    SmartPtr<CAudioDecoder>  m_AudioDecoder;
+    SmartPtr<CAudioControls> m_AudioControls;
 
-    CSAA7118*       m_SAA7118;
-    int             m_CurrentInput;
-    CAD9882*        m_AD9882;
-    DWORD           m_PixelWidth;
+    SmartPtr<CSAA7118>       m_SAA7118;
+    int                      m_CurrentInput;
+    SmartPtr<CAD9882>        m_AD9882;
+    DWORD                    m_PixelWidth;
 
     void InitPMSDeluxe();
     void PMSDeluxeInputSelect(int nInput);

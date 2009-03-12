@@ -40,18 +40,18 @@
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource\DSProvider.h"
-static CDSProvider* DSProvider = NULL;
+static SmartPtr<CDSProvider> DSProvider;
 #endif
 
 
 typedef struct
 {
     std::string Name;
-    CSource*    Object;
-    BOOL        DisplayInMenu;
+    SmartPtr<CSource> Object;
+    BOOL DisplayInMenu;
 } TSource;
 
-typedef vector<TSource*> SOURCELIST;
+typedef vector< SmartPtr<TSource> > SOURCELIST;
 
 extern HMENU hMenu;
 
@@ -59,21 +59,21 @@ void Providers_NotifySourceChange(int OldSource);
 void Providers_NotifySourcePreChange();
 
 static SOURCELIST Sources;
-static CHardwareDriver* HardwareDriver = NULL;
+static SmartPtr<CHardwareDriver> HardwareDriver;
 
 #ifdef WANT_BT8X8_SUPPORT
-static CBT848Provider* BT848Provider = NULL;
+static SmartPtr<CBT848Provider> BT848Provider;
 #endif
 
 #ifdef WANT_CX2388X_SUPPORT
-static CCX2388xProvider* CX2388xProvider = NULL;
+static SmartPtr<CCX2388xProvider> CX2388xProvider;
 #endif
 
 #ifdef WANT_SAA713X_SUPPORT
-static CSAA7134Provider* SAA7134Provider = NULL;
+static SmartPtr<CSAA7134Provider> SAA7134Provider;
 #endif
 
-static CStillProvider* StillProvider = NULL;
+static SmartPtr<CStillProvider> StillProvider;
 static long CurrentSource = 0;
 static long DefSourceIdx = -1;
 long InitSourceIdx = -1;
@@ -102,8 +102,8 @@ void Providers_MixerSetup()
 int Providers_Load(HMENU hMenu)
 {
     int i(0);
-    TSource* Source;
-    CSource* DefaultSource = NULL;
+    SmartPtr<TSource> Source;
+    SmartPtr<CSource> DefaultSource;
     MENUITEMINFO    MenuItemInfo;
         bool AllowCx2388xDShow = false;
 
@@ -245,8 +245,7 @@ int Providers_Load(HMENU hMenu)
     else
     {
         ErrorBox("Can't load Hardware Driver, possibly caused by corrupt installation.  Reboot and try again.");
-        delete HardwareDriver;
-        HardwareDriver = NULL;
+        HardwareDriver = 0L;
     }
 
     StillProvider = new CStillProvider();
@@ -302,12 +301,10 @@ int Providers_Load(HMENU hMenu)
         DefSourceIdx = Providers_GetSourceIndex(DefaultSource);
         if (DefSourceIdx >= 0 && static_cast<size_t>(DefSourceIdx) < Sources.size())
         {
-            Source = *(Sources.begin() + DefSourceIdx);
             Sources.erase(Sources.begin() + DefSourceIdx);
-            delete Source;
         }
 
-        DefaultSource = NULL;
+        DefaultSource = 0L;
     }
 
     DefSourceIdx = Providers_GetSourceIndex(DefaultSource);
@@ -315,7 +312,7 @@ int Providers_Load(HMENU hMenu)
     // The default source is not listed in the menu
     if (DefSourceIdx >= 0 && static_cast<size_t>(DefSourceIdx) < Sources.size())
     {
-        Source = *(Sources.begin() + DefSourceIdx);
+        Source = Sources[DefSourceIdx];
         Source->DisplayInMenu = FALSE;
     }
 
@@ -357,52 +354,23 @@ int Providers_Load(HMENU hMenu)
 
 void Providers_Unload()
 {
+    Sources.clear();
+
 #ifdef WANT_DSHOW_SUPPORT
-    if(DSProvider!=NULL)
-    {
-        delete DSProvider;
-        DSProvider=NULL;
-    }
+    DSProvider = 0L;
 #endif
-    if(StillProvider != NULL)
-    {
-        delete StillProvider;
-        StillProvider = NULL;
-    }
+    StillProvider = 0L;
 #ifdef WANT_BT8X8_SUPPORT
-    if(BT848Provider != NULL)
-    {
-        delete BT848Provider;
-        BT848Provider = NULL;
-    }
+    BT848Provider = 0L;
 #endif
 #ifdef WANT_CX2388X_SUPPORT
-    if(CX2388xProvider != NULL)
-    {
-        delete CX2388xProvider;
-        CX2388xProvider = NULL;
-    }
+    CX2388xProvider = 0L;
 #endif
 #ifdef WANT_SAA713X_SUPPORT
-    if(SAA7134Provider != NULL)
-    {
-        delete SAA7134Provider;
-        SAA7134Provider = NULL;
-    }
+    SAA7134Provider = 0L;
 #endif
-    if(HardwareDriver != NULL)
-    {
-        HardwareDriver->UnloadDriver();
-        delete HardwareDriver;
-        HardwareDriver = NULL;
-    }
-    for(vector<TSource*>::iterator it = Sources.begin(); 
-        it != Sources.end(); 
-        ++it)
-    {
-        delete *it;
-    }
-    Sources.clear();
+
+    HardwareDriver = 0L;
 }
 
 CSource* Providers_GetCurrentSource()
@@ -429,7 +397,7 @@ long Providers_GetSourceIndex(CSource* Src)
     return -1;
 }
 
-CSource* Providers_GetStillsSource()
+SmartPtr<CSource> Providers_GetStillsSource()
 {
     return StillProvider->GetSource(0);
 }
@@ -439,19 +407,19 @@ CSource* Providers_GetSnapshotsSource()
     return StillProvider->GetSource(2);
 }
 
-CSource* Providers_GetPatternsSource()
+SmartPtr<CSource> Providers_GetPatternsSource()
 {
     return StillProvider->GetSource(1);
 }
 
-CSource* Providers_GetIntroSource()
+SmartPtr<CSource> Providers_GetIntroSource()
 {
     return StillProvider->GetSource(3);
 }
 
 BOOL Providers_IsStillSource(CSource* source)
 {
-    if (StillProvider != NULL)
+    if (StillProvider)
     {
         for (int i=0 ; i<StillProvider->GetNumberOfSources() ; i++)
         {

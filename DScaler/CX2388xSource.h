@@ -44,14 +44,14 @@ class CCX2388xSource : public CSource
 {
     //DECLARE_CLASS_SETTINGS(CCX2388xSource);
 public:
-    CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection);
+    CCX2388xSource(SmartPtr<CCX2388xCard> pCard, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCSTR IniSection);
     ~CCX2388xSource();
     void Start();
     void Stop();
     void Reset();
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
-    CCX2388xCard* GetCard();
+    SmartPtr<CCX2388xCard> GetCard();
     LPCSTR GetStatus();
     ISetting* GetVolume() {return m_Volume;};
     ISetting* GetBalance() {return m_Balance;};
@@ -103,7 +103,7 @@ public:
 
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
-    ITuner* GetTuner();
+    SmartPtr<ITuner> GetTuner();
 
     virtual void SetSourceAsCurrent();
 
@@ -146,11 +146,11 @@ private:
     BOOL StartStopConexantDriver(DWORD NewState);
 
 private:
-    CCX2388xCard*  m_pCard;
+    SmartPtr<CCX2388xCard>  m_pCard;
+    SmartPtr<CUserMemory> m_DisplayDMAMem[5];
+    SmartPtr<CUserMemory> m_VBIDMAMem[5];
     BYTE*        m_pDisplay[5];
-    CUserMemory* m_DisplayDMAMem[5];
     BYTE*        m_pVBILines[5];
-    CUserMemory* m_VBIDMAMem[5];
     DWORD        m_RiscBasePhysical; 
     DWORD        m_RiscBasePhysicalVBI; 
     DWORD*       m_RiscBaseLinear;

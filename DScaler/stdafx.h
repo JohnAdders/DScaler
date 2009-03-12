@@ -68,9 +68,13 @@
 #include "DSDrv.h"
 #include "HtmlHelp.H"
 #include <vector>
+#include <map>
 #include <string>
 #include <sstream>
 #include <multimon.h>
+
+#include "SmartPtr.h"
+#include "SmartHandle.h"
 
 // fix for including external header with IDC_STATIC defined
 #ifdef IDC_STATIC

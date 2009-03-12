@@ -97,7 +97,7 @@ static BYTE SRAMTable_PAL[ 60 ] =
 
 
 
-CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
+CBT848Card::CBT848Card(SmartPtr<CHardwareDriver> pDriver) :
     CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
     m_Tuner(NULL),
@@ -114,11 +114,6 @@ CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
 
 CBT848Card::~CBT848Card()
 {
-    delete m_I2CBus;
-    delete m_AudioDecoder;
-    delete m_AudioControls;
-    delete m_Tuner;
-
     ClosePCICard();
 }
 
@@ -1158,7 +1153,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
         AddRegister(BT848_GPIO_DATA);
         AddRegister(BT848_GPIO_DATA_HIBYTE);
         AddRegister(BT848_TBLG);
-        if(pThis->m_SAA7118 != NULL)
+        if(pThis->m_SAA7118)
         {
             for(int i(0); i < 0xFF; ++i)
             {
@@ -1200,7 +1195,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
             }
             else
             {
-                if(pThis->m_SAA7118 != NULL)
+                if(pThis->m_SAA7118)
                 {
                     pThis->m_SAA7118->SetRegister((BYTE)(dwAddress - 0x1000), RegValue);
                 }
@@ -1220,7 +1215,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
                     }
                     else
                     {
-                        if(pThis->m_SAA7118 != NULL)
+                        if(pThis->m_SAA7118)
                         {
                             RegValue = pThis->m_SAA7118->GetRegister((BYTE)(dwAddress - 0x1000));
                         }

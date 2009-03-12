@@ -27,113 +27,109 @@
 //  -Can draw bitmap normal, tiled, stretched
 //  -Can create a window region from bitmap
 
+class CBitmapState
+{
+public:
+    CBitmapState();
+    CBitmapState(SmartHandle<HBITMAP> hBmp, SmartHandle<HBITMAP> hBmpMask);
+
+    SmartHandle<HBITMAP> m_hBmp;
+    SmartHandle<HBITMAP> m_hBmpMask;
+    int m_BmpWidth;
+    int m_BmpHeight;
+    vector<RECT> m_RegionList;
+    HRGN m_hRegion;
+    string m_ExtraInfo;
+};
+
+
 class CBitmapHolder
 {
-protected:    
-    typedef struct
-    {
-        HBITMAP hBmp;
-        HBITMAP hBmpMask;
-
-        int BmpWidth;
-        int BmpHeight;
-
-        vector<LPRECT> RegionList;
-        HRGN hRegion;
-
-        BOOL bDeleteBitmapOnExit;
-    } TState;
-
-    vector<TState> States;
-
-    int DrawMode; //0=normal, 1=stretch to fit, 2=tile
-
-    BOOL MakeRegionList();
-    void FreeState(int State);
-    
 public:
     CBitmapHolder(int DrawMode = 0);
-    ~CBitmapHolder();
-    void SetDrawMode(int Mode) { DrawMode = Mode; };
+    void SetDrawMode(int Mode) { m_DrawMode = Mode; };
     
-    BOOL Add(HBITMAP hBmp, HBITMAP hBmpMask, int State = 0, BOOL bDeleteBitmapOnExit = FALSE);    
+    void Add(SmartPtr<CBitmapState> BitmapState, int State = 0);    
     
-    HBITMAP GetBitmap(int State = 0);
-    HBITMAP GetBitmapMask(int State = 0);
+    SmartHandle<HBITMAP> GetBitmap(int State = 0);
 
-    void Draw(HDC dc, POINT* bmstart, LPRECT r, int State = 0);
+    void Draw(HDC dc, LPPOINT bmstart, LPRECT r, int State = 0);
     
     int Width(int State = 0);
     int Height(int State = 0);
     
-    vector<LPRECT> *GetRegionList(int State = 0);    
-    HRGN GetWindowRegion(int State = 0);
+    vector<RECT>& GetRegionList();    
+    HRGN GetWindowRegion();
     
-    //void BitmapToRegionList(int State = 0);
-
     // Static functions    
 
-    static void BitmapDraw(HDC dc, HBITMAP hbmp, HBITMAP hmask, POINT* bmstart, LPRECT r, int DrawMode);    
-    static void BitmapDrawTiled(HDC hDC, HBITMAP hbmp, POINT *bmstart, LPRECT r);
+    static void BitmapDraw(HDC dc, SmartHandle<HBITMAP> hbmp, SmartHandle<HBITMAP> hmask, LPPOINT bmstart, LPRECT r, int DrawMode);    
+    static void BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *bmstart, LPRECT r);
     
-    static HBITMAP BitmapCopyPieceRGB(HDC hdestDC, HDC hsrcDC, LPRECT lpRect);
+    static SmartHandle<HBITMAP> BitmapCopyPieceRGB(HDC hdestDC, HDC hsrcDC, LPRECT lpRect);
     
-    static HRGN CreateWindowRegion(RECT *rcBound, vector<LPRECT> *RegionList, POINT *pPosition = NULL);
-    static BOOL BitmapToRegionList(HBITMAP hBmpMask, vector<LPRECT> *RegionList);
+    static HRGN CreateWindowRegion(RECT& rcBound, vector<RECT>& RegionList, POINT* pPosition = NULL);
+    static BOOL BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, vector<RECT>& RegionList);
         
-    static HBITMAP BitmapLoadFromFile(const char *szFile);
+    static SmartHandle<HBITMAP> BitmapLoadFromFile(const char *szFile);
     //static void BitmapLoad_Free(HBITMAP hBm);
+
+protected:    
+    BOOL MakeRegionList();
+
+    vector< SmartPtr<CBitmapState> > m_States;
+    int m_DrawMode; //0=normal, 1=stretch to fit, 2=tile
+
 };
+
+class CBitmapChangeInfo
+{
+public:
+    ~CBitmapChangeInfo();
+    HBITMAP hBmp;
+    string sFileName;
+    BOOL bFreeOnDestroy;
+};
+
 
 class CBitmapCache
 {
-protected:
-    typedef struct 
-    {
-        HBITMAP hBmp;
-        string sFileName;
-        BOOL bFreeOnDestroy;
-    } TBitmapChangeInfo;
-
-    vector<TBitmapChangeInfo> vCacheList;
 public:
-    CBitmapCache();
-    ~CBitmapCache();
-    
-    HBITMAP Read(LPCSTR szFileName, BOOL bFreeOnDestroy = TRUE);
-    void Clear();
+    SmartHandle<HBITMAP> Read(LPCSTR szFileName);
+private:
+    map<string, SmartHandle<HBITMAP> > m_CacheList;
+};
+
+
+class CBitmapIniInfo
+{
+public:
+    CBitmapIniInfo(string sName);
+    string m_sName;
+    SmartHandle<HBITMAP> m_hBmp;
+    SmartHandle<HBITMAP> m_hBmpMask;
+    string m_sExtraInfo;
+    int    m_Result;
 };
 
 
 // Read bitmaps described in ini section
 class CBitmapsFromIniSection
 {
-protected:
-    CBitmapCache *m_pBitmapCache;
-
-    typedef struct {
-        string sName;
-        HBITMAP hBmp;
-        HBITMAP hBmpMask;
-        string sExtraInfo;
-        int    Result;
-    } TBitmapIniInfo;
-    
-    vector<TBitmapIniInfo> BIList;        
 public:
     CBitmapsFromIniSection();
-    ~CBitmapsFromIniSection();
     
-    BOOL Register(string sName);
-    void Clear(); //Free all, including loaded bitmaps
+    void Register(string sName);
 
-    int  Read(string sIniFile, string sSection, string sBitmapName, string sBitmapMaskName, CBitmapCache *pBitmapCache = NULL);
-    void Finished(); //Free some memory
+    SmartPtr<CBitmapState> Get(string sName);
 
-    HBITMAP Get(string sName);
-    HBITMAP GetMask(string sName);
-    string  GetInfo(string sName);
-    int     GetResult(string sName);
+    int  Read(string sIniFile, string sSection, string sBitmapName, string sBitmapMaskName);
+
+protected:
+    typedef map<string, SmartPtr<CBitmapState> > StateMap;
+    SmartPtr<CBitmapCache> m_pBitmapCache;
+    StateMap m_StateMap;
+    string GetInfo(string sName);
 };
 
 

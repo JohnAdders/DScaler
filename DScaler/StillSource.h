@@ -162,7 +162,7 @@ public:
     const char* GetInputName(eSourceInputType InputType, int Nr) { return NULL; };
     BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
 
-    ITuner* GetTuner() {return NULL;}
+    SmartPtr<ITuner> GetTuner() {return NULL;}
 
     void Pause() {return;};
     void UnPause() {return;};

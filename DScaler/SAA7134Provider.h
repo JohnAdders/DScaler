@@ -43,14 +43,14 @@ class CSAA7134Provider : public ISourceProvider,
                          public CSAA7134Common
 {
 public:
-    CSAA7134Provider(CHardwareDriver* pHardwareDriver);
+    CSAA7134Provider(SmartPtr<CHardwareDriver> pHardwareDriver);
     virtual ~CSAA7134Provider();
     int GetNumberOfSources();
-    CSource* GetSource(int SourceIndex);
+    SmartPtr<CSource> GetSource(int SourceIndex);
 private:
     ///  uses the subsystem id to determin the correct source to create
-    CSAA7134Source* CreateCorrectSource(
-                                        CHardwareDriver* pHardwareDriver, 
+    SmartPtr<CSAA7134Source> CreateCorrectSource(
+                                        SmartPtr<CHardwareDriver> pHardwareDriver, 
                                         LPCSTR szSection, 
                                         WORD VendorID, 
                                         WORD DeviceID, 
@@ -58,15 +58,15 @@ private:
                                         DWORD SubSystemId,
                                         char* ChipName);
     /// creates the system accesable memory to be used by all cards
-    BOOL MemoryInit(CHardwareDriver* pHardwareDriver);
+    BOOL MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver);
     void MemoryFree();
-    vector<CSAA7134Source*> m_SAA7134Sources;
+    vector< SmartPtr<CSAA7134Source> > m_SAA7134Sources;
     /// Memory used for DMA page table
-    CContigMemory* m_PageTableDMAMem[kMAX_VID_PAGETABLES + kMAX_VBI_PAGETABLES];
+    SmartPtr<CContigMemory> m_PageTableDMAMem[kMAX_VID_PAGETABLES + kMAX_VBI_PAGETABLES];
     /// Memory used for VBI
-    CUserMemory* m_VBIDMAMem[kMAX_FRAMEBUFFERS];
+    SmartPtr<CUserMemory> m_VBIDMAMem[kMAX_FRAMEBUFFERS];
     /// Memory used for captured frames
-    CUserMemory* m_DisplayDMAMem[kMAX_FRAMEBUFFERS];
+    SmartPtr<CUserMemory> m_DisplayDMAMem[kMAX_FRAMEBUFFERS];
 };
 
 #endif

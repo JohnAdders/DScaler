@@ -39,7 +39,7 @@ class CBT848Source : public CSource
 {
     //DECLARE_CLASS_SETTINGS(CBT848Source);
 public:
-    CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
+    CBT848Source(SmartPtr<CBT848Card> pBT848Card, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
     ~CBT848Source();
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
     void Start();
@@ -47,7 +47,7 @@ public:
     void Reset();
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
-    CBT848Card* GetBT848Card();
+    SmartPtr<CBT848Card> GetBT848Card();
     LPCSTR GetStatus();
     ISetting* GetVolume();
     ISetting* GetBalance();
@@ -100,7 +100,7 @@ public:
     const char* GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
-    ITuner* GetTuner();
+    SmartPtr<ITuner> GetTuner();
 
     CTreeSettingsPage* GetTreeSettingsPage();
     
@@ -143,31 +143,31 @@ private:
     void SupportedSoundChannelsDetected(eSupportedSoundChannels supported);
 
 private:
-    CBT848Card*  m_pBT848Card;
-    BYTE*        m_pDisplay[5];
-    BYTE*        m_pVBILines[5];
-    CUserMemory* m_VBIDMAMem[5];
-    CUserMemory* m_DisplayDMAMem[5];
-    DWORD        m_RiscBasePhysical; 
-    DWORD*       m_RiscBaseLinear;
-    long         m_BytesPerRISCField;
-    TPicture     m_EvenFields[5];
-    TPicture     m_OddFields[5];
-    long         m_CurrentX;
-    long         m_CurrentY;
-    long         m_CurrentVBILines;
-    BOOL         m_IsFieldOdd;
-    BOOL         m_InSaturationUpdate;
-    std::string  m_ChannelSubSection;
-    std::string  m_ChipName;
-    int          m_DeviceIndex;
-    int          m_NumFields;
+     SmartPtr<CBT848Card> m_pBT848Card;
+     BYTE* m_pDisplay[5];
+     BYTE* m_pVBILines[5];
+     SmartPtr<CUserMemory> m_VBIDMAMem[5];
+     SmartPtr<CUserMemory> m_DisplayDMAMem[5];
+     DWORD m_RiscBasePhysical; 
+     DWORD* m_RiscBaseLinear;
+     long m_BytesPerRISCField;
+     TPicture m_EvenFields[5];
+     TPicture m_OddFields[5];
+     long m_CurrentX;
+     long m_CurrentY;
+     long m_CurrentVBILines;
+     BOOL m_IsFieldOdd;
+     BOOL m_InSaturationUpdate;
+     std::string m_ChannelSubSection;
+     std::string m_ChipName;
+     int m_DeviceIndex;
+     int m_NumFields;
 
-    std::string  m_Section;
-    std::string  m_IDString;
-    int          m_DetectingAudioStandard;
-    BOOL         m_InitAudioControls;
-    int          m_KeepDetectingStereo;
+     std::string m_Section;
+     std::string m_IDString;
+     int m_DetectingAudioStandard;
+     BOOL m_InitAudioControls;
+     int m_KeepDetectingStereo;
 
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting* m_ReversePolarity;

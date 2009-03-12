@@ -66,7 +66,7 @@ void CDShowDevEnum::initEnum(REFCLSID devClass)
     }
 
     hr=m_pSysDevEnum->CreateClassEnumerator(devClass, &m_pEnumCat, 0);
-    if(hr!=S_OK)
+    if(FAILED(hr))
     {
         throw CDShowDevEnumException("Cant create Class enumerator",hr);
     }
@@ -74,14 +74,15 @@ void CDShowDevEnum::initEnum(REFCLSID devClass)
 
 bool CDShowDevEnum::getNext()
 {
+    // if there are none in the list we get null
+    if(m_pEnumCat==NULL)
+    {
+        return false;
+    }
+
     CComPtr<IMoniker> pMoniker;
     ULONG cFetched;
 
-    //check that device enumerator is initialized
-    if(m_pEnumCat==NULL)
-    {
-        throw CDShowDevEnumException("initialize device enumerator before using it");
-    }
     
     if(m_pEnumCat->Next(1, &pMoniker, &cFetched) == S_OK)
     {

@@ -71,7 +71,7 @@ public:
     void CreateSettings(LPCSTR IniSection);
     void ChannelChange(int PreChange, int OldChannel, int NewChannel) {};
 
-    ITuner* GetTuner() {return NULL;}
+    SmartPtr<ITuner> GetTuner() {return NULL;}
     
     CTreeSettingsPage* GetTreeSettingsPage() {return NULL;}
 

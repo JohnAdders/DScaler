@@ -88,15 +88,10 @@ void CAspectRectangles::DebugDump()
 
 CAspectFilter::CAspectFilter()
 { 
-    m_Child = NULL;
 }
 
 CAspectFilter::~CAspectFilter()
 { 
-    if(m_Child != NULL)
-    {
-        delete m_Child;
-    }
 }
 
 // Called to actually perform the adjustment for 1 filter
@@ -109,7 +104,7 @@ void CAspectFilter::DebugDump()
 {
     ; // empty if not implemented
 }
-void CAspectFilter::SetChild(CAspectFilter* Child)
+void CAspectFilter::SetChild(SmartPtr<CAspectFilter> Child)
 {
     m_Child = Child;
 }
@@ -197,12 +192,6 @@ COrbitAspectFilter::COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY,
     m_pYOrbitBouncer = new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodY,OrbitSize,-OrbitSize/2.0);
 }
 
-COrbitAspectFilter::~COrbitAspectFilter()
-{ 
-    delete m_pXOrbitBouncer; 
-    delete m_pYOrbitBouncer; 
-}
-
 BOOL COrbitAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
     ar.m_CurrentOverlaySrcRect.shift((int)m_pXOrbitBouncer->position(),
@@ -232,11 +221,6 @@ CBounceDestinationAspectFilter::CBounceDestinationAspectFilter(time_t period)
         2.0 * (double)AspectSettings.BounceAmplitude / 100.0,
         // BounceAmplitude ranges from 0 to 100, we want 0 to -1.
         -1.0 * (double)AspectSettings.BounceAmplitude / 100.0);
-}
-
-CBounceDestinationAspectFilter::~CBounceDestinationAspectFilter()
-{
-    delete m_pBouncer;
 }
 
 BOOL CBounceDestinationAspectFilter::adjustAspect(CAspectRectangles &ar)
@@ -694,10 +678,6 @@ LPCSTR CResizeWindowAspectFilter::getFilterName()
     return "CResizeWindowAspectFilter";
 }
 
-CFilterChain::CFilterChain()
-{
-}
-
 void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
 {
     if (AspectSettings.bAnalogueBlanking)
@@ -723,7 +703,7 @@ void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
     }
     if (AspectSettings.AspectMode)
     { 
-        CAspectFilter* PosFilter;
+        SmartPtr<CAspectFilter> PosFilter;
         if (AspectSettings.BounceEnabled)
         {
             PosFilter = new CBounceDestinationAspectFilter(AspectSettings.BouncePeriod);
@@ -762,7 +742,7 @@ void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
 
         if (!AspectSettings.AspectImageClipped || AspectSettings.SquarePixels)
         {
-            CAspectFilter* UnCropFilter = new CUnCropAspectFilter();
+            SmartPtr<CAspectFilter> UnCropFilter = new CUnCropAspectFilter();
             UnCropFilter->SetChild(PosFilter);
             m_FilterChain.push_back(UnCropFilter); 
         }
@@ -792,23 +772,12 @@ void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
     m_FilterChain.push_back(new CScreenSanityAspectFilter(SrcWidth, SrcHeight));
 }
 
-CFilterChain::~CFilterChain()
-{
-    for( vector<CAspectFilter*>::iterator it = m_FilterChain.begin();
-        it != m_FilterChain.end();
-        ++it)
-    {
-        delete (*it);
-    }
-    m_FilterChain.empty();
-}
-
 // Applies all filters in a chain.  See above for return Value.
 // If allowReadjust is FALSE, the filter will ignore any re-calculate requests from filters
 // to avoid infinite recursion.
 BOOL CFilterChain::ApplyFilters(CAspectRectangles &ar, BOOL allowReadjust)
 {
-    for(vector<CAspectFilter*>::iterator it = m_FilterChain.begin();
+    for(vector<SmartPtr<CAspectFilter> >::iterator it = m_FilterChain.begin();
         it != m_FilterChain.end();
         ++it)
     {

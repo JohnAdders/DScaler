@@ -63,20 +63,20 @@ const char* CWindowBorder::szBorderNames[] = {
 
 
 CWindowBorder::CWindowBorder(HWND hWnd, HINSTANCE hInst, BOOL (*CustomGetClientRect)(HWND hWnd, LPRECT lpRect) ):
-IsBorderVisible(0),
-bBitmapsChanged(FALSE),
-DefaultColorRef(0),
-TopSize(0),
-BottomSize(0),
-LeftSize(0),
-RightSize(0),
-hLastRegion(NULL),
-SolidTopSize(0),
-SolidRightSize(0),
-SolidBottomSize(0),
-SolidLeftSize(0),
-m_hBrush(NULL),
-m_IsSkinned(0)
+    IsBorderVisible(0),
+    bBitmapsChanged(FALSE),
+    DefaultColorRef(0),
+    TopSize(0),
+    BottomSize(0),
+    LeftSize(0),
+    RightSize(0),
+    hLastRegion(NULL),
+    SolidTopSize(0),
+    SolidRightSize(0),
+    SolidBottomSize(0),
+    SolidLeftSize(0),
+    m_hBrush(NULL),
+    m_IsSkinned(0)
 {
     this->hWnd = hWnd; 
     this->hResourceInst = hInst;
@@ -85,51 +85,23 @@ m_IsSkinned(0)
 
 CWindowBorder::~CWindowBorder()
 {
-    int i;
-    for (i = 0; i < Bitmaps.size(); i++)
+    if (m_hBrush != NULL)
     {
-        if (Bitmaps[i] != NULL)
-        {
-            delete Bitmaps[i];
-        }
-    }
-    Bitmaps.clear();
-
-    for (i = 0; i < Buttons.size(); i++)
-    {
-        if (Buttons[i].Button != NULL)
-        {
-            delete Buttons[i].Button;
-        }
-    }
-    Buttons.clear();
-    
-    
-    for (i = 0; i < RegionList.size(); i++)
-   {
-       if (RegionList[i] != NULL) { delete RegionList[i]; }
-   }
-   RegionList.clear();
-
-   if (m_hBrush != NULL)
-   {
         ::DeleteObject(m_hBrush);
         m_hBrush = NULL;
-   }
+    }
 }
 
 //Width of bitmap at border position 'Pos'
 int CWindowBorder::BmpWidth(int Pos)
 {
-    if (Bitmaps.size()<=Pos) return 0;
-    if (Bitmaps[Pos]==NULL) return 0;
+    if (!Bitmaps[Pos]) return 0;
     return Bitmaps[Pos]->Width();
 }
 
 int CWindowBorder::BmpHeight(int Pos)
 {
-    if (Bitmaps.size()<=Pos) return 0;
-    if (Bitmaps[Pos]==NULL) return 0;
+    if (!Bitmaps[Pos]) return 0;
     return Bitmaps[Pos]->Height();
 }
 
@@ -246,12 +218,8 @@ HRGN CWindowBorder::MakeRegion(LPRECT lpRcExtra)
    
    if (bMerge)
    {
-        for (int i = 0; i < RegionList.size(); i++)
-        {
-           if (RegionList[i] != NULL) { delete RegionList[i]; }
-        }
         RegionList.clear();
-        MergeBorderRegions(&RegionList, lpRcExtra);
+        MergeBorderRegions(RegionList, lpRcExtra);
    }
    
    RECT rc;
@@ -266,7 +234,7 @@ HRGN CWindowBorder::MakeRegion(LPRECT lpRcExtra)
        rc.bottom += lpRcExtra->top + lpRcExtra->bottom;
    }
 
-   hLastRegion = CBitmapHolder::CreateWindowRegion(&rc,&RegionList);
+   hLastRegion = CBitmapHolder::CreateWindowRegion(rc, RegionList);
    return hLastRegion;
 }
 
@@ -285,9 +253,9 @@ BOOL CWindowBorder::FindBorderSizes()
         }
 
         #define ADJUSTWIDTH(Pos) \
-          if ((Bitmaps[(Pos)]!=NULL) && (Bitmaps[(Pos)]->Width() > MaxWidth)) { MaxWidth = Bitmaps[(Pos)]->Width(); }
+          if ((Bitmaps[(Pos)]) && (Bitmaps[(Pos)]->Width() > MaxWidth)) { MaxWidth = Bitmaps[(Pos)]->Width(); }
         #define ADJUSTHEIGHT(Pos) \
-          if ((Bitmaps[(Pos)]!=NULL) && (Bitmaps[(Pos)]->Height() > MaxHeight)) { MaxHeight = Bitmaps[(Pos)]->Height(); }
+          if ((Bitmaps[(Pos)]) && (Bitmaps[(Pos)]->Height() > MaxHeight)) { MaxHeight = Bitmaps[(Pos)]->Height(); }
 
         int MaxWidth;
         int MaxHeight;
@@ -393,7 +361,7 @@ BOOL CWindowBorder::FindLocations()
     int i;
     for (i = 0; i < Buttons.size(); i++)
     {
-        if ((Buttons[i].Button!=NULL) && (Buttons[i].Button->hWnd()!=NULL))
+        if ((Buttons[i].Button) && (Buttons[i].Button->hWnd() != NULL))
         {
             rc.left = Buttons[i].Location.x;
             rc.top  = Buttons[i].Location.y;
@@ -456,28 +424,28 @@ BOOL CWindowBorder::FindLocations()
 /**
     Merge connecting rects of the same line
 */
-void CWindowBorder::MergeLineRegion(int y,POINT *pRowList,int RowListSize,int TotalWidth,vector<LPRECT> *AllRegions)
+void CWindowBorder::MergeLineRegion(int y,POINT *pRowList,int RowListSize,int TotalWidth,vector<RECT>& AllRegions)
 {
-    RECT *rc = new RECT;
-    rc->top=y;
-    rc->bottom=y+1;
+    RECT rc;
+    rc.top=y;
+    rc.bottom=y+1;
     if (RowListSize==0)
     {        
-        rc->left=0;
-        rc->right=TotalWidth;        
-        AllRegions->push_back(rc);
+        rc.left=0;
+        rc.right=TotalWidth;        
+        AllRegions.push_back(rc);
         return;
     }
             
     if (RowListSize==1)
     {        
-        rc->left=pRowList[0].x;
-        rc->right=pRowList[0].y;
-        AllRegions->push_back(rc);
+        rc.left=pRowList[0].x;
+        rc.right=pRowList[0].y;
+        AllRegions.push_back(rc);
         return;
     }
 
-    int *SortedOrder = new int[RowListSize];
+    vector<int> SortedOrder(RowListSize);
 
     int i;    
     int j;
@@ -500,95 +468,93 @@ void CWindowBorder::MergeLineRegion(int y,POINT *pRowList,int RowListSize,int To
         }
     }
       
-    rc->left=pRowList[SortedOrder[0]].x;
-    rc->right=pRowList[SortedOrder[0]].y;
+    rc.left=pRowList[SortedOrder[0]].x;
+    rc.right=pRowList[SortedOrder[0]].y;
 
     for (i = 1; i < RowListSize; i++)
     {
         n = SortedOrder[i];
-        if (pRowList[n].x == rc->right)
+        if (pRowList[n].x == rc.right)
         {
-            rc->right = pRowList[n].y;
+            rc.right = pRowList[n].y;
         }
         else
         {
-           AllRegions->push_back(rc);
-           rc = new RECT;
-           rc->top = y;
-           rc->bottom = y+1;
-           rc->left = pRowList[n].x;
-           rc->right= pRowList[n].y;
+           AllRegions.push_back(rc);
+           rc.top = y;
+           rc.bottom = y+1;
+           rc.left = pRowList[n].x;
+           rc.right= pRowList[n].y;
         }
     }
-    AllRegions->push_back(rc);
-    delete[] SortedOrder;
+    AllRegions.push_back(rc);
 }
 
 /**
     Merge rects of border bitmaps & display area of the window
 */
-void CWindowBorder::MergeBorderRegions(vector<LPRECT> *AllRegions, LPRECT lpRcExtra)
+void CWindowBorder::MergeBorderRegions(vector<RECT>& AllRegions, LPRECT lpRcExtra)
 {
     if(Bitmaps.size() < WINDOWBORDER_LASTONE)
     {
         return;
     }
-    
+
     int TotalHeight = rcWindow.bottom-rcWindow.top;
-     int TotalWidth = rcWindow.right-rcWindow.left;
+    int TotalWidth = rcWindow.right-rcWindow.left;
 
-     int ExtraStartX = 0;
-     int ExtraStartY = 0;
-     int ExtraEndX   = 0;
-     int ExtraEndY   = 0;     
+    int ExtraStartX = 0;
+    int ExtraStartY = 0;
+    int ExtraEndX   = 0;
+    int ExtraEndY   = 0;     
 
-     vector<LPRECT> *RegionLists[WINDOWBORDER_LASTONE];     
+    vector<RECT>* RegionLists[WINDOWBORDER_LASTONE];
 
-     //Extra space
-     if (lpRcExtra != NULL)
-     {
-         ExtraStartX = lpRcExtra->left;         
-         ExtraStartY = lpRcExtra->top;
-         ExtraEndX   = lpRcExtra->right;
-         ExtraEndY   = lpRcExtra->bottom;         
-     }
+    //Extra space
+    if (lpRcExtra != NULL)
+    {
+        ExtraStartX = lpRcExtra->left;         
+        ExtraStartY = lpRcExtra->top;
+        ExtraEndX   = lpRcExtra->right;
+        ExtraEndY   = lpRcExtra->bottom;         
+    }
 
-     // Get/make regions of individual bitmaps
-     int Pos;
-     for (Pos = WINDOWBORDER_TOPLEFTCORNER; Pos < WINDOWBORDER_LASTONE; Pos++)
-     {
-          if (Bitmaps[Pos] == NULL)
-          {              
-              RegionLists[Pos] = NULL;
-          }
-          else
-          {
-              RegionLists[Pos] = Bitmaps[Pos]->GetRegionList();         
-          }
-     }
+    // Get/make regions of individual bitmaps
+    int Pos;
+    for (Pos = WINDOWBORDER_TOPLEFTCORNER; Pos < WINDOWBORDER_LASTONE; Pos++)
+    {
+      if (Bitmaps[Pos])
+      {              
+          RegionLists[Pos] = &(Bitmaps[Pos]->GetRegionList());
+      }
+      else
+      {
+          RegionLists[Pos] = NULL;
+      }
+    }
 
-     //Extra space on top
-     if (ExtraStartY > 0)
-     {
+    //Extra space on top
+    if (ExtraStartY > 0)
+    {
         for (int line=0; line < ExtraStartY; line++)
         {
-            LPRECT pRc = new RECT;
-            ::SetRect(pRc, 0, line, TotalWidth+ExtraStartX+ExtraEndY, line+1);
-            (*AllRegions).push_back(pRc);
+            RECT Rect;
+            ::SetRect(&Rect, 0, line, TotalWidth+ExtraStartX+ExtraEndY, line+1);
+            AllRegions.push_back(Rect);
         }
-     }
-         
-     POINT *pRowList = NULL;
-     POINT *p;
-     int *pRowListSize = NULL;
-     //LPRECT lpRc;
+    }
+     
+    POINT *pRowList = NULL;
+    POINT *p;
+    int *pRowListSize = NULL;
+    //LPRECT lpRc;
 
-     //Process top lines
-     if (TopSize > 0)
-     {
-         pRowList = new POINT[TopSize * (TotalWidth+2)];
-         pRowListSize = new int[TopSize];
-        
+    //Process top lines
+    if (TopSize > 0)
+    {
+         vector<POINT> pRowList(TopSize * (TotalWidth+2));
+         vector<int> pRowListSize(TopSize);
+
          int h;
          for (h = 0; h < TopSize; h++)
          {
@@ -610,160 +576,130 @@ void CWindowBorder::MergeBorderRegions(vector<LPRECT> *AllRegions, LPRECT lpRcEx
                  p++;
                  pRowListSize[h]++;
              }
-         }
-         
-         //Process all top bitmaps
-         for (Pos = WINDOWBORDER_TOPLEFTCORNER; Pos <= WINDOWBORDER_TOPRIGHTCORNER; Pos++)
-         {
-             if ((RegionLists[Pos] != NULL) && (RegionLists[Pos]->size() > 0))
-             {                 
-                 for (int i = 0; i < RegionLists[Pos]->size(); i++)
-                 {
-                     int h = (*RegionLists[Pos])[i]->top;
-                     if ((h>=0) && (h<TopSize))
-                     {
+        }
+     
+        //Process all top bitmaps
+        for (Pos = WINDOWBORDER_TOPLEFTCORNER; Pos <= WINDOWBORDER_TOPRIGHTCORNER; Pos++)
+        {
+            if ((RegionLists[Pos] != NULL) && (RegionLists[Pos]->size() > 0))
+            {                 
+                for (int i = 0; i < RegionLists[Pos]->size(); i++)
+                {
+                    int h = (*RegionLists[Pos])[i].top;
+                    if ((h>=0) && (h<TopSize))
+                    {
                         p = &pRowList[h * (TotalWidth+2) + pRowListSize[h] ];
-                        p->x = ExtraStartX + Locations[Pos].left + (*RegionLists[Pos])[i]->left;
+                        p->x = ExtraStartX + Locations[Pos].left + (*RegionLists[Pos])[i].left;
                         if (Pos == WINDOWBORDER_TOPMIDDLE) //variable size
                         {
                             p->y = p->x + Locations[Pos].right - Locations[Pos].left;
                         }
                         else
                         {
-                            p->y = p->x + ((*RegionLists[Pos])[i]->right - (*RegionLists[Pos])[i]->left);
+                            p->y = p->x + ((*RegionLists[Pos])[i].right - (*RegionLists[Pos])[i].left);
                         }
                         pRowListSize[h]++;
-                     }
-                 }
-             }
-         }
-         //Merge and add to total list
-         for (h = 0; h < TopSize; h++)
-         {
-            MergeLineRegion(ExtraStartY+h,&pRowList[h*(TotalWidth+2)],pRowListSize[h], ExtraStartX+TotalWidth+ExtraEndX, AllRegions);
-         }
-         if (pRowList != NULL)
-         {
-             delete[] pRowList;
-             pRowList = NULL;
-         }
-         if (pRowListSize != NULL)
-         {
-            delete[] pRowListSize;
-            pRowListSize = NULL;
-         }
-     }
-     
-     //Process middle lines
-     int MiddleHeight = TotalHeight - TopSize - BottomSize;
-     for (int line=0; line < MiddleHeight; line++)
+                    }
+                }
+            }
+        }
+        //Merge and add to total list
+        for (h = 0; h < TopSize; h++)
         {
-            LPRECT pRc = new RECT;
-            ::SetRect(pRc, 0, ExtraStartY+TopSize+line, ExtraStartX+TotalWidth+ExtraEndX, ExtraStartY+TopSize+line+1);
-            (*AllRegions).push_back(pRc);
+            MergeLineRegion(ExtraStartY+h,&pRowList[h*(TotalWidth+2)],pRowListSize[h], ExtraStartX+TotalWidth+ExtraEndX, AllRegions);
+        }
+    }
+
+    //Process middle lines
+    int MiddleHeight = TotalHeight - TopSize - BottomSize;
+    for (int line=0; line < MiddleHeight; line++)
+    {
+        RECT Rect;
+        ::SetRect(&Rect, 0, ExtraStartY+TopSize+line, ExtraStartX+TotalWidth+ExtraEndX, ExtraStartY+TopSize+line+1);
+        AllRegions.push_back(Rect);
+    }
+
+    //Process bottom lines
+    if (BottomSize > 0)
+    {
+        pRowList = new POINT[BottomSize * (TotalWidth+2)];
+        pRowListSize = new int[BottomSize];
+        int h;
+        for (h = 0; h < BottomSize; h++)
+        {
+            p = &pRowList[h * (TotalWidth+2) + pRowListSize[h] ];
+            pRowListSize[h] = 0;
+            if (ExtraStartX > 0)
+            {
+                p->x = 0;
+                p->y = ExtraStartX;
+                pRowListSize[h]++;
+                p++;
+            }
+            if (ExtraEndX > 0)
+            {
+                p->x = ExtraStartX + TotalWidth;
+                p->y = ExtraStartX + TotalWidth + ExtraEndX;
+                p++;
+                pRowListSize[h]++;
+            }
         }
 
-     //Process bottom lines
-     if (BottomSize > 0)
-     {
-         pRowList = new POINT[BottomSize * (TotalWidth+2)];
-         pRowListSize = new int[BottomSize];
-         int h;
-         for (h = 0; h < BottomSize; h++)
+        //Process all bitmaps at the bottom
+        for (Pos = WINDOWBORDER_BOTTOMLEFTCORNER; Pos >= WINDOWBORDER_BOTTOMRIGHTCORNER; Pos--)
+        {
+         if ((RegionLists[Pos] != NULL) && (RegionLists[Pos]->size() > 0))
          {
-             p = &pRowList[h * (TotalWidth+2) + pRowListSize[h] ];
-             pRowListSize[h] = 0;
-             if (ExtraStartX > 0)
+             for (int i = 0; i < RegionLists[Pos]->size(); i++)
              {
-                 p->x = 0;
-                 p->y = ExtraStartX;
-                 pRowListSize[h]++;
-                 p++;
-             }
-             if (ExtraEndX > 0)
-             {
-                 p->x = ExtraStartX + TotalWidth;
-                 p->y = ExtraStartX + TotalWidth + ExtraEndX;
-                 p++;
-                 pRowListSize[h]++;
-             }
-         }
-         
-         //Process all bitmaps at the bottom
-         for (Pos = WINDOWBORDER_BOTTOMLEFTCORNER; Pos >= WINDOWBORDER_BOTTOMRIGHTCORNER; Pos--)
-         {
-             if ((RegionLists[Pos] != NULL) && (RegionLists[Pos]->size() > 0))
-             {
-                 for (int i = 0; i < RegionLists[Pos]->size(); i++)
+                 int h = (*RegionLists[Pos])[i].top;                     
+                 if ((h>=0) && (h<BottomSize))
                  {
-                     int h = (*RegionLists[Pos])[i]->top;                     
-                     if ((h>=0) && (h<BottomSize))
-                     {
-                        p = &pRowList[h * (TotalWidth+2) + pRowListSize[h] ];
-                        p->x = ExtraStartX + Locations[Pos].left + (*RegionLists[Pos])[i]->left;
-                        if (Pos == WINDOWBORDER_BOTTOMMIDDLE) //variable size
-                        {
-                            p->y = p->x + Locations[Pos].right - Locations[Pos].left;
-                        }
-                        else
-                        {
-                            p->y = p->x + ((*RegionLists[Pos])[i]->right - (*RegionLists[Pos])[i]->left);
-                        }
-                        pRowListSize[h]++;
-                     }
+                    p = &pRowList[h * (TotalWidth+2) + pRowListSize[h] ];
+                    p->x = ExtraStartX + Locations[Pos].left + (*RegionLists[Pos])[i].left;
+                    if (Pos == WINDOWBORDER_BOTTOMMIDDLE) //variable size
+                    {
+                        p->y = p->x + Locations[Pos].right - Locations[Pos].left;
+                    }
+                    else
+                    {
+                        p->y = p->x + ((*RegionLists[Pos])[i].right - (*RegionLists[Pos])[i].left);
+                    }
+                    pRowListSize[h]++;
                  }
              }
          }
-         
-         for (h = 0; h < BottomSize; h++)
-         {
-            MergeLineRegion(h+ExtraStartY+TotalHeight-BottomSize,&pRowList[h*(TotalWidth+2)],pRowListSize[h], ExtraStartX+TotalWidth+ExtraEndX, AllRegions);
-         }
-         if (pRowList != NULL)
-         {
-             delete[] pRowList;
-             pRowList = NULL;
-         }
-         if (pRowListSize != NULL)
-         {
-            delete[] pRowListSize;
-            pRowListSize = NULL;
-         }
-     }
+        }
 
-     //Extra space below
-     if (ExtraEndY > 0)
-     {
+        for (h = 0; h < BottomSize; h++)
+        {
+        MergeLineRegion(h+ExtraStartY+TotalHeight-BottomSize,&pRowList[h*(TotalWidth+2)],pRowListSize[h], ExtraStartX+TotalWidth+ExtraEndX, AllRegions);
+        }
+    }
+
+    //Extra space below
+    if (ExtraEndY > 0)
+    {
         for (int line=0; line < ExtraEndY; line++)
         {
-            LPRECT pRc = new RECT;
-            ::SetRect(pRc, 0, ExtraStartY+TotalHeight+line, TotalWidth+ExtraStartX+ExtraEndY, ExtraStartY+TotalHeight+line+1);
-            (*AllRegions).push_back(pRc);
+            RECT Rect;
+            ::SetRect(&Rect, 0, ExtraStartY+TotalHeight+line, TotalWidth+ExtraStartX+ExtraEndY, ExtraStartY+TotalHeight+line+1);
+            AllRegions.push_back(Rect);
         }
-     }
-     //LOG(2,"Skin: %08x: Merged region list: %d pieces",this->hWnd,AllRegions->size());
+    }
+    //LOG(2,"Skin: %08x: Merged region list: %d pieces",this->hWnd,AllRegions->size());
 }
 
 
 //Set bitmap for border piece 'Position'
-BOOL CWindowBorder::SetBorderBitmap(eWindowBorderPosition Position, int State, HBITMAP hBmp, HBITMAP hBmpMask, int DrawMode, BOOL bDeleteBitmapOnExit)
+BOOL CWindowBorder::SetBorderBitmap(eWindowBorderPosition Position, int State, SmartPtr<CBitmapState> BitmapState, int DrawMode)
 {
     if ((Position<0) || (Position >= WINDOWBORDER_LASTONE))
     {
         return FALSE;
     }
-    if (hBmp == NULL) 
-    {
-        return FALSE;
-    }
-    if (Bitmaps.size()==0)
-    {
-        int i;
-        for (i = 0; i < WINDOWBORDER_LASTONE; i++)
-        {
-            Bitmaps.push_back(NULL);
-        }
-    }
+
+    Bitmaps.resize(WINDOWBORDER_LASTONE);
     
     switch(Position)
     {        
@@ -779,12 +715,12 @@ BOOL CWindowBorder::SetBorderBitmap(eWindowBorderPosition Position, int State, H
 
     bBitmapsChanged = TRUE;
 
-    if (Bitmaps[Position]==NULL) 
+    if (!Bitmaps[Position]) 
     {
         Bitmaps[Position] = new CBitmapHolder(DrawMode);
     }
     
-    Bitmaps[Position]->Add(hBmp,hBmpMask,State, bDeleteBitmapOnExit);
+    Bitmaps[Position]->Add(BitmapState,State);
     return TRUE;
 }
 
@@ -824,11 +760,11 @@ void CWindowBorder::Paint(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPShift)
           if ( ((rcPaint.right-rcPaint.left)>0) &&
               ((rcPaint.bottom-rcPaint.top)>0) )
           {               
-             if (Bitmaps[Pos] != NULL)
+             if (Bitmaps[Pos])
              {
                 POINT PBmp;                
-                PBmp.x=rcPaint.left-Locations[Pos].left;
-                PBmp.y =rcPaint.top-Locations[Pos].top;
+                PBmp.x = rcPaint.left - Locations[Pos].left;
+                PBmp.y = rcPaint.top - Locations[Pos].top;
 
                 if (pPShift!=NULL)
                 {
@@ -871,7 +807,7 @@ void CWindowBorder::UpdateButtonLocations()
     }
     for (int ButtonPos = 0; ButtonPos < Buttons.size(); ButtonPos++)
     {
-        if ((Buttons[ButtonPos].Button != NULL) && (Buttons[ButtonPos].Button->hWnd()!=NULL))
+        if ((Buttons[ButtonPos].Button) && (Buttons[ButtonPos].Button->hWnd()!=NULL))
         {                                
             if (IsBorderVisible)
             {                          
@@ -917,8 +853,7 @@ void CWindowBorder::SolidBorder(int left,int top, int right, int bottom, COLORRE
 
 
 //Load bitmaps & buttons
-BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
-  vector<int> *Results, CBitmapCache *pBitmapCache)
+BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection, vector<int> *Results)
 {
     int Pos;
     int ButtonPos;
@@ -947,7 +882,7 @@ BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
         BitmapsFromIniSection.Register(Buttons[ButtonPos].sIniEntryClick);
     }
 
-    if (BitmapsFromIniSection.Read(szSkinIniFile, szSection, "Bitmap", "Mask", pBitmapCache) < 0)
+    if (BitmapsFromIniSection.Read(szSkinIniFile, szSection, "Bitmap", "Mask") < 0)
     {
         return FALSE;
     }
@@ -957,11 +892,10 @@ BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
     // Load them
     for (Pos = 0; Pos < WINDOWBORDER_LASTONE; Pos++)
     {
-        if (BitmapsFromIniSection.Get(szBorderNames[Pos])!=NULL)
+        if (BitmapsFromIniSection.Get(szBorderNames[Pos]))
         {
             SetBorderBitmap((eWindowBorderPosition)Pos,0,
-                        BitmapsFromIniSection.Get(szBorderNames[Pos]),
-                        BitmapsFromIniSection.GetMask(szBorderNames[Pos]), 2, TRUE);
+                        BitmapsFromIniSection.Get(szBorderNames[Pos]), 2);
             LOG(2,"Skin: [%s] Load bitmap: pos %d ok (%s).",szSection,Pos,szBorderNames[Pos]);
         }
     }
@@ -979,7 +913,7 @@ BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
         PntLocation.x = 0;
         PntLocation.y = 0;
 
-        sExtra = BitmapsFromIniSection.GetInfo(Buttons[ButtonPos].sIniEntryDefault);
+        sExtra = BitmapsFromIniSection.Get(Buttons[ButtonPos].sIniEntryDefault)->m_ExtraInfo;
 
         if (sExtra.length() > 0)
         {            
@@ -1052,24 +986,21 @@ BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
         
         if (SetButtonBitmap(Buttons[ButtonPos].sID, ButtonSubPos, (eWindowBorderPosition)RelativePos, 
                 PntLocation.x, PntLocation.y, 
-                BitmapsFromIniSection.Get(Buttons[ButtonPos].sIniEntryDefault),
-                BitmapsFromIniSection.GetMask(Buttons[ButtonPos].sIniEntryDefault), TRUE ))
+                BitmapsFromIniSection.Get(Buttons[ButtonPos].sIniEntryDefault)))
         {            
         }
         ButtonSubPos++;
 
         if (SetButtonBitmap(Buttons[ButtonPos].sID, ButtonSubPos, (eWindowBorderPosition)RelativePos, 
                 PntLocation.x, PntLocation.y, 
-                BitmapsFromIniSection.Get(Buttons[ButtonPos].sIniEntryMouseOver),
-                BitmapsFromIniSection.GetMask(Buttons[ButtonPos].sIniEntryMouseOver), TRUE ) )
+                BitmapsFromIniSection.Get(Buttons[ButtonPos].sIniEntryMouseOver)) )
         {            
         }
         ButtonSubPos++;
 
         if (SetButtonBitmap(Buttons[ButtonPos].sID, ButtonSubPos, (eWindowBorderPosition)RelativePos, 
                 PntLocation.x, PntLocation.y, 
-                BitmapsFromIniSection.Get(Buttons[ButtonPos].sIniEntryClick),
-                BitmapsFromIniSection.GetMask(Buttons[ButtonPos].sIniEntryClick), TRUE ) )
+                BitmapsFromIniSection.Get(Buttons[ButtonPos].sIniEntryClick)) )
         {            
         }
     }
@@ -1079,31 +1010,10 @@ BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
 
 void CWindowBorder::ClearSkin()
 {
-   int i;
-    for (i = 0; i < Bitmaps.size(); i++)
-    {
-        if (Bitmaps[i] != NULL)
-        {
-            delete Bitmaps[i];
-        }
-    }
     Bitmaps.clear();
     bBitmapsChanged = TRUE;
 
-    for (i = 0; i < Buttons.size(); i++)
-    {
-        if (Buttons[i].Button != NULL)
-        {
-            delete Buttons[i].Button;
-            Buttons[i].Button = NULL;
-        }
-    }
     Buttons.clear();
-        
-    for (i = 0; i < RegionList.size(); i++)
-    {
-       if (RegionList[i] != NULL) { delete RegionList[i]; }
-    }
     RegionList.clear();
 
     m_IsSkinned = FALSE;
@@ -1135,7 +1045,7 @@ BOOL CWindowBorder::RegisterButton(string sID, eBitmapAsButtonType ButtonType, s
        bi.LastLocation.x = -1;
        bi.LastLocation.y = -1;
 
-       if ( (bi.Button == NULL) || (bi.Button->hWnd() == NULL))
+       if (bi.Button->hWnd() == NULL)
        {
             return FALSE;
        }
@@ -1152,7 +1062,7 @@ BOOL CWindowBorder::RegisterButton(string sID, eBitmapAsButtonType ButtonType, s
 }
 
 
-BOOL CWindowBorder::SetButtonBitmap(string sID, int WhichBitmap, eWindowBorderPosition RelPos, int x, int y, HBITMAP hBmp, HBITMAP hBmpMask1, BOOL bDeleteBitmapOnExit)
+BOOL CWindowBorder::SetButtonBitmap(string sID, int WhichBitmap, eWindowBorderPosition RelPos, int x, int y, SmartPtr<CBitmapState> BitmapState)
 {
     int Position = 0;
     while (Position < Buttons.size())
@@ -1166,7 +1076,7 @@ BOOL CWindowBorder::SetButtonBitmap(string sID, int WhichBitmap, eWindowBorderPo
         return FALSE; //unknown
     }
 
-    if ( (Buttons[Position].Button == NULL) || (Buttons[Position].Button->hWnd() == NULL))
+    if ( (!Buttons[Position].Button) || (Buttons[Position].Button->hWnd() == NULL))
     {
         return FALSE;
     }
@@ -1175,7 +1085,7 @@ BOOL CWindowBorder::SetButtonBitmap(string sID, int WhichBitmap, eWindowBorderPo
     Buttons[Position].Location.y = y;
     Buttons[Position].RelativePosition = RelPos;
         
-    Buttons[Position].Button->AddBitmap(WhichBitmap, hBmp,hBmpMask1, bDeleteBitmapOnExit);
+    Buttons[Position].Button->AddBitmap(WhichBitmap, BitmapState);
     
     return TRUE;
 }

@@ -61,6 +61,8 @@
 #include <vector>
 #include <string>
 
+#include "../DScaler/SmartPtr.h"
+
 // fix for including external header with IDC_STATIC defined
 #ifdef IDC_STATIC
 #undef IDC_STATIC

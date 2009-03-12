@@ -49,6 +49,8 @@ class ISetting;
 class CSource : public CSettingsHolder, public CEventObject
 {
 public:
+    virtual ~CSource();
+
     /// start capturing.  Perform any initilization here
     virtual void Start() = 0;
     /// start capturing.  Perform any clean-up here
@@ -104,8 +106,8 @@ public:
     /// Get the tuner Id - this method may (and should) be overriden
     virtual eTunerId GetTunerId() 
     {
-        ITuner* tuner = GetTuner();
-        if (NULL == tuner)
+        SmartPtr<ITuner> tuner = GetTuner();
+        if (!tuner)
         {
             return TUNER_ABSENT;
         }
@@ -169,7 +171,7 @@ public:
     virtual const char* GetInputName(eSourceInputType InputType, int Nr) = 0;
     virtual BOOL InputHasTuner(eSourceInputType InputType, int Nr) = 0;
 
-    virtual ITuner* GetTuner() = 0;
+    virtual SmartPtr<ITuner> GetTuner() = 0;
 
     /// returns NULL if there is no tree settings page
     virtual CTreeSettingsPage* GetTreeSettingsPage() = 0;
@@ -186,7 +188,6 @@ public:
 
 protected:
     CSource(long SetMessage, long MenuId);
-    ~CSource();
 
     /**
      * Notify dscaler that the input size has changed.

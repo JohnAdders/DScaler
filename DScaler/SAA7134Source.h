@@ -45,7 +45,7 @@ class CSAA7134Source : public CSource,
 {
     //DECLARE_CLASS_SETTINGS(CSAA7134Source);
 public:
-    CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PagelistDMAMem[kMAX_PAGETABLES], CUserMemory* DisplayDMAMem[kMAX_FRAMEBUFFERS], CUserMemory* VBIDMAMem[kMAX_FRAMEBUFFERS], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
+    CSAA7134Source(SmartPtr<CSAA7134Card> pSAA7134Card, SmartPtr<CContigMemory> PagelistDMAMem[kMAX_PAGETABLES], SmartPtr<CUserMemory> DisplayDMAMem[kMAX_FRAMEBUFFERS], SmartPtr<CUserMemory> VBIDMAMem[kMAX_FRAMEBUFFERS], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
     ~CSAA7134Source();
 
     void Start();
@@ -55,7 +55,7 @@ public:
     void Mute();
     void UnMute();
 
-    CSAA7134Card* GetCard();
+    SmartPtr<CSAA7134Card> GetCard();
 
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     void DecodeVBI(TDeinterlaceInfo* pInfo);
@@ -66,7 +66,7 @@ public:
     BOOL IsInTunerMode();
     BOOL IsVideoPresent();
 
-    ITuner* GetTuner();
+    SmartPtr<ITuner> GetTuner();
 
     void SetFormat(eVideoFormat NewFormat);
     eVideoFormat GetFormat();
@@ -179,11 +179,11 @@ protected:
     HINSTANCE       m_hSAA7134ResourceInst;
 
 private:
-    CSAA7134Card*   m_pSAA7134Card;
+    SmartPtr<CSAA7134Card> m_pSAA7134Card;
+    SmartPtr<CUserMemory> m_VBIDMAMem[kMAX_FRAMEBUFFERS];
+    SmartPtr<CUserMemory> m_DisplayDMAMem[kMAX_FRAMEBUFFERS];
     BYTE*           m_pDisplay[kMAX_FRAMEBUFFERS];
     BYTE*           m_pVBILines[kMAX_FRAMEBUFFERS];
-    CUserMemory*    m_VBIDMAMem[kMAX_FRAMEBUFFERS];
-    CUserMemory*    m_DisplayDMAMem[kMAX_FRAMEBUFFERS];
     DWORD           m_DisplayPageTablePhysical[kMAX_VID_PAGETABLES];
     DWORD*          m_DisplayPageTableLinear[kMAX_VID_PAGETABLES];
     DWORD           m_VBIPageTablePhysical[kMAX_VBI_PAGETABLES];

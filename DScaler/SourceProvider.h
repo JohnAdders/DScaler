@@ -32,7 +32,7 @@ class ISourceProvider
 {
 public:
     virtual int GetNumberOfSources() = 0;
-    virtual CSource* GetSource(int SourceIndex) = 0;
+    virtual SmartPtr<CSource> GetSource(int SourceIndex) = 0;
 };
 
 #endif

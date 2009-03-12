@@ -50,7 +50,7 @@
 
 extern long EnableCancelButton;
 
-CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
+CBT848Source::CBT848Source(SmartPtr<CBT848Card> pBT848Card, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
     CSource(WM_BT848_GETVALUE, IDC_BT848),
     m_pBT848Card(pBT848Card),
     m_CurrentX(720),
@@ -118,7 +118,6 @@ CBT848Source::~CBT848Source()
     EventCollector->Unregister(this);
 
     KillTimer(GetMainWnd(), TIMER_MSP);
-    delete m_pBT848Card;
 }
 
 void CBT848Source::SetSourceAsCurrent()
@@ -185,14 +184,7 @@ void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long Ol
     if ((Event == EVENT_AUDIOSTANDARD_DETECTED) || (Event == EVENT_AUDIOCHANNELSUPPORT_DETECTED))
     {
         CAudioDecoder* pAudioDecoder;
-        try 
-        {
-            pAudioDecoder = dynamic_cast<CAudioDecoder*>(pEventObject);
-        }
-        catch (...)
-        {
-            pAudioDecoder = NULL;
-        }
+        pAudioDecoder = dynamic_cast<CAudioDecoder*>(pEventObject);
         
         if ((pAudioDecoder!=NULL) && m_pBT848Card->IsMyAudioDecoder(pAudioDecoder))
         {
@@ -922,7 +914,7 @@ void CBT848Source::SetWidth(int w)
     m_PixelWidth->SetValue(w);
 }
 
-CBT848Card* CBT848Source::GetBT848Card()
+SmartPtr<CBT848Card> CBT848Source::GetBT848Card()
 {
     return m_pBT848Card;
 }
@@ -1856,7 +1848,7 @@ void CBT848Source::ChangeTVSettingsBasedOnTuner()
     {
         // be a bit defensive here to avoid a possible
         // crash
-        if(m_pBT848Card->GetTuner() != NULL)
+        if(m_pBT848Card->GetTuner())
         {
             eVideoFormat videoFormat = m_pBT848Card->GetTuner()->GetDefaultVideoFormat();
             m_VideoFormat->ChangeDefault(videoFormat);
@@ -2040,7 +2032,7 @@ BOOL CBT848Source::InputHasTuner(eSourceInputType InputType, int Nr)
 }
 
 
-ITuner* CBT848Source::GetTuner() 
+SmartPtr<ITuner> CBT848Source::GetTuner() 
 {
     return m_pBT848Card->GetTuner();
 }

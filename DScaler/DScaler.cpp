@@ -4068,6 +4068,8 @@ void MainWndOnInitBT(HWND hWnd)
                 {
                     if(GetActiveOutput()->Overlay_Create() == TRUE)
                     {
+                        // clear the error that appeared when we failed to start D3D
+                        OSD_Clear();
                         OutputMethod = IOutput::OUT_OVERLAY;
                         bInitOK = TRUE;
                     }
@@ -4086,6 +4088,8 @@ void MainWndOnInitBT(HWND hWnd)
                     {
                         if(GetActiveOutput()->Overlay_Create() == TRUE)
                         {
+                            // clear the error that appeared when we failed to start the overlay
+                            OSD_Clear();
                             OutputMethod = IOutput::OUT_D3D;
                             bInitOK = TRUE;
                         }

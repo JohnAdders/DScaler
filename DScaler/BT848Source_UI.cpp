@@ -36,6 +36,7 @@
 #include "SettingsPerChannel.h"
 #include "Slider.h"
 #include "OSD.h"
+#include "LibraryCache.h"
 
 extern const char *TunerNames[TUNER_LASTONE];
 long EnableCancelButton = 1;
@@ -1524,7 +1525,7 @@ void CBT848Source::InitializeUI()
     HMENU           hSubMenu;
     LPSTR           pMenuName;
 
-    m_hBT8x8ResourceInst = LoadLibrary("BT8x8Res.dll");
+    m_hBT8x8ResourceInst = LibraryCache::GetLibraryHandle("BT8x8Res.dll");
 
     if(m_hBT8x8ResourceInst != NULL)
     {

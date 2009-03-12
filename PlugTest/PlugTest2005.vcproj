@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="PlugTest"
 	ProjectGUID="{6B322FA6-F4A0-4190-96F7-FBEDAC2D863E}"
+	RootNamespace="PlugTest"
 	>
 	<Platforms>
 		<Platform
@@ -436,6 +437,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\DScaler\LibraryCache.cpp"
+				>
+			</File>
+			<File
 				RelativePath="PlugTest.cpp"
 				>
 				<FileConfiguration
@@ -542,6 +547,10 @@
 			>
 			<File
 				RelativePath="..\DScaler\cpu.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DScaler\LibraryCache.h"
 				>
 			</File>
 			<File

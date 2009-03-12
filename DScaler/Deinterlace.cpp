@@ -35,6 +35,7 @@
 #include "OSD.h"
 #include "DebugLog.h"
 #include "Providers.h"
+#include "DynamicFunction.h"
 
 // Statistics
 long    nInitialTicks = -1;
@@ -701,30 +702,21 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
 
 void LoadDeintPlugin(LPCSTR szFileName)
 {
-    GETDEINTERLACEPLUGININFO* pfnGetDeinterlacePluginInfo;
+    DynamicFunctionC1<DEINTERLACE_METHOD*, long> GetDeinterlacePluginInfo(szFileName, "GetDeinterlacePluginInfo");
     DEINTERLACE_METHOD* pMethod;
-    HMODULE hPlugInMod;
 
-    hPlugInMod = LoadLibrary(szFileName);
-    if(hPlugInMod == NULL)
-    {
-        return;
-    }
-    
-    pfnGetDeinterlacePluginInfo = (GETDEINTERLACEPLUGININFO*)GetProcAddress(hPlugInMod, "GetDeinterlacePluginInfo");
-    if(pfnGetDeinterlacePluginInfo == NULL)
+    if(!GetDeinterlacePluginInfo)
     {
         return;
     }
 
-    pMethod = pfnGetDeinterlacePluginInfo(CpuFeatureFlags);
+    pMethod = GetDeinterlacePluginInfo(CpuFeatureFlags);
     if(pMethod != NULL)
     {
         if(pMethod->SizeOfStructure == sizeof(DEINTERLACE_METHOD) &&
             pMethod->DeinterlaceStructureVersion >= DEINTERLACE_VERSION_3)
         {
             VideoDeintMethods[NumVideoModes] = pMethod;
-            pMethod->hModule = hPlugInMod;
             
             // read in settings
             for(int i = 0; i < pMethod->nSettings; i++)
@@ -749,7 +741,6 @@ void UnloadDeinterlacePlugins()
         {
             VideoDeintMethods[i]->pfnPluginExit();
         }
-        FreeLibrary(VideoDeintMethods[i]->hModule);
         VideoDeintMethods[i] = NULL;
     }
     NumVideoModes = 0;

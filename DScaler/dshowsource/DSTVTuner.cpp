@@ -26,6 +26,7 @@
 
 #include "DSTVTuner.h"
 #include "DebugLog.h"
+#include "LibraryCache.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -491,7 +492,7 @@ static void *GetRcData(LPCTSTR lpFileName, LPCTSTR lpName, LPCTSTR lpType, HMODU
 {
     if (hDSTunerModule == NULL)
     {
-        hDSTunerModule = LoadLibrary(lpFileName);
+        hDSTunerModule = LibraryCache::GetLibraryHandle(lpFileName);
     }
 
     HRSRC hDSTunerResource = FindResource(hDSTunerModule, lpName, lpType);

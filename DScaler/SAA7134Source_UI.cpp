@@ -42,6 +42,7 @@
 #include "SettingsPerChannel.h"
 #include "Slider.h"
 #include "..\help\helpids.h"
+#include "LibraryCache.h"
 
 
 // This identifies the position of the audio standard
@@ -72,7 +73,7 @@ void CSAA7134Source::InitializeUI()
     HMENU           hSubMenu;
     LPSTR           pMenuName;
 
-    m_hSAA7134ResourceInst = LoadLibrary("SAA7134Res.dll");
+    m_hSAA7134ResourceInst = LibraryCache::GetLibraryHandle("SAA7134Res.dll");
 
     if (m_pSAA7134Card->GetDeviceId() != 0x7130)
     {
@@ -116,16 +117,6 @@ void CSAA7134Source::InitializeUI()
     RemoveMenu(m_hMenu, IDM_ADV_VIDEOSETTINGS, MF_BYCOMMAND);
 #endif
 }
-
-
-void CSAA7134Source::CleanupUI()
-{
-    if (m_hSAA7134ResourceInst != NULL)
-    {
-        FreeLibrary(m_hSAA7134ResourceInst);
-    }
-}
-
 
 BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {

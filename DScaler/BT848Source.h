@@ -175,7 +175,7 @@ private:
 
     BOOL         m_InitialSetup;
 
-    HINSTANCE m_hBT8x8ResourceInst;
+    HMODULE m_hBT8x8ResourceInst;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Contrast);

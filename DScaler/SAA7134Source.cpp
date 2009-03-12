@@ -125,7 +125,6 @@ CSAA7134Source::CSAA7134Source(SmartPtr<CSAA7134Card> pSAA7134Card, SmartPtr<CCo
 CSAA7134Source::~CSAA7134Source()
 {
 
-    CleanupUI();
     KillTimer(GetMainWnd(), TIMER_MSP);
 
     // SAA7134 reserves input -1 as the clean up indicator

@@ -7,22 +7,17 @@
 #include "RemoteInput.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
+#include "DynamicFunction.h"
 
 #ifdef WM_INPUT
-BOOL (WINAPI* lpRegisterRawInputDevices)(IN PCRAWINPUTDEVICE pRawInputDevices,IN UINT uiNumDevices,IN UINT cbSize) = NULL;
-UINT (WINAPI* lpGetRawInputData)(IN HRAWINPUT hRawInput,IN UINT uiCommand,OUT LPVOID pData,IN OUT PUINT pcbSize,IN UINT cbSizeHeader) = NULL;
+DynamicFunctionS3<BOOL, PCRAWINPUTDEVICE, UINT, UINT> lpRegisterRawInputDevices("user32.dll", "RegisterRawInputDevices");
+DynamicFunctionS5<UINT, HRAWINPUT, UINT, LPVOID ,PUINT, UINT> lpGetRawInputData("user32.dll", "GetRawInputData");
 #endif
 
 
 void RemoteRegister()
 {
 #ifdef WM_INPUT
-    // we've got to load these functions dynamically 
-    // so that we continue to run on NT 4
-    HINSTANCE h = LoadLibrary("user32.dll");
-    lpRegisterRawInputDevices = (BOOL (WINAPI *)(IN PCRAWINPUTDEVICE pRawInputDevices,IN UINT uiNumDevices,IN UINT cbSize))GetProcAddress(h,"RegisterRawInputDevices");
-    lpGetRawInputData = (UINT (WINAPI*)(IN HRAWINPUT hRawInput,IN UINT uiCommand,OUT LPVOID pData,IN OUT PUINT pcbSize,IN UINT cbSizeHeader))GetProcAddress(h,"GetRawInputData");;
-
     // register for messages from MCE remote
     // this will mean we will get sent WM_INPUT messages
     if(lpRegisterRawInputDevices && lpGetRawInputData)
@@ -36,11 +31,6 @@ void RemoteRegister()
 
         lpRegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
     }
-    // If the library was loaded by calling LoadLibrary(),
-    // then you must use FreeLibrary() to let go of it.
-    // Since we will already have an outstanding reference to user32.dll
-    // it's OK to Free it here before we've even called the functions
-    FreeLibrary(h);
 #endif
 }
 

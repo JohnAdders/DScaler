@@ -38,7 +38,6 @@ class COpenDlg : public CDialog
 // Construction
 public:
     COpenDlg(CWnd* pParent = NULL);   // standard constructor
-    virtual ~COpenDlg();
     
     /**
      * Creates a open dialog and shows it.
@@ -77,11 +76,10 @@ protected:
 private:
     /**
      * Makes the edit box auto complete.
-     * This will only work with interlent explorer 5 or later installed,
+     * This will only work with internet explorer 5 or later installed,
      * if it is not installed this function will do nothing.
      */
     void SetupAutoComplete();
-    HINSTANCE m_hSHLWAPIDLL;
 };
 
 //{{AFX_INSERT_LOCATION}}

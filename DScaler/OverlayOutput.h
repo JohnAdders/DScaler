@@ -18,6 +18,7 @@
 
 #pragma once
 #include "ioutput.h"
+#include "DynamicFunction.h"
 
 typedef struct 
 {
@@ -141,11 +142,9 @@ private:
     LPDIRECTDRAW lpDD; 
     // we've got to load these functions dynamically 
     // so that we continue to run on NT 4
-    HMONITOR (WINAPI * lpMonitorFromWindow)( IN HWND hwnd, IN DWORD dwFlags);
-    BOOL (WINAPI* lpGetMonitorInfoA)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi);
-    HRESULT (WINAPI* lpDirectDrawCreate)( GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter );
-    HINSTANCE hUserLib;
-    HINSTANCE hDDrawLib;
+    DynamicFunctionS2<HMONITOR, HWND, DWORD> m_lpMonitorFromWindow;
+    DynamicFunctionS2<BOOL, HMONITOR, LPMONITORINFO> m_lpGetMonitorInfoA;
+    DynamicFunctionS3<HRESULT, GUID*, LPDIRECTDRAW*, IUnknown*> m_lpDirectDrawCreate;
 };
 
 CTreeSettingsGeneric* Overlay_GetTreeSettingsPage();

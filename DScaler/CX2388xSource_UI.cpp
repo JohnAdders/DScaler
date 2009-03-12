@@ -39,6 +39,7 @@
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
+#include "LibraryCache.h"
 
 extern const char *TunerNames[TUNER_LASTONE];
 
@@ -668,7 +669,7 @@ void CCX2388xSource::InitializeUI()
     HMENU           hSubMenu;
     LPSTR           pMenuName;
 
-    m_hCX2388xResourceInst = LoadLibrary("CX2388xRes.dll");
+    m_hCX2388xResourceInst = LibraryCache::GetLibraryHandle("CX2388xRes.dll");
 
     if(m_hCX2388xResourceInst != NULL)
     {

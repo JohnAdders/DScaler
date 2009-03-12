@@ -40,6 +40,7 @@
 #include "crash.h"
 #include "disasm.h"
 #include "list.h"
+#include "DynamicFunction.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -643,56 +644,110 @@ static ModuleInfo *CrashGetModules(void *&ptr)
     // use PSAPI.DLL.  With Windows 2000, we can use both (but prefer
     // PSAPI.DLL).
 
-    HMODULE hmodPSAPI = LoadLibrary("psapi.dll");
 
-    if (hmodPSAPI)
+    DynamicFunctionS4<BOOL, HANDLE, HMODULE*, DWORD, LPDWORD> pEnumProcessModules("psapi.dll", "EnumProcessModules");
+    DynamicFunctionS4<DWORD, HANDLE, HMODULE, LPTSTR, DWORD> pGetModuleBaseName("psapi.dll", "GetModuleBaseNameA");
+    DynamicFunctionS4<BOOL, HANDLE, HMODULE, Win32ModuleInfo*, DWORD> pGetModuleInformation("psapi.dll", "GetModuleInformation");
+    HMODULE *pModules, *pModules0 = (HMODULE *)((char *)pMem + 0xF000);
+    DWORD cbNeeded;
+
+    if (pEnumProcessModules && pGetModuleBaseName && pGetModuleInformation
+        && pEnumProcessModules(GetCurrentProcess(), pModules0, 0x1000, &cbNeeded))
     {
-        // Using PSAPI.DLL.  Call EnumProcessModules(), then GetModuleFileNameEx()
-        // and GetModuleInformation().
 
-        PENUMPROCESSMODULES pEnumProcessModules = (PENUMPROCESSMODULES)GetProcAddress(hmodPSAPI, "EnumProcessModules");
-        PGETMODULEBASENAME pGetModuleBaseName = (PGETMODULEBASENAME)GetProcAddress(hmodPSAPI, "GetModuleBaseNameA");
-        PGETMODULEINFORMATION pGetModuleInformation = (PGETMODULEINFORMATION)GetProcAddress(hmodPSAPI, "GetModuleInformation");
-        HMODULE *pModules, *pModules0 = (HMODULE *)((char *)pMem + 0xF000);
-        DWORD cbNeeded;
+        ModuleInfo *pMod, *pMod0;
+        char *pszHeap = (char *)pMem, *pszHeapLimit;
 
-        if (pEnumProcessModules && pGetModuleBaseName && pGetModuleInformation
-            && pEnumProcessModules(GetCurrentProcess(), pModules0, 0x1000, &cbNeeded))
+        if (cbNeeded > 0x1000)
         {
+            cbNeeded = 0x1000;
+        }
 
-            ModuleInfo *pMod, *pMod0;
-            char *pszHeap = (char *)pMem, *pszHeapLimit;
+        pModules = (HMODULE *)((char *)pMem + 0x10000 - cbNeeded);
+        memmove(pModules, pModules0, cbNeeded);
 
-            if (cbNeeded > 0x1000)
+        pMod = pMod0 = (ModuleInfo *)((char *)pMem + 0x10000 - sizeof(ModuleInfo) * (cbNeeded / sizeof(HMODULE) + 1));
+        pszHeapLimit = (char *)pMod;
+
+        do
+        {
+            HMODULE hCurMod = *pModules++;
+            Win32ModuleInfo mi;
+
+            if (pGetModuleBaseName(GetCurrentProcess(), hCurMod, pszHeap, pszHeapLimit - pszHeap)
+                && pGetModuleInformation(GetCurrentProcess(), hCurMod, &mi, sizeof mi))
             {
-                cbNeeded = 0x1000;
-            }
 
-            pModules = (HMODULE *)((char *)pMem + 0x10000 - cbNeeded);
-            memmove(pModules, pModules0, cbNeeded);
+                char *period = NULL;
 
-            pMod = pMod0 = (ModuleInfo *)((char *)pMem + 0x10000 - sizeof(ModuleInfo) * (cbNeeded / sizeof(HMODULE) + 1));
-            pszHeapLimit = (char *)pMod;
+                pMod->name = pszHeap;
 
-            do
-            {
-                HMODULE hCurMod = *pModules++;
-                Win32ModuleInfo mi;
-
-                if (pGetModuleBaseName(GetCurrentProcess(), hCurMod, pszHeap, pszHeapLimit - pszHeap)
-                    && pGetModuleInformation(GetCurrentProcess(), hCurMod, &mi, sizeof mi))
+                while(*pszHeap++)
                 {
+                    if (pszHeap[-1] == '.')
+                    {
+                        period = pszHeap-1;
+                    }
+                }
+
+                if (period)
+                {
+                    *period = 0;
+                    pszHeap = period+1;
+                }
+
+                pMod->base = mi.base;
+                pMod->size = mi.size;
+                ++pMod;
+            }
+        } while((cbNeeded -= sizeof(HMODULE *)) > 0);
+
+        pMod->name = NULL;
+
+        ptr = pMem;
+        return pMod0;
+    }
+
+    // No PSAPI.  Use the ToolHelp functions in KERNEL.
+    DynamicFunctionS2<HANDLE, DWORD, DWORD> pCreateToolhelp32Snapshot("kernel32.dll", "CreateToolhelp32Snapshot");
+    DynamicFunctionS2<BOOL, HANDLE, LPMODULEENTRY32> pModule32First("kernel32.dll", "Module32First");
+    DynamicFunctionS2<BOOL,HANDLE, LPMODULEENTRY32> pModule32Next("kernel32.dll", "Module32Next");
+
+    if (pCreateToolhelp32Snapshot && pModule32First && pModule32Next)
+    {
+        HANDLE hSnap;
+
+        if ((HANDLE)-1 != (hSnap = pCreateToolhelp32Snapshot(TH32CS_SNAPMODULE, 0)))
+        {
+            ModuleInfo *pModInfo = (ModuleInfo *)((char *)pMem + 65536);
+            char *pszHeap = (char *)pMem;
+            MODULEENTRY32 me;
+
+            --pModInfo;
+            pModInfo->name = NULL;
+
+            me.dwSize = sizeof(MODULEENTRY32);
+
+            if (pModule32First(hSnap, &me))
+            {
+                do
+                {
+                    if (pszHeap+strlen(me.szModule) >= (char *)(pModInfo - 1))
+                    {
+                        break;
+                    }
+
+                    strcpy(pszHeap, me.szModule);
+
+                    --pModInfo;
+                    pModInfo->name = pszHeap;
 
                     char *period = NULL;
 
-                    pMod->name = pszHeap;
-
-                    while(*pszHeap++)
+                    while(*pszHeap++);
+                    if (pszHeap[-1]=='.')
                     {
-                        if (pszHeap[-1] == '.')
-                        {
-                            period = pszHeap-1;
-                        }
+                        period = pszHeap-1;
                     }
 
                     if (period)
@@ -701,89 +756,17 @@ static ModuleInfo *CrashGetModules(void *&ptr)
                         pszHeap = period+1;
                     }
 
-                    pMod->base = mi.base;
-                    pMod->size = mi.size;
-                    ++pMod;
-                }
-            } while((cbNeeded -= sizeof(HMODULE *)) > 0);
+                    pModInfo->base = (unsigned long)me.modBaseAddr;
+                    pModInfo->size = me.modBaseSize;
 
-            pMod->name = NULL;
-
-            FreeLibrary(hmodPSAPI);
-            ptr = pMem;
-            return pMod0;
-        }
-
-        FreeLibrary(hmodPSAPI);
-    }
-    else
-    {
-        // No PSAPI.  Use the ToolHelp functions in KERNEL.
-
-        HMODULE hmodKERNEL32 = LoadLibrary("kernel32.dll");
-
-        PCREATETOOLHELP32SNAPSHOT pCreateToolhelp32Snapshot = (PCREATETOOLHELP32SNAPSHOT)GetProcAddress(hmodKERNEL32, "CreateToolhelp32Snapshot");
-        PMODULE32FIRST pModule32First = (PMODULE32FIRST)GetProcAddress(hmodKERNEL32, "Module32First");
-        PMODULE32NEXT pModule32Next = (PMODULE32NEXT)GetProcAddress(hmodKERNEL32, "Module32Next");
-        HANDLE hSnap;
-
-        if (pCreateToolhelp32Snapshot && pModule32First && pModule32Next)
-        {
-            if ((HANDLE)-1 != (hSnap = pCreateToolhelp32Snapshot(TH32CS_SNAPMODULE, 0)))
-            {
-                ModuleInfo *pModInfo = (ModuleInfo *)((char *)pMem + 65536);
-                char *pszHeap = (char *)pMem;
-                MODULEENTRY32 me;
-
-                --pModInfo;
-                pModInfo->name = NULL;
-
-                me.dwSize = sizeof(MODULEENTRY32);
-
-                if (pModule32First(hSnap, &me))
-                {
-                    do
-                    {
-                        if (pszHeap+strlen(me.szModule) >= (char *)(pModInfo - 1))
-                        {
-                            break;
-                        }
-
-                        strcpy(pszHeap, me.szModule);
-
-                        --pModInfo;
-                        pModInfo->name = pszHeap;
-
-                        char *period = NULL;
-
-                        while(*pszHeap++);
-                        if (pszHeap[-1]=='.')
-                        {
-                            period = pszHeap-1;
-                        }
-
-                        if (period)
-                        {
-                            *period = 0;
-                            pszHeap = period+1;
-                        }
-
-                        pModInfo->base = (unsigned long)me.modBaseAddr;
-                        pModInfo->size = me.modBaseSize;
-
-                    } while(pModule32Next(hSnap, &me));
-                }
-
-                CloseHandle(hSnap);
-
-                FreeLibrary(hmodKERNEL32);
-
-                ptr = pMem;
-                return pModInfo;
+                } while(pModule32Next(hSnap, &me));
             }
-        }
 
-        FreeLibrary(hmodKERNEL32);
+            CloseHandle(hSnap);
+
+            ptr = pMem;
+            return pModInfo;
+        }
     }
 
     VirtualFree(pMem, 0, MEM_RELEASE);

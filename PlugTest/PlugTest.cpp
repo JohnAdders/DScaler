@@ -18,6 +18,7 @@
 
 #include "stdafx.h"
 #include "..\DScaler\CPU.h"
+#include "..\DScaler\DynamicFunction.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -153,28 +154,19 @@ void EmptyInfoStruct(TDeinterlaceInfo* pInfo)
 
 BOOL LoadFilterPlugin(LPCSTR szFileName, FILTER_METHOD** FilterMethod)
 {
-    GETFILTERPLUGININFO* pfnGetFilterPluginInfo;
+    DynamicFunctionC1<FILTER_METHOD*, long> GetFilterPluginInfo(szFileName, "GetFilterPluginInfo");
     FILTER_METHOD* pMethod;
-    HMODULE hPlugInMod;
     int i;
 
-    hPlugInMod = LoadLibrary(szFileName);
-    if(hPlugInMod == NULL)
-    {
-        return FALSE;
-    }
-    
-    pfnGetFilterPluginInfo = (GETFILTERPLUGININFO*)GetProcAddress(hPlugInMod, "GetFilterPluginInfo");
-    if(pfnGetFilterPluginInfo == NULL)
+    if(!GetFilterPluginInfo)
     {
         return FALSE;
     }
 
-    pMethod = pfnGetFilterPluginInfo(CpuFeatureFlags);
+    pMethod = GetFilterPluginInfo(CpuFeatureFlags);
     if(pMethod != NULL)
     {
         *FilterMethod = pMethod;
-        pMethod->hModule = hPlugInMod;
         for (i = 0; i < pMethod->nSettings; i++)
         {
             ReadFromIni(&(pMethod->pSettings[i]), szIniFile);
@@ -193,32 +185,22 @@ void UnloadFilterPlugin(FILTER_METHOD* FilterMethod)
    {
       FilterMethod->pfnPluginExit();
    }
-   FreeLibrary(FilterMethod->hModule);
 }
 
 BOOL LoadDeintPlugin(LPCSTR szFileName, DEINTERLACE_METHOD** DeintMethod)
 {
-    GETDEINTERLACEPLUGININFO* pfnGetDeinterlacePluginInfo;
+    DynamicFunctionC1<DEINTERLACE_METHOD*, long> GetDeinterlacePluginInfo(szFileName, "GetDeinterlacePluginInfo");
     DEINTERLACE_METHOD* pMethod;
-    HMODULE hPlugInMod;
 
-    hPlugInMod = LoadLibrary(szFileName);
-    if(hPlugInMod == NULL)
+    if(!GetDeinterlacePluginInfo)
     {
         return FALSE;
     }
 
-    pfnGetDeinterlacePluginInfo = (GETDEINTERLACEPLUGININFO*)GetProcAddress(hPlugInMod, "GetDeinterlacePluginInfo");
-    if(pfnGetDeinterlacePluginInfo == NULL)
-    {
-        return FALSE;
-    }
-
-    pMethod = pfnGetDeinterlacePluginInfo(CpuFeatureFlags);
+    pMethod = GetDeinterlacePluginInfo(CpuFeatureFlags);
     if(pMethod != NULL)
     {
         *DeintMethod = pMethod;
-        pMethod->hModule = hPlugInMod;
         if(pMethod->pfnPluginInit != NULL)
         {
             pMethod->pfnPluginInit();
@@ -241,7 +223,6 @@ void UnloadDeintPlugin(DEINTERLACE_METHOD* DeintMethod)
    {
       DeintMethod->pfnPluginExit();
    }
-   FreeLibrary(DeintMethod->hModule);
 }
 
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))

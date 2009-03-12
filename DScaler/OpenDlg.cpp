@@ -25,6 +25,7 @@
 #include "OpenDlg.h"
 #include "..\DScalerRes\resource.h"
 #include "crash.h"
+#include "DynamicFunction.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -36,20 +37,11 @@ static char THIS_FILE[] = __FILE__;
 // COpenDlg dialog
 
 COpenDlg::COpenDlg(CWnd* pParent /*=NULL*/)
-    : CDialog(COpenDlg::IDD, pParent),m_hSHLWAPIDLL(NULL)
+    : CDialog(COpenDlg::IDD, pParent)
 {
     //{{AFX_DATA_INIT(COpenDlg)
         // NOTE: the ClassWizard will add member initialization here
     //}}AFX_DATA_INIT
-}
-
-COpenDlg::~COpenDlg()
-{
-    if(m_hSHLWAPIDLL!=NULL)
-    {
-        FreeLibrary(m_hSHLWAPIDLL);
-        m_hSHLWAPIDLL=NULL;
-    }
 }
 
 void COpenDlg::DoDataExchange(CDataExchange* pDX)
@@ -82,26 +74,13 @@ BOOL COpenDlg::OnInitDialog()
 
 void COpenDlg::SetupAutoComplete()
 {
-    typedef HRESULT (WINAPI *SHAUTOCOMPLETEFN) (HWND hTarget, DWORD dwFlags);
-    if(m_File.m_hWnd==NULL)
-    {
-        return;
-    }
-    if(m_hSHLWAPIDLL==NULL)
-    {
-        m_hSHLWAPIDLL=LoadLibrary("SHLWAPI.DLL");
-        if(m_hSHLWAPIDLL==NULL)
-        {
-            return;
-        }
-    }
+    DynamicFunctionS2<HRESULT, HWND, DWORD> pSHAC("SHLWAPI.DLL", "SHAutoComplete");
     HRESULT hr;
-    SHAUTOCOMPLETEFN pSHAC=(SHAUTOCOMPLETEFN)GetProcAddress(m_hSHLWAPIDLL,"SHAutoComplete");
-    if(pSHAC!=NULL)
+    if(pSHAC)
     {
-        //this only work in singel threaded apartments
+        //this only work in single threaded apartments
         //(same problem as with the file open dialogs)
-        hr=pSHAC(m_File.m_hWnd, SHACF_URLALL|SHACF_FILESYS_ONLY);
+        hr = pSHAC(m_File.m_hWnd, SHACF_URLALL|SHACF_FILESYS_ONLY);
         ASSERT(SUCCEEDED(hr));
     }
 }

@@ -28,6 +28,7 @@
 #include <afxpriv.h>
 #include <afxdisp.h>
 #include "crash.h"
+#include "LibraryCache.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -97,7 +98,7 @@ BOOL CDScalerApp::InitInstance()
 #endif
 #endif
 
-    hResourceInst = LoadLibrary("DScalerRes.dll");
+    hResourceInst = LibraryCache::GetLibraryHandle("DScalerRes.dll");
     if(hResourceInst == NULL)
     {
         MessageBox(NULL, "DScaler can't find the resource library DScalerRes.dll", "Installation Error", MB_OK | MB_ICONSTOP);
@@ -123,7 +124,6 @@ BOOL CDScalerApp::InitInstance()
 #endif
 
     AfxSetResourceHandle(m_hInstance);
-    FreeLibrary(hResourceInst);
 
 //#ifdef WANT_DSHOW_SUPPORT
 //    CoUninitialize();

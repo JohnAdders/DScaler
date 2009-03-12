@@ -30,33 +30,16 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 
-CGradientStatic::CGradientStatic()
-:m_pfnGradientFill(NULL),
-m_iSpacing(10),
-m_hMsimg32(NULL),
-m_bUsingDefaultColors(true)
+CGradientStatic::CGradientStatic() :
+    m_iSpacing(10),
+    m_bUsingDefaultColors(true),
+    //try to use msimg32.dll for drawing the gradient
+    m_pfnGradientFill("msimg32.dll", "GradientFill")
 {
     m_clLeft=GetSysColor(COLOR_ACTIVECAPTION);
     m_clRight=GetSysColor(COLOR_BTNFACE);
     m_clText=GetSysColor(COLOR_CAPTIONTEXT);
-
-    //try to use msimg32.dll for drawing the gradient
-    m_hMsimg32=LoadLibrary("msimg32.dll");
-    if(m_hMsimg32)
-    {
-        m_pfnGradientFill=(LPFNGRADIENTFILL)GetProcAddress(m_hMsimg32, "GradientFill");
-    }
 }
-
-CGradientStatic::~CGradientStatic()
-{
-    if(m_hMsimg32!=NULL)
-    {
-        FreeLibrary(m_hMsimg32);
-        m_pfnGradientFill=NULL;
-    }
-}
-
 
 BEGIN_MESSAGE_MAP(CGradientStatic, CStatic)
     //{{AFX_MSG_MAP(CGradientStatic)
@@ -82,7 +65,7 @@ void CGradientStatic::OnPaint()
     CRect rect;
     GetClientRect(&rect);
 
-    if(m_pfnGradientFill!=NULL)
+    if(m_pfnGradientFill)
     {
         TRIVERTEX rcVertex[2];
         rect.right--; // exclude this point, like FillRect does 

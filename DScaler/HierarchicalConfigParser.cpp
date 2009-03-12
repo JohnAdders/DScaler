@@ -27,6 +27,7 @@
 #include <iostream>
 #include <crtdbg.h>
 #include "HierarchicalConfigParser.h"
+#include "DynamicFunction.h"
 
 using namespace std;
 using namespace HCParser;
@@ -128,17 +129,12 @@ bool CHCParser::IsUnicodeOS()
     // Windows NT (major version 3) and newer supports unicode.
     // however windows 98 doesn't support the VerfifyVersionInfo function
     // so we call it via the indirect method
-    HINSTANCE h = LoadLibrary("kernel32.dll");
-
-    BOOL (WINAPI* lpVerifyVersionInfoA)(LPOSVERSIONINFOEXA lpVersionInformation, DWORD dwTypeMask, DWORDLONG dwlConditionMask) = NULL;
-
-    lpVerifyVersionInfoA = (BOOL (WINAPI*)(LPOSVERSIONINFOEXA lpVersionInformation, DWORD dwTypeMask, DWORDLONG dwlConditionMask)) GetProcAddress(h,"VerifyVersionInfoA");
+    DynamicFunctionS3<BOOL, LPOSVERSIONINFOEXA, DWORD, DWORDLONG> lpVerifyVersionInfoA("kernel32.dll", "VerifyVersionInfoA");
     bool result = false;
     if(lpVerifyVersionInfoA)
     {
         result = lpVerifyVersionInfoA(&osvi, VER_MAJORVERSION, dwlConditionMask) != 0;
     }
-    FreeLibrary(h);
     return result;
 }
 

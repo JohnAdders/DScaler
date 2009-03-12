@@ -32,6 +32,7 @@
 #include "SettingsPerChannel.h"
 #include "SettingsMaster.h"
 #include "crash.h"
+#include "DynamicFunction.h"
 
 long NumFilters = 0;
 
@@ -103,24 +104,15 @@ BOOL Filter_WillWeDoOutput()
 
 void LoadFilterPlugin(LPCSTR szFileName)
 {
-    GETFILTERPLUGININFO* pfnGetFilterPluginInfo;
+    DynamicFunctionC1<FILTER_METHOD*, long> GetFilterPluginInfo(szFileName, "GetFilterPluginInfo");
     FILTER_METHOD* pMethod;
-    HMODULE hPlugInMod;
 
-    hPlugInMod = LoadLibrary(szFileName);
-    if(hPlugInMod == NULL)
-    {
-        LOG(1, " Loading %s failed.", szFileName);
-        return;
-    }
-    
-    pfnGetFilterPluginInfo = (GETFILTERPLUGININFO*)GetProcAddress(hPlugInMod, "GetFilterPluginInfo");
-    if(pfnGetFilterPluginInfo == NULL)
+    if(!GetFilterPluginInfo)
     {
         return;
     }
 
-    pMethod = pfnGetFilterPluginInfo(CpuFeatureFlags);
+    pMethod = GetFilterPluginInfo(CpuFeatureFlags);
     if(pMethod != NULL)
     {
         if(pMethod->SizeOfStructure == sizeof(FILTER_METHOD) &&
@@ -128,7 +120,6 @@ void LoadFilterPlugin(LPCSTR szFileName)
             pMethod->InfoStructureVersion == DEINTERLACE_INFO_CURRENT_VERSION)
         {
             Filters[NumFilters] = pMethod;
-            pMethod->hModule = hPlugInMod;
 
             // read in settings
             for(int i = 0; i < pMethod->nSettings; i++)
@@ -165,7 +156,6 @@ void UnloadFilterPlugins()
         {
             Filters[i]->pfnPluginExit();
         }
-        FreeLibrary(Filters[i]->hModule);
         Filters[i] = NULL;
     }
     NumFilters = 0;

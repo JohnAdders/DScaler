@@ -23,11 +23,11 @@
 #if !defined(AFX_GRADIENTSTATIC_H__0709E3A1_C8B6_11D6_B74E_004033A0FB96__INCLUDED_)
 #define AFX_GRADIENTSTATIC_H__0709E3A1_C8B6_11D6_B74E_004033A0FB96__INCLUDED_
 
+#include "DynamicFunction.h"
+
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
-
-typedef UINT (CALLBACK* LPFNGRADIENTFILL)(HDC,CONST PTRIVERTEX,DWORD,CONST PVOID,DWORD,DWORD);
 
 /**
  * CGradientStatic is a CStatic that has a customizable background gradient.
@@ -38,7 +38,6 @@ class CGradientStatic : public CStatic
 {
 public:
     CGradientStatic();
-    virtual ~CGradientStatic();
     void SetGradientColor(COLORREF clLeft,COLORREF clRight);
     void SetTextColor(COLORREF cl);
     void SetSpacing(int iNoOfPixels);
@@ -76,8 +75,7 @@ private:
     long m_clText;
     bool m_bUsingDefaultColors;
 
-    HINSTANCE m_hMsimg32;
-    LPFNGRADIENTFILL m_pfnGradientFill;
+    DynamicFunctionS6<UINT, HDC,CONST PTRIVERTEX,DWORD,CONST PVOID,DWORD,DWORD> m_pfnGradientFill;
 };
 
 /////////////////////////////////////////////////////////////////////////////

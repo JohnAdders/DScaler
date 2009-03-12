@@ -66,7 +66,7 @@ typedef struct
     // call this if plugin needs to deallocate anything
     FILTERPLUGINEXIT* pfnPluginExit;
     // Used to save the module Handle
-    HMODULE hModule;
+    HMODULE noLongerUsed;
     // number of settings
     long nSettings;
     // pointer to start of Settings[nSettings]

@@ -85,7 +85,7 @@ typedef struct _DEINTERLACE_METHOD
     // the offset used by the external settings API
     long nSettingsOffset;
     // Dll module so that we can unload the dll cleanly at the end
-    HMODULE hModule;
+    HMODULE noLongerUsed;
     // Menu Id used for this plug-in, use 0 to automatically allocate one
     DWORD MenuId;
     // do we need FieldDiff filled in in Info

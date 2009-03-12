@@ -15,233 +15,6 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//
-// The name of this file used to be "other.cpp".
-// The revision log of "other.cpp" follows:
-//
-//
-// Revision 1.76  2006/09/24 03:47:19  robmuller
-// Stop potential endless loop.
-//
-// Revision 1.75  2006/09/24 03:14:05  robmuller
-// Change number of backbuffers in real-time.
-//
-// Revision 1.74  2005/03/23 14:20:58  adcockj
-// Test fix for threading issues
-//
-// Revision 1.73  2005/03/11 17:16:40  adcockj
-// ifdefed out stuff that required newer sdk
-//
-// Revision 1.72  2005/03/11 13:03:08  adcockj
-// handle MCE remote buttons for teletext
-//
-// Revision 1.71  2005/03/10 22:30:54  adcockj
-// fixed some bugs with MCE remote support
-//
-// Revision 1.70  2005/03/10 17:40:40  adcockj
-// first go at adding MCE remote support
-//
-// Revision 1.69  2004/05/06 15:00:43  adcockj
-// Fix for errors on ctrl-alt-delete (Bug-947656)
-//
-// Revision 1.68  2004/05/02 14:09:32  atnak
-// Fixed possible problem of overlay colour getting dithered with < 32bit colour
-//
-// Revision 1.67  2003/10/27 10:39:52  adcockj
-// Updated files for better doxygen compatability
-//
-// Revision 1.66  2003/07/18 09:38:00  adcockj
-// Added some unused test code for flip timing
-//
-// Revision 1.65  2003/05/31 11:38:17  laurentg
-// Load dynamic functions earlier to have splash screen on correct screen and to be able to start in full screen mode on the second monitor
-//
-// Revision 1.64  2003/04/15 13:06:27  adcockj
-// Corrections for NT 4 compatable Multi-Monitor code
-//
-// Revision 1.63  2003/04/08 14:17:23  adcockj
-// Used dynamic calling of new multi-monitor functions to allow running on NT4
-//
-// Revision 1.62  2003/03/29 13:36:36  laurentg
-// Allow the display of DScaler to monitors other than the primary
-//
-// Revision 1.61  2003/03/16 18:29:20  laurentg
-// New multiple frames feature
-//
-// Revision 1.60  2003/03/05 13:54:55  adcockj
-// Use optimized memcpy in output filter copy
-//
-// Revision 1.59  2003/02/17 11:39:00  adcockj
-// Added group flags for setting per channel on more settings
-//
-// Revision 1.58  2003/01/26 18:03:04  laurentg
-// Problem with initial values for overlay settings fixed
-//
-// Revision 1.57  2003/01/25 20:54:29  robmuller
-// Another bug fix from Kevin Radke.
-//
-// Revision 1.56  2003/01/25 17:50:37  robmuller
-// Bug fix from Kevin Radke.
-//
-// Revision 1.55  2003/01/24 01:55:18  atnak
-// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
-// got rid of the pink overlay colorkey for Teletext.
-//
-// Revision 1.54  2003/01/11 15:22:26  adcockj
-// Interim Checkin of setting code rewrite
-//  - Remove CSettingsGroupList class
-//  - Fixed bugs in format switching
-//  - Some new CSettingGroup code
-//
-// Revision 1.53  2003/01/10 17:38:10  adcockj
-// Interrim Check in of Settings rewrite
-//  - Removed SETTINGSEX structures and flags
-//  - Removed Seperate settings per channel code
-//  - Removed Settings flags
-//  - Cut away some unused features
-//
-// Revision 1.52  2003/01/02 20:41:46  adcockj
-// Fixed very silly problem with new code
-//
-// Revision 1.51  2003/01/02 19:03:07  adcockj
-// Removed extra Surface and replaced with memory buffer due to lack of blt support
-//  and alignment problems
-//
-// Revision 1.50  2003/01/02 17:27:05  adcockj
-// Improvements to extra surface code
-//
-// Revision 1.49  2003/01/02 16:22:09  adcockj
-// Preliminary code to support output plugins properly
-//
-// Revision 1.48  2003/01/01 20:56:46  atnak
-// Updates for various VideoText changes
-//
-// Revision 1.47  2002/10/16 16:08:54  tobbej
-// spelling error
-//
-// Revision 1.46  2002/09/26 16:26:26  adcockj
-// Fix for some old cards that do not support waitinf for flip
-//
-// Revision 1.45  2002/08/15 14:16:18  kooiman
-// Cleaner settings per channel implementation
-//
-// Revision 1.44  2002/08/09 08:31:15  kooiman
-// Changed default value for settings in the channel setting list.
-//
-// Revision 1.43  2002/08/08 12:49:33  kooiman
-// Added Overlay settings to settings per channel.
-//
-// Revision 1.42  2002/08/07 21:53:04  adcockj
-// Removed todo item
-//
-// Revision 1.41  2002/07/19 10:04:26  laurentg
-// LOG in double suppressed
-//
-// Revision 1.40  2002/07/03 00:41:14  laurentg
-// Add the setting "Use Overlay Controls" in the Change Settings dialog box
-//
-// Revision 1.39  2002/06/16 10:05:09  adcockj
-// Commented out primary suface locks awaiting tests
-//
-// Revision 1.38  2002/06/13 12:10:22  adcockj
-// Move to new Setings dialog for filers, video deint and advanced settings
-//
-// Revision 1.37  2002/04/27 11:46:28  laurentg
-// Error messge in UpdateOverlay restored
-//
-// Revision 1.36  2002/04/13 21:52:40  laurentg
-// Management of no current source
-//
-// Revision 1.35  2002/03/21 10:26:00  robmuller
-// Added CanDoOverlayColorControl().
-//
-// Revision 1.34  2002/02/09 13:04:09  laurentg
-// Propose in "Other settings" UI only the overlay settings which cannot be setup in another dialog box
-//
-// Revision 1.33  2002/01/26 18:04:29  laurentg
-// Locking and unlocking the overlay and not the overlay back buffer when taking stills
-//
-// Revision 1.32  2002/01/19 11:56:26  robmuller
-// Fixed overlay error 80004001 on startup with 3dfx cards.
-//
-// Revision 1.31  2002/01/12 16:57:02  adcockj
-// POssible fix for 80070057 error on create
-//
-// Revision 1.30  2001/12/16 17:04:37  adcockj
-// Debug Log improvements
-//
-// Revision 1.29  2001/11/28 16:04:50  adcockj
-// Major reorganization of STill support
-//
-// Revision 1.28  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.27  2001/11/25 21:29:50  laurentg
-// Take still, Open file, Close file callbacks updated
-//
-// Revision 1.26  2001/11/25 10:41:26  laurentg
-// TIFF code moved from Other.cpp to TiffSource.c + still capture updated
-//
-// Revision 1.25  2001/11/23 10:49:17  adcockj
-// Move resource includes back to top of files to avoid need to rebuild all
-//
-// Revision 1.24  2001/11/21 15:21:39  adcockj
-// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
-// Changed TDeinterlaceInfo structure to have history of pictures.
-//
-// Revision 1.23  2001/11/02 16:30:08  adcockj
-// Check in merged code from multiple cards branch into main tree
-//
-// Revision 1.22  2001/10/30 20:54:28  koreth
-// Don't retry fetching physical overlay color if it's supposed to be zero.
-//
-// Revision 1.21  2001/10/17 11:46:11  adcockj
-// Bug fixes
-//
-// Revision 1.20  2001/09/21 20:47:12  laurentg
-// SaveStill modified to return the name of the written file
-// Name of the file added in the OSD text when doing a snapshot
-//
-// Revision 1.19  2001/09/19 10:05:50  adcockj
-// Updated feature help
-//
-// Revision 1.18  2001/09/09 17:41:08  adcockj
-// Fixed bug in sharpness code
-//
-// Revision 1.17  2001/09/05 21:05:29  adcockj
-// Bug Fixes for new overlay code
-//
-// Revision 1.16  2001/09/05 15:07:48  adcockj
-// Wrapped overlay calls with critical section
-// Updated Loging
-//
-// Revision 1.15  2001/09/02 14:17:51  adcockj
-// Improved teletext code
-//
-// Revision 1.14  2001/08/13 18:54:55  adcockj
-// Tidied up surface blanking code
-//
-// Revision 1.13  2001/08/11 11:17:57  adcockj
-// Fixed problems when using zero backbuffers
-//
-// Revision 1.12  2001/08/02 16:43:05  adcockj
-// Added Debug level to LOG function
-//
-// Revision 1.11  2001/07/28 13:24:40  adcockj
-// Added UI for Overlay Controls and fixed issues with SettingsDlg
-//
-// Revision 1.10  2001/07/27 12:30:09  adcockj
-// Added Overlay Color controls (Thanks to Muljadi Budiman)
-//
-// Revision 1.9  2001/07/16 18:07:50  adcockj
-// Added Optimisation parameter to ini file saving
-//
-// Revision 1.8  2001/07/13 16:14:56  adcockj
-// Changed lots of variables to match Coding standards
-//
-// Revision 1.7  2001/07/12 16:16:40  adcockj
-// Added CVS Id and Log
-/////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "overlayoutput.h"
@@ -282,7 +55,7 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
     // so we need to replace the NULL handle in single monitor context with the non-NULL value
     if (hMonitor == NULL)
     {
-        hMonitor = OverlayOutputInstance.lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+        hMonitor = OverlayOutputInstance.m_lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
     }    
     LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
 
@@ -297,9 +70,9 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
     }
 
     MonInfo.cbSize = sizeof(MONITORINFO);
-    if (OverlayOutputInstance.lpGetMonitorInfoA(hMonitor, &MonInfo))
+    if (OverlayOutputInstance.m_lpGetMonitorInfoA(hMonitor, &MonInfo))
     {
-        if (SUCCEEDED(OverlayOutputInstance.lpDirectDrawCreate(pGuid, &lpDD, NULL)))
+        if (SUCCEEDED(OverlayOutputInstance.m_lpDirectDrawCreate(pGuid, &lpDD, NULL)))
         {
             Monitors[NbMonitors].hMon = hMonitor;
             Monitors[NbMonitors].lpDD = lpDD;
@@ -314,34 +87,18 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
 //-----------------------------------------------------------------------------
 BOOL COverlayOutput::ListMonitors(HWND hWnd)
 {
+    static DynamicFunctionS3<HRESULT, LPDDENUMCALLBACKEXA, LPVOID, DWORD> lpDDEnumEx("ddraw.lib", "DirectDrawEnumerateExA");
     BOOL RetVal = TRUE;
 
-    HINSTANCE h = LoadLibrary("ddraw.dll");
-
-    // If ddraw.dll doesn't exist in the search path,
-    // then DirectX probably isn't installed, so fail.
-    if(h != NULL)
+    // Retrieve the function from the DirectDraw DLL
+    if (lpDDEnumEx)
     {
-        // Retrieve the function from the DDL
-        LPDIRECTDRAWENUMERATEEX lpDDEnumEx;
-        lpDDEnumEx = (LPDIRECTDRAWENUMERATEEX) GetProcAddress(h,"DirectDrawEnumerateExA");
-        if (lpDDEnumEx)
-        {
-            // If the function is there, call it to enumerate all display 
-            // devices attached to the desktop
-            if(lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES) != DD_OK)
-            {
-                RetVal = FALSE;
-            }
-        }
-        else
+        // If the function is there, call it to enumerate all display 
+        // devices attached to the desktop
+        if(lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES) != DD_OK)
         {
             RetVal = FALSE;
         }
-
-        // If the library was loaded by calling LoadLibrary(),
-        // then you must use FreeLibrary() to let go of it.
-        FreeLibrary(h);
     }
     else
     {
@@ -350,25 +107,13 @@ BOOL COverlayOutput::ListMonitors(HWND hWnd)
     return RetVal;
 }
 
-void COverlayOutput::LoadDynamicFunctions()
-{
-    // we've got to load these functions dynamically 
-    // so that we continue to run on NT 4
-    hUserLib = LoadLibrary("user32.dll");
-    lpMonitorFromWindow = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(hUserLib, "MonitorFromWindow");
-    lpGetMonitorInfoA = (BOOL (WINAPI *)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi)) GetProcAddress(hUserLib, "GetMonitorInfoA");
-
-    hDDrawLib = LoadLibrary("ddraw.dll");
-    lpDirectDrawCreate = (HRESULT (WINAPI* )( GUID FAR *, LPDIRECTDRAW FAR *, IUnknown FAR * )) GetProcAddress(hDDrawLib, "DirectDrawCreate");
-}
-
 //-----------------------------------------------------------------------------
 LPDIRECTDRAW COverlayOutput::GetCurrentDD(HWND hWnd)
 {
     // if we can't see these new functions or we fail to list the moitors just use a normal DD create
-    if(lpMonitorFromWindow == NULL || lpGetMonitorInfoA == NULL || ListMonitors(hWnd) == FALSE)
+    if(!m_lpMonitorFromWindow || !m_lpGetMonitorInfoA || ListMonitors(hWnd) == FALSE)
     {
-        if (FAILED(lpDirectDrawCreate(NULL, &lpDD, NULL)))
+        if (FAILED(m_lpDirectDrawCreate(NULL, &lpDD, NULL)))
         {
             ErrorBox("DirectDrawCreate failed");
             return (FALSE);
@@ -377,7 +122,7 @@ LPDIRECTDRAW COverlayOutput::GetCurrentDD(HWND hWnd)
     }
 
     // got the list of monitors then get the DD context from the current one
-    HMONITOR hMonitor = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    HMONITOR hMonitor = m_lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
     for (int i=0 ; i<NbMonitors ; i++)
     {
@@ -392,7 +137,7 @@ LPDIRECTDRAW COverlayOutput::GetCurrentDD(HWND hWnd)
 //-----------------------------------------------------------------------------
 void COverlayOutput::SetCurrentMonitor(HWND hWnd)
 {
-    if(lpMonitorFromWindow != NULL)
+    if(m_lpMonitorFromWindow)
     {
         hCurrentMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
     }
@@ -401,12 +146,12 @@ void COverlayOutput::SetCurrentMonitor(HWND hWnd)
 //-----------------------------------------------------------------------------
 void COverlayOutput::CheckChangeMonitor(HWND hWnd)
 {
-    if(lpMonitorFromWindow == NULL)
+    if(!m_lpMonitorFromWindow)
     {
         return;
     }
 
-    HMONITOR hMon = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    HMONITOR hMon = m_lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
     if (hCurrentMon == NULL)
     {
@@ -1608,7 +1353,7 @@ void COverlayOutput::ExitDD(void)
     if (lpDD != NULL)
     {
         Overlay_Destroy();
-        if(lpMonitorFromWindow != NULL)
+        if(m_lpMonitorFromWindow)
         {
             for (int i=0 ; i<NbMonitors ; i++)
             {
@@ -1824,7 +1569,10 @@ void COverlayOutput::InitOtherSettings()
     memmove(OtherSettings, LocalOtherSettings, sizeof(OtherSettings));
 }
 
-COverlayOutput::COverlayOutput(void)
+COverlayOutput::COverlayOutput(void) :
+    m_lpMonitorFromWindow("user32.dll", "MonitorFromWindow"),
+    m_lpGetMonitorInfoA("user32.dll", "GetMonitorInfoA"),
+    m_lpDirectDrawCreate("ddraw.dll", "DirectDrawCreate")
 {
     lpDD=NULL;
     lpDDSurface=NULL;
@@ -1853,15 +1601,11 @@ COverlayOutput::COverlayOutput(void)
     m_bSettingInitialized = false;
     bIsRGB = FALSE;
     
-    LoadDynamicFunctions();
-
     InitializeCriticalSection(&hDDCritSect);
 }
 
 COverlayOutput::~COverlayOutput(void)
 {
-    FreeLibrary(hUserLib);
-    FreeLibrary(hDDrawLib);
     DeleteCriticalSection(&hDDCritSect);
 }
 

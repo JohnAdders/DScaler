@@ -36,7 +36,7 @@
 #include "VBI.h"
 #include "DScaler.h"
 #include "Providers.h"
-//#include "DebugLog.h"
+#include "DynamicFunction.h"
 
 
 #define VT_MAXPAGEHISTORY               64
@@ -2554,8 +2554,6 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 }
 
 
-typedef HRESULT (__stdcall *PFNSETWINDOWTHEME)(HWND, LPCWSTR, LPCWSTR);
-typedef BOOL (__stdcall *PFNISAPPTHEMED)();
 
 BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -2572,19 +2570,14 @@ BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             // tab control because the vertical tabs aren't supported by
             // XP visual styles (comctl32.dll version 6).  Dynamically load
             // UxTheme.dll so its compatible with OSes before XP.
-            static HMODULE hThemeDll = LoadLibrary(_T("UxTheme.dll"));
+            DynamicFunctionS0<BOOL> pfnIsAppThemed("UxTheme.dll", "IsAppThemed");
+            DynamicFunctionS3<HRESULT, HWND, LPCWSTR, LPCWSTR> pfnSetWindowThemed("UxTheme.dll", "SetWindowTheme");
 
-            if (hThemeDll != NULL)
+            if (pfnIsAppThemed && pfnSetWindowThemed)
             {
-                PFNISAPPTHEMED pfnIsAppThemed = (PFNISAPPTHEMED)GetProcAddress(hThemeDll, "IsAppThemed");
-                PFNSETWINDOWTHEME pfnSetWindowThemed = (PFNSETWINDOWTHEME)GetProcAddress(hThemeDll, "SetWindowTheme");
-
-                if (pfnIsAppThemed != NULL && pfnSetWindowThemed != NULL)
+                if (pfnIsAppThemed())
                 {
-                    if ((pfnIsAppThemed)())
-                    {
-                        (pfnSetWindowThemed)(hItem, L" ", L" ");
-                    }
+                    pfnSetWindowThemed(hItem, L" ", L" ");
                 }
             }
 

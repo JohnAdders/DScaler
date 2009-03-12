@@ -4068,6 +4068,7 @@ void MainWndOnInitBT(HWND hWnd)
                 {
                     if(GetActiveOutput()->Overlay_Create() == TRUE)
                     {
+                        OutputMethod = IOutput::OUT_OVERLAY;
                         bInitOK = TRUE;
                     }
                 }
@@ -4085,6 +4086,7 @@ void MainWndOnInitBT(HWND hWnd)
                     {
                         if(GetActiveOutput()->Overlay_Create() == TRUE)
                         {
+                            OutputMethod = IOutput::OUT_D3D;
                             bInitOK = TRUE;
                         }
                     }

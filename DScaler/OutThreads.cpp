@@ -753,7 +753,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #endif
                 }
 
-                if (!Info.bMissedFrame && !bMinimized && !bNoScreenUpdateDuringTuning &&
+                if (!bMinimized && !bNoScreenUpdateDuringTuning &&
                     (VT_GetState() != VT_BLACK  || VT_IsTransparencyInPage()))
                 {
 #ifdef USE_PERFORMANCE_STATS
@@ -769,7 +769,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         }
 
                         // we have an interlaced source
-                        if(bAutoDetectMode == TRUE)
+                        if(bAutoDetectMode == TRUE && !Info.bMissedFrame)
                         {
                             if(bIsPAL)
                             {
@@ -808,7 +808,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // at a full frame rate
                         SetProgressiveMode();
 
-                        if(bAutoDetectMode == TRUE)
+                        if(bAutoDetectMode == TRUE && !Info.bMissedFrame)
                         {
                             PerformProgFilmDetectCalculations(&Info);
                             if(bIsPAL)

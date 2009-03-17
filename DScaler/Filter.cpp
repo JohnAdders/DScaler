@@ -81,7 +81,7 @@ void Filter_DoOutput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
                 if(History >= Filters[i]->HistoryRequired)
                 {
                     Filters[i]->pfnAlgorithm(pInfo);
-                    CHECK_FPU_STACK
+                    CHECK_FPU_STACK;
                 }
             }
         }

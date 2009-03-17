@@ -387,22 +387,18 @@ DWORD WINAPI TDA9873ThreadProc(LPVOID lpThreadParameter)
 {
     int Result = 1;
 
-    DScalerInitializeThread("TDA9873DetectThread");
+    DScalerThread("TDA9873DetectThread");
     if (lpThreadParameter != NULL)
     {
-        __try
+        try
         {
             Result = ((CTDA9873AudioDecoder*)lpThreadParameter)->DetectThread();
         }
-        __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info()))
+        catch(...)
         {
             LOG(1, "Crash in TDA9873 detect loop");
-            DScalerDeinitializeThread();
-            return 1;
         }
     }
-    DScalerDeinitializeThread();
-
     return Result;
 }
 

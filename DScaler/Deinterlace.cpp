@@ -796,11 +796,11 @@ BOOL LoadDeinterlacePlugins()
 
             if(_stricmp(".dll", &FindFileData.cFileName[strlen(FindFileData.cFileName)-4]) == 0)
             {
-                __try
+                try
                 {
                     LoadDeintPlugin(FindFileData.cFileName);
                 }
-                __except (EXCEPTION_EXECUTE_HANDLER) 
+                catch(...)
                 { 
                     LOG(1, "Crash Loading %s", FindFileData.cFileName);
                 }

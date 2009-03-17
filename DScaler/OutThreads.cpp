@@ -57,6 +57,7 @@
 #include "Perf.h"
 #include "OSD.h"
 #include "MultiFrames.h"
+#include "ComInitialise.h"
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource\DSSource.h"
@@ -454,11 +455,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     int MultiPitch = 0;
     BOOL IsFirstInSeriesFlag = TRUE;
 
-    DScalerInitializeThread("YUV Out Thread");
+    DScalerThread("YUV Out Thread");
 
 #ifdef WANT_DSHOW_SUPPORT
     //com init for this thread
-    CoInitializeEx(NULL,COINIT_MULTITHREADED);
+    ComInitialise ThisThread(COINIT_MULTITHREADED);
 #endif
 
     CSource* pSource = Providers_GetCurrentSource();
@@ -484,10 +485,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     ResetARStats();
 
     // catch anything fatal in this loop so we don't crash the machine
-    __try
+    try
     {
-        VDCHECKPOINT;
-
         bUseExtraBuffer = Filter_WillWeDoOutput()
                        || (pMultiFrames && pMultiFrames->IsActive())
                        || (TimeShiftIsRunning() && !TimeShiftWorkOnInputFrames());
@@ -514,7 +513,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             UpdateNTSCPulldownMode(NULL);
             UpdateProgPulldownModeNTSC(NULL);
         }
-        VDCHECKPOINT;
 
         do
         {
@@ -844,7 +842,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // do we need to unlock overlay if we crash
                 BOOL bOverlayLocked = FALSE;
 
-                __try
+                try
                 {
                     if(!Info.bRunningLate && !bMinimized && !bNoScreenUpdateDuringTuning &&
                         (VT_GetState() != VT_BLACK  || VT_IsTransparencyInPage()))
@@ -879,10 +877,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                 LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_STOP, 0);
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_START, 0);
-#ifdef WANT_DSHOW_SUPPORT
-                                CoUninitialize();
-#endif
-                                DScalerDeinitializeThread();
                                 return 1;
                             }
                             bOverlayLocked = TRUE;
@@ -912,7 +906,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         {
                             bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
                         }
-                        CHECK_FPU_STACK
+                        CHECK_FPU_STACK;
                     
 #ifdef USE_PERFORMANCE_STATS
                         pPerf->StopCount(PERF_DEINTERLACE);
@@ -962,10 +956,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                 LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_STOP, 0);
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_START, 0);
-#ifdef WANT_DSHOW_SUPPORT
-                                CoUninitialize();
-#endif
-                                DScalerDeinitializeThread();
                                 return 1;
                             }
                             bOverlayLocked = FALSE;
@@ -1039,7 +1029,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                 LOG(1, "Falling out after Overlay_Flip");
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_STOP, 0);
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_START, 0);
-                                DScalerDeinitializeThread();
                                 return 1;
                             }
                                                        
@@ -1055,7 +1044,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         }
                     }
                 }                   
-                __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
+                catch(...) 
                 { 
                     if(bOverlayLocked == TRUE)
                     {
@@ -1070,7 +1059,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #endif
                     }
                     ErrorBox("Crash in output code. Restart DScaler.");
-                    DScalerDeinitializeThread();
                     return 1;
                 }
             
@@ -1212,39 +1200,25 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
     }
     // if there is any exception thrown then exit the thread
-    __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
+    catch(...) 
     { 
         Providers_GetCurrentSource()->Stop();
         ErrorBox("Crash in OutThreads main loop. Restart DScaler.");
-
-#ifdef WANT_DSHOW_SUPPORT
-        //i don't know if it's a good idea or not to call CoUninitialize when there has been a crash
-        CoUninitialize();
-#endif
-        DScalerDeinitializeThread();
         return 1;
     }
 
     // try and stop the capture
-    __try
+    try
     {
         Providers_GetCurrentSource()->Stop();
     }
     // if there is any exception thrown then exit the thread
-    __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
+    catch(...) 
     {
         ErrorBox("Crash in in OutThreads Providers_GetCurrentSource()->Stop(). Restart DScaler.");
-#ifdef WANT_DSHOW_SUPPORT
-        CoUninitialize();
-#endif
-        DScalerDeinitializeThread();
         return 1;
     }
-#ifdef WANT_DSHOW_SUPPORT
-    //com deinit
-    CoUninitialize();
-#endif
-    DScalerDeinitializeThread();
+
     return 0;
 }
 

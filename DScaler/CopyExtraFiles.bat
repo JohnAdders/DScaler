@@ -1,6 +1,4 @@
 rem This batch file is run as a post-build step. 
-..\%1\disasm.exe ..\Disasm\ia32.txt ..\%1\ia32.bin
-..\%1\mapconv.exe ..\%1\DScaler.map ..\%1\DScaler.vdi ..\%1\ia32.bin
 xcopy ..\ThirdParty\LibJpeg\*.dll ..\%1\ /Y /D
 xcopy ..\ThirdParty\LibTiff\*.dll ..\%1\ /Y /D
 xcopy ..\ThirdParty\zlib\*.dll ..\%1\ /Y /D

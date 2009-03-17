@@ -1165,26 +1165,20 @@ int CTDA9875AudioDecoder::SetAudioDecoderValue(int What, long Val)
 
 DWORD WINAPI TDA9875ThreadProc(LPVOID lpThreadParameter)
 {
-    DScalerInitializeThread("TDA9875DetectThread");
+    DScalerThread("TDA9875DetectThread");
     if (lpThreadParameter != NULL)
     {
         int Result;
-        __try
+        try
         {
             Result = ((CTDA9875AudioDecoder*)lpThreadParameter)->DetectThread();
         }
-        __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info()))
+        catch(...)
         {
-            DScalerDeinitializeThread();
-            ExitThread(1);
             return 1;
         }
-        DScalerDeinitializeThread();
-        ExitThread(Result);
         return Result;
     }
-    DScalerDeinitializeThread();
-    ExitThread(1);
     return 1;
 }
 

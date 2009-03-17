@@ -26,8 +26,7 @@
 #include "PCICard.h"
 #include "HardwareDriver.h"
 #include "DebugLog.h"
-
-extern "C" unsigned long gBuildNum;
+#include "BuildNum.h"
 
 CPCICard::CPCICard(CHardwareDriver* pDriver) :
             m_pDriver(pDriver),
@@ -680,7 +679,8 @@ void CPCICard::SaveState()
 
     DWORD BytesWritten(0);
 
-    WriteFile(m_hStateFile, &gBuildNum, 4, &BytesWritten, NULL);
+    long BuildNum(GetBuildNum());
+    WriteFile(m_hStateFile, &BuildNum, 4, &BytesWritten, NULL);
 
     m_bStateIsReading = false;
     ManageMyState();
@@ -693,12 +693,12 @@ void CPCICard::RestoreState()
         // reset the pointer to the start of the file
         SetFilePointer(m_hStateFile, 0, NULL, FILE_BEGIN);
 
-        DWORD StoredBuildNumber(0);
+        long StoredBuildNumber(0);
         DWORD BytesRead(0);
 
         ReadFile(m_hStateFile, &StoredBuildNumber, 4, &BytesRead, NULL);
 
-        if(StoredBuildNumber == gBuildNum)
+        if(StoredBuildNumber == GetBuildNum())
         {
             m_bStateIsReading = true;
             ManageMyState();

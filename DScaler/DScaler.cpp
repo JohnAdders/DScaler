@@ -56,6 +56,7 @@
 #include "DebugLog.h"
 #include "TimeShift.h"
 #include "Crash.h"
+#include "BuildNum.h"
 #include "Calibration.h"
 #include "Providers.h"
 #include "OverlaySettings.h"
@@ -303,8 +304,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     hMainThread = GetCurrentThreadId();
 
     SetErrorMode(SEM_NOGPFAULTERRORBOX);
-    SetUnhandledExceptionFilter(CrashHandler);
-    VDCHECKPOINT;
 
     SetDirectoryToExe();
 
@@ -671,8 +670,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     CreateDScalerPopupMenu();
 #endif
     
-    VDCHECKPOINT;
-
     // catch any serious errors during message handling
     while (GetMessage(&msg, NULL, 0, 0))
     {
@@ -690,13 +687,24 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
 LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
-    __try
+    try
     {
         LOG(3, "Got Windows Message %d Params %d %d", message, wParam, lParam);
         return MainWndProc(hWnd, message, wParam, lParam);
     }
     // if there is any exception thrown then exit the process
-    __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
+    catch(std::exception& e)
+    { 
+        LOG(1, "Crash in MainWndProc");
+        LOG(1, e.what());
+        // try as best we can to unload everything
+        // mostly we want to make sure that the driver is stopped
+        // cleanly so that the machine doesn't blue screen
+        MainWndOnDestroy();
+        ExitProcess(1);
+        return 0;
+    }
+    catch(...)
     { 
         LOG(1, "Crash in MainWndProc");
         // try as best we can to unload everything
@@ -4268,7 +4276,7 @@ void MainWndOnCreate(HWND hWnd)
     int ProcessorMask;
     SYSTEM_INFO SysInfo;
 
-    LOG(1 , "DScaler Version %s Compiled %s %s Build %d", VERSTRING, __DATE__, __TIME__, gBuildNum);
+    LOG(1 , "DScaler Version %s Compiled %s %s Build %s", VERSTRING, __DATE__, __TIME__, GetSVNBuildString());
 
     OSVERSIONINFO ovi;
     ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
@@ -4373,46 +4381,46 @@ void KillTimers()
 // of the functions
 void MainWndOnDestroy()
 {
-    __try
+    try
     {
         KillTimers();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Kill Timers");}
+    catch(...) {LOG(1, "Kill Timers");}
 
     // stop capture before stopping timneshift to avoid crash
-    __try
+    try
     {
         LOG(1, "Try Stop_Capture");
         Stop_Capture();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Stop_Capture");}
+    catch(...) {LOG(1, "Error Stop_Capture");}
       
-    __try
+    try
     {
         LOG(1, "Try CTimeShift::OnStop");
 
         TimeShiftStop();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShiftStop");}
+    catch(...) {LOG(1, "Error TimeShiftStop");}
 
     
     // Kill timeshift before muting since it always exits unmuted on cleanup.
-    __try
+    try
     {
         LOG(1, "Try TimeShiftShutdown");
 
         TimeShiftShutdown();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShiftShutdown");}
+    catch(...) {LOG(1, "Error TimeShiftShutdown");}
 
-    __try
+    try
     {
         LOG(1, "Try CleanUpMemory");
         CleanUpMemory();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error CleanUpMemory");}
+    catch(...) {LOG(1, "Error CleanUpMemory");}
 
-    __try
+    try
     {
         if(bIsFullScreen == FALSE)
         {
@@ -4425,9 +4433,9 @@ void MainWndOnDestroy()
             SaveWindowPos(hWnd);
         }
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SaveWindowPos");}
+    catch(...) {LOG(1, "Error SaveWindowPos");}
     
-     __try
+    try
     {
         LOG(1, "Try free skinned border");
         if (WindowBorder != NULL)
@@ -4436,9 +4444,9 @@ void MainWndOnDestroy()
             WindowBorder = NULL;
         }            
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free skinned border");}
+    catch(...) {LOG(1, "Error free skinned border");}
 
-    __try
+    try
     {
         LOG(1, "Try free toolbars");
         if (ToolbarControl!=NULL)
@@ -4447,18 +4455,18 @@ void MainWndOnDestroy()
             ToolbarControl = NULL;
         }
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free toolbars");}    
+    catch(...) {LOG(1, "Error free toolbars");}    
 
-    __try
+    try
     {
         // save settings per cahnnel/input ets
         // must be done before providers are unloaded
         LOG(1, "SettingsMaster->SaveSettings");
         SettingsMaster->SaveSettings();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SettingsMaster->SaveSettings");}
+    catch(...) {LOG(1, "Error SettingsMaster->SaveSettings");}
     
-    __try
+    try
     {
         // write out setting with optimize on 
         // to avoid delay on flushing file
@@ -4466,17 +4474,17 @@ void MainWndOnDestroy()
         LOG(1, "WriteSettingsToIni");
         WriteSettingsToIni(TRUE);
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
+    catch(...) {LOG(1, "Error WriteSettingsToIni");}
 
-    __try
+    try
     {
         LOG(1, "Try Providers_Unload");
         Providers_Unload();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Providers_Unload");}
+    catch(...) {LOG(1, "Error Providers_Unload");}
 
     
-    __try
+    try
     {
         LOG(1, "Try free settings");
         if (SettingsMaster != NULL)
@@ -4488,25 +4496,25 @@ void MainWndOnDestroy()
         // Free of filters settings is done later when calling UnloadFilterPlugins
         // Free of sources dependent settings is already done when calling Providers_Unload
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free settings");}
+    catch(...) {LOG(1, "Error free settings");}
     
 
-    __try
+    try
     {
         LOG(1, "Try StatusBar_Destroy");
         StatusBar_Destroy();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error StatusBar_Destroy");}
+    catch(...) {LOG(1, "Error StatusBar_Destroy");}
 
-    __try
+    try
     {
         LOG(1, "Try SetTray(FALSE)");
         if (bIconOn)
             SetTray(FALSE);
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SetTray(FALSE)");}
+    catch(...) {LOG(1, "Error SetTray(FALSE)");}
 
-    __try
+    try
     {
         LOG(1, "Try free EventCollector");
         if (EventCollector != NULL)
@@ -4515,16 +4523,16 @@ void MainWndOnDestroy()
             EventCollector = NULL;
         }
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free EventCollector");}
+    catch(...) {LOG(1, "Error free EventCollector");}
     
-    __try
+    try
     {
         LOG(1, "Try ExitDD");
         GetActiveOutput()->ExitDD();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error ExitDD");}
+    catch(...) {LOG(1, "Error ExitDD");}
 
-    __try
+    try
     {
         if(bIsFullScreen == TRUE)
         {
@@ -4534,27 +4542,27 @@ void MainWndOnDestroy()
             OutReso_Change(hWnd, hPSWnd, TRUE, FALSE, lPStripTimingString, TRUE);
         }
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error restore display resolution");}
+    catch(...) {LOG(1, "Error restore display resolution");}
  
-    __try
+    try
     {
         // unload plug-ins
         UnloadDeinterlacePlugins();
         UnloadFilterPlugins();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Unload plug-ins");}
+    catch(...) {LOG(1, "Error Unload plug-ins");}
 
-    __try
+    try
     {
         SetKeyboardLock(FALSE);
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SetKeyboardLock(FALSE)");}
+    catch(...) {LOG(1, "Error SetKeyboardLock(FALSE)");}
 
-    __try
+    try
     {
         Timing_CleanUp();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Timing_CleanUp()");}
+    catch(...) {LOG(1, "Error Timing_CleanUp()");}
 
 }
 

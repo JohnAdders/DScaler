@@ -410,6 +410,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\DScaler\BuildNum.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\DScaler\ErrorBox.cpp"
 				>
 				<FileConfiguration
@@ -688,6 +692,10 @@
 			>
 			<File
 				RelativePath="..\DScaler\BitVector.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DScaler\BuildNum.h"
 				>
 			</File>
 			<File

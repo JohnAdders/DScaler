@@ -27,6 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -54,6 +55,7 @@
 				AdditionalIncludeDirectories="..\api,.\"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT"
 				StringPooling="true"
+				ExceptionHandling="2"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
@@ -132,6 +134,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -155,6 +158,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\api,.\"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT"
+				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
@@ -237,6 +241,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -260,6 +265,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\api,.\"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE;VS80_EXPRESS_BUILD;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT"
+				ExceptionHandling="2"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
@@ -341,6 +347,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -368,6 +375,7 @@
 				AdditionalIncludeDirectories="..\api,.\"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE;VS80_EXPRESS_BUILD;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT"
 				StringPooling="true"
+				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
@@ -1531,6 +1539,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\BuildNum.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Calibration.cpp"
 				>
 				<FileConfiguration
@@ -2404,54 +2416,6 @@
 			</File>
 			<File
 				RelativePath="Dialogs.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Express|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_Express|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="Disasm.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -4429,54 +4393,6 @@
 			<File
 				RelativePath=".\LibraryCache.cpp"
 				>
-			</File>
-			<File
-				RelativePath="list.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Express|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_Express|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="MixerDev.cpp"
@@ -8044,46 +7960,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="verstub.asm"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="ml /c /coff /nologo /Fo $(IntDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
-						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="ml /c /Zd /coff /nologo /Fo $(IntDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
-						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Express|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="ml /c /Zd /coff /nologo /Fo $(IntDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
-						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_Express|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="ml /c /coff /nologo /Fo $(IntDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
-						Outputs="$(IntDir)\$(InputName).obj"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="VideoSettings.cpp"
 				>
 				<FileConfiguration
@@ -8617,6 +8493,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BuildNum.h"
+				>
+			</File>
+			<File
 				RelativePath="Calibration.h"
 				>
 			</File>
@@ -8678,10 +8558,6 @@
 			</File>
 			<File
 				RelativePath="Dialogs.h"
-				>
-			</File>
-			<File
-				RelativePath="disasm.h"
 				>
 			</File>
 			<File
@@ -8873,10 +8749,6 @@
 				>
 			</File>
 			<File
-				RelativePath="list.h"
-				>
-			</File>
-			<File
 				RelativePath="MixerDev.h"
 				>
 			</File>
@@ -8966,6 +8838,10 @@
 			</File>
 			<File
 				RelativePath="ProgramList.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProtectCode.h"
 				>
 			</File>
 			<File

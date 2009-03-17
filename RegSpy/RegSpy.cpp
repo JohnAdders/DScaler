@@ -1995,11 +1995,6 @@ void __cdecl HideSplashScreen()
 {
 }
 
-extern "C"
-{
-    long gBuildNum = 0;
-}
-
 void __cdecl OSD_Redraw(struct HWND__ *,struct HDC__ *)
 {
 }

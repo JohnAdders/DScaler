@@ -59,7 +59,7 @@ long Filter_DoInput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
                         Filters[i]->CanDoInterlaced)
                     {
                         SourceAspectAdjust *= Filters[i]->pfnAlgorithm(pInfo);
-                        CHECK_FPU_STACK
+                        CHECK_FPU_STACK;
                         SourceAspectAdjust /= 1000;
                     }
                 }
@@ -251,12 +251,12 @@ BOOL LoadFilterPlugins()
 
             if(_stricmp(".dll", &FindFileData.cFileName[strlen(FindFileData.cFileName)-4]) == 0)
             {
-                __try
+                try
                 {
                     LOG(1, "Loading %s ...", FindFileData.cFileName);
                     LoadFilterPlugin(FindFileData.cFileName);
                 }
-                __except (EXCEPTION_EXECUTE_HANDLER) 
+                catch(...) 
                 { 
                     LOG(1, "Crash Loading %s", FindFileData.cFileName);
                 }

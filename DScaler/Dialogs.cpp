@@ -37,13 +37,12 @@
 #include "CPU.h"
 #include "Slider.h"
 #include "AspectRatio.h"
-#include "Crash.h"
+#include "BuildNum.h"
 #include "..\API\DScalerVersion.h"
 
 BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     char    szResult[256];      // Temporary result string
-    char    szGetName[256];     // String to use for extracting version Info
 
     switch (message)
     {
@@ -57,8 +56,7 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         lstrcat(szResult, __TIME__);
 
         lstrcat(szResult, " Build (");
-        sprintf(szGetName,"%d", gBuildNum);
-        lstrcat(szResult, szGetName);
+        lstrcat(szResult, GetSVNBuildString());
         lstrcat(szResult, ")");
 
         SetWindowText (GetDlgItem(hDlg, IDC_VERSION), szResult);

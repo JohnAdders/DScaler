@@ -970,27 +970,21 @@ void CMSP34x0AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
 /////////////////////////////////////////////////////////////////////////////////////////
 DWORD WINAPI MSP34xxThreadProc(LPVOID lpThreadParameter)
 {
-    DScalerInitializeThread("MSP34xxDetectThread");
+    DScalerThread("MSP34xxDetectThread");
+
     if (lpThreadParameter != NULL)
     {
-        int Result;
-        __try
+        int Result = 1;
+        try
         {
             Result = ((CMSP34x0AudioDecoder*)lpThreadParameter)->DetectThread();
         }
-        __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info()))
+        catch(...)
         {
             LOG(1, "Crash in MSP34xx detect loop");
-            DScalerDeinitializeThread();
-            ExitThread(1);
-            return 1;
         }
-        DScalerDeinitializeThread();
-        ExitThread(Result);
         return Result;
     }
-    DScalerDeinitializeThread();
-    ExitThread(1);
     return 1;
 }
 

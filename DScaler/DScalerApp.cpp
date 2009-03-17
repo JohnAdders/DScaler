@@ -75,7 +75,7 @@ BOOL CDScalerApp::InitInstance()
     // afxMemDF=allocMemDF|checkAlwaysMemDF|delayFreeMemDF;
 #endif
 
-    DScalerInitializeThread("Main thread");
+    DScalerThread("Main thread");
 
 #ifdef WANT_DSHOW_SUPPORT
     //COM init.
@@ -128,7 +128,6 @@ BOOL CDScalerApp::InitInstance()
 //#ifdef WANT_DSHOW_SUPPORT
 //    CoUninitialize();
 //#endif
-    DScalerDeinitializeThread();
 
     // return false so message loop doesn't start
     return FALSE;

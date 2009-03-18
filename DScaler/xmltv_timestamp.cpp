@@ -415,8 +415,11 @@ time_t parse_xmltv_date_v5( const char *date, unsigned int full_len )
     long gmtoff = localtime( &now )->tm_gmtoff;
 #else
     long gmtoff;
-    struct tm * pTm = localtime( &now );
-    gmtoff = 60*60 * pTm->tm_isdst - timezone;
+    long tzseconds;
+    _get_timezone(&tzseconds);
+    long dstbias;
+    _get_dstbias(&dstbias);
+    gmtoff = dstbias - tzseconds;
 #endif
 
     /*
@@ -508,7 +511,7 @@ time_t parse_xmltv_date_v6( const char *date, unsigned int len )
    int scan_pos;
    time_t tval;
 
-   nscan = sscanf(date, "%4u-%2u-%2uT%2u:%2u:%2uZ%n",
+   nscan = sscanf_s(date, "%4u-%2u-%2uT%2u:%2u:%2uZ%n",
                         &t.tm_year, &t.tm_mon, &t.tm_mday,
                         &t.tm_hour, &t.tm_min, &t.tm_sec, &scan_pos);
    if ((nscan >= 6) && (date[scan_pos] == 0))
@@ -519,7 +522,11 @@ time_t parse_xmltv_date_v6( const char *date, unsigned int len )
       t.tm_sec = 0;
 
       tval = mktime(&t);
-      tval += 60*60 * t.tm_isdst - timezone;
+      long dstbias;
+      _get_dstbias(&dstbias);
+      long tzseconds;
+      _get_timezone(&tzseconds);
+      tval += dstbias - tzseconds;
    }
    else
       tval = 0;

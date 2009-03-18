@@ -46,6 +46,7 @@
 #include "MultiFrames.h"
 #include "EPG.h"
 
+using namespace std;
 
 #define MAX_CHANNELS 255
 
@@ -119,7 +120,7 @@ void Channel_SetCurrent()
     Channel_Change(CurrentProgram);
 }
 
-const char* Channel_GetName()
+string Channel_GetName()
 {
     if(CurrentProgram < MyChannels.GetSize())
     {
@@ -132,7 +133,7 @@ const char* Channel_GetName()
 }
 
 
-const char* Channel_GetEPGName()
+string Channel_GetEPGName()
 {
     if(CurrentProgram < MyChannels.GetSize())
     {
@@ -145,57 +146,25 @@ const char* Channel_GetEPGName()
 }
 
 
-//#define    DEBUG_CHANNEL_IDENTIFICATION
-
-const char* Channel_GetVBIName(BOOL bOnlyWithCodes)
+string Channel_GetVBIName(BOOL bOnlyWithCodes)
 {
-    static char szName[24];
+    string szName(VT_GetStationFromPDC());
 
-    VT_GetStationFromPDC(szName, sizeof(szName));
-    //LOG(1, "VT_GetStationFromPDC => %s", szName);
-#ifdef DEBUG_CHANNEL_IDENTIFICATION
-    if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
+    if (szName.empty())
     {
-        strcat(szName, "#1");
-    }
-#endif
-
-    if (*szName == '\0')
-    {
-        VPS_GetChannelNameFromCNI(szName, sizeof(szName));
-        //LOG(1, "VPS_GetChannelNameFromCNI => %s", szName);
-#ifdef DEBUG_CHANNEL_IDENTIFICATION
-        if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
-        {
-            strcat(szName, "#2");
-        }
-#endif
+        szName = VPS_GetChannelNameFromCNI();
     }
 
-    if (*szName == '\0')
+    if (szName.empty())
     {
-        VT_GetStationFromIDP8301(szName, sizeof(szName));
-        //LOG(1, "VT_GetStationFromIDP8301 => %s", szName);
-#ifdef DEBUG_CHANNEL_IDENTIFICATION
-        if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
-        {
-            strcat(szName, "#3");
-        }
-#endif
+        szName = VT_GetStationFromIDP8301();
     }
 
     if (bOnlyWithCodes == FALSE)
     {
-        if (*szName == '\0')
+        if (szName.empty())
         {
-            VT_GetStation(szName, sizeof(szName));
-            //LOG(1, "VT_GetStation => %s", szName);
-#ifdef DEBUG_CHANNEL_IDENTIFICATION
-            if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
-            {
-                strcat(szName, "#4");
-            }
-#endif
+             szName = VT_GetStation();
         }
     }
 
@@ -634,7 +603,7 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
         // add channel if frequency found
         if (ReturnedFreq != 0)
         {
-            char sbuf[256] = "";
+            string sbuf;
 
             // if teletext is active then get channel names
             if (   bCaptureVBI
@@ -664,24 +633,28 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
                     // The fact that the code ID in P8/30/1 needs to be received
                     // twice with the same value before being used is the main reason.
                     Sleep(200);
-                    strcpy(sbuf, Channel_GetVBIName(TRUE));
+                    sbuf = Channel_GetVBIName(TRUE);
                     ++i;
                 }
-                if(sbuf[0] == '\0' || sbuf[0] == ' ')
+                if(sbuf.empty())
                 {
-                    strcpy(sbuf, Channel_GetVBIName(FALSE));
+                    sbuf = Channel_GetVBIName(FALSE);
                 }
-                if(sbuf[0] == '\0' || sbuf[0] == ' ')
+                if(sbuf.empty())
                 {
-                    sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
+                    ostringstream oss;
+                    oss << MyChannels.GetSize() + 1;
+                    sbuf = "Channel " + oss.str();
                 }
             }
             else
             {
-                sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
+                ostringstream oss;
+                oss << MyChannels.GetSize() + 1;
+                sbuf = "Channel " + oss.str();
             }
             CChannel* NewChannel = new CChannel(
-                                        sbuf,
+                                        sbuf.c_str(),
                                         ReturnedFreq,
                                         channel->GetChannelNumber(),
                                         channel->GetFormat(),

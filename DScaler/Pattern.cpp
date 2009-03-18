@@ -27,6 +27,7 @@
 #include "Pattern.h"
 #include "DebugLog.h"
 
+using namespace std;
 
 // Macro to restrict range to [0,255]
 #define LIMIT_RGB(x)    (((x)<0)?0:((x)>255)?255:(x))
@@ -774,14 +775,14 @@ void CSubPattern::Draw(TDeinterlaceInfo* pInfo)
 /////////////////////////////////////////////////////////////////////////////
 // Class CTestPattern
 
-CTestPattern::CTestPattern(char* name, int width, int height)
+CTestPattern::CTestPattern(const string& name, int width, int height)
 {
-    strcpy(m_PatternName, name);
+    m_PatternName = name;
     m_Width = width;
     m_Height = height;
 }
 
-CTestPattern::CTestPattern(LPCSTR FileName)
+CTestPattern::CTestPattern(const string& FileName)
 {
     FILE* FilePat;
     CColorBar* color_bar;
@@ -796,16 +797,14 @@ CTestPattern::CTestPattern(LPCSTR FileName)
     BOOL YUV;
     eTypeDraw TypeDraw;
 
-    FilePat = fopen(FileName, "r");
+    FilePat = fopen(FileName.c_str(), "r");
     if (!FilePat)
     {
-        m_PatternName[0] = '\0';
         m_Width = 0;
         m_Height = 0;
         return;
     }
 
-    m_PatternName[0] = '\0';
     m_Width = Setting_GetValue(Still_GetSetting(PATTERNWIDTH));
     // The width must be even
     if (m_Width%2)
@@ -838,7 +837,7 @@ CTestPattern::CTestPattern(LPCSTR FileName)
             }
             if (sscanf(Buffer, "PAT %s", s_val) == 1)
             {
-                strcpy(m_PatternName, strstr(&Buffer[4], s_val));
+                m_PatternName = strstr(&Buffer[4], s_val);
                 LOG(5,"PAT %s", m_PatternName);
             }
             else if (sscanf(Buffer, "SIZE %d %d", &i_val[0], &i_val[1]) == 2)
@@ -1014,7 +1013,7 @@ CTestPattern::~CTestPattern()
 }
 
 // This method returns the name of the test pattern
-char* CTestPattern::GetName()
+string CTestPattern::GetName()
 {
     return m_PatternName;
 }
@@ -1143,7 +1142,7 @@ CPatternHelper::CPatternHelper(CStillSource* pParent) :
 {
 }
 
-BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
+BOOL CPatternHelper::OpenMediaFile(const string& FileName)
 {
     CTestPattern pattern(FileName);
     BYTE* pFrameBuf;
@@ -1189,7 +1188,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
     return TRUE;
 }
 
-void CPatternHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context)
+void CPatternHelper::SaveSnapshot(const string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const string& Context)
 {
     return;
 }

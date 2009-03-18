@@ -20,9 +20,6 @@
 #include "SettingConfig.h"
 #include "SettingGroup.h."
 #include "SettingKey.h"
-#include <string>
-#include <vector>
-#include <sstream>
 
 
 //////////////////////////////////////////////////////////////////////////

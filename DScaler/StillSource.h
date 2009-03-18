@@ -59,8 +59,8 @@ class CStillSourceHelper
 {
 public:
     CStillSourceHelper(CStillSource* pParent);
-    virtual BOOL OpenMediaFile(LPCSTR FileName) = 0;
-    virtual void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context) = 0;
+    virtual BOOL OpenMediaFile(const std::string& FileName) = 0;
+    virtual void SaveSnapshot(const std::string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const std::string& Context) = 0;
 protected:
     CStillSource* m_pParent;
 };
@@ -70,11 +70,11 @@ protected:
 class CPlayListItem
 {
 public:
-    CPlayListItem(LPCSTR FileName);
-    CPlayListItem(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, char* Context);
-    LPCSTR GetFileName();
-    void SetFileName(LPCSTR FileName);
-    BOOL GetMemoryInfo(BYTE** pFrameBuffer, int* pFrameHeight, int* pFrameWidth, int* pLinePitch, BOOL* pSquarePixels, const char** pContext);
+    CPlayListItem(const std::string& FileName);
+    CPlayListItem(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const std::string& Context);
+    const std::string& GetFileName();
+    void SetFileName(const std::string& FileName);
+    BOOL GetMemoryInfo(BYTE** pFrameBuffer, int* pFrameHeight, int* pFrameWidth, int* pLinePitch, BOOL* pSquarePixels, std::string& pContext);
     BOOL IsInMemory();
     time_t GetTimeStamp();
     BOOL IsSupported();
@@ -98,7 +98,7 @@ private:
 class CStillSource : public CSource
 {
 public:
-    CStillSource(LPCSTR IniSection);
+    CStillSource(const std::string& IniSection);
     ~CStillSource();
     void CreateSettings(LPCSTR IniSection);
     void Start();
@@ -106,7 +106,7 @@ public:
     void Reset();
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
-    LPCSTR GetStatus();
+    std::string GetStatus();
     ISetting* GetVolume() {return NULL;};
     ISetting* GetBalance() {return NULL;};
     void Mute() {;};
@@ -142,24 +142,24 @@ public:
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) {return FALSE;};
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo) {;};
-    LPCSTR GetMenuLabel();
+    std::string GetMenuLabel();
     BOOL ReadNextFrameInFile();
-    BOOL LoadPlayList(LPCSTR FileName);
+    BOOL LoadPlayList(const std::string& FileName);
     void SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch);
     void SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pAllocBuffer, LONG LinePitch);
     void SaveInFile(int pos);
-    BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
+    BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList);
     BOOL IsAccessAllowed();
     void SetAspectRatioData();
     BOOL HasSquarePixels() {return m_SquarePixels;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
-    LPCSTR IDString() { return m_IDString.c_str(); }
+    std::string IDString() { return m_IDString; }
     void SetNavigOnly(BOOL NavigOnly);
     BOOL IsNavigOnly();
     int  NumInputs(eSourceInputType InputType) { return 0; };
     BOOL SetInput(eSourceInputType InputType, int Nr) { return FALSE; };
     int GetInput(eSourceInputType InputType) { return -1; };
-    const char* GetInputName(eSourceInputType InputType, int Nr) { return NULL; };
+    std::string GetInputName(eSourceInputType InputType, int Nr) { return NULL; };
     BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
 
     SmartPtr<ITuner> GetTuner() {return NULL;}
@@ -185,11 +185,11 @@ private:
     void ClearPlayList();
     BOOL ShowNextInPlayList();
     BOOL ShowPreviousInPlayList();
-    BOOL OpenPictureFile(LPCSTR FileName);
-    BOOL OpenPictureMemory(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const char* Context);
-    BOOL SavePlayList(LPCSTR FileName);
-    BOOL IsItemInList(LPCSTR FileName);
-    BOOL FindFileName(time_t TimeStamp, char* FileName);
+    BOOL OpenPictureFile(const std::string& FileName);
+    BOOL OpenPictureMemory(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const std::string& Context);
+    BOOL SavePlayList(const std::string& FileName);
+    BOOL IsItemInList(const std::string& FileName);
+    BOOL FindFileName(time_t TimeStamp, std::string& FileName);
 
 protected:
     int         m_InitialWidth;
@@ -200,7 +200,7 @@ protected:
     TPicture    m_StillFrame;
     BYTE*       m_OriginalFrameBuffer;
     TPicture    m_OriginalFrame;
-    vector<CPlayListItem*> m_PlayList;
+    std::vector<CPlayListItem*> m_PlayList;
     int         m_Position;
     BOOL        m_IsPictureRead;
     BOOL        m_SquarePixels;
@@ -233,7 +233,7 @@ private:
 
 BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight);
 
-void BuildDScalerContext(char* buf);
+std::string BuildDScalerContext();
 
 SETTING* Still_GetSetting(STILL_SETTING Setting);
 void Still_ReadSettingsFromIni();

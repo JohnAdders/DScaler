@@ -41,7 +41,7 @@ BOOL StatusBar_Init();
 BOOL StatusBar_IsVisible();
 BOOL StatusBar_Adjust(HWND hWnd);
 void StatusBar_Destroy();
-void StatusBar_ShowText(eStatusBarBox Field, LPCSTR  szText);
+void StatusBar_ShowText(eStatusBarBox Field, const std::string& szText);
 void StatusBar_ShowWindow(BOOL bShow);
 void StatusBar_Repaint();
 int StatusBar_Height();

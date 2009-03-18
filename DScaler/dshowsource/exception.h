@@ -30,26 +30,14 @@
 /**
  * Exception baseclass.
  */
-class CDShowException
+class CDShowException : public std::exception
 {
 public:
-    CDShowException(CString msg,HRESULT hr);
-    CDShowException(CString msg);
-    virtual ~CDShowException();
-    
-    /**
-     * @return the error message
-     */
-    CString getErrorText();
-    
-    /// @return true if the error number is valid
-    bool hasErrNo() {return m_hasErrNo;};
+    CDShowException(const char* msg,HRESULT hr = S_OK);
     HRESULT getErrNo() {return m_err;};
 
 private:
-    CString m_errMsg;        //error message in plaintext
     HRESULT m_err;            //error code
-    bool m_hasErrNo;        //is the error code valid?
 };
 
 #endif // !defined(AFX_EXCEPTION_H__3DCA2AE5_2EC6_405F_AE26_D7D1E8E0E2D0__INCLUDED_)

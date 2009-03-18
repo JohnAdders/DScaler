@@ -153,7 +153,7 @@ void CDShowDirectTuner::SetFrequency(long Freq,AMTunerModeType Mode,AnalogVideoS
         }
         catch(CDShowException& e)
         {
-            LOG(1,"CDShowDirectTuner::SetFrequency: Exception from SetTVFormat - %s",e.getErrorText());
+            LOG(1,"CDShowDirectTuner::SetFrequency: Exception from SetTVFormat - %s",e.what());
         }
     }
     else

@@ -34,6 +34,8 @@
 #include "OSD.h"
 #include "OutThreads.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -110,7 +112,7 @@ void CDSSourceBase::Start()
     }
     catch(CDShowException &e)
     {
-        ErrorBox(e.getErrorText());
+        ErrorBox(e.what());
     }
     NotifySquarePixelsCheck();
 }
@@ -126,7 +128,7 @@ void CDSSourceBase::Stop()
         }
         catch(CDShowException &e)
         {
-            ErrorBox(e.getErrorText());
+            ErrorBox(e.what());
         }
     }
 }
@@ -178,7 +180,7 @@ void CDSSourceBase::StopAndSeekToBeginning()
         }
         catch(CDShowException &e)
         {
-            ErrorBox(CString("Stop failed\n\n")+e.getErrorText());
+            ErrorBox(CString("Stop failed\n\n")+e.what());
         }
     }
 }
@@ -279,7 +281,7 @@ void CDSSourceBase::UpdateDroppedFields()
     }
     catch(CDShowException& e)
     {
-        LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+        LOG(1, "DShow Exception - %s", e.what());
         return;
     }
     
@@ -319,7 +321,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Play failed\n\n")+e.getErrorText());
+                ErrorBox(CString("Play failed\n\n")+e.what());
             }
             OSD_ShowText("Play", 0);
         }
@@ -469,7 +471,7 @@ void CDSSourceBase::Mute()
         }
         catch(CDShowException& e)
         {
-            LOG(3,"Exception in Mute, Error: %s",(LPCSTR)e.getErrorText());
+            LOG(3,"Exception in Mute, Error: %s",e.what());
         }
     }
 }
@@ -497,7 +499,7 @@ void CDSSourceBase::UnMute()
         }
         catch(CDShowException& e)
         {
-            LOG(3,"Exception in UnMute, Error: %s",(LPCSTR)e.getErrorText());
+            LOG(3,"Exception in UnMute, Error: %s",e.what());
         }
     }
 }
@@ -581,7 +583,7 @@ void CDSSourceBase::VolumeOnChange(long NewValue, long OldValue)
     }
     catch(CDShowException& e)
     {
-        LOG(3,"Exception in VolumeOnChange, Error: %s",(LPCSTR)e.getErrorText());
+        LOG(3,"Exception in VolumeOnChange, Error: %s",e.what());
         m_Volume->SetValue(OldValue);
         EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, OldValue);
     }
@@ -607,14 +609,14 @@ void CDSSourceBase::BalanceOnChange(long NewValue, long OldValue)
     }
     catch(CDShowException& e)
     {
-        LOG(3,"Exception in BalanceOnChange, Error: %s",(LPCSTR)e.getErrorText());
+        LOG(3,"Exception in BalanceOnChange, Error: %s",e.what());
         m_Balance->SetValue(OldValue);
     }
 }
 
-LPCSTR CDSSourceBase::IDString()
+string CDSSourceBase::IDString()
 {
-    return m_IDString.c_str();
+    return m_IDString;
 }
 
 int CDSSourceBase::GetCurrentPos()
@@ -642,7 +644,7 @@ void CDSSourceBase::SetPos(int pos)
 
             int pos1 = (int)(RealPos / 10000000);
             char text[32];
-            sprintf(text, "Jump to time %d:%2.2d", pos1 / 60, pos1 % 60);
+            sprintf_s(text, 32, "Jump to time %d:%2.2d", pos1 / 60, pos1 % 60);
             OSD_ShowText(text, 0);
         }
     }
@@ -686,7 +688,7 @@ void CDSSourceBase::ChangePos(int delta_sec)
 
                 int pos1 = (int)(newpos / 10000000);
                 char text[32];
-                sprintf(text, "Jump to time %d:%2.2d", pos1 / 60, pos1 % 60);
+                sprintf_s(text, 32, "Jump to time %d:%2.2d", pos1 / 60, pos1 % 60);
                 OSD_ShowText(text, 0);
             }
         }

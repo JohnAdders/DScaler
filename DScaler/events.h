@@ -81,7 +81,7 @@ protected:
         CEventObject *pEventObject;
     } TEventCallbackInfo;
     
-    vector<TEventCallbackInfo> m_EventObjects;
+    std::vector<TEventCallbackInfo> m_EventObjects;
 
     typedef struct
     {
@@ -92,7 +92,7 @@ protected:
         eEventType *ComingUp;
     } TEventInfo;
 
-    deque<TEventInfo> m_ScheduledEventList;
+    std::deque<TEventInfo> m_ScheduledEventList;
     CRITICAL_SECTION  m_EventCriticalSection;
     CRITICAL_SECTION  m_LastEventCriticalSection;
     long              m_ScheduleTimerID;
@@ -100,7 +100,7 @@ protected:
     HANDLE              m_EventCollectorThread;        
     BOOL              m_bStopThread;
 
-    vector<TEventInfo> m_LastEvents;
+    std::vector<TEventInfo> m_LastEvents;
     
 protected:
     eEventType *CEventCollector::CopyEventList(eEventType *EventList);

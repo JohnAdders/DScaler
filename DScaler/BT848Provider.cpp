@@ -88,7 +88,7 @@ CBT848Provider::CBT848Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
                 IsMemoryInitialized = TRUE;
             }
 
-            sprintf(szSection, "%s%d", BT848Chips[i].szName, CardsFound + 1);
+            sprintf_s(szSection, 12, "%s%d", BT848Chips[i].szName, CardsFound + 1);
             SmartPtr<CBT848Source> pNewSource = CreateCorrectSource(
                                                                 pHardwareDriver,
                                                                 szSection, 

@@ -51,9 +51,9 @@ BYTE CAD9882::GetRegister(BYTE Register)
 
 void CAD9882::DumpSettings(LPCSTR Filename)
 {
-    FILE* hFile;
+    FILE* hFile = 0;
 
-    hFile = fopen(Filename, "w");
+    fopen_s(&hFile, Filename, "w");
     if(!hFile)
     {
         return;

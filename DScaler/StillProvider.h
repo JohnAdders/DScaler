@@ -39,7 +39,7 @@ public:
     int GetNumberOfSources();
     SmartPtr<CSource> GetSource(int SourceIndex);
 private:
-    vector< SmartPtr<CStillSource> > m_StillSources;
+    std::vector< SmartPtr<CStillSource> > m_StillSources;
 };
 
 #endif

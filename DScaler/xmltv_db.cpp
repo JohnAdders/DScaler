@@ -1264,15 +1264,15 @@ static void XmltvDb_Init( void )
 //
 void XmltvParser_Start( const char * pFilename )
 {
-   FILE * fp;
+   FILE * fp = 0;
    XMLTV_DETECTION detection;
    XMLTV_DTD_VERSION dtd;
 
    // initialize internal state
    memset(&xds, 0, sizeof(xds));
 
-   fp = fopen(pFilename, "r");
-   if (fp != NULL)
+   fopen_s(&fp, pFilename, "r");
+   if (fp != 0)
    {
      // start scanner in DTD version detection mode
      XmltvTags_StartScan(fp, XMLTV_DTD_UNKNOWN);

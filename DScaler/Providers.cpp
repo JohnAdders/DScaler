@@ -43,6 +43,7 @@
 static SmartPtr<CDSProvider> DSProvider;
 #endif
 
+using namespace std;
 
 typedef struct
 {
@@ -118,7 +119,7 @@ int Providers_Load(HMENU hMenu)
         for(i = 0; i < BT848Provider->GetNumberOfSources(); ++i)
         {
             Source = new TSource;
-            if (BT848Provider->GetSource(i)->GetMenuLabel() == NULL)
+            if (BT848Provider->GetSource(i)->GetMenuLabel().empty())
             {
                 Source->Name = "BT848 Card";
             }
@@ -178,7 +179,7 @@ int Providers_Load(HMENU hMenu)
         for(i = 0; i < CX2388xProvider->GetNumberOfSources(); ++i)
         {
             Source = new TSource;
-            if (CX2388xProvider->GetSource(i)->GetMenuLabel() == NULL)
+            if (CX2388xProvider->GetSource(i)->GetMenuLabel().empty())
             {
                 Source->Name = "CX Card";
             }
@@ -209,7 +210,7 @@ int Providers_Load(HMENU hMenu)
         for(i = 0; i < SAA7134Provider->GetNumberOfSources(); ++i)
         {
             Source = new TSource;
-            if (SAA7134Provider->GetSource(i)->GetMenuLabel() == NULL)
+            if (SAA7134Provider->GetSource(i)->GetMenuLabel().empty())
             {
                 Source->Name = "SAA7134 Card";
             }
@@ -252,7 +253,7 @@ int Providers_Load(HMENU hMenu)
     for(i = 0; i < StillProvider->GetNumberOfSources(); ++i)
     {
         Source = new TSource;
-        if (StillProvider->GetSource(i)->GetMenuLabel() == NULL)
+        if (StillProvider->GetSource(i)->GetMenuLabel().empty())
         {
             Source->Name = "Still";
         }
@@ -269,7 +270,7 @@ int Providers_Load(HMENU hMenu)
     DSProvider = new CDSProvider();
     for(i = 0; i < DSProvider->GetNumberOfSources(); ++i)
     {
-        if(AllowCx2388xDShow || strstr(DSProvider->GetSource(i)->IDString(), "VEN_14F1&DEV_88") == NULL)
+        if(AllowCx2388xDShow || DSProvider->GetSource(i)->IDString().find("VEN_14F1&DEV_88") == string::npos)
         {
             Source = new TSource;
             Source->Name = DSProvider->GetSourceName(i);
@@ -524,7 +525,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             Stop_Capture();
             for(size_t i = 0; i < Sources.size(); ++i)
             {
-                if(Sources[i]->Object->OpenMediaFile(file, FALSE))
+                if(Sources[i]->Object->OpenMediaFile((LPCSTR)file, FALSE))
                 {                    
                     Providers_NotifySourcePreChange();
                     

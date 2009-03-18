@@ -51,7 +51,7 @@ private:
                                         char* ChipName);
     /// creates the system accesable memory to be used by all cards
     BOOL MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver);
-    vector< SmartPtr<CBT848Source> > m_BT848Sources;
+    std::vector< SmartPtr<CBT848Source> > m_BT848Sources;
     /// Memory used for the RISC code
     SmartPtr<CContigMemory> m_RiscDMAMem;
     /// Memory used for VBI

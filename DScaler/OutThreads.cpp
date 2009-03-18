@@ -252,7 +252,7 @@ void Toggle_Vertical_Flip()
 // at and have the ability to recreate results
 void SaveStreamSnapshot(TDeinterlaceInfo* pInfo)
 {
-    FILE* file;
+    FILE* file = 0;
     char name[13];
     int n = 0;
     int i = 0;
@@ -261,7 +261,7 @@ void SaveStreamSnapshot(TDeinterlaceInfo* pInfo)
 
     while (n < 100)
     {
-        sprintf(name,"sn%06d.dtv",++n) ;
+        sprintf_s(name, 13, "sn%06d.dtv",++n) ;
         if (stat(name, &st))
         {
             break;
@@ -274,7 +274,7 @@ void SaveStreamSnapshot(TDeinterlaceInfo* pInfo)
         return;
     }
 
-    file = fopen(name,"wb");
+    fopen_s(&file, name, "wb");
     if (!file)
     {
         ErrorBox("Could not open file in SaveStreamSnapshot");
@@ -634,7 +634,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 {
                     char text[128];
                     pAllocBuf = NULL;
-                    sprintf(text, "Max memory (%d Mo) reached\nChange the maximum value or\nclose some open stills", Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)));
+                    sprintf_s(text, 128, "Max memory (%d Mo) reached\nChange the maximum value or\nclose some open stills", Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)));
                     OSD_ShowText(text, 0);
                 }
                 else

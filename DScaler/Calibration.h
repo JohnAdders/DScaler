@@ -111,7 +111,7 @@ public:
     void Make(TDeinterlaceInfo* pInfo, int tick_count);
 
 protected:
-    vector<CTestPattern*> m_TestPatterns;
+    std::vector<CTestPattern*> m_TestPatterns;
     CTestPattern* m_CurTestPat;
     CSubPattern* m_CurSubPat;
     eTypeCalibration m_TypeCalibration;

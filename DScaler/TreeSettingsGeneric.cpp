@@ -26,6 +26,7 @@
 #include "TreeSettingsGeneric.h"
 #include "Settings.h"
 
+using namespace std;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

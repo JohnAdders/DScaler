@@ -60,7 +60,7 @@ private:
     /// creates the system accesable memory to be used by all cards
     BOOL MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver);
     void MemoryFree();
-    vector< SmartPtr<CSAA7134Source> > m_SAA7134Sources;
+    std::vector< SmartPtr<CSAA7134Source> > m_SAA7134Sources;
     /// Memory used for DMA page table
     SmartPtr<CContigMemory> m_PageTableDMAMem[kMAX_VID_PAGETABLES + kMAX_VBI_PAGETABLES];
     /// Memory used for VBI

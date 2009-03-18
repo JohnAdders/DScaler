@@ -71,7 +71,7 @@ void CleanUpMemory();
 
 void Overlay_Stop(HWND hWnd);
 void Overlay_Start(HWND hWnd);
-void ShowText(HWND hWnd, LPCTSTR szText);
+void ShowText(HWND hWnd, const std::string& Text);
 
 BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar = FALSE);
 void InvalidateDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL bErase);
@@ -94,7 +94,7 @@ void SetMixedModeMenu(HMENU hMenu, BOOL bShow);
 
 void RedrawMenuBar(HMENU hChangedMenu);
 
-void SetTrayTip(const char* ChannelName);
+void SetTrayTip(const std::string& ChannelName);
 
 #define TIMER_STATUS        1
 #define TIMER_STATUS_MS     2000

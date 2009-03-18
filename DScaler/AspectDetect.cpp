@@ -46,7 +46,6 @@
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
 extern HMENU hMenu;
 extern BOOL  bIsFullScreen;
-extern void ShowText(HWND hWnd, LPCTSTR szText);
 
 //---------
 // Internal variables used by auto aspect ratio detect code.

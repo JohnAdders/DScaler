@@ -31,6 +31,7 @@ extern "C"
 }
 #include <setjmp.h>
 
+using namespace std;
 
 /* Expanded data source object for stdio input */
 
@@ -403,7 +404,7 @@ CJpegHelper::CJpegHelper(CStillSource* pParent) :
 {
 }
 
-BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
+BOOL CJpegHelper::OpenMediaFile(const string& FileName)
 {
     int h, w, i, j;
     BYTE* pFrameBuf = NULL;
@@ -422,7 +423,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     jmp_buf jmp_mark;
 
     // Open the input stream (file)
-    if ((infile = fopen(FileName, "rb")) == NULL)
+    if ((infile = fopen(FileName.c_str(), "rb")) == NULL)
     {
         return FALSE;
     }
@@ -583,7 +584,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
 }
 
 
-void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context)
+void CJpegHelper::SaveSnapshot(const string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const string& Context)
 {
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -602,7 +603,7 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     }
 
     // Open the output stream (file)
-    if ((outfile = fopen(FilePath, "wb")) == NULL)
+    if ((outfile = fopen(FilePath.c_str(), "wb")) == NULL)
     {
         free(pLineBuf);
         return;
@@ -648,7 +649,7 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     jpeg_start_compress(&cinfo, TRUE);
 
     // Write DScaler marker APP1 with the DScaler current context
-    jpeg_write_marker(&cinfo, JPEG_APP0 + 1, (JOCTET*)Context, strlen(Context));
+    jpeg_write_marker(&cinfo, JPEG_APP0 + 1, (JOCTET*)Context.c_str(), Context.length());
 
     // Write DScaler marker APP2 to save if square pixels mode is on or off
     if (m_pParent->m_SquarePixels)

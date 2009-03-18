@@ -109,9 +109,9 @@ BOOL VT_ClickAtPosition(HDC hDC, LPRECT lpRect, WORD xPos, WORD yPos);
 BOOL VT_IsPageNumberAtPosition(LPRECT lpRect, LPPOINT lpPoint);
 BOOL VT_IsPageNumberAtPosition(LPRECT lpRect, WORD xPos, WORD yPos);
 
-void VT_GetStationFromIDP8301(LPSTR lpBuffer, LONG nLength);
-void VT_GetStationFromPDC(LPSTR lpBuffer, LONG nLength);
-void VT_GetStation(LPSTR lpBuffer, LONG nLength);
+std::string VT_GetStationFromIDP8301();
+std::string VT_GetStationFromPDC();
+std::string VT_GetStation();
 
 BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);

@@ -32,6 +32,8 @@
 #include "Providers.h"
 #include "DScaler.h"
 
+using namespace std;
+
 ISetting* CBT848Source::GetVolume()
 {
     return m_Volume;
@@ -416,8 +418,8 @@ void CBT848Source::HandleTimerMessages(int TimerId)
 {
     if (TimerId == TIMER_MSP)
     {        
-        char Text[256];
-        char szAudioStandard[128];
+        string Text;
+        string szAudioStandard(".[");
 
         if (m_AutoStereoSelect->GetValue() && (m_AutoStereoDetectInterval->GetValue() > 0) && (m_KeepDetectingStereo > 0))
         {
@@ -431,20 +433,19 @@ void CBT848Source::HandleTimerMessages(int TimerId)
             }
         }         
         
-        szAudioStandard[0]=0;
-        
         if (m_AudioStandardInStatusBar->GetValue())
         {
             if (m_DetectingAudioStandard)
             {
-                strcpy(szAudioStandard," [Detecting...]");
+                szAudioStandard += "Detecting...]";
             }
             else 
             {
                 char *s = (char*)m_pBT848Card->GetAudioStandardName(m_AudioStandardManual->GetValue());
                 if (s != NULL)
                 {           
-                    sprintf(szAudioStandard," [%s]",s);
+                    szAudioStandard += s;
+                    szAudioStandard += "]";;
                 }
             }
         }
@@ -453,22 +454,22 @@ void CBT848Source::HandleTimerMessages(int TimerId)
         {
         case SOUNDCHANNEL_MONO:
             {
-                sprintf(Text,"Mono%s",szAudioStandard);
+                Text = "Mono" + szAudioStandard;
                 break;
             }
         case SOUNDCHANNEL_STEREO:
             {
-                sprintf(Text,"Stereo%s",szAudioStandard);
+                Text = "Stereo" + szAudioStandard;
                 break;
             }
         case SOUNDCHANNEL_LANGUAGE1:
             {
-                sprintf(Text,"Language 1%s",szAudioStandard);
+                Text = "Language 1" + szAudioStandard;
                 break;
             }
         case SOUNDCHANNEL_LANGUAGE2:
             {
-                sprintf(Text,"Language 2%s",szAudioStandard);
+                Text = "Language 2" + szAudioStandard;
                 break;
             }
         }

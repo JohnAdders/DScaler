@@ -37,7 +37,7 @@
 #include "DebugLog.h"
 #include "Providers.h"
 
-
+using namespace std;
 
 #ifdef _DEBUG
 #undef THIS_FILE

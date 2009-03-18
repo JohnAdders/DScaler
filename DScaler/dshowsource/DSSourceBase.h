@@ -65,7 +65,7 @@ public:
     ISetting* GetVolume();
     ISetting* GetBalance();
     
-    LPCSTR IDString();
+    std::string IDString();
 
     //from CSettingsHolder
     void CreateSettings(LPCSTR IniSection);

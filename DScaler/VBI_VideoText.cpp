@@ -38,6 +38,7 @@
 #include "Providers.h"
 #include "DynamicFunction.h"
 
+using namespace std;
 
 #define VT_MAXPAGEHISTORY               64
 
@@ -2418,11 +2419,9 @@ BYTE VT_UpdateHilightListProc(TVTPage*, WORD wPoint, LPWORD lpFlags,
 }
 
 
-void VT_GetStationFromIDP8301(LPSTR lpBuffer, LONG nLength)
+std::string VT_GetStationFromIDP8301()
 {
-    ASSERT(nLength > 0);
-
-    lpBuffer[0] = '\0';
+    std::string RetVal;
 
     WORD wCode = VTDecoder.GetNetworkIDFromP8301();
     if (wCode != 0)
@@ -2433,21 +2432,18 @@ void VT_GetStationFromIDP8301(LPSTR lpBuffer, LONG nLength)
         {
             if (RegisteredCNICodes[i].wNI_P8301 == wCode)
             {
-                strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
-                lpBuffer[nLength] = '\0';
+                RetVal = RegisteredCNICodes[i].sNetwork;
                 break;
             }
         }
     }
+    return RetVal;
 }
 
 
-void VT_GetStationFromPDC(LPSTR lpBuffer, LONG nLength)
+string VT_GetStationFromPDC()
 {
-    ASSERT(nLength > 0);
-
-    lpBuffer[0] = '\0';
-
+    string RetVal;
     // Search first with CNI from PDC (P8/30/2)
     WORD wCode = VTDecoder.GetCNIFromPDC();
     if (wCode != 0)
@@ -2461,18 +2457,18 @@ void VT_GetStationFromPDC(LPSTR lpBuffer, LONG nLength)
             if (   (RegisteredCNICodes[i].uC_P8302 == uCountry)
                 && (RegisteredCNICodes[i].uNI_P8302 == uNetwork) )
             {
-                strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
-                lpBuffer[nLength] = '\0';
+                RetVal = RegisteredCNICodes[i].sNetwork;
                 break;
             }
         }
     }
+    return RetVal;
 }
 
 
-void VT_GetStation(LPSTR lpBuffer, LONG nLength)
+string VT_GetStation()
 {
-    VTDecoder.GetStatusDisplay(lpBuffer, nLength);
+    return VTDecoder.GetStatusDisplay();
 }
 
 

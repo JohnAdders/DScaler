@@ -48,13 +48,13 @@ public:
     virtual int GetNumberOfSources();
     virtual SmartPtr<CSource> GetSource(int SourceIndex);
     
-    string GetSourceName(int SourceIndex);
+    std::string GetSourceName(int SourceIndex);
 
 private:
     ///checks if dshow support can be enabled
     bool CanUseDShow(std::string &FailMsg);
-    vector<SmartPtr<CDSSourceBase> > m_DSSources;
-    map<int,string> m_SourceNames;
+    std::vector<SmartPtr<CDSSourceBase> > m_DSSources;
+    std::map<int, std::string> m_SourceNames;
     
 };
 

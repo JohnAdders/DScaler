@@ -27,6 +27,8 @@
 #include <afxdtctl.h>
 #include <vector>
 
+using namespace std;
+
 SmartPtr<CScheduledRecording> pSchRec;
 CScheduleDlg* pSchDlg;
 
@@ -178,7 +180,7 @@ void CScheduleDlg::OnEndTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult)
 void CScheduleDlg::SetDurationCtrl(int minutes)
 {
     char chDur[20];
-    _itoa(minutes, chDur, 10);
+    _itoa_s(minutes, chDur, 20, 10);
     SetDlgItemText(IDC_SCHEDULE_EDIT_DURATION, chDur);
 }
 
@@ -239,14 +241,13 @@ void CScheduleDlg::InitCtrls()
 /*****************************************
 *    CSchedule functions
 ******************************************/
-CSchedule::CSchedule(char* name, char* program_name, int duration, int state, CTime time)
+CSchedule::CSchedule(const string& name, const string& program_name, int duration, int state, CTime time) :
+    m_name(name),
+    m_program_name(program_name),
+    m_duration(duration),
+    m_state(state),
+    m_time_start(time)
 {    
-    strcpy(m_name,name);
-    strcpy(m_program_name,program_name);
-
-    m_duration = duration;
-    m_state = state;
-    m_time_start = time;
 }
 
 /*****************************************
@@ -328,13 +329,12 @@ void CScheduledRecording::addSchedule()
     for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();iter++)
         if(strcmp(iter->getName(),name.GetBuffer(0)) == 0)
         {
-            char err_text[50];
-            strcpy(err_text,"Schedule name ");
+            string err_text("Schedule name ");
             
-            strcat(err_text,name.GetBuffer(0));
-            strcat(err_text,"already used");
+            err_text += name.GetBuffer(0);
+            err_text += "already used";
             
-            MessageBox(GetMainWnd(),err_text,"Error",MB_OK);
+            MessageBox(GetMainWnd(),err_text.c_str(),"Error",MB_OK);
             return;
         }
     
@@ -358,12 +358,9 @@ void CScheduledRecording::addSchedule()
 
     CTime time_start(date.wYear,date.wMonth,date.wDay,time.wHour,time.wMinute,0);
     
-    char chName[20];
-    char chProgramName[15];
+    string chName(name.GetBuffer(0));
+    string chProgramName(program.GetBuffer(0));
 
-    strcpy(chName,name.GetBuffer(0));
-    strcpy(chProgramName,program.GetBuffer(0));
-    
     CSchedule schedule(chName,chProgramName,duration,READY,time_start);
     
     m_schedules.push_back(schedule);
@@ -420,15 +417,13 @@ void CScheduledRecording::saveToXml(std::vector<CSchedule> schedules)
 
     for(std::vector<CSchedule>::iterator iter = schedules.begin();iter != schedules.end();iter++)
     {
-        char chRecord_number[10];
+        string chRecord_number("R");
         char chBuff[10];
         
-        _itoa(r_pos++,chBuff,10);
-        strcpy(chRecord_number,"R");
-        chRecord_number[1] = 0;
-        strcat(chRecord_number,(const char*)chBuff);
+        _itoa_s(r_pos++,chBuff,10,10);
+        chRecord_number += chBuff;
         
-        TiXmlElement* record = new TiXmlElement((const char*)chRecord_number);
+        TiXmlElement* record = new TiXmlElement(chRecord_number);
         records_table->LinkEndChild(record);
         
         TiXmlElement* name = new TiXmlElement("Name");
@@ -443,43 +438,43 @@ void CScheduledRecording::saveToXml(std::vector<CSchedule> schedules)
         time_start = iter->getStartTime();
         
         TiXmlElement* year = new TiXmlElement("Year");
-        _itoa(time_start.GetYear(),chBuff,10);
+        _itoa_s(time_start.GetYear(),chBuff,10,10);
         year->LinkEndChild(new TiXmlText(chBuff));
         record->LinkEndChild(year);
 
         TiXmlElement* month = new TiXmlElement("Month");
         memset(chBuff,0,sizeof(char)*10);
-        _itoa(time_start.GetMonth(),chBuff,10);
+        _itoa_s(time_start.GetMonth(),chBuff,10,10);
         month->LinkEndChild(new TiXmlText(chBuff));
         record->LinkEndChild(month);
 
         TiXmlElement* day = new TiXmlElement("Day");
         memset(chBuff,0,sizeof(char)*10);
-        _itoa(time_start.GetDay(),chBuff,10);
+        _itoa_s(time_start.GetDay(),chBuff,10,10);
         day->LinkEndChild(new TiXmlText(chBuff));
         record->LinkEndChild(day);
 
         TiXmlElement* hour = new TiXmlElement("Hour");
         memset(chBuff,0,sizeof(char)*10);
-        _itoa(time_start.GetHour(),chBuff,10);
+        _itoa_s(time_start.GetHour(),chBuff,10,10);
         hour->LinkEndChild(new TiXmlText(chBuff));
         record->LinkEndChild(hour);
     
         TiXmlElement* minute = new TiXmlElement("Minute");
         memset(chBuff,0,sizeof(char)*10);
-        _itoa(time_start.GetMinute(),chBuff,10);
+        _itoa_s(time_start.GetMinute(),chBuff,10,10);
         minute->LinkEndChild(new TiXmlText(chBuff));
         record->LinkEndChild(minute);
 
         TiXmlElement* duration = new TiXmlElement("Duration");
         memset(chBuff,0,sizeof(char)*10);
-        _itoa(iter->getDuration(),chBuff,10);
+        _itoa_s(iter->getDuration(), chBuff,10,10);
         duration->LinkEndChild(new TiXmlText(chBuff));
         record->LinkEndChild(duration);
 
         TiXmlElement* state = new TiXmlElement("State");
         memset(chBuff,0,sizeof(char)*10);
-        _itoa(iter->getState(),chBuff,10);
+        _itoa_s(iter->getState(),chBuff,10,10);
         state->LinkEndChild(new TiXmlText(chBuff));
         record->LinkEndChild(state);
     }
@@ -488,7 +483,7 @@ void CScheduledRecording::saveToXml(std::vector<CSchedule> schedules)
     records_table->LinkEndChild(records_count);
     
     char chRecord_count[4];
-    _itoa(r_count,chRecord_count,10);
+    _itoa_s(r_count,chRecord_count,4,10);
     
     records_count->LinkEndChild(new TiXmlText((const char*)chRecord_count));
         
@@ -509,21 +504,17 @@ void CScheduledRecording::loadFromXml()
     for(int r_pos=0;r_pos<r_count;r_pos++)
     {    
         char chBuff[10];
-        char chRecord_number[10];
+        string chRecord_number("R");
         
-        _itoa(r_pos,chBuff,10);
-        strcpy(chRecord_number,"R");
+        _itoa_s(r_pos,chBuff,10,10);
         chRecord_number[1] = 0;
-        strcat(chRecord_number,chBuff);
+        chRecord_number += chBuff;
         
         hRoot = hDoc.FirstChildElement("RecordsTable").FirstChildElement(chRecord_number).Element();
         hRecord = TiXmlHandle(hRoot);
         
-        char chName[20];
-        char chProgram[15];
-        
-        strcpy(chName,hRecord.FirstChildElement("Name").Element()->GetText());
-        strcpy(chProgram,hRecord.FirstChildElement("Program").Element()->GetText());
+        string chName(hRecord.FirstChildElement("Name").Element()->GetText());
+        string chProgram(hRecord.FirstChildElement("Program").Element()->GetText());
         
         int year = atoi(hRecord.FirstChildElement("Year").Element()->GetText());
         int month = atoi(hRecord.FirstChildElement("Month").Element()->GetText());
@@ -579,18 +570,16 @@ void CScheduledRecording::showRecords()
     for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();iter++)
     {    
         char chBuff[4];
-        _itoa(iter->getDuration(),chBuff,10);
+        _itoa_s(iter->getDuration(),chBuff,4,10);
 
         list->InsertItem(0,iter->getName());
         list->SetItem(0,1,LVIF_TEXT,iter->getProgramName(),0,0,0,0);
 
-        char chDate[13];
-        iter->getDateStr(chDate);
-        list->SetItem(0,2,LVIF_TEXT,chDate,0,0,0,0);
+        string chDate(iter->getDateStr());
+        list->SetItem(0,2,LVIF_TEXT,chDate.c_str(),0,0,0,0);
 
-        char chTime[6];
-        iter->getTimeStr(chTime);
-        list->SetItem(0,3,LVIF_TEXT,chTime,0,0,0,0);
+        string chTime(iter->getTimeStr());
+        list->SetItem(0,3,LVIF_TEXT,chTime.c_str(),0,0,0,0);
 
         list->SetItem(0,4,LVIF_TEXT,chBuff,0,0,0,0);
         
@@ -643,11 +632,11 @@ void CScheduledRecording::startRecording(CSchedule recording_program, CTime time
     
     setRecordState(m_recording_program.getName(),RECORDING);
     
-    const char* current_channel = Channel_GetName();
+    string current_channel = Channel_GetName();
     
     HMENU hMenu = LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_DSCALERMENU));
     
-    if(strcmp(current_channel,m_recording_program.getProgramName()) == 0)      
+    if(current_channel == m_recording_program.getProgramName())      
     {    
         if(TimeShiftRecord())
         {

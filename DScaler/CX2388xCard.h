@@ -156,7 +156,7 @@ public:
     eCX2388xCardId GetCardType();
     eCX2388xCardId AutoDetectCardType();
     int    GetMaxCards();
-    LPCSTR GetCardName(eCX2388xCardId CardId);
+    std::string GetCardName(eCX2388xCardId CardId);
     int    GetCardByName(LPCSTR cardName);
 
     void HandleTimerMessages(int TimerId);
@@ -180,11 +180,12 @@ public:
     /// Turn on the card and set state to off
     void ResetChip();
 
+    std::string   GetInputName(int nVideoSource);
+    std::string   GetTunerType();
+
     int      GetNumInputs();
     int      GetFinalInputNumber();
-    LPCSTR   GetInputName(int nVideoSource);
     BOOL     IsInputATuner(int nInput);
-    LPCSTR   GetTunerType();
     eTunerId AutoDetectTuner(eCX2388xCardId CardId);
     BOOL     InitTuner(eTunerId tunerId);
     BOOL     IsThisCardH3D(eCX2388xCardId CardId);
@@ -306,7 +307,7 @@ private:
     BOOL            m_RISCIsRunning;
     CAudioDecoder*  m_AudioDecoder;
     CAudioControls* m_AudioControls;
-    char            m_TunerType[32];
+    std::string     m_TunerType;
     int             m_CurrentInput;
     DWORD           m_FilterDefault;
     DWORD           m_2HCombDefault;

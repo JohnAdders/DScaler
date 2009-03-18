@@ -186,7 +186,7 @@ BOOL ReadTunerProc(IN int report, IN const CParseTag* tag, IN unsigned char type
         int n = value->GetNumber();
         if (n < TUNER_AUTODETECT || n >= TUNER_LASTONE)
         {
-            throw string("Invalid tuner Id");
+            throw std::exception("Invalid tuner Id");
         }
         tunerInfo->tunerId = static_cast<eTunerId>(n);
     }
@@ -311,7 +311,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const CParseTag* tag, IN unsigned char
             BYTE point = static_cast<BYTE>(value->GetNumber());
             if (point & ~TDA9887_SM_TAKEOVERPOINT_MASK)
             {
-                throw string("Invalid value of TakeOverPoint");
+                throw std::exception("Invalid value of TakeOverPoint");
             }
 
             useTDA9887Info->_readingModes.mask |= TDA9887_SM_TAKEOVERPOINT_MASK;

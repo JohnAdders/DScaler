@@ -48,7 +48,7 @@ public:
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     SmartPtr<CBT848Card> GetBT848Card();
-    LPCSTR GetStatus();
+    std::string GetStatus();
     ISetting* GetVolume();
     ISetting* GetBalance();
     void Mute();
@@ -84,20 +84,20 @@ public:
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo);
-    LPCSTR GetMenuLabel();
-    BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
+    std::string GetMenuLabel();
+    BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
     void SetAspectRatioData();
     BOOL HasSquarePixels() {return FALSE;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
     void ChannelChange(int PreChange,int OldChannel,int NewChannel);
     int GetDeviceIndex();
-    const char* GetChipName();
-    LPCSTR IDString() { return m_IDString.c_str(); }
+    std::string GetChipName();
+    std::string IDString() { return m_IDString; }
     int  NumInputs(eSourceInputType InputType);
     BOOL SetInput(eSourceInputType InputType, int Nr);
     int GetInput(eSourceInputType InputType);
-    const char* GetInputName(eSourceInputType InputType, int Nr);
+    std::string GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
     SmartPtr<ITuner> GetTuner();

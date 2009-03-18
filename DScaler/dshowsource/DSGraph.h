@@ -38,7 +38,6 @@
 //it has to be checked out in the same directory as dscaler is checked out in.
 #include "..\..\..\DSRend\DSRend.h"
 
-#include <sstream>
 /**
  * Class that manages a direct show filter graph and the filters in it.
  */
@@ -59,7 +58,7 @@ public:
         operator std::string();
         void operator=(std::string &str);
 
-        string m_Name;
+        std::string m_Name;
         ///Width
         long m_Width;
         ///Height
@@ -87,13 +86,13 @@ public:
      * Creates a filtergraph with a capture device as source.
      * @throws CDShowException
      */
-    CDShowGraph(string device,string deviceName,string AudioDevice,bool bConnectAudio);
+    CDShowGraph(std::string device, std::string deviceName, std::string AudioDevice, bool bConnectAudio);
 
     /**
      * Creates a filtergraph with a file as source
      * @throws CDShowException
      */
-    CDShowGraph(string filename,string AudioDevice);
+    CDShowGraph(std::string filename, std::string AudioDevice);
     ///Destructor
     virtual ~CDShowGraph();
     
@@ -210,10 +209,10 @@ private:
     {
     public:
         CComPtr<IBaseFilter> m_pFilter;
-        vector<CComPtr<IPin> > m_SubPage;
+        std::vector<CComPtr<IPin> > m_SubPage;
     };
     /// used in getFilterName and showPropertyPage
-    vector<CFilterPages> m_filters;
+    std::vector<CFilterPages> m_filters;
 
     DWORD m_hROT;
 #ifdef _DEBUG

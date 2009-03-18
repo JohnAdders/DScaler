@@ -32,7 +32,7 @@ class CToolbarControl : public CSettingsHolder, public CEventObject
 {
 protected:
     CToolbarWindow *Toolbar1;                 //Main toolbar 1
-    vector<CToolbar1Bar*> Toolbar1Bars;                  //Bar for childs
+    std::vector<CToolbar1Bar*> Toolbar1Bars;                  //Bar for childs
 
     CToolbarChannels *Toolbar1Channels;;      //Childs of the toolbar
     CToolbarVolume *Toolbar1Volume;

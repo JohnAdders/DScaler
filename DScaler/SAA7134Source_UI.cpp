@@ -44,6 +44,7 @@
 #include "..\help\helpids.h"
 #include "LibraryCache.h"
 
+using namespace std;
 
 // This identifies the position of the audio standard
 // sub menu in the saa7134 menu
@@ -134,11 +135,12 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     {
     case WM_INITDIALOG:
         {
-            char buf[128];
 
             pThis = (CSAA7134Source*)lParam;
-            sprintf(buf, "Setup card %u with chip %s", pThis->GetDeviceIndex() + 1, pThis->GetChipName());
-            SetWindowText(hDlg, buf);
+            ostringstream oss;
+            oss << "Setup card " << pThis->GetDeviceIndex() + 1;
+            oss << " with chip " << pThis->GetChipName();
+            SetWindowText(hDlg, oss.str().c_str());
             Button_Enable(GetDlgItem(hDlg, IDCANCEL), pThis->m_bSelectCardCancelButton);
 
             s_CardType = pThis->m_CardType->GetValue();
@@ -150,7 +152,8 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             SetFocus(hDlg);
 
             CSAA7134Card* pCard = pThis->GetCard();
-            SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType());
+            SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType().c_str());
+            char buf[10];
             sprintf(buf,"%04X", pCard->GetVendorId());
             SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, buf);
             sprintf(buf,"%04X", pCard->GetDeviceId());
@@ -178,7 +181,7 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                 pThis->m_CardType->SetValue(s_CardType);
                 // Update the string name value to reflect the newly selected card.
                 pThis->m_CardName->SetValue(reinterpret_cast<long>(
-                    pThis->GetCard()->GetCardName((eSAA7134CardId)s_CardType)));
+                    pThis->GetCard()->GetCardName((eSAA7134CardId)s_CardType).c_str()));
             }
             WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
@@ -233,9 +236,9 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                     continue;
                 }
 
-                LPCSTR pCardName = pThis->m_pSAA7134Card->GetCardName((eSAA7134CardId)i);
+                string pCardName = pThis->m_pSAA7134Card->GetCardName((eSAA7134CardId)i);
 
-                int j = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pCardName);
+                int j = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pCardName.c_str());
                 SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, j, i);
 
                 // Select the appropriate card
@@ -1055,7 +1058,6 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 {
     int i;
     MENUITEMINFO MenuItemInfo;
-    char Buffer[265];
 
     // set up the input menu
     for(i = 0;i < m_pSAA7134Card->GetNumInputs(); ++i)
@@ -1067,12 +1069,14 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 
         // get the size of the string
         GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
-        // set the buffer and get the current string
-        MenuItemInfo.dwTypeData = Buffer;
-        GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
-        // create the new string and correct the menu
-        sprintf(Buffer, "%s\tCtrl+Alt+F%d",m_pSAA7134Card->GetInputName(i), i + 1);
-        MenuItemInfo.cch = strlen(Buffer);
+
+        ostringstream oss;
+        oss << m_pSAA7134Card->GetInputName(i);
+        oss << "\tCtrl+Alt+F" << i + 1;
+        string Buffer(oss.str());
+        MenuItemInfo.cch = Buffer.length();
+        MenuItemInfo.dwTypeData = (LPSTR)Buffer.c_str();
+
         SetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
 
         // enable the menu and check it appropriately
@@ -1505,7 +1509,7 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 }
 
 
-LPCSTR CSAA7134Source::GetMenuLabel()
+string CSAA7134Source::GetMenuLabel()
 {
     return m_pSAA7134Card->GetCardName(m_pSAA7134Card->GetCardType());
 }

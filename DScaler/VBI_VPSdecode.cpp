@@ -34,6 +34,8 @@
 #include "VBI_VPSdecode.h"
 #include "VBI_VideoText.h"
 
+using namespace std;
+
 int VPSStep;
 
 HWND hVPSInfoWnd = NULL;
@@ -80,12 +82,9 @@ void VPS_Clear_Data()
     ZeroMemory(VPS_Data.LabelCurr, 9);
 }
 
-void VPS_GetChannelNameFromCNI(LPSTR lpBuffer, LONG nLength)
+string VPS_GetChannelNameFromCNI()
 {
-    ASSERT(nLength > 0);
-
-    lpBuffer[0] = '\0';
-
+    string RetVal;
     if (VPS_Data.CNI != 0)
     {
         //LOG(1, "VPS CNI Code %x", VPS_Data.CNI);
@@ -93,12 +92,12 @@ void VPS_GetChannelNameFromCNI(LPSTR lpBuffer, LONG nLength)
         {
             if (RegisteredCNICodes[i].wCNI_VPS == VPS_Data.CNI)
             {
-                strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
-                lpBuffer[nLength] = '\0';
+                RetVal = RegisteredCNICodes[i].sNetwork;
                 break;
             }
         }
     }
+    return RetVal;
 }
 
 
@@ -255,8 +254,8 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     case WM_TIMER:
         if(VPS_Data.Valid)
         {
-            VPS_GetChannelNameFromCNI(buffer, sizeof(buffer));
-            SetDlgItemText(hDlg, IDC_VPS_NAME, buffer);
+            string ChannelName(VPS_GetChannelNameFromCNI());
+            SetDlgItemText(hDlg, IDC_VPS_NAME, ChannelName.c_str());
 
             sprintf(buffer, "0x%0x", VPS_Data.CNI);
             SetDlgItemText(hDlg, IDC_VPS_CNI, buffer);

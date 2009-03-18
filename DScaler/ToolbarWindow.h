@@ -68,13 +68,13 @@ protected:
         CToolbarChild* pBarLeft;
         CToolbarChild* pBarRight;
     } TChildInfo;
-    vector<TChildInfo> vChildList;
+    std::vector<TChildInfo> vChildList;
 
-    vector<int> vChildOrder;
+    std::vector<int> vChildOrder;
     int  ChildOrderRightPos;
     BOOL bChildOrderChanged;
     int  FitHeight;
-    vector<int> vRowHeight;
+    std::vector<int> vRowHeight;
 
     int TopMargin;
     int BottomMargin;
@@ -129,7 +129,7 @@ public:
     void UpdateWindowPosition(HWND hParentWnd);
     void ForceUpdateWindowPosition(HWND hParentWnd);
 
-    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results);
+    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, std::vector<int> *Results);
     virtual void ClearSkin();
 
     static LRESULT CALLBACK ToolbarProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -141,7 +141,7 @@ protected:
     HWND hWnd;
     HINSTANCE hResourceInst;
     CToolbarWindow *m_pToolbar;
-    vector<CBitmapAsButton*> Buttons;    
+    std::vector<CBitmapAsButton*> Buttons;    
     CBitmapsFromIniSection BitmapsFromIniSection;
     
     virtual LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) = 0;
@@ -182,17 +182,17 @@ public:
     virtual HWND Create(LPCTSTR szClassName, HINSTANCE hResourceInst);
     virtual HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
 
-    virtual BOOL SkinWindow(HWND hWnd, string sID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile);
-    virtual BOOL RemoveSkin(string sID);
+    virtual BOOL SkinWindow(HWND hWnd, std::string sID, std::string sIniEntry, eBitmapAsButtonType ButtonType, std::string sSection, std::string sIniFile);
+    virtual BOOL RemoveSkin(std::string sID);
 
-    virtual BOOL SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile);
+    virtual BOOL SkinDlgItem(UINT uItemID, std::string sIniEntry, eBitmapAsButtonType ButtonType, std::string sSection, std::string sIniFile);
     virtual BOOL RemoveSkinDlgItem(UINT uItemID);
 
-    virtual LRESULT ButtonChildProc(string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
+    virtual LRESULT ButtonChildProc(std::string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
     
     static LRESULT CALLBACK StaticToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK StaticToolbarChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
-    static LRESULT StaticToolbarChildButtonProc(string sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static LRESULT StaticToolbarChildButtonProc(std::string sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

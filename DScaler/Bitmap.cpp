@@ -30,6 +30,8 @@
 #include "Bitmap.h"
 #include "DebugLog.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -649,7 +651,7 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
             szExtra[0] = 0;
             x = 0;
             y = 0;
-            if (sscanf(szVal2,"%d,%d,%d,%d,%s",&left,&top,&right,&bottom,szExtra) >= 4)
+            if (sscanf_s(szVal2,"%d,%d,%d,%d,%s",&left,&top,&right,&bottom,szExtra) >= 4)
             {
                 if ((left>=0) && (top>=0) && (right<=bm.bmWidth) && (bottom<=bm.bmHeight)
                     && (right>left) && (bottom>top))

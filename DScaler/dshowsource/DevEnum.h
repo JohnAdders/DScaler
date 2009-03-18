@@ -36,8 +36,7 @@
 class CDShowDevEnumException: public CDShowException
 {
 public:
-    CDShowDevEnumException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
-    CDShowDevEnumException(CString msg):CDShowException(msg) {};
+    CDShowDevEnumException(const char* msg,HRESULT hr = S_OK):CDShowException(msg,hr) {};
 };
 
 /**
@@ -67,12 +66,12 @@ public:
      * @param szName Name of property to get, for example "FriendlyName" for devicename or "CLSID"
      * @return value of property
      */
-    string getProperty(string szName);
+    std::string getProperty(std::string szName);
 
     /**
      * @return string representation of current device. Can be used to create a device with createDevice member
      */
-    string getDisplayName() {return std::string(m_DisplayName);};
+    std::string getDisplayName() {return std::string(m_DisplayName);};
 
     //name of device
     //string getFriendlyName() {return getProperty("FriendlyName");};
@@ -83,7 +82,7 @@ public:
      * @param interf interface to return from the device
      * @param device pointer to device
      */
-    static void createDevice(string displayName,REFIID interf, void *device);
+    static void createDevice(std::string displayName,REFIID interf, void *device);
     
     /**
      * Default constructor.

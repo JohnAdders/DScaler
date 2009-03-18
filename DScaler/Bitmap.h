@@ -37,9 +37,9 @@ public:
     SmartHandle<HBITMAP> m_hBmpMask;
     int m_BmpWidth;
     int m_BmpHeight;
-    vector<RECT> m_RegionList;
+    std::vector<RECT> m_RegionList;
     HRGN m_hRegion;
-    string m_ExtraInfo;
+    std::string m_ExtraInfo;
 };
 
 
@@ -58,7 +58,7 @@ public:
     int Width(int State = 0);
     int Height(int State = 0);
     
-    vector<RECT>& GetRegionList();    
+    std::vector<RECT>& GetRegionList();    
     HRGN GetWindowRegion();
     
     // Static functions    
@@ -68,8 +68,8 @@ public:
     
     static SmartHandle<HBITMAP> BitmapCopyPieceRGB(HDC hdestDC, HDC hsrcDC, LPRECT lpRect);
     
-    static HRGN CreateWindowRegion(RECT& rcBound, vector<RECT>& RegionList, POINT* pPosition = NULL);
-    static BOOL BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, vector<RECT>& RegionList);
+    static HRGN CreateWindowRegion(RECT& rcBound, std::vector<RECT>& RegionList, POINT* pPosition = NULL);
+    static BOOL BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, std::vector<RECT>& RegionList);
         
     static SmartHandle<HBITMAP> BitmapLoadFromFile(const char *szFile);
     //static void BitmapLoad_Free(HBITMAP hBm);
@@ -77,7 +77,7 @@ public:
 protected:    
     BOOL MakeRegionList();
 
-    vector< SmartPtr<CBitmapState> > m_States;
+    std::vector< SmartPtr<CBitmapState> > m_States;
     int m_DrawMode; //0=normal, 1=stretch to fit, 2=tile
 
 };
@@ -87,7 +87,7 @@ class CBitmapChangeInfo
 public:
     ~CBitmapChangeInfo();
     HBITMAP hBmp;
-    string sFileName;
+    std::string sFileName;
     BOOL bFreeOnDestroy;
 };
 
@@ -97,19 +97,19 @@ class CBitmapCache
 public:
     SmartHandle<HBITMAP> Read(LPCSTR szFileName);
 private:
-    map<string, SmartHandle<HBITMAP> > m_CacheList;
+    std::map<std::string, SmartHandle<HBITMAP> > m_CacheList;
 };
 
 
 class CBitmapIniInfo
 {
 public:
-    CBitmapIniInfo(string sName);
-    string m_sName;
+    CBitmapIniInfo(std::string sName);
+    std::string m_sName;
     SmartHandle<HBITMAP> m_hBmp;
     SmartHandle<HBITMAP> m_hBmpMask;
-    string m_sExtraInfo;
-    int    m_Result;
+    std::string m_sExtraInfo;
+    int m_Result;
 };
 
 
@@ -119,17 +119,17 @@ class CBitmapsFromIniSection
 public:
     CBitmapsFromIniSection();
     
-    void Register(string sName);
+    void Register(std::string sName);
 
-    SmartPtr<CBitmapState> Get(string sName);
+    SmartPtr<CBitmapState> Get(std::string sName);
 
-    int  Read(string sIniFile, string sSection, string sBitmapName, string sBitmapMaskName);
+    int Read(std::string sIniFile, std::string sSection, std::string sBitmapName, std::string sBitmapMaskName);
 
 protected:
-    typedef map<string, SmartPtr<CBitmapState> > StateMap;
+    typedef std::map<std::string, SmartPtr<CBitmapState> > StateMap;
     SmartPtr<CBitmapCache> m_pBitmapCache;
     StateMap m_StateMap;
-    string GetInfo(string sName);
+    std::string GetInfo(std::string sName);
 };
 
 

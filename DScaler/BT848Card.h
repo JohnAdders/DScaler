@@ -181,8 +181,8 @@ public:
     void SetColorBars(BOOL ColorBars);
     void SetGammaCorrection(BOOL GammaCorrection);
 
-    LPCSTR GetChipType();
-    LPCSTR GetTunerType();
+    std::string GetChipType();
+    std::string GetTunerType();
 
     void RestartRISCCode(DWORD RiscBasePhysical);
     void SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay);
@@ -245,8 +245,8 @@ public:
     bool AutoDetectMSP3400();
 
     BOOL InitTuner(eTunerId tunerId);
-    LPCSTR GetInputName(int nVideoSource);
-    LPCSTR GetCardName(eTVCardId CardId);
+    std::string GetInputName(int nVideoSource);
+    std::string GetCardName(eTVCardId CardId);
     int GetNumInputs();
     BOOL IsInputATuner(int nInput);
     eAudioInput GetAudioInput();
@@ -319,8 +319,8 @@ private:
 
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
-    char m_AudioDecoderType[32];
-    char m_TunerType[32];
+    std::string m_AudioDecoderType;
+    std::string m_TunerType;
 
     eTVCardId m_CardType;
 

@@ -19,10 +19,16 @@
 /** 
  * @file stdafx.h Precompiled Header file
  */
+
+
 #ifndef WINVER
     #define WINVER 0x0400
     #define _WIN32_WINNT 0x0400
 #endif
+
+// need to try and remove need for this
+// shoudl be using STL or secure function
+#define _CRT_SECURE_NO_WARNINGS
 
 #if _MSC_VER > 1000
 #pragma once
@@ -44,48 +50,43 @@
     #include <dshow.h>
 #endif
 
-//#include <windows.h>
+#include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
 
-#include <stdio.h>
-#include <time.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <memory.h>
-#include <io.h>
-#include <fcntl.h>
-#include <sys/timeb.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <ddraw.h>
 #include <process.h>
-#include <math.h>
 #include <mmsystem.h>
 #include <vfw.h>
 #include <winioctl.h>
+#include <sys\stat.h>
+#include <sys\timeb.h>
+#include <vector>
+#include <map>
+#include <list>
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <functional>
+#include <algorithm>
+#include <math.h>
+#include <multimon.h>
+
 #include "ErrorBox.h"
 #include "DSDrv.h"
 #include "HtmlHelp.H"
-#include <vector>
-#include <map>
-#include <string>
-#include <sstream>
-#include <multimon.h>
-
 #include "SmartPtr.h"
 #include "SmartHandle.h"
+#include "DScalerUtils.h"
 
 // fix for including external header with IDC_STATIC defined
 #ifdef IDC_STATIC
 #undef IDC_STATIC
 #endif
 
+
 // defien stuff that we try and use if they are available
 #define WC_NO_BEST_FIT_CHARS      0x00000400
 #define IDC_HAND MAKEINTRESOURCE(32649)
-
-
-using namespace std;
 
 #pragma warning (disable : 4018)

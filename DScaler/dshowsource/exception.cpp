@@ -35,35 +35,10 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CDShowException::CDShowException(CString msg,HRESULT hr)
-:m_errMsg(msg),m_hasErrNo(true),m_err(hr)
+CDShowException::CDShowException(const char* msg, HRESULT hr) :
+    std::exception(msg),
+    m_err(hr)
 {
 
 }
-
-CDShowException::CDShowException(CString msg)
-:m_errMsg(msg),m_hasErrNo(false),m_err(S_OK)
-{
-
-}
-
-CDShowException::~CDShowException()
-{
-
-}
-
-CString CDShowException::getErrorText()
-{
-    CString msg;
-    CString tmpstr;
-    if(m_hasErrNo)
-    {
-        DWORD len=AMGetErrorText(m_err,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
-        tmpstr.ReleaseBuffer(len);
-        msg.Format("%s\nErrorCode: 0x%x\nErrorText: '%s'",(LPCTSTR)m_errMsg,m_err,(LPCTSTR)tmpstr);
-        return msg;
-    }
-    return m_errMsg;
-}
-
 #endif

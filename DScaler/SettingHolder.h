@@ -58,10 +58,10 @@ public:
     CSettingGroup *GetSettingsGroup(LPCSTR szDisplayName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
 
 protected:
-    vector<ISetting*>   m_Settings;    
-    long                m_SetMessage;
-    BOOL                m_pRegistered;
-    string              m_SettingFlagsSection;
+    std::vector<ISetting*>  m_Settings;
+    long                    m_SetMessage;
+    BOOL                    m_pRegistered;
+    std::string             m_SettingFlagsSection;
 
     BOOL   RegisterMe();
 };

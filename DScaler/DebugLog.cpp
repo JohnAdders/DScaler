@@ -25,6 +25,8 @@
 #include "resource.h"
 #include "DebugLog.h"
 
+using namespace std;
+
 #define DEBUGLOGFILENAME "DScaler.log"
 
 static FILE* debugLog = NULL;

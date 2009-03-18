@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // $Id$
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2002 Laurent Garnier.  All rights reserved.
+// Copyright (c) 2009 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -17,23 +17,21 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /** 
- * @file jpeghelper.h jpeghelper Header file
+ * @file PathHelpers.h
  */
  
-#ifndef __JPEGHELPER_H___
-#define __JPEGHELPER_H___
+#ifndef __PATH_HELPERS_H___
+#define __PATH_HELPERS_H___
 
-#include "StillSource.h"
+// returns the path location of the DScaler exe
+std::string GetInstallationPath();
+// returns the full path of the DScaler exe
+std::string GetMainExeName();
 
+// gets the extension from a file name
+std::string GetExtension(const std::string& FileName);
 
-/** A helper class that can read and write JPEG files
-*/
-class CJpegHelper : public CStillSourceHelper
-{
-public:
-    CJpegHelper(CStillSource* pParent);
-    BOOL OpenMediaFile(const std::string& FileName);
-    void SaveSnapshot(const std::string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const std::string& Context);
-};
+// strips the path from a file name
+std::string StripPath(const std::string& FileName);
 
 #endif

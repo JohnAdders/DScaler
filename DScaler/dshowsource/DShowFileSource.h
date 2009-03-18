@@ -38,8 +38,7 @@
 class CDShowUnsupportedFileException: public CDShowException
 {
 public:
-    CDShowUnsupportedFileException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
-    CDShowUnsupportedFileException(CString msg):CDShowException(msg) {};
+    CDShowUnsupportedFileException(const char* msg,HRESULT hr = S_OK):CDShowException(msg,hr) {};
 };
 
 /**
@@ -48,7 +47,7 @@ public:
 class CDShowFileSource : public CDShowBaseSource
 {
 public:
-    CDShowFileSource(IGraphBuilder *pGraph,string filename);
+    CDShowFileSource(IGraphBuilder *pGraph, std::string filename);
     virtual ~CDShowFileSource();
     
     eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_FILE;}
@@ -56,10 +55,10 @@ public:
     bool IsConnected() {return m_bIsConnected;};
     long GetNumDroppedFrames(){return 0;};
     
-    string getFileName() {return m_file;}
+    std::string getFileName() {return m_file;}
 
 private:
-    string m_file;
+    std::string m_file;
     CComPtr<IBaseFilter> m_pFileSource;
     CComPtr<ICaptureGraphBuilder2> m_pBuilder;
     bool m_bIsConnected;

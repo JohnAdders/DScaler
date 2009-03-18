@@ -39,7 +39,7 @@
 class CDSCaptureSource : public CDSSourceBase
 {
 public:
-    CDSCaptureSource(string device,string deviceName);
+    CDSCaptureSource(std::string device, std::string deviceName);
     virtual ~CDSCaptureSource();
     
     //from CSettingsHolder
@@ -48,7 +48,7 @@ public:
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     void HandleTimerMessages(int TimerId);
 
-    LPCSTR GetStatus();
+    std::string GetStatus();
 
     ISetting* GetBrightness();
     ISetting* GetContrast();
@@ -75,18 +75,18 @@ public:
     int  NumInputs(eSourceInputType InputType);
     BOOL SetInput(eSourceInputType InputType, int Nr);
     int GetInput(eSourceInputType InputType);
-    const char* GetInputName(eSourceInputType InputType, int Nr);
+    std::string GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
 
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
     BOOL IsAccessAllowed();
-    LPCSTR GetMenuLabel();
+    std::string GetMenuLabel();
 
     void SetAspectRatioData();
     
-    BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
+    BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList);
     void DecodeVBI(TDeinterlaceInfo* pInfo){};
     
     ///@todo this probably have to be changed
@@ -134,14 +134,14 @@ private:
     ///resets m_VideoFmt to default
     void CreateDefaultVideoFmt();
 
-    string m_Device;
-    string m_DeviceName;
+    std::string m_Device;
+    std::string m_DeviceName;
     
-    vector<CDShowGraph::CVideoFormat> m_VideoFmt;
+    std::vector<CDShowGraph::CVideoFormat> m_VideoFmt;
 
     BOOL m_HaveInputList;
-    vector<int> m_VideoInputList;
-    vector<int> m_AudioInputList;
+    std::vector<int> m_VideoInputList;
+    std::vector<int> m_AudioInputList;
     SmartPtr<ITuner> m_Tuner;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Brightness);

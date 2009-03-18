@@ -71,7 +71,7 @@ protected:
 
     void OnOK();
 private:
-    vector<std::string> m_DeviceList;
+    std::vector<std::string> m_DeviceList;
     std::string &m_AudioDeviceSetting;
     bool *m_bConnectAudio;
 };

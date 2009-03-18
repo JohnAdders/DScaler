@@ -73,7 +73,7 @@ protected:
 
     int IsBorderVisible;
 
-    vector< SmartPtr<CBitmapHolder> > Bitmaps;
+    std::vector< SmartPtr<CBitmapHolder> > Bitmaps;
     int SolidTopSize;
     int SolidRightSize;
     int SolidBottomSize;
@@ -81,18 +81,18 @@ protected:
 
     
     typedef struct {
-      string sID;
+      std::string sID;
       SmartPtr<CBitmapAsButton> Button;
       POINT Location;
       int   RelativePosition;
       POINT LastLocation;
 
-      string sIniEntryDefault;
-      string sIniEntryMouseOver;
-      string sIniEntryClick;
+      std::string sIniEntryDefault;
+      std::string sIniEntryMouseOver;
+      std::string sIniEntryClick;
     } TButtonInfo;
 
-    vector<TButtonInfo> Buttons;
+    std::vector<TButtonInfo> Buttons;
     
     int TopSize;
     int RightSize;
@@ -106,13 +106,13 @@ protected:
     BOOL bBitmapsChanged;
     BOOL m_IsSkinned;
 
-    vector<RECT> Locations;
-    vector<RECT> RegionList;
+    std::vector<RECT> Locations;
+    std::vector<RECT> RegionList;
 
     HRGN hLastRegion;
 
-    void MergeLineRegion(int y,POINT *RowList,int RowListSize,int TotalWidth,vector<RECT>& AllRegions);
-    void MergeBorderRegions(vector<RECT>& AllRegions, LPRECT lpRcExtra);    
+    void MergeLineRegion(int y,POINT *RowList,int RowListSize,int TotalWidth,std::vector<RECT>& AllRegions);
+    void MergeBorderRegions(std::vector<RECT>& AllRegions, LPRECT lpRcExtra);    
     BOOL FindBorderSizes();
     BOOL FindLocations();
 
@@ -138,9 +138,9 @@ public:
     HRGN MakeRegion(LPRECT lpRcExtra);
     
     BOOL SetBorderBitmap(eWindowBorderPosition Position, int State, SmartPtr<CBitmapState> BitmapState, int DrawMode);
-    BOOL SetButtonBitmap(string sID, int WhichBitmap, eWindowBorderPosition RelPos, int x, int y, SmartPtr<CBitmapState> BitmapState);
+    BOOL SetButtonBitmap(std::string sID, int WhichBitmap, eWindowBorderPosition RelPos, int x, int y, SmartPtr<CBitmapState> BitmapState);
     
-    BOOL RegisterButton(string sID, eBitmapAsButtonType ButtonType, string sIniEntryDefault, string sIniEntryMouseOver, string sIniEntryClick, BUTTONPROC *pfnButtonProc);
+    BOOL RegisterButton(std::string sID, eBitmapAsButtonType ButtonType, std::string sIniEntryDefault, std::string sIniEntryMouseOver, std::string sIniEntryClick, BUTTONPROC *pfnButtonProc);
     
     void Paint(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPShift = NULL);
     
@@ -148,7 +148,7 @@ public:
     BOOL Show() { IsBorderVisible=1; UpdateButtonLocations(); return TRUE; }
     BOOL Hide() { IsBorderVisible=0; UpdateButtonLocations(); return TRUE; }
 
-    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results);
+    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, std::vector<int> *Results);
     virtual void ClearSkin();
     BOOL IsSkinned() { return m_IsSkinned; }
 };

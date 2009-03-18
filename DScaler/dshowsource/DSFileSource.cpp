@@ -32,6 +32,8 @@
 #include "DSAudioDevicePage.h"
 #include "OSD.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -86,7 +88,7 @@ BOOL CDSFileSource::IsAccessAllowed()
     return FALSE;
 }
 
-BOOL CDSFileSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
+BOOL CDSFileSource::OpenMediaFile(const string& FileName, BOOL NewPlayList)
 {
     //The output thread MUST be stoped when calling this function
     //or the output thread will probably crash.
@@ -113,13 +115,13 @@ BOOL CDSFileSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     }
     catch(CDShowUnsupportedFileException& e)
     {
-        LOG(1, "CDShowUnsupportedFileException - %s", (LPCSTR)e.getErrorText());
+        LOG(1, "CDShowUnsupportedFileException - %s", e.what());
         return FALSE;
     }
     catch(CDShowException& e)
     {
-        AfxMessageBox((LPCSTR)e.getErrorText(),MB_OK|MB_ICONERROR);
-        LOG(1, "Failed to open DShow file - %s", (LPCSTR)e.getErrorText());
+        AfxMessageBox(e.what(),MB_OK|MB_ICONERROR);
+        LOG(1, "Failed to open DShow file - %s", e.what());
         return FALSE;
     }
 }
@@ -133,17 +135,17 @@ void CDSFileSource::SetAspectRatioData()
     AspectSettings.bAnalogueBlanking = FALSE;
 }
 
-LPCSTR CDSFileSource::GetStatus()
+string CDSFileSource::GetStatus()
 {
-    if(m_filename.size()>0)
+    if(!m_filename.empty())
     {
-        m_status=m_filename;
-        std::string::size_type pos=m_status.rfind('\\');
+        string status=m_filename;
+        std::string::size_type pos=status.rfind('\\');
         if(pos!=std::string::npos)
         {
-            m_status=m_status.substr(pos+1);
+            status=status.substr(pos+1);
         }
-        return m_status.c_str();
+        return status;
     }
     return "No file loaded";
 }
@@ -175,14 +177,10 @@ BOOL CDSFileSource::HasSquarePixels()
     return FALSE;
 }
 
-LPCSTR CDSFileSource::GetMenuLabel()
+string CDSFileSource::GetMenuLabel()
 {
-    if(m_filename.size()>0)
-    {
-        ///@todo remove path from filename
-        return m_filename.c_str();
-    }
-    return NULL;
+    ///@todo remove path from filename
+    return m_filename;
 }
 
 void CDSFileSource::Start()
@@ -198,7 +196,7 @@ void CDSFileSource::Start()
     }
     catch(CDShowException &e)
     {
-        ErrorBox(e.getErrorText());
+        ErrorBox(e.what());
     }
 }
 
@@ -240,7 +238,7 @@ void CDSFileSource::Pause()
         }
         catch(CDShowException &e)
         {
-            ErrorBox(CString("Pause failed\n\n")+e.getErrorText());
+            ErrorBox(CString("Pause failed\n\n")+e.what());
         }
         OSD_ShowText("Pause", 0);
     }
@@ -257,7 +255,7 @@ void CDSFileSource::UnPause()
         }
         catch(CDShowException &e)
         {
-            ErrorBox(CString("Play failed\n\n")+e.getErrorText());
+            ErrorBox(CString("Play failed\n\n")+e.what());
         }
         OSD_ShowText("Play", 0);
     }

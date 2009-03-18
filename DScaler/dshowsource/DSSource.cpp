@@ -38,6 +38,8 @@
 #include "DSAudioDevicePage.h"
 #include "OutThreads.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -119,7 +121,7 @@ BOOL CDSCaptureSource::IsAccessAllowed()
     return TRUE;
 }
 
-BOOL CDSCaptureSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
+BOOL CDSCaptureSource::OpenMediaFile(const string& FileName, BOOL NewPlayList)
 {
     return FALSE;
 }
@@ -158,7 +160,7 @@ ISetting* CDSCaptureSource::GetBrightness()
             }
             catch(CDShowException& e)
             {
-                LOG(1, "Exception in CDSCaptureSource::GetBrightness - %s", (LPCSTR)e.getErrorText());
+                LOG(1, "Exception in CDSCaptureSource::GetBrightness - %s", e.what());
             }
         }
     }
@@ -184,7 +186,7 @@ void CDSCaptureSource::BrightnessOnChange(long Brightness, long OldValue)
     }
     catch(CDShowException& e)
     {
-        ErrorBox(e.getErrorText());
+        ErrorBox(e.what());
     }
 }
 
@@ -222,7 +224,7 @@ ISetting* CDSCaptureSource::GetContrast()
             }
             catch(CDShowException& e)
             {
-                LOG(1, "Exception in CDSCaptureSource::GetContrast - %s", (LPCSTR)e.getErrorText());
+                LOG(1, "Exception in CDSCaptureSource::GetContrast - %s", e.what());
             }
         }
     }
@@ -247,7 +249,7 @@ void CDSCaptureSource::ContrastOnChange(long Contrast, long OldValue)
     }
     catch(CDShowException& e)
     {
-        ErrorBox(e.getErrorText());
+        ErrorBox(e.what());
     }
 }
 
@@ -285,7 +287,7 @@ ISetting* CDSCaptureSource::GetHue()
             }
             catch(CDShowException& e)
             {
-                LOG(1, "Exception in CDSCaptureSource::GetHue - %s", (LPCSTR)e.getErrorText());
+                LOG(1, "Exception in CDSCaptureSource::GetHue - %s", e.what());
             }
         }
     }
@@ -310,7 +312,7 @@ void CDSCaptureSource::HueOnChange(long Hue, long OldValue)
     }
     catch(CDShowException& e)
     {
-        ErrorBox(e.getErrorText());
+        ErrorBox(e.what());
     }
 }
 
@@ -348,7 +350,7 @@ ISetting* CDSCaptureSource::GetSaturation()
             }
             catch(CDShowException& e)
             {
-                LOG(1, "Exception in CDSCaptureSource::GetSaturation - %s", (LPCSTR)e.getErrorText());
+                LOG(1, "Exception in CDSCaptureSource::GetSaturation - %s", e.what());
             }
         }
     }
@@ -373,7 +375,7 @@ void CDSCaptureSource::SaturationOnChange(long Saturation, long OldValue)
     }
     catch(CDShowException& e)
     {
-        ErrorBox(e.getErrorText());
+        ErrorBox(e.what());
     }
 }
 
@@ -490,7 +492,7 @@ int CDSCaptureSource::ChangeRes(int nResIndex)
     }
     catch(CDShowException &e)
     {
-        ErrorBox(CString("Error when changeing resolution\n\n")+e.getErrorText());
+        ErrorBox(CString("Error when changeing resolution\n\n")+e.what());
     }
     catch(exception &e2)
     {
@@ -559,7 +561,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
         }
         catch(CDShowException &e)
         {
-            ErrorBox(CString("Failed to change input\n\n")+e.getErrorText());
+            ErrorBox(CString("Failed to change input\n\n")+e.what());
         }
 
         return TRUE;
@@ -575,7 +577,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
         }
         catch(CDShowException &e)
         {
-            ErrorBox(CString("Failed to change video format\n\n")+e.getErrorText());
+            ErrorBox(CString("Failed to change video format\n\n")+e.what());
         }
         return TRUE;
     }
@@ -597,7 +599,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Error changing audio channel\n\n")+e.getErrorText());
+                ErrorBox(CString("Error changing audio channel\n\n")+e.what());
             }
         }
     }
@@ -611,7 +613,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Error changing audio channel\n\n")+e.getErrorText());
+                ErrorBox(CString("Error changing audio channel\n\n")+e.what());
             }
         }
     }
@@ -625,7 +627,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Error changing audio channel\n\n")+e.getErrorText());
+                ErrorBox(CString("Error changing audio channel\n\n")+e.what());
             }
         }
     }
@@ -639,7 +641,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Error changing audio channel\n\n")+e.getErrorText());
+                ErrorBox(CString("Error changing audio channel\n\n")+e.what());
             }
         }
     }
@@ -653,7 +655,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Error changing audio channel\n\n")+e.getErrorText());
+                ErrorBox(CString("Error changing audio channel\n\n")+e.what());
             }
         }
     }
@@ -689,7 +691,7 @@ eVideoFormat CDSCaptureSource::GetFormat()
     }
     catch(CDShowException &e)
     {
-        LOG(1,"Exception in CDSCaptureSource::GetFormat - %s",(LPCTSTR)e.getErrorText());
+        LOG(1,"Exception in CDSCaptureSource::GetFormat - %s",(LPCTSTR)e.what());
     }
 
     return ConvertVideoStd(VideoStd);
@@ -730,7 +732,7 @@ BOOL CDSCaptureSource::IsInTunerMode()
             }
             catch(CDShowException &e)
             {
-                LOG(1,"Exception in CDSCaptureSource::IsInTunerMode - %s",(LPCTSTR)e.getErrorText());
+                LOG(1,"Exception in CDSCaptureSource::IsInTunerMode - %s",(LPCTSTR)e.what());
             }
             LOG(3,"DSSource: IsInTunerMode: No");
         }
@@ -910,7 +912,7 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
     }
     catch(CDShowException& e)
     {
-        LOG(1, "CDSCaptureSource::SetTunerFrequency: DShow Exception - %s", (LPCSTR)e.getErrorText());
+        LOG(1, "CDSCaptureSource::SetTunerFrequency: DShow Exception - %s", e.what());
         return FALSE;
     }
 }
@@ -972,7 +974,7 @@ BOOL CDSCaptureSource::IsVideoPresent()
     }
     catch(CDShowException& e)
     {
-        LOG(1, "CDSCaptureSource::IsVideoPresent: DShow Exception - %s", (LPCSTR)e.getErrorText());
+        LOG(1, "CDSCaptureSource::IsVideoPresent: DShow Exception - %s", e.what());
     }
 
     return FALSE;
@@ -1065,12 +1067,12 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
             //is it an audio or video input?
             if(pCrossbar->GetInputType(i)<4096)
             {
-                vidSubMenu.AppendMenu(MF_STRING,IDM_CROSSBAR_INPUT0+i,pCrossbar->GetInputName(i));
+                vidSubMenu.AppendMenu(MF_STRING,IDM_CROSSBAR_INPUT0+i,pCrossbar->GetInputName(i).c_str());
                 vidSubMenu.CheckMenuItem(IDM_CROSSBAR_INPUT0+i,bSelected ? MF_CHECKED:MF_UNCHECKED);
             }
             else
             {
-                audSubMenu.AppendMenu(MF_STRING,IDM_CROSSBAR_INPUT0+i,pCrossbar->GetInputName(i));
+                audSubMenu.AppendMenu(MF_STRING,IDM_CROSSBAR_INPUT0+i,pCrossbar->GetInputName(i).c_str());
                 audSubMenu.CheckMenuItem(IDM_CROSSBAR_INPUT0+i,bSelected ? MF_CHECKED:MF_UNCHECKED);
             }
         }
@@ -1095,7 +1097,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
         }
         catch(CDShowException& e)
         {
-            LOG(1, "Exception in CDSCaptureSource::SetMenu - %s", (LPCSTR)e.getErrorText());
+            LOG(1, "Exception in CDSCaptureSource::SetMenu - %s", e.what());
         }
 
         //make sure there is at least one format to be selected
@@ -1207,9 +1209,9 @@ void CDSCaptureSource::HandleTimerMessages(int TimerId)
 
 }
 
-LPCSTR CDSCaptureSource::GetMenuLabel()
+string CDSCaptureSource::GetMenuLabel()
 {
-    return NULL;
+    return "";
 }
 
 ISetting* CDSCaptureSource::GetTopOverscan()
@@ -1265,9 +1267,9 @@ void CDSCaptureSource::RightOverscanOnChange(long Overscan, long OldValue)
     WorkoutOverlaySize(TRUE);
 }
 
-LPCSTR CDSCaptureSource::GetStatus()
+string CDSCaptureSource::GetStatus()
 {
-    return m_DeviceName.c_str();
+    return m_DeviceName;
 }
 
 void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
@@ -1323,7 +1325,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
     }
     catch(CDShowException &e)
     {
-        ErrorBox(CString("Failed to change video input\n\n")+e.getErrorText());
+        ErrorBox(CString("Failed to change video input\n\n")+e.what());
     }
 }
 
@@ -1366,7 +1368,7 @@ void CDSCaptureSource::AudioInputOnChange(long NewValue, long OldValue)
     }
     catch(CDShowException &e)
     {
-        ErrorBox(CString("Failed to change audio input\n\n")+e.getErrorText());
+        ErrorBox(CString("Failed to change audio input\n\n")+e.what());
     }
 }
 
@@ -1425,7 +1427,7 @@ void CDSCaptureSource::Start()
     }
     catch(CDShowException &e)
     {
-        ErrorBox(e.getErrorText());
+        ErrorBox(e.what());
     }
 }
 
@@ -1545,7 +1547,7 @@ int CDSCaptureSource::NumInputs(eSourceInputType InputType)
         }
         catch(CDShowException &e)
         {
-            LOG(1,"DSCaptureSource: NumInputs: Error: %s",e.getErrorText());
+            LOG(1,"DSCaptureSource: NumInputs: Error: %s",e.what());
             return 0;
         }
     }
@@ -1622,11 +1624,11 @@ int CDSCaptureSource::GetInput(eSourceInputType InputType)
     return -1;
 }
 
-const char* CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
+string CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
 {
     if(m_pDSGraph==NULL)
     {
-        return NULL;
+        return "";
     }
     //this shoud always succeed
     CDShowCaptureDevice *pCap=NULL;
@@ -1636,7 +1638,7 @@ const char* CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
     }
     if (pCap == NULL)
     {
-        return NULL;
+        return "";
     }
     
     if(!m_HaveInputList)
@@ -1644,7 +1646,6 @@ const char* CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
         // Make input list
         NumInputs(InputType);
     }
-    char *szName = NULL;
     if((InputType == VIDEOINPUT) || (InputType == AUDIOINPUT))
     {
         if((Nr>=0) && (((InputType == VIDEOINPUT) && (Nr < m_VideoInputList.size()))
@@ -1656,7 +1657,7 @@ const char* CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
                 CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
                 if(pCrossbar==NULL)
                 {
-                    return NULL;
+                    return "";
                 }
                 
                 int nInputNumber;
@@ -1668,15 +1669,15 @@ const char* CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
                 {
                     nInputNumber = m_AudioInputList[ Nr ];
                 }
-                szName = pCrossbar->GetInputName(nInputNumber);
+                return  pCrossbar->GetInputName(nInputNumber);
             }
             catch(CDShowException &e)
             {
-                LOG(1,"DSCaptureSource: GetInputName: Error: %s",e.getErrorText());
+                LOG(1,"DSCaptureSource: GetInputName: Error: %s",e.what());
             }
         }
     }
-    return (const char*)szName;
+    return "";
 }
 
 BOOL CDSCaptureSource::InputHasTuner(eSourceInputType InputType, int Nr)
@@ -1721,7 +1722,7 @@ BOOL CDSCaptureSource::InputHasTuner(eSourceInputType InputType, int Nr)
             }
             catch(CDShowException &e)
             {
-                LOG(1,"DSCaptureSource: InputHasTuner: Error: %s",e.getErrorText());
+                LOG(1,"DSCaptureSource: InputHasTuner: Error: %s",e.what());
             }
         }
     }

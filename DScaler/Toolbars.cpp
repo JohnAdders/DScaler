@@ -42,6 +42,8 @@
 #include "DebugLog.h"
 #include "DScalerVersion.h"
 
+using namespace std;
+
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource/DSSourceBase.h"
 #endif
@@ -648,9 +650,8 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
             HICON hIcon = NULL;
             int Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_CENTER|
                         TOOLBARBUTTON_TEXT_HALIGN_CENTER|TOOLBARBUTTON_TEXT_VALIGN_CENTER;
-            char szText[100];
+            string szText;
             
-            szText[0] = 0;
             pDrawItem = (DRAWITEMSTRUCT*)lParam;
             
             if ((pDrawItem != NULL) && (pDrawItem->CtlID==IDC_TOOLBAR_VOLUME_CHANNEL))
@@ -659,19 +660,19 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
                 {
                 case SOUNDCHANNEL_STEREO: 
                     hIcon = m_hIconStereo;
-                    strcpy(szText,"Stereo");
+                    szText = "Stereo";
                     break;
                 case SOUNDCHANNEL_LANGUAGE1:
                     hIcon = m_hIconLang1;
-                    strcpy(szText,"Lang 1");
+                    szText = "Lang 1";
                     break;
                 case SOUNDCHANNEL_LANGUAGE2:
                     hIcon = m_hIconLang2;        
-                    strcpy(szText,"Lang 2");
+                    szText = "Lang 2";
                     break;
                 default:
                     hIcon = m_hIconMono;                        
-                    strcpy(szText,"Mono");
+                    szText = "Mono";
                     break;
                 }
                 Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_TOP|
@@ -690,12 +691,12 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
                 }
             }
 
-            if ((pDrawItem != NULL) && ((hIcon != NULL) || (szText[0]!=0)))
+            if ((pDrawItem != NULL) && ((hIcon != NULL) || (!szText.empty())))
             {
                 RECT rc;
                 GetClientRect(GetDlgItem(hDlg, pDrawItem->CtlID), &rc);
 
-                DrawItem(pDrawItem, hIcon, szText, rc.right-rc.left, rc.bottom-rc.top, Align);                
+                DrawItem(pDrawItem, hIcon, szText.c_str(), rc.right-rc.left, rc.bottom-rc.top, Align);
             }
         }
         break;
@@ -943,9 +944,8 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
             HICON hIcon = NULL;
             int Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_CENTER|
                         TOOLBARBUTTON_TEXT_HALIGN_CENTER|TOOLBARBUTTON_TEXT_VALIGN_CENTER;
-            char szText[100];
+            string szText;
             
-            szText[0] = 0;
             pDrawItem = (DRAWITEMSTRUCT*)lParam;
             
             if (pDrawItem != NULL)
@@ -954,27 +954,27 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
                 {
                 case IDC_TOOLBAR_MEDIAPLAYER_PLAY:
                     hIcon = m_hIconPlay;
-                    strcpy(szText,"Play");
+                    szText = "Play";
                     break;
                 case IDC_TOOLBAR_MEDIAPLAYER_PAUSE:
                     hIcon = m_hIconPause;
-                    strcpy(szText,"Pause");
+                    szText = "Pause";
                     break;
                 case IDC_TOOLBAR_MEDIAPLAYER_STOP:
                     hIcon = m_hIconStop;
-                    strcpy(szText,"Stop");
+                    szText = "Stop";
                     break;
                 default:
                     break;
                 }
             }
 
-            if ((pDrawItem != NULL) && ((hIcon != NULL) || (szText[0]!=0)))
+            if ((pDrawItem != NULL) && ((hIcon != NULL) || (!szText.empty())))
             {
                 RECT rc;
                 GetClientRect(GetDlgItem(hDlg, pDrawItem->CtlID), &rc);
 
-                DrawItem(pDrawItem, hIcon, hIcon?"":szText, rc.right-rc.left, rc.bottom-rc.top, Align);                
+                DrawItem(pDrawItem, hIcon, hIcon?"":szText.c_str(), rc.right-rc.left, rc.bottom-rc.top, Align);                
             }
         }
         break;

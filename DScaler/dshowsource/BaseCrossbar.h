@@ -38,8 +38,7 @@
 class CCrossbarException: public CDShowException
 {
 public:
-    CCrossbarException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
-    CCrossbarException(CString msg):CDShowException(msg) {};
+    CCrossbarException(const char* msg,HRESULT hr = S_OK):CDShowException(msg,hr) {};
 };
 
 /**
@@ -68,7 +67,7 @@ public:
      * @param Index input number
      * @return Name of input
      */
-    virtual char* GetInputName(long Index);
+    virtual std::string GetInputName(long Index);
     
     /**
      * Select input.

@@ -29,6 +29,8 @@
 #include "devenum.h"
 #include "CaptureDevice.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -78,7 +80,7 @@ CDSProvider::CDSProvider()
     }
     catch(CDShowException& e)
     {
-        ErrorBox(e.getErrorText());
+        ErrorBox(e.what());
     }
     catch(...)
     {

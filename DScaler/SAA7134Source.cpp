@@ -51,6 +51,7 @@
 #include "SettingsPerChannel.h"
 #include "SettingsMaster.h"
 
+using namespace std;
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1030,7 +1031,7 @@ void CSAA7134Source::SetupCard()
         // Otherwise set the card name setting based on the card type for
         // future use.
         m_CardName->SetValue(reinterpret_cast<long>(
-            m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue())));
+            m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue()).c_str()));
     }
 
     if (m_CardType->GetValue() == SAA7134CARDID_UNKNOWN)
@@ -1045,7 +1046,7 @@ void CSAA7134Source::SetupCard()
         if (m_CardType->GetValue() != SAA7134CARDID_UNKNOWN)
         {
             m_CardName->SetValue(reinterpret_cast<long>(
-                m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue())));
+                m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue()).c_str()));
         }
 
         // then display the hardware setup dialog
@@ -1113,15 +1114,15 @@ BOOL CSAA7134Source::IsVideoPresent()
 }
 
 
-LPCSTR CSAA7134Source::GetStatus()
+string CSAA7134Source::GetStatus()
 {
-    LPCSTR pRetVal;
+    string pRetVal;
 
     if (IsInTunerMode())
     {
         pRetVal = Channel_GetVBIName();
 
-        if (*pRetVal == '\0')
+        if (pRetVal.empty())
         {
             pRetVal = Channel_GetName();
         }
@@ -1173,7 +1174,7 @@ void CSAA7134Source::SetAspectRatioData()
 }
 
 
-const char* CSAA7134Source::GetChipName()
+string CSAA7134Source::GetChipName()
 {
     return m_ChipName.c_str();
 }
@@ -1229,7 +1230,7 @@ int CSAA7134Source::GetInput(eSourceInputType InputType)
 }
 
 
-const char* CSAA7134Source::GetInputName(eSourceInputType InputType, int Nr)
+string CSAA7134Source::GetInputName(eSourceInputType InputType, int Nr)
 {
     if (InputType == VIDEOINPUT)
     {
@@ -1238,11 +1239,7 @@ const char* CSAA7134Source::GetInputName(eSourceInputType InputType, int Nr)
             return m_pSAA7134Card->GetInputName(Nr);
         }
     }
-    /*  else if (InputType == AUDIOINPUT)
-    {
-        return m_pSAA7134Card->GetAudioInputName((eAudioInput)Nr);
-    }*/
-    return NULL;
+    return "";
 }
 
 

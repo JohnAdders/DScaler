@@ -31,7 +31,9 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "OutThreads.h"
+#include "PathHelpers.h"
 
+using namespace std;
 
 // Minimum time in milliseconds between two consecutive evaluations
 #define    MIN_TIME_BETWEEN_CALC    35
@@ -550,12 +552,12 @@ void CCalibration::LoadTestPatterns()
     char *Buffer;
     struct stat st;
     FILE* File;
-    char FullPath[MAX_PATH];
+    string PaternPath(GetInstallationPath() + "\\patterns\\");
+    string FullPath;
     CColorBar* color_bar;
     
-    GetModuleFileName (NULL, FullPath, sizeof(FullPath));
-    strcpy(strrchr(FullPath, '\\'), "\\patterns\\card_calibr.d3u");
-    File = fopen(FullPath, "r");
+    FullPath = PaternPath + "card_calibr.d3u";
+    File = fopen(FullPath.c_str(), "r");
     if(File != NULL)
     {
         while(!feof(File))
@@ -594,8 +596,8 @@ void CCalibration::LoadTestPatterns()
                 }
                 else
                 {
-                    strcpy(strrchr(FullPath, '\\')+1, Buffer);
-                    if (!stat(FullPath, &st))
+                    FullPath = PaternPath + Buffer;
+                    if (!stat(FullPath.c_str(), &st))
                     {
                         pattern = new CTestPattern(FullPath);
                         if ((pattern->GetWidth() * pattern->GetHeight()) > 0)
@@ -654,7 +656,7 @@ void CCalibration::UpdateMenu(HMENU hMenu)
     HMENU           hMenuPatterns;
     MENUITEMINFO    MenuItemInfo;
     int             i;
-    char*            name;
+    string          name;
 
     hMenuPatterns = GetPatternsSubmenu();
     if (hMenuPatterns == NULL) return;
@@ -668,8 +670,8 @@ void CCalibration::UpdateMenu(HMENU hMenu)
 
         MenuItemInfo.cbSize = sizeof (MenuItemInfo);
         MenuItemInfo.fType = MFT_STRING;
-        MenuItemInfo.dwTypeData = name;
-        MenuItemInfo.cch = strlen (name);
+        MenuItemInfo.dwTypeData = &name[0];
+        MenuItemInfo.cch = name.length();
 
         MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
         MenuItemInfo.wID = IDM_PATTERN_SELECT + i + 1;
@@ -681,7 +683,6 @@ void CCalibration::SetMenu(HMENU hMenu)
 {
     HMENU   hMenuPatterns;
     int     i;
-    char    *name;
     eTypeContentPattern type_content;
     int     SourceHeight;
     CSource* pSource = Providers_GetCurrentSource();
@@ -725,7 +726,6 @@ void CCalibration::SetMenu(HMENU hMenu)
         it != m_TestPatterns.end(); 
         ++it, ++i)
     {
-        name = (*it)->GetName();
         EnableMenuItem(hMenuPatterns, i, (m_IsRunning || ((*it)->GetHeight() != SourceHeight)) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
         CheckMenuItem(hMenuPatterns, i, (m_CurTestPat == (*it)) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
     }

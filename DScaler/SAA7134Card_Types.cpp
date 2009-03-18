@@ -42,6 +42,8 @@
 #include "HierarchicalConfigParser.h"
 #include "ParsingCommon.h"
 
+using namespace std;
+
 using namespace HCParser;
 
 static const char* k_SAA713xCardListFilename = "SAA713xCards.ini";
@@ -250,7 +252,7 @@ void CSAA7134Card::ReadCardInputInfoProc(int report, const CParseTag* tag, unsig
     {
         if (*value->GetString() == '\0')
         {
-            throw string("\"\" is not a valid name of an input");
+            throw std::exception("\"\" is not a valid name of an input");
         }
         strcpy(input->szName, value->GetString());
     }
@@ -265,7 +267,7 @@ void CSAA7134Card::ReadCardInputInfoProc(int report, const CParseTag* tag, unsig
         int n = value->GetNumber();
         if (n < VIDEOINPUTSOURCE_NONE || n > VIDEOINPUTSOURCE_PIN4)
         {
-            throw string("VideoPin must be between -1 and 4");
+            throw std::exception("VideoPin must be between -1 and 4");
         }
         input->VideoInputPin = static_cast<eVideoInputSource>(n);
     }
@@ -275,7 +277,7 @@ void CSAA7134Card::ReadCardInputInfoProc(int report, const CParseTag* tag, unsig
         int n = value->GetNumber();
         if (n < AUDIOINPUTSOURCE_NONE || n > AUDIOINPUTSOURCE_DAC)
         {
-            throw string("AudioPin must be between -1 and 2");
+            throw std::exception("AudioPin must be between -1 and 2");
         }
         input->AudioLineSelect = static_cast<eAudioInputSource>(n);
     }
@@ -373,7 +375,7 @@ void CSAA7134Card::ReadCardDefaultTunerProc(int report, const CParseTag* tag, un
         if (parseInfo->tunerInfo.tunerId == TUNER_AUTODETECT ||
             parseInfo->tunerInfo.tunerId == TUNER_USER_SETUP)
         {
-            throw string("Tuner id \"auto\" and \"setup\" are not supported.");
+            throw std::exception("Tuner id \"auto\" and \"setup\" are not supported.");
         }
         parseInfo->pCurrentCard->TunerId = parseInfo->tunerInfo.tunerId;
     }
@@ -395,13 +397,13 @@ void CSAA7134Card::ReadCardInfoProc(int report, const CParseTag* tag, unsigned c
     {
         if (*value->GetString() == '\0')
         {
-            throw string("\"\" is not a valid name of a card");
+            throw std::exception("\"\" is not a valid name of a card");
         }
         for (size_t i = 0; i < parseInfo->nGoodCards; i++)
         {
             if (_stricmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
             {
-                throw string("A card was already specified with this name");
+                throw std::exception("A card was already specified with this name");
             }
         }
         strcpy(parseInfo->pCurrentCard->szName, value->GetString());
@@ -412,7 +414,7 @@ void CSAA7134Card::ReadCardInfoProc(int report, const CParseTag* tag, unsigned c
         int n = value->GetNumber();
         if (n != 0x7130 && n != 0x7134 && n != 0x7133)
         {
-            throw string("DeviceID needs to be either 0x7134 or 0x7130");
+            throw std::exception("DeviceID needs to be either 0x7134 or 0x7130");
         }
         parseInfo->pCurrentCard->DeviceId = static_cast<WORD>(n);
     }
@@ -461,7 +463,7 @@ void CSAA7134Card::ReadCardProc(int report, const CParseTag*, unsigned char, con
             {
                 if (parseInfo->pCurrentCard->AudioCrystal != AUDIOCRYSTAL_NONE)
                 {
-                    throw string("AudioCrystal for a 0x7130 card must be NONE");
+                    throw std::exception("AudioCrystal for a 0x7130 card must be NONE");
                 }
             }
 
@@ -475,14 +477,14 @@ void CSAA7134Card::ReadCardProc(int report, const CParseTag*, unsigned char, con
             }
             if (finalCount > 1)
             {
-                throw string("There can only be one input of type FINAL");
+                throw std::exception("There can only be one input of type FINAL");
             }
             if (finalCount == 1)
             {
                 int i = parseInfo->pCurrentCard->NumInputs - 1;
                 if (parseInfo->pCurrentCard->Inputs[i].InputType != INPUTTYPE_FINAL)
                 {
-                    throw string("The FINAL input must be after all other inputs");
+                    throw std::exception("The FINAL input must be after all other inputs");
                 }
             }
 
@@ -685,7 +687,7 @@ int CSAA7134Card::GetNumInputs()
 }
 
 
-LPCSTR CSAA7134Card::GetInputName(int nInput)
+string CSAA7134Card::GetInputName(int nInput)
 {
     if (nInput >= m_SAA713xCards[m_CardType].NumInputs || nInput < 0)
     {
@@ -721,7 +723,7 @@ BOOL CSAA7134Card::IsCCIRSource(int nInput)
 }
 
 
-LPCSTR CSAA7134Card::GetCardName(eSAA7134CardId CardId)
+string CSAA7134Card::GetCardName(eSAA7134CardId CardId)
 {
     return m_SAA713xCards[CardId].szName;
 }

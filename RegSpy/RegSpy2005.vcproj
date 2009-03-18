@@ -546,6 +546,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\DScaler\PathHelpers.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\DScaler\PCICard.cpp"
 				>
 				<FileConfiguration
@@ -704,6 +708,10 @@
 			</File>
 			<File
 				RelativePath="..\DScaler\HardwareDriver.h"
+				>
+			</File>
+			<File
+				RelativePath="..\DScaler\PathHelpers.h"
 				>
 			</File>
 			<File

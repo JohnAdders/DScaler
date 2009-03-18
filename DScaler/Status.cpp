@@ -50,11 +50,11 @@ BOOL StatusBar_IsVisible()
     return IsWindowVisible(hwndStatusBar);
 }
 
-void StatusBar_ShowText(eStatusBarBox Box, LPCSTR szText)
+void StatusBar_ShowText(eStatusBarBox Box, const std::string& Text)
 {
     //this function shoud not be called from the output thread, use Deinterlace_SetStatus instead
     ASSERTONOUTTHREAD;
-    SendMessage(hwndStatusBar, SB_SETTEXT, Box, (LPARAM) szText);
+    SendMessage(hwndStatusBar, SB_SETTEXT, Box, (LPARAM) Text.c_str());
 }
 
 

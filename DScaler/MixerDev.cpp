@@ -33,6 +33,8 @@
 #include "Audio.h"
 #include "Providers.h"
 
+using namespace std;
+
 #define MAX_SUPPORTED_INPUTS  6                     // Not readily changable
 
 
@@ -977,8 +979,8 @@ static void InitAndNameActiveInputs(HWND hDlg)
     // Set the source line names
     for (i = 0; i < nInputCount; i++)
     {
-        const char* pName = pSource->GetInputName(VIDEOINPUT, i);
-        if (pName == NULL)
+        string pName = pSource->GetInputName(VIDEOINPUT, i);
+        if (pName.empty())
         {
             sInputName = "Input ";
             sInputName += i;
@@ -2023,7 +2025,7 @@ void MixerDev_SettingSetSection(CSource* pSource)
     }
     else
     {
-        MixerDev_SettingSetSection(pSource->IDString());
+        MixerDev_SettingSetSection(pSource->IDString().c_str());
     }
 }
 

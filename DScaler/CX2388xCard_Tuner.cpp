@@ -36,6 +36,8 @@
 #include "TDA8275.h"
 #include "TDA8290.h"
 
+using namespace std;
+
 BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 {
     // clean up if we get called twice
@@ -49,33 +51,33 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     {
     case TUNER_MT2032:
         m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M);
-        strcpy(m_TunerType, "MT2032 ");
+        m_TunerType = "MT2032 ";
         break;
     case TUNER_MT2032_PAL:
         m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B);
-        strcpy(m_TunerType, "MT2032 ");
+        m_TunerType = "MT2032 ";
         break;
     case TUNER_MT2050:
         m_Tuner = new CMT2050(VIDEOFORMAT_NTSC_M);
-        strcpy(m_TunerType, "MT2050 ");
+        m_TunerType = "MT2050 ";
         break;
     case TUNER_MT2050_PAL:
         m_Tuner = new CMT2050(VIDEOFORMAT_PAL_B);
-        strcpy(m_TunerType, "MT2050 ");
+        m_TunerType = "MT2050 ";
         break;
     case TUNER_TDA8275:
         m_Tuner = new CTDA8275();
-        strcpy(m_TunerType, "TDA8275 ");
+        m_TunerType = "TDA8275 ";
         break;
     case TUNER_AUTODETECT:
     case TUNER_USER_SETUP:
     case TUNER_ABSENT:
         m_Tuner = new CNoTuner();
-        strcpy(m_TunerType, "None ");
+        m_TunerType = "None ";
         break;
     default:
         m_Tuner = new CGenericTuner(tunerId);
-        strcpy(m_TunerType, "Generic ");
+        m_TunerType = "Generic ";
         break;
     }
 
@@ -147,8 +149,10 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
             if (m_Tuner->InitializeTuner())
             {
                 bFoundTuner = TRUE;
-                int length = strlen(m_TunerType);
-                sprintf(m_TunerType + length, "@ I2C address 0x%02X", test);
+                m_TunerType += "@ I2C address 0x";
+                ostringstream oss;
+                oss << hex << setw(2) << setfill('0') << test;
+                m_TunerType += oss.str();
                 LOG(1,"Tuner: Found at I2C address 0x%02x", test);
                 break;
             }
@@ -167,7 +171,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         
         delete m_Tuner; 
         m_Tuner = new CNoTuner();
-        strcpy(m_TunerType, "None ");           
+        m_TunerType = "None ";
     }
     return bFoundTuner;
 }
@@ -177,7 +181,7 @@ ITuner* CCX2388xCard::GetTuner() const
     return m_Tuner;
 }
 
-LPCSTR CCX2388xCard::GetTunerType()
+string CCX2388xCard::GetTunerType()
 {
     return m_TunerType;
 }

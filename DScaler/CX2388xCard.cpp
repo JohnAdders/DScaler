@@ -39,6 +39,8 @@
 #include "TVFormats.h"
 #include "DScaler.h"
 
+using namespace std;
+
 CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
     CPCICard(pDriver),
     m_CardType(CX2388xCARD_UNKNOWN),
@@ -47,14 +49,13 @@ CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
     m_RISCIsRunning(FALSE),
     m_CurrentInput(0),
     m_CurrentAudioStandard(AUDIO_STANDARD_AUTO),
-    m_CurrentStereoType(STEREOTYPE_AUTO)
+    m_CurrentStereoType(STEREOTYPE_AUTO),
+    m_TunerType("n/a"),
+    m_I2CInitialized(false),
+    m_I2CBus(new CI2CBusForLineInterface(this)),
+    m_AudioControls(new CAudioControls()),
+    m_AudioDecoder(new CAudioDecoder())
 {
-    strcpy(m_TunerType,"n/a");
-
-    m_I2CInitialized = false;
-    m_I2CBus = new CI2CBusForLineInterface(this);
-    m_AudioControls = new CAudioControls();
-    m_AudioDecoder = new CAudioDecoder();
 }
 
 CCX2388xCard::~CCX2388xCard()
@@ -154,7 +155,7 @@ eCX2388xCardId CCX2388xCard::GetCardType()
     return m_CardType;
 }
 
-LPCSTR CCX2388xCard::GetCardName(eCX2388xCardId CardId)
+string CCX2388xCard::GetCardName(eCX2388xCardId CardId)
 {
     return m_CX2388xCards[CardId].szName;
 }
@@ -1356,7 +1357,7 @@ BOOL APIENTRY CCX2388xCard::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
         sprintf(szDeviceId,"%04X", pThis->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
-        SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType());
+        SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType().c_str());
         SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "");
         dwCardId = pThis->GetSubSystemId();
         if(dwCardId != 0 && dwCardId != 0xffffffff)
@@ -1571,11 +1572,11 @@ void CCX2388xCard::SetRISCStartAddressVBI(DWORD RiscBasePhysical)
 void CCX2388xCard::DumpChipStatus(const char* CardName)
 {
     FILE* hFile;
-    char Filename[256];
+    string Filename(CardName);
 
-    sprintf(Filename, "%s.txt", CardName);
+    Filename += ".txt";
 
-    hFile = fopen(Filename, "w");
+    hFile = fopen(Filename.c_str(), "w");
     if(!hFile)
     {
         return;

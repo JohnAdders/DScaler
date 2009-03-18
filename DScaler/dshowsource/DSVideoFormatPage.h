@@ -44,7 +44,7 @@ class CDSVideoFormatPage : public CTreeSettingsPage
 {
 // Construction
 public:
-    CDSVideoFormatPage(CString name,vector<CDShowGraph::CVideoFormat> &fmts,CSimpleSetting *pResolution);   // standard constructor
+    CDSVideoFormatPage(CString name, std::vector<CDShowGraph::CVideoFormat> &fmts,CSimpleSetting *pResolution);   // standard constructor
 
 // Dialog Data
     //{{AFX_DATA(CDSVideoFormatPage)
@@ -90,13 +90,13 @@ protected:
 private:
     void UpdateControlls();
     void GenerateName(int pos);
-    vector<CDShowGraph::CVideoFormat> m_VideoFmt;
+    std::vector<CDShowGraph::CVideoFormat> m_VideoFmt;
     
     /**
      * Reference to the real video format vector that is used by dscaler,
      * this is the one we save the changes to when closing dialog by clicking on ok
      */
-    vector<CDShowGraph::CVideoFormat> &m_RealVideoFmt;
+    std::vector<CDShowGraph::CVideoFormat> &m_RealVideoFmt;
 
     ///flag to prevent controlls from messing with the settings when updating controlls
     bool m_bInUpdateControlls;

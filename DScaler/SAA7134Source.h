@@ -62,7 +62,7 @@ public:
 
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
 
-    LPCSTR GetStatus();
+    std::string GetStatus();
     BOOL IsInTunerMode();
     BOOL IsVideoPresent();
 
@@ -81,13 +81,13 @@ public:
     void SetWidth(int w);
 
     int GetDeviceIndex();
-    const char* GetChipName();
-    LPCSTR IDString() { return m_IDString.c_str(); }
+    std::string GetChipName();
+    std::string IDString() { return m_IDString; }
 
     int NumInputs(eSourceInputType InputType);
     BOOL SetInput(eSourceInputType InputType, int Nr);
     int GetInput(eSourceInputType InputType);
-    const char* GetInputName(eSourceInputType InputType, int Nr);
+    std::string GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
     ISetting* GetVolume();
@@ -107,7 +107,7 @@ public:
     ISetting* GetHDelay();
     ISetting* GetVDelay();
 
-    LPCSTR GetMenuLabel();
+    std::string GetMenuLabel();
     void SetMenu(HMENU hMenu);
     void UpdateMenu() {return;};
 
@@ -118,7 +118,7 @@ public:
 
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
 
-    BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
+    BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
     BOOL HasSquarePixels() {return FALSE;};
 

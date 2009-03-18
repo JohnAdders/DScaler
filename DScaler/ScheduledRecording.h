@@ -51,13 +51,13 @@ class CSchedule
 {
 public:
     CSchedule(){};
-    CSchedule(char* schedule_name, char* program_name, int duration, int state, CTime time);
+    CSchedule(const std::string& schedule_name, const std::string& program_name, int duration, int state, CTime time);
     ~CSchedule(){};
         
-    const char* getName()         const   {return m_name;};
-    const char* getProgramName()  const   {return m_program_name;};
-    void getDateStr(char* chDate) const   {strcpy(chDate,m_time_start.Format("%m.%d.%Y").GetBuffer(0));};  
-    void getTimeStr(char* chTime) const   {strcpy(chTime,m_time_start.Format("%H:%M").GetBuffer(0));};  
+    const char* getName()         const   {return m_name.c_str();};
+    const char* getProgramName()  const   {return m_program_name.c_str();};
+    std::string getDateStr() const   {return m_time_start.Format("%m.%d.%Y").GetBuffer(0);};  
+    std::string getTimeStr() const   {return m_time_start.Format("%H:%M").GetBuffer(0);};  
     int getDuration()             const   {return m_duration;};
     CTime getStartTime()          const   {return m_time_start;};
     CTime getTimeEnd()            const   {return m_time_end;};
@@ -67,8 +67,8 @@ public:
     void setState(int state) {m_state = state;};
 
 private:
-    char m_name[20];
-    char m_program_name[15];
+    std::string m_name;
+    std::string m_program_name;
     
     CTime m_time_start;
     CTime m_time_end;

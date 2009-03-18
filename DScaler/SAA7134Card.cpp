@@ -47,6 +47,8 @@
 /// \todo remove need for this
 #include "OutThreads.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -937,7 +939,7 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
     case WM_INITDIALOG:
         pThis = (CSAA7134Card*)lParam;
 
-        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType());
+        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType().c_str());
 
         sprintf(szVendorId,"%04X", pThis->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
@@ -945,7 +947,7 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
         sprintf(szDeviceId,"%04X", pThis->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
 
-        SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType());
+        SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType().c_str());
 
         if ((pThis->m_DeviceId == 0x7134) || pThis->m_DeviceId == 0x7133)
         {
@@ -977,7 +979,7 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
 }
 
 
-LPCSTR CSAA7134Card::GetChipType()
+string CSAA7134Card::GetChipType()
 {
     switch (m_DeviceId)
     {

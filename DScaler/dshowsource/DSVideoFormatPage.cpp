@@ -28,6 +28,8 @@
 #include "DSVideoFormatPage.h"
 #include "ioutput.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE

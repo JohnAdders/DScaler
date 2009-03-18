@@ -38,28 +38,28 @@ public:
     void GetProgrammeDates(time_t *StartTime, time_t *EndTime);
 
     // Get the channel data : DScaler name + EPG name + number
-    void GetProgrammeChannelData(string &ChannelName, string &ChannelEPGName, int *ChannelNumber);
+    void GetProgrammeChannelData(std::string &ChannelName, std::string &ChannelEPGName, int *ChannelNumber);
 
     // Get the programme main data : start and end time + title
-    void GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category);
+    void GetProgrammeMainData(time_t *StartTime, time_t *EndTime, std::string &Channel, std::string &Title, std::string &Category);
 
     // Get all the programme data
-    void GetProgrammeData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
+    void GetProgrammeData(time_t *StartTime, time_t *EndTime, std::string &Channel, std::string &Title, std::string &SubTitle, std::string &Category, std::string &Description);
 
     // Dump the programme main data : start and end time + channel + title
     void DumpProgrammeMainData();
 
 private:
-    time_t    m_StartTime;
-    time_t    m_EndTime;
-    string    m_ChannelName;
-    string    m_ChannelEPGName;
-    int        m_ChannelNumber;
-    string    m_Title;
-    string    m_SubTitle;
-    string    m_Category;
-    string    m_Description;
-    DWORD    m_Length;        // In minutes
+    time_t          m_StartTime;
+    time_t          m_EndTime;
+    std::string     m_ChannelName;
+    std::string     m_ChannelEPGName;
+    int             m_ChannelNumber;
+    std::string     m_Title;
+    std::string     m_SubTitle;
+    std::string     m_Category;
+    std::string     m_Description;
+    DWORD           m_Length;        // In minutes
 };
 
 
@@ -83,12 +83,12 @@ public:
     void ReloadEPGData();
 
     int GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax);
-    BOOL SearchForProgramme(string &Channel);
+    BOOL SearchForProgramme(std::string &Channel);
     BOOL SearchForProgramme(LPCSTR ChannelName, time_t ThatTime);
     int SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin=0, time_t TimeMax=0);
-    BOOL GetProgrammeChannelData(int Index, string &ChannelName, string &ChannelEPGName, int *ChannelNumber);
-    BOOL GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category);
-    BOOL GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
+    BOOL GetProgrammeChannelData(int Index, std::string &ChannelName, std::string &ChannelEPGName, int *ChannelNumber);
+    BOOL GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, std::string &Channel, std::string &Title, std::string &Category);
+    BOOL GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, std::string &Channel, std::string &Title, std::string &SubTitle, std::string &Category, std::string &Description);
 
     void SetDisplayIndexes(int IdxMin, int IdxMax, int IdxCur);
     int GetDisplayIndexes(int *IdxMin, int *IdxMax, int *IdxCur);
@@ -99,7 +99,7 @@ public:
     void ShowOSD();
     void HideOSD();
 
-    void GetViewedChannelName(string &Channel);
+    void GetViewedChannelName(std::string &Channel);
 
     // Dump the EPG data
     void DumpEPGData();
@@ -114,7 +114,7 @@ public:
 
 private:
     // Execute a command using the Windows command interpreter
-    int ExecuteCommand(string command);
+    int ExecuteCommand(std::string command);
 
     // Check if new EPG data have to be loaded
     BOOL LoadEPGDataIfNeeded(time_t TimeMin, time_t TimeMax, int DeltaEarlier, int DeltaLater);
@@ -132,33 +132,33 @@ private:
     void ClearNextviewEPGProviders();
     int GetNextviewEPGProviders();
 
-    typedef vector<CProgramme*> CProgrammes;
+    typedef std::vector<CProgramme*> CProgrammes;
 
     CProgrammes    m_Programmes;
     CProgrammes    m_ProgrammesSelection;
     CProgramme*    m_ProgrammeSelected;
 
-    typedef vector<string*> strings;
+    typedef std::vector<std::string*> strings;
 
-    strings        m_NextviewProviders;
+    strings     m_NextviewProviders;
 
-    string        m_CMDExe;
-    string        m_FilesDir;
+    std::string m_CMDExe;
+    std::string m_FilesDir;
 
-    time_t        m_LoadedTimeMin;
-    time_t        m_LoadedTimeMax;
+    time_t      m_LoadedTimeMin;
+    time_t      m_LoadedTimeMax;
 
-    LPCSTR        m_SearchChannel;
-    time_t        m_SearchTimeMin;
-    time_t        m_SearchTimeMax;
-    int            m_IdxShowSelectMin;
-    int            m_IdxShowSelectMax;
-    int            m_IdxShowSelectCur;
+    LPCSTR      m_SearchChannel;
+    time_t      m_SearchTimeMin;
+    time_t      m_SearchTimeMax;
+    int         m_IdxShowSelectMin;
+    int         m_IdxShowSelectMax;
+    int         m_IdxShowSelectCur;
     BOOL        m_UseProgFronBrowser;
     BOOL        m_SearchCurrent;
-    int            m_ShiftLines;
+    int         m_ShiftLines;
 
-    int            m_Displayed;
+    int         m_Displayed;
 };
 
 

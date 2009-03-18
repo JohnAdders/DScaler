@@ -38,6 +38,8 @@
 #include "OSD.h"
 #include "LibraryCache.h"
 
+using namespace std;
+
 extern const char *TunerNames[TUNER_LASTONE];
 long EnableCancelButton = 1;
 
@@ -676,7 +678,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         for(i = 0; i < TVCARD_LASTONE; i++)
         {
             int nIndex;
-            nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pBT848Card->GetCardName((eTVCardId)i));
+            nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pBT848Card->GetCardName((eTVCardId)i).c_str());
             SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
             if(i == pThis->m_CardType->GetValue())
             {
@@ -704,7 +706,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         }
 
         pCard = pThis->GetBT848Card();
-        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType());
+        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType().c_str());
         sprintf(szVendorId,"%04X", pCard->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
         sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
@@ -754,7 +756,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
                 for(i = 0; i < TVCARD_LASTONE; i++)
                 {
                     int nIndex;
-                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pBT848Card->GetCardName((eTVCardId)i));
+                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pBT848Card->GetCardName((eTVCardId)i).c_str());
                     SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
                     if(i == CardId)
                     {
@@ -796,7 +798,6 @@ void CBT848Source::SetMenu(HMENU hMenu)
 {
     int i;
     MENUITEMINFO MenuItemInfo;
-    char Buffer[265];
 
     // set up the input menu
     for(i = 0;i < m_pBT848Card->GetNumInputs(); ++i)
@@ -809,11 +810,14 @@ void CBT848Source::SetMenu(HMENU hMenu)
         // get the size of the string
         GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
         // set the buffer and get the current string
-        MenuItemInfo.dwTypeData = Buffer;
         GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
         // create the new string and correct the menu
-        sprintf(Buffer, "%s\tCtrl+Alt+F%d",m_pBT848Card->GetInputName(i), i + 1);
-        MenuItemInfo.cch = strlen(Buffer);
+        ostringstream oss;
+        oss << m_pBT848Card->GetInputName(i);
+        oss << "\tCtrl+Alt+F" << i + 1;
+        string Buffer(oss.str());
+        MenuItemInfo.cch = Buffer.length();
+        MenuItemInfo.dwTypeData = const_cast<char*>(Buffer.c_str());
         SetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
         
         // enable the menu and check it appropriately
@@ -931,7 +935,6 @@ void CBT848Source::SetMenu(HMENU hMenu)
     
     UINT MenuID = IDM_SOUNDCHANNEL_MONO;
     int AudioChannelNr = 1;
-    Buffer[0]=0;
     do {
         // reset the menu info structure
         memset(&MenuItemInfo, 0, sizeof(MenuItemInfo));
@@ -940,9 +943,12 @@ void CBT848Source::SetMenu(HMENU hMenu)
 
         // get the size of the string
         GetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
-        MenuItemInfo.cch++; //??
+        ++MenuItemInfo.cch;
+        string Buffer;
+        Buffer.resize(MenuItemInfo.cch);
+
         // get string into buffer
-        MenuItemInfo.dwTypeData = Buffer;
+        MenuItemInfo.dwTypeData = const_cast<char*>(Buffer.c_str());
         GetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
 
         char Buffer2[256];
@@ -952,7 +958,7 @@ void CBT848Source::SetMenu(HMENU hMenu)
         }
         else
         {
-            strcpy(Buffer2, Buffer);
+            strcpy(Buffer2, &Buffer[0]);
         }   
         int Len = strlen(Buffer2);
         if (Buffer2[Len-1]==']') { Buffer2[Len-1]=0; }        
@@ -960,14 +966,16 @@ void CBT848Source::SetMenu(HMENU hMenu)
         
         if (m_AutoStereoSelect->GetValue() && (AudioChannelNr!=m_pBT848Card->IsAudioChannelDetected((eSoundChannel)AudioChannelNr)))
         {
-            sprintf(Buffer, "[%s]",Buffer2);
-            MenuItemInfo.dwTypeData = Buffer;
-            MenuItemInfo.cch = strlen(Buffer);
+            Buffer = "[";
+            Buffer += Buffer2;
+            Buffer += "]";
+            MenuItemInfo.dwTypeData = &Buffer[0];
+            MenuItemInfo.cch = Buffer.length();
         }    
         else
         {
             MenuItemInfo.dwTypeData = Buffer2;
-            MenuItemInfo.cch = strlen(Buffer2);         
+            MenuItemInfo.cch = strlen(Buffer2);
         }                
         SetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
         
@@ -1023,20 +1031,20 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_AUTODETECTPERCHANNEL, (m_AudioStandardDetect->GetValue() == 3));
     CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_MANUAL, (m_AudioStandardDetect->GetValue() == 4));
     
-    strcpy(Buffer, "<No standard>");
+    string Buffer("<No standard>");
     if (m_pBT848Card->GetNumAudioStandards()>0)
     {
-        char *szName = (char*)m_pBT848Card->GetAudioStandardName(m_pBT848Card->GetAudioStandardCurrent());
+        const char *szName = m_pBT848Card->GetAudioStandardName(m_pBT848Card->GetAudioStandardCurrent());
         if (szName != NULL)
         {
-            strcpy(Buffer, szName);
+            Buffer = szName;
         }
     }
     memset(&MenuItemInfo, 0, sizeof(MenuItemInfo));
     MenuItemInfo.cbSize = sizeof(MenuItemInfo);
     MenuItemInfo.fMask = MIIM_TYPE;
-    MenuItemInfo.dwTypeData = Buffer;
-    MenuItemInfo.cch = strlen(Buffer);    
+    MenuItemInfo.dwTypeData = &Buffer[0];
+    MenuItemInfo.cch = Buffer.length();
     SetMenuItemInfo(m_hMenu, IDM_AUDIOSTANDARD_STANDARD, FALSE, &MenuItemInfo);
     EnableMenuItem(m_hMenu, IDM_AUDIOSTANDARD_STANDARD, MF_GRAYED|MF_DISABLED);
 }

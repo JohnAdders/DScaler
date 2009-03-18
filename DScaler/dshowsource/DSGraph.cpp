@@ -36,6 +36,8 @@
 #include "DevEnum.h"
 #include "DShowGenericAudioControls.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -793,7 +795,7 @@ bool CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
         }
         catch(CDShowException& e)
         {
-            LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+            LOG(1, "DShow Exception - %s", e.what());
             return false;
         }
     }

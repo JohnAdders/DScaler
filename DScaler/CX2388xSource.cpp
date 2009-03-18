@@ -55,6 +55,8 @@
 #include <setupapi.h>    // for Start/Stopping driver
 #include <devguid.h>    // for Start/Stopping driver, define GUID_DEVCLASS_MEDIA
 
+using namespace std;
+
 extern long EnableCxCancelButton;
 
 const char* CombFilterSzList[] =
@@ -809,15 +811,15 @@ SmartPtr<CCX2388xCard> CCX2388xSource::GetCard()
     return m_pCard;
 }
 
-LPCSTR CCX2388xSource::GetStatus()
+string CCX2388xSource::GetStatus()
 {
-    static LPCSTR pRetVal = "";
+    string pRetVal;
 
     if (IsInTunerMode())
     {
         pRetVal = Channel_GetVBIName();
 
-        if (*pRetVal == '\0')
+        if (pRetVal.empty())
         {
             pRetVal = Channel_GetName();
         }
@@ -1483,7 +1485,7 @@ void CCX2388xSource::SetupCard()
         // Otherwise set the card name setting based on the card type for
         // future use.
         m_CardName->SetValue(reinterpret_cast<long>(
-            m_pCard->GetCardName((eCX2388xCardId)m_CardType->GetValue())));
+            m_pCard->GetCardName((eCX2388xCardId)m_CardType->GetValue()).c_str()));
     }
 
     if(m_CardType->GetValue() == CX2388xCARD_UNKNOWN)
@@ -1624,7 +1626,7 @@ void CCX2388xSource::DecodeVBI(TDeinterlaceInfo* pInfo)
 }
 
 
-LPCSTR CCX2388xSource::GetMenuLabel()
+string CCX2388xSource::GetMenuLabel()
 {
     return m_pCard->GetCardName(m_pCard->GetCardType());
 }
@@ -1837,7 +1839,7 @@ int CCX2388xSource::GetInput(eSourceInputType InputType)
     return -1;
 }
 
-const char* CCX2388xSource::GetInputName(eSourceInputType InputType, int Nr)
+string CCX2388xSource::GetInputName(eSourceInputType InputType, int Nr)
 {
     if (InputType == VIDEOINPUT)
     {

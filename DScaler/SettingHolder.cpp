@@ -30,6 +30,8 @@
 #include "SettingHolder.h"
 #include "SettingsMaster.h"
 
+using namespace std;
+
 CSettingsHolder::CSettingsHolder(long SetMessage) :
     m_SetMessage(SetMessage)
 {    

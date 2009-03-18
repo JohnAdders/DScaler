@@ -28,6 +28,8 @@
 #include "DSAudioDevicePage.h"
 #include "DevEnum.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE

@@ -243,7 +243,7 @@ public:
     void Draw(TDeinterlaceInfo* pInfo);
 
     /// Color bars of the sub-pattern
-    vector<CColorBar*> m_ColorBars;
+    std::vector<CColorBar*> m_ColorBars;
 
 protected:
     /// type of settings that can be adjusted with this sub-pattern
@@ -258,12 +258,12 @@ protected:
 class CTestPattern
 {
 public:
-    CTestPattern(char* name, int width, int height);
-    CTestPattern(LPCSTR FileName);
+    CTestPattern(const std::string& name, int width, int height);
+    CTestPattern(const std::string& FileName);
     ~CTestPattern();
 
     /// This method returns the name of the test pattern
-    char* GetName();
+    std::string GetName();
 
     int GetInitialWidth() {return GetWidth();};
     int GetInitialHeight() {return GetHeight();};
@@ -291,14 +291,14 @@ public:
     void Draw(BYTE* buffer, int Pitch);
 
     /// Color bars of the test pattern
-    vector<CColorBar*> m_ColorBars;
+    std::vector<CColorBar*> m_ColorBars;
 
     /// Sub-patterns of the test pattern
-    vector<CSubPattern*> m_SubPatterns;
+    std::vector<CSubPattern*> m_SubPatterns;
 
 protected:
     /// Name of the test pattern
-    char m_PatternName[64];
+    std::string m_PatternName;
 
     /// Width of the test pattern
     int m_Width;
@@ -315,8 +315,8 @@ class CPatternHelper : public CStillSourceHelper
 {
 public:
     CPatternHelper(CStillSource* pParent);
-    BOOL OpenMediaFile(LPCSTR FileName);
-    void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context);
+    BOOL OpenMediaFile(const std::string& FileName);
+    void SaveSnapshot(const std::string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const std::string& Context);
 };
 
 

@@ -52,7 +52,7 @@ public:
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     SmartPtr<CCX2388xCard> GetCard();
-    LPCSTR GetStatus();
+    std::string GetStatus();
     ISetting* GetVolume() {return m_Volume;};
     ISetting* GetBalance() {return m_Balance;};
     void Mute();
@@ -87,18 +87,18 @@ public:
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo);
-    LPCSTR GetMenuLabel();
-    BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
+    std::string GetMenuLabel();
+    BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
     void SetAspectRatioData();
     BOOL HasSquarePixels() {return FALSE;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
-    LPCSTR IDString() { return m_IDString.c_str(); }
+    std::string IDString() { return m_IDString; }
 
     int  NumInputs(eSourceInputType InputType);
     BOOL SetInput(eSourceInputType InputType, int Nr);
     int GetInput(eSourceInputType InputType);
-    const char* GetInputName(eSourceInputType InputType, int Nr);
+    std::string GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);

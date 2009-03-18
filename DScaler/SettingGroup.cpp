@@ -1464,7 +1464,7 @@ void CSettingGroupEx::SaveOptionalDependencies()
     CHAR buffer[kBufferSize];
 
     // First save the optional dependents mask.
-    sprintf(buffer, "%x", (INT)m_dependencyGestalt->GetDependentMask());
+    sprintf_s(buffer, kBufferSize, "%x", (INT)m_dependencyGestalt->GetDependentMask());
     m_repository->SaveSettingString(section.c_str(), DEPENDENTMASKSAVEKEY, buffer);
 
     // Save the optional dependent bits for every setting in the group and subgroups.
@@ -1493,7 +1493,7 @@ void CSettingGroupEx::_SaveOptionalDependencies(IN LPCSTR section, IN LPSTR buff
             continue;
         }
 
-        sprintf(buffer, "%x", (INT)info->dependentOptionalBits);
+        sprintf_s(buffer, bufferSize, "%x", (INT)info->dependentOptionalBits);
         m_repository->SaveSettingString(section, key, buffer);
         // Set whether dependentOptionalBits have changed since load.
         SetInfoFlag(info, FLAG_OPTDEPCHANGED, FALSE);

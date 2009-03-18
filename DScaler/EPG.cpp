@@ -29,7 +29,9 @@
 #include "VBI.h"
 #include "VBI_VideoText.h"
 #include "VBI_VPSdecode.h"
+#include "PathHelpers.h"
 
+using namespace std;
 
 void XmltvParser_Start( const char * pFilename );
 
@@ -136,11 +138,11 @@ void CProgramme::DumpProgrammeMainData()
     char Date2[17];
     struct tm *date_tm;
     date_tm = localtime(&m_StartTime);
-    sprintf(Date1,
+    sprintf_s(Date1, 17,
             "%04u/%02u/%02u %02u:%02u",
             date_tm->tm_year+1900, date_tm->tm_mon+1, date_tm->tm_mday, date_tm->tm_hour, date_tm->tm_min);
     date_tm = localtime(&m_EndTime);
-    sprintf(Date2,
+    sprintf_s(Date2, 17,
             "%04u/%02u/%02u %02u:%02u",
             date_tm->tm_year+1900, date_tm->tm_mon+1, date_tm->tm_mday, date_tm->tm_hour, date_tm->tm_min);
     LOG(1, "%s - %s : %s : %s",
@@ -168,11 +170,7 @@ CEPG::CEPG()
         }
     }
 
-    char Path[MAX_PATH];
-    GetModuleFileName (NULL, Path, sizeof(Path));
-    *strrchr(Path, '\\') = '\0';
-
-    m_FilesDir = Path;
+    m_FilesDir = GetInstallationPath();
 
     m_LoadedTimeMin = 0;
     m_LoadedTimeMax = 0;
@@ -602,7 +600,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             for (int i=0; i<n ; i++)
             {
                 char MsgTxt[128];
-                sprintf(MsgTxt, "Do you want to import the database\ncorresponding to the provider %s ?", m_NextviewProviders[i]->c_str());
+                sprintf_s(MsgTxt, 128, "Do you want to import the database\ncorresponding to the provider %s ?", m_NextviewProviders[i]->c_str());
                 if (MessageBox(hWnd, MsgTxt, "DScaler - NextviewEPG Provider", MB_YESNO | MB_ICONQUESTION /*| MB_APPLMODAL*/) == IDYES)
                 {
                     Provider = m_NextviewProviders[i]->c_str();
@@ -1046,8 +1044,8 @@ void CEPG::GetViewedChannelName(string &Channel)
             time_t CurrentTime;
             time(&CurrentTime);
 
-            LPCSTR pChannel = Channel_GetVBIName();
-            if (*pChannel != '\0')
+            string pChannel = Channel_GetVBIName();
+            if (!pChannel.empty())
             {
                 Channel = pChannel;
                 // Reset data each second to detect change of channel

@@ -53,21 +53,21 @@ protected:
     } TSettingsHolderInfo;
     
     /// List of setting holders
-    vector<TSettingsHolderInfo> m_Holders;
+    std::vector<TSettingsHolderInfo> m_Holders;
 
     /// Name of the ini file
-    string m_sIniFile;
+    std::string m_sIniFile;
     
     /// Names of the current source, inputs, video format and channel
-    string m_SourceName;
-    string m_VideoInputName;
-    string m_AudioInputName;
-    string m_VideoFormatName;
-    string m_ChannelName;
+    std::string m_SourceName;
+    std::string m_VideoInputName;
+    std::string m_AudioInputName;
+    std::string m_VideoFormatName;
+    std::string m_ChannelName;
 
 protected:        
     void ParseAllSettings(bool IsLoad);
-    void MakeSubSection(string& SubSection, CSettingGroup* pGroup);
+    void MakeSubSection(std::string& SubSection, CSettingGroup* pGroup);
 
 public:
     CSettingsMaster();
@@ -94,7 +94,7 @@ public:
     void WriteOneSetting(CSimpleSetting* pSetting);
 
 private:    
-    vector<CSettingGroup*> m_SettingsGroups;
+    std::vector<CSettingGroup*> m_SettingsGroups;
 };
 
 extern CSettingsMaster* SettingsMaster;

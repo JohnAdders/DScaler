@@ -30,6 +30,7 @@
 #include "TVFormats.h"
 #include "Channels.h"
 
+using namespace std;
 
 CChannel::CChannel(LPCSTR Name, LPCSTR EPGName, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active)
 {        

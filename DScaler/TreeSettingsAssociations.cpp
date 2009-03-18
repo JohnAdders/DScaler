@@ -25,7 +25,6 @@
 #include "SettingRepository.h"
 #include "..\DScalerRes\resource.h"
 #include "SubItemCheckboxListCtrl.h"
-#include <sstream>
 
 // Define resource IDs that will be used by the dynamic controls.  Since
 // IDD_TREESETTINGS_EMPTY shouldn't have any prefab controls, there should

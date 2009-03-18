@@ -51,6 +51,8 @@
 #include "Bt8x8GPIOAudioDecoderWinDVR.h"
 #include "Bt8x8GPIOAudioDecoderWinFast2000.h"
 
+using namespace std;
+
 void CBT848Card::InitAudio(bool UsePin1)
 {
     // Initialize  m_AudioDecoder and m_AudioControls
@@ -69,7 +71,7 @@ void CBT848Card::InitAudio(bool UsePin1)
 
             m_AudioControls = new CAudioControls();
 
-            strcpy(m_AudioDecoderType, "TDA9873");
+            m_AudioDecoderType = "TDA9873";
         }
     }
 
@@ -98,7 +100,11 @@ void CBT848Card::InitAudio(bool UsePin1)
 
             m_AudioDecoder =  MSPDecoder;
 
-            sprintf(m_AudioDecoderType, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
+            ostringstream oss;
+            oss << "MSP34" << setw(2)<< setfill('0') << ((rev2 >> 8) & 0xff);
+            oss << (((rev1 >> 8) & 0xff) + '@') << "-";
+            oss << (rev2 & 0x1f);
+            m_AudioDecoderType = oss.str();
         }
     }
 
@@ -126,7 +132,14 @@ void CBT848Card::InitAudio(bool UsePin1)
 
             m_AudioDecoder = TDA9875Decoder; //TDA9875Decoder;
 
-            sprintf(m_AudioDecoderType, "TDA9875%c Rev. %d", (dic==0) ? "":"A", rev); 
+            ostringstream oss;
+
+            oss << "TDA9875";
+            oss << (dic==0) ? "":"A";
+            oss << " Rev ";
+            oss << rev;
+
+            m_AudioDecoderType = oss.str();
         }
     }
 
@@ -153,8 +166,11 @@ void CBT848Card::InitAudio(bool UsePin1)
             CPIC16C54 pic = CPIC16C54();
             pic.SetI2CBus(m_I2CBus);
             bool picAlive = pic.IsDevicePresent();
+            ostringstream oss;
 
-            sprintf(m_AudioDecoderType, "TDA9874%c Rev. %d%s", (dic==0x11) ? "A":"H", sic, picAlive ? "" : " + Pic16c54"); 
+            oss << "TDA9874" << ((dic==0x11) ? "A":"H");
+            oss << " Rev. " << sic << (picAlive ? "" : " + Pic16c54");
+            m_AudioDecoderType = oss.str(); 
         }
     }
 
@@ -165,42 +181,42 @@ void CBT848Card::InitAudio(bool UsePin1)
         default:
             m_AudioDecoder = new CAudioDecoder();
             m_AudioControls = new CAudioControls();
-            sprintf(m_AudioDecoderType, "None");
+            m_AudioDecoderType = "None";
             break;
         case CAudioDecoder::AUDIODECODERTYPE_TERRATV:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderTerraTV(this);
             m_AudioControls = new CAudioControls();
-            sprintf(m_AudioDecoderType, "TerraTV");
+            m_AudioDecoderType = "TerraTV";
             break;
         case CAudioDecoder::AUDIODECODERTYPE_WINFAST2000:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderWinFast2000(this);
             m_AudioControls = new CAudioControls();
-            sprintf(m_AudioDecoderType, "WinFast2000");
+            m_AudioDecoderType = "WinFast2000";
             break;
         case CAudioDecoder::AUDIODECODERTYPE_GVBCTV3:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderGVBCTV3(this);
             m_AudioControls = new CAudioControls();
-            sprintf(m_AudioDecoderType, "GVBCTV3");
+            m_AudioDecoderType = "GVBCTV3";
             break;
         case CAudioDecoder::AUDIODECODERTYPE_LT9415:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderLT9415(this);
             m_AudioControls = new CAudioControls();
-            sprintf(m_AudioDecoderType, "LT9415");
+            m_AudioDecoderType = "LT9415";
             break;
         case CAudioDecoder::AUDIODECODERTYPE_WINDVR:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderWinDVR(this);
             m_AudioControls = new CAudioControls();
-            sprintf(m_AudioDecoderType, "WinDVR");
+            m_AudioDecoderType = "WinDVR";
             break;
         case CAudioDecoder::AUDIODECODERTYPE_AVER_TVPHONE_NEW:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderAverTVPhoneNew(this);
             m_AudioControls = new CAudioControls();
-            sprintf(m_AudioDecoderType, "AverTVPhoneNew");
+            m_AudioDecoderType = "AverTVPhoneNew";
             break;
         case CAudioDecoder::AUDIODECODERTYPE_AVER_TVPHONE_OLD:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderAverTVPhoneOld(this);
             m_AudioControls = new CAudioControls();
-            sprintf(m_AudioDecoderType, "AverTVPhoneOld");
+            m_AudioDecoderType = "AverTVPhoneOld";
             break;
         }
     }

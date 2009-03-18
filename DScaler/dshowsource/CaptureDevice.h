@@ -39,8 +39,7 @@
 class CDShowCaptureDeviceException: public CDShowException
 {
 public:
-    CDShowCaptureDeviceException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
-    CDShowCaptureDeviceException(CString msg):CDShowException(msg) {};
+    CDShowCaptureDeviceException(const char* msg,HRESULT hr = S_OK):CDShowException(msg,hr) {};
 };
 
  
@@ -50,7 +49,7 @@ public:
 class CDShowCaptureDevice : public CDShowBaseSource  
 {
 public:
-    CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName,bool bConnectAudio);
+    CDShowCaptureDevice(IGraphBuilder *pGraph, std::string device, std::string deviceName,bool bConnectAudio);
     virtual ~CDShowCaptureDevice();
     
     eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_CAPTURE;}

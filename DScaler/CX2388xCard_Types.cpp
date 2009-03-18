@@ -38,6 +38,8 @@
 #include "HierarchicalConfigParser.h"
 #include "ParsingCommon.h"
 
+using namespace std;
+
 using namespace HCParser;
 
 static const char* k_CX2388xCardListFilename = "CX2388xCards.ini";
@@ -163,7 +165,7 @@ void CCX2388xCard::ReadCardInputInfoProc(int report, const CParseTag* tag, unsig
     {
         if (*value->GetString() == '\0')
         {
-            throw string("\"\" is not a valid name of an input");
+            throw std::exception("\"\" is not a valid name of an input");
         }
         strcpy(input->szName, value->GetString());
     }
@@ -181,7 +183,7 @@ void CCX2388xCard::ReadCardInputInfoProc(int report, const CParseTag* tag, unsig
         int n = value->GetNumber();
         if (n < 0 || n > 3)
         {
-            throw string("MuxSelect must be between 0 and 3");
+            throw std::exception("MuxSelect must be between 0 and 3");
         }
 
         input->MuxSelect = n;
@@ -309,14 +311,14 @@ void CCX2388xCard::ReadCardInfoProc(int report, const CParseTag* tag, unsigned c
     {
         if (*value->GetString() == '\0')
         {
-            throw string("\"\" is not a valid name of a card");
+            throw std::exception("\"\" is not a valid name of a card");
         }
         
         for (size_t i = 0; i < parseInfo->nGoodCards; i++)
         {
             if (_stricmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
             {
-                throw string("A card was already specified with this name");
+                throw std::exception("A card was already specified with this name");
             }
         }
         
@@ -368,7 +370,7 @@ void CCX2388xCard::ReadCardProc(int report, const CParseTag*, unsigned char, con
             
             if (finalCount > 1)
             {
-                throw string("There can only be one input of type FINAL");
+                throw std::exception("There can only be one input of type FINAL");
             }
             
             if (finalCount == 1)
@@ -376,7 +378,7 @@ void CCX2388xCard::ReadCardProc(int report, const CParseTag*, unsigned char, con
                 int i = parseInfo->pCurrentCard->NumInputs - 1;
                 if (parseInfo->pCurrentCard->Inputs[i].InputType != INPUTTYPE_FINAL)
                 {
-                    throw string("The FINAL input must be after all other inputs");
+                    throw std::exception("The FINAL input must be after all other inputs");
                 }
             }
 
@@ -536,7 +538,7 @@ int CCX2388xCard::GetNumInputs()
     return m_CX2388xCards[m_CardType].NumInputs;
 }
 
-LPCSTR CCX2388xCard::GetInputName(int nInput)
+string CCX2388xCard::GetInputName(int nInput)
 {
     if(nInput < m_CX2388xCards[m_CardType].NumInputs && nInput >= 0)
     {

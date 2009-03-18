@@ -48,6 +48,8 @@
 #include "Setting.h"
 #include "SettingsMaster.h"
 
+using namespace std;
+
 extern long EnableCancelButton;
 
 CBT848Source::CBT848Source(SmartPtr<CBT848Card> pBT848Card, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
@@ -919,15 +921,15 @@ SmartPtr<CBT848Card> CBT848Source::GetBT848Card()
     return m_pBT848Card;
 }
 
-LPCSTR CBT848Source::GetStatus()
+string CBT848Source::GetStatus()
 {
-    LPCSTR pRetVal;
+    string pRetVal;
 
     if (IsInTunerMode())
     {
         pRetVal = Channel_GetVBIName();
 
-        if (*pRetVal == '\0')
+        if (pRetVal.empty())
         {
             pRetVal = Channel_GetName();
         }
@@ -1903,7 +1905,7 @@ void CBT848Source::DecodeVBI(TDeinterlaceInfo* pInfo)
     }
 }
 
-LPCSTR CBT848Source::GetMenuLabel()
+string CBT848Source::GetMenuLabel()
 {
     return m_pBT848Card->GetCardName(m_pBT848Card->GetCardType());
 }
@@ -1949,9 +1951,9 @@ int CBT848Source::GetDeviceIndex()
     return m_DeviceIndex;
 }
 
-const char* CBT848Source::GetChipName()
+string CBT848Source::GetChipName()
 {
-    return m_ChipName.c_str();
+    return m_ChipName;
 }
 
 
@@ -1999,7 +2001,7 @@ int CBT848Source::GetInput(eSourceInputType InputType)
     return -1;
 }
 
-const char* CBT848Source::GetInputName(eSourceInputType InputType, int Nr)
+string CBT848Source::GetInputName(eSourceInputType InputType, int Nr)
 {
     if (InputType == VIDEOINPUT)
     {
@@ -2012,7 +2014,7 @@ const char* CBT848Source::GetInputName(eSourceInputType InputType, int Nr)
     {      
         return m_pBT848Card->GetAudioInputName((eAudioInput)Nr);
     }
-    return NULL;
+    return "";
 }
 
 BOOL CBT848Source::InputHasTuner(eSourceInputType InputType, int Nr)

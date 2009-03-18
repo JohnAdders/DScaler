@@ -82,11 +82,14 @@
 #include "OverlayOutput.h"
 #include "D3D9Output.h"
 #include "RemoteInput.h"
+#include "PathHelpers.h"
 #include "..\API\DScalerVersion.h"
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource/DSSourceBase.h"
 #endif
+
+using namespace std;
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -217,7 +220,6 @@ void Cursor_SetVisibility(BOOL bVisible);
 int Cursor_SetType(int type);
 void Cursor_VTUpdate(int x = -1, int y = -1);
 void MainWndOnDestroy();
-void SetDirectoryToExe();
 int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
 void SetKeyboardLock(BOOL Enabled);
 bool bScreensaverDisabled = false;
@@ -305,7 +307,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
     SetErrorMode(SEM_NOGPFAULTERRORBOX);
 
-    SetDirectoryToExe();
+    SetCurrentDirectory(GetInstallationPath().c_str());
 
     CPU_SetupFeatureFlag();
 
@@ -1271,11 +1273,12 @@ void SetScreensaverMode(BOOL bScreensaverOff)
     }
 }
 
-void UpdateSleepMode(TSMState* SMState, char* Text)
+string UpdateSleepMode(TSMState* SMState)
 {
     time_t curr = 0;
     struct tm* SMTime = NULL;
     UINT uiPeriod;
+    string RetVal;
 
     switch( SMState->State )
     {
@@ -1288,11 +1291,17 @@ void UpdateSleepMode(TSMState* SMState, char* Text)
         {
             KillTimer(hWnd, TIMER_SLEEPMODE);
             SMTime = localtime(&SMState->SleepAt);
-            sprintf(Text, "Sleep %d (%02d:%02d)", SMState->Period, SMTime->tm_hour, SMTime->tm_min);
+            RetVal = MakeString() << "Sleep  " 
+                                 << SMState->Period
+                                 << " (" 
+                                 << setw(2) << setfill('0') << SMTime->tm_hour
+                                 << ":"
+                                 << setw(2) << setfill('0') << SMTime->tm_min
+                                 << ")";
         }
         else
         {
-            strcpy(Text, "Sleep OFF");
+            RetVal = "Sleep OFF";
         }
         // Set update window
         SetTimer(hWnd, TIMER_SLEEPMODE, TIMER_SLEEPMODE_MS, NULL);
@@ -1315,12 +1324,18 @@ void UpdateSleepMode(TSMState* SMState, char* Text)
             curr = time(0);
             SMState->SleepAt = curr + SMState->Period * 60;
             SMTime = localtime(&SMState->SleepAt);
-            sprintf(Text, "New sleep %d (%02d:%02d)", SMState->Period, SMTime->tm_hour, SMTime->tm_min);
+            RetVal = MakeString() << "New sleep  " 
+                                 << SMState->Period
+                                 << " (" 
+                                 << setw(2) << setfill('0') << SMTime->tm_hour
+                                 << ":"
+                                 << setw(2) << setfill('0') << SMTime->tm_min
+                                 << ")";
         }
         else
         {   
             SMState->SleepAt = 0;
-            strcpy(Text, "New sleep OFF");
+            RetVal = "New sleep OFF";
         }
         
         // Restart change-mode timing
@@ -1360,6 +1375,7 @@ void UpdateSleepMode(TSMState* SMState, char* Text)
     default:
         ; //NEVER_GET_HERE
     }
+    return RetVal;
 }
 
 void UpdatePriorityClass()
@@ -1724,7 +1740,6 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
 ///**************************************************************************
 LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
-    char Text[128];
     int i;
     BOOL bDone = FALSE;
     ISetting* pSetting = NULL;
@@ -1881,15 +1896,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     }
                     else
                     {
-                        strcpy(Text, "Volume not supported");
-                        ShowText(hWnd, Text);
+                        ShowText(hWnd, "Volume not supported");
                     }
                 }
                 else
                 {
                     Mixer_Volume_Up();
-                    sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
-                    ShowText(hWnd, Text);                    
+                    ostringstream oss;
+                    oss << "Mixer-Volume " << Mixer_GetVolume();
+                    ShowText(hWnd, oss.str());
                 }
             }
             break;
@@ -1911,15 +1926,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     }
                     else
                     {
-                        strcpy(Text, "Volume not supported");
-                        ShowText(hWnd, Text);
+                        ShowText(hWnd, "Volume not supported");
                     }
                 }
                 else
                 {
                     Mixer_Volume_Down();
-                    sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
-                    ShowText(hWnd, Text);
+                    ostringstream oss;
+                    oss << "Mixer-Volume " << Mixer_GetVolume();
+                    ShowText(hWnd, oss.str());
                 }
             }
             break;
@@ -1935,12 +1950,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 if(pSetting != NULL)
                 {
                     pSetting->SetValue(lParam);
-                    //sprintf(Text, "BT-Volume %d", pSetting->GetValue() / 10);
                 }
                 else
                 {
-                    strcpy(Text, "Volume not supported");
-                    ShowText(hWnd, Text);
+                    ShowText(hWnd, "Volume not supported");
                 }
             }
             else
@@ -1948,8 +1961,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 extern void Mixer_SetVolume(long volume);
             
                 Mixer_SetVolume(lParam);
-                sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
-                ShowText(hWnd, Text);
+                ostringstream oss;
+                oss << "Mixer-Volume " << Mixer_GetVolume();
+                ShowText(hWnd, oss.str());
             }
             break;
     
@@ -2193,8 +2207,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_SLEEPMODE:
-            UpdateSleepMode(&SMState, Text);
-            ShowText(hWnd, Text);
+            ShowText(hWnd, UpdateSleepMode(&SMState));
             break;
         
         case IDM_AUTODETECT:
@@ -2502,22 +2515,26 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                strcpy(Text, "Overscan");
+                string Text("Overscan");
                 if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
                 {
-                    sprintf(&Text[strlen(Text)], "\nTop %u", pSetting->GetValue());
+                    Text +=  "\nTop ";
+                    Text += ToString(pSetting->GetValue());
                 }
                 if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
                 {
-                    sprintf(&Text[strlen(Text)], "\nBottom %u", pSetting->GetValue());
+                    Text +=  "\nBottom ";
+                    Text += ToString(pSetting->GetValue());
                 }
                 if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
                 {
-                    sprintf(&Text[strlen(Text)], "\nLeft %u", pSetting->GetValue());
+                    Text +=  "\nLeft ";
+                    Text += ToString(pSetting->GetValue());
                 }
                 if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
                 {
-                    sprintf(&Text[strlen(Text)], "\nRight %u", pSetting->GetValue());
+                    Text +=  "\nRight ";
+                    Text += ToString(pSetting->GetValue());
                 }
                 OSD_ShowText(Text, 0);
             }
@@ -2941,9 +2958,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             // Such as macros in software such as Girder, etc.
             if (lParam)
             {
-                lstrcpy(Text, "");
-                GlobalGetAtomName((ATOM) lParam, Text, sizeof(Text));
-                OSD_ShowTextOverride(Text, 0);
+                vector<char> Buffer(512);
+                GlobalGetAtomName((ATOM) lParam, &Buffer[0], 512);
+                OSD_ShowTextOverride(&Buffer[0], 0);
                 GlobalDeleteAtom((ATOM) lParam);
             }
             else
@@ -3524,28 +3541,29 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
                 {
-                    strcpy(Text, "Volume Mute");
+                    StatusBar_ShowText(STATUS_TEXT, "Volume Mute");
                 }
                 else if (!Providers_GetCurrentSource()->IsVideoPresent())
                 {
-                    strcpy(Text, "No Video Signal Found");
+                    StatusBar_ShowText(STATUS_TEXT, "No Video Signal Found");
                 }
                 else
                 {
-                    memset(Text,0,128);
-                    strncpy(Text, Providers_GetCurrentSource()->GetStatus(),128);
-                    if(Text[0] == 0x00)
+                    string Text(Providers_GetCurrentSource()->GetStatus());
+                    if(Text.empty())
                     {
                         if(Providers_GetCurrentSource()->IsInTunerMode())
                         {
-                            strncpy(Text, Channel_GetName(),128);
+                            Text = Channel_GetName();
                         }
                     }
+                    StatusBar_ShowText(STATUS_TEXT, Text);
                 }
-                StatusBar_ShowText(STATUS_TEXT, Text);
 
-                sprintf(Text, "%d DF/S", pPerf->GetDroppedFieldsLastSecond());
-                StatusBar_ShowText(STATUS_FPS, Text);
+                ostringstream strstream;
+                strstream << pPerf->GetDroppedFieldsLastSecond();
+                strstream << " DF/S";
+                StatusBar_ShowText(STATUS_FPS, strstream.str());
             }
             break;
         //-------------------------------
@@ -3702,7 +3720,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 case SM_ChangeMode:
                     // Update & Restart main timing
                     SMState.State = SM_UpdateMode;
-                    UpdateSleepMode(&SMState, Text);
+                    UpdateSleepMode(&SMState);
                     break;
                 default:
                     ; //NEVER_GET_HERE;
@@ -5128,10 +5146,10 @@ void Overlay_Start(HWND hWnd)
 
 //---------------------------------------------------------------------------
 // Show text on both OSD and statusbar
-void ShowText(HWND hWnd, LPCTSTR szText)
+void ShowText(HWND hWnd, const string& Text)
 {
-    StatusBar_ShowText(STATUS_TEXT, szText);
-    OSD_ShowText(szText, 0);
+    StatusBar_ShowText(STATUS_TEXT, Text);
+    OSD_ShowText(Text, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -5478,26 +5496,6 @@ void Cursor_VTUpdate(int x, int y)
     }
 }
 
-void SetDirectoryToExe()
-{
-    char szDriverPath[MAX_PATH];
-    char* pszName;
-
-    if (!GetModuleFileName(NULL, szDriverPath, sizeof(szDriverPath)))
-    {
-        ErrorBox("Cannot get module file name");
-        return;
-    }
-
-    pszName = szDriverPath + strlen(szDriverPath);
-    while (pszName >= szDriverPath && *pszName != '\\')
-    {
-        *pszName-- = 0;
-    }
-
-    SetCurrentDirectory(szDriverPath);
-}
-
 /** Process command line parameters and return them
 
     Routine process the command line and returns them in argv/argc format.
@@ -5575,12 +5573,14 @@ void SetTray(BOOL Way)
     }
 }
 
-void SetTrayTip(const char* ChannelName)
+void SetTrayTip(const string& ChannelName)
 {
     if (bIconOn)
     {
+        string Tip("DScaler - ");
+        Tip += ChannelName;
         nIcon.uFlags = NIF_TIP;
-        sprintf(nIcon.szTip, "DScaler - %s", ChannelName);
+        strncpy(nIcon.szTip, Tip.c_str(), 128);
         SetWindowText(nIcon.hWnd, nIcon.szTip);
         Shell_NotifyIcon(NIM_MODIFY, &nIcon);
     }

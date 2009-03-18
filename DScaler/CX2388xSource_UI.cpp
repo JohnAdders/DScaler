@@ -41,6 +41,8 @@
 #include "SettingsPerChannel.h"
 #include "LibraryCache.h"
 
+using namespace std;
+
 extern const char *TunerNames[TUNER_LASTONE];
 
 long EnableCxCancelButton = 1;
@@ -49,7 +51,6 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
 {
     int i;
     int nIndex;
-    char buf[128];
     static CCX2388xSource* pThis;
     CCX2388xCard* pCard = NULL;
     char szCardId[9] = "n/a     ";
@@ -60,58 +61,61 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     switch (message)
     {
     case WM_INITDIALOG:
-        pThis = (CCX2388xSource*)lParam;
-        sprintf(buf, "Setup card %s", pThis->IDString());
-        SetWindowText(hDlg, buf);
-        Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCxCancelButton);
-        
-        SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
-        for(i = 0; i < pThis->m_pCard->GetMaxCards(); i++)
         {
-            int nIndex;
-            nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pCard->GetCardName((eCX2388xCardId)i));
-            SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
-            if(i == pThis->m_CardType->GetValue())
+            pThis = (CCX2388xSource*)lParam;
+            string buf("Setup card ");
+            buf += pThis->IDString();
+            SetWindowText(hDlg, buf.c_str());
+            Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCxCancelButton);
+            
+            SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
+            for(i = 0; i < pThis->m_pCard->GetMaxCards(); i++)
             {
-                SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
+                int nIndex;
+                nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pCard->GetCardName((eCX2388xCardId)i).c_str());
+                SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
+                if(i == pThis->m_CardType->GetValue())
+                {
+                    SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
+                }
             }
-        }
 
-        SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
-        for(i = 0; i < TUNER_LASTONE; i++)
-        {
-            nIndex = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
-            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
-        }
+            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
+            for(i = 0; i < TUNER_LASTONE; i++)
+            {
+                nIndex = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
+                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
+            }
 
-        SetFocus(hDlg);
-        // Update the tuner combobox after the SetFocus
-        // because SetFocus modifies this combobox
-        for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
-        {
-          i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
-          if (i == pThis->m_TunerType->GetValue() )
-          {          
-            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
-          }
-        }
+            SetFocus(hDlg);
+            // Update the tuner combobox after the SetFocus
+            // because SetFocus modifies this combobox
+            for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
+            {
+                i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
+                if (i == pThis->m_TunerType->GetValue() )
+                {          
+                    SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
+                }
+            }
 
-        pCard = pThis->GetCard();
-        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, "CX2388x");
-        sprintf(szVendorId,"%04X", pCard->GetVendorId());
-        SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
-        sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
-        SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
-        
-        dwCardId = pCard->GetSubSystemId();
-        if(dwCardId != 0 && dwCardId != 0xffffffff)
-        {
-            sprintf(szCardId,"%8X", dwCardId);
-        }
-        
-        SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
+            pCard = pThis->GetCard();
+            SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, "CX2388x");
+            sprintf(szVendorId,"%04X", pCard->GetVendorId());
+            SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
+            sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
+            SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
+            
+            dwCardId = pCard->GetSubSystemId();
+            if(dwCardId != 0 && dwCardId != 0xffffffff)
+            {
+                sprintf(szCardId,"%8X", dwCardId);
+            }
+            
+            SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
 
-        return TRUE;
+            return TRUE;
+        }
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))
@@ -125,7 +129,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
 
             // Update the string name value to reflect the newly selected card.
             i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
-            pThis->m_CardName->SetValue(reinterpret_cast<long>(pThis->GetCard()->GetCardName((eCX2388xCardId) i )));
+            pThis->m_CardName->SetValue(reinterpret_cast<long>(pThis->GetCard()->GetCardName((eCX2388xCardId) i ).c_str()));
 
             WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
@@ -154,7 +158,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                 for(i = 0; i < pThis->m_pCard->GetMaxCards(); i++)
                 {
                     int nIndex;
-                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pCard->GetCardName((eCX2388xCardId)i));
+                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pCard->GetCardName((eCX2388xCardId)i).c_str());
                     SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
                     if(i == CardId)
                     {
@@ -194,7 +198,6 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
 {
     int i;
     MENUITEMINFO MenuItemInfo;
-    char Buffer[265];
 
     // set up the input menu
     for(i = 0;i < m_pCard->GetNumInputs(); ++i)
@@ -206,12 +209,11 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
 
         // get the size of the string
         GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
-        // set the buffer and get the current string
-        MenuItemInfo.dwTypeData = Buffer;
         GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
         // create the new string and correct the menu
-        sprintf(Buffer, "%s\tCtrl+Alt+F%d",m_pCard->GetInputName(i), i + 1);
-        MenuItemInfo.cch = strlen(Buffer);
+        string Buffer(MakeString() << m_pCard->GetInputName(i) << "\tCtrl+Alt+F" << i + 1);
+        MenuItemInfo.cch = Buffer.length();
+        MenuItemInfo.dwTypeData = &Buffer[0];
         SetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
         
         // enable the menu and check it appropriately

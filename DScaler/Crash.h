@@ -56,7 +56,7 @@ public:
     ~DScalerThread();
     const char* GetName() const;
 private:
-    string m_Name;
+    std::string m_Name;
     _se_translator_function m_OldTranslator;
 
 };

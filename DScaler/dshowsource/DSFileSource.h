@@ -41,7 +41,7 @@ public:
     void CreateSettings(LPCSTR IniSection);
 
     BOOL IsAccessAllowed();
-    BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
+    BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList);
 
     ISetting* GetBrightness(){return NULL;};
     ISetting* GetContrast(){return NULL;};
@@ -58,7 +58,7 @@ public:
     ISetting* GetVDelay() {return NULL;};
     void SetAspectRatioData();
 
-    LPCSTR GetStatus();
+    std::string GetStatus();
     void HandleTimerMessages(int TimerId);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     
@@ -74,12 +74,12 @@ public:
     int  NumInputs(eSourceInputType InputType) { return 0; };
     BOOL SetInput(eSourceInputType InputType, int Nr) { return FALSE; };
     int GetInput(eSourceInputType InputType) { return -1; };
-    const char* GetInputName(eSourceInputType InputType, int Nr) { return NULL; };
+    std::string GetInputName(eSourceInputType InputType, int Nr) { return ""; };
     BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
     
     void UpdateMenu();
     void SetMenu(HMENU hMenu);
-    LPCSTR GetMenuLabel();
+    std::string GetMenuLabel();
 
     void Start();
 
@@ -96,8 +96,6 @@ protected:
 private:
     ///the file this source uses
     std::string m_filename;
-    ///used as a temporary storage of status text
-    std::string m_status;
 };
 
 #endif // !defined(AFX_DSFILESOURCE_H__C14F892B_5440_4F47_9EEE_EA140CA9534A__INCLUDED_)

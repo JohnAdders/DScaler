@@ -1999,7 +1999,7 @@ void __cdecl OSD_Redraw(struct HWND__ *,struct HDC__ *)
 {
 }
 
-void __cdecl OSD_ShowTextPersistent(struct HWND__ *,char const *,double)
+void __cdecl OSD_ShowTextPersistent(struct HWND__ *,const string&,double)
 {
 }
 
@@ -2012,6 +2012,6 @@ int __cdecl GetDisplayAreaRect(struct HWND__ *,struct tagRECT *, BOOL)
     return FALSE;
 }
 
-void __cdecl OSD_ShowTextPersistent(char const *,double)
+void __cdecl OSD_ShowTextPersistent(const string&,double)
 {
 }

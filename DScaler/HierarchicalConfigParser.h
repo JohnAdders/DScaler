@@ -26,10 +26,6 @@
 #ifndef __HIERARCHICALCONFIGPARSER_H___
 #define __HIERARCHICALCONFIGPARSER_H___
 
-#include <sstream>
-#include <list>
-#include <vector>
-
 /**
 * A configuration file parser for parsing text files similar to standard
 * INI files used in 16-bit Windows.

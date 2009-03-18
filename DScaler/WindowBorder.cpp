@@ -34,6 +34,8 @@
 #include "resource.h"
 #include "DebugLog.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;

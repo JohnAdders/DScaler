@@ -42,8 +42,8 @@ class CTiffHelper : public CStillSourceHelper
 {
 public:
     CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving);
-    BOOL OpenMediaFile(LPCSTR FileName);
-    void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context);
+    BOOL OpenMediaFile(const std::string& FileName);
+    void SaveSnapshot(const std::string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const std::string& Context);
 
 private:
     eTIFFClass  m_FormatSaving;

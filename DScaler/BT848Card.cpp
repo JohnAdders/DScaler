@@ -40,6 +40,8 @@
 #include "DScaler.h"
 #include "VBI.h"
 
+using namespace std;
+
 //===========================================================================
 // CCIR656 Digital Input Support
 //
@@ -101,15 +103,14 @@ CBT848Card::CBT848Card(SmartPtr<CHardwareDriver> pDriver) :
     CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
     m_Tuner(NULL),
-    m_CurrentInput(0)
+    m_CurrentInput(0),
+    m_TunerType("n/a"),
+    m_AudioDecoderType("n/a"),
+    m_I2CInitialized(false),
+    m_I2CBus(new CI2CBusForLineInterface(this)),
+    m_AudioControls(new CAudioControls()),
+    m_AudioDecoder(new CAudioDecoder())
 {
-    strcpy(m_TunerType,"n/a");
-    strcpy(m_AudioDecoderType,"n/a");
-
-    m_I2CInitialized = false;
-    m_I2CBus = new CI2CBusForLineInterface(this);
-    m_AudioControls = new CAudioControls();
-    m_AudioDecoder = new CAudioDecoder();
 }
 
 CBT848Card::~CBT848Card()
@@ -244,7 +245,7 @@ eTVCardId CBT848Card::GetCardType()
     return m_CardType;
 }
 
-LPCSTR CBT848Card::GetCardName(eTVCardId CardId)
+string CBT848Card::GetCardName(eTVCardId CardId)
 {
     return m_TVCards[CardId].szName;
 }
@@ -318,7 +319,7 @@ void CBT848Card::SetBDelay(BYTE BDelay)
     WriteByte(BT848_BDELAY, BDelay);
 }
 
-LPCSTR CBT848Card::GetChipType()
+string CBT848Card::GetChipType()
 {
     switch (m_DeviceId)
     {
@@ -334,7 +335,7 @@ LPCSTR CBT848Card::GetChipType()
     return "n/a";
 }
 
-LPCSTR CBT848Card::GetTunerType()
+string CBT848Card::GetTunerType()
 {
     return m_TunerType;
 }
@@ -859,7 +860,7 @@ void CBT848Card::StartCapture(BOOL bCaptureVBI)
 }
 
 
-LPCSTR CBT848Card::GetInputName(int nInput)
+string CBT848Card::GetInputName(int nInput)
 {
     if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
     {
@@ -881,17 +882,17 @@ BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, 
     {
     case WM_INITDIALOG:
         pThis = (CBT848Card*)lParam; 
-        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType());
-        sprintf(szVendorId,"%04X", pThis->GetVendorId());
+        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType().c_str());
+        sprintf_s(szVendorId, 9, "%04X", pThis->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
-        sprintf(szDeviceId,"%04X", pThis->GetDeviceId());
+        sprintf_s(szDeviceId, 9, "%04X", pThis->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
-        SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType());
+        SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType().c_str());
         SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, ""); // FIXME pThis->GetAudioDecoderType());
         dwCardId = pThis->GetSubSystemId();
         if(dwCardId != 0 && dwCardId != 0xffffffff)
         {
-            sprintf(szCardId,"%8X", dwCardId);
+            sprintf_s(szCardId, 9, "%8X", dwCardId);
         }
         SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         return TRUE;

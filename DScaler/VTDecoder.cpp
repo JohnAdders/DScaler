@@ -41,7 +41,7 @@
 #include "VTDecoder.h"
 //#include "DebugLog.h"
 
-
+using namespace std;
 /*
  *  This class is programmed to be multi-thread safe
  */
@@ -1704,25 +1704,20 @@ void CVTDecoder::CreateTestDisplayPage(TVTPage* pBuffer)
 }
 
 
-void CVTDecoder::GetStatusDisplay(LPSTR lpBuffer, LONG nLength)
+string CVTDecoder::GetStatusDisplay()
 {
-    if (nLength > 21)
-    {
-        nLength = 21;
-    }
-
-    ASSERT(nLength > 0);
-
-    lpBuffer[--nLength] = '\0';
+    vector<char> Buffer(sizeof(m_BroadcastServiceData.StatusDisplay) + 1);
     EnterCriticalSection(&m_ServiceDataStoreMutex);
-    memcpy(lpBuffer, m_BroadcastServiceData.StatusDisplay, nLength);
+    memcpy(&Buffer[0], m_BroadcastServiceData.StatusDisplay, sizeof(m_BroadcastServiceData.StatusDisplay));
     LeaveCriticalSection(&m_ServiceDataStoreMutex);
-    CheckParity((BYTE*)lpBuffer, nLength, TRUE);
+    CheckParity((BYTE*)&Buffer[0], sizeof(m_BroadcastServiceData.StatusDisplay), TRUE);
 
-    while (nLength-- > 0 && lpBuffer[nLength] == 0x20)
+    int nLength(sizeof(m_BroadcastServiceData.StatusDisplay));
+    while (nLength-- > 0 && Buffer[nLength] == 0x20)
     {
-        lpBuffer[nLength] = '\0';
+        Buffer[nLength] = '\0';
     }
+    return &Buffer[0];
 }
 
 

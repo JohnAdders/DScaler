@@ -27,8 +27,7 @@
 #include "pinenum.h"
 #include <dvdmedia.h>
 
-//#ifdef _DEBUG
-
+using namespace std;
 
 HRESULT AddToRot(IUnknown *pUnkGraph, DWORD *pdwRegister)
 {

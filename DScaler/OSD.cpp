@@ -42,6 +42,7 @@
 #include "VBI_VideoText.h"
 #include "VBI_VPSdecode.h"
 
+using namespace std;
 
 #define OSD_COLOR_TITLE     RGB(255,150,150)
 #define OSD_COLOR_SECTION   RGB(150,150,255)
@@ -207,18 +208,18 @@ void OSD_Exit()
 
 //---------------------------------------------------------------------------
 // External: Displays the specified OSD text
-void OSD_ShowText(LPCTSTR szText, double dSize, BOOL bPersistent, BOOL bOverride)
+void OSD_ShowText(const string& Text, double dSize, BOOL bPersistent, BOOL bOverride)
 {
     if (bOverride)
     {
-        OSD_bOverride = (*szText != '\0');
+        OSD_bOverride = !Text.empty();
     }
     else if (OSD_bOverride)
     {
         return;
     }
 
-    if (*szText == '\0')
+    if (Text.empty())
     {
         OSD_Clear();
         return;
@@ -232,10 +233,10 @@ void OSD_ShowText(LPCTSTR szText, double dSize, BOOL bPersistent, BOOL bOverride
     pOSDCommand->uFlags = 0;
     pOSDCommand->dSize = dSize;
 
-    ULONG nDataLength = strlen(szText) + 1;
+    ULONG nDataLength = Text.length() + 1;
 
     LPSTR pszText = (LPSTR)malloc(nDataLength);
-    memcpy(pszText, szText, nDataLength);
+    memcpy(pszText, Text.c_str(), nDataLength);
 
     pOSDCommand->dwParam = (DWORD)pszText;
 
@@ -251,9 +252,9 @@ void OSD_ShowText(LPCTSTR szText, double dSize, BOOL bPersistent, BOOL bOverride
 //---------------------------------------------------------------------------
 // External: Displayed specified OSD text without autohide timer.
 // External: Stays on screen until a new OSD message replaces current OSD message.
-void OSD_ShowTextPersistent(LPCTSTR szText, double dSize)
+void OSD_ShowTextPersistent(const string& Text, double dSize)
 {
-    OSD_ShowText(szText, dSize, TRUE);
+    OSD_ShowText(Text, dSize, TRUE);
 }
 
 
@@ -262,9 +263,9 @@ void OSD_ShowTextPersistent(LPCTSTR szText, double dSize)
 // External: to override all other OSD text showings (done by the above functions).
 // External: This is useful for external programs to override DScaler's own OSD text
 // External: for its own controls.
-void OSD_ShowTextOverride(LPCTSTR szText, double dSize)
+void OSD_ShowTextOverride(const string& Text, double dSize)
 {
-    OSD_ShowText(szText, dSize, FALSE, TRUE);
+    OSD_ShowText(Text, dSize, FALSE, TRUE);
 }
 
 
@@ -952,7 +953,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     OSD_AddText("Source", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Video input
-    OSD_AddText(pSource != NULL ? pSource->GetStatus() : "", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(pSource != NULL ? pSource->GetStatus().c_str() : "", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Audio mute
     if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
@@ -1775,7 +1776,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
     pTestPattern = pCalibration->GetCurrentTestPattern();
     if (pTestPattern != NULL)
     {
-        OSD_AddText(pTestPattern->GetName(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
+        OSD_AddText(pTestPattern->GetName().c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
     }
 
     if (pCalibration->IsRunning() && (pTestPattern != NULL))

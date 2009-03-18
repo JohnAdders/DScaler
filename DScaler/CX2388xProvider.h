@@ -54,7 +54,7 @@ private:
     /// creates the system accesable memory to be used by all cards
     BOOL MemoryInit(CHardwareDriver* pHardwareDriver);
     void MemoryFree();
-    vector< SmartPtr<CCX2388xSource> > m_Sources;
+    std::vector< SmartPtr<CCX2388xSource> > m_Sources;
     /// Memory used for the RISC code
     SmartPtr<CContigMemory> m_RiscDMAMem;
     /// Memory used for captured frames

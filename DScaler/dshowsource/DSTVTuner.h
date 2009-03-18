@@ -30,8 +30,7 @@
 class CDShowTvTunerException: public CDShowException
 {
 public:
-    CDShowTvTunerException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
-    CDShowTvTunerException(CString msg):CDShowException(msg) {};
+    CDShowTvTunerException(const char* msg,HRESULT hr = S_OK):CDShowException(msg,hr) {};
 };
 
 

@@ -53,7 +53,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\api,.\"
-				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT"
+				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT;TIXML_USE_STL;"
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="0"
@@ -157,7 +157,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\api,.\"
-				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT"
+				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT;TIXML_USE_STL"
 				ExceptionHandling="2"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
@@ -264,7 +264,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\api,.\"
-				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE;VS80_EXPRESS_BUILD;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT"
+				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM;VS80_EXPRESS_BUILD;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT;TIXML_USE_STL"
 				ExceptionHandling="2"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
@@ -373,7 +373,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\api,.\"
-				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE;VS80_EXPRESS_BUILD;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT"
+				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM;VS80_EXPRESS_BUILD;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT;WANT_SAA713X_SUPPORT;WANT_BT8X8_SUPPORT;TIXML_USE_STL"
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
@@ -5144,6 +5144,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PathHelpers.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Pattern.cpp"
 				>
 				<FileConfiguration
@@ -8577,6 +8581,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DScalerUtils.h"
+				>
+			</File>
+			<File
 				RelativePath="dshowsource\DSFileSource.h"
 				>
 			</File>
@@ -8814,6 +8822,10 @@
 			</File>
 			<File
 				RelativePath=".\ParsingCommon.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PathHelpers.h"
 				>
 			</File>
 			<File

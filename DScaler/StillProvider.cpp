@@ -25,14 +25,15 @@
 #include "resource.h"
 #include "StillProvider.h"
 #include "Providers.h"
+#include "PathHelpers.h"
 
+using namespace std;
 
 #define MAX_SNAPSHOT_FILES 10000
 
 
 CStillProvider::CStillProvider()
 {
-    char PlayList[MAX_PATH];
     CStillSource* pStillSource;
 
     pStillSource = new CStillSource("Still");
@@ -40,8 +41,8 @@ CStillProvider::CStillProvider()
 
     pStillSource = new CStillSource("Patterns");
     m_StillSources.push_back(pStillSource);
-    GetModuleFileName (NULL, PlayList, sizeof(PlayList));
-    strcpy(strrchr(PlayList, '\\'), "\\patterns\\pj_calibr.d3u");
+    string PlayList(GetInstallationPath());
+    PlayList += "\\patterns\\pj_calibr.d3u";
     pStillSource->LoadPlayList(PlayList);
 
     pStillSource = new CStillSource("Snapshots");
@@ -49,8 +50,8 @@ CStillProvider::CStillProvider()
 
     pStillSource = new CStillSource("DScaler intro");
     m_StillSources.push_back(pStillSource);
-    GetModuleFileName (NULL, PlayList, sizeof(PlayList));
-    strcpy(strrchr(PlayList, '\\'), "\\DScaler.d3u");
+    PlayList = GetInstallationPath();
+    PlayList += "\\DScaler.d3u";
     pStillSource->OpenMediaFile(PlayList, TRUE);
     pStillSource->SetNavigOnly(TRUE);
 }

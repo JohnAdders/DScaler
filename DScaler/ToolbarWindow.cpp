@@ -35,6 +35,8 @@
 
 #include "DScaler.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -1170,7 +1172,7 @@ BOOL CToolbarChild::SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonT
 {
     HWND hWndItem = GetDlgItem(hWnd, uItemID); 
     char szID[20];
-    sprintf(szID,"#%u", uItemID);
+    sprintf_s(szID,20, "#%u", uItemID);
     
     return SkinWindow(hWndItem, szID, sIniEntry, ButtonType, sSection, sIniFile);
 }
@@ -1178,7 +1180,7 @@ BOOL CToolbarChild::SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonT
 BOOL CToolbarChild::RemoveSkinDlgItem(UINT uItemID)
 {
     char szID[20];
-    sprintf(szID,"#%u", uItemID);
+    sprintf_s(szID,20, "#%u", uItemID);
 
     return RemoveSkin(szID);
 }

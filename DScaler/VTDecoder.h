@@ -79,7 +79,7 @@ public:
     BYTE GetCharacterSubsetCode();
 
     // Get the status display in the broadcast service data
-    void GetStatusDisplay(LPSTR lpBuffer, LONG nLength);
+    std::string GetStatusDisplay();
 
     // Get the network ID code from P8/30/1
     WORD GetNetworkIDFromP8301();

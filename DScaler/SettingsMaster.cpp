@@ -31,6 +31,8 @@
 #include "ProgramList.h"
 #include "DebugLog.h"
 
+using namespace std;
+
 CSettingsMaster::CSettingsMaster() 
 {
 }

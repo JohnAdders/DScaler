@@ -29,6 +29,8 @@
 #include "DScaler.h"
 #include "Providers.h"
 
+using namespace std;
+
 // From DScaler.cpp .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
 extern BOOL bIsFullScreen;

@@ -31,6 +31,8 @@
 #include "..\..\..\DSRend\DSRend.h"
 #include "debuglog.h"
 
+using namespace std;
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;

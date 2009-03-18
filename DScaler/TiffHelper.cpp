@@ -29,6 +29,7 @@
 #include "OutThreads.h"
 #include "..\ThirdParty\LibTiff\tiffio.h"
 
+using namespace std;
 
 #define LIMIT_RGB(x)    (((x)<0)?0:((x)>255)?255:(x))
 #define LIMIT_Y(x)      (((x)<16)?16:((x)>235)?235:(x))
@@ -82,7 +83,7 @@ CTiffHelper::CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving) :
     m_FormatSaving = FormatSaving;
 }
 
-BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
+BOOL CTiffHelper::OpenMediaFile(const string& FileName)
 {
     int y1, y2, cr, cb, r, g, b, i, j;
     BYTE* pFrameBuf;
@@ -106,7 +107,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     int LinePitch;
 
     // Open the file
-    tif = TIFFOpen(FileName, "r");
+    tif = TIFFOpen(FileName.c_str(), "r");
     if (!tif) {
         return FALSE;
     }
@@ -307,7 +308,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 }
 
 
-void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context)
+void CTiffHelper::SaveSnapshot(const string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const string& Context)
 {
     int y, cr, cb, r, g, b;
     TIFF* tif;
@@ -390,7 +391,7 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     }
 
     // Open the file
-    tif = TIFFOpen(FilePath, "w");
+    tif = TIFFOpen(FilePath.c_str(), "w");
     if (!tif)
     {
         _TIFFfree(buffer);
@@ -405,7 +406,7 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
 
     if (!TIFFSetField(tif, TIFFTAG_SUBFILETYPE, 0) ||
         !TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8) ||                 // 8 bits for each channel
-        !TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, Context) ||
+        !TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, Context.c_str()) ||
         !TIFFSetField(tif, TIFFTAG_IMAGELENGTH, Height) ||
         !TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG) ||         // RGB bytes are interleaved
         !TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, Height) ||             // Whole image is one strip

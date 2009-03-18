@@ -51,8 +51,8 @@ public:
     BOOL IsActive() const;
     void SetActive(BOOL Active);
 private:
-    string m_Name;
-    string m_EPGName;
+    std::string m_Name;
+    std::string m_EPGName;
     DWORD m_Freq;
     int m_Chan;
     eVideoFormat m_Format;
@@ -73,7 +73,7 @@ public :
 
 private:
     //Just in case I change my mind later on the type of this
-    typedef vector<CChannel*> Channels;
+    typedef std::vector<CChannel*> Channels;
 
 public :
     CChannelList();
@@ -234,7 +234,7 @@ protected :
     BOOL ReadXMLImpl(FILE*);
 
 private:
-    string m_szName;
+    std::string m_szName;
     eVideoFormat m_Format;
 };
 
@@ -243,7 +243,7 @@ class CCountryList
 {
 private:
     //could be a map too..would be better for lookups
-    typedef vector<CCountryChannels*> Countries;
+    typedef std::vector<CCountryChannels*> Countries;
 
 public :
     CCountryList();    

@@ -18,8 +18,6 @@
 
 #include "stdafx.h"
 #include "SettingValue.h"
-#include <string>
-#include <sstream>
 
 
 //////////////////////////////////////////////////////////////////////////

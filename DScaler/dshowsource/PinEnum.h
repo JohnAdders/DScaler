@@ -160,8 +160,7 @@ public:
 class CDShowPinEnumException :public CDShowException
 {
 public:
-    CDShowPinEnumException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
-    CDShowPinEnumException(CString msg):CDShowException(msg) {};
+    CDShowPinEnumException(const char* msg,HRESULT hr = S_OK):CDShowException(msg,hr) {};
 };
 
 /**

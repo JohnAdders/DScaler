@@ -65,7 +65,7 @@ public:
     /**
      * @param name name used in the tree
      */
-    CTreeSettingsGeneric(CString name,vector<CSimpleSetting*> settings); 
+    CTreeSettingsGeneric(CString name,std::vector<CSimpleSetting*> settings); 
     ~CTreeSettingsGeneric();
 
 // Dialog Data

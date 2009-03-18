@@ -254,7 +254,7 @@ public:
     BOOL ApplyFilters(CAspectRectangles &ar, BOOL allowReadjust);
     void BuildFilterChain(int SrcWidth, int SrcHeight);
 protected:
-    vector< SmartPtr<CAspectFilter> > m_FilterChain;
+    std::vector< SmartPtr<CAspectFilter> > m_FilterChain;
 };
 
 #endif

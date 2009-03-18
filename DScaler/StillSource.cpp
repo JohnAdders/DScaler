@@ -39,7 +39,9 @@
 #include "Dialogs.h"
 #include "OSD.h"
 #include "MultiFrames.h"
+#include "PathHelpers.h"
 
+using namespace std;
 
 #define TIMER_SLIDESHOW 50
 
@@ -75,28 +77,31 @@ extern long NumFilters;
 extern FILTER_METHOD* Filters[];
 
 
-void BuildDScalerContext(char* buf)
+string BuildDScalerContext()
 {
     int i;
     CSource* pSource = Providers_GetCurrentSource();
+    ostringstream oss;
 
-    sprintf(buf, "DScaler still\r\nTaken with %s", GetProductNameAndVersion());
+    oss << "DScaler still\r\nTaken with ";
+    oss << GetProductNameAndVersion();
     if (pSource != NULL)
     {
-        strcat(buf, "\r\nInput was ");
-        strcat(buf, pSource->GetStatus());
+        oss << "\r\nInput was ";
+        oss << pSource->GetStatus();
     }
-    strcat(buf, "\r\nDeinterlace mode was ");
-    strcat(buf, GetDeinterlaceModeName());
+    oss << "\r\nDeinterlace mode was ";
+    oss << GetDeinterlaceModeName();
     for (i = 0 ; i < NumFilters ; i++)
     {
         if (Filters[i]->bActive)
         {
-            strcat(buf, "\r\n");
-            strcat(buf, Filters[i]->szName);
-            strcat(buf, " was on");
+            oss << "\r\n";
+            oss << Filters[i]->szName;
+            oss << " was on";
         }
     }
+    return oss.str();
 }
 
 
@@ -106,7 +111,7 @@ CStillSourceHelper::CStillSourceHelper(CStillSource* pParent)
 }
 
 
-CPlayListItem::CPlayListItem(LPCSTR FileName) :
+CPlayListItem::CPlayListItem(const string& FileName) :
     m_FileName(FileName),
     m_FrameBuffer(NULL),
     m_FrameHeight(0),
@@ -119,7 +124,7 @@ CPlayListItem::CPlayListItem(LPCSTR FileName) :
     m_TimeStamp = time(0);
 }
 
-CPlayListItem::CPlayListItem(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, char* Context) :
+CPlayListItem::CPlayListItem(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const string& Context) :
     m_FileName("Still only in memory"),
     m_FrameBuffer(FrameBuffer),
     m_FrameHeight(FrameHeight),
@@ -132,18 +137,18 @@ CPlayListItem::CPlayListItem(BYTE* FrameBuffer, int FrameHeight, int FrameWidth,
     m_TimeStamp = time(0);
 }
 
-LPCSTR CPlayListItem::GetFileName()
+const string& CPlayListItem::GetFileName()
 {
-    return m_FileName.c_str();
+    return m_FileName;
 }
 
-void CPlayListItem::SetFileName(LPCSTR FileName)
+void CPlayListItem::SetFileName(const string& FileName)
 {
     m_FileName = FileName;
     m_FrameBuffer = NULL;
 }
 
-BOOL CPlayListItem::GetMemoryInfo(BYTE** pFrameBuffer, int* pFrameHeight, int* pFrameWidth, int* pLinePitch, BOOL* pSquarePixels, const char** pContext)
+BOOL CPlayListItem::GetMemoryInfo(BYTE** pFrameBuffer, int* pFrameHeight, int* pFrameWidth, int* pLinePitch, BOOL* pSquarePixels, string& pContext)
 {
     if (m_FrameBuffer != NULL)
     {
@@ -152,7 +157,7 @@ BOOL CPlayListItem::GetMemoryInfo(BYTE** pFrameBuffer, int* pFrameHeight, int* p
         *pFrameWidth = m_FrameWidth;
         *pLinePitch = m_LinePitch;
         *pSquarePixels = m_SquarePixels;
-        *pContext = m_Context.c_str();
+        pContext = m_Context;
         return TRUE;
     }
     else
@@ -191,12 +196,12 @@ void CPlayListItem::FreeBuffer()
     }
 }
 
-CStillSource::CStillSource(LPCSTR IniSection) :
+CStillSource::CStillSource(const string& IniSection) :
     CSource(0, IDC_STILL),
     m_Section(IniSection)
 {
-    m_IDString = "Still_" + std::string(IniSection);
-    CreateSettings(IniSection);
+    m_IDString = "Still_" + IniSection;
+    CreateSettings(IniSection.c_str());
     m_InitialWidth = 0;
     m_InitialHeight = 0;
     m_Width = 0;
@@ -231,13 +236,13 @@ CStillSource::~CStillSource()
     KillTimer(GetMainWnd(), TIMER_SLIDESHOW);
 }
 
-BOOL CStillSource::LoadPlayList(LPCSTR FileName)
+BOOL CStillSource::LoadPlayList(const string& FileName)
 {
     char BufferLine[512];
     char *Buffer;
     struct stat st;
     BOOL FirstItemAdded = FALSE;
-    FILE* Playlist = fopen(FileName, "r");
+    FILE* Playlist = fopen(FileName.c_str(), "r");
     if(Playlist != NULL)
     {
         while(!feof(Playlist))
@@ -278,19 +283,18 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
                 }
                 else
                 {
-                    char FilePath[MAX_PATH];
-                    const char* pStr = strrchr(FileName, '\\');
-                    if (pStr == NULL)
+                    string FilePath;
+                    size_t LastSlash(FileName.rfind('\\'));
+                    if(LastSlash != string::npos)
                     {
-                        strcpy(FilePath, FileName);
+                        FilePath = FileName.substr(0, LastSlash + 1);
+                        FilePath += Buffer;
                     }
                     else
                     {
-                        strncpy(FilePath, FileName, pStr - FileName + 1);
-                        FilePath[pStr - FileName + 1] = '\0';
-                        strcat(FilePath, Buffer);
+                        FilePath = FileName;
                     }
-                    if (!stat(FilePath, &st))
+                    if (!stat(FilePath.c_str(), &st))
                     {
                         CPlayListItem* Item = new CPlayListItem(FilePath);
                         m_PlayList.push_back(Item);
@@ -309,25 +313,25 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
     return FirstItemAdded;
 }
 
-BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
+BOOL CStillSource::OpenPictureFile(const string& FileName)
 {
     BOOL FileRead = FALSE;
     int h = m_Height;
     int w = m_Width;
 
-    if(strlen(FileName) > 4 && _stricmp(FileName + strlen(FileName) - 4, ".tif") == 0 ||
-        strlen(FileName) > 5 && _stricmp(FileName + strlen(FileName) - 5, ".tiff") == 0)
+    string Extension(GetExtension(FileName));
+
+    if(AreEqualInsensitive(Extension, "tif") || AreEqualInsensitive(Extension, "tiff"))
     {
         CTiffHelper TiffHelper(this, TIFF_CLASS_R);
         FileRead = TiffHelper.OpenMediaFile(FileName);
     }
-    else if(strlen(FileName) > 4 && _stricmp(FileName + strlen(FileName) - 4, ".pat") == 0)
+    else if(AreEqualInsensitive(Extension, "pat"))
     {
         CPatternHelper PatternHelper(this);
         FileRead = PatternHelper.OpenMediaFile(FileName);
     }
-    else if(strlen(FileName) > 4 && _stricmp(FileName + strlen(FileName) - 4, ".jpg") == 0 ||
-            strlen(FileName) > 5 && _stricmp(FileName + strlen(FileName) - 5, ".jpeg") == 0)
+    else if(AreEqualInsensitive(Extension, "jpg") || AreEqualInsensitive(Extension, "jpeg"))
     {
         CJpegHelper JpegHelper(this);
         FileRead = JpegHelper.OpenMediaFile(FileName);
@@ -398,7 +402,7 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 }
 
 
-BOOL CStillSource::OpenPictureMemory(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const char* Context)
+BOOL CStillSource::OpenPictureMemory(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const string& Context)
 {
     int h = m_Height;
     int w = m_Width;
@@ -429,7 +433,7 @@ BOOL CStillSource::OpenPictureMemory(BYTE* FrameBuffer, int FrameHeight, int Fra
 }
 
 
-BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
+BOOL CStillSource::OpenMediaFile(const string& FileName, BOOL NewPlayList)
 {
     int i;
 
@@ -443,7 +447,9 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 
     // test for the correct extension and work out the 
     // correct helper for the file type
-    if(strlen(FileName) > 4 && _stricmp(FileName + strlen(FileName) - 4, ".d3u") == 0)
+    string Extension(GetExtension(FileName));
+
+    if(AreEqualInsensitive(Extension, "d3u"))
     {
         if (LoadPlayList(FileName))
         {
@@ -482,7 +488,7 @@ BOOL CStillSource::ShowNextInPlayList()
     int FrameWidth;
     int LinePitch;
     BOOL SquarePixels;
-    const char* Context;
+    string Context;
     int Pos = m_Position;
 
     while(Pos < m_PlayList.size())
@@ -493,7 +499,7 @@ BOOL CStillSource::ShowNextInPlayList()
             m_PlayList[Pos]->SetSupported(TRUE);
             return TRUE;
         }
-        else if(m_PlayList[Pos]->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
+        else if(m_PlayList[Pos]->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, Context)
              && OpenPictureMemory(FrameBuffer, FrameHeight, FrameWidth, LinePitch, SquarePixels, Context))
         {
             m_Position = Pos;
@@ -516,7 +522,7 @@ BOOL CStillSource::ShowPreviousInPlayList()
     int FrameWidth;
     int LinePitch;
     BOOL SquarePixels;
-    const char* Context;
+    string Context;
     int Pos = m_Position;
 
     while(Pos >= 0)
@@ -527,7 +533,7 @@ BOOL CStillSource::ShowPreviousInPlayList()
             m_PlayList[Pos]->SetSupported(TRUE);
             return TRUE;
         }
-        else if(m_PlayList[Pos]->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
+        else if(m_PlayList[Pos]->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, Context)
              && OpenPictureMemory(FrameBuffer, FrameHeight, FrameWidth, LinePitch, SquarePixels, Context))
         {
             m_Position = Pos;
@@ -548,21 +554,21 @@ int CStillSource::GetPlaylistPosition()
     return m_Position;
 }
 
-BOOL CStillSource::FindFileName(time_t TimeStamp, char* FileName)
+BOOL CStillSource::FindFileName(time_t TimeStamp, string& FileName)
 {
     int n = 0;
     struct tm *ctm=localtime(&TimeStamp);
-    char extension[4];
+    string extension;
     struct stat st;
 
     switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
     {
     case STILL_TIFF_RGB:
     case STILL_TIFF_YCbCr:
-        strcpy(extension, "tif");
+        extension = ".tif";
         break;
     case STILL_JPEG:
-        strcpy(extension, "jpg");
+        extension = ".jpg";
         break;
     default:
         ErrorBox("Format of saving not supported.\nPlease change format in advanced settings");
@@ -572,14 +578,22 @@ BOOL CStillSource::FindFileName(time_t TimeStamp, char* FileName)
 
     while (n < 100)
     {
-        sprintf(FileName,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
-                SavingPath,
-                ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
-                // name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
-                // TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
-                extension);
+        // name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
+        // TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
+        ostringstream oss;
+        oss << SavingPath << "\\TV";
+        oss << setw(4) << setfill('0') << (ctm->tm_year+1900);
+        oss << setw(2) << setfill('0') << (ctm->tm_mon+1);
+        oss << setw(2) << setfill('0') << ctm->tm_mday;
+        oss << setw(2) << setfill('0') << ctm->tm_hour;
+        oss << setw(2) << setfill('0') << ctm->tm_min;
+        oss << setw(2) << setfill('0') << ctm->tm_sec;
+        oss << setw(2) << setfill('0') << n++;
+        oss << extension;
 
-        if (stat(FileName, &st))
+        FileName = oss.str();
+
+        if (stat(FileName.c_str(), &st))
         {
             break;
         }
@@ -595,8 +609,7 @@ BOOL CStillSource::FindFileName(time_t TimeStamp, char* FileName)
 
 void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch)
 {
-    char FilePath[MAX_PATH];
-    char Context[1024];
+    string FilePath;
     BYTE* pNewFrameBuffer = pFrameBuffer;
     int NewLinePitch = LinePitch;
     int NewFrameHeight = FrameHeight;
@@ -605,22 +618,24 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 
     if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
     {
-        char extension[4];
+        string extension;
         switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
         {
         case STILL_TIFF_RGB:
         case STILL_TIFF_YCbCr:
-            strcpy(extension, "tif");
+            extension = "tif";
             break;
         case STILL_JPEG:
-            strcpy(extension, "jpg");
+            extension = "jpg";
             break;
         default:
             ErrorBox("Format of saving not supported.\nPlease change format in advanced settings");
             return;
             break;
         }
-        sprintf(FilePath,"%s\\TV.%s", SavingPath, extension);
+        FilePath = SavingPath;
+        FilePath += "\\TV.";
+        FilePath += extension;
     }
     else
     {
@@ -632,7 +647,7 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 
     if (OSDForStills)
     {
-        OSD_ShowText(strrchr(FilePath, '\\') + 1, 0);
+        OSD_ShowText(StripPath(FilePath), 0);
     }
 
     m_SquarePixels = AspectSettings.SquarePixels;
@@ -670,7 +685,7 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
         }
     }
 
-    BuildDScalerContext(Context);
+    string Context = BuildDScalerContext();
 
     switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
     {
@@ -678,7 +693,7 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
         {
             if (m_SquarePixels)
             {
-                strcat(Context, SQUARE_MARK);
+                Context = SQUARE_MARK;
             }
             CTiffHelper TiffHelper(this, TIFF_CLASS_R);
             TiffHelper.SaveSnapshot(FilePath, NewFrameHeight, NewFrameWidth, pNewFrameBuffer, NewLinePitch, Context);
@@ -688,7 +703,7 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
         {
             if (m_SquarePixels)
             {
-                strcat(Context, SQUARE_MARK);
+                Context = SQUARE_MARK;
             }
             CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
             TiffHelper.SaveSnapshot(FilePath, NewFrameHeight, NewFrameWidth, pNewFrameBuffer, NewLinePitch, Context);
@@ -723,12 +738,10 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 
 void CStillSource::SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pAllocBuffer, LONG LinePitch)
 {
-    char Context[1024];
-
     if (pAllocBuffer != NULL)
     {
         LOG(2, "SaveSnapshotInMemory - start buf %d", pAllocBuffer);
-        BuildDScalerContext(Context);
+        string Context = BuildDScalerContext();
         CPlayListItem* Item = new CPlayListItem(pAllocBuffer, FrameHeight, FrameWidth, LinePitch, AspectSettings.SquarePixels, Context);
         m_PlayList.push_back(Item);
         if (m_PlayList.size() == 1)
@@ -747,9 +760,8 @@ void CStillSource::SaveInFile(int pos)
     int FrameWidth;
     int LinePitch;
     BOOL SquarePixels;
-    const char* Context2;
-    char Context[1024];
-    char FilePath[MAX_PATH];
+    string Context;
+    string FilePath;
     BYTE* pNewFrameBuffer;
     int NewLinePitch;
     int NewFrameHeight;
@@ -758,7 +770,7 @@ void CStillSource::SaveInFile(int pos)
 
     if ((pos < 0)
      || (pos >= m_PlayList.size())
-     || !m_PlayList[pos]->GetMemoryInfo(&pFrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context2))
+     || !m_PlayList[pos]->GetMemoryInfo(&pFrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, Context))
     {
         return;
     }
@@ -772,7 +784,7 @@ void CStillSource::SaveInFile(int pos)
 
     if (OSDForStills)
     {
-        OSD_ShowText(strrchr(FilePath, '\\') + 1, 0);
+        OSD_ShowText(StripPath(FilePath), 0);
     }
 
     pNewFrameBuffer = pStartFrame;
@@ -814,15 +826,13 @@ void CStillSource::SaveInFile(int pos)
         }
     }
 
-    strcpy(Context, Context2);
-
     switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
     {
     case STILL_TIFF_RGB:
         {
             if (m_SquarePixels)
             {
-                strcat(Context, SQUARE_MARK);
+                Context += SQUARE_MARK;
             }
             CTiffHelper TiffHelper(this, TIFF_CLASS_R);
             TiffHelper.SaveSnapshot(FilePath, NewFrameHeight, NewFrameWidth, pNewFrameBuffer, NewLinePitch, Context);
@@ -832,7 +842,7 @@ void CStillSource::SaveInFile(int pos)
         {
             if (m_SquarePixels)
             {
-                strcat(Context, SQUARE_MARK);
+                Context += SQUARE_MARK;
             }
             CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
             TiffHelper.SaveSnapshot(FilePath, NewFrameHeight, NewFrameWidth, pNewFrameBuffer, NewLinePitch, Context);
@@ -1280,7 +1290,7 @@ BOOL CStillSource::ReadNextFrameInFile()
     int FrameWidth;
     int LinePitch;
     BOOL SquarePixels;
-    const char* Context;
+    string Context;
     BOOL Realloc = FALSE;
     int CurrentPos = m_Position;
 
@@ -1293,7 +1303,7 @@ BOOL CStillSource::ReadNextFrameInFile()
             m_Position = m_NewFileReqPos;
             Realloc = TRUE;
         }
-        else if(m_PlayList[m_NewFileReqPos]->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
+        else if(m_PlayList[m_NewFileReqPos]->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, Context)
              && OpenPictureMemory(FrameBuffer, FrameHeight, FrameWidth, LinePitch, SquarePixels, Context))
         {
             m_PlayList[m_NewFileReqPos]->SetSupported(TRUE);
@@ -1421,22 +1431,21 @@ BOOL CStillSource::ReadNextFrameInFile()
     }
 }
 
-LPCSTR CStillSource::GetStatus()
+string CStillSource::GetStatus()
 {
     if(m_Position != -1 && m_PlayList.size() > 0)
     {
-        LPCSTR FileName;
-
-        FileName = strrchr(m_PlayList[m_Position]->GetFileName(), '\\');
-        if (FileName == NULL)
+        string status(m_PlayList[m_Position]->GetFileName());
+        if(!status.empty())
         {
-            FileName = m_PlayList[m_Position]->GetFileName();
+            std::string::size_type pos=status.rfind('\\');
+            if(pos!=std::string::npos)
+            {
+                status=status.substr(pos+1);
+            }
+            return status;
         }
-        else
-        {
-            ++FileName;
-        }
-        return FileName;
+        return "No file loaded";
     }
     else
     {
@@ -1476,7 +1485,7 @@ void CStillSource::FreeOriginalFrameBuffer()
     int FrameWidth;
     int LinePitch;
     BOOL SquarePixels;
-    const char* Context;
+    string Context;
     BOOL OkToFree = TRUE;
 
     if (m_OriginalFrameBuffer == NULL)
@@ -1488,7 +1497,7 @@ void CStillSource::FreeOriginalFrameBuffer()
         it != m_PlayList.end(); 
         ++it)
     {
-        if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
+        if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, Context)
         && (m_OriginalFrameBuffer == FrameBuffer))
         {
             OkToFree = FALSE;
@@ -1512,13 +1521,13 @@ void CStillSource::ClearPlayList()
     int FrameWidth;
     int LinePitch;
     BOOL SquarePixels;
-    const char* Context;
+    string Context;
 
     for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
         it != m_PlayList.end(); 
         ++it)
     {
-        if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
+        if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, Context)
         && (FrameBuffer != m_OriginalFrameBuffer))
         {
             (*it)->FreeBuffer();
@@ -1528,9 +1537,9 @@ void CStillSource::ClearPlayList()
     m_PlayList.clear();
 }
 
-BOOL CStillSource::SavePlayList(LPCSTR FileName)
+BOOL CStillSource::SavePlayList(const string& FileName)
 {
-    FILE* Playlist = fopen(FileName, "w");
+    FILE* Playlist = fopen(FileName.c_str(), "w");
     if (Playlist == NULL)
         return FALSE;
 
@@ -1556,14 +1565,14 @@ int CStillSource::CountMemoryUsage()
     int FrameWidth;
     int LinePitch;
     BOOL SquarePixels;
-    const char* Context;
+    string Context;
     int Count = 0;
 
     for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
         it != m_PlayList.end(); 
         ++it)
     {
-        if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context))
+        if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, Context))
         {
             Count += LinePitch * FrameHeight;
         }
@@ -1603,20 +1612,12 @@ void CStillSource::UpdateMenu()
          (it != m_PlayList.end()) && (j < MAX_PLAYLIST_SIZE); 
          ++it, ++j)
     {
-        LPCSTR FileName = strrchr((*it)->GetFileName(), '\\');
-        if (FileName == NULL)
-        {
-            FileName = (*it)->GetFileName();
-        }
-        else
-        {
-            ++FileName;
-        }
+        string FileName(StripPath((*it)->GetFileName()));
         MenuItemInfo.cbSize = sizeof (MenuItemInfo);
         MenuItemInfo.fMask = MIIM_TYPE | MIIM_STATE | MIIM_ID;
         MenuItemInfo.fType = MFT_STRING;
-        MenuItemInfo.dwTypeData = (LPSTR) FileName;
-        MenuItemInfo.cch = strlen (FileName);
+        MenuItemInfo.dwTypeData = &FileName[0];
+        MenuItemInfo.cch = FileName.length();
         MenuItemInfo.fState = (m_Position == j) ? MFS_CHECKED : MFS_UNCHECKED;
         MenuItemInfo.wID = IDM_PLAYLIST_FILES + j;
         InsertMenuItem(hMenuFiles, j, TRUE, &MenuItemInfo);
@@ -1723,7 +1724,7 @@ void CStillSource::HandleTimerMessages(int TimerId)
     }
 }
 
-LPCSTR CStillSource::GetMenuLabel()
+string CStillSource::GetMenuLabel()
 {
     return m_Section.c_str();
 }
@@ -2226,7 +2227,7 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
     return 0;
 }
 
-BOOL CStillSource::IsItemInList(LPCSTR FileName)
+BOOL CStillSource::IsItemInList(const string& FileName)
 {
     BOOL found = FALSE;
 
@@ -2234,7 +2235,7 @@ BOOL CStillSource::IsItemInList(LPCSTR FileName)
         it != m_PlayList.end(); 
         ++it)
     {
-        if (! strcmp((*it)->GetFileName(), FileName))
+        if ((*it)->GetFileName() == FileName)
         {
             found = TRUE;
             break;

@@ -65,8 +65,8 @@ BYTE VBI_Scan(BYTE* VBI_Buffer, UINT step, UINT* scanPos);
 BYTE VPS_Scan(const BYTE* VBI_Buffer, UINT step, UINT* scanPos, BOOL* pError);
 
 void VPS_ChannelChange();
-void VPS_GetChannelName(LPSTR lpBuffer, LONG nLength);
-void VPS_GetChannelNameFromCNI(LPSTR lpBuffer, LONG nLength);
+std::string VPS_GetChannelName();
+std::string VPS_GetChannelNameFromCNI();
 
 BYTE ReverseBitOrder( BYTE b );
 

@@ -27,6 +27,9 @@
 #include "DebugLog.h"
 #include <aclapi.h>
 #include "ErrorBox.h"
+#include "PathHelpers.h"
+
+using namespace std;
 
 // define this to force uninstallation of the NT driver on every destruction of the class.
 //#define ALWAYS_UNINSTALL_NTDRIVER
@@ -288,8 +291,7 @@ void CHardwareDriver::UnloadDriver()
 // On success m_hService will contain the handle to the service.
 BOOL CHardwareDriver::InstallNTDriver()
 {
-    LPSTR       pszName;
-    char        szDriverPath[MAX_PATH];
+    string      szDriverPath(GetInstallationPath());
     SC_HANDLE   hSCManager = NULL;
     BOOL        bError = FALSE;
 
@@ -303,22 +305,9 @@ BOOL CHardwareDriver::InstallNTDriver()
         return TRUE;
     }
 
-    if (!GetModuleFileName(NULL, szDriverPath, sizeof(szDriverPath)))
-    {
-        LOG(0, "cannot get module file name. 0x%X",GetLastError());
-        szDriverPath[0] = '\0';
-        bError = TRUE;
-    }
-    
     if(!bError)
     {
-        pszName = szDriverPath + strlen(szDriverPath);
-        while (pszName >= szDriverPath && *pszName != '\\')
-        {
-            *pszName-- = 0;
-        }
-
-        if(GetDriveType(szDriverPath) == DRIVE_REMOTE)
+        if(GetDriveType(szDriverPath.c_str()) == DRIVE_REMOTE)
         {
             ErrorBox("The DScaler device driver can't be installed from a network drive.");
             bError = TRUE;
@@ -327,8 +316,9 @@ BOOL CHardwareDriver::InstallNTDriver()
 
     if(!bError)
     {
-        strcat(szDriverPath, m_NTDriverName);
-        strcat(szDriverPath, ".sys");       
+        szDriverPath +=  "\\";
+        szDriverPath += m_NTDriverName;
+        szDriverPath += ".sys";       
         
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
         if(hSCManager == NULL)
@@ -341,17 +331,18 @@ BOOL CHardwareDriver::InstallNTDriver()
     if(!bError)
     {
         // Make sure no spaces exist in the path since CreateService() does not like spaces.
-        GetShortPathName(szDriverPath, szDriverPath, MAX_PATH);
+        szDriverPath.reserve(MAX_PATH);
+        GetShortPathName(szDriverPath.c_str(), (LPSTR)szDriverPath.c_str(), MAX_PATH);
 
         m_hService = CreateService(
             hSCManager,            // SCManager database
-            m_NTDriverName,          // name of service
-            m_NTDriverName,          // name to display
+            m_NTDriverName,        // name of service
+            m_NTDriverName,        // name to display
             SERVICE_ALL_ACCESS,    // desired access
             SERVICE_KERNEL_DRIVER, // service type
             SERVICE_DEMAND_START,  // start type
             SERVICE_ERROR_NORMAL,  // error control type
-            szDriverPath,          // service's binary
+            szDriverPath.c_str(),  // service's binary
             NULL,                  // no load ordering group
             NULL,                  // no tag identifier
             NULL,                  // no dependencies
@@ -380,13 +371,13 @@ BOOL CHardwareDriver::InstallNTDriver()
                 {
                     m_hService = CreateService(
                         hSCManager,            // SCManager database
-                        m_NTDriverName,          // name of service
-                        m_NTDriverName,          // name to display
+                        m_NTDriverName,        // name of service
+                        m_NTDriverName,        // name to display
                         SERVICE_ALL_ACCESS,    // desired access
                         SERVICE_KERNEL_DRIVER, // service type
                         SERVICE_DEMAND_START,  // start type
                         SERVICE_ERROR_NORMAL,  // error control type
-                        szDriverPath,          // service's binary
+                        szDriverPath.c_str(),  // service's binary
                         NULL,                  // no load ordering group
                         NULL,                  // no tag identifier
                         NULL,                  // no dependencies

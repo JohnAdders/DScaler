@@ -198,7 +198,7 @@ public:
      */
     int        GetMaxCards();
     int        GetCardByName(LPCSTR cardName);
-    LPCSTR    GetCardName(eSAA7134CardId CardId);
+    std::string GetCardName(eSAA7134CardId CardId);
     WORD    GetCardDeviceId(eSAA7134CardId CardId);
 
     void            SetCardType(int    CardType);
@@ -207,12 +207,12 @@ public:
     eTunerId        AutoDetectTuner(eSAA7134CardId CardId);
     eSAA7134CardId    AutoDetectCardType();
 
-    LPCSTR    GetChipType();
-    LPCSTR    GetTunerType();
-    ITuner*    GetTuner() const;
+    std::string    GetChipType();
+    std::string    GetTunerType();
+    ITuner*        GetTuner() const;
 
-    int        GetNumInputs();
-    LPCSTR    GetInputName(int nVideoSource);
+    int         GetNumInputs();
+    std::string GetInputName(int nVideoSource);
     BOOL    IsInputATuner(int nInput);
 
     int        GetFinalInputNumber();
@@ -454,7 +454,7 @@ private:
     static const HCParser::CParseTag k_parseCardList[];
 
     eSAA7134CardId        m_CardType;
-    char                m_TunerType[32];
+    std::string           m_TunerType;
 
     CI2CBus*            m_I2CBus;
     II2CTuner*            m_Tuner;

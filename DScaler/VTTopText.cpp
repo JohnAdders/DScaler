@@ -755,7 +755,7 @@ BOOL CVTTopText::GetTopTextDetails(DWORD dwPageCode, TVTPage* pBuffer, BOOL bWai
 
             if (m_MPTable[Page] != 0)
             {
-                sprintf(szBuffer, m_MultiMessage, m_MPTable[Page]);
+                sprintf_s(szBuffer, m_MultiMessage, m_MPTable[Page]);
                 pMessage = szBuffer;
             }
             else

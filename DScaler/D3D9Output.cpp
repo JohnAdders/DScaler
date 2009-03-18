@@ -150,8 +150,6 @@ void CD3D9Output::Overlay_SetColorControls()
     
 BOOL CD3D9Output::Overlay_Create()
 {
-    char msg[500];
-
     if (lpDDOverlay)
     {
         return FALSE;
@@ -208,8 +206,7 @@ BOOL CD3D9Output::Overlay_Create()
         return false;
     }
 
-    sprintf(msg, "Using Direct3D output");
-    AddSplashTextLine(msg);
+    AddSplashTextLine("Using Direct3D output");
 
     // try to create a memory buffer
     // that we can use if any output filters are switched

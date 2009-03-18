@@ -532,7 +532,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         else
         {
-            sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
+            sprintf_s(Text, 32, "Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
             ShowText(hWnd, Text);
         }
         break;
@@ -569,7 +569,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         else
         {
-            sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
+            sprintf_s(Text, 32, "Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
             ShowText(hWnd, Text);
         }
         break;
@@ -615,7 +615,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             AspectSettings.ZoomCenterX = -100;
         }
-        sprintf(Text,"X Center %.2fx", (double)AspectSettings.ZoomCenterX / 100.0);
+        sprintf_s(Text, 32, "X Center %.2fx", (double)AspectSettings.ZoomCenterX / 100.0);
         ShowText(hWnd, Text);
         break;
 
@@ -625,7 +625,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             AspectSettings.ZoomCenterX = 200;
         }
-        sprintf(Text,"X Center %.2fx", (double)AspectSettings.ZoomCenterX / 100.0);
+        sprintf_s(Text, 32, "X Center %.2fx", (double)AspectSettings.ZoomCenterX / 100.0);
         ShowText(hWnd, Text);
         break;
 
@@ -635,7 +635,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             AspectSettings.ZoomCenterY = 200;
         }
-        sprintf(Text,"Y Center %.2fx", (double)AspectSettings.ZoomCenterY / 100.0);
+        sprintf_s(Text, 32, "Y Center %.2fx", (double)AspectSettings.ZoomCenterY / 100.0);
         ShowText(hWnd, Text);
         break;
 
@@ -645,7 +645,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             AspectSettings.ZoomCenterY = 100;
         }
-        sprintf(Text,"Y Center %.2fx", (double)AspectSettings.ZoomCenterY / 100.0);
+        sprintf_s(Text, 32, "Y Center %.2fx", (double)AspectSettings.ZoomCenterY / 100.0);
         ShowText(hWnd, Text);
         break;
 

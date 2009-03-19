@@ -110,7 +110,6 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     }
     else
     {
-        CFilterChain FilterChain;
         int SourceHeight;
         int SourceWidth;
 
@@ -190,8 +189,10 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
         // Build filter chain and apply
         /// \todo Filter chain should be saved and only rebuilt if options are changed
-        FilterChain.BuildFilterChain(SourceWidth, SourceHeight);
-        if (FilterChain.ApplyFilters(ar, allowResize))
+        CMasterFilterChain FilterChain(SourceWidth, SourceHeight);
+        bool RequestResize(false);
+        FilterChain.adjustAspect(ar, RequestResize);
+        if (RequestResize && allowResize)
         {
             InFunction = FALSE;
             WorkoutOverlaySize(FALSE, FALSE); // Prevent further recursion - only allow 1 level of request for readjusting the overlay

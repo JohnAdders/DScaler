@@ -17,11 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file ISetting.h interface for the ISetting class.
+ * @file SettingGroup.h
  */
 
-#ifndef _ISETTING_H_
-#define _ISETTING_H_
+#ifndef _SETTING_GROUP_H_
+#define _SETTING_GROUP_H_
 
 #include "DS_ApiCommon.h"
 #include "DS_Control.h"
@@ -57,10 +57,10 @@ class CSettingGroup
 {
 public:
 
-    CSettingGroup(LPCSTR szName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
+    CSettingGroup(const std::string& Name, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
     ~CSettingGroup();
 
-    LPCSTR GetName();
+    const std::string& GetName();
 
     BOOL IsSetByChannel() { return ((m_Flags & SETTING_BY_CHANNEL) == SETTING_BY_CHANNEL);};
     BOOL IsSetByFormat() { return ((m_Flags & SETTING_BY_FORMAT) == SETTING_BY_FORMAT);};

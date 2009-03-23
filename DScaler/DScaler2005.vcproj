@@ -4247,54 +4247,6 @@
 				>
 			</File>
 			<File
-				RelativePath="ISetting.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Express|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_Express|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="ITuner.cpp"
 				>
 				<FileConfiguration
@@ -6102,6 +6054,10 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\SettingGroup.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\SettingHolder.cpp"
@@ -8661,10 +8617,6 @@
 				>
 			</File>
 			<File
-				RelativePath="ISetting.h"
-				>
-			</File>
-			<File
 				RelativePath="ITuner.h"
 				>
 			</File>
@@ -8826,6 +8778,10 @@
 			</File>
 			<File
 				RelativePath="Setting.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SettingGroup.h"
 				>
 			</File>
 			<File

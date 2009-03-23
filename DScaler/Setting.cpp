@@ -151,7 +151,7 @@ long ComboBoxGetValue(HWND hWnd)
     GUI info, static callback function, pointer for callback function
 
 */
-CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
+CSimpleSetting::CSimpleSetting(const string& DisplayName, const string& Section, const string& Entry, CSettingGroup* pGroup) :
     m_DisplayName(DisplayName),
     m_Section(Section),
     m_Entry(Entry),
@@ -181,29 +181,29 @@ void CSimpleSetting::DisableOnChange()
     m_EnableOnChange = FALSE;
 }
 
-void CSimpleSetting::SetSection(LPCSTR NewValue)
+void CSimpleSetting::SetSection(const string& NewValue)
 {
     m_Section = NewValue;
 }
 
-LPCSTR CSimpleSetting::GetDisplayName() 
+const string& CSimpleSetting::GetDisplayName() 
 { 
-    return m_DisplayName.c_str();
+    return m_DisplayName;
 }
 
-LPCSTR CSimpleSetting::GetSection() 
+const string& CSimpleSetting::GetSection() 
 { 
-    return m_Section.c_str();
+    return m_Section;
 }
 
-void CSimpleSetting::SetEntry(LPCSTR NewValue) 
+void CSimpleSetting::SetEntry(const string& NewValue) 
 {     
     m_Entry = NewValue; 
 }
 
-LPCSTR CSimpleSetting::GetEntry() 
+const string& CSimpleSetting::GetEntry() 
 { 
-    return m_Entry.c_str();
+    return m_Entry;
 }
 
 
@@ -382,7 +382,7 @@ CSettingGroup* CSimpleSetting::GetGroup()
     for the rest of the parameters: 
     @see CSimpleSetting
 */
-CListSetting::CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, CSettingGroup* pGroup) :
+CListSetting::CListSetting(const string& DisplayName, long Default, long Max, const string& Section, const string& Entry, const char** pszList, CSettingGroup* pGroup) :
     CSimpleSetting(DisplayName, Section, Entry, pGroup),
     m_Default(Default),
     m_Max(Max),
@@ -471,9 +471,9 @@ std::string CListSetting::GetDisplayValue()
     }
 }
 
-void CListSetting::SetValueFromString(LPCSTR NewValue)
+void CListSetting::SetValueFromString(const string& NewValue)
 {
-    SetValue(atol(NewValue));
+    SetValue(FromString<long>(NewValue));
 }
 
 LPARAM CListSetting::GetValueAsMessage()
@@ -526,7 +526,7 @@ void CListSetting::ChangeDefault(long NewDefault, BOOL bDontSetValue)
     For the parameters: 
     @see CSimpleSetting
 */
-CSliderSetting::CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
+CSliderSetting::CSliderSetting(const string& DisplayName, long Default, long Min, long Max, const string& Section, const string& Entry, CSettingGroup* pGroup) :
     CSimpleSetting(DisplayName, Section, Entry, pGroup),
     m_Default(Default),
     m_Min(Min),
@@ -598,7 +598,7 @@ string CSliderSetting::GetDisplayValue()
     return ToString(m_Value);
 }
 
-void CSliderSetting::SetValueFromString(LPCSTR NewValue)
+void CSliderSetting::SetValueFromString(const string& NewValue)
 {
     SetValue(FromString<long>(NewValue));
 }
@@ -704,7 +704,7 @@ void CSliderSetting::SetFromControl(HWND hWnd)
     For the rest of the parameters: 
     @see CSimpleSetting
 */
-CYesNoSetting::CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
+CYesNoSetting::CYesNoSetting(const string& DisplayName, BOOL Default, const string& Section, const string& Entry, CSettingGroup* pGroup) :
     CSimpleSetting(DisplayName, Section, Entry, pGroup),
     m_Default(Default),
     m_Value(Default)
@@ -734,7 +734,7 @@ void CYesNoSetting::SetupControl(HWND hWnd)
 {
     if(IsWindowClass(hWnd, "Button"))
     {
-        Button_SetText(hWnd, GetDisplayName());
+        Button_SetText(hWnd, GetDisplayName().c_str());
     }
 }
 
@@ -775,13 +775,13 @@ std::string CYesNoSetting::GetValueAsString()
     return ToString(m_Value);
 }
 
-void CYesNoSetting::SetValueFromString(LPCSTR NewValue)
+void CYesNoSetting::SetValueFromString(const string& NewValue)
 {
-    if(_stricmp(NewValue, "YES") == 0 || _stricmp(NewValue, "TRUE") == 0)
+    if(AreEqualInsensitive(NewValue, "YES") || AreEqualInsensitive(NewValue, "TRUE"))
     {
         SetValue(TRUE);
     }
-    else if(_stricmp(NewValue, "NO") == 0 || _stricmp(NewValue, "FALSE") == 0)
+    else if(AreEqualInsensitive(NewValue, "NO") || AreEqualInsensitive(NewValue, "FALSE"))
     {
         SetValue(FALSE);
     }
@@ -835,7 +835,7 @@ void CYesNoSetting::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
     For the rest of the parameters: 
     @see CSimpleSetting
 */
-CStringSetting::CStringSetting(LPCSTR DisplayName, LPCSTR Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
+CStringSetting::CStringSetting(const string& DisplayName, const string& Default, const string& Section, const string& Entry, CSettingGroup* pGroup) :
     CSimpleSetting(DisplayName, Section, Entry, pGroup),
     m_Value(Default),
     m_Default(Default)
@@ -879,9 +879,9 @@ void CStringSetting::SetValue(const char* NewValue, BOOL bSuppressOnChange)
     }
 }
 
-void CStringSetting::SetValueFromString(LPCSTR NewValue)
+void CStringSetting::SetValueFromString(const string& NewValue)
 {
-    SetValue(NewValue);
+    SetValue(NewValue.c_str());
 }
 
 LPARAM CStringSetting::GetValueAsMessage()
@@ -891,7 +891,7 @@ LPARAM CStringSetting::GetValueAsMessage()
 
 void CStringSetting::SetValueFromMessage(LPARAM LParam)
 {
-    SetValue((LPCSTR)LParam);
+    SetValue((const char*)LParam);
 }
 
 void CStringSetting::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
@@ -957,7 +957,7 @@ void CSettingWrapper::SetupControl(HWND hWnd)
     case ONOFF:
         if(IsWindowClass(hWnd, "Button"))
         {
-            Button_SetText(hWnd, GetDisplayName());
+            Button_SetText(hWnd, GetDisplayName().c_str());
         }
         break;
     case SLIDER:
@@ -1098,15 +1098,15 @@ string CSettingWrapper::GetDisplayValue()
     return "";
 }
 
-void CSettingWrapper::SetValueFromString(LPCSTR NewValue)
+void CSettingWrapper::SetValueFromString(const string& NewValue)
 {
     if(m_Setting->Type == CHARSTRING)
     {
-        SetValue(reinterpret_cast<long>(NewValue));
+        SetValue(reinterpret_cast<long>(NewValue.c_str()));
     }
     else
     {
-        SetValue(atol(NewValue));
+        SetValue(FromString<long>(NewValue));
     }
 }
 

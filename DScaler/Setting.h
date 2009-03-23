@@ -23,7 +23,7 @@
 #ifndef __SETTING_H___
 #define __SETTING_H___
 
-#include "ISetting.h"
+#include "SettingGroup.h"
 #include "SettingHolder.h"
 
 
@@ -32,7 +32,7 @@
 class CSimpleSetting
 {
 public:
-    CSimpleSetting(LPCSTR DisplayName, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup = NULL);
+    CSimpleSetting(const std::string& DisplayName, const std::string& Section, const std::string& Entry, CSettingGroup* pGroup = NULL);
     virtual ~CSimpleSetting();
 
     virtual SETTING_TYPE GetType() = 0;
@@ -45,12 +45,12 @@ public:
     virtual std::string GetDisplayValue() = 0;
     
     void OSDShow();
-    LPCSTR GetDisplayName();
+    const std::string& GetDisplayName();
 
-    void SetSection(LPCSTR NewValue);
-    LPCSTR GetSection();
-    void SetEntry(LPCSTR NewValue);
-    LPCSTR GetEntry();
+    void SetSection(const std::string& NewValue);
+    const std::string& GetSection();
+    void SetEntry(const std::string& NewValue);
+    const std::string& GetEntry();
     BOOL ReadFromIni();
     void WriteToIni(BOOL bOptimizeFileAccess);
     
@@ -68,7 +68,7 @@ protected:
 
 private:    
     virtual std::string GetValueAsString() = 0;
-    virtual void SetValueFromString(LPCSTR NewValue) = 0;
+    virtual void SetValueFromString(const std::string& NewValue) = 0;
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange) = 0;
     /// Internal storage for display name
     std::string    m_DisplayName;
@@ -107,7 +107,7 @@ public:
     virtual std::string GetDisplayValue();
 private:    
     virtual std::string GetValueAsString();
-    virtual void SetValueFromString(LPCSTR NewValue);
+    virtual void SetValueFromString(const std::string& NewValue);
     void SetValue(long NewValue);
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange);
     SETTING* m_Setting;
@@ -119,7 +119,7 @@ private:
 class CYesNoSetting : public CSimpleSetting
 {
 public:
-    CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, 
+    CYesNoSetting(const std::string& DisplayName, BOOL Default, const std::string& Section, const std::string& Entry, 
                    CSettingGroup* pGroup = NULL);
     ~CYesNoSetting();
     SETTING_TYPE GetType() {return YESNO;};
@@ -134,7 +134,7 @@ public:
     virtual std::string GetDisplayValue();
 private:    
     virtual std::string GetValueAsString();
-    virtual void SetValueFromString(LPCSTR NewValue);
+    virtual void SetValueFromString(const std::string& NewValue);
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange);
     virtual void OnChange(BOOL NewValue, BOOL OldValue) {};
     BOOL m_Default;
@@ -146,7 +146,7 @@ private:
 class CSliderSetting : public CSimpleSetting
 {
 public:    
-    CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, 
+    CSliderSetting(const std::string& DisplayName, long Default, long Min, long Max, const std::string& Section, const std::string& Entry, 
                    CSettingGroup* pGroup = NULL);
     ~CSliderSetting();
     SETTING_TYPE GetType() {return SLIDER;};
@@ -166,7 +166,7 @@ public:
     virtual std::string GetDisplayValue();
 private:    
     virtual std::string GetValueAsString();
-    virtual void SetValueFromString(LPCSTR NewValue);
+    virtual void SetValueFromString(const std::string& NewValue);
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange);
     virtual void OnChange(long NewValue, long OldValue) {};
     long m_Default;
@@ -181,7 +181,7 @@ private:
 class CListSetting : public CSimpleSetting
 {
 public:
-    CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, 
+    CListSetting(const std::string& DisplayName, long Default, long Max, const std::string& Section, const std::string& Entry, const char** pszList, 
                    CSettingGroup* pGroup = NULL);
     ~CListSetting();
     SETTING_TYPE GetType() {return ITEMFROMLIST;};
@@ -198,7 +198,7 @@ public:
     virtual std::string GetDisplayValue();
 private:    
     virtual std::string GetValueAsString();
-    virtual void SetValueFromString(LPCSTR NewValue);
+    virtual void SetValueFromString(const std::string& NewValue);
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange);
     virtual void OnChange(long NewValue, long OldValue) {};
     long m_Default;
@@ -213,7 +213,7 @@ private:
 class CStringSetting : public CSimpleSetting
 {
 public:
-    CStringSetting(LPCSTR DisplayName, LPCSTR Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup = NULL);
+    CStringSetting(const std::string& DisplayName, const std::string& Default, const std::string& Section, const std::string& Entry, CSettingGroup* pGroup = NULL);
     ~CStringSetting();
     SETTING_TYPE GetType() {return CHARSTRING;};
     void GetDisplayText(LPSTR szBuffer);
@@ -223,8 +223,8 @@ public:
 
     BOOL ReadFromIni();
     void WriteToIni(BOOL bOptimizeFileAccess);
-    BOOL ReadFromIniSubSection(LPCSTR szSubSection);
-    void WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess = TRUE);
+    BOOL ReadFromIniSubSection(const std::string& szSubSection);
+    void WriteToIniSubSection(const std::string& szSubSection, BOOL bOptimizeFileAccess = TRUE);
 
     void SetupControl(HWND hWnd);
     void SetControlValue(HWND hWnd);
@@ -234,7 +234,7 @@ public:
     virtual std::string GetDisplayValue();
 private:    
     virtual std::string GetValueAsString();
-    virtual void SetValueFromString(LPCSTR NewValue);
+    virtual void SetValueFromString(const std::string& NewValue);
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange);
     virtual void OnChange(const std::string& NewValue, const std::string& OldValue) {};
     std::string m_Value;
@@ -254,7 +254,7 @@ private:
     class C ## Name ## Setting : public CYesNoSetting \
     { \
     public: \
-        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, BOOL Default, LPCSTR Section, CSettingGroup* pGroup = NULL) : \
+        C ## Name ## Setting(const Class* Parent, const std::string& DisplayName, BOOL Default, const std::string& Section, CSettingGroup* pGroup = NULL) : \
              CYesNoSetting(DisplayName, Default, Section, #Name, pGroup), m_Parent((Class*)Parent) {;} \
         virtual void OnChange(BOOL NewValue, BOOL OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \
@@ -269,7 +269,7 @@ private:
     class C ## Name ## Setting : public CSliderSetting \
     { \
     public: \
-        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, CSettingGroup* pGroup = NULL) : \
+        C ## Name ## Setting(const Class* Parent, const std::string& DisplayName, long Default, long Min, long Max, const std::string& Section, CSettingGroup* pGroup = NULL) : \
              CSliderSetting(DisplayName, Default, Min, Max, Section, #Name, pGroup), m_Parent((Class*)Parent) {;} \
         void OnChange(long NewValue, long OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \
@@ -284,7 +284,7 @@ private:
     class C ## Name ## Setting : public CListSetting \
     { \
     public: \
-        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, long Default, long Max, LPCSTR Section, const char** pszList, CSettingGroup* pGroup = NULL) : \
+        C ## Name ## Setting(const Class* Parent, const std::string& DisplayName, long Default, long Max, const std::string& Section, const char** pszList, CSettingGroup* pGroup = NULL) : \
              CListSetting(DisplayName, Default, Max, Section, #Name, pszList, pGroup), m_Parent((Class*)Parent) {;} \
         void OnChange(long NewValue, long OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \
@@ -299,7 +299,7 @@ private:
     class C ## Name ## Setting : public CStringSetting \
     { \
     public: \
-        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, char* Default, LPCSTR Section, CSettingGroup* pGroup = NULL) : \
+        C ## Name ## Setting(const Class* Parent, const std::string& DisplayName, char* Default, const std::string& Section, CSettingGroup* pGroup = NULL) : \
              CStringSetting(DisplayName, (long)Default, Section, #Name, pGroup), m_Parent((Class*)Parent) {;} \
         void OnChange(const std::string& NewValue, const std::string& OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \

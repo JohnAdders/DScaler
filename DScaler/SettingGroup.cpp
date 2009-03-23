@@ -27,14 +27,16 @@
 
 #include "stdafx.h"
 
-#include "ISetting.h"
+#include "SettingGroup.h"
 #include "Setting.h"
 
-CSettingGroup::CSettingGroup(LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault) :
-    m_Name(szName),
+using namespace std;
+
+CSettingGroup::CSettingGroup(const string& Name, DWORD Flags, BOOL IsActiveByDefault) :
+    m_Name(Name),
     m_Flags(Flags)
 {
-    m_IsActive = new CYesNoSetting(szName, IsActiveByDefault, "SettingsPerChannel", szName);
+    m_IsActive = new CYesNoSetting(Name, IsActiveByDefault, "SettingsPerChannel", Name);
     m_IsActive->ReadFromIni();
 }
 
@@ -44,9 +46,9 @@ CSettingGroup::~CSettingGroup()
     m_IsActive->WriteToIni(TRUE);
 }
 
-LPCSTR CSettingGroup::GetName() 
+const string& CSettingGroup::GetName() 
 {
-    return m_Name.c_str();
+    return m_Name;
 }
 
 BOOL CSettingGroup::IsGroupActive() 
@@ -65,5 +67,5 @@ CSimpleSetting* CSettingGroup::GetIsActiveSetting()
 */
 void CSettingGroup::AddSetting(CSimpleSetting *pSetting)
 {
-    pSetting->SetGroup(this);    
+    pSetting->SetGroup(this);
 }

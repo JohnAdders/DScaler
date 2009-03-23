@@ -148,9 +148,9 @@ BOOL CTreeSettingsGeneric::OnInitDialog()
     for(int i=0;i<m_SettingsCount;i++)
     {
         CSimpleSetting* pSetting = m_Settings[i];
-        if ((pSetting != NULL) && (pSetting->GetDisplayName() != NULL) && (pSetting->GetType() != NOT_PRESENT))
+        if ((pSetting != NULL) && !pSetting->GetDisplayName().empty() && (pSetting->GetType() != NOT_PRESENT))
         {
-            int index=m_ListBox.AddString(pSetting->GetDisplayName());
+            int index=m_ListBox.AddString(pSetting->GetDisplayName().c_str());
             if(index!=LB_ERR)
             {
                 m_ListBox.SetItemData(index,i);

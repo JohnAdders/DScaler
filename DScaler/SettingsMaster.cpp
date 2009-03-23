@@ -360,7 +360,7 @@ CSettingGroup* CSettingsMaster::GetGroup(LPCSTR szName, DWORD Flags, BOOL IsActi
 {
     for (int i = 0; i < m_SettingsGroups.size(); i++)
     {
-        if(strcmp(m_SettingsGroups[i]->GetName(), szName) == 0)
+        if(m_SettingsGroups[i]->GetName() == szName)
         {
             return m_SettingsGroups[i];
         }

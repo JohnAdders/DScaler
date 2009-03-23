@@ -27,7 +27,7 @@
 #include "TVFormats.h"
 class CSource;
 
-/** Base class for any class that needs acesss to a list of ISetting settings.
+/** Base class for any class that needs acesss to a list of CSimpleSetting settings.
     The function CreateSettings should be overriden and then called in the 
     constructor of the derived class.
 */
@@ -37,12 +37,12 @@ public:
     CSettingsHolder(long SetMessage);
     ~CSettingsHolder();
     long GetNumSettings();
-    ISetting* GetSetting(long SettingIndex);
+    CSimpleSetting* GetSetting(long SettingIndex);
     virtual void CreateSettings(LPCSTR IniSection) = 0;
     void ReadFromIni();    
     void WriteToIni(BOOL bOptimizeFileAccess);
 
-    void AddSetting(ISetting* pSetting);
+    void AddSetting(CSimpleSetting* pSetting);
 
     void AddSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL);
 
@@ -58,7 +58,7 @@ public:
     CSettingGroup *GetSettingsGroup(LPCSTR szDisplayName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
 
 protected:
-    std::vector<ISetting*>  m_Settings;
+    std::vector<CSimpleSetting*>  m_Settings;
     long                    m_SetMessage;
     BOOL                    m_pRegistered;
     std::string             m_SettingFlagsSection;
@@ -75,7 +75,7 @@ public:
     ~CSettingsHolderStandAlone();
     void CreateSettings(LPCSTR IniSection){;};
 
-    ISetting* operator[](int i) { if ((i>=0) && ((size_t)i<m_Settings.size())) { return m_Settings[i]; } return NULL; }
+    CSimpleSetting* operator[](int i) { if ((i>=0) && ((size_t)i<m_Settings.size())) { return m_Settings[i]; } return NULL; }
 };
 #endif
 

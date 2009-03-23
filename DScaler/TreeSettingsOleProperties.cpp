@@ -129,7 +129,7 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
             }
         }
     }
-    m_bInitMinSize=false;
+    m_bInitMinSize=FALSE;
 
     CRect rect(0,0,0,0);
     //add the border size of the tab controll
@@ -153,11 +153,11 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
             hr=m_pages[i]->m_pPropertyPage->Activate(m_tabCtrl.m_hWnd,rect,FALSE);
             if(SUCCEEDED(hr))
             {
-                m_pages[i]->m_bActivated=true;
+                m_pages[i]->m_bActivated=TRUE;
             }
             else
             {
-                m_pages[i]->m_bActivated=false;
+                m_pages[i]->m_bActivated=FALSE;
             }
         }
     }
@@ -165,11 +165,11 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
     return TRUE;
 }
 
-bool CTreeSettingsOleProperties::OnSetActive()
+BOOL CTreeSettingsOleProperties::OnSetActive()
 {
-    //try to activate a tab, if no tab can be activated, return false 
+    //try to activate a tab, if no tab can be activated, return FALSE 
     //so access to this whole page will be denied
-    bool bActivated=false;
+    BOOL bActivated=FALSE;
     for(int i=0;i<m_pages.size();i++)
     {
         m_tabCtrl.SetCurSel(i);
@@ -179,7 +179,7 @@ bool CTreeSettingsOleProperties::OnSetActive()
         if(result==FALSE)
         {
             OnSelchangeTreesettingsTab(NULL,&result);
-            bActivated=true;
+            bActivated=TRUE;
             break;
         }
     }

@@ -190,7 +190,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
         // Build filter chain and apply
         /// \todo Filter chain should be saved and only rebuilt if options are changed
         CMasterFilterChain FilterChain(SourceWidth, SourceHeight);
-        bool RequestResize(false);
+        BOOL RequestResize(FALSE);
         FilterChain.adjustAspect(ar, RequestResize);
         if (RequestResize && allowResize)
         {

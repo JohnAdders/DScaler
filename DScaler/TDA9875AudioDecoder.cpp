@@ -257,14 +257,14 @@ CTDA9875AudioDecoder::TCarrierDetect CTDA9875AudioDecoder::CarrierDetectTable[] 
 
 CTDA9875AudioDecoder::CTDA9875AudioDecoder(CTDA9875AudioControls* pAudioControls) : CAudioDecoder(), CTDA9875()
 {
-    m_IsInitialized = false;
-    m_bUseInputPin1 = false;
+    m_IsInitialized = FALSE;
+    m_bUseInputPin1 = FALSE;
     m_AutoDetecting = 0;
     m_TDA9875Thread = NULL;
-    m_bStopThread = false;
+    m_bStopThread = FALSE;
     m_DetectInterval10ms = 20;
     m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_MONO;
-    m_ForceAMSound = false;
+    m_ForceAMSound = FALSE;
     m_pAudioControls = pAudioControls;
     InitializeCriticalSection(&TDA9875CriticalSection);
 }
@@ -275,12 +275,12 @@ CTDA9875AudioDecoder::~CTDA9875AudioDecoder()
     DeleteCriticalSection(&TDA9875CriticalSection);
 }
 
-bool CTDA9875AudioDecoder::GetUseInputPin1()
+BOOL CTDA9875AudioDecoder::GetUseInputPin1()
 {
     return m_bUseInputPin1;
 }
 
-void CTDA9875AudioDecoder::SetUseInputPin1(bool AValue)
+void CTDA9875AudioDecoder::SetUseInputPin1(BOOL AValue)
 {
     m_bUseInputPin1 = AValue;
     if (m_IsInitialized)
@@ -303,7 +303,7 @@ void CTDA9875AudioDecoder::SetSoundChannel(eSoundChannel soundChannel)
     }
     LeaveCriticalSection(&TDA9875CriticalSection);
 
-    m_IsInitialized = true;
+    m_IsInitialized = TRUE;
 
     BYTE bMatrix = 0;
 
@@ -368,7 +368,7 @@ eSoundChannel CTDA9875AudioDecoder::IsAudioChannelDetected(eSoundChannel desired
 void CTDA9875AudioDecoder::SetAudioInput(eAudioInput audioInput)
 {
     CAudioDecoder::SetAudioInput(audioInput);
-    m_IsInitialized = true;
+    m_IsInitialized = TRUE;
 
 
     switch (m_AudioInput)
@@ -378,10 +378,10 @@ void CTDA9875AudioDecoder::SetAudioInput(eAudioInput audioInput)
     case AUDIOINPUT_INTERNAL:
     case AUDIOINPUT_EXTERNAL:
     case AUDIOINPUT_MUTE:
-        Audio_SetUserMute(true);
+        Audio_SetUserMute(TRUE);
         break;
     default:
-        Audio_SetUserMute(false);
+        Audio_SetUserMute(FALSE);
         break;
     }
 
@@ -410,7 +410,7 @@ void CTDA9875AudioDecoder::SetAudioStandard(long Standard, eVideoFormat videofor
         return;
     }
 
-    m_IsInitialized = true;
+    m_IsInitialized = TRUE;
 
     int nIndex = 0;
     TStandardDefinition StandardDefinition;
@@ -435,9 +435,9 @@ void CTDA9875AudioDecoder::SetAudioStandard(long Standard, eVideoFormat videofor
     if (Standard == TDA9875_STANDARD_AUTO)
     {
         // Mute
-        Audio_SetUserMute(true);
+        Audio_SetUserMute(TRUE);
         m_CarrierDetect_Phase = 0;
-        m_pAudioControls->m_bKeepItMuted = true;
+        m_pAudioControls->m_bKeepItMuted = TRUE;
         return;
     }
 
@@ -790,7 +790,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
     short int val;
     double k0, k1, u0;
-    bool condition1, condition2;
+    BOOL condition1, condition2;
     BYTE result[2] = {0, 0};
     eStandard Standard = TDA9875_STANDARD_NONE;
 
@@ -1155,7 +1155,7 @@ int CTDA9875AudioDecoder::SetAudioDecoderValue(int What, long Val)
     if (What==0)
     {
         long Flags = Val;
-        m_IsInitialized = true;
+        m_IsInitialized = TRUE;
         m_ForceAMSound = ((Flags & 0x08)!=0);
         return 1;
     }
@@ -1193,7 +1193,7 @@ void CTDA9875AudioDecoder::StartThread()
         return;
     }
 
-    m_bStopThread = false;
+    m_bStopThread = FALSE;
 
     m_TDA9875Thread = CreateThread((LPSECURITY_ATTRIBUTES) NULL,  // No security.
                              (DWORD) 0,                     // Same stack size.
@@ -1207,13 +1207,13 @@ void CTDA9875AudioDecoder::StopThread()
 {
     DWORD ExitCode;
     int i;
-    bool Thread_Stopped = false;
+    BOOL Thread_Stopped = FALSE;
 
     if (m_TDA9875Thread != NULL)
     {
         i = 10;
         EnterCriticalSection(&TDA9875CriticalSection); 
-        m_bStopThread = true;
+        m_bStopThread = TRUE;
         LeaveCriticalSection(&TDA9875CriticalSection); 
         ResumeThread(m_TDA9875Thread);
         while(i-- > 0 && !Thread_Stopped)
@@ -1222,7 +1222,7 @@ void CTDA9875AudioDecoder::StopThread()
             {
                 if (ExitCode != STILL_ACTIVE)
                 {                    
-                    Thread_Stopped = true;
+                    Thread_Stopped = TRUE;
                 }
                 else
                 {                    
@@ -1231,11 +1231,11 @@ void CTDA9875AudioDecoder::StopThread()
             }
             else
             {
-                Thread_Stopped = true;
+                Thread_Stopped = TRUE;
             }
         }
 
-        if (Thread_Stopped == false)
+        if (Thread_Stopped == FALSE)
         {
             TerminateThread(m_TDA9875Thread, 0);
             Sleep(50);
@@ -1252,7 +1252,7 @@ int CTDA9875AudioDecoder::DetectThread()
 
     EnterCriticalSection(&TDA9875CriticalSection); 
     m_DetectCounter = 1;
-    bool bStopThread = m_bStopThread;
+    BOOL bStopThread = m_bStopThread;
     LeaveCriticalSection(&TDA9875CriticalSection); 
     while (!bStopThread)
     {
@@ -1293,8 +1293,8 @@ int CTDA9875AudioDecoder::DetectThread()
                 SetAudioStandard(standard, m_VideoFormat);
                 LeaveCriticalSection(&TDA9875CriticalSection);
 
-                m_pAudioControls->m_bKeepItMuted = false;
-                Audio_SetUserMute(false);
+                m_pAudioControls->m_bKeepItMuted = FALSE;
+                Audio_SetUserMute(FALSE);
 
                 EnterCriticalSection(&TDA9875CriticalSection);
                 if (m_DetectSupportedSoundChannels)

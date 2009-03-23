@@ -129,7 +129,7 @@ BOOL CDScalerApp::InitInstance()
 //    CoUninitialize();
 //#endif
 
-    // return false so message loop doesn't start
+    // return FALSE so message loop doesn't start
     return FALSE;
 }
 

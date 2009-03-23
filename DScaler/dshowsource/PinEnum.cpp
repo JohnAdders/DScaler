@@ -38,7 +38,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CDShowPinEnum::CDShowPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir)
-:m_anydir(false)
+:m_anydir(FALSE)
 {
     ASSERT(filter!=NULL);
     ASSERT(pinDir==PINDIR_INPUT || pinDir==PINDIR_OUTPUT);
@@ -55,7 +55,7 @@ CDShowPinEnum::CDShowPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir)
 }
 
 CDShowPinEnum::CDShowPinEnum(CComPtr<IBaseFilter> filter)
-:m_anydir(true)
+:m_anydir(TRUE)
 {
     ASSERT(filter!=NULL);
     CComPtr<IEnumPins> pEnum;
@@ -92,7 +92,7 @@ CComPtr<IPin> CDShowPinEnum::next()
     else
     {
         //step thru all pins until one with the right direction is found
-        while(true)
+        while(TRUE)
         {
             hr=CDShowGenericEnum<IEnumPins,IPin>::next(&pin);
             if(FAILED(hr) || pin==NULL)

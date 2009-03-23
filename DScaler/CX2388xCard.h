@@ -218,10 +218,10 @@ public:
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
     // I2C stuff
-    void SetSDA(bool value);
-    void SetSCL(bool value);
-    bool GetSDA();
-    bool GetSCL();
+    void SetSDA(BOOL value);
+    void SetSCL(BOOL value);
+    BOOL GetSDA();
+    BOOL GetSCL();
     void Sleep();
     void I2CLock();
     void I2CUnlock();
@@ -250,7 +250,7 @@ private:
     ULONG GetTickCount();
     DWORD m_I2CSleepCycle;
     DWORD m_I2CRegister;
-    bool  m_I2CInitialized;
+    BOOL  m_I2CInitialized;
     void  InitializeI2C();
 
 private:

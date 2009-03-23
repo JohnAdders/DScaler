@@ -50,7 +50,7 @@ private:
     HICON m_hIconChannelDown;
     HICON m_hIconChannelPrevious;
 
-    void UpdateControls(HWND hWnd,bool bInitDialog);
+    void UpdateControls(HWND hWnd,BOOL bInitDialog);
     LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
     
     static LRESULT CALLBACK MyComboProcWrap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -86,7 +86,7 @@ private:
     HICON m_hIconLang1;
     HICON m_hIconLang2;
         
-    void UpdateControls(HWND hWnd, bool bInitDialog);    
+    void UpdateControls(HWND hWnd, BOOL bInitDialog);    
 };
 
 
@@ -110,7 +110,7 @@ private:
     HICON m_hIconPause;
     HICON m_hIconStop;
         
-    void UpdateControls(HWND hWnd, bool bInitDialog);    
+    void UpdateControls(HWND hWnd, BOOL bInitDialog);    
 };
 
 

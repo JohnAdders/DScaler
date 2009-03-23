@@ -41,12 +41,12 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
     static long TSaturation;
     static long TSaturationU;
     static long TSaturationV;
-    static ISetting* Hue = NULL;
-    static ISetting* Brightness = NULL;
-    static ISetting* Contrast = NULL;
-    static ISetting* SaturationU = NULL;
-    static ISetting* SaturationV = NULL;
-    static ISetting* Saturation = NULL;
+    static CSliderSetting* Hue = NULL;
+    static CSliderSetting* Brightness = NULL;
+    static CSliderSetting* Contrast = NULL;
+    static CSliderSetting* SaturationU = NULL;
+    static CSliderSetting* SaturationV = NULL;
+    static CSliderSetting* Saturation = NULL;
 
     switch (message)
     {
@@ -170,37 +170,37 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
         case IDC_DEFAULT:
             if(Brightness != NULL)
             {
-                Brightness->SetDefault();
+                Brightness->ChangeValue(RESET_SILENT);
                 Brightness->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER1));
                 SetDlgItemInt(hDlg, IDC_D1, Brightness->GetValue(), TRUE);
             }
             if(Contrast != NULL)
             {
-                Contrast->SetDefault();
+                Contrast->ChangeValue(RESET_SILENT);
                 Contrast->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER2));
                 SetDlgItemInt(hDlg, IDC_D2, Contrast->GetValue(), FALSE);
             }
             if(Hue != NULL)
             {
-                Hue->SetDefault();
+                Hue->ChangeValue(RESET_SILENT);
                 Hue->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER3));
                 SetDlgItemInt(hDlg, IDC_D3, Hue->GetValue(), TRUE);
             }
             if(Saturation != NULL)
             {
-                Saturation->SetDefault();
+                Saturation->ChangeValue(RESET_SILENT);
                 Saturation->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER4));
                 SetDlgItemInt(hDlg, IDC_D4, Saturation->GetValue(), FALSE);
             }
             if(SaturationU != NULL)
             {
-                SaturationU->SetDefault();
+                SaturationU->ChangeValue(RESET_SILENT);
                 SaturationU->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER5));
                 SetDlgItemInt(hDlg, IDC_D5, SaturationU->GetValue(), FALSE);
             }
             if(SaturationV != NULL)
             {
-                SaturationV->SetDefault();
+                SaturationV->ChangeValue(RESET_SILENT);
                 SaturationV->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER6));
                 SetDlgItemInt(hDlg, IDC_D6, SaturationV->GetValue(), FALSE);
             }

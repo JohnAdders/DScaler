@@ -47,8 +47,8 @@ public:
 
     CAudioDecoder::eAudioDecoderType GetAudioDecoderType();
 
-    bool GetUseInputPin1();
-    void SetUseInputPin1(bool AValue);
+    BOOL GetUseInputPin1();
+    void SetUseInputPin1(BOOL AValue);
 
     // from CAudioDecoder the default Getters are used    
     void SetSoundChannel(eSoundChannel soundChannel);
@@ -225,11 +225,11 @@ private:
 
     // Detect thread
     HANDLE m_MSP34xxThread;
-    bool m_bStopThread;
+    BOOL m_bStopThread;
     void StartThread();
     void StopThread();
     CRITICAL_SECTION MSP34xxCriticalSection;
-    bool m_ThreadWait;
+    BOOL m_ThreadWait;
 
     int  m_AutoDetecting;
     long m_DetectCounter;
@@ -239,20 +239,20 @@ private:
 private:
     void Initialize();
     void SetModus();
-    bool m_IsInitialized;
+    BOOL m_IsInitialized;
     eMSPVersion m_MSPVersion;
-    bool m_bHasEqualizer;
-    bool m_bHasDolby;
-    bool m_ForceAMSound;
-    bool m_ForceVersionA;
-    bool m_ForceVersionD;
-    bool m_ForceVersionG;
-    bool m_ForceHasEqualizer;
-    bool m_KeepWatchingStereo;
-    bool m_DetectSupportedSoundChannels;
+    BOOL m_bHasEqualizer;
+    BOOL m_bHasDolby;
+    BOOL m_ForceAMSound;
+    BOOL m_ForceVersionA;
+    BOOL m_ForceVersionD;
+    BOOL m_ForceVersionG;
+    BOOL m_ForceHasEqualizer;
+    BOOL m_KeepWatchingStereo;
+    BOOL m_DetectSupportedSoundChannels;
     eSupportedSoundChannels m_SupportedSoundChannels;
     eSoundChannel m_TargetSoundChannel;
-    bool m_bUseInputPin1;
+    BOOL m_bUseInputPin1;
 
     static TStandardDefinition m_MSPStandards[];
     static TFIRType            m_FIRTypes[];

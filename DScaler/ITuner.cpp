@@ -47,7 +47,7 @@ ITuner::~ITuner()
     }
 }
 
-void ITuner::AttachIFDem(IExternalIFDemodulator* pExternalIFDemodulator, bool bFreeOnDestruction)
+void ITuner::AttachIFDem(IExternalIFDemodulator* pExternalIFDemodulator, BOOL bFreeOnDestruction)
 {
     m_ExternalIFDemodulator = pExternalIFDemodulator;
     m_bFreeIFDemodulatorOnDestruction = bFreeOnDestruction;
@@ -71,13 +71,13 @@ II2CTuner::~II2CTuner()
 // IExternalIFDemodulator
 //////////////////////////////////////////////////////////////////////////
 
-bool IExternalIFDemodulator::SetDetectedI2CAddress(IN CI2CBus* i2cBus)
+BOOL IExternalIFDemodulator::SetDetectedI2CAddress(IN CI2CBus* i2cBus)
 {
     BYTE addresses = GetDefaultAddress();
     return SetDetectedI2CAddress(i2cBus, &addresses, 1);
 }
 
-bool IExternalIFDemodulator::SetDetectedI2CAddress(IN CI2CBus* i2cBus,
+BOOL IExternalIFDemodulator::SetDetectedI2CAddress(IN CI2CBus* i2cBus,
                                                    IN BYTE* addresses, IN size_t count)
 {
     for (size_t i = 0; i < count; ++i)
@@ -88,10 +88,10 @@ bool IExternalIFDemodulator::SetDetectedI2CAddress(IN CI2CBus* i2cBus,
 
             if (Detect())
             {
-                return true;
+                return TRUE;
             }
         }
     }
-    return false;
+    return FALSE;
 }
 

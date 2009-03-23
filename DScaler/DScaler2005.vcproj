@@ -6104,75 +6104,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\SettingConfig.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SettingGroup.cpp"
-				>
-			</File>
-			<File
-				RelativePath="SettingHolder.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Express|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_Express|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\SettingKey.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SettingLimiter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SettingObject.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SettingRepository.cpp"
+				RelativePath=".\SettingHolder.cpp"
 				>
 			</File>
 			<File
@@ -6318,10 +6250,6 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\SettingValue.cpp"
-				>
 			</File>
 			<File
 				RelativePath="dshowsource\SingleCrossbar.cpp"
@@ -7376,10 +7304,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\TreeSettingsAssociations.cpp"
-				>
-			</File>
-			<File
 				RelativePath="TreeSettingsDlg.cpp"
 				>
 				<FileConfiguration
@@ -7570,10 +7494,6 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\TreeSettingsSettingConfig.cpp"
-				>
 			</File>
 			<File
 				RelativePath=".\TSCompressionDlg.cpp"
@@ -8909,31 +8829,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SettingConfig.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SettingGroup.h"
-				>
-			</File>
-			<File
-				RelativePath="SettingHolder.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SettingKey.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SettingLimiter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SettingObject.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SettingRepository.h"
+				RelativePath=".\SettingHolder.h"
 				>
 			</File>
 			<File
@@ -8946,10 +8842,6 @@
 			</File>
 			<File
 				RelativePath="SettingsPerChannel.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SettingValue.h"
 				>
 			</File>
 			<File
@@ -9077,10 +8969,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TreeSettingsAssociations.h"
-				>
-			</File>
-			<File
 				RelativePath="TreeSettingsDlg.h"
 				>
 			</File>
@@ -9094,10 +8982,6 @@
 			</File>
 			<File
 				RelativePath="TreeSettingsPage.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TreeSettingsSettingConfig.h"
 				>
 			</File>
 			<File

@@ -43,8 +43,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName,bool bConnectAudio)
-:CDShowBaseSource(pGraph),m_bIsConnected(false),m_pCrossbar(NULL),m_pTVTuner(NULL),m_pTVAudio(NULL),m_bConnectAudio(bConnectAudio)
+CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName,BOOL bConnectAudio)
+:CDShowBaseSource(pGraph),m_bIsConnected(FALSE),m_pCrossbar(NULL),m_pTVTuner(NULL),m_pTVAudio(NULL),m_bConnectAudio(bConnectAudio)
 {
     USES_CONVERSION;
     
@@ -159,7 +159,7 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
             throw CDShowException("Failed to connect video capture device to renderer",hr);
         }
     }
-    m_bIsConnected=true;
+    m_bIsConnected=TRUE;
     if(m_pDroppedFrames==NULL)
     {
         findIAMDroppedFrames(VideoFilter);
@@ -168,7 +168,7 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
     if(m_bConnectAudio)
     {
         //try to render audio, if this fails then this device probably don't have any audio
-        bool bAudioRendered=false;
+        BOOL bAudioRendered=FALSE;
         int AudioStreamCount=0;
         /*
         This will always add one extra unconnected audio renderer when using
@@ -176,7 +176,7 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
         */
         while(hr=m_pBuilder->RenderStream(NULL,&MEDIATYPE_Audio,m_vidDev,NULL,GetNewAudioRenderer()),SUCCEEDED(hr))
         {
-            bAudioRendered=true;
+            bAudioRendered=TRUE;
             AudioStreamCount++;
         }
         if(bAudioRendered)
@@ -246,7 +246,7 @@ long CDShowCaptureDevice::GetNumDroppedFrames()
     return dropped;
 }
 /*
-bool CDShowCaptureDevice::driverSupportsIR()
+BOOL CDShowCaptureDevice::driverSupportsIR()
 {
     CComPtr<IKsPropertySet> pPropSet;
     if(SUCCEEDED(m_vidDev.QueryInterface(&pPropSet)))
@@ -255,17 +255,17 @@ bool CDShowCaptureDevice::driverSupportsIR()
         HRESULT hr=pPropSet->QuerySupported(PROPSETID_IR,KSPROPERTY_IR_CAPS,&supported);
         if(SUCCEEDED(hr) && (supported & KSPROPERTY_SUPPORT_GET))
         {
-            return true;
+            return TRUE;
         }
 
     }
-    return false;
+    return FALSE;
 }
 
-bool CDShowCaptureDevice::isRemotePresent()
+BOOL CDShowCaptureDevice::isRemotePresent()
 {
     if(!driverSupportsIR())
-        return false;
+        return FALSE;
 
     CComPtr<IKsPropertySet> pPropSet;
     if(SUCCEEDED(m_vidDev.QueryInterface(&pPropSet)))
@@ -275,10 +275,10 @@ bool CDShowCaptureDevice::isRemotePresent()
         HRESULT hr=pPropSet->Get(PROPSETID_IR,KSPROPERTY_IR_CAPS,&caps,sizeof(KSPROPERTY_IR_CAPS_S),&caps,sizeof(KSPROPERTY_IR_CAPS_S),&bytes);
         if(SUCCEEDED(hr) && (caps.Caps & KSPROPERTY_IR_CAPS_AVAILABLE))
         {
-            return true;
+            return TRUE;
         }
     }
-    return false;
+    return FALSE;
 }
 
 ULONG CDShowCaptureDevice::getRemoteCode()
@@ -382,7 +382,7 @@ void CDShowCaptureDevice::PutTVFormat(AnalogVideoStandard format)
     }
 }
 
-bool CDShowCaptureDevice::IsHorizontalLocked()
+BOOL CDShowCaptureDevice::IsHorizontalLocked()
 {
     if(m_pAVideoDec==NULL)
     {

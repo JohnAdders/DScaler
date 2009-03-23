@@ -82,7 +82,7 @@ public:
     virtual ~CTDA9874() {};
     void Reset();
 
-    bool IsDevicePresent(int& dic, int& rev);
+    BOOL IsDevicePresent(int& dic, int& rev);
 
 protected:
     int m_iMode ;        /* 0: A2, 1: NICAM */

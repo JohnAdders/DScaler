@@ -48,7 +48,7 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice,bool bConnectAudio)
+CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice,BOOL bConnectAudio)
 :m_pSource(NULL),m_GraphState(State_Stopped),m_pAudioControlls(NULL),m_pSeeking(NULL)
 {
     InitGraph();
@@ -185,11 +185,11 @@ void CDShowGraph::CreateRenderer()
     }
 }
 
-bool CDShowGraph::GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info,DWORD dwLateness)
+BOOL CDShowGraph::GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info,DWORD dwLateness)
 {
     if(m_DSRend==NULL)
     {
-        return false;
+        return FALSE;
     }
     ASSERT(ppFields!=NULL && pcFields!=NULL);
     HRESULT hr=m_DSRend->GetFields(ppFields,pcFields,&info,400,dwLateness);
@@ -200,9 +200,9 @@ bool CDShowGraph::GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &in
         tmpstr.ReleaseBuffer(len);
         LOG(3, "GetFields failed - Error Code: '0x%x' Error Text: '%s'", hr,(LPCSTR)tmpstr);
         LOGD("GetFields failed - Error Code: '0x%x' Error Text: '%s'\n", hr,(LPCSTR)tmpstr);
-        return false;
+        return FALSE;
     }
-    return true;
+    return TRUE;
 }
 
 void CDShowGraph::ConnectGraph()
@@ -210,7 +210,7 @@ void CDShowGraph::ConnectGraph()
     if(m_pSource!=NULL)
     {
         //check if the dsrend filter is unconnected
-        bool IsUnConnected=false;
+        BOOL IsUnConnected=FALSE;
         CDShowPinEnum pins(m_renderer,PINDIR_INPUT);
         CComPtr<IPin> InPin=pins.next();
         ASSERT(InPin!=NULL);
@@ -218,7 +218,7 @@ void CDShowGraph::ConnectGraph()
         HRESULT hr=InPin->ConnectedTo(&OutPin);
         if(hr==VFW_E_NOT_CONNECTED)
         {
-            IsUnConnected=true;
+            IsUnConnected=TRUE;
         }
 
         if(IsUnConnected || !m_pSource->IsConnected())
@@ -389,11 +389,11 @@ void CDShowGraph::BuildFilterList()
     }
 }
 
-bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,bool &bHasSubPages)
+BOOL CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,BOOL &bHasSubPages)
 {
     USES_CONVERSION;
     if(ppPage==NULL)
-        return false;
+        return FALSE;
 
     if(index>=0 && index<m_filters.size())
     {
@@ -438,15 +438,15 @@ bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,boo
             }
 
         }
-        return true;
+        return TRUE;
     }
     else
     {
-        return false;
+        return FALSE;
     }
 }
 
-bool CDShowGraph::getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage)
+BOOL CDShowGraph::getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage)
 {
     USES_CONVERSION;
     if(filterIndex>=0 && filterIndex<m_filters.size())
@@ -479,13 +479,13 @@ bool CDShowGraph::getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPag
                         pUnk->Release();
                         pUnk=NULL;
                         CoTaskMemFree(pages.pElems);
-                        return true;
+                        return TRUE;
                     }
                 }
             }
         }
     }
-    return false;
+    return FALSE;
 }
 
 long CDShowGraph::getDroppedFrames()
@@ -780,11 +780,11 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
     return result;
 }
 
-bool CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
+BOOL CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
 {
     if(m_renderer==NULL)
     {
-        return false;
+        return FALSE;
     }
 
     if(m_pStreamCfg==NULL)
@@ -796,13 +796,13 @@ bool CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
         catch(CDShowException& e)
         {
             LOG(1, "DShow Exception - %s", e.what());
-            return false;
+            return FALSE;
         }
     }
     int iCount,iSize;
     HRESULT hr=m_pStreamCfg->GetNumberOfCapabilities(&iCount,&iSize);
     if(FAILED(hr))
-        return false;
+        return FALSE;
 
     for(int i=0;i<iCount;i++)
     {
@@ -830,11 +830,11 @@ bool CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
                 fmt.m_Width>=vCaps.MinOutputSize.cx && fmt.m_Height>=vCaps.MinOutputSize.cy &&
                 fmt.m_Width%vCaps.OutputGranularityX==0 && fmt.m_Height%vCaps.OutputGranularityY==0)
             {
-                return true;
+                return TRUE;
             }
         }
     }
-    return false;
+    return FALSE;
 }
 void CDShowGraph::FindStreamConfig()
 {
@@ -931,18 +931,18 @@ CDShowSeeking *CDShowGraph::GetSeeking()
     return m_pSeeking;
 }
 
-bool CDShowGraph::CVideoFormat::operator==(CVideoFormat &fmt)
+BOOL CDShowGraph::CVideoFormat::operator==(CVideoFormat &fmt)
 {
     if(m_Width==fmt.m_Width &&
         m_Height==fmt.m_Height &&
         m_bForceYUY2==fmt.m_bForceYUY2 &&
         m_FieldFmt==fmt.m_FieldFmt)
     {
-        return true;
+        return TRUE;
     }
     else
     {
-        return false;
+        return FALSE;
     }
 }
 

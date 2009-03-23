@@ -332,7 +332,7 @@ void UpdateNTSCPulldownMode(TDeinterlaceInfo* pInfo)
                     // We've detected possible 3:2 pulldown.  However, we need
                     // to keep watching the 3:2 pulldown for at least a few 5-field
                     // cycles before jumping to conclusion that it's really 3:2
-                    // pulldown and not a false alarm
+                    // pulldown and not a FALSE alarm
                     //
                     MOVIE_VERIFY_CYCLE++;
                     LOG(2, "Found Pulldown Match");

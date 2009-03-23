@@ -196,30 +196,30 @@ public:
 
     HMENU GetCardSpecificMenu();
 
-    void InitAudio(bool UsePin1);
+    void InitAudio(BOOL UsePin1);
 
     // AudioControls facade
     void SetAudioMute();
     void SetAudioUnMute(WORD nVolume, eAudioInput Input);
-    bool HasAudioVolume();
+    BOOL HasAudioVolume();
     void SetAudioVolume(WORD nVolume);
-    bool HasAudioBalance();
+    BOOL HasAudioBalance();
     void SetAudioBalance(WORD nBalance);
-    bool HasAudioBass();
+    BOOL HasAudioBass();
     void SetAudioBass(WORD nBass);
-    bool HasAudioTreble();
+    BOOL HasAudioTreble();
     void SetAudioTreble(WORD nTreble);
-    bool HasAudioEqualizers();
+    BOOL HasAudioEqualizers();
     void SetAudioEqualizerLevel(WORD nIndex, WORD nLevel);
-    bool HasAudioBassBoost();
-    void SetAudioBassBoost(bool bBoost);
-    bool HasAudioLoudness();
+    BOOL HasAudioBassBoost();
+    void SetAudioBassBoost(BOOL bBoost);
+    BOOL HasAudioLoudness();
     void SetAudioLoudness(WORD nLevel);
-    bool HasAudioSpatialEffect();
+    BOOL HasAudioSpatialEffect();
     void SetAudioSpatialEffect(int nLevel);
-    bool HasAudioDolby();
+    BOOL HasAudioDolby();
     void SetAudioDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan, WORD nPanorama);
-    bool HasAudioAutoVolumeCorrection();
+    BOOL HasAudioAutoVolumeCorrection();
     void SetAudioAutoVolumeCorrection(long milliSeconds);
 
     // AudioDecoder facade    
@@ -242,7 +242,7 @@ public:
 
     eTunerId AutoDetectTuner(eTVCardId CardId);
     eTVCardId AutoDetectCardType();
-    bool AutoDetectMSP3400();
+    BOOL AutoDetectMSP3400();
 
     BOOL InitTuner(eTunerId tunerId);
     std::string GetInputName(int nVideoSource);
@@ -253,9 +253,9 @@ public:
     LPCSTR GetAudioInputName(eAudioInput nInput);
     int GetNumAudioInputs();
 
-    bool GetHasUseInputPin1();
-    bool GetUseInputPin1();
-    void SetUseInputPin1(bool AValue);
+    BOOL GetHasUseInputPin1();
+    BOOL GetUseInputPin1();
+    void SetUseInputPin1(BOOL AValue);
 
     void SetPMSChannelGain(int ChannelNum, WORD Gain);
     
@@ -267,10 +267,10 @@ public:
     SmartPtr<CAD9882> GetAD9882() { return m_AD9882; }
 
     // I2C stuff
-    void SetSDA(bool value);
-    void SetSCL(bool value);
-    bool GetSDA();
-    bool GetSCL();
+    void SetSDA(BOOL value);
+    void SetSCL(BOOL value);
+    BOOL GetSDA();
+    BOOL GetSCL();
     void Sleep();
     void I2CLock();
     void I2CUnlock();
@@ -293,7 +293,7 @@ private:
     ULONG GetTickCount();
     DWORD m_I2CSleepCycle;
     DWORD m_I2CRegister;
-    bool m_I2CInitialized;
+    BOOL m_I2CInitialized;
     void InitializeI2C();
 
     void SetGeometryEvenOdd(BOOL bOdd, int wHScale, int wVScale, int wHActive, int wVActive, int wHDelay, int wVDelay, BYTE bCrop);
@@ -358,7 +358,7 @@ private:
     static const TCardType m_TVCards[TVCARD_LASTONE];
     static const TAutoDectect878 m_AutoDectect878[];
     static const eTunerId m_Tuners_miro[];
-    static const bool     m_Tuners_miro_fm[];
+    static const BOOL     m_Tuners_miro_fm[];
     static const eTunerId m_Tuners_avermedia_0[];
     static const eTunerId m_Tuners_avermedia_0_fm[];
     static const eTunerId m_Tuners_avermedia_1[];

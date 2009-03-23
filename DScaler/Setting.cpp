@@ -41,9 +41,105 @@ static char THIS_FILE[]=__FILE__;
 /** Internal flags
 */
 
-#define RWFLAG_READFROMINI 1
-#define RWFLAG_ISIN_INI  2
-#define RWFLAG_FLAGIN_INI 4
+string GetWindowClass(HWND hWnd)
+{
+    vector<char> ClassName(256);
+    GetClassName(hWnd,&ClassName[0],255);
+    return &ClassName[0];
+}
+
+BOOL IsWindowClass(HWND hWnd, const string& ClassName)
+{
+    return AreEqualInsensitive(GetWindowClass(hWnd), ClassName);
+}
+
+void SliderControlSetup(HWND hWnd, long StepValue)
+{
+    Slider_SetRangeMin(hWnd, 0);
+    Slider_SetPageSize(hWnd, StepValue);
+    Slider_SetLineSize(hWnd, StepValue);
+}
+
+void SliderControlSetValue(HWND hWnd, long Value, long MinValue, long MaxValue, long Default)
+{
+    Slider_ClearTicks(hWnd, TRUE);
+    Slider_SetRangeMax(hWnd, MaxValue - MinValue);
+    if(GetWindowLong(hWnd, GWL_STYLE) & TBS_VERT)
+    {
+        Slider_SetTic(hWnd, MaxValue - Default);
+    }
+    else
+    {
+        Slider_SetTic(hWnd, Default - MinValue);
+    }
+
+    if(GetWindowLong(hWnd, GWL_STYLE) & TBS_VERT)
+    {
+        Slider_SetPos(hWnd, MaxValue - Value);
+    }
+    else
+    {
+        Slider_SetPos(hWnd, Value - MinValue);
+    }
+}
+
+long SliderControlGetValue(HWND hWnd, long MinValue, long MaxValue, long StepValue)
+{
+    long nValue = Slider_GetPos(hWnd);
+    if(GetWindowLong(hWnd, GWL_STYLE) & TBS_VERT)
+    {
+        nValue = MaxValue - nValue;
+    }
+    else
+    {
+        nValue = nValue + MinValue;
+    }
+    // make sure the value is only a multiple of the step size.
+    if(StepValue != 1)
+    {
+        nValue = nValue - (nValue % StepValue);
+    }
+    return nValue;
+}
+
+void ComboBoxControlSetup(HWND hWnd, long NumItems, const char** szList)
+{
+    ComboBox_ResetContent(hWnd);
+
+    if(szList != NULL)
+    {
+        for(int i(0); i < NumItems; ++i)
+        {
+            //is there any text for this item?
+            if ( (szList[i] != NULL) && (*szList[i] != '\0') )
+            {
+                int Pos = ComboBox_AddString(hWnd, szList[i]);
+
+                //store Value in itemdata
+                ComboBox_SetItemData(hWnd, Pos, i);
+            }
+        }
+    }
+}
+
+void ComboBoxSetValue(HWND hWnd, long Value)
+{
+    long NumItems ComboBox_GetCount(hWnd);
+    for(int i(0); i < NumItems; ++i)
+    {
+        if(ComboBox_GetItemData(hWnd, i) == Value)
+        {
+            ComboBox_SetCurSel(hWnd, i);
+            return;
+        }
+    }
+}
+
+long ComboBoxGetValue(HWND hWnd)
+{
+    return ComboBox_GetItemData(hWnd, ComboBox_GetCurSel(hWnd));
+}
+
 
 /** Constructor
 
@@ -55,80 +151,22 @@ static char THIS_FILE[]=__FILE__;
     GUI info, static callback function, pointer for callback function
 
 */
-CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, 
-                               LPCSTR Section, LPCSTR Entry, long StepValue, 
-                               CSettingGroup* pGroup)
+CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
+    m_DisplayName(DisplayName),
+    m_Section(Section),
+    m_Entry(Entry),
+    m_ReadWriteFlags(0),
+    m_pGroup(pGroup),
+    m_EnableOnChange(FALSE)
 {
-    m_pSetting = new SETTING;
-    m_bFreeSettingOnExit = TRUE;
-        
-    m_DisplayName = DisplayName;
-    m_pSetting->szDisplayName = (char*)m_DisplayName.c_str();
-
-    m_StoreValue = Default;
-    m_pSetting->pValue = &m_StoreValue;
-    
-    m_pSetting->LastSavedValue = Default;
-    m_pSetting->Default = Default;
-    m_pSetting->MinValue = Min;
-    m_pSetting->MaxValue = Max;
-    m_Section = Section;
-    m_pSetting->szIniSection = (char*)m_Section.c_str();
-    m_Entry = Entry;
-    m_pSetting->szIniEntry = (char*)m_Entry.c_str();
-    m_pSetting->StepValue = StepValue;
-    m_pSetting->OSDDivider = 1;
-    m_pSetting->pszList = NULL;
-    m_pSetting->Type = SLIDER;
-    
-    m_pSetting->pfnOnChange = NULL;
-
-    m_pGroup = pGroup;
-    m_EnableOnChange = TRUE;
-    m_ReadWriteFlags = 0;
-
-    m_SectionLastSavedValue = Default;
-}
-
-
-/** Constructor
-
-    Specify setting parameters:
-    Pointer to SETTING structure, 
-    (optional:)
-    Setting group,
-    Setting flags,
-    GUI info, 
-    static callback function, pointer for callback function
-
-*/
-CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup)
-{    
-    m_pSetting = pSetting;
-    m_bFreeSettingOnExit = FALSE;
-    
-    m_pGroup = pGroup;
-    
-    m_EnableOnChange = TRUE;
-    m_ReadWriteFlags = 0;
-
-    m_SectionLastSavedValue = pSetting->Default;
 }
 
 CSimpleSetting::~CSimpleSetting()
 {
-    if (m_bFreeSettingOnExit)
-    {
-        delete m_pSetting;
-        m_pSetting = NULL;
-    }
 }
 
 
-/**
-    Check if the setting should do an OnChange call
-*/
-BOOL CSimpleSetting::DoOnChange(long NewValue, long OldValue)
+BOOL CSimpleSetting::IsOnChangeEnabled()
 {
     return m_EnableOnChange;
 }
@@ -143,75 +181,29 @@ void CSimpleSetting::DisableOnChange()
     m_EnableOnChange = FALSE;
 }
 
-long CSimpleSetting::GetValue()
-{
-    return *m_pSetting->pValue;    
-}
-
-/**
-    Set value
-*/
-void CSimpleSetting::SetValue(long NewValue, BOOL bSuppressOnChange)
-{
-    long OldValue = *m_pSetting->pValue;
-    if(NewValue < m_pSetting->MinValue)
-    {
-        NewValue = m_pSetting->MinValue;
-    }
-    if(NewValue > m_pSetting->MaxValue)
-    {
-        NewValue = m_pSetting->MaxValue;
-    }    
-    *m_pSetting->pValue = NewValue;
-    if (!bSuppressOnChange && DoOnChange(NewValue, OldValue))
-    {
-        OnChange(NewValue, OldValue);
-    }
-}
-
-/**
-    Set default value.
-*/
-void CSimpleSetting::SetDefault()
-{
-    long OldValue = *m_pSetting->pValue;
-    *m_pSetting->pValue = m_pSetting->Default;
-    if (DoOnChange(*m_pSetting->pValue, OldValue))
-    {
-        OnChange(*m_pSetting->pValue, OldValue);
-    }
-}
-
-long CSimpleSetting::GetDefault()
-{
-    return m_pSetting->Default;
-}
-
 void CSimpleSetting::SetSection(LPCSTR NewValue)
 {
     m_Section = NewValue;
-    m_pSetting->szIniSection = (char*)m_Section.c_str();
 }
 
 LPCSTR CSimpleSetting::GetDisplayName() 
 { 
-    return m_pSetting->szDisplayName;
+    return m_DisplayName.c_str();
 }
 
 LPCSTR CSimpleSetting::GetSection() 
 { 
-    return m_pSetting->szIniSection;
+    return m_Section.c_str();
 }
 
 void CSimpleSetting::SetEntry(LPCSTR NewValue) 
 {     
     m_Entry = NewValue; 
-    m_pSetting->szIniEntry = (char*)m_Entry.c_str();
 }
 
 LPCSTR CSimpleSetting::GetEntry() 
 { 
-    return m_pSetting->szIniEntry;
+    return m_Entry.c_str();
 }
 
 
@@ -221,75 +213,50 @@ LPCSTR CSimpleSetting::GetEntry()
     @param pSettingFlags Override setting flags of current setting if not NULL
     @return TRUE if value was in .ini file            
 */
-BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
+BOOL CSimpleSetting::ReadFromIniSubSection(const string& SubSection)
 {
-    long nValue;
-    long nSavedValue;
     BOOL IsSettingInIniFile = TRUE;
 
-    if(m_pSetting->szIniSection != NULL)
+    if(!SubSection.empty())
     {        
         string sEntry;
-        char* szIniEntry;
 
-        sEntry = m_pSetting->szIniSection;
-        sEntry += "_";
-        sEntry+= m_pSetting->szIniEntry;
-        szIniEntry = (char*)sEntry.c_str();
+        if(SubSection != m_Section)
+        {
+            sEntry = m_Section;
+            sEntry += "_";
+            sEntry += m_Entry;
+        }
+        else
+        {
+            sEntry = m_Entry;
+        }
         
-        char szDefaultString[] = {0};
-        char szBuffer[256];
-        
-        int Len = GetPrivateProfileString(szSubSection, szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
-        LOG(2, " ReadFromIniSubSection %s %s Result %s", szSubSection, szIniEntry, szBuffer);
+        string szDefaultString;
+        vector<char> szBuffer(256);
+
+        int Len = GetPrivateProfileString(SubSection.c_str(), sEntry.c_str(), "", &szBuffer[0], 255, GetIniFileForSettings());
+        LOG(2, " ReadFromIniSubSection %s %s Result %s", SubSection.c_str(), sEntry.c_str(), &szBuffer[0]);
 
         if (Len <= 0)
         {
             IsSettingInIniFile = FALSE;
-            nValue = m_pSetting->Default;
-            nSavedValue = nValue;
+            ChangeValueInternal(RESET);
+            m_LastSavedValueIniSection.clear();
+            m_LastSavedValue.clear();
         }
         else
         {
             IsSettingInIniFile = TRUE;
-
-            char* szValue = szBuffer;
-            nValue = atoi(szValue);
-            nSavedValue = nValue;
-               
-            // If the value is out of range, set it to its default value
-            if ( (nValue < m_pSetting->MinValue)
-              || (nValue > m_pSetting->MaxValue) )
-            {
-                if(nValue < m_pSetting->MinValue)
-                {
-                    LOG(1, "toto %s %s Was out of range - %d is too low", szSubSection, szIniEntry, nValue);
-                }
-                else
-                {
-                    LOG(1, "%s %s Was out of range - %d is too high", szSubSection, szIniEntry, nValue);
-                }
-                nValue = m_pSetting->Default;
-            }
+            SetValueFromString(&szBuffer[0]);
+            m_LastSavedValue = GetValueAsString();
+            m_LastSavedValueIniSection = SubSection;
         }
-
-        int OldValue = *m_pSetting->pValue;
-        *m_pSetting->pValue = nValue;
-
-        // only call OnChange when there actually is a change
-        // this will help keep channel changes slick
-        if(*m_pSetting->pValue != OldValue && DoOnChange(*m_pSetting->pValue, OldValue))
-        {
-            OnChange(*m_pSetting->pValue, OldValue);
-        }
-
-        m_SectionLastSavedValue = nSavedValue;
-        m_SectionLastSavedValueIniSection = szSubSection;
-
     }
     else
     {
-        m_SectionLastSavedValueIniSection = "";
+        m_LastSavedValueIniSection.clear();
+        m_LastSavedValue.clear();
         IsSettingInIniFile = FALSE;
     }
     return IsSettingInIniFile;
@@ -299,195 +266,78 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
 */
 BOOL CSimpleSetting::ReadFromIni()
 {
-    long nValue;
-    long nSavedValue;
-    BOOL IsSettingInIniFile = TRUE;
-
-    if(m_pSetting->szIniSection != NULL)
-    {        
-        char szDefaultString[] = {0};
-        char szBuffer[256];
-        
-        int Len = GetPrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
-        LOG(2, " ReadFromIni %s %s Result %s", m_pSetting->szIniSection, m_pSetting->szIniEntry, szBuffer);
-
-        if (Len <= 0)
-        {
-            IsSettingInIniFile = FALSE;
-            nValue = m_pSetting->Default;
-        }
-        else
-        {
-            IsSettingInIniFile = TRUE;
-
-            char* szValue = szBuffer;
-            nValue = atoi(szValue);
-            nSavedValue = nValue;
-               
-            // If the value is out of range, set it to its default value
-            if ( (nValue < m_pSetting->MinValue)
-              || (nValue > m_pSetting->MaxValue) )
-            {
-                if(nValue < m_pSetting->MinValue)
-                {
-                    LOG(1, "titi %s %s Was out of range - %d is too low", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
-                }
-                else
-                {
-                    LOG(1, "%s %s Was out of range - %d is too high", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
-                }
-                nValue = m_pSetting->Default;
-            }
-        }
-        if (IsSettingInIniFile)
-        {            
-            int OldValue = *m_pSetting->pValue;
-            *m_pSetting->pValue = nValue;
-
-            if (DoOnChange(*m_pSetting->pValue, OldValue))
-            {
-                OnChange(*m_pSetting->pValue, OldValue);
-            }
-            m_pSetting->LastSavedValue = nSavedValue;
-            m_sLastSavedValueIniSection = m_pSetting->szIniSection;
-        }        
-        else
-        {
-            m_sLastSavedValueIniSection = "";
-        }
-    }
-    else
-    {
-        m_sLastSavedValueIniSection = "";
-        IsSettingInIniFile =  FALSE;
-    }
-    return IsSettingInIniFile;
+    return ReadFromIniSubSection(m_Section.c_str());
 }
 
 /** Write value to szSubsection in .ini file
     Override value and setting flags if Value and/or pSettingFlags is not NULL.
 */
-void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess)
+void CSimpleSetting::WriteToIniSubSection(const string& SubSection, BOOL bOptimizeFileAccess)
 {
-    if(m_pSetting->szIniSection != NULL)
+    if(!SubSection.empty())
     {
         string sEntry;
-        char* szIniEntry;
 
-        sEntry = m_pSetting->szIniSection;
-        sEntry += "_";
-        sEntry+= m_pSetting->szIniEntry;
-        szIniEntry = (char*)sEntry.c_str();
-
-        long Val = *m_pSetting->pValue; 
-
-        BOOL bWriteValue = FALSE;
-
-        if(bOptimizeFileAccess)
+        if(SubSection != m_Section)
         {
-            if(m_SectionLastSavedValue != Val || m_SectionLastSavedValueIniSection != szSubSection)
-            {
-                bWriteValue = TRUE;
-            }
-            else
-            {
-                bWriteValue = FALSE;
-            }
+            sEntry = m_Section;
+            sEntry += "_";
+            sEntry += m_Entry;
         }
         else
         {
-            bWriteValue = TRUE;
+            sEntry = m_Entry;
         }
 
-        // hopefully stops noise 
-        if(bWriteValue)
+        string CurrentValue(GetValueAsString());
+
+        if(!bOptimizeFileAccess || m_LastSavedValue != CurrentValue || m_LastSavedValueIniSection != SubSection)
         {
-            WritePrivateProfileInt(szSubSection, szIniEntry, Val, GetIniFileForSettings());
-            LOG(2, " WriteToIniSubSection %s %s Value %d Was %d", szSubSection, szIniEntry, Val, m_SectionLastSavedValue);
+            WritePrivateProfileString(SubSection.c_str(), sEntry.c_str(), CurrentValue.c_str(), GetIniFileForSettings());
+            LOG(2, " WriteToIniSubSection %s %s Value %s Was %s", SubSection.c_str(), sEntry.c_str(), CurrentValue.c_str(), m_LastSavedValue.c_str());
         }
         else
         {
-            LOG(2, " WriteToIniSubSection Not Written %s %s Value %d", szSubSection, szIniEntry, Val);
+            LOG(2, " WriteToIniSubSection Not Written %s %s Value %s", SubSection.c_str(), sEntry.c_str(), CurrentValue.c_str());
         }
 
-
-        m_SectionLastSavedValue = Val;
-        m_SectionLastSavedValueIniSection = szSubSection;
+        m_LastSavedValue = CurrentValue;
+        m_LastSavedValueIniSection = SubSection;
     }
 }
 
 void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
 {
-    if(m_pSetting->szIniSection != NULL)
+    if(!m_Section.empty())
     {
-        long Val = *m_pSetting->pValue; 
+        string CurrentValue(GetValueAsString());
 
         // here we want all settings in the ini file
         // so we only optimize if the value and section 
         // were the same as what was loaded
-        if(!bOptimizeFileAccess || Val != m_pSetting->LastSavedValue)
+        if(!bOptimizeFileAccess || CurrentValue != m_LastSavedValue || m_LastSavedValueIniSection != m_Section)
         {
-            WritePrivateProfileInt(m_pSetting->szIniSection, m_pSetting->szIniEntry, Val, GetIniFileForSettings());
-            LOG(2, " WriteToIni %s %s Value %d Optimize %d Was %d", m_pSetting->szIniSection, m_pSetting->szIniEntry, Val, bOptimizeFileAccess, m_pSetting->LastSavedValue);
+            WritePrivateProfileString(m_Section.c_str(), m_Entry.c_str(), CurrentValue.c_str(), GetIniFileForSettings());
+            LOG(2, " WriteToIni %s %s Value %s Optimize %d Was %s", m_Section.c_str(), m_Entry.c_str(), CurrentValue.c_str(), bOptimizeFileAccess, m_LastSavedValue.c_str());
         }
         else
         {
-            LOG(2, " WriteToIni Not Written %s %s Value %d", m_pSetting->szIniSection, m_pSetting->szIniEntry, Val);
+            LOG(2, " WriteToIni Not Written %s %s Value %s", m_Section.c_str(), m_Entry.c_str(), CurrentValue.c_str());
         }
 
-        m_pSetting->LastSavedValue = Val;
-        
-        m_sLastSavedValueIniSection = m_pSetting->szIniSection;
-    }
-}
- 
-
- /** Change default value
-*/
-void CSimpleSetting::ChangeDefault(long NewDefault, BOOL bDontSetValue)
-{
-    m_pSetting->Default = NewDefault;
-    if (!bDontSetValue)    
-    {
-        SetValue(NewDefault);
+        m_LastSavedValue = CurrentValue;
+        m_LastSavedValueIniSection = m_Section;
     }
 }
 
-CSimpleSetting::operator long()
-{
-    return *m_pSetting->pValue;    
-}
- 
 void CSimpleSetting::OSDShow()
 {
-    char szBuffer[1024] = "Unexpected Display Error";
+    string OSDText(MakeString() << m_DisplayName << " " << GetDisplayValue());
 
-    // call to virtual get display string function
-    GetDisplayText(szBuffer);
-
-    OSD_ShowText(szBuffer, 0);
+    OSD_ShowText(OSDText, 0);
     
 }
 
-void CSimpleSetting::Up()
-{
-    if ((*m_pSetting->pValue) < m_pSetting->MaxValue)
-    {
-        int nStep = GetCurrentAdjustmentStepCount(this) * m_pSetting->StepValue;
-        SetValue(*m_pSetting->pValue + nStep);
-    }
-}
-
-void CSimpleSetting::Down()
-{
-    if ((*m_pSetting->pValue) > m_pSetting->MinValue)
-    {
-        int nStep = GetCurrentAdjustmentStepCount(this) * m_pSetting->StepValue;
-        SetValue(*m_pSetting->pValue - nStep);
-    }
-    
-}
- 
 void CSimpleSetting::ChangeValue(eCHANGEVALUE NewValue)
 {
     switch(NewValue)
@@ -496,82 +346,25 @@ void CSimpleSetting::ChangeValue(eCHANGEVALUE NewValue)
         OSDShow();
         break;
     case ADJUSTUP:
-        Up();
-        OSDShow();
-        break;
     case ADJUSTDOWN:
-        Down();
-        OSDShow();
-        break;
     case INCREMENT:
-        SetValue((*m_pSetting->pValue) + m_pSetting->StepValue);
-        OSDShow();
-        break;
     case DECREMENT:
-        SetValue((*m_pSetting->pValue) - m_pSetting->StepValue);
-        OSDShow();
-        break;
     case RESET:
-        SetDefault();
-        OSDShow();
-        break;
     case TOGGLEBOOL:
-        if(GetType() == YESNO || GetType() == ONOFF)
-        {
-            SetValue(!(*m_pSetting->pValue));
-            OSDShow();
-        }
+        ChangeValueInternal((eCHANGEVALUE)(NewValue + (ADJUSTUP_SILENT - ADJUSTUP)));
+        OSDShow();
         break;
     case ADJUSTUP_SILENT:
-        Up();
-        break;
     case ADJUSTDOWN_SILENT:
-        Down();
-        break;
     case INCREMENT_SILENT:
-        SetValue((*m_pSetting->pValue) + m_pSetting->StepValue);
-        break;
     case DECREMENT_SILENT:
-        SetValue((*m_pSetting->pValue) - m_pSetting->StepValue);
-        break;
     case RESET_SILENT:
-        SetDefault();
-        break;
     case TOGGLEBOOL_SILENT:
-        if(GetType() == YESNO || GetType() == ONOFF)
-        {
-            SetValue(!(*m_pSetting->pValue));
-        }
+        ChangeValueInternal(NewValue);
         break;
     default:
         break;
     }
-    
-}
-
-void CSimpleSetting::SetStepValue(long Step)
-{
-    m_pSetting->StepValue = Step;
-}
-
-void CSimpleSetting::SetMin(long Min)
-{
-    m_pSetting->MinValue = Min;
-}
- 
-void CSimpleSetting::SetMax(long Max)
-{
-    m_pSetting->MaxValue = Max;
-}
-
-long CSimpleSetting::GetMin()
-{
-    return m_pSetting->MinValue;
-}
-
-long CSimpleSetting::GetMax()
-{
-    return m_pSetting->MaxValue;
 }
 
 void CSimpleSetting::SetGroup(CSettingGroup* pGroup)
@@ -584,176 +377,324 @@ CSettingGroup* CSimpleSetting::GetGroup()
     return m_pGroup;
 }
 
-/** Default OnChange function
-    Child class can override
-
-    This function calls the pfnExOnChange function
-    or the pfnOnChange function of the setting
-    if one of them is not NULL
-*/
-void CSimpleSetting::OnChange(long NewValue, long OldValue)
-{
-    if (m_pSetting->pfnOnChange!=NULL)
-    {
-        m_pSetting->pfnOnChange(NewValue);
-    }
-}
-
-
-
-
 /** List setting.
     Specify list with 'pszList',
     for the rest of the parameters: 
     @see CSimpleSetting
 */
 CListSetting::CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, CSettingGroup* pGroup) :
-    CSimpleSetting(DisplayName, Default, 0, Max, Section, Entry, 1, pGroup)    
+    CSimpleSetting(DisplayName, Section, Entry, pGroup),
+    m_Default(Default),
+    m_Max(Max),
+    m_Value(Default),
+    m_List(pszList)
 {
-    m_pSetting->Type = ITEMFROMLIST;
-    m_pSetting->pszList = pszList;
-}
-
-CListSetting::CListSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
-    CSimpleSetting(pSetting, pGroup)
-{   
 }
 
 CListSetting::~CListSetting()
 {
 }
 
-void CListSetting::GetDisplayText(LPSTR szBuffer)
+const char** CListSetting::GetList()
 {
-    char* szName = m_pSetting->szDisplayName;
-    if (szName == NULL)
-    {
-        szName = m_pSetting->szIniEntry;
-    }
+    return m_List;
+}
 
-    if(m_pSetting->pszList != NULL)
+long CListSetting::GetValue()
+{
+    return m_Value;
+}
+
+void CListSetting::SetValue(long NewValue, BOOL SupressOnChange)
+{
+    long OldValue(m_Value);
+    if(m_Value >=0 && m_Value <= m_Max)
     {
-        
-        sprintf(szBuffer, "%s %s", szName, m_pSetting->pszList[*m_pSetting->pValue]);
+        m_Value = NewValue;
     }
     else
     {
-        sprintf(szBuffer, "%s %d", szName, *m_pSetting->pValue);
+        m_Value = m_Default;
+    }
+    if(!SupressOnChange && IsOnChangeEnabled())
+    {
+        OnChange(m_Value, OldValue);
     }
 }
 
+long CListSetting::GetNumItems()
+{
+    return m_Max + 1;
+}
+
+void CListSetting::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
+{
+    switch(TypeOfChange)
+    {
+    case ADJUSTUP_SILENT:
+    case INCREMENT_SILENT:
+        if(m_Value < m_Max)
+        {
+            SetValue(m_Value + 1);
+        }
+        break;
+    case ADJUSTDOWN_SILENT:
+    case DECREMENT_SILENT:
+        if(m_Value > 0)
+        {
+            SetValue(m_Value - 1);
+        }
+        break;
+    case RESET_SILENT:
+        SetValue(m_Default);
+        break;
+    case TOGGLEBOOL_SILENT:
+    default:
+        break;
+    }
+}
+
+std::string CListSetting::GetValueAsString()
+{
+    return ToString(m_Value);
+}
+
+std::string CListSetting::GetDisplayValue()
+{
+    if(m_List != NULL)
+    {
+        return m_List[m_Value];
+    }
+    else
+    {
+        return ToString(m_Value);
+    }
+}
+
+void CListSetting::SetValueFromString(LPCSTR NewValue)
+{
+    SetValue(atol(NewValue));
+}
+
+LPARAM CListSetting::GetValueAsMessage()
+{
+    return m_Value;
+}
+
+void CListSetting::SetValueFromMessage(LPARAM LParam)
+{
+    SetValue(LParam);
+}
+
+
 void CListSetting::SetupControl(HWND hWnd)
 {
+    if(IsWindowClass(hWnd, "COMBOBOX"))
+    {
+        ComboBoxControlSetup(hWnd, m_Max + 1, m_List);
+    }
 }
 
 void CListSetting::SetControlValue(HWND hWnd)
 {
-    ComboBox_SetCurSel(hWnd, *m_pSetting->pValue);
+    if(IsWindowClass(hWnd, "COMBOBOX"))
+    {
+        ComboBoxSetValue(hWnd, m_Value);
+    }
 }
 
 void CListSetting::SetFromControl(HWND hWnd)
 {
-    SetValue(ComboBox_GetCurSel(hWnd));
+    if(IsWindowClass(hWnd, "COMBOBOX"))
+    {
+        SetValue(ComboBoxGetValue(hWnd));
+    }
 }
 
-
+ /** Change default value
+*/
+void CListSetting::ChangeDefault(long NewDefault, BOOL bDontSetValue)
+{
+    m_Default = NewDefault;
+    if (!bDontSetValue)    
+    {
+        SetValue(NewDefault);
+    }
+}
 
 /** Slider setting.
     For the parameters: 
     @see CSimpleSetting
 */
 CSliderSetting::CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
-    CSimpleSetting(DisplayName, Default, Min, Max, Section, Entry, 1, pGroup)
+    CSimpleSetting(DisplayName, Section, Entry, pGroup),
+    m_Default(Default),
+    m_Min(Min),
+    m_Max(Max),
+    m_Value(Default),
+    m_StepValue(1)
 {
-    m_pSetting->OSDDivider = 1;
-    m_pSetting->Type = SLIDER;
-}
-
-CSliderSetting::CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
-    CSimpleSetting(pSetting, pGroup)
-{    
 }
 
 CSliderSetting::~CSliderSetting()
 {
 }
 
-void CSliderSetting::SetOSDDivider(long OSDDivider)
+long CSliderSetting::GetValue()
 {
-    m_pSetting->OSDDivider = OSDDivider;
+    return m_Value;
 }
 
-
-void CSliderSetting::GetDisplayText(LPSTR szBuffer)
+void CSliderSetting::SetValue(long NewValue, BOOL SuppressOnChange)
 {
-    char* szName = m_pSetting->szDisplayName;
-    if (szName == NULL)
+    long OldValue = m_Value;
+    if(NewValue < m_Min)
     {
-        szName = m_pSetting->szIniEntry;
+        NewValue = m_Min;
     }
-
-    if(m_pSetting->OSDDivider == 1)
+    if(NewValue > m_Max)
     {
-        sprintf(szBuffer, "%s %d",szName, *m_pSetting->pValue);
-    }
-    else if(m_pSetting->OSDDivider == 8)
+        NewValue = m_Max;
+    }    
+    m_Value = NewValue;
+    if (!SuppressOnChange && IsOnChangeEnabled())
     {
-        sprintf(szBuffer, "%s %.3f", szName, (float)(*m_pSetting->pValue) / (float)m_pSetting->OSDDivider);
-    }
-    else
-    {
-        sprintf(szBuffer, "%s %.*f", szName, (int)log10((double)m_pSetting->OSDDivider), (float)(*m_pSetting->pValue) / (float)m_pSetting->OSDDivider);
+        OnChange(NewValue, OldValue);
     }
 }
+
+void CSliderSetting::SetMin(long Min)
+{
+    m_Min = Min;
+}
+
+void CSliderSetting::SetMax(long Max)
+{
+    m_Max = Max;
+}
+
+long CSliderSetting::GetMin()
+{
+    return m_Min;
+}
+
+long CSliderSetting::GetMax()
+{
+    return m_Max;
+}
+
+void CSliderSetting::SetStepValue(long Step)
+{
+    m_StepValue = Step;
+}
+
+string CSliderSetting::GetValueAsString()
+{
+    return ToString(m_Value);
+}
+
+string CSliderSetting::GetDisplayValue()
+{
+    return ToString(m_Value);
+}
+
+void CSliderSetting::SetValueFromString(LPCSTR NewValue)
+{
+    SetValue(FromString<long>(NewValue));
+}
+
+LPARAM CSliderSetting::GetValueAsMessage()
+{
+    return m_Value;
+}
+
+void CSliderSetting::SetValueFromMessage(LPARAM LParam)
+{
+    SetValue(LParam);
+}
+
+ /** Change default value
+*/
+void CSliderSetting::ChangeDefault(long NewDefault, BOOL bDontSetValue)
+{
+    m_Default = NewDefault;
+    if (!bDontSetValue)    
+    {
+        SetValue(NewDefault);
+    }
+}
+
+void CSliderSetting::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
+{
+    switch(TypeOfChange)
+    {
+    case ADJUSTUP_SILENT:
+        if(m_Value < m_Max)
+        {
+            SetValue(m_Value + GetCurrentAdjustmentStepCount(this) * m_StepValue);
+        }
+        break;
+    case INCREMENT_SILENT:
+        if(m_Value < m_Max)
+        {
+            SetValue(m_Value + m_StepValue);
+        }
+        break;
+    case ADJUSTDOWN_SILENT:
+        if(m_Value > m_Min)
+        {
+            SetValue(m_Value - GetCurrentAdjustmentStepCount(this) * m_StepValue);
+        }
+        break;
+    case DECREMENT_SILENT:
+        if(m_Value > m_Min)
+        {
+            SetValue(m_Value - m_StepValue);
+        }
+        break;
+    case RESET_SILENT:
+        SetValue(m_Default);
+        break;
+    case TOGGLEBOOL_SILENT:
+    default:
+        break;
+    }
+}
+
 
 void CSliderSetting::SetupControl(HWND hWnd)
 {
-    Slider_SetRangeMin(hWnd, 0);
-    Slider_SetPageSize(hWnd, m_pSetting->StepValue);
-    Slider_SetLineSize(hWnd, m_pSetting->StepValue);
-    SetControlValue(hWnd);
+    if(IsWindowClass(hWnd, TRACKBAR_CLASS))
+    {
+        SliderControlSetup(hWnd, m_StepValue);
+        SetControlValue(hWnd);
+    }
 }
 
 void CSliderSetting::SetControlValue(HWND hWnd)
 {
-    Slider_ClearTicks(hWnd, TRUE);
-    Slider_SetRangeMax(hWnd, m_pSetting->MaxValue - m_pSetting->MinValue);
-    if(GetWindowLong(hWnd, GWL_STYLE) & TBS_VERT)
+    if(IsWindowClass(hWnd, TRACKBAR_CLASS))
     {
-        Slider_SetTic(hWnd, m_pSetting->MaxValue - m_pSetting->Default);
+        SliderControlSetValue(hWnd, m_Value, m_Min, m_Max, m_Default);
     }
-    else
+    if(IsWindowClass(hWnd, "EDIT"))
     {
-        Slider_SetTic(hWnd, m_pSetting->Default - m_pSetting->MinValue);
-    }
-
-    if(GetWindowLong(hWnd, GWL_STYLE) & TBS_VERT)
-    {
-        Slider_SetPos(hWnd, m_pSetting->MaxValue - (*m_pSetting->pValue));
-    }
-    else
-    {
-        Slider_SetPos(hWnd, (*m_pSetting->pValue) - m_pSetting->MinValue);
+        Edit_SetText(hWnd, ToString(m_Value).c_str());
     }
 }
 
 void CSliderSetting::SetFromControl(HWND hWnd)
 {
-    long nValue = Slider_GetPos(hWnd);
-    if(GetWindowLong(hWnd, GWL_STYLE) & TBS_VERT)
+    if(IsWindowClass(hWnd, TRACKBAR_CLASS))
     {
-        nValue = m_pSetting->MaxValue - nValue;
+        SetValue(SliderControlGetValue(hWnd, m_Min, m_Max, m_StepValue));
     }
-    else
+    if(IsWindowClass(hWnd, "EDIT"))
     {
-        nValue = nValue + m_pSetting->MinValue;
+        vector<char> Buffer(256);
+        Edit_GetText(hWnd, &Buffer[0], 255);
+        SetValueFromString(&Buffer[0]);
     }
-    // make sure the value is only a multiple of the step size.
-    if(m_pSetting->StepValue != 1)
-    {
-        nValue = nValue - (nValue % m_pSetting->StepValue);
-    }
-    SetValue(nValue);
 }
 
 
@@ -764,42 +705,129 @@ void CSliderSetting::SetFromControl(HWND hWnd)
     @see CSimpleSetting
 */
 CYesNoSetting::CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
-    CSimpleSetting(DisplayName, Default, 0, 1, Section, Entry, 1, pGroup)
+    CSimpleSetting(DisplayName, Section, Entry, pGroup),
+    m_Default(Default),
+    m_Value(Default)
 {
-    m_pSetting->Type = YESNO;
-}
-
-CYesNoSetting::CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
-    CSimpleSetting(pSetting, pGroup)
-{  
 }
 
 CYesNoSetting::~CYesNoSetting()
 {
 }
 
-void CYesNoSetting::GetDisplayText(LPSTR szBuffer)
+void CYesNoSetting::SetValue(BOOL NewValue, BOOL SuppressOnChange)
 {
-    char* szName = m_pSetting->szDisplayName;
-    if (szName == NULL)
+    BOOL OldValue = m_Value;
+    m_Value = NewValue?TRUE:FALSE;
+    if (!SuppressOnChange && IsOnChangeEnabled())
     {
-        szName = m_pSetting->szIniEntry;
+        OnChange(NewValue, OldValue);
     }
-    sprintf(szBuffer, "%s %s", szName, (*m_pSetting->pValue)?"YES":"NO");
+}
+
+BOOL CYesNoSetting::GetValue()
+{
+    return m_Value;
 }
 
 void CYesNoSetting::SetupControl(HWND hWnd)
 {
+    if(IsWindowClass(hWnd, "Button"))
+    {
+        Button_SetText(hWnd, GetDisplayName());
+    }
+}
+
+/** Change default value
+*/
+void CYesNoSetting::ChangeDefault(BOOL NewDefault, BOOL bDontSetValue)
+{
+    m_Default = NewDefault;
+    if (!bDontSetValue)
+    {
+        SetValue(NewDefault);
+    }
 }
 
 void CYesNoSetting::SetControlValue(HWND hWnd)
 {
-    Button_SetCheck(hWnd, (*m_pSetting->pValue));
+    if(IsWindowClass(hWnd, "Button"))
+    {
+        Button_SetCheck(hWnd, m_Value?BST_CHECKED:BST_UNCHECKED);
+    }
 }
 
 void CYesNoSetting::SetFromControl(HWND hWnd)
 {
-    SetValue(Button_GetCheck(hWnd) == BST_CHECKED);
+    if(IsWindowClass(hWnd, "Button"))
+    {
+        SetValue(Button_GetCheck(hWnd) == BST_CHECKED);
+    }
+}
+
+std::string CYesNoSetting::GetDisplayValue()
+{
+    return m_Value?"YES":"NO";
+}
+
+std::string CYesNoSetting::GetValueAsString()
+{
+    return ToString(m_Value);
+}
+
+void CYesNoSetting::SetValueFromString(LPCSTR NewValue)
+{
+    if(_stricmp(NewValue, "YES") == 0 || _stricmp(NewValue, "TRUE") == 0)
+    {
+        SetValue(TRUE);
+    }
+    else if(_stricmp(NewValue, "NO") == 0 || _stricmp(NewValue, "FALSE") == 0)
+    {
+        SetValue(FALSE);
+    }
+    else
+    {
+        SetValue(FromString<long>(NewValue));
+    }
+}
+
+LPARAM CYesNoSetting::GetValueAsMessage()
+{
+    return m_Value;
+}
+
+void CYesNoSetting::SetValueFromMessage(LPARAM LParam)
+{
+    SetValue(LParam);
+}
+
+void CYesNoSetting::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
+{
+    switch(TypeOfChange)
+    {
+    case ADJUSTUP_SILENT:
+    case INCREMENT_SILENT:
+        if(m_Value == FALSE)
+        {
+            SetValue(TRUE);
+        }
+        break;
+    case ADJUSTDOWN_SILENT:
+    case DECREMENT_SILENT:
+        if(m_Value == TRUE)
+        {
+            SetValue(FALSE);
+        }
+        break;
+    case RESET_SILENT:
+        SetValue(m_Default);
+        break;
+    case TOGGLEBOOL_SILENT:
+        SetValue(!m_Value);
+        break;
+    default:
+        break;
+    }
 }
 
 
@@ -807,247 +835,71 @@ void CYesNoSetting::SetFromControl(HWND hWnd)
     For the rest of the parameters: 
     @see CSimpleSetting
 */
-CStringSetting::CStringSetting(LPCSTR DisplayName, long Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
-    CSimpleSetting(DisplayName, Default, 0, 0, Section, Entry, 1, pGroup)
-{
-    m_pSetting->Type = CHARSTRING;
-    if (*m_pSetting->pValue != NULL)
-    {
-        char* str = new char[strlen((char *)(*m_pSetting->pValue)) + 1];
-        strcpy(str, (char *)(*m_pSetting->pValue));
-        *m_pSetting->pValue = (long)str;
-    }
-}
+CStringSetting::CStringSetting(LPCSTR DisplayName, LPCSTR Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
+    CSimpleSetting(DisplayName, Section, Entry, pGroup),
+    m_Value(Default),
+    m_Default(Default)
 
-CStringSetting::CStringSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
-    CSimpleSetting(pSetting, pGroup)
 {
 }
 
 CStringSetting::~CStringSetting()
 {
-    if (m_bFreeSettingOnExit)
-    {
-        if (*m_pSetting->pValue != NULL)
-        {
-            delete (char *)(*m_pSetting->pValue);
-        }
-        delete m_pSetting;
-        m_pSetting = NULL;
-    }
 }
 
-void CStringSetting::GetDisplayText(LPSTR szBuffer)
+const char* CStringSetting::GetValue()
 {
-    char* szName = m_pSetting->szDisplayName;
-    if (szName == NULL)
-    {
-        szName = m_pSetting->szIniEntry;
-    }
-    sprintf(szBuffer, "%s %s", szName, *m_pSetting->pValue ? (char*)(*m_pSetting->pValue) : "");
+    return m_Value.c_str();
 }
 
-void CStringSetting::SetValue(long NewValue, BOOL bSuppressOnChange)
+std::string CStringSetting::GetValueAsString()
 {
-    long OldValue = *m_pSetting->pValue;
-    char* str = new char[strlen((char *)NewValue) + 1];
-    strcpy(str, (char *)NewValue);
-    *m_pSetting->pValue = (long)str;
-    if (!bSuppressOnChange && DoOnChange(NewValue, OldValue))
-    {
-        OnChange(NewValue, OldValue);
-    }
-    if (OldValue != NULL)
-    {
-        delete (char *)OldValue;
-    }
+    return m_Value;
 }
 
-void CStringSetting::SetDefault()
+std::string CStringSetting::GetDisplayValue()
 {
-    SetValue(m_pSetting->Default);
+    return m_Value;
 }
 
-/** Read value from sub section in .ini file
-    @param szSubSection Set to NULL to read from the default location
-    @param bSetDefaultOnFailure If the setting was not in the .ini file, set the setting's value to the default value
-    @param pSettingFlags Override setting flags of current setting if not NULL
-    @return TRUE if value was in .ini file            
-*/
-BOOL CStringSetting::ReadFromIniSubSection(LPCSTR szSubSection)
+void CStringSetting::SetValue(const char* NewValue, BOOL bSuppressOnChange)
 {
-    BOOL IsSettingInIniFile = TRUE;
-
-    if(m_pSetting->szIniSection != NULL)
-    {        
-        string sEntry;
-        char* szIniEntry;
-
-        sEntry = m_pSetting->szIniSection;
-        sEntry += "_";
-        sEntry+= m_pSetting->szIniEntry;
-        szIniEntry = (char*)sEntry.c_str();
-        
-        char szDefaultString[] = {0};
-        char szBuffer[256];
-        char* szValue;
-        
-        int Len = GetPrivateProfileString(szSubSection, szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
-        LOG(2, " ReadFromIniSubSection %s %s Result %s", szSubSection, szIniEntry, szBuffer);
-
-        if (Len <= 0)
-        {
-            IsSettingInIniFile = FALSE;
-            szValue = (char *)(m_pSetting->Default);
-        }
-        else
-        {
-            IsSettingInIniFile = TRUE;
-            szValue = (char *)szBuffer;            
-        }
-
-        int OldValue = *m_pSetting->pValue;
-        char* str = new char[strlen(szValue) + 1];
-        strcpy(str, szValue);
-        *m_pSetting->pValue = (long)str;
-
-        // only call OnChange when there actually is a change
-        // this will help keep channel changes slick
-        if(strcmp((char*)*m_pSetting->pValue, (char*)OldValue) && DoOnChange(*m_pSetting->pValue, OldValue))
-        {
-            OnChange(*m_pSetting->pValue, OldValue);
-        }
-
-        if (OldValue != NULL)
-        {
-            delete (char *)OldValue;
-        }   
-
-        m_SectionLastSavedValueIniSection = szSubSection;
+    string OldValue = m_Value;
+    if(NewValue != 0)
+    {
+        m_Value = NewValue;
     }
     else
     {
-        m_SectionLastSavedValueIniSection = "";
-        IsSettingInIniFile = FALSE;
+        m_Value.clear();
     }
-    return IsSettingInIniFile;
-}
-
-/** Read value from default location in .ini file
-*/
-BOOL CStringSetting::ReadFromIni()
-{
-    BOOL IsSettingInIniFile = TRUE;
-
-    if(m_pSetting->szIniSection != NULL)
-    {        
-        char szDefaultString[] = {0};
-        char szBuffer[256];
-        char* szValue;
-        
-        int Len = GetPrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
-        LOG(2, " ReadFromIni %s %s Result %s", m_pSetting->szIniSection, m_pSetting->szIniEntry, szBuffer);
-
-        if (Len <= 0)
-        {
-            IsSettingInIniFile = FALSE;
-            szValue = (char *)(m_pSetting->Default);
-        }
-        else
-        {
-            IsSettingInIniFile = TRUE;
-            szValue = (char *)szBuffer;
-        }
-        if (IsSettingInIniFile)
-        {            
-            int OldValue = *m_pSetting->pValue;
-            char* str = new char[strlen(szValue) + 1];
-            strcpy(str, szValue);
-            *m_pSetting->pValue = (long)str;
-
-            if (DoOnChange(*m_pSetting->pValue, OldValue))
-            {
-                OnChange(*m_pSetting->pValue, OldValue);
-            }
-
-            if (OldValue != NULL)
-            {
-                delete (char *)OldValue;
-            }
-
-            m_sLastSavedValueIniSection = m_pSetting->szIniSection;
-        }        
-        else
-        {
-            m_sLastSavedValueIniSection = "";
-        }
-    }
-    else
+    if (!bSuppressOnChange && IsOnChangeEnabled())
     {
-        m_sLastSavedValueIniSection = "";
-        IsSettingInIniFile =  FALSE;
-    }
-    return IsSettingInIniFile;
-}
-
-/** Write value to szSubsection in .ini file
-    Override value and setting flags if Value and/or pSettingFlags is not NULL.
-*/
-void CStringSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess)
-{
-    if(m_pSetting->szIniSection != NULL)
-    {
-        string sEntry;
-        char* szIniEntry;
-
-        sEntry = m_pSetting->szIniSection;
-        sEntry += "_";
-        sEntry+= m_pSetting->szIniEntry;
-        szIniEntry = (char*)sEntry.c_str();
-
-        WritePrivateProfileString(szSubSection, szIniEntry, (char*)(*m_pSetting->pValue), GetIniFileForSettings());
-        LOG(2, " WriteToIniSubSection %s %s Value %s", szSubSection, szIniEntry, (char*)(*m_pSetting->pValue));
-
-        m_SectionLastSavedValueIniSection = szSubSection;
+        OnChange(m_Value, OldValue);
     }
 }
 
-void CStringSetting::WriteToIni(BOOL bOptimizeFileAccess)
+void CStringSetting::SetValueFromString(LPCSTR NewValue)
 {
-    if(m_pSetting->szIniSection != NULL)
+    SetValue(NewValue);
+}
+
+LPARAM CStringSetting::GetValueAsMessage()
+{
+    return (LPARAM)m_Value.c_str();
+}
+
+void CStringSetting::SetValueFromMessage(LPARAM LParam)
+{
+    SetValue((LPCSTR)LParam);
+}
+
+void CStringSetting::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
+{
+    switch(TypeOfChange)
     {
-        WritePrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, (char*)(*m_pSetting->pValue), GetIniFileForSettings());
-        LOG(2, " WriteToIni %s %s Value %s", m_pSetting->szIniSection, m_pSetting->szIniEntry, (char*)(*m_pSetting->pValue));
-
-        m_sLastSavedValueIniSection = m_pSetting->szIniSection;
-    }
-}
-
-void CStringSetting::ChangeDefault(long NewDefault, BOOL bDontSetValue)
-{
-}
-
-void CStringSetting::Up()
-{
-}
-
-void CStringSetting::Down()
-{
-}
- 
-void CStringSetting::ChangeValue(eCHANGEVALUE NewValue)
-{
-    switch(NewValue)
-    {
-    case DISPLAY:
-        OSDShow();
-        break;
-    case RESET:
-        SetDefault();
-        OSDShow();
-        break;
     case RESET_SILENT:
-        SetDefault();
+        SetValue(m_Default.c_str());
         break;
     default:
         break;
@@ -1060,9 +912,308 @@ void CStringSetting::SetupControl(HWND hWnd)
 
 void CStringSetting::SetControlValue(HWND hWnd)
 {
+    if(IsWindowClass(hWnd, "EDIT"))
+    {
+        Edit_SetText(hWnd, ToString(m_Value).c_str());
+    }
 }
 
 void CStringSetting::SetFromControl(HWND hWnd)
 {
+    if(IsWindowClass(hWnd, "EDIT"))
+    {
+        vector<char> Buffer(256);
+        Edit_GetText(hWnd, &Buffer[0], 255);
+        SetValue(&Buffer[0]);
+    }
 }
+
+CSettingWrapper::CSettingWrapper(SETTING* pSetting, CSettingGroup* pGroup) :
+    CSimpleSetting(pSetting->szDisplayName, pSetting->szIniSection, pSetting->szIniEntry, pGroup),
+    m_Setting(pSetting)
+{
+}
+
+CSettingWrapper::~CSettingWrapper()
+{
+}
+
+SETTING_TYPE CSettingWrapper::GetType()
+{
+    return m_Setting->Type;
+}
+
+void CSettingWrapper::SetupControl(HWND hWnd)
+{
+    switch(m_Setting->Type)
+    {
+    case ITEMFROMLIST:
+        if(IsWindowClass(hWnd, "COMBOBOX"))
+        {
+            ComboBoxControlSetup(hWnd, m_Setting->MaxValue + 1, m_Setting->pszList);
+        }
+        break;
+    case YESNO:
+    case ONOFF:
+        if(IsWindowClass(hWnd, "Button"))
+        {
+            Button_SetText(hWnd, GetDisplayName());
+        }
+        break;
+    case SLIDER:
+        if(IsWindowClass(hWnd, TRACKBAR_CLASS))
+        {
+            SliderControlSetup(hWnd, m_Setting->StepValue);
+            SetControlValue(hWnd);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void CSettingWrapper::SetControlValue(HWND hWnd)
+{
+    switch(m_Setting->Type)
+    {
+    case ITEMFROMLIST:
+        if(IsWindowClass(hWnd, "COMBOBOX"))
+        {
+            ComboBoxSetValue(hWnd, *m_Setting->pValue);
+        }
+        break;
+    case YESNO:
+    case ONOFF:
+        if(IsWindowClass(hWnd, "BUTTON"))
+        {
+            Button_SetCheck(hWnd, *(m_Setting->pValue)?BST_CHECKED:BST_UNCHECKED);
+        }
+        break;
+    case SLIDER:
+        if(IsWindowClass(hWnd, TRACKBAR_CLASS))
+        {
+            SliderControlSetValue(hWnd, *m_Setting->pValue, m_Setting->MinValue, m_Setting->MaxValue, m_Setting->Default);
+        }
+        if(IsWindowClass(hWnd, "EDIT"))
+        {
+            Edit_SetText(hWnd, ToString(*m_Setting->pValue).c_str());
+        }
+        break;
+    case CHARSTRING:
+        if(IsWindowClass(hWnd, "EDIT"))
+        {
+            Edit_SetText(hWnd, (LPCSTR)(*m_Setting->pValue));
+        }
+    default:
+        break;
+    }
+}
+
+void CSettingWrapper::SetFromControl(HWND hWnd)
+{
+    switch(m_Setting->Type)
+    {
+    case ITEMFROMLIST:
+        if(IsWindowClass(hWnd, "COMBOBOX"))
+        {
+            SetValue(ComboBoxGetValue(hWnd));
+        }
+        break;
+    case YESNO:
+    case ONOFF:
+        if(IsWindowClass(hWnd, "BUTTON"))
+        {
+            SetValue(Button_GetCheck(hWnd) == BST_CHECKED);
+        }
+        break;
+    case SLIDER:
+        if(IsWindowClass(hWnd, TRACKBAR_CLASS))
+        {
+            SetValue(SliderControlGetValue(hWnd, m_Setting->MinValue, m_Setting->MaxValue, m_Setting->StepValue));
+        }
+        if(IsWindowClass(hWnd, "EDIT"))
+        {
+            vector<char> Buffer(256);
+            Edit_GetText(hWnd, &Buffer[0], 255);
+            SetValue(atol(&Buffer[0]));
+        }
+        break;
+    case CHARSTRING:
+        if(IsWindowClass(hWnd, "EDIT"))
+        {
+            vector<char> Buffer(256);
+            Edit_GetText(hWnd, &Buffer[0], 255);
+            SetValue((long)&Buffer[0]);
+        }
+    default:
+        break;
+    }
+}
+
+string CSettingWrapper::GetValueAsString()
+{
+    if(m_Setting->Type != CHARSTRING)
+    {
+        return ToString(*(m_Setting->pValue));
+    }
+    else
+    {
+        return *m_Setting->pValue ? (const char*)(*m_Setting->pValue) : "";
+    }
+}
+
+string CSettingWrapper::GetDisplayValue()
+{
+    switch(m_Setting->Type)
+    {
+    case ITEMFROMLIST:
+        return m_Setting->pszList[*(m_Setting->pValue)];
+        break;
+    case YESNO:
+        return *(m_Setting->pValue)?"YES":"NO";
+        break;
+    case ONOFF:
+        return *(m_Setting->pValue)?"ON":"OFF";
+        break;
+    case SLIDER:
+        if(m_Setting->OSDDivider == 1)
+        {
+            return ToString(*(m_Setting->pValue));
+        }
+        else if(m_Setting->OSDDivider == 8)
+        {
+            return MakeString() << setprecision(3) << (float)*(m_Setting->pValue) / (float)m_Setting->OSDDivider;
+        }
+        else
+        {
+            return MakeString() << setprecision((int)log10((double)m_Setting->OSDDivider)) << (float)*(m_Setting->pValue) / (float)m_Setting->OSDDivider;
+        }
+        break;
+    case CHARSTRING:
+        *m_Setting->pValue ? (const char*)(*m_Setting->pValue) : "";
+        break;
+    default:
+        break;
+    }
+    return "";
+}
+
+void CSettingWrapper::SetValueFromString(LPCSTR NewValue)
+{
+    if(m_Setting->Type == CHARSTRING)
+    {
+        SetValue(reinterpret_cast<long>(NewValue));
+    }
+    else
+    {
+        SetValue(atol(NewValue));
+    }
+}
+
+void CSettingWrapper::SetValue(long NewValue)
+{
+    long OldValue(*m_Setting->pValue);
+
+    if(m_Setting->Type != CHARSTRING)
+    {
+        if(NewValue < m_Setting->MinValue)
+        {
+            *m_Setting->pValue = m_Setting->MinValue;
+        }
+        else if(NewValue > m_Setting->MaxValue)
+        {
+            *m_Setting->pValue = m_Setting->MaxValue;
+        }
+        else
+        {
+            *m_Setting->pValue = NewValue;
+        }
+    }
+    else
+    {
+        if(*m_Setting->pValue)
+        {
+            delete [] (char *)(*m_Setting->pValue);
+        }
+        const char* NewString = (char*)NewValue;
+        size_t Len(strlen(NewString));
+        if(Len > 0)
+        {
+            *m_Setting->pValue = (long)new char[Len + 1];
+            strcpy((char *)(*m_Setting->pValue), NewString);
+        }
+        else
+        {
+            *m_Setting->pValue = 0;
+        }
+    }
+    if(IsOnChangeEnabled())
+    {
+        m_Setting->pfnOnChange(NewValue);
+    }
+}
+
+
+LPARAM CSettingWrapper::GetValueAsMessage()
+{
+    return *m_Setting->pValue;
+}
+
+void CSettingWrapper::SetValueFromMessage(LPARAM LParam)
+{
+    SetValue(LParam);
+}
+
+void CSettingWrapper::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
+{
+    if(m_Setting == NULL)
+    {
+        return;
+    }
+    switch(TypeOfChange)
+    {
+    case ADJUSTUP_SILENT:
+        if (m_Setting->Type != CHARSTRING)
+        {
+            if (*m_Setting->pValue < m_Setting->MaxValue)
+            {
+                SetValue(*m_Setting->pValue + GetCurrentAdjustmentStepCount(m_Setting) * m_Setting->StepValue);
+            }
+        }
+        break;
+    case ADJUSTDOWN_SILENT:
+        if (m_Setting->Type != CHARSTRING)
+        {
+            if (*m_Setting->pValue > m_Setting->MinValue)
+            {
+                SetValue(*m_Setting->pValue - GetCurrentAdjustmentStepCount(m_Setting) * m_Setting->StepValue);
+            }
+        }
+        break;
+    case INCREMENT_SILENT:
+        if (m_Setting->Type != CHARSTRING)
+        {
+            SetValue(*m_Setting->pValue + m_Setting->StepValue);
+        }
+        break;
+    case DECREMENT_SILENT:
+        if (m_Setting->Type != CHARSTRING)
+        {
+            SetValue(*m_Setting->pValue - m_Setting->StepValue);
+        }
+        break;
+    case RESET_SILENT:
+        SetValue(m_Setting->Default);
+        break;
+    case TOGGLEBOOL_SILENT:
+        if(m_Setting->Type == YESNO || m_Setting->Type == ONOFF)
+        {
+            SetValue(!*m_Setting->pValue);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
 

@@ -55,7 +55,7 @@ CTDA8290* CTDA8290::CreateDetectedTDA8290(IN CI2CBus* i2cBus)
     return pTDA8290;
 }
 
-void CTDA8290::Init(bool bPreInit, eVideoFormat videoFormat)
+void CTDA8290::Init(BOOL bPreInit, eVideoFormat videoFormat)
 {
     if (bPreInit)
     {
@@ -84,7 +84,7 @@ void CTDA8290::Init(bool bPreInit, eVideoFormat videoFormat)
     }
 }
 
-void CTDA8290::TunerSet(bool bPreSet, eVideoFormat videoFormat)
+void CTDA8290::TunerSet(BOOL bPreSet, eVideoFormat videoFormat)
 {
     eTDA8290Standard standard = GetTDA8290Standard(videoFormat);
 
@@ -175,7 +175,7 @@ void CTDA8290::TunerSet(bool bPreSet, eVideoFormat videoFormat)
     }
 }
 
-bool CTDA8290::Detect()
+BOOL CTDA8290::Detect()
 {
     BYTE readBuffer;
 
@@ -184,11 +184,11 @@ bool CTDA8290::Detect()
     if (!ReadFromSubAddress(TDA8290_IDENTITY, &readBuffer, 1))
     {
         LOG(1, "TDA8290: not detected");
-        return false;
+        return FALSE;
     }
 
     LOG(1, "TDA8290: $1F = 02x", readBuffer);
-    return true;
+    return TRUE;
 }
 
 eTunerAFCStatus CTDA8290::GetAFCStatus(long &nFreqDeviation)

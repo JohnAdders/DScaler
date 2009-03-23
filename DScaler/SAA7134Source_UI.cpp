@@ -180,8 +180,7 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             {
                 pThis->m_CardType->SetValue(s_CardType);
                 // Update the string name value to reflect the newly selected card.
-                pThis->m_CardName->SetValue(reinterpret_cast<long>(
-                    pThis->GetCard()->GetCardName((eSAA7134CardId)s_CardType).c_str()));
+                pThis->m_CardName->SetValue(pThis->GetCard()->GetCardName((eSAA7134CardId)s_CardType).c_str());
             }
             WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);

@@ -40,10 +40,10 @@ public:
 
     void GetPinCounts(long &cIn,long &cOut);
     long GetInputIndex(long OutIndex);
-    bool IsInputSelected(long index);
+    BOOL IsInputSelected(long index);
 
     PhysicalConnectorType GetInputType(long Index);
-    void SetInputIndex(long Index,bool bSetRelated);
+    void SetInputIndex(long Index,BOOL bSetRelated);
 
 private:
     /// Crossbar filter

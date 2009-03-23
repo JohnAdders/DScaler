@@ -52,7 +52,7 @@ public:
     CPIC16C54(void);
 
     BYTE GetDefaultAddress() const;
-    bool IsDevicePresent();
+    BOOL IsDevicePresent();
 
     virtual ~CPIC16C54(void);
 

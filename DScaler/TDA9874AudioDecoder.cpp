@@ -60,7 +60,7 @@ CTDA9874AudioDecoder::~CTDA9874AudioDecoder()
     StopThread();
 }
 
-bool CTDA9874AudioDecoder::Initialize() 
+BOOL CTDA9874AudioDecoder::Initialize() 
 {
     WriteToSubAddress(TDA9874A_GCONR, 0x10);    // Reset
     WriteToSubAddress(TDA9874A_AGCGR, 0x00);    // 0 dB 
@@ -83,13 +83,13 @@ bool CTDA9874AudioDecoder::Initialize()
 
     // Fix Me
     //SetAudioConnector(AudioConTuner);
-    SetChipStandard(false);
+    SetChipStandard(FALSE);
     // Reinit autodetection
-    return true;    
+    return TRUE;    
 }
 
 // Function to set Chip Standard
-void CTDA9874AudioDecoder::SetChipStandard(bool FastCheck)
+void CTDA9874AudioDecoder::SetChipStandard(BOOL FastCheck)
 {
     WriteToSubAddress(TDA9874A_GCONR, 0xc0 | m_SIF | ((m_TDA9874Standards[m_AudioStandard].AGCOff) ? 0x02 : 0x00) ); // Select the proper SIF and turn AGC on/off if needed to
     WriteToSubAddress(TDA9874A_MSR, (m_TDA9874Standards[m_AudioStandard].Nicam) ? 0x03 : 0x02 ); // We monitor channel (1+2)/2 (not used by now)
@@ -203,7 +203,7 @@ void CTDA9874AudioDecoder::SetAudioInput(eAudioInput AudioInput)
         break;
     default:
         WriteToSubAddress(TDA9874A_AMCONR, 0xF9); // unmute enable ALL outs
-        //Audio_SetUserMute(false);
+        //Audio_SetUserMute(FALSE);
         break;
     }
 }
@@ -387,7 +387,7 @@ void CTDA9874AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     if (m_AutoDetecting)
     {
         LOGD("Abort1 TDA9874 detect loop");
-        m_ThreadWait = true;
+        m_ThreadWait = TRUE;
         Sleep(10);
         
         if (m_AutoDetecting)
@@ -441,7 +441,7 @@ void CTDA9874AudioDecoder::StartThread()
 {
     DWORD LinkThreadID;
 
-    m_ThreadWait = false;
+    m_ThreadWait = FALSE;
 
     if (m_TDA9874Thread != NULL)
     {
@@ -458,7 +458,7 @@ void CTDA9874AudioDecoder::StartThread()
         return;
     }
 
-    m_StopThread = false;
+    m_StopThread = FALSE;
 
     m_TDA9874Thread = CreateThread((LPSECURITY_ATTRIBUTES) NULL,    // No security.
                              (DWORD) 0,                                // Same stack size.
@@ -518,7 +518,7 @@ int CTDA9874AudioDecoder::DetectThread()
             }
             else
             {
-                m_ThreadWait = true;    //Finished
+                m_ThreadWait = TRUE;    //Finished
             }
 
             DetectCounter = 1;            
@@ -563,7 +563,7 @@ int CTDA9874AudioDecoder::DetectThread()
 
                     if (DetectCounter >= 200)
                     {
-                        m_ThreadWait = true;    //Finished
+                        m_ThreadWait = TRUE;    //Finished
                     }
                 }
                 */

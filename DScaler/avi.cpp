@@ -67,7 +67,7 @@ void aviSetError(AVI_FILE *file, aviError_t type, char *message)
 
 /** Determines if an error has been set
  * \param file The file to check for errors
- * \return TRUE if an error has been set for \a file or false if no errors have
+ * \return TRUE if an error has been set for \a file or FALSE if no errors have
  *         been set for \a file
  */
 

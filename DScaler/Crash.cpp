@@ -48,7 +48,7 @@ void CheckFPUStack(const char *file, const int line) throw()
 {
     static const char szFPUProblemCaption[]="FPU/MMX internal problem";
     static const char szFPUProblemMessage[]="The FPU stack wasn't empty!  Tagword = %04x\nFile: %s, line %d";
-    static bool seenmsg=false;
+    static BOOL seenmsg=FALSE;
 
     char    buf[128];
     unsigned short tagword;
@@ -66,7 +66,7 @@ void CheckFPUStack(const char *file, const int line) throw()
     {
         wsprintf(buf, szFPUProblemMessage, tagword, file, line);
         MessageBox(NULL, buf, szFPUProblemCaption, MB_OK);
-        seenmsg=true;
+        seenmsg=TRUE;
     }
 
 }

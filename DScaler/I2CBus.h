@@ -42,9 +42,9 @@ public:
     ~CI2CBus();
 
     /**
-    @return true if sucessful
+    @return TRUE if sucessful
     */
-    virtual bool Read(
+    virtual BOOL Read(
                         const BYTE *writeBuffer,
                         size_t writeBufferSize,
                         BYTE *readBuffer,
@@ -52,9 +52,9 @@ public:
                      );
     
     /**
-    @return true if sucessful
+    @return TRUE if sucessful
     */
-    virtual bool Write(const BYTE *writeBuffer, size_t writeBufferSize);
+    virtual BOOL Write(const BYTE *writeBuffer, size_t writeBufferSize);
 
 protected:
     /// Prepare the bus for comminications
@@ -62,11 +62,11 @@ protected:
     /// Return the bus to off state
     virtual void Stop()=0;
     /// Output a single byte
-    virtual bool Write(BYTE byte)=0;
+    virtual BOOL Write(BYTE byte)=0;
     /// Input a single byte
-    virtual BYTE Read(bool last=true)=0;
+    virtual BYTE Read(BOOL last=TRUE)=0;
     /// Wait for ACK signal
-    virtual bool GetAcknowledge()=0;
+    virtual BOOL GetAcknowledge()=0;
     /// Wait for small amount of time linked to clock speed
     virtual void Sleep()=0;
     /// Send ACK

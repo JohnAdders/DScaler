@@ -50,21 +50,21 @@ public:
 
     std::string GetStatus();
 
-    ISetting* GetBrightness();
-    ISetting* GetContrast();
-    ISetting* GetHue();
-    ISetting* GetSaturation();
-    ISetting* GetSaturationU() {return NULL;};
-    ISetting* GetSaturationV() {return NULL;};
+    CSliderSetting* GetBrightness();
+    CSliderSetting* GetContrast();
+    CSliderSetting* GetHue();
+    CSliderSetting* GetSaturation();
+    CSliderSetting* GetSaturationU() {return NULL;};
+    CSliderSetting* GetSaturationV() {return NULL;};
 
-    ISetting* GetAnalogueBlanking() {return NULL;};
-    ISetting* GetTopOverscan();
-    ISetting* GetBottomOverscan();
-    ISetting* GetLeftOverscan();
-    ISetting* GetRightOverscan();
+    CYesNoSetting* GetAnalogueBlanking() {return NULL;};
+    CSliderSetting* GetTopOverscan();
+    CSliderSetting* GetBottomOverscan();
+    CSliderSetting* GetLeftOverscan();
+    CSliderSetting* GetRightOverscan();
 
-    ISetting* GetHDelay() {return NULL;};
-    ISetting* GetVDelay() {return NULL;};
+    CSliderSetting* GetHDelay() {return NULL;};
+    CSliderSetting* GetVDelay() {return NULL;};
 
     eVideoFormat GetFormat();
     BOOL IsInTunerMode();
@@ -117,9 +117,9 @@ private:
     public:
         eTunerId GetTunerId();
         eVideoFormat GetDefaultVideoFormat();
-        bool HasRadio() const;
-        bool SetRadioFrequency(long nFrequency);
-        bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
+        BOOL HasRadio() const;
+        BOOL SetRadioFrequency(long nFrequency);
+        BOOL SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
         long GetFrequency();
         eTunerLocked IsLocked();
         eTunerAFCStatus GetAFCStatus(long &nFreqDeviation);

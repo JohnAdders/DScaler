@@ -42,13 +42,13 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     static long TRightOverscan;
     static long THDelay;
     static long TVDelay;
-    static ISetting* AnalogueBlanking = NULL;
-    static ISetting* TopOverscan = NULL;
-    static ISetting* BottomOverscan = NULL;
-    static ISetting* LeftOverscan = NULL;
-    static ISetting* RightOverscan = NULL;
-    static ISetting* HDelay = NULL;
-    static ISetting* VDelay = NULL;
+    static CYesNoSetting* AnalogueBlanking = NULL;
+    static CSliderSetting* TopOverscan = NULL;
+    static CSliderSetting* BottomOverscan = NULL;
+    static CSliderSetting* LeftOverscan = NULL;
+    static CSliderSetting* RightOverscan = NULL;
+    static CSliderSetting* HDelay = NULL;
+    static CSliderSetting* VDelay = NULL;
 
     switch (message)
     {
@@ -189,42 +189,42 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDC_DEFAULT:
             if(AnalogueBlanking != NULL)
             {
-                AnalogueBlanking->SetDefault();
+                AnalogueBlanking->ChangeValue(RESET_SILENT);
                 AnalogueBlanking->SetControlValue(GetDlgItem(hDlg, IDC_CHECK1));
             }
             if(TopOverscan != NULL)
             {
-                TopOverscan->SetDefault();
+                TopOverscan->ChangeValue(RESET_SILENT);
                 TopOverscan->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER1));
                 SetDlgItemInt(hDlg, IDC_D1, TopOverscan->GetValue(), FALSE);
             }
             if(BottomOverscan != NULL)
             {
-                BottomOverscan->SetDefault();
+                BottomOverscan->ChangeValue(RESET_SILENT);
                 BottomOverscan->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER2));
                 SetDlgItemInt(hDlg, IDC_D2, BottomOverscan->GetValue(), FALSE);
             }
             if(LeftOverscan != NULL)
             {
-                LeftOverscan->SetDefault();
+                LeftOverscan->ChangeValue(RESET_SILENT);
                 LeftOverscan->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER3));
                 SetDlgItemInt(hDlg, IDC_D3, LeftOverscan->GetValue(), FALSE);
             }
             if(RightOverscan != NULL)
             {
-                RightOverscan->SetDefault();
+                RightOverscan->ChangeValue(RESET_SILENT);
                 RightOverscan->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER4));
                 SetDlgItemInt(hDlg, IDC_D4, RightOverscan->GetValue(), FALSE);
             }
             if(HDelay != NULL)
             {
-                HDelay->SetDefault();
+                HDelay->ChangeValue(RESET_SILENT);
                 HDelay->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER5));
                 SetDlgItemInt(hDlg, IDC_D5, HDelay->GetValue(), TRUE);
             }
             if(VDelay != NULL)
             {
-                VDelay->SetDefault();
+                VDelay->ChangeValue(RESET_SILENT);
                 VDelay->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER6));
                 SetDlgItemInt(hDlg, IDC_D6, VDelay->GetValue(), TRUE);
             }

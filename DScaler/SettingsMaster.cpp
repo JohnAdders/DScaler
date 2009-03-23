@@ -60,7 +60,7 @@ void CSettingsMaster::LoadOneSetting(CSimpleSetting* pSetting)
                 MakeSubSection(SubSection, pGroup);
                 if(SubSection.length() > 0)
                 {
-                    pSetting->ReadFromIniSubSection(SubSection.c_str());
+                    pSetting->ReadFromIniSubSection(SubSection);
                 }
             }
         }
@@ -92,7 +92,7 @@ void CSettingsMaster::WriteOneSetting(CSimpleSetting* pSetting)
     Runs through all settings to see if they want to read/write their values
     we only save or load those setting that are being held by channel/format etc
 */
-void CSettingsMaster::ParseAllSettings(bool IsLoad)
+void CSettingsMaster::ParseAllSettings(BOOL IsLoad)
 {
     for (int i = 0; i < m_Holders.size(); i++)
     {
@@ -223,7 +223,7 @@ void CSettingsMaster::LoadSettings()
 //LOG(1, "LoadSettings m_AudioInputName %s", m_AudioInputName.c_str());
 //LOG(1, "LoadSettings m_VideoFormatName %s", m_VideoFormatName.c_str());
 //LOG(1, "LoadSettings m_ChannelName %s", m_ChannelName.c_str());
-    ParseAllSettings(true);
+    ParseAllSettings(TRUE);
 }
 
 
@@ -234,7 +234,7 @@ void CSettingsMaster::SaveSettings()
 //LOG(1, "SaveSettings m_AudioInputName %s", m_AudioInputName.c_str());
 //LOG(1, "SaveSettings m_VideoFormatName %s", m_VideoFormatName.c_str());
 //LOG(1, "SaveSettings m_ChannelName %s", m_ChannelName.c_str());
-    ParseAllSettings(false);
+    ParseAllSettings(FALSE);
 }
 
 void CSettingsMaster::Register(CSettingsHolder* pHolder)

@@ -81,24 +81,24 @@ protected:
     /**
      * Called when the page is about to be activated.
      *
-     * @return true to allow the page to be activated
+     * @return TRUE to allow the page to be activated
      */
-    virtual bool OnSetActive();
+    virtual BOOL OnSetActive();
 
     /**
      * Called when the page is about to be deactivated.
      *
-     * @return true to allow the page to be deactivated
+     * @return TRUE to allow the page to be deactivated
      */
-    virtual bool OnKillActive();
+    virtual BOOL OnKillActive();
 
     /**
      * Called when cancel is pressed in CTreeSettingsDlg but before the dialog is closed.
      * This function allows the page to abort the cancel.
      *
-     * @return true to allow the cancel to continue or false to disalow cancel
+     * @return TRUE to allow the cancel to continue or FALSE to disalow cancel
      */
-    virtual bool OnQueryCancel();
+    virtual BOOL OnQueryCancel();
 
     /**
      * This function is used by CTreeSettingsDlg to get the minimum allowed
@@ -125,7 +125,7 @@ protected:
 
     int m_minWidth;
     int m_minHeight;
-    bool m_bInitMinSize;
+    BOOL m_bInitMinSize;
 };
 
 //{{AFX_INSERT_LOCATION}}

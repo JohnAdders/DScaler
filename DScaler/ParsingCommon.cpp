@@ -25,7 +25,7 @@
 
 using namespace HCParser;
 
-static void SetTDA9887ModeMaskAndBits(OUT TTDA9887Modes&, IN BYTE, IN bool);
+static void SetTDA9887ModeMaskAndBits(OUT TTDA9887Modes&, IN BYTE, IN BOOL);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -132,8 +132,8 @@ const CParseConstant k_parseYesNoConstants[] =
 {
     PC( "yes",                        1 ),
     PC( "no",                        0 ),
-    PC( "true",                        1 ),
-    PC( "false",                    0 ),
+    PC( "TRUE",                        1 ),
+    PC( "FALSE",                    0 ),
     PC( "active",                    1 ),
     PC( "inactive",                    0 ),
     PC( "1",                        1 ),
@@ -339,7 +339,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const CParseTag* tag, IN unsigned char
     return FALSE;
 }
 
-static void SetTDA9887ModeMaskAndBits(OUT TTDA9887Modes& specifics, IN BYTE bit, IN bool set)
+static void SetTDA9887ModeMaskAndBits(OUT TTDA9887Modes& specifics, IN BYTE bit, IN BOOL set)
 {
     specifics.mask |= bit;
     if (set)

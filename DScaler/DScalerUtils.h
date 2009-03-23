@@ -100,9 +100,9 @@ namespace DScalerPrivate
         }
     };
 
-    struct NoCasePredicate : public std::binary_function<char, char, bool> 
+    struct NoCasePredicate : public std::binary_function<char, char, BOOL> 
     {
-        bool operator()(char x, char y) const 
+        BOOL operator()(char x, char y) const 
         {
             return toupper(x) < toupper(y);
         }
@@ -114,9 +114,9 @@ inline DScalerPrivate::_StringBuffer StringBuffer(std::string &str, size_t nSize
     return DScalerPrivate::_StringBuffer(str, nSize); 
 }
 
-inline bool AreEqualInsensitive(const std::string& String1, const std::string& String2)
+inline BOOL AreEqualInsensitive(const std::string& String1, const std::string& String2)
 {
-    return std::lexicographical_compare(String1.begin(), String1.end(), String2.begin(), String2.end(), DScalerPrivate::NoCasePredicate()) == 0;
+    return _stricmp(String1.c_str(), String2.c_str()) == 0;
 }
 
 

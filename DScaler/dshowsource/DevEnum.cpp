@@ -74,12 +74,12 @@ void CDShowDevEnum::initEnum(REFCLSID devClass)
     }
 }
 
-bool CDShowDevEnum::getNext()
+BOOL CDShowDevEnum::getNext()
 {
     // if there are none in the list we get null
     if(m_pEnumCat==NULL)
     {
-        return false;
+        return FALSE;
     }
 
     CComPtr<IMoniker> pMoniker;
@@ -107,12 +107,12 @@ bool CDShowDevEnum::getNext()
             m_DisplayName="";
         }
 
-        return true;
+        return TRUE;
 
     }
     else
     {
-        return false;
+        return FALSE;
     }
 }
 

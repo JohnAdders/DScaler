@@ -362,7 +362,7 @@ BOOL CChannelList::SwapChannels(int a, int b)
     m_Channels[a] = channelB;
     m_Channels[b] = channelA;
     
-    return true;
+    return TRUE;
 }
     
 

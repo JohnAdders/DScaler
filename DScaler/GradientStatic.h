@@ -73,7 +73,7 @@ private:
     long m_clLeft;
     long m_clRight;
     long m_clText;
-    bool m_bUsingDefaultColors;
+    BOOL m_bUsingDefaultColors;
 
     DynamicFunctionS6<UINT, HDC,CONST PTRIVERTEX,DWORD,CONST PVOID,DWORD,DWORD> m_pfnGradientFill;
 };

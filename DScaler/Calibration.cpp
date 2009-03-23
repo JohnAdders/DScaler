@@ -54,7 +54,7 @@ static BOOL ShowYUVDelta = TRUE;
 /////////////////////////////////////////////////////////////////////////////
 // Class CCalSetting
 
-CCalSetting::CCalSetting(ISetting* pSetting)
+CCalSetting::CCalSetting(CSliderSetting* pSetting)
 {
     m_pSetting = pSetting;
     min = pSetting->GetMin();
@@ -207,7 +207,8 @@ void CCalSetting::AdjustMax()
 
 void CCalSetting::AdjustDefault()
 {
-    Adjust(m_pSetting->GetDefault());
+    m_pSetting->ChangeValue(RESET_SILENT);
+    current_value = m_pSetting->GetValue();
 }
 
 BOOL CCalSetting::AdjustNext()

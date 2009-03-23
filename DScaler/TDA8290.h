@@ -104,13 +104,13 @@ public:
 
     // This needs to be called once with bPreInit=TRUE before TDA8275
     // init and again with bPreInit=FALSE after TDA8275 init.
-    virtual void Init(bool bPreInit, eVideoFormat videoFormat);
+    virtual void Init(BOOL bPreInit, eVideoFormat videoFormat);
     // This needs to be called once with bPreSet=TRUE before TDA8275
     // tuner set and again with bPreSet=FALSE after TDA8275 tuner set.
-    virtual void TunerSet(bool bPreSet, eVideoFormat videoFormat);
+    virtual void TunerSet(BOOL bPreSet, eVideoFormat videoFormat);
 
-    // Returns true if TDA8290 is detected at the attached address.
-    virtual bool Detect();
+    // Returns TRUE if TDA8290 is detected at the attached address.
+    virtual BOOL Detect();
     // Returns whether or not the picture carrier is locked.
     virtual eTunerAFCStatus GetAFCStatus(OUT long &nFreqDeviation);
 

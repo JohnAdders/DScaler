@@ -57,7 +57,7 @@ void SetIniFileForSettings(LPSTR Name);
 LPCSTR GetIniFileForSettings();
 void LoadSettingsFromIni();
 void WriteSettingsToIni(BOOL bOptimizeFileAccess);
-void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, LPCTSTR lpFileName);
+void WritePrivateProfileInt(LPCTSTR lpAppName, LPCTSTR lpKeyName, int nValue, LPCTSTR lpFileName);
 int GetCurrentAdjustmentStepCount(void* pSetting);
 void FreeSettings();
 
@@ -75,7 +75,10 @@ void FreeSettings();
 #define ADJ_BUTTON_REPRESS_ACCEL_STEP       400    // Milliseconds between each acceleration of adjustment
 #define ADJ_BUTTON_REPRESS_MAX_STEP         30     // Maximum adjustment step at one time
 
+
 #define CheckMenuItemBool(hMenu, MenuId, Condition) CheckMenuItem(hMenu, MenuId, (Condition)?MF_CHECKED:MF_UNCHECKED)
 #define EnableMenuItemBool(hMenu, MenuId, Condition) EnableMenuItem(hMenu, MenuId, (Condition)?MF_ENABLED:MF_GRAYED)
+
+
 
 #endif

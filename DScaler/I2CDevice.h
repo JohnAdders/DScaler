@@ -50,11 +50,11 @@ public:
     BYTE        GetDeviceAddress() const;
 
     // Various functions for writing data to this device.
-    bool WriteToSubAddress(BYTE subAddress, BYTE writeByte);
-    bool WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize);
+    BOOL WriteToSubAddress(BYTE subAddress, BYTE writeByte);
+    BOOL WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize);
     // Various functions for reading data from this device.
-    bool ReadFromSubAddress(BYTE subAddress, BYTE* readBuffer, size_t readBufferSize);
-    bool ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize, BYTE* readBuffer, size_t readBufferSize);
+    BOOL ReadFromSubAddress(BYTE subAddress, BYTE* readBuffer, size_t readBufferSize);
+    BOOL ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize, BYTE* readBuffer, size_t readBufferSize);
 protected:
     // This needs to be overridden to provide the expected
     // I2C address of the device.

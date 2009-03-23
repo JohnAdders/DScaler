@@ -34,9 +34,9 @@
 
 CMT2032::CMT2032(eVideoFormat DefaultVideoFormat) :
     m_XOGC(0),
-    m_Initialized(false),
+    m_Initialized(FALSE),
     m_Frequency (0),
-    m_Locked(false)      
+    m_Locked(FALSE)      
 {
     m_DefaultVideoFormat = DefaultVideoFormat;    
 }
@@ -56,9 +56,9 @@ eVideoFormat CMT2032::GetDefaultVideoFormat()
     return m_DefaultVideoFormat;
 }
 
-bool CMT2032::HasRadio() const
+BOOL CMT2032::HasRadio() const
 {
-    return true;
+    return TRUE;
 }
 
 
@@ -144,7 +144,7 @@ void CMT2032::Initialize()
     }
     
     m_XOGC = xogc;
-    m_Initialized = true;
+    m_Initialized = TRUE;
 }
 
 int CMT2032::SpurCheck(int f1, int f2, int spectrum_from, int spectrum_to)
@@ -425,7 +425,7 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoForm
 
     SetRegister(2, 0x20);
 
-    m_Locked = (lock==6)?true:false;
+    m_Locked = (lock==6)?TRUE:FALSE;
 
     if (m_ExternalIFDemodulator != NULL)
     {
@@ -433,7 +433,7 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoForm
     }
 }
 
-bool CMT2032::SetTVFrequency(long frequency, eVideoFormat videoFormat)
+BOOL CMT2032::SetTVFrequency(long frequency, eVideoFormat videoFormat)
 {
     if (!m_Initialized)
     {
@@ -459,10 +459,10 @@ bool CMT2032::SetTVFrequency(long frequency, eVideoFormat videoFormat)
 
     //SetIFFreq(frequency * 1000 / 16 * 1000, 1090 * 1000 * 1000, if2, from, to, videoFormat);
     SetIFFreq(frequency, 1090 * 1000 * 1000, if2, from, to, videoFormat);
-    return true;
+    return TRUE;
 }
 
-bool CMT2032::SetRadioFrequency(long nFrequency)
+BOOL CMT2032::SetRadioFrequency(long nFrequency)
 {
     if (!m_Initialized)
     {
@@ -484,7 +484,7 @@ bool CMT2032::SetRadioFrequency(long nFrequency)
     //SetIFFreq(nFrequency * 1000 / 16 * 1000, 1085 * 1000 * 1000, if2, from, to, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
 
     SetIFFreq(nFrequency, 1085 * 1000 * 1000, if2, if2, if2, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
-    return true;
+    return TRUE;
 }
 
 long CMT2032::GetFrequency()

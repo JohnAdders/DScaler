@@ -46,9 +46,9 @@ public:
 protected:
     void Start();
     void Stop();
-    bool Write(BYTE byte);
-    BYTE Read(bool last=true);
-    bool GetAcknowledge();
+    BOOL Write(BYTE byte);
+    BYTE Read(BOOL last=TRUE);
+    BOOL GetAcknowledge();
     void SendACK();
     void SendNAK();
     void Sleep();

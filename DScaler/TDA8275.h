@@ -79,18 +79,18 @@ public:
     // from ITuner
 
     // Perform initializing calls on the tuner.
-    virtual bool            InitializeTuner();
+    virtual BOOL            InitializeTuner();
 
     // Gets this tuner's tuner ID.
     virtual eTunerId        GetTunerId() { return TUNER_TDA8275; }
     // Gets the video format that was specified as default on construction.
     virtual eVideoFormat    GetDefaultVideoFormat();
     // Gets whether or not this tuner supports radio tuning.
-    virtual bool            HasRadio() const;
+    virtual BOOL            HasRadio() const;
     // The tuner tunes into the specified frequency in TV mode with videoFormat.
-    virtual bool            SetTVFrequency(long frequencyHz, eVideoFormat videoFormat);
+    virtual BOOL            SetTVFrequency(long frequencyHz, eVideoFormat videoFormat);
     // The tuner tunes into the specified frequency for radio mode.
-    virtual bool            SetRadioFrequency(long frequencyHz);
+    virtual BOOL            SetRadioFrequency(long frequencyHz);
     // Gets the frequency to which the tuner is tuned into.
     virtual long            GetFrequency();
 
@@ -109,7 +109,7 @@ protected:
     // Writes the registers necessary for initialization.
     virtual void            WriteTDA8275Initialization();
     // Sets the tuner to tune into a specific frequency.
-    virtual bool            SetFrequency(long frequencyHz, eTDA8290Standard standard);
+    virtual BOOL            SetFrequency(long frequencyHz, eTDA8290Standard standard);
 
     typedef struct
     {
@@ -160,9 +160,9 @@ protected:
 
 private:
     // Detects the 'A' chip revision
-    bool            IsTDA8275A();
+    BOOL            IsTDA8275A();
     // Returns whether or not the tuner is in DVB mode
-    bool            IsDvbMode();
+    BOOL            IsDvbMode();
 
 
 private:

@@ -113,7 +113,7 @@ COverscanAspectFilter::COverscanAspectFilter(int TopOverscanSize, int BottomOver
 {
 }
 
-void COverscanAspectFilter::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void COverscanAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     ar.m_CurrentOverlaySrcRect.shrink(m_LeftOverscan, m_RightOverscan, m_TopOverscan, m_BottomOverscan);
 }
@@ -156,7 +156,7 @@ CAnalogueBlankingFilter::CAnalogueBlankingFilter(int SourceWidth, int SourceHeig
     }
 }
 
-void CAnalogueBlankingFilter::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void CAnalogueBlankingFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     ar.m_CurrentOverlaySrcRect.shrink(m_LeftShift, m_RightShift, m_TopShift, m_BottomShift);
 }
@@ -185,7 +185,7 @@ COrbitAspectFilter::COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY,
     m_pYOrbitBouncer = new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodY,OrbitSize,-OrbitSize/2.0);
 }
 
-void COrbitAspectFilter::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void COrbitAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     ar.m_CurrentOverlaySrcRect.shift((int)m_pXOrbitBouncer->position(),
                                 (int)m_pYOrbitBouncer->position());
@@ -215,7 +215,7 @@ CBounceDestinationAspectFilter::CBounceDestinationAspectFilter(time_t period)
         -1.0 * (double)AspectSettings.BounceAmplitude / 100.0);
 }
 
-void CBounceDestinationAspectFilter::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void CBounceDestinationAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     CAspectRect oldDest = ar.m_CurrentOverlayDestRect;
 
@@ -244,7 +244,7 @@ CPositionDestinationAspectFilter::CPositionDestinationAspectFilter(double x, dou
 {
 }
 
-void CPositionDestinationAspectFilter::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void CPositionDestinationAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     #ifdef __ASPECTFILTER_DEBUG__
         LOG(2,"PRE FILTER VALUES: %s",this->getFilterName());
@@ -274,7 +274,7 @@ void CPositionDestinationAspectFilter::DebugDump()
     LOG(2,"m_XPos = %lf, m_YPos = %lf",m_XPos,m_YPos); 
 }
 
-void CCropAspectFilter::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void CCropAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     #ifdef __ASPECTFILTER_DEBUG__
         LOG(2,"PRE FILTER VALUES: %s",this->getFilterName());
@@ -315,7 +315,7 @@ const char* CCropAspectFilter::getFilterName()
 
 // Applies the child filters and uncrops the source image to use all the area available in
 // the original destination rectangle.
-void CUnCropAspectFilter::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void CUnCropAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     // Save source and dest going in - needed for un-cropping the window...
     CAspectRect rOriginalDest(ar.m_CurrentOverlayDestRect);
@@ -371,7 +371,7 @@ CPanAndZoomAspectFilter::CPanAndZoomAspectFilter(long _xPos, long _yPos, long _x
     m_YZoom = (double)_yZoom / 100.0;
 }
 
-void CPanAndZoomAspectFilter::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void CPanAndZoomAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     int dx;
     int dy;
@@ -512,7 +512,7 @@ CScreenSanityAspectFilter::CScreenSanityAspectFilter(int SrcWidth, int SrcHeight
 
 // Performs important sanity checks on the destination rectangle
 // Should occur at the end of the aspect processing chain (but before the ResizeWindow filter)
-void CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     // crop the Destination rect so that the overlay destination region is 
     // always on the screen we will also update the source area to reflect this
@@ -564,7 +564,7 @@ const char* CScreenSanityAspectFilter::getFilterName()
 }
 
 // Attemtps to resize the client window to match the aspect ratio
-void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     LONG OrigClientTop = 0;
 
@@ -647,7 +647,7 @@ void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, bool& Reques
         #endif
 
         // Recalculate the overlay
-        RequestRerun = true;
+        RequestRerun = TRUE;
     }
 }
 
@@ -754,7 +754,7 @@ CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
 // Applies all filters in a chain.  See above for return Value.
 // If allowReadjust is FALSE, the filter will ignore any re-calculate requests from filters
 // to avoid infinite recursion.
-void CMasterFilterChain::adjustAspect(CAspectRectangles &ar, bool& RequestRerun)
+void CMasterFilterChain::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     for(vector<SmartPtr<CAspectFilter> >::iterator it = m_FilterChain.begin();
         it != m_FilterChain.end();

@@ -50,17 +50,17 @@ public:
     {
         return VIDEOFORMAT_NTSC_M;
     }
-    bool HasRadio() const
+    BOOL HasRadio() const
     {
-        return false;
+        return FALSE;
     }
-    bool SetRadioFrequency(long nFrequency)
+    BOOL SetRadioFrequency(long nFrequency)
     {
-        return true;
+        return TRUE;
     }
-    bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
+    BOOL SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
     {
-        return true;
+        return TRUE;
     }
     long GetFrequency() 
     {

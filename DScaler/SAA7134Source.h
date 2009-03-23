@@ -90,22 +90,22 @@ public:
     std::string GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
-    ISetting* GetVolume();
-    ISetting* GetBalance();
+    CSliderSetting* GetVolume();
+    CSliderSetting* GetBalance();
 
-    ISetting* GetBrightness();
-    ISetting* GetContrast();
-    ISetting* GetHue();
-    ISetting* GetSaturation();
-    ISetting* GetSaturationU();
-    ISetting* GetSaturationV();
-    ISetting* GetAnalogueBlanking() {return NULL;};
-    ISetting* GetTopOverscan();
-    ISetting* GetBottomOverscan();
-    ISetting* GetLeftOverscan();
-    ISetting* GetRightOverscan();
-    ISetting* GetHDelay();
-    ISetting* GetVDelay();
+    CSliderSetting* GetBrightness();
+    CSliderSetting* GetContrast();
+    CSliderSetting* GetHue();
+    CSliderSetting* GetSaturation();
+    CSliderSetting* GetSaturationU();
+    CSliderSetting* GetSaturationV();
+    CYesNoSetting* GetAnalogueBlanking() {return NULL;};
+    CSliderSetting* GetTopOverscan();
+    CSliderSetting* GetBottomOverscan();
+    CSliderSetting* GetLeftOverscan();
+    CSliderSetting* GetRightOverscan();
+    CSliderSetting* GetHDelay();
+    CSliderSetting* GetVDelay();
 
     std::string GetMenuLabel();
     void SetMenu(HMENU hMenu);

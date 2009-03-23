@@ -36,20 +36,20 @@
 
 CMSP34x0AudioControls::CMSP34x0AudioControls() : CMSP34x0()
 {
-    m_bMuted = false;
+    m_bMuted = FALSE;
     m_nVolume = 900;
     m_nBalance = 0;
     m_nBass = 0;
     m_nTreble = 0;
-    m_bBassBoost = false;
+    m_bBassBoost = FALSE;
 }
 
-bool CMSP34x0AudioControls::HasMute()
+BOOL CMSP34x0AudioControls::HasMute()
 {
-    return true;
+    return TRUE;
 }
 
-void CMSP34x0AudioControls::SetMute(bool mute)
+void CMSP34x0AudioControls::SetMute(BOOL mute)
 {
     m_bMuted = mute;
     if (m_bMuted)
@@ -63,7 +63,7 @@ void CMSP34x0AudioControls::SetMute(bool mute)
     }
 }
 
-bool CMSP34x0AudioControls::IsMuted()
+BOOL CMSP34x0AudioControls::IsMuted()
 {
     return m_bMuted;
 }
@@ -138,9 +138,9 @@ WORD CMSP34x0AudioControls::GetTreble()
 }
 
 
-bool CMSP34x0AudioControls::HasEqualizers()
+BOOL CMSP34x0AudioControls::HasEqualizers()
 {
-    return true; // \todo: fix this
+    return TRUE; // \todo: fix this
 }
 
 WORD CMSP34x0AudioControls::GetEqualizerCount()
@@ -176,12 +176,12 @@ void CMSP34x0AudioControls::SetEqualizerLevel(WORD nIndex, WORD nLevel)
 }
 
 
-bool CMSP34x0AudioControls::HasBassBoost()
+BOOL CMSP34x0AudioControls::HasBassBoost()
 {
-    return true;
+    return TRUE;
 }
 
-void CMSP34x0AudioControls::SetBassBoost(bool bBoost)
+void CMSP34x0AudioControls::SetBassBoost(BOOL bBoost)
 {
     WORD ldspkr, headph;
 
@@ -201,15 +201,15 @@ void CMSP34x0AudioControls::SetBassBoost(bool bBoost)
     SetDSPRegister(DSP_WR_HEADPH_LOUDNESS, headph);
 }
 
-bool CMSP34x0AudioControls::IsBassBoosted()
+BOOL CMSP34x0AudioControls::IsBassBoosted()
 {
     return (GetDSPRegister(DSP_RD_LDSPK_LOUDNESS) & 4) == 4;
 }
 
 
-bool CMSP34x0AudioControls::HasLoudness()
+BOOL CMSP34x0AudioControls::HasLoudness()
 {
-    return true;
+    return TRUE;
 }
 
 void CMSP34x0AudioControls::SetLoudness(WORD nLevel)
@@ -316,9 +316,9 @@ void CMSP34x0AudioControls::SetSpatialEffect(int nLevel)
     SetDSPRegister(DSP_WR_LDSPK_SPATIALEFF, ((nLevel & 0xFF) << 8) | 0x8);
 }
 
-bool CMSP34x0AudioControls::HasSpatialEffect()
+BOOL CMSP34x0AudioControls::HasSpatialEffect()
 {
-    return true;
+    return TRUE;
 }
 
 int CMSP34x0AudioControls::GetSpatialEffect()
@@ -333,7 +333,7 @@ int CMSP34x0AudioControls::GetSpatialEffect()
 }
 
 
-bool CMSP34x0AudioControls::HasAutoVolumeCorrection()
+BOOL CMSP34x0AudioControls::HasAutoVolumeCorrection()
 {
     ///\todo Which MSP chips support this?
     return TRUE;

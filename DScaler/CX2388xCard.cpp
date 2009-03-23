@@ -51,7 +51,7 @@ CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
     m_CurrentAudioStandard(AUDIO_STANDARD_AUTO),
     m_CurrentStereoType(STEREOTYPE_AUTO),
     m_TunerType("n/a"),
-    m_I2CInitialized(false),
+    m_I2CInitialized(FALSE),
     m_I2CBus(new CI2CBusForLineInterface(this)),
     m_AudioControls(new CAudioControls()),
     m_AudioDecoder(new CAudioDecoder())
@@ -104,8 +104,8 @@ void CCX2388xCard::StartCapture(BOOL bCaptureVBI)
 
 /*******************************************************************************
     Halt the Odd/Both Risc Program.
-    both_fields == true - Halt both fields.
-                == false - Halt odd field only.
+    both_fields == TRUE - Halt both fields.
+                == FALSE - Halt odd field only.
 *******************************************************************************/
 void CCX2388xCard::StopCapture()
 {
@@ -1404,7 +1404,7 @@ void CCX2388xCard::InitializeI2C()
     
     m_I2CSleepCycle = (unsigned long)(frequency / 50000);
     
-    m_I2CInitialized = true;
+    m_I2CInitialized = TRUE;
 }
 
 void CCX2388xCard::Sleep()
@@ -1420,7 +1420,7 @@ void CCX2388xCard::Sleep()
     }
 }
 
-void CCX2388xCard::SetSDA(bool value)
+void CCX2388xCard::SetSDA(BOOL value)
 {
     if (!m_I2CInitialized)
     {
@@ -1437,7 +1437,7 @@ void CCX2388xCard::SetSDA(bool value)
     WriteDword(CX2388X_I2C, m_I2CRegister);
 }
 
-void CCX2388xCard::SetSCL(bool value)
+void CCX2388xCard::SetSCL(BOOL value)
 {
     if (!m_I2CInitialized)
     {
@@ -1454,23 +1454,23 @@ void CCX2388xCard::SetSCL(bool value)
     WriteDword(CX2388X_I2C, m_I2CRegister);
 }
 
-bool CCX2388xCard::GetSDA()
+BOOL CCX2388xCard::GetSDA()
 {
     if (!m_I2CInitialized)
     {
         InitializeI2C();
     }
-    bool state = ReadDword(CX2388X_I2C) & CX2388X_I2C_SDA ? true : false;
+    BOOL state = ReadDword(CX2388X_I2C) & CX2388X_I2C_SDA ? TRUE : FALSE;
     return state;
 }
 
-bool CCX2388xCard::GetSCL()
+BOOL CCX2388xCard::GetSCL()
 {
     if (!m_I2CInitialized)
     {
         InitializeI2C();
     }
-    bool state = ReadDword(CX2388X_I2C) & CX2388X_I2C_SCL ? true : false;
+    BOOL state = ReadDword(CX2388X_I2C) & CX2388X_I2C_SCL ? TRUE : FALSE;
     return state;
 }
 

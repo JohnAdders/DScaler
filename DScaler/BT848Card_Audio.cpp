@@ -53,7 +53,7 @@
 
 using namespace std;
 
-void CBT848Card::InitAudio(bool UsePin1)
+void CBT848Card::InitAudio(BOOL UsePin1)
 {
     // Initialize  m_AudioDecoder and m_AudioControls
     m_AudioControls = 0L;
@@ -151,7 +151,7 @@ void CBT848Card::InitAudio(bool UsePin1)
         TDADecoder->SetI2CBus(m_I2CBus);
         
         int dic, sic;
-        bool isPresent = TDADecoder->IsDevicePresent(dic, sic);
+        BOOL isPresent = TDADecoder->IsDevicePresent(dic, sic);
 
         if(isPresent)
         {
@@ -165,7 +165,7 @@ void CBT848Card::InitAudio(bool UsePin1)
             // used only for PV951 (Hercules SmartTV)
             CPIC16C54 pic = CPIC16C54();
             pic.SetI2CBus(m_I2CBus);
-            bool picAlive = pic.IsDevicePresent();
+            BOOL picAlive = pic.IsDevicePresent();
             ostringstream oss;
 
             oss << "TDA9874" << ((dic==0x11) ? "A":"H");
@@ -362,7 +362,7 @@ void CBT848Card::SetAudioLoudness(WORD nLevel)
     m_AudioControls->SetLoudness(nLevel);
 }
 
-void CBT848Card::SetAudioBassBoost(bool bBoost)
+void CBT848Card::SetAudioBassBoost(BOOL bBoost)
 {
     m_AudioControls->SetBassBoost(bBoost);
 }
@@ -446,79 +446,79 @@ void CBT848Card::SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier)
 }
 
 
-bool CBT848Card::HasAudioEqualizers()
+BOOL CBT848Card::HasAudioEqualizers()
 {
     return m_AudioControls->HasEqualizers();
 }
 
 
-bool CBT848Card::HasAudioSpatialEffect()
+BOOL CBT848Card::HasAudioSpatialEffect()
 {
     return m_AudioControls->HasSpatialEffect();
 }
 
 
-bool CBT848Card::HasAudioDolby()
+BOOL CBT848Card::HasAudioDolby()
 {
     return m_AudioControls->HasDolby();
 }
 
-bool CBT848Card::HasAudioBassBoost()
+BOOL CBT848Card::HasAudioBassBoost()
 {
     return m_AudioControls->HasBassBoost();
 }
 
-bool CBT848Card::HasAudioVolume()
+BOOL CBT848Card::HasAudioVolume()
 {
     return m_AudioControls->HasVolume();
 }
 
-bool CBT848Card::HasAudioTreble()
+BOOL CBT848Card::HasAudioTreble()
 {
     return m_AudioControls->HasTreble();
 }
 
-bool CBT848Card::HasAudioLoudness()
+BOOL CBT848Card::HasAudioLoudness()
 {
     return m_AudioControls->HasLoudness();
 }
 
-bool CBT848Card::HasAudioBass()
+BOOL CBT848Card::HasAudioBass()
 {
     return m_AudioControls->HasBass();
 }
 
-bool CBT848Card::HasAudioBalance()
+BOOL CBT848Card::HasAudioBalance()
 {
     return m_AudioControls->HasBalance();
 }
 
-bool CBT848Card::HasAudioAutoVolumeCorrection()
+BOOL CBT848Card::HasAudioAutoVolumeCorrection()
 {
     return m_AudioControls->HasAutoVolumeCorrection();
 }
 
-bool CBT848Card::GetHasUseInputPin1()
+BOOL CBT848Card::GetHasUseInputPin1()
 {
     SmartPtr<CMSP34x0AudioDecoder> MSP34x0AudioDecoder(m_AudioDecoder);
     if(MSP34x0AudioDecoder)
     {
-        return true;
+        return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
-bool CBT848Card::GetUseInputPin1()
+BOOL CBT848Card::GetUseInputPin1()
 {
     SmartPtr<CMSP34x0AudioDecoder> MSP34x0AudioDecoder(m_AudioDecoder);
     if(MSP34x0AudioDecoder)
     {
         return MSP34x0AudioDecoder->GetUseInputPin1();
     }
-    return false;
+    return FALSE;
 }
 
-void CBT848Card::SetUseInputPin1(bool AValue)
+void CBT848Card::SetUseInputPin1(BOOL AValue)
 {
     SmartPtr<CMSP34x0AudioDecoder> MSP34x0AudioDecoder(m_AudioDecoder);
     SmartPtr<CTDA9875AudioDecoder> TDA9875AudioDecoder(m_AudioDecoder);

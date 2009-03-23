@@ -40,10 +40,10 @@ static char THIS_FILE[] = __FILE__;
 // CDSVideoFormatPage dialog
 
 
-CDSVideoFormatPage::CDSVideoFormatPage(CString name,vector<CDShowGraph::CVideoFormat> &fmts,CSimpleSetting *pResolution)
-    : CTreeSettingsPage(name,CDSVideoFormatPage::IDD),
+CDSVideoFormatPage::CDSVideoFormatPage(CString name,vector<CDShowGraph::CVideoFormat> &fmts,CSliderSetting *pResolution) :
+    CTreeSettingsPage(name,CDSVideoFormatPage::IDD),
     m_RealVideoFmt(fmts),
-    m_bInUpdateControlls(false),
+    m_bInUpdateControlls(FALSE),
     m_pResolutionSetting(pResolution)
 {
     //{{AFX_DATA_INIT(CDSVideoFormatPage)
@@ -173,7 +173,7 @@ void CDSVideoFormatPage::UpdateControlls()
         return;
     }
     
-    m_bInUpdateControlls=true;
+    m_bInUpdateControlls=TRUE;
     int CurSel=m_ListBox.GetCurSel();
     if(CurSel!=LB_ERR)
     {
@@ -206,7 +206,7 @@ void CDSVideoFormatPage::UpdateControlls()
         ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_FIELDFMT),FALSE);
         ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_YUY2),FALSE);
     }
-    m_bInUpdateControlls=false;
+    m_bInUpdateControlls=FALSE;
 }
 
 void CDSVideoFormatPage::GenerateName(int pos)

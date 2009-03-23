@@ -39,7 +39,7 @@ class CDSAudioDevicePage : public CTreeSettingsPage
 // Construction
 public:
     CDSAudioDevicePage(CString name,std::string &AudioDevice);   // standard constructor
-    CDSAudioDevicePage(CString name,std::string &AudioDevice,bool *bConnectAudio);
+    CDSAudioDevicePage(CString name,std::string &AudioDevice,BOOL *bConnectAudio);
 
 // Dialog Data
     //{{AFX_DATA(CDSAudioDevicePage)
@@ -73,7 +73,7 @@ protected:
 private:
     std::vector<std::string> m_DeviceList;
     std::string &m_AudioDeviceSetting;
-    bool *m_bConnectAudio;
+    BOOL *m_bConnectAudio;
 };
 
 //{{AFX_INSERT_LOCATION}}

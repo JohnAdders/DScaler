@@ -934,7 +934,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     int     nLine;
     int     i;
     CSource* pSource = Providers_GetCurrentSource();
-    ISetting* pSetting = NULL;
+    CSimpleSetting* pSetting = NULL;
     int     OverlaySetting;
     BOOL    UseOverlayCtrl;
     BOOL    DisplayTitle;
@@ -1020,13 +1020,11 @@ static void OSD_RefreshGeneralScreen(double Size)
     }
     if (pSetting != NULL)
     {
-        sprintf (szInfo, "%d", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if (UseOverlayCtrl)
     {
-        sprintf (szInfo, "%d", OverlaySetting);
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if(pSetting != NULL || UseOverlayCtrl)
     {
@@ -1041,13 +1039,11 @@ static void OSD_RefreshGeneralScreen(double Size)
     }
     if (pSetting != NULL)
     {
-        sprintf (szInfo, "%d", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if (UseOverlayCtrl)
     {
-        sprintf (szInfo, "%d", OverlaySetting);
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if(pSetting != NULL || UseOverlayCtrl)
     {
@@ -1062,13 +1058,11 @@ static void OSD_RefreshGeneralScreen(double Size)
     }
     if (pSetting != NULL)
     {
-        sprintf (szInfo, "%d", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if (UseOverlayCtrl)
     {
-        sprintf (szInfo, "%d", OverlaySetting);
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if(pSetting != NULL || UseOverlayCtrl)
     {
@@ -1083,13 +1077,11 @@ static void OSD_RefreshGeneralScreen(double Size)
     }
     if (pSetting != NULL)
     {
-        sprintf (szInfo, "%d", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if (UseOverlayCtrl)
     {
-        sprintf (szInfo, "%d", OverlaySetting);
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if(pSetting != NULL || UseOverlayCtrl)
     {
@@ -1100,8 +1092,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     if(pSetting != NULL)
     {
         OSD_AddText("Color U", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-        sprintf (szInfo, "%d", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         DisplayTitle = TRUE;
         nLine++;
     }
@@ -1109,8 +1100,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     if(pSetting != NULL)
     {
         OSD_AddText("Color V", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-        sprintf (szInfo, "%d", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         DisplayTitle = TRUE;
         nLine++;
     }
@@ -1118,8 +1108,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     if(UseOverlayCtrl)
     {
         OSD_AddText("Gamma", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-        sprintf (szInfo, "%d", OverlaySetting);
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         DisplayTitle = TRUE;
         nLine++;
     }
@@ -1127,8 +1116,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     if(UseOverlayCtrl)
     {
         OSD_AddText("Sharpness", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-        sprintf (szInfo, "%d", OverlaySetting);
-        OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         DisplayTitle = TRUE;
         nLine++;
     }
@@ -1169,10 +1157,9 @@ static void OSD_RefreshGeneralScreen(double Size)
     DisplayTitle = FALSE;
     for (i = 0 ; i < NumFilters ; i++)
     {
-        strcpy(szInfo, Filters[i]->szName);
         if (Filters[i]->bActive)
         {
-            OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+            OSD_AddText(Filters[i]->szName, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
             DisplayTitle = TRUE;
         }
     }
@@ -1572,7 +1559,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
     CTestPattern*   pTestPattern;
     CSubPattern*    pSubPattern;
     CSource*        pSource = Providers_GetCurrentSource();
-    ISetting*       pSetting = NULL;
+    CSliderSetting* pSetting = NULL;
     BOOL            avail1, avail2;
 
     if (Size == 0)

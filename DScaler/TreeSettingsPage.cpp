@@ -40,7 +40,7 @@ m_name(TreeName),
 m_HeaderName(TreeName),
 m_minHeight(0),
 m_minWidth(0),
-m_bInitMinSize(true)
+m_bInitMinSize(TRUE)
 {
     //{{AFX_DATA_INIT(CTreeSettingsPage)
         // NOTE: the ClassWizard will add member initialization here
@@ -54,7 +54,7 @@ m_name(TreeName),
 m_HeaderName(HeaderName),
 m_minHeight(0),
 m_minWidth(0),
-m_bInitMinSize(true)
+m_bInitMinSize(TRUE)
 {
 
 }
@@ -99,7 +99,7 @@ void CTreeSettingsPage::GetMinSize(int &width,int &height)
         GetClientRect(&rect);
         m_minHeight=rect.Height();
         m_minWidth=rect.Width();
-        m_bInitMinSize=false;
+        m_bInitMinSize=FALSE;
     }
     width=m_minWidth;
     height=m_minHeight;
@@ -115,17 +115,17 @@ void CTreeSettingsPage::OnCancel()
     EndDialog(IDCANCEL);
 }
 
-bool CTreeSettingsPage::OnKillActive()
+BOOL CTreeSettingsPage::OnKillActive()
 {
-    return true;
+    return TRUE;
 }
 
-bool CTreeSettingsPage::OnSetActive()
+BOOL CTreeSettingsPage::OnSetActive()
 {
-    return true;
+    return TRUE;
 }
 
-bool CTreeSettingsPage::OnQueryCancel()
+BOOL CTreeSettingsPage::OnQueryCancel()
 {
-    return true;
+    return TRUE;
 }

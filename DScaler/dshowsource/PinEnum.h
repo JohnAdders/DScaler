@@ -205,7 +205,7 @@ private:
     ///direction
     PIN_DIRECTION m_pinDir;    
     ///any direction or only specified?
-    bool m_anydir;
+    BOOL m_anydir;
 };
 
 #endif // !defined(AFX_PINENUM_H__1446F155_3DEC_4476_805E_0B74863B7EC7__INCLUDED_)

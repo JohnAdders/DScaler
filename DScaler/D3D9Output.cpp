@@ -79,7 +79,7 @@ void CD3D9Output::CheckChangeMonitor(HWND hWnd)
 
 BOOL CD3D9Output::CanDoOverlayColorControl()
 {
-    return false;
+    return FALSE;
 }
     
 BOOL CD3D9Output::OverlayActive()
@@ -100,7 +100,7 @@ BOOL CD3D9Output::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlag
 {
     if( g_pD3D==NULL || pDevice==NULL || lpDDOverlay==NULL)
     {
-        return false;
+        return FALSE;
     }
 
     EnterCriticalSection(&hDDCritSect);
@@ -137,7 +137,7 @@ BOOL CD3D9Output::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlag
 
     LeaveCriticalSection(&hDDCritSect);
 
-    return true;
+    return TRUE;
 }
 
 void CD3D9Output::Overlay_ResetColorControls()
@@ -172,13 +172,13 @@ BOOL CD3D9Output::Overlay_Create()
             else
             {
                 LeaveCriticalSection(&hDDCritSect);
-                return false;
+                return FALSE;
             }
         }
         else
         {
             LeaveCriticalSection(&hDDCritSect);
-            return false;
+            return FALSE;
         }        
     }
 
@@ -187,7 +187,7 @@ BOOL CD3D9Output::Overlay_Create()
     {
         LeaveCriticalSection(&hDDCritSect);
         ErrorBox("CreateOffscreenPlainSurface failed");
-        return false;
+        return FALSE;
     }
 
     
@@ -196,14 +196,14 @@ BOOL CD3D9Output::Overlay_Create()
     {
         LeaveCriticalSection(&hDDCritSect);
         ErrorBox("Creating OSD texture failed");
-        return false;
+        return FALSE;
     }
     
     if(FAILED(m_lpOsdTexture->GetSurfaceLevel(0, &lpDDOSD))) 
     {
         LeaveCriticalSection(&hDDCritSect);
         ErrorBox("Getting surface from OSD texture failed");
-        return false;
+        return FALSE;
     }
 
     AddSplashTextLine("Using Direct3D output");
@@ -223,7 +223,7 @@ BOOL CD3D9Output::Overlay_Create()
     
     LeaveCriticalSection(&hDDCritSect);
 
-    return true;
+    return TRUE;
 }
     
 DWORD CD3D9Output::Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
@@ -261,7 +261,7 @@ BOOL CD3D9Output::Overlay_Destroy()
     }    
 
     LeaveCriticalSection(&hDDCritSect);
-    return true;
+    return TRUE;
 }
     
 COLORREF CD3D9Output::Overlay_GetColor()
@@ -322,7 +322,7 @@ BOOL CD3D9Output::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExt
 
     // stay in critical section
     
-    return true;
+    return TRUE;
 }
     
 BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
@@ -330,7 +330,7 @@ BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
     // \todo this doesn't really work for now (GetFrontBufferData always fails) .. do we need this anyway?????
     if(pDevice==NULL)
     {
-        return false;
+        return FALSE;
     }
 
     LPDIRECT3DSURFACE9 temp;
@@ -436,7 +436,7 @@ BOOL CD3D9Output::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
     BOOL RetVal = TRUE;
     if(FAILED( lpDDOverlay->UnlockRect()))
     {
-        RetVal=false;
+        RetVal=FALSE;
     } 
     else
     {
@@ -615,7 +615,7 @@ BOOL CD3D9Output::InitDD(HWND hWnd)
     if( NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION))) 
     {
         ErrorBox("Direct3DCreate9 failed");
-        return false;
+        return FALSE;
     }
 
     m_hWnd=hWnd;
@@ -654,11 +654,11 @@ BOOL CD3D9Output::InitDD(HWND hWnd)
                                   &d3dpp, &pDevice ) ) )
     {
         ErrorBox("D3D CreateDevice failed");
-        return false;
+        return FALSE;
     }
 
 
-    return true;
+    return TRUE;
 }
 
 void CD3D9Output::Overlay_SetRGB(BOOL IsRGB)

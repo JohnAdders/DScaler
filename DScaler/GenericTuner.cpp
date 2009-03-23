@@ -452,7 +452,7 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
     }
 }
 
-bool CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
+BOOL CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
 {
     BYTE config;
     WORD div;
@@ -559,7 +559,7 @@ bool CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
             m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
         }
 
-        bool result = m_I2CBus->Write(buffer, sizeof(buffer));
+        BOOL result = m_I2CBus->Write(buffer, sizeof(buffer));
 
         if (m_ExternalIFDemodulator != NULL)
         {
@@ -571,7 +571,7 @@ bool CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
     else
     {
         LOG(1,"GenericTuner: Error setting frequency. No I2C bus.");
-        return false;
+        return FALSE;
     }
 }
 
@@ -585,17 +585,17 @@ eVideoFormat CGenericTuner::GetDefaultVideoFormat()
     return m_VideoFormat;
 }
 
-bool CGenericTuner::HasRadio() const
+BOOL CGenericTuner::HasRadio() const
 {
-    return true;
+    return TRUE;
 }
 
 
-bool CGenericTuner::SetRadioFrequency(long nFrequencyHz)
+BOOL CGenericTuner::SetRadioFrequency(long nFrequencyHz)
 {
     // patch from bttv thanks to Sven Grothklags
     if(nFrequencyHz < 87500000 || nFrequencyHz > 108100000)
-        return false;
+        return FALSE;
 
 #if 1
     long nFrequency = MulDiv(nFrequencyHz, 20, 1000000);
@@ -621,7 +621,7 @@ bool CGenericTuner::SetRadioFrequency(long nFrequencyHz)
         }
         */
 
-        bool result = m_I2CBus->Write(buffer, sizeof(buffer));
+        BOOL result = m_I2CBus->Write(buffer, sizeof(buffer));
 
         /*
         if (m_ExternalIFDemodulator != NULL)
@@ -635,7 +635,7 @@ bool CGenericTuner::SetRadioFrequency(long nFrequencyHz)
     else
     {
         LOG(1,"GenericTuner: Error setting frequency. No I2C bus.");
-        return false;
+        return FALSE;
     }
 }
 

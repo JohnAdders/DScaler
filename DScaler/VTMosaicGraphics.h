@@ -31,7 +31,7 @@ class CVTMosaicGraphics
 {
 public:
     static void DrawG1Mosaic(HDC hDC, LPRECT lpRect, BYTE uChar,
-                             HBRUSH hBrush, bool bSeparated);
+                             HBRUSH hBrush, BOOL bSeparated);
 
 private:
     static BYTE m_G1MosaicSet[64];

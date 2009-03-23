@@ -244,7 +244,7 @@ BOOL CCredits::OnInitDialog()
 {
     CDialog::OnInitDialog();
     BOOL bRet;
-      UINT nRet;
+    UINT nRet;
     
     nCurrentFontHeight = NORMAL_TEXT_HEIGHT;
     

@@ -105,7 +105,7 @@ namespace HCParser
 // CHCParser.ParseFile(filepointer, context)
 // CHCParser.ParseLocalFile(filename, context);
 //
-// Parses the full content of the file given.  If the parsing encounters an error, false is
+// Parses the full content of the file given.  If the parsing encounters an error, FALSE is
 // returned and CHCParser.GetError() returns a std::string value indicating the error.
 // 'filename' is the path to the filename that should be read.  'context' is an arbitrary
 // pointer that will be given to the read callback and it is not used by CHCParser for
@@ -119,7 +119,7 @@ namespace HCParser
 // CHCParser.GetError()
 // CHCParser.GetErrorUnicode()
 //
-// Only after CHCParser.ParseFile(...) returns false, CHCParser.GetError() returns a valid
+// Only after CHCParser.ParseFile(...) returns FALSE, CHCParser.GetError() returns a valid
 // std::string variable containing the description of the error.  GetErrorUnicode() returns
 // a std::wstring type.  Since the error string is stored internally as unicode, a
 // conversion to multi-byte characters takes place if GetError() is used.
@@ -149,7 +149,7 @@ namespace HCParser
 //
 // The application can stop the CHCParser from continuing the parsing by throwing a type
 // std::string or std::wstring inside the callback.  In this case, the parsing will stop
-// immediately and CHCParser.ParseFile() will return with false.  CHCParser.GetError()
+// immediately and CHCParser.ParseFile() will return with FALSE.  CHCParser.GetError()
 // will return an error message of format:
 //
 // "Error on line N character n: message"
@@ -278,19 +278,19 @@ public:
     CHCParser(const CParseTag* tagList);
     virtual ~CHCParser();
 
-    bool ParseLocalFile(const char* filename, void* reportContext = NULL);
-    bool ParseLocalFile(const wchar_t* filename, void* reportContext = NULL);
+    BOOL ParseLocalFile(const char* filename, void* reportContext = NULL);
+    BOOL ParseLocalFile(const wchar_t* filename, void* reportContext = NULL);
 
-    bool ParseFile(const char* filename, void* reportContext = NULL, bool localFile = false);
-    bool ParseFile(const wchar_t* filename, void* reportContext = NULL, bool localFile = false);
-    bool ParseFile(FILE* fp, void* reportContext = NULL);
+    BOOL ParseFile(const char* filename, void* reportContext = NULL, BOOL localFile = FALSE);
+    BOOL ParseFile(const wchar_t* filename, void* reportContext = NULL, BOOL localFile = FALSE);
+    BOOL ParseFile(FILE* fp, void* reportContext = NULL);
 
     std::string GetError();
     std::wstring GetErrorUnicode();
 
     static int Str2Int(const char* text);
 
-    static bool IsUnicodeOS();
+    static BOOL IsUnicodeOS();
     static FILE* OpenLocalFile(const char* filename);
     static FILE* OpenLocalFile(const wchar_t* filename);
 
@@ -331,10 +331,10 @@ private:
         const CParseTag*            parseTags;
         long                        paramIndex;
         unsigned short                expect;
-        bool                        bracketOpened;
-        bool                        iterateValues;
-        bool                        passEOL;
-        bool                        valueOpened;
+        BOOL                        bracketOpened;
+        BOOL                        iterateValues;
+        BOOL                        passEOL;
+        BOOL                        valueOpened;
         std::vector<unsigned long>    openedTagParamCounts;
         std::vector<unsigned long>*    paramCounts;
     } ParseState;
@@ -351,7 +351,7 @@ private:
         }
 
         virtual void clear();
-        virtual bool empty();
+        virtual BOOL empty();
 
         virtual std::string str();
         virtual std::wstring wstr();
@@ -392,46 +392,46 @@ private:
 
     long ReadLineIntoBuffer(FILE* fp);
 
-    bool ProcessStream(FILE* fp);
-    bool ProcessLine();
-    bool ProcessSection();
-    bool ProcessTag();
-    bool ProcessOpenValueBracket();
-    bool ProcessCloseValueBracket();
-    bool ProcessOpenTagListBracket();
-    bool ProcessCloseTagListBracket();
-    bool ProcessComma();
-    bool ProcessEqual();
-    bool ProcessValue();
+    BOOL ProcessStream(FILE* fp);
+    BOOL ProcessLine();
+    BOOL ProcessSection();
+    BOOL ProcessTag();
+    BOOL ProcessOpenValueBracket();
+    BOOL ProcessCloseValueBracket();
+    BOOL ProcessOpenTagListBracket();
+    BOOL ProcessCloseTagListBracket();
+    BOOL ProcessComma();
+    BOOL ProcessEqual();
+    BOOL ProcessValue();
 
-    bool AcceptValue(const CParseTag* parseTag, unsigned char types,
+    BOOL AcceptValue(const CParseTag* parseTag, unsigned char types,
         char* value, unsigned long length);
 
-    bool OpenTag(long tagIndex);
-    bool CloseTag(bool openNext = false);
-    bool OpenValue(bool withBracket);
-    bool OpenTagList(bool withBracket);
-    bool CloseValue();
+    BOOL OpenTag(long tagIndex);
+    BOOL CloseTag(BOOL openNext = FALSE);
+    BOOL OpenValue(BOOL withBracket);
+    BOOL OpenTagList(BOOL withBracket);
+    BOOL CloseValue();
 
     void SetParseError(ParseError& error);
-    void AddExpectLine(ParseError& error, bool debugging = false);
+    void AddExpectLine(ParseError& error, BOOL debugging = FALSE);
 
-    bool ReportTag(const CParseTag* parseTag);
-    bool ReportOpen(const CParseTag* parseTag);
-    bool ReportClose(const CParseTag* parseTag);
-    bool ReportValue(const CParseTag* parseTag, unsigned char type,
+    BOOL ReportTag(const CParseTag* parseTag);
+    BOOL ReportOpen(const CParseTag* parseTag);
+    BOOL ReportClose(const CParseTag* parseTag);
+    BOOL ReportValue(const CParseTag* parseTag, unsigned char type,
                      const CParseValue* value, int report = REPORT_VALUE);
 
     void TrimLeft();
-    bool TagTakesValues(const CParseTag* parseTag);
+    BOOL TagTakesValues(const CParseTag* parseTag);
     long GetNextIterateValuesIndex();
 
-    bool IsSpace(int c);
-    bool IsAlpha(int c);
-    bool IsAlnum(int c);
-    bool IsDigit(int c);
-    bool IsDelim(int c);
-    bool IsHex(int c);
+    BOOL IsSpace(int c);
+    BOOL IsAlpha(int c);
+    BOOL IsAlnum(int c);
+    BOOL IsDigit(int c);
+    BOOL IsDelim(int c);
+    BOOL IsHex(int c);
 
     enum
     {
@@ -441,8 +441,8 @@ private:
         DEBUG_OUT_EXPECT    = 3,
     };
 
-    void DebugOut(int level, const char* message, bool appendExpect = false);
-    void DebugOut(int level, ParseError& error, bool appendExpect = false);
+    void DebugOut(int level, const char* message, BOOL appendExpect = FALSE);
+    void DebugOut(int level, ParseError& error, BOOL appendExpect = FALSE);
 
 private:
     char*                        m_readBuffer;
@@ -455,7 +455,7 @@ private:
     char*                        m_linePoint;
 
     ParseError                    m_parseError;
-    bool                        m_parseErrorSet;
+    BOOL                        m_parseErrorSet;
     int                            m_debugOutLevel;
     void*                        m_reportContext;
 

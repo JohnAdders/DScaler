@@ -37,7 +37,7 @@ enum eSourceInputType
 };
 
 
-class ISetting;
+class CSimpleSetting;
 
 /** Abstract interface for Source.
     This class abstracts a thing that produces images.
@@ -74,35 +74,35 @@ public:
     /// Turn back on the sound
     virtual void UnMute() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetVolume() = 0;
+    virtual CSliderSetting* GetVolume() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetBalance() = 0;
+    virtual CSliderSetting* GetBalance() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetBrightness() = 0;
+    virtual CSliderSetting* GetBrightness() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetContrast() = 0;
+    virtual CSliderSetting* GetContrast() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetHue() = 0;
+    virtual CSliderSetting* GetHue() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetSaturation() = 0;
+    virtual CSliderSetting* GetSaturation() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetSaturationU() = 0;
+    virtual CSliderSetting* GetSaturationU() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetSaturationV() = 0;
+    virtual CSliderSetting* GetSaturationV() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetAnalogueBlanking() = 0;
+    virtual CYesNoSetting* GetAnalogueBlanking() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetTopOverscan() = 0;
+    virtual CSliderSetting* GetTopOverscan() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetBottomOverscan() = 0;
+    virtual CSliderSetting* GetBottomOverscan() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetLeftOverscan() = 0;
+    virtual CSliderSetting* GetLeftOverscan() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetRightOverscan() = 0;
+    virtual CSliderSetting* GetRightOverscan() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetHDelay() = 0;
+    virtual CSliderSetting* GetHDelay() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetVDelay() = 0;
+    virtual CSliderSetting* GetVDelay() = 0;
     /// Get the tuner Id - this method may (and should) be overriden
     virtual eTunerId GetTunerId() 
     {

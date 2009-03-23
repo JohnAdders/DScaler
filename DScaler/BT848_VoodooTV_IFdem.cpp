@@ -37,18 +37,18 @@ CPreTuneVoodooFM::CPreTuneVoodooFM(CBT848Card* pBT848Card)
     m_pBT848Card = pBT848Card;
 }
 
-bool CPreTuneVoodooFM::Detect() 
+BOOL CPreTuneVoodooFM::Detect() 
 { 
     if ((m_pBT848Card != NULL) && 
         ((m_pBT848Card->GetCardType() == TVCARD_VOODOOTV_200)  ||
          (m_pBT848Card->GetCardType() == TVCARD_VOODOOTV_FM)))
     {
-        return true; 
+        return TRUE; 
     }
-    return false;
+    return FALSE;
 }
 
-void CPreTuneVoodooFM::TunerSet(bool bPreSet, eVideoFormat videoFormat)
+void CPreTuneVoodooFM::TunerSet(BOOL bPreSet, eVideoFormat videoFormat)
 {
     if (bPreSet && (m_pBT848Card!=NULL))
     {

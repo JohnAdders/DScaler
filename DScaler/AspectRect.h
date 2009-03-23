@@ -68,12 +68,12 @@ public:
     // Considers 2 rectangles equal if they are within n pixels of each other on each edge
     BOOL tolerantEquals(const CAspectRect &src, int tolerance = 4)
     {
-        if (fabs(m_OutputAdjustment-src.m_OutputAdjustment) > .00001) return false;
-        if (abs(left - src.left) > tolerance) return false;
-        if (abs(right - src.right) > tolerance) return false;
-        if (abs(top - src.top) > tolerance) return false;
-        if (abs(bottom - src.bottom) > tolerance) return false;
-        return true;
+        if (fabs(m_OutputAdjustment-src.m_OutputAdjustment) > .00001) return FALSE;
+        if (abs(left - src.left) > tolerance) return FALSE;
+        if (abs(right - src.right) > tolerance) return FALSE;
+        if (abs(top - src.top) > tolerance) return FALSE;
+        if (abs(bottom - src.bottom) > tolerance) return FALSE;
+        return TRUE;
     }
 
     int width()

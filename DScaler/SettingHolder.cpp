@@ -94,7 +94,7 @@ BOOL CSettingsHolder::RegisterMe()
     Add a settings to the list.
     Makes sure there are no duplicates.
 */
-void CSettingsHolder::AddSetting(ISetting* pSetting)
+void CSettingsHolder::AddSetting(CSimpleSetting* pSetting)
 {    
     for (int i = 0; i < m_Settings.size(); i++)
     {
@@ -112,29 +112,7 @@ void CSettingsHolder::AddSetting(ISetting* pSetting)
 
 void CSettingsHolder::AddSetting(SETTING* pSetting, CSettingGroup* pGroup)
 {
-    ISetting* pISetting = NULL;
-
-    switch (pSetting->Type)
-    {
-    case ONOFF:
-    case YESNO:
-        pISetting = new CYesNoSetting(pSetting, pGroup);
-        break;
-    case ITEMFROMLIST:
-        pISetting = new CListSetting(pSetting, pGroup);
-        break;
-    case SLIDER:
-        pISetting = new CSliderSetting(pSetting, pGroup);
-        break;
-    case CHARSTRING:
-        pISetting = new CStringSetting(pSetting, pGroup);
-        break;
-    }
-
-    if (pISetting != NULL)
-    {
-        AddSetting(pISetting);
-    }
+    AddSetting(new CSettingWrapper(pSetting));
 }
 
 /**
@@ -143,7 +121,7 @@ void CSettingsHolder::AddSetting(SETTING* pSetting, CSettingGroup* pGroup)
 void CSettingsHolder::ReadFromIni()
 {    
     RegisterMe();
-    for(vector<ISetting*>::iterator it = m_Settings.begin();
+    for(vector<CSimpleSetting*>::iterator it = m_Settings.begin();
         it != m_Settings.end();
         ++it)
     {
@@ -160,7 +138,7 @@ void CSettingsHolder::ReadFromIni()
 void CSettingsHolder::WriteToIni(BOOL bOptimizeFileAccess)
 {    
     RegisterMe();
-    for(vector<ISetting*>::iterator it = m_Settings.begin();
+    for(vector<CSimpleSetting*>::iterator it = m_Settings.begin();
         it != m_Settings.end();
         ++it)
     {
@@ -183,7 +161,7 @@ long CSettingsHolder::GetNumSettings()
 /**
     Get setting at index SettingsIndex.    
 */    
-ISetting* CSettingsHolder::GetSetting(long SettingIndex)
+CSimpleSetting* CSettingsHolder::GetSetting(long SettingIndex)
 {
     RegisterMe();
     if(SettingIndex >= 0 && SettingIndex < m_Settings.size())
@@ -212,17 +190,17 @@ LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam
 
     if(wParam >= 0 && wParam < m_Settings.size())
     {
-        ISetting* pSetting = m_Settings[wParam];
+        CSimpleSetting* pSetting = m_Settings[wParam];
         if(pSetting != NULL)
         {
             if(message == m_SetMessage)
             {
-                RetVal = pSetting->GetValue();
+                RetVal = pSetting->GetValueAsMessage();
                 *bHandled = TRUE;
             }
             else if(message == m_SetMessage + 100)
             {
-                pSetting->SetValue(lParam);
+                pSetting->SetValueFromMessage(lParam);
                 *bHandled = TRUE;
             }
             else if(message == m_SetMessage + 200)

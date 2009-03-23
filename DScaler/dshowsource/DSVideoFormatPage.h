@@ -44,7 +44,7 @@ class CDSVideoFormatPage : public CTreeSettingsPage
 {
 // Construction
 public:
-    CDSVideoFormatPage(CString name, std::vector<CDShowGraph::CVideoFormat> &fmts,CSimpleSetting *pResolution);   // standard constructor
+    CDSVideoFormatPage(CString name, std::vector<CDShowGraph::CVideoFormat> &fmts,CSliderSetting *pResolution);   // standard constructor
 
 // Dialog Data
     //{{AFX_DATA(CDSVideoFormatPage)
@@ -99,8 +99,8 @@ private:
     std::vector<CDShowGraph::CVideoFormat> &m_RealVideoFmt;
 
     ///flag to prevent controlls from messing with the settings when updating controlls
-    bool m_bInUpdateControlls;
-    CSimpleSetting *m_pResolutionSetting;
+    BOOL m_bInUpdateControlls;
+    CSliderSetting *m_pResolutionSetting;
 };
 
 //{{AFX_INSERT_LOCATION}}

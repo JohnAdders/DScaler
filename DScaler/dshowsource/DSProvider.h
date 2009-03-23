@@ -52,7 +52,7 @@ public:
 
 private:
     ///checks if dshow support can be enabled
-    bool CanUseDShow(std::string &FailMsg);
+    BOOL CanUseDShow(std::string &FailMsg);
     std::vector<SmartPtr<CDSSourceBase> > m_DSSources;
     std::map<int, std::string> m_SourceNames;
     

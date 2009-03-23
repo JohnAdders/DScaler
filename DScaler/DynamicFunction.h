@@ -35,7 +35,7 @@ public:
         }
     }
 
-    operator bool() const
+    operator BOOL() const
 	{
 		return m_pFunc != 0;
 	}

@@ -87,7 +87,7 @@ public:
     virtual ~CAspectFilter();
     virtual const char* getFilterName() = 0;
 
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun) = 0; 
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun) = 0; 
 
     virtual void DebugDump();
     void SetChild(SmartPtr<CAspectFilter> Child);
@@ -102,7 +102,7 @@ class COverscanAspectFilter : public CAspectFilter
 {
 public:
     COverscanAspectFilter(int TopOverscanSize, int BottomOverscanSize, int LeftOverscanSize, int RightOverscanSize);
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
     virtual void DebugDump();
 
@@ -118,7 +118,7 @@ class CAnalogueBlankingFilter : public CAspectFilter
 {
 public:
     CAnalogueBlankingFilter(int SourceWidth, int SourceHeight);
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
     virtual void DebugDump();
 
@@ -138,7 +138,7 @@ class COrbitAspectFilter : public CAspectFilter
 {
 public:
     COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY, long OrbitSize);
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
     virtual void DebugDump();
 
@@ -153,7 +153,7 @@ class CBounceDestinationAspectFilter : public CAspectFilter
 {
 public:
     CBounceDestinationAspectFilter(time_t period);
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
     virtual void DebugDump();
 
@@ -168,7 +168,7 @@ class CPositionDestinationAspectFilter : public CAspectFilter
 {
 public:
     CPositionDestinationAspectFilter(double x, double y);
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
     virtual void DebugDump();
 
@@ -181,7 +181,7 @@ protected:
 class CCropAspectFilter : public CAspectFilter 
 {
 public:
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
 };
 
@@ -191,7 +191,7 @@ public:
 class CUnCropAspectFilter : public CAspectFilter
 {
 public:
-    virtual void adjustAspect(CAspectRectangles &ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
 };
 
@@ -206,7 +206,7 @@ class CPanAndZoomAspectFilter : public CAspectFilter
 {
 public:
     CPanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom);
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
     virtual void DebugDump();
 
@@ -224,7 +224,7 @@ class CScreenSanityAspectFilter : public CAspectFilter
 {
 public:
     CScreenSanityAspectFilter(int SrcWidth, int SrcHeight);
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
 protected:
     int m_SrcWidth;
@@ -236,7 +236,7 @@ protected:
 class CResizeWindowAspectFilter : public CAspectFilter
 {
 public:
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
 };
 
@@ -246,7 +246,7 @@ class CMasterFilterChain : public CAspectFilter
 {
 public:
     CMasterFilterChain(int SrcWidth, int SrcHeight);
-    virtual void adjustAspect(CAspectRectangles& ar, bool& RequestRerun);
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
     virtual const char* getFilterName();
 protected:
     std::vector< SmartPtr<CAspectFilter> > m_FilterChain;

@@ -107,23 +107,23 @@ public:
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     std::string GetStatus();
-    ISetting* GetVolume() {return NULL;};
-    ISetting* GetBalance() {return NULL;};
+    CSliderSetting* GetVolume() {return NULL;};
+    CSliderSetting* GetBalance() {return NULL;};
     void Mute() {;};
     void UnMute() {;};
-    ISetting* GetBrightness() {return NULL;};
-    ISetting* GetContrast() {return NULL;};
-    ISetting* GetHue() {return NULL;};
-    ISetting* GetSaturation() {return NULL;};
-    ISetting* GetSaturationU() {return NULL;};
-    ISetting* GetSaturationV() {return NULL;};
-    ISetting* GetAnalogueBlanking() {return NULL;};
-    ISetting* GetTopOverscan() {return NULL;};
-    ISetting* GetBottomOverscan() {return NULL;};
-    ISetting* GetLeftOverscan() {return NULL;};
-    ISetting* GetRightOverscan() {return NULL;};
-    ISetting* GetHDelay() {return NULL;};
-    ISetting* GetVDelay() {return NULL;};
+    CSliderSetting* GetBrightness() {return NULL;};
+    CSliderSetting* GetContrast() {return NULL;};
+    CSliderSetting* GetHue() {return NULL;};
+    CSliderSetting* GetSaturation() {return NULL;};
+    CSliderSetting* GetSaturationU() {return NULL;};
+    CSliderSetting* GetSaturationV() {return NULL;};
+    CYesNoSetting* GetAnalogueBlanking() {return NULL;};
+    CSliderSetting* GetTopOverscan() {return NULL;};
+    CSliderSetting* GetBottomOverscan() {return NULL;};
+    CSliderSetting* GetLeftOverscan() {return NULL;};
+    CSliderSetting* GetRightOverscan() {return NULL;};
+    CSliderSetting* GetHDelay() {return NULL;};
+    CSliderSetting* GetVDelay() {return NULL;};
 
     CTreeSettingsPage* GetTreeSettingsPage() {return NULL;};
 

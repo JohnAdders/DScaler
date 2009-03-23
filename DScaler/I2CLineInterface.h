@@ -38,10 +38,10 @@
 class II2CLineInterface  
 {
 public:
-    virtual void SetSDA(bool value)=0;
-    virtual void SetSCL(bool value)=0;
-    virtual bool GetSDA()=0;
-    virtual bool GetSCL()=0;
+    virtual void SetSDA(BOOL value)=0;
+    virtual void SetSCL(BOOL value)=0;
+    virtual BOOL GetSDA()=0;
+    virtual BOOL GetSCL()=0;
     virtual void Sleep()=0;
     virtual void I2CLock()=0;
     virtual void I2CUnlock()=0;

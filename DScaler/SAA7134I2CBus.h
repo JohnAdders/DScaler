@@ -52,9 +52,9 @@ public:
 
 public:
     /**
-    @return true if sucessful
+    @return TRUE if sucessful
     */
-    virtual bool Read(
+    virtual BOOL Read(
                         const BYTE *writeBuffer,
                         size_t writeBufferSize,
                         BYTE *readBuffer,
@@ -62,9 +62,9 @@ public:
                      );
     
     /**
-    @return true if sucessful
+    @return TRUE if sucessful
     */
-    virtual bool Write(const BYTE *writeBuffer, size_t writeBufferSize);
+    virtual BOOL Write(const BYTE *writeBuffer, size_t writeBufferSize);
 
 protected:
     /// Sets the data for the next command
@@ -72,19 +72,19 @@ protected:
     /// Reads the data from the last command
     virtual BYTE GetData();
     /// Wait until the last command is finished.
-    virtual bool BusyWait();
+    virtual BOOL BusyWait();
     /// Is the bus ready?
-    virtual bool IsBusReady();
+    virtual BOOL IsBusReady();
 
     /// Is the status an error?
-    virtual bool IsError(BYTE Status);
+    virtual BOOL IsError(BYTE Status);
 
     /// Addresses the device
-    virtual bool I2CStart();
+    virtual BOOL I2CStart();
     /// Stops the transfer
-    virtual bool I2CStop();
+    virtual BOOL I2CStop();
     /// Continue transfering the next byte
-    virtual bool I2CContinue();
+    virtual BOOL I2CContinue();
 
     /// Lock device
     virtual void Lock();
@@ -97,9 +97,9 @@ protected:
     /// These are not supported
     virtual void Start();
     virtual void Stop();
-    virtual bool Write(BYTE byte);
-    virtual BYTE Read(bool last=true);
-    virtual bool GetAcknowledge();
+    virtual BOOL Write(BYTE byte);
+    virtual BYTE Read(BOOL last=TRUE);
+    virtual BOOL GetAcknowledge();
     virtual void SendACK();
     virtual void SendNAK();
 

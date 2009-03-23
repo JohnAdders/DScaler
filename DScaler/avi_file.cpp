@@ -443,7 +443,7 @@ BOOL fifoDumpBlock(FIFO *fifo, AVI_FILE *file)
 
     LeaveCriticalSection(&fifo->mutex.read);
 
-    /* Always return true even if there was an error so anything that's waiting
+    /* Always return TRUE even if there was an error so anything that's waiting
        for a write to finish isn't blocked forever */
     return TRUE;
 }

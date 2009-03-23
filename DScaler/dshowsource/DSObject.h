@@ -56,7 +56,7 @@ public:
     //virtual char* getName()=0;
     
     //virtual void configure(HWND hWnd)=0;
-    //virtual bool canConfigure()=0;
+    //virtual BOOL canConfigure()=0;
 
 protected:
     ///graph that the object belongs to

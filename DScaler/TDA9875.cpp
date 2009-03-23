@@ -50,25 +50,25 @@ void CTDA9875::Reset()
         
 }
 
-bool CTDA9875::IsDevicePresent(int& dic, int& rev)
+BOOL CTDA9875::IsDevicePresent(int& dic, int& rev)
 {
-    // since 0 is a true valuie make sure we get a change
+    // since 0 is a TRUE valuie make sure we get a change
     BYTE result[1] = {3};
 
-    if(ReadFromSubAddress(254, 0, 0, result, sizeof(result)) == false)
+    if(ReadFromSubAddress(254, 0, 0, result, sizeof(result)) == FALSE)
     {
-        return false;
+        return FALSE;
     }
     dic = result[0];
-    if(ReadFromSubAddress(255, 0, 0, result, sizeof(result)) == false)
+    if(ReadFromSubAddress(255, 0, 0, result, sizeof(result)) == FALSE)
     {
-        return false;
+        return FALSE;
     }
 
     rev = result[0];
 
     if(dic==0 || dic==2) // tda9875 and tda9875A
-        return true;
+        return TRUE;
 
-    return false; 
+    return FALSE; 
 }

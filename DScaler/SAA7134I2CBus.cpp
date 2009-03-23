@@ -44,7 +44,7 @@ CSAA7134I2CBus::CSAA7134I2CBus(ISAA7134I2CInterface* pSAA7134I2C) :
 }
 
 
-bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
+BOOL CSAA7134I2CBus::Read(const BYTE *writeBuffer,
                   size_t writeBufferSize,
                   BYTE *readBuffer,
                   size_t readBufferSize)
@@ -56,7 +56,7 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
 
     if (readBufferSize == 0)
     {
-        return true;
+        return TRUE;
     }
 
     Lock();
@@ -66,7 +66,7 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
         if (!I2CStop() || !IsBusReady())
         {
             Unlock();
-            return false;
+            return FALSE;
         }
     }
 
@@ -81,10 +81,10 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
         // Send the address
         if (!I2CStart())
         {
-            LOGD("I2CBus::write(0x%x) returned true for write address in CI2CBus::read\n", address & ~1);
+            LOGD("I2CBus::write(0x%x) returned TRUE for write address in CI2CBus::read\n", address & ~1);
             I2CStop();
             Unlock();
-            return false;
+            return FALSE;
         }
 
         for (size_t i = 1; i < (writeBufferSize - 1); i++)
@@ -94,7 +94,7 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
             {
                 I2CStop();
                 Unlock();
-                return false;
+                return FALSE;
             }
         }
 
@@ -112,10 +112,10 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
     // The read address requires a negative ack
     if (!I2CStart())
     {
-        LOGD("I2CBus::write(0x%x) returned false for read address in CI2CBus::read\n", address | 1);
+        LOGD("I2CBus::write(0x%x) returned FALSE for read address in CI2CBus::read\n", address | 1);
         I2CStop();
         Unlock();
-        return false;
+        return FALSE;
     }
 
     // \todo I don't know if the CONTINUE before reading is right.
@@ -129,10 +129,10 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
     I2CStop();
     Unlock();
 
-    return true;
+    return TRUE;
 }
 
-bool CSAA7134I2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
+BOOL CSAA7134I2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
 {
     ASSERT(m_pSAA7134I2C != NULL);
     ASSERT(writeBuffer != 0);
@@ -147,7 +147,7 @@ bool CSAA7134I2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
         if (!I2CStop() || !IsBusReady())
         {
             Unlock();
-            return false;
+            return FALSE;
         }
     }
 
@@ -166,14 +166,14 @@ bool CSAA7134I2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
         {
             I2CStop();
             Unlock();
-            return false;
+            return FALSE;
         }
     }
 
     I2CStop();
     Unlock();
 
-    return true;
+    return TRUE;
 }
 
 
@@ -191,7 +191,7 @@ void CSAA7134I2CBus::Sleep()
 }
 
 
-bool CSAA7134I2CBus::BusyWait()
+BOOL CSAA7134I2CBus::BusyWait()
 {
     ASSERT(m_pSAA7134I2C != NULL);
 
@@ -208,7 +208,7 @@ bool CSAA7134I2CBus::BusyWait()
     {
         if (Retries++ > MAX_BUSYWAIT_RETRIES)
         {
-            return false;
+            return FALSE;
         }
         Sleep();
     }
@@ -232,7 +232,7 @@ BYTE CSAA7134I2CBus::GetData()
     return m_pSAA7134I2C->GetI2CData();
 }
 
-bool CSAA7134I2CBus::IsBusReady()
+BOOL CSAA7134I2CBus::IsBusReady()
 {
     BYTE Status = m_pSAA7134I2C->GetI2CStatus();
 
@@ -241,7 +241,7 @@ bool CSAA7134I2CBus::IsBusReady()
 }
 
 
-bool CSAA7134I2CBus::IsError(BYTE Status)
+BOOL CSAA7134I2CBus::IsError(BYTE Status)
 {
     switch (Status)
     {
@@ -252,17 +252,17 @@ bool CSAA7134I2CBus::IsError(BYTE Status)
     case ISAA7134I2CInterface::STATUS_SEQ_ERR:
     case ISAA7134I2CInterface::STATUS_ST_ERR:
     case ISAA7134I2CInterface::STATUS_SW_ERR:
-        return true;
+        return TRUE;
 
     default:
         // do nothing
         break;
     }
-    return false;
+    return FALSE;
 }
 
 
-bool CSAA7134I2CBus::I2CStart()
+BOOL CSAA7134I2CBus::I2CStart()
 {
     ASSERT(m_pSAA7134I2C != 0);
 
@@ -271,7 +271,7 @@ bool CSAA7134I2CBus::I2CStart()
 }
 
 
-bool CSAA7134I2CBus::I2CStop()
+BOOL CSAA7134I2CBus::I2CStop()
 {
     ASSERT(m_pSAA7134I2C != 0);
 
@@ -280,7 +280,7 @@ bool CSAA7134I2CBus::I2CStop()
 }
 
 
-bool CSAA7134I2CBus::I2CContinue()
+BOOL CSAA7134I2CBus::I2CContinue()
 {
     ASSERT(m_pSAA7134I2C != 0);
 
@@ -323,22 +323,22 @@ void CSAA7134I2CBus::Stop()
     // Unsupported
 }
 
-bool CSAA7134I2CBus::Write(BYTE byte)
+BOOL CSAA7134I2CBus::Write(BYTE byte)
 {
     // Unsupported
-    return false;
+    return FALSE;
 }
 
-BYTE CSAA7134I2CBus::Read(bool last)
+BYTE CSAA7134I2CBus::Read(BOOL last)
 {
     // Unsupported
     return 0x00;
 }
 
-bool CSAA7134I2CBus::GetAcknowledge()
+BOOL CSAA7134I2CBus::GetAcknowledge()
 {
     // Unsupported
-    return false;
+    return FALSE;
 }
 
 void CSAA7134I2CBus::Lock()

@@ -106,42 +106,42 @@ BYTE CTDA9873AudioDecoder::ReadStatus()
     return result;
 }
 
-bool CTDA9873AudioDecoder::Write(eReg SubAddress, BYTE Data, BYTE Mask)
+BOOL CTDA9873AudioDecoder::Write(eReg SubAddress, BYTE Data, BYTE Mask)
 {
     ASSERT(SubAddress >= TDA9873_REG_SWITCH && SubAddress < TDA9873_REG_LAST_ONE);
 
     BYTE NewValue = (m_ShadowReg[SubAddress]&~Mask) | (Data&Mask);
 
     if(NewValue == m_ShadowReg[SubAddress])
-        return true;
+        return TRUE;
 
     m_ShadowReg[SubAddress] = NewValue;
     return WriteToSubAddress(SubAddress, &NewValue, 1);
 }
 
-bool CTDA9873AudioDecoder::Detect()
+BOOL CTDA9873AudioDecoder::Detect()
 {
     if((ReadStatus()&TDA9873IN_MAGICMASK) != TDA9873IN_MAGIC)
     {
-        return false;
+        return FALSE;
     }
 
     BYTE result;
     if(!ReadFromSubAddress(TDA9873_REG_DETECT, &result, 1) || result != TDA9873DE_MAGIC)
     {
-        return false;
+        return FALSE;
     }
 
-    return true;
+    return TRUE;
 }
 
-bool CTDA9873AudioDecoder::Initialize()
+BOOL CTDA9873AudioDecoder::Initialize()
 {
     if(!Detect())
     {
         // Try alternative address
         m_DeviceAddress ^= 1;
-        if(!Detect()) return false;
+        if(!Detect()) return FALSE;
     }
 
     return Write(TDA9873_REG_SWITCH, 0xe4) &&
@@ -353,7 +353,7 @@ void CTDA9873AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     if (m_AutoDetecting)
     {
         LOGD("Abort1 TDA9873 detect loop");
-        m_ThreadWait = true;
+        m_ThreadWait = TRUE;
         Sleep(10);
         
         if (m_AutoDetecting)
@@ -406,7 +406,7 @@ void CTDA9873AudioDecoder::StartThread()
 {
     DWORD LinkThreadID;
 
-    m_ThreadWait = false;
+    m_ThreadWait = FALSE;
 
     if (m_TDA9873Thread != NULL)
     {
@@ -423,7 +423,7 @@ void CTDA9873AudioDecoder::StartThread()
         return;
     }
 
-    m_StopThread = false;
+    m_StopThread = FALSE;
 
     m_TDA9873Thread = CreateThread((LPSECURITY_ATTRIBUTES) NULL,  // No security.
                              (DWORD) 0,                     // Same stack size.
@@ -483,7 +483,7 @@ int CTDA9873AudioDecoder::DetectThread()
             }
             else
             {
-                m_ThreadWait = true;    //Finished
+                m_ThreadWait = TRUE;    //Finished
             }
 
             DetectCounter = 1;            
@@ -525,7 +525,7 @@ int CTDA9873AudioDecoder::DetectThread()
 
                     if (DetectCounter >= 200)
                     {
-                        m_ThreadWait = true;    //Finished
+                        m_ThreadWait = TRUE;    //Finished
                     }
                 }
             }

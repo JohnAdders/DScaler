@@ -65,7 +65,7 @@ SETTING* IOutput::GetOtherSettings()
     if(!m_bSettingInitialized)
     {        
         InitOtherSettings();
-        m_bSettingInitialized=true;
+        m_bSettingInitialized=TRUE;
     }
     return OtherSettings;
 }

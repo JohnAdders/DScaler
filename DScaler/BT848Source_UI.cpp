@@ -525,7 +525,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         case IDC_USEEQUALIZER:
             {
                 BOOL bEnabled = (IsDlgButtonChecked(hDlg, IDC_USEEQUALIZER) == BST_CHECKED);
-                pThis->m_UseEqualizer->SetValue(  bEnabled );            
+                pThis->m_UseEqualizer->SetValue(bEnabled);
                 if (bEnabled)
                 {
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND1_SLIDER),SW_SHOW);
@@ -581,7 +581,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         case IDC_SUPERBASS:
             {
                 BOOL bEnabled = (IsDlgButtonChecked(hDlg, IDC_SUPERBASS) == BST_CHECKED);
-                pThis->m_AudioSuperbass->SetValue(  bEnabled );            
+                pThis->m_AudioSuperbass->SetValue(bEnabled);
             }
             break;
         case IDOK:
@@ -591,11 +591,11 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         
         case IDCANCEL:
             pThis->Mute();
-            pThis->m_Volume->SetValue(TVolume);            
+            pThis->m_Volume->SetValue(TVolume);
             pThis->m_Balance->SetValue(TBalance);
             pThis->m_AudioSuperbass->SetValue(TSuperBass);
             pThis->m_AudioLoudness->SetValue(TLoudness);
-            pThis->m_AudioSpatialEffect->SetValue(TSpatialEffect);            
+            pThis->m_AudioSpatialEffect->SetValue(TSpatialEffect);
             
             pThis->m_EqualizerBand1->SetValue(TEqualizerVal[1]);
             pThis->m_EqualizerBand2->SetValue(TEqualizerVal[2]);
@@ -612,24 +612,24 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         
         case IDC_DEFAULT:
             pThis->Mute();
-            pThis->m_Volume->SetDefault();
-            pThis->m_Balance->SetDefault();
-            pThis->m_AudioSuperbass->SetDefault();
-            pThis->m_AudioLoudness->SetDefault();
-            pThis->m_AudioSpatialEffect->SetDefault();
+            pThis->m_Volume->ChangeValue(RESET_SILENT);
+            pThis->m_Balance->ChangeValue(RESET_SILENT);
+            pThis->m_AudioSuperbass->ChangeValue(RESET_SILENT);
+            pThis->m_AudioLoudness->ChangeValue(RESET_SILENT);
+            pThis->m_AudioSpatialEffect->ChangeValue(RESET_SILENT);
 
             if (pThis->m_UseEqualizer->GetValue())
             {
-                pThis->m_EqualizerBand1->SetDefault();
-                pThis->m_EqualizerBand2->SetDefault();
-                pThis->m_EqualizerBand3->SetDefault();
-                pThis->m_EqualizerBand4->SetDefault();
-                pThis->m_EqualizerBand5->SetDefault();
+                pThis->m_EqualizerBand1->ChangeValue(RESET_SILENT);
+                pThis->m_EqualizerBand2->ChangeValue(RESET_SILENT);
+                pThis->m_EqualizerBand3->ChangeValue(RESET_SILENT);
+                pThis->m_EqualizerBand4->ChangeValue(RESET_SILENT);
+                pThis->m_EqualizerBand5->ChangeValue(RESET_SILENT);
             } 
             else
             {        
-                pThis->m_Bass->SetDefault();
-                pThis->m_Treble->SetDefault();            
+                pThis->m_Bass->ChangeValue(RESET_SILENT);
+                pThis->m_Treble->ChangeValue(RESET_SILENT);            
             }
             SetDlgItemInt(hDlg, IDC_VOLUME_VAL, pThis->m_Volume->GetValue(), FALSE);
             SetDlgItemInt(hDlg, IDC_BALANCE_VAL, pThis->m_Balance->GetValue(), TRUE);

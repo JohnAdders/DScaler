@@ -412,11 +412,11 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
     case WM_RBUTTONDOWN:            
         m_mouserdown = TRUE;
-        ::InvalidateRect( hDlg, NULL, false );
+        ::InvalidateRect( hDlg, NULL, FALSE );
         break;
     case WM_RBUTTONUP:
         m_mouserdown = FALSE;
-        ::InvalidateRect( hDlg, NULL, false );            
+        ::InvalidateRect( hDlg, NULL, FALSE );            
         break;
 
     case WM_LBUTTONDOWN:            
@@ -434,7 +434,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 SendMessage(hWndParent, WM_HSCROLL, bRight?SB_RIGHT:SB_LEFT, (LPARAM)hWndButton);                
             }
         }
-        ::InvalidateRect( hDlg, NULL, false );
+        ::InvalidateRect( hDlg, NULL, FALSE );
         break;
     case WM_LBUTTONUP:
         m_mouseldown = FALSE;
@@ -458,7 +458,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 ButtonState=0;
             }*/
         }
-        ::InvalidateRect( hDlg, NULL, false );            
+        ::InvalidateRect( hDlg, NULL, FALSE );            
         break;
     
     case WM_MOUSEMOVE:
@@ -480,11 +480,11 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
             if (wParam != MK_LBUTTON )
             {    
-                m_mouseldown = false;                    
+                m_mouseldown = FALSE;                    
             }
             if (wParam != MK_RBUTTON )
             {
-                m_mouserdown = false; 
+                m_mouserdown = FALSE; 
             }
 
             if (m_mouseldown)
@@ -509,16 +509,16 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
             if (!m_mouseldown && !m_mouserdown)
             {
-                m_mouseover = true;
-                ::InvalidateRect( hDlg, NULL, false );                  
+                m_mouseover = TRUE;
+                ::InvalidateRect( hDlg, NULL, FALSE );                  
             }                
         }
         break;
     case WM_MOUSELEAVE:            
-        m_mouseover = false;
-        m_mouseldown = false;
-        m_mouserdown = false;
-        ::InvalidateRect( hDlg, NULL, false );
+        m_mouseover = FALSE;
+        m_mouseldown = FALSE;
+        m_mouserdown = FALSE;
+        ::InvalidateRect( hDlg, NULL, FALSE );
         m_trackmouse = FALSE;
         break;        
     
@@ -567,12 +567,12 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         if (ButtonType == BITMAPASBUTTON_CHECKBOX)
         {
             ButtonState = (wParam == BST_CHECKED) ? 1:0;
-            InvalidateRect(hDlg, NULL, false);
+            InvalidateRect(hDlg, NULL, FALSE);
         }
         if ((ButtonType == BITMAPASBUTTON_3STATE)||(ButtonType == BITMAPASBUTTON_4STATE))
         {
             ButtonState = wParam;
-            InvalidateRect(hDlg, NULL, false);
+            InvalidateRect(hDlg, NULL, FALSE);
         }
         break;
     
@@ -584,7 +584,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
             SliderRangeMax = HIWORD(lParam);            
             if (wParam)
             {
-                ::InvalidateRect( hDlg, NULL, false );   
+                ::InvalidateRect( hDlg, NULL, FALSE );   
             }
         }
         break;
@@ -606,7 +606,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
             
             if (wParam)
             {
-                ::InvalidateRect( hDlg, NULL, false );   
+                ::InvalidateRect( hDlg, NULL, FALSE );   
             }
         }
         break;

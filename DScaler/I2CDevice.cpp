@@ -57,12 +57,12 @@ BYTE CI2CDevice::GetDeviceAddress()const
     return m_DeviceAddress;
 }
 
-bool CI2CDevice::WriteToSubAddress(BYTE subAddress, BYTE writeByte)
+BOOL CI2CDevice::WriteToSubAddress(BYTE subAddress, BYTE writeByte)
 {
     return WriteToSubAddress(subAddress, &writeByte, 1);
 }
 
-bool CI2CDevice::WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize)
+BOOL CI2CDevice::WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize)
 {
     ASSERT(m_I2CBus != 0);
 
@@ -71,17 +71,17 @@ bool CI2CDevice::WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, siz
     buffer[1] = subAddress;
     memcpy(&buffer[2], writeBuffer, writeBufferSize);
 
-    bool result = m_I2CBus->Write(buffer, writeBufferSize + 2);
+    BOOL result = m_I2CBus->Write(buffer, writeBufferSize + 2);
     free(buffer);
     return result;
 }
 
-bool CI2CDevice::ReadFromSubAddress(BYTE subAddress, BYTE* readBuffer, size_t readBufferSize)
+BOOL CI2CDevice::ReadFromSubAddress(BYTE subAddress, BYTE* readBuffer, size_t readBufferSize)
 {
     return this->ReadFromSubAddress(subAddress, NULL, 0, readBuffer, readBufferSize);
 }
 
-bool CI2CDevice::ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize, BYTE* readBuffer, size_t readBufferSize)
+BOOL CI2CDevice::ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize, BYTE* readBuffer, size_t readBufferSize)
 {
     ASSERT(m_I2CBus != 0);
 
@@ -97,7 +97,7 @@ bool CI2CDevice::ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, si
         memcpy(&buffer[2], writeBuffer, writeBufferSize);
     }
 
-    bool result = m_I2CBus->Read(buffer, writeBufferSize + 2, readBuffer, readBufferSize);
+    BOOL result = m_I2CBus->Read(buffer, writeBufferSize + 2, readBuffer, readBufferSize);
     free(buffer);
     return result;
 }

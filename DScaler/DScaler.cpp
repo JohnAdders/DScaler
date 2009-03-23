@@ -222,9 +222,9 @@ void Cursor_VTUpdate(int x = -1, int y = -1);
 void MainWndOnDestroy();
 int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
 void SetKeyboardLock(BOOL Enabled);
-bool bScreensaverDisabled = false;
-bool bPoweroffDisabled = false;
-bool bLowpowerDisabled = false;
+BOOL bScreensaverDisabled = FALSE;
+BOOL bPoweroffDisabled = FALSE;
+BOOL bLowpowerDisabled = FALSE;
 HMENU CreateDScalerPopupMenu();
 BOOL IsStatusBarVisible();
 BOOL IsToolBarVisible();
@@ -1217,9 +1217,9 @@ void SetKeyboardLock(BOOL Enabled)
 
 void SetScreensaverMode(BOOL bScreensaverOff)
 {
-    BOOL bScreensaverMode = false;
-    BOOL bLowpowerMode = false;
-    BOOL bPoweroffMode = false;
+    BOOL bScreensaverMode = FALSE;
+    BOOL bLowpowerMode = FALSE;
+    BOOL bPoweroffMode = FALSE;
 
     if( bScreensaverOff )
     {
@@ -1229,7 +1229,7 @@ void SetScreensaverMode(BOOL bScreensaverOff)
         {
             // Disable
             SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, 0 , NULL, 0);
-            bScreensaverDisabled = true;
+            bScreensaverDisabled = TRUE;
         }
 
         // Disable monitor sleeping
@@ -1239,7 +1239,7 @@ void SetScreensaverMode(BOOL bScreensaverOff)
             // BOTH low-power and power-off needs to be disabled
             // to stop monitor energy saver from kicking in.
             SystemParametersInfo(SPI_SETLOWPOWERACTIVE, 0 , NULL, 0);
-            bLowpowerDisabled = true;
+            bLowpowerDisabled = TRUE;
         }
 
         // Disable monitor sleeping
@@ -1247,7 +1247,7 @@ void SetScreensaverMode(BOOL bScreensaverOff)
         if( bPoweroffMode )
         {
             SystemParametersInfo(SPI_SETPOWEROFFACTIVE, 0 , NULL, 0);
-            bPoweroffDisabled = true;
+            bPoweroffDisabled = TRUE;
         }
     }
     else
@@ -1256,19 +1256,19 @@ void SetScreensaverMode(BOOL bScreensaverOff)
         if( bScreensaverDisabled )
         {
             SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, 1, NULL, 0);
-            bScreensaverDisabled = false;    
+            bScreensaverDisabled = FALSE;    
         }
 
         if( bLowpowerDisabled )
         {
             SystemParametersInfo(SPI_SETLOWPOWERACTIVE, 1, NULL, 0);
-            bLowpowerDisabled = false;
+            bLowpowerDisabled = FALSE;
         }
 
         if( bPoweroffDisabled )
         {
             SystemParametersInfo(SPI_SETPOWEROFFACTIVE, 1, NULL, 0);
-            bPoweroffDisabled = false;
+            bPoweroffDisabled = FALSE;
         }
     }
 }
@@ -1742,10 +1742,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
     int i;
     BOOL bDone = FALSE;
-    ISetting* pSetting = NULL;
-    ISetting* pSetting2 = NULL;
-    ISetting* pSetting3 = NULL;
-    ISetting* pSetting4 = NULL;
+    CSliderSetting* pSetting = NULL;
+    CSliderSetting* pSetting2 = NULL;
+    CSliderSetting* pSetting3 = NULL;
+    CSliderSetting* pSetting4 = NULL;
     TGUIRequest req;
 
     if (message == MsgWheel)
@@ -1889,7 +1889,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if (!Mixer_IsEnabled())
                 {
-                    ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+                    CSimpleSetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                     if(pSetting != NULL)
                     {
                         pSetting->ChangeValue(ADJUSTUP);                        
@@ -1919,7 +1919,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if (!Mixer_IsEnabled())
                 {
-                    ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+                    CSimpleSetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                     if(pSetting != NULL)
                     {
                         pSetting->ChangeValue(ADJUSTDOWN);
@@ -1946,7 +1946,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             if (!Mixer_IsEnabled())
             {
-                ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+                CSliderSetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                 if(pSetting != NULL)
                 {
                     pSetting->SetValue(lParam);
@@ -3949,7 +3949,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     case WM_ENDSESSION:
     case WM_DESTROY:
         //Reset screensaver-mode if necessary
-        SetScreensaverMode(false);
+        SetScreensaverMode(FALSE);
 
         MainWndOnDestroy();
         PostQuitMessage(0);
@@ -5339,14 +5339,14 @@ int Cursor_SetType(int type)
     // SetClassLong makes the change permanent.
     SetClassLong(hWnd, GCL_HCURSOR, (LONG)hCur);
 
-    return true;
+    return TRUE;
 }
 
 BOOL Cursor_IsOurs()
 {
     /*
      *  The cursor is ours (ie. We can hide it, change it and
-     *  stuff like that) if all of these points are true:
+     *  stuff like that) if all of these points are TRUE:
      *
      *  1. Our menubar is not active.
      *
@@ -5356,7 +5356,7 @@ BOOL Cursor_IsOurs()
      *     mouse.
      *
      *
-     *  And if any one of these points are true:
+     *  And if any one of these points are TRUE:
      *
      *  4. Our window is the foreground window and the cursor
      *     is within the bounds of the our window (or if the
@@ -5375,7 +5375,7 @@ BOOL Cursor_IsOurs()
      *
      *  1: Track WM_ENTERMENULOOP and WM_EXITMENULOOP messages.
      *
-     *  2: IsWindowEnabled() on our window will return false.
+     *  2: IsWindowEnabled() on our window will return FALSE.
      *
      *  3: Check GetCapture() returns NULL or equal to our window.
      *

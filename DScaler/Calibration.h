@@ -42,7 +42,7 @@ enum eTypeCalibration {
 class CCalSetting
 {
 public:
-    CCalSetting(ISetting* setting);
+    CCalSetting(CSliderSetting* setting);
     ~CCalSetting();
     BOOL Update();
     void Save();
@@ -63,7 +63,7 @@ public:
 
 protected:
     void Adjust(int value);
-    ISetting* m_pSetting;
+    CSliderSetting* m_pSetting;
     int min_value;
     int max_value;
     unsigned int* mask_input;

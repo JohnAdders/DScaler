@@ -87,7 +87,7 @@ public:
     DWORD GetSrcSizeAlign() const {return SrcSizeAlign;};
 
 protected:
-    bool m_bSettingInitialized;
+    BOOL m_bSettingInitialized;
     SETTING OtherSettings[OTHER_SETTING_LASTONE];   
     DWORD DestSizeAlign;
     DWORD SrcSizeAlign;

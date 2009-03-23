@@ -88,7 +88,7 @@ public:
     virtual ~CTDA9875() {};
     void Reset();
 
-    bool IsDevicePresent(int& dic, int& rev);
+    BOOL IsDevicePresent(int& dic, int& rev);
 
 protected:
 

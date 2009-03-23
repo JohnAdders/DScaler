@@ -43,17 +43,17 @@ private:
 
     int m_CarrierDetect_Phase;
     CTDA9875AudioControls* m_pAudioControls;
-    bool m_ForceAMSound;
-    bool m_IsInitialized;
-    bool m_bUseInputPin1;
+    BOOL m_ForceAMSound;
+    BOOL m_IsInitialized;
+    BOOL m_bUseInputPin1;
     int m_AutoDetecting;
     HANDLE m_TDA9875Thread;
-    bool m_bStopThread;
+    BOOL m_bStopThread;
     CRITICAL_SECTION TDA9875CriticalSection;
     long m_DetectCounter;
     long m_DetectInterval10ms;
-    bool m_ThreadWait;
-    bool m_DetectSupportedSoundChannels;
+    BOOL m_ThreadWait;
+    BOOL m_DetectSupportedSoundChannels;
     eSupportedSoundChannels m_SupportedSoundChannels;
     eSoundChannel m_TargetSoundChannel;
 
@@ -179,8 +179,8 @@ public:
     virtual eAudioInput GetAudioInput();    
     virtual const char* GetAudioInputName(eAudioInput audioInput);
 
-    bool GetUseInputPin1();
-    void SetUseInputPin1(bool AValue);
+    BOOL GetUseInputPin1();
+    void SetUseInputPin1(BOOL AValue);
 
 
     // Standard

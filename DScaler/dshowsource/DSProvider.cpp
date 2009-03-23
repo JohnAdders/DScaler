@@ -56,7 +56,7 @@ CDSProvider::CDSProvider()
         {
             CDShowDevEnum devenum(CLSID_VideoInputDeviceCategory);
             //get all video capture devices
-            while(devenum.getNext()==true)
+            while(devenum.getNext()==TRUE)
             {
                 string deviceName=devenum.getProperty("FriendlyName");
                 CDSCaptureSource *tmpsrc=new CDSCaptureSource(devenum.getDisplayName(),deviceName);
@@ -117,7 +117,7 @@ SmartPtr<CSource> CDSProvider::GetSource(int SourceIndex)
     }
 }
 
-bool CDSProvider::CanUseDShow(std::string &FailMsg)
+BOOL CDSProvider::CanUseDShow(std::string &FailMsg)
 {
     ///@todo add a check for directx version
 
@@ -126,18 +126,18 @@ bool CDSProvider::CanUseDShow(std::string &FailMsg)
     HRESULT hr=filter.CoCreateInstance(CLSID_DSRendFilter);
     if(FAILED(hr))
     {
-        ///@todo maybe try to register dsrend.dll and only return false if it failed
+        ///@todo maybe try to register dsrend.dll and only return FALSE if it failed
         FailMsg="the 'DScaler renderer filter' is not properly installed";
-        return false;
+        return FALSE;
     }
     CComPtr<IDSRendFilter> DSRendIf;
     hr=filter.QueryInterface(&DSRendIf);
     if(FAILED(hr))
     {
         FailMsg="the 'DScaler renderer filter' does not support the necessary interface\n(maybe the filter is of the wrong version)";
-        return false;
+        return FALSE;
     }
-    return true;
+    return TRUE;
 }
 
 #endif

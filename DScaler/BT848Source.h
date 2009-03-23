@@ -49,23 +49,23 @@ public:
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     SmartPtr<CBT848Card> GetBT848Card();
     std::string GetStatus();
-    ISetting* GetVolume();
-    ISetting* GetBalance();
+    CSliderSetting* GetVolume();
+    CSliderSetting* GetBalance();
     void Mute();
     void UnMute();
-    ISetting* GetBrightness();
-    ISetting* GetContrast();
-    ISetting* GetHue();
-    ISetting* GetSaturation();
-    ISetting* GetSaturationU();
-    ISetting* GetSaturationV();
-    ISetting* GetAnalogueBlanking() {return NULL;};
-    ISetting* GetTopOverscan();
-    ISetting* GetBottomOverscan();
-    ISetting* GetLeftOverscan();
-    ISetting* GetRightOverscan();
-    ISetting* GetHDelay();
-    ISetting* GetVDelay();
+    CSliderSetting* GetBrightness();
+    CSliderSetting* GetContrast();
+    CSliderSetting* GetHue();
+    CSliderSetting* GetSaturation();
+    CSliderSetting* GetSaturationU();
+    CSliderSetting* GetSaturationV();
+    CYesNoSetting* GetAnalogueBlanking() {return NULL;};
+    CSliderSetting* GetTopOverscan();
+    CSliderSetting* GetBottomOverscan();
+    CSliderSetting* GetLeftOverscan();
+    CSliderSetting* GetRightOverscan();
+    CSliderSetting* GetHDelay();
+    CSliderSetting* GetVDelay();
     /// Gets the current field being processed by the card
     int GetRISCPosAsInt();
 
@@ -136,7 +136,7 @@ private:
     void InitAudio();
     void InitAudioControls();
 
-    ISetting* GetCurrentAudioSetting();
+    CSliderSetting* GetCurrentAudioSetting();
 
     //static void StaticAudioStandardDetected(void *pThis, int What, long Value);
     void AudioStandardDetected(long Standard);

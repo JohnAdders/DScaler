@@ -44,9 +44,9 @@ public:
     // from ITuner
     eTunerId GetTunerId();
     eVideoFormat GetDefaultVideoFormat();
-    bool HasRadio() const;
-    bool SetRadioFrequency(long nFrequency);
-    bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
+    BOOL HasRadio() const;
+    BOOL SetRadioFrequency(long nFrequency);
+    BOOL SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
 
     long GetFrequency();
     eTunerLocked IsLocked();

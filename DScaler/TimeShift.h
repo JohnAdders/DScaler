@@ -167,37 +167,37 @@ typedef struct
 
 /* From TimeShift.cpp */
 DWORD GetMaximumVolumeFileSize(const char *path);
-bool TimeShiftInit(HWND hWnd);
+BOOL TimeShiftInit(HWND hWnd);
 void TimeShiftShutdown(void);
-bool TimeShiftPause(void);
-bool TimeShiftRecord(void);
-bool TimeShiftStop(void);
-bool TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo);
-bool TimeShiftIsRunning(void);
-bool TimeShiftWorkOnInputFrames(void);
-bool TimeShiftCancelSchedule(void);
-bool TimeShiftSetWaveInDevice(char *pszDevice);
-bool TimeShiftSetWaveOutDevice(char *pszDevice);
-bool TimeShiftSetSavingPath(char *newPath);
-bool TimeShiftIsPathValid(const char *path);
-bool TimeShiftSetFileSizeLimit(DWORD sizeLimit);
-bool TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
+BOOL TimeShiftPause(void);
+BOOL TimeShiftRecord(void);
+BOOL TimeShiftStop(void);
+BOOL TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo);
+BOOL TimeShiftIsRunning(void);
+BOOL TimeShiftWorkOnInputFrames(void);
+BOOL TimeShiftCancelSchedule(void);
+BOOL TimeShiftSetWaveInDevice(char *pszDevice);
+BOOL TimeShiftSetWaveOutDevice(char *pszDevice);
+BOOL TimeShiftSetSavingPath(char *newPath);
+BOOL TimeShiftIsPathValid(const char *path);
+BOOL TimeShiftSetFileSizeLimit(DWORD sizeLimit);
+BOOL TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
                             tsFormat_t format);
-bool TimeShiftGetWaveInDevice(char **ppszDevice);
-bool TimeShiftGetWaveOutDevice(char **ppszDevice);
-bool TimeShiftGetRecHeight(int *index);
-bool TimeShiftSetRecHeight(int index);
-bool TimeShiftGetRecFormat(tsFormat_t *format);
-bool TimeShiftSetRecFormat(tsFormat_t format);
-bool TimeShiftGetFourCC(FOURCC *fcc);
-bool TimeShiftSetFourCC(FOURCC fcc);
-bool TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
+BOOL TimeShiftGetWaveInDevice(char **ppszDevice);
+BOOL TimeShiftGetWaveOutDevice(char **ppszDevice);
+BOOL TimeShiftGetRecHeight(int *index);
+BOOL TimeShiftSetRecHeight(int index);
+BOOL TimeShiftGetRecFormat(tsFormat_t *format);
+BOOL TimeShiftSetRecFormat(tsFormat_t format);
+BOOL TimeShiftGetFourCC(FOURCC *fcc);
+BOOL TimeShiftSetFourCC(FOURCC fcc);
+BOOL TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
                                       tsFormat_t format);
-bool TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length);
-bool TimeShiftOnOptions(void);
-bool TimeShiftVideoCompressionOptions(HWND hWndParent, int recHeight,
+BOOL TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length);
+BOOL TimeShiftOnOptions(void);
+BOOL TimeShiftVideoCompressionOptions(HWND hWndParent, int recHeight,
                                       tsFormat_t format, FOURCC *fccHandler);
-bool TimeShiftOnSetMenu(HMENU hMenu);
+BOOL TimeShiftOnSetMenu(HMENU hMenu);
 
 const char *TimeShiftGetSavingPath(void);
 DWORD      TimeShiftGetFileSizeLimit(void);

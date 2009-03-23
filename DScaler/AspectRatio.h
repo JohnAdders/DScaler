@@ -72,7 +72,7 @@ enum eHorzPos
 BOOL    ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID);
 void    AspectRatio_SetMenu(HMENU hMenu);
 void    WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize = TRUE);
-void    PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMiddlePainting = false);
+void    PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMiddlePainting = FALSE);
 int     FindAspectRatio(short** EvenField, short** OddField);
 void    AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo);
 void    GetSourceRect(RECT* rect);

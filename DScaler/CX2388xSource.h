@@ -53,23 +53,23 @@ public:
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     SmartPtr<CCX2388xCard> GetCard();
     std::string GetStatus();
-    ISetting* GetVolume() {return m_Volume;};
-    ISetting* GetBalance() {return m_Balance;};
+    CSliderSetting* GetVolume() {return m_Volume;};
+    CSliderSetting* GetBalance() {return m_Balance;};
     void Mute();
     void UnMute();
-    ISetting* GetBrightness();
-    ISetting* GetContrast();
-    ISetting* GetHue();
-    ISetting* GetSaturation();
-    ISetting* GetSaturationU();
-    ISetting* GetSaturationV();
-    ISetting* GetAnalogueBlanking();
-    ISetting* GetTopOverscan();
-    ISetting* GetBottomOverscan();
-    ISetting* GetLeftOverscan();
-    ISetting* GetRightOverscan();
-    ISetting* GetHDelay();
-    ISetting* GetVDelay();
+    CSliderSetting* GetBrightness();
+    CSliderSetting* GetContrast();
+    CSliderSetting* GetHue();
+    CSliderSetting* GetSaturation();
+    CSliderSetting* GetSaturationU();
+    CSliderSetting* GetSaturationV();
+    CYesNoSetting* GetAnalogueBlanking();
+    CSliderSetting* GetTopOverscan();
+    CSliderSetting* GetBottomOverscan();
+    CSliderSetting* GetLeftOverscan();
+    CSliderSetting* GetRightOverscan();
+    CSliderSetting* GetHDelay();
+    CSliderSetting* GetVDelay();
     eVideoFormat GetFormat();
     void SetFormat(eVideoFormat NewFormat);
     BOOL IsInTunerMode();
@@ -134,7 +134,7 @@ private:
     void ChangeTVSettingsBasedOnTuner();
     void SetupSettings();
 
-    ISetting* GetCurrentAudioSetting();
+    CSliderSetting* GetCurrentAudioSetting();
 
     void InitializeUI();
 

@@ -145,13 +145,13 @@ void CSAA7134Source::UpdateAudioStatus()
 }
 
 
-ISetting* CSAA7134Source::GetVolume()
+CSliderSetting* CSAA7134Source::GetVolume()
 {
     return NULL;
 }
 
 
-ISetting* CSAA7134Source::GetBalance()
+CSliderSetting* CSAA7134Source::GetBalance()
 {
     return NULL;
 }
@@ -215,7 +215,7 @@ void CSAA7134Source::AudioChannelOnChange(long AudioChannel, long OldValue)
     m_pSAA7134Card->SetAudioChannel((eAudioChannel)AudioChannel);
 }
 
-void CSAA7134Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
+void CSAA7134Source::AutoStereoSelectOnChange(BOOL NewValue, BOOL OldValue)
 {
     if (m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC)
     {
@@ -233,7 +233,7 @@ void CSAA7134Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
     }
 }
 
-void CSAA7134Source::CustomAudioStandardOnChange(long NewValue, long OldValue)
+void CSAA7134Source::CustomAudioStandardOnChange(BOOL NewValue, BOOL OldValue)
 {
     SetupAudioStandard();
 }

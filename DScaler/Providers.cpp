@@ -106,7 +106,7 @@ int Providers_Load(HMENU hMenu)
     SmartPtr<TSource> Source;
     SmartPtr<CSource> DefaultSource;
     MENUITEMINFO    MenuItemInfo;
-        bool AllowCx2388xDShow = false;
+        BOOL AllowCx2388xDShow = FALSE;
 
     HMENU hSubMenu = GetSubMenu(hMenu, 0);
 
@@ -161,12 +161,12 @@ int Providers_Load(HMENU hMenu)
                     "CX2388x Question", MB_YESNO | MB_ICONQUESTION);
                 if(Resp == IDYES)
                 {
-                    AllowCx2388xDShow = false;
+                    AllowCx2388xDShow = FALSE;
                     WritePrivateProfileInt("CX2388x", "UseDShow", 0, szIniFile);
                 }
                 else
                 {
-                    AllowCx2388xDShow = true;
+                    AllowCx2388xDShow = TRUE;
                     WritePrivateProfileInt("CX2388x", "UseDShow", 1, szIniFile);
                 }
             }

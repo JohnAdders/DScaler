@@ -62,8 +62,8 @@ public:
     
     void Mute();
     void UnMute();
-    ISetting* GetVolume();
-    ISetting* GetBalance();
+    CSliderSetting* GetVolume();
+    CSliderSetting* GetBalance();
     
     std::string IDString();
 

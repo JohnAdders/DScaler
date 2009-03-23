@@ -56,9 +56,9 @@ public:
     /**
      * Gets next device if any.
      * @throws CDevEnumException
-     * @return true if successfull
+     * @return TRUE if successfull
      */
-    bool getNext();
+    BOOL getNext();
 
     /**
      * This function is used to read a property from the current device or filter.

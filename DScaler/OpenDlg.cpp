@@ -91,18 +91,18 @@ void COpenDlg::OnOK()
     CDialog::OnOK();
 }
 
-bool COpenDlg::ShowOpenDialog(HWND hParent,CString &FileName)
+BOOL COpenDlg::ShowOpenDialog(HWND hParent,CString &FileName)
 {
     COpenDlg dlg(CWnd::FromHandle(hParent));
     
     if(dlg.DoModal()==IDOK)
     {
         FileName=dlg.m_FileName;
-        return true;
+        return TRUE;
     }
     else
     {
-        return false;
+        return FALSE;
     }
 }
 

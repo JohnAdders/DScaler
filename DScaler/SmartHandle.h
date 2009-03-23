@@ -138,7 +138,7 @@ SmartHandle& operator=(X raw)
 */
 
 
-	operator bool() const
+	operator BOOL() const
 	{
 		return IsValid();
 	}
@@ -169,16 +169,16 @@ SmartHandle& operator=(X raw)
 /* 
 	Is there only one reference on the counter?
 */
-	bool IsUnique() const
+	BOOL IsUnique() const
 	{
-		if (counter && counter->count == 1) return true; 
-		return false; 
+		if (counter && counter->count == 1) return TRUE; 
+		return FALSE; 
 	}
 	
-	bool IsValid() const
+	BOOL IsValid() const
 	{
-		if (counter && rawHandle) return true;
-		return false; 
+		if (counter && rawHandle) return TRUE;
+		return FALSE; 
 	}
 
 	unsigned GetCount() const
@@ -223,31 +223,31 @@ private:
 
 
 template <typename X>
-bool operator==(const SmartHandle< X >& lptr, const SmartHandle< X >& rptr) 
+BOOL operator==(const SmartHandle< X >& lptr, const SmartHandle< X >& rptr) 
 {
 	return lptr.GetRawHandle() == rptr.GetRawHandle(); 
 }
 
 template <typename X>
-bool operator==(const SmartHandle< X >& lptr, X raw) 
+BOOL operator==(const SmartHandle< X >& lptr, X raw) 
 {
 	return lptr.GetRawHandle() == raw ; 
 }
 
 template <typename X>
-bool operator!=(const SmartHandle< X >& lptr, const SmartHandle< X >& rptr) 
+BOOL operator!=(const SmartHandle< X >& lptr, const SmartHandle< X >& rptr) 
 {
 	return ( !operator==(lptr, rptr) );
 }
 
 template <typename X>
-bool operator!=(const SmartHandle< X >& lptr, X raw) 
+BOOL operator!=(const SmartHandle< X >& lptr, X raw) 
 {
 	return ( !operator==(lptr, raw) );
 }
 
 template <typename X>
-bool operator!(const SmartHandle< X >& p)
+BOOL operator!(const SmartHandle< X >& p)
 {
 	return (!p.IsValid());
 }
@@ -255,19 +255,19 @@ bool operator!(const SmartHandle< X >& p)
 
 /* less than comparisons for storage in containers */
 template <typename X>
-bool operator< (const SmartHandle< X >& lptr, const SmartHandle < X >& rptr)
+BOOL operator< (const SmartHandle< X >& lptr, const SmartHandle < X >& rptr)
 {
 	return lptr.GetRawHandle() < rptr.GetRawHandle();
 }
 
 template <typename X>
-bool operator< (const SmartHandle< X >& lptr, X raw)
+BOOL operator< (const SmartHandle< X >& lptr, X raw)
 {
 	return lptr.GetRawHandle() < raw;
 }
 
 template <typename X>
-bool operator< (X raw, const SmartHandle< X >& rptr)
+BOOL operator< (X raw, const SmartHandle< X >& rptr)
 {
 	return raw < rptr.GetRawHandle();
 }

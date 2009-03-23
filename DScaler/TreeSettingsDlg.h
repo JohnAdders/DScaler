@@ -61,7 +61,7 @@ public:
      */
     int AddPage(CTreeSettingsPage *pPage,int parent=-1,int imageIndex=0,int imageIndexSelected=0);
 
-    bool ShowPage(int iPage);
+    BOOL ShowPage(int iPage);
 
     /**
      * @param iStartPage page that will be shown initialy

@@ -242,11 +242,11 @@ int CTreeSettingsDlg::AddPage(CTreeSettingsPage *pPage,int parent,int imageIndex
     return m_pages.size()-1;
 }
 
-bool CTreeSettingsDlg::ShowPage(int iPage)
+BOOL CTreeSettingsDlg::ShowPage(int iPage)
 {
     if(iPage<0 || iPage>=m_pages.size())
     {
-        return false;
+        return FALSE;
     }
     CRect pageSize;
     CWnd *pPageFrame=GetDlgItem(IDC_TREESETTINGS_PAGEFRAME);
@@ -261,13 +261,13 @@ bool CTreeSettingsDlg::ShowPage(int iPage)
         if(!pNewPage->Create(pNewPage->GetDlgID(),this))
         {
             //create failed
-            return false;
+            return FALSE;
         }
     }
     //can the new page be activated?
     if(!pNewPage->OnSetActive())
     {
-        return false;
+        return FALSE;
     }
 
     //deactivate current page
@@ -281,7 +281,7 @@ bool CTreeSettingsDlg::ShowPage(int iPage)
         }
         else
         {
-            return false;
+            return FALSE;
         }
     }
 
@@ -295,7 +295,7 @@ bool CTreeSettingsDlg::ShowPage(int iPage)
     PostMessage(WM_SIZE,SIZE_RESTORED,MAKELPARAM(rect.Width(),rect.Height()));
 
     m_PageHeader.SetWindowText(pNewPage->GetHeaderName());
-    return true;
+    return TRUE;
 }
 
 void CTreeSettingsDlg::OnHelpBtn()

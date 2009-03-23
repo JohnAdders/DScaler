@@ -154,10 +154,10 @@ CTDA8275::~CTDA8275()
 {
 }
 
-bool CTDA8275::InitializeTuner()
+BOOL CTDA8275::InitializeTuner()
 {
     WriteTDA8275Initialization();
-    return true;
+    return TRUE;
 }
 
 eVideoFormat CTDA8275::GetDefaultVideoFormat()
@@ -165,19 +165,19 @@ eVideoFormat CTDA8275::GetDefaultVideoFormat()
     return VIDEOFORMAT_NTSC_M;
 }
 
-bool CTDA8275::HasRadio() const
+BOOL CTDA8275::HasRadio() const
 {
-    return true;
+    return TRUE;
 }
 
-bool CTDA8275::SetTVFrequency(long frequencyHz, eVideoFormat videoFormat)
+BOOL CTDA8275::SetTVFrequency(long frequencyHz, eVideoFormat videoFormat)
 {
     if (m_ExternalIFDemodulator != NULL)
     {
         m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
     }
 
-    bool success = SetFrequency(frequencyHz, CTDA8290::GetTDA8290Standard(videoFormat));
+    BOOL success = SetFrequency(frequencyHz, CTDA8290::GetTDA8290Standard(videoFormat));
     m_Frequency = frequencyHz;
 
     if (m_ExternalIFDemodulator != NULL)
@@ -188,7 +188,7 @@ bool CTDA8275::SetTVFrequency(long frequencyHz, eVideoFormat videoFormat)
     return success;
 }
 
-bool CTDA8275::SetRadioFrequency(long frequencyHz)
+BOOL CTDA8275::SetRadioFrequency(long frequencyHz)
 {
     // This tuning of radio has not been tested AT ALL;
     return SetTVFrequency(frequencyHz, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
@@ -225,7 +225,7 @@ BYTE CTDA8275::GetDefaultAddress() const
     return I2C_ADDR_TDA8275_1;
 }
 
-bool CTDA8275::IsTDA8275A()
+BOOL CTDA8275::IsTDA8275A()
 {
     BYTE Result(0);
 
@@ -237,23 +237,23 @@ bool CTDA8275::IsTDA8275A()
         if ((Result & 0x3C) == 0x08)
         {
             LOG(1, "TDA8275: TDA8275A revision found.");
-            return true;
+            return TRUE;
         }
         else
         {
             LOG(1, "TDA8275: Found.");
-            return false;
+            return FALSE;
         }
     }
 
     LOG(0, "TDA8275: Error while detecting chip revision.");
-    return false;
+    return FALSE;
 }
 
-bool CTDA8275::IsDvbMode()
+BOOL CTDA8275::IsDvbMode()
 {
     // \TODO
-    return false;
+    return FALSE;
 }
 
 void CTDA8275::WriteTDA8275Initialization()
@@ -320,7 +320,7 @@ void CTDA8275::WriteTDA8275Initialization()
     }
 }
 
-bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
+BOOL CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 {
     BYTE sgIFLPFilter = k_standardParamTable[(int)standard].sgIFLPFilter;
     LONG sgIFHz = k_standardParamTable[(int)standard].sgIFkHz * 1000;
@@ -339,7 +339,7 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 
     // 0.5 is added for rounding.
 
-    bool success = true;
+    BOOL success = TRUE;
 
     if (IsTDA8275A())
     {
@@ -368,7 +368,7 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 
             if (!WriteToSubAddress(TDA8275_DB1, channelBytes, 12))
             {
-                return false;
+                return FALSE;
             }
 
             // 2.2 Re-initialize PLL and gain path
@@ -407,7 +407,7 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 
             if (!WriteToSubAddress(TDA8275_DB1, channelBytes, 12))
             {
-                return false;
+                return FALSE;
             }
 
             // 2.2 Re-initialize PLL and gain path
@@ -446,7 +446,7 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
         if (!WriteToSubAddress(TDA8275_DB1, channelBytes, 7) ||
             !WriteToSubAddress(TDA8275_AB4, 0x00))
         {
-            return false;
+            return FALSE;
         }
 
 

@@ -349,7 +349,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_RightOverscan);
 
-    m_CardName = new CStringSetting("Card Name", reinterpret_cast<long>(""), IniSection, "CardName");
+    m_CardName = new CStringSetting("Card Name", "", IniSection, "CardName");
     m_Settings.push_back(m_CardName);
 
 #ifdef _DEBUG    
@@ -1018,20 +1018,19 @@ void CSAA7134Source::SetupCard()
 {
     long OrigTuner = m_TunerType->GetValue();
 
-    LPSTR cardName = reinterpret_cast<char*>(m_CardName->GetValue());
+    string cardName = m_CardName->GetValue();
 
     // If the string card name is set, recalculate the card type based on
     // the given name.
-    if (*cardName != '\0')
+    if (!cardName.empty())
     {
-        m_CardType->SetValue(m_pSAA7134Card->GetCardByName(cardName));
+        m_CardType->SetValue(m_pSAA7134Card->GetCardByName(cardName.c_str()));
     }
     else
     {
         // Otherwise set the card name setting based on the card type for
         // future use.
-        m_CardName->SetValue(reinterpret_cast<long>(
-            m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue()).c_str()));
+        m_CardName->SetValue(m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue()).c_str());
     }
 
     if (m_CardType->GetValue() == SAA7134CARDID_UNKNOWN)
@@ -1045,8 +1044,7 @@ void CSAA7134Source::SetupCard()
         // Synchronize m_CardName to match the auto-detected m_CardType value.
         if (m_CardType->GetValue() != SAA7134CARDID_UNKNOWN)
         {
-            m_CardName->SetValue(reinterpret_cast<long>(
-                m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue()).c_str()));
+            m_CardName->SetValue(m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue()).c_str());
         }
 
         // then display the hardware setup dialog
@@ -1268,62 +1266,62 @@ SmartPtr<ITuner> CSAA7134Source::GetTuner()
 
 ////////////////////////////////////////////////////////////////////////
 
-ISetting* CSAA7134Source::GetBrightness()
+CSliderSetting* CSAA7134Source::GetBrightness()
 {
     return m_Brightness;
 }
 
-ISetting* CSAA7134Source::GetContrast()
+CSliderSetting* CSAA7134Source::GetContrast()
 {
     return m_Contrast;
 }
 
-ISetting* CSAA7134Source::GetHue()
+CSliderSetting* CSAA7134Source::GetHue()
 {
     return m_Hue;
 }
 
-ISetting* CSAA7134Source::GetSaturation()
+CSliderSetting* CSAA7134Source::GetSaturation()
 {
     return m_Saturation;
 }
 
-ISetting* CSAA7134Source::GetSaturationU()
+CSliderSetting* CSAA7134Source::GetSaturationU()
 {
     return NULL;
 }
 
-ISetting* CSAA7134Source::GetSaturationV()
+CSliderSetting* CSAA7134Source::GetSaturationV()
 {
     return NULL;
 }
 
-ISetting* CSAA7134Source::GetTopOverscan()
+CSliderSetting* CSAA7134Source::GetTopOverscan()
 {
     return m_TopOverscan;
 }
 
-ISetting* CSAA7134Source::GetBottomOverscan()
+CSliderSetting* CSAA7134Source::GetBottomOverscan()
 {
     return m_BottomOverscan;
 }
 
-ISetting* CSAA7134Source::GetLeftOverscan()
+CSliderSetting* CSAA7134Source::GetLeftOverscan()
 {
     return m_LeftOverscan;
 }
 
-ISetting* CSAA7134Source::GetRightOverscan()
+CSliderSetting* CSAA7134Source::GetRightOverscan()
 {
     return m_RightOverscan;
 }
 
-ISetting* CSAA7134Source::GetHDelay()
+CSliderSetting* CSAA7134Source::GetHDelay()
 {
     return m_HDelay;
 }
 
-ISetting* CSAA7134Source::GetVDelay()
+CSliderSetting* CSAA7134Source::GetVDelay()
 {
     return m_VDelay;
 }
@@ -1550,13 +1548,13 @@ void CSAA7134Source::HPLLModeOnChange(long HPLLMode, long OldValue)
 }
 
 
-void CSAA7134Source::WhitePeakOnChange(long NewValue, long OldValue)
+void CSAA7134Source::WhitePeakOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pSAA7134Card->SetWhitePeak(NewValue);
 }
 
 
-void CSAA7134Source::ColorPeakOnChange(long NewValue, long OldValue)
+void CSAA7134Source::ColorPeakOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pSAA7134Card->SetColorPeak(NewValue);
 }
@@ -1576,7 +1574,7 @@ void CSAA7134Source::VBIUpscaleDivisorOnChange(long NewValue, long OldValue)
 }
 
 
-void CSAA7134Source::AutomaticGainControlOnChange(long NewValue, long OldValue)
+void CSAA7134Source::AutomaticGainControlOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pSAA7134Card->SetAutomaticGainControl(NewValue);
 }
@@ -1588,7 +1586,7 @@ void CSAA7134Source::GainControlLevelOnChange(long NewValue, long OldValue)
 }
 
 
-void CSAA7134Source::GammaControlOnChange(long NewValue, long OldValue)
+void CSAA7134Source::GammaControlOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pSAA7134Card->SetGammaControl(NewValue);
 }
@@ -1600,7 +1598,7 @@ void CSAA7134Source::GammaLevelOnChange(long NewValue, long OldValue)
 }
 
 
-void CSAA7134Source::VideoMirrorOnChange(long NewValue, long OldValue)
+void CSAA7134Source::VideoMirrorOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pSAA7134Card->SetVideoMirror(NewValue);
 }

@@ -22,7 +22,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file ISetting.cpp Settings classes implementation
+ * @file CSimpleSetting.cpp Settings classes implementation
  */
 
 #include "stdafx.h"
@@ -42,7 +42,6 @@ CSettingGroup::CSettingGroup(LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)
 CSettingGroup::~CSettingGroup()
 {
     m_IsActive->WriteToIni(TRUE);
-    delete m_IsActive;
 }
 
 LPCSTR CSettingGroup::GetName() 
@@ -64,7 +63,7 @@ CSimpleSetting* CSettingGroup::GetIsActiveSetting()
 /** 
     Adds group to pSetting    
 */
-void CSettingGroup::AddSetting(ISetting *pSetting)
+void CSettingGroup::AddSetting(CSimpleSetting *pSetting)
 {
     pSetting->SetGroup(this);    
 }

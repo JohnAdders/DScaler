@@ -287,9 +287,9 @@ TTVFormat* GetTVFormat(eVideoFormat Format)
     return &TVFormats[Format];
 }
 
-bool IsPALVideoFormat(eVideoFormat Format)
+BOOL IsPALVideoFormat(eVideoFormat Format)
 {
-    bool result = false;
+    BOOL result = FALSE;
     switch (Format)
     {
     case VIDEOFORMAT_PAL_B:
@@ -301,29 +301,29 @@ bool IsPALVideoFormat(eVideoFormat Format)
     case VIDEOFORMAT_PAL_N:
     case VIDEOFORMAT_PAL_60:
     case VIDEOFORMAT_PAL_N_COMBO:
-        result = true;
+        result = TRUE;
         break;
     }
     return result;
 }
 
-bool IsNTSCVideoFormat(eVideoFormat Format)
+BOOL IsNTSCVideoFormat(eVideoFormat Format)
 {
-    bool result = false;
+    BOOL result = FALSE;
     switch (Format)
     {
     case VIDEOFORMAT_NTSC_M:
     case VIDEOFORMAT_NTSC_M_Japan:
     case VIDEOFORMAT_NTSC_50:
-        result = true;
+        result = TRUE;
         break;
     }
     return result;
 }
 
-bool IsSECAMVideoFormat(eVideoFormat Format)
+BOOL IsSECAMVideoFormat(eVideoFormat Format)
 {
-    bool result = false;
+    BOOL result = FALSE;
     switch (Format)
     {
     case VIDEOFORMAT_SECAM_B:
@@ -334,15 +334,15 @@ bool IsSECAMVideoFormat(eVideoFormat Format)
     case VIDEOFORMAT_SECAM_K1:
     case VIDEOFORMAT_SECAM_L:
     case VIDEOFORMAT_SECAM_L1:
-        result = true;
+        result = TRUE;
         break;
     }
     return result;
 }
 
-bool IsRGBVideoFormat(eVideoFormat Format)
+BOOL IsRGBVideoFormat(eVideoFormat Format)
 {
-    bool result = false;
+    BOOL result = FALSE;
     switch (Format)
     {
     case VIDEOFORMAT_RGB_640X480_60:
@@ -351,7 +351,7 @@ bool IsRGBVideoFormat(eVideoFormat Format)
     case VIDEOFORMAT_RGB_640X480_75:
     case VIDEOFORMAT_RGB_800X600_75:
     case VIDEOFORMAT_RGB_1024X768_75:
-        result = true;
+        result = TRUE;
         break;
     }
     return result;

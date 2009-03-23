@@ -72,9 +72,9 @@ public:
     /**
      * Select input.
      * @param Index input index
-     * @param bSetRelated a bool that specifies if the related pin is also to be selected, for example if you selecte a video input it will also set the corect audio input
+     * @param bSetRelated a BOOL that specifies if the related pin is also to be selected, for example if you selecte a video input it will also set the corect audio input
      */
-    virtual void SetInputIndex(long Index,bool bSetRelated)=0;
+    virtual void SetInputIndex(long Index,BOOL bSetRelated)=0;
     
     /**
      * Which input is connected to specified output.
@@ -86,9 +86,9 @@ public:
     
     /**
      * @param index input pin index.
-     * @return true if specified input is routed to an output.
+     * @return TRUE if specified input is routed to an output.
      */
-    virtual bool IsInputSelected(long index)=0;
+    virtual BOOL IsInputSelected(long index)=0;
 };
 
 #endif // !defined(AFX_BASECROSSBAR_H__FF62818A_2194_4F12_AA7C_B8D9AB84D0CC__INCLUDED_)

@@ -47,9 +47,9 @@ public:
     // from ITuner
     eTunerId GetTunerId();
     eVideoFormat GetDefaultVideoFormat();
-    bool HasRadio() const;
-    bool SetRadioFrequency(long nFrequency);
-    bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
+    BOOL HasRadio() const;
+    BOOL SetRadioFrequency(long nFrequency);
+    BOOL SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
 
     long GetFrequency();
     eTunerLocked IsLocked();
@@ -70,15 +70,15 @@ private:
     int OptimizeVCO(int sel, int lock);
     void SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoFormat videoFormat);
 
-    void PrepareTDA9887(bool bPrepare, eVideoFormat videoFormat);
-    void PrepareVoodooTV(bool bPrepare, eVideoFormat videoFormat);
+    void PrepareTDA9887(BOOL bPrepare, eVideoFormat videoFormat);
+    void PrepareVoodooTV(BOOL bPrepare, eVideoFormat videoFormat);
 
 private:
     int  m_XOGC;    // holds the value of XOGC register after init
-    bool m_Initialized;
+    BOOL m_Initialized;
     eVideoFormat m_DefaultVideoFormat;
     long m_Frequency;
-    bool m_Locked;
+    BOOL m_Locked;
 };
 
 #endif // !defined(__MT2032_H__)

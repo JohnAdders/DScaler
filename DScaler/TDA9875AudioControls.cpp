@@ -36,8 +36,8 @@
 
 CTDA9875AudioControls::CTDA9875AudioControls() : CTDA9875()
 {
-    m_bMuted = true;
-    m_bKeepItMuted = false;
+    m_bMuted = TRUE;
+    m_bKeepItMuted = FALSE;
     m_nVolume = 900;
     m_nBalance = 0;
     m_nBass = 0;
@@ -47,7 +47,7 @@ CTDA9875AudioControls::CTDA9875AudioControls() : CTDA9875()
     m_bSpatialEffectReg = 0;
     m_bAVLReg = 0;
     m_nAVLDecay = 0;
-    m_bBassBoost = false;
+    m_bBassBoost = FALSE;
     m_SoundChannel = SOUNDCHANNEL_MONO;
 
     eEventType EventList[] = {EVENT_SOUNDCHANNEL, EVENT_ENDOFLIST};
@@ -63,16 +63,16 @@ void CTDA9875AudioControls::OnEvent(CEventObject *pEventObject, eEventType Event
     }
 }
 
-bool CTDA9875AudioControls::HasMute()
+BOOL CTDA9875AudioControls::HasMute()
 {
-    return true;
+    return TRUE;
 }
 
-void CTDA9875AudioControls::SetMute(bool mute)
+void CTDA9875AudioControls::SetMute(BOOL mute)
 {
     if (m_bKeepItMuted)
     {
-        m_bMuted = false;
+        m_bMuted = FALSE;
         return;
     }
     m_bMuted = mute;
@@ -82,14 +82,14 @@ void CTDA9875AudioControls::SetMute(bool mute)
         WriteToSubAddress(TDA9875_MUT, TDA9875_MUTE_OFF);
 }
 
-bool CTDA9875AudioControls::IsMuted()
+BOOL CTDA9875AudioControls::IsMuted()
 {
     return m_bMuted;
 }
 
-bool CTDA9875AudioControls::HasVolume()
+BOOL CTDA9875AudioControls::HasVolume()
 {
-    return true;
+    return TRUE;
 }
 
 void CTDA9875AudioControls::SetVolume(WORD nVolume)
@@ -103,7 +103,7 @@ void CTDA9875AudioControls::SetVolume(WORD nVolume)
     if (m_nVolume > 1000)
         m_nVolume = 1000;
 
-    SetMute(false);
+    SetMute(FALSE);
 
     int nBalLeft = (m_nBalance <= 0) ? 127 : (127 - m_nBalance);
     int nBalRight = (m_nBalance >= 0) ? 127 : (127 + m_nBalance);
@@ -136,9 +136,9 @@ WORD CTDA9875AudioControls::GetVolume()
     return (WORD)m_nVolume;
 }
 
-bool CTDA9875AudioControls::HasBalance()
+BOOL CTDA9875AudioControls::HasBalance()
 {
-    return true;
+    return TRUE;
 }
 
 void CTDA9875AudioControls::SetBalance(WORD nBalance)
@@ -159,9 +159,9 @@ WORD CTDA9875AudioControls::GetBalance()
     return (WORD)m_nBalance;
 }
 
-bool CTDA9875AudioControls::HasBass()
+BOOL CTDA9875AudioControls::HasBass()
 {
-    return true;
+    return TRUE;
 }
 
 void CTDA9875AudioControls::SetBass(WORD nBass)
@@ -188,9 +188,9 @@ WORD CTDA9875AudioControls::GetBass()
     return (WORD)m_nBass;
 }
 
-bool CTDA9875AudioControls::HasTreble()
+BOOL CTDA9875AudioControls::HasTreble()
 {
-    return true;
+    return TRUE;
 }
 
 void CTDA9875AudioControls::SetTreble(WORD nTreble)
@@ -217,17 +217,17 @@ WORD CTDA9875AudioControls::GetTreble()
     return (WORD)m_nTreble;
 }
 
-bool CTDA9875AudioControls::HasEqualizers()
+BOOL CTDA9875AudioControls::HasEqualizers()
 {
-    return false;
+    return FALSE;
 }
 
-bool CTDA9875AudioControls::HasBassBoost()
+BOOL CTDA9875AudioControls::HasBassBoost()
 {
-    return true;
+    return TRUE;
 }
 
-void CTDA9875AudioControls::SetBassBoost(bool bBoost)
+void CTDA9875AudioControls::SetBassBoost(BOOL bBoost)
 {    
     m_bBassBoost = bBoost;
     if (bBoost)
@@ -236,15 +236,15 @@ void CTDA9875AudioControls::SetBassBoost(bool bBoost)
         WriteToSubAddress(TDA9875_BBO, 0);
 }
 
-bool CTDA9875AudioControls::IsBassBoosted()
+BOOL CTDA9875AudioControls::IsBassBoosted()
 {
     return m_bBassBoost;
 }
 
 
-bool CTDA9875AudioControls::HasLoudness()
+BOOL CTDA9875AudioControls::HasLoudness()
 {
-    return true;
+    return TRUE;
 }
 
 void CTDA9875AudioControls::SetLoudness(WORD nLevel)
@@ -268,14 +268,14 @@ WORD CTDA9875AudioControls::GetLoudness()
     return (WORD)m_nLoudness;
 }
 
-bool CTDA9875AudioControls::HasDolby()
+BOOL CTDA9875AudioControls::HasDolby()
 {
-    return false;
+    return FALSE;
 }
 
-bool CTDA9875AudioControls::HasAutoVolumeCorrection()
+BOOL CTDA9875AudioControls::HasAutoVolumeCorrection()
 {
-    return true;
+    return TRUE;
 }
 void CTDA9875AudioControls::SetAutoVolumeCorrection(long milliSeconds)
 {
@@ -309,9 +309,9 @@ long CTDA9875AudioControls::GetAutoVolumeCorrection()
     return m_nAVLDecay;
 }
 
-bool CTDA9875AudioControls::HasSpatialEffect()
+BOOL CTDA9875AudioControls::HasSpatialEffect()
 {
-    return true;
+    return TRUE;
 }
 
 void CTDA9875AudioControls::SetSpatialEffect(int nLevel)

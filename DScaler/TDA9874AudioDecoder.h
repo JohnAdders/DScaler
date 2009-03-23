@@ -37,7 +37,7 @@ public:
     CTDA9874AudioDecoder();
     virtual ~CTDA9874AudioDecoder();
 
-    bool Initialize();
+    BOOL Initialize();
 
     // Sound Channels
     void SetSoundChannel(eSoundChannel SoundChannel);
@@ -103,16 +103,16 @@ private:
     static ANInfo m_TDA9874Standards[];    
       
     HANDLE m_TDA9874Thread;
-    volatile bool m_StopThread;
-    volatile bool m_ThreadWait;
-    volatile bool m_DetectSupportedSoundChannels;
+    volatile BOOL m_StopThread;
+    volatile BOOL m_ThreadWait;
+    volatile BOOL m_DetectSupportedSoundChannels;
     volatile eSoundChannel m_TargetSoundChannel;
     volatile long m_DetectInterval10ms;
     volatile int m_AutoDetecting;
     volatile eSupportedSoundChannels m_SupportedSoundChannels;        
     
 
-    void SetChipStandard(bool FastCheck);
+    void SetChipStandard(BOOL FastCheck);
     void SetChipMode(eSoundChannel channel);
 
     int Standard2Index(long Standard);

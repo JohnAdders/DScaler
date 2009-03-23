@@ -33,7 +33,7 @@
 //30 March 04  Commented out: 
 //             if (m_setOptsVideo && m_optsVideo.lpParms && m_optsVideo.cbParms) 
 //             delete m_optsVideo.lpParms; 
-//             in 'bool CTimeShift::SetVideoOptions(AVICOMPRESSOPTIONS *opts)' 
+//             in 'BOOL CTimeShift::SetVideoOptions(AVICOMPRESSOPTIONS *opts)' 
 //             Codec setting / config saving / retreval now seems fine .....
 //             I tesed for an hour and could not make it fall over - whatever I tried  
 // 
@@ -81,12 +81,12 @@
 TIME_SHIFT *timeShift = NULL;
 
 /* Internal function prototypes */
-bool TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
+BOOL TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
                             tsFormat_t format);
-bool TimeShiftGetWaveInDeviceIndex(int *index);
-bool TimeShiftGetWaveOutDeviceIndex(int *index);
-bool TimeShiftReadFromINI(void);
-bool TimeShiftWriteToINI(void);
+BOOL TimeShiftGetWaveInDeviceIndex(int *index);
+BOOL TimeShiftGetWaveOutDeviceIndex(int *index);
+BOOL TimeShiftReadFromINI(void);
+BOOL TimeShiftWriteToINI(void);
 
 /** Checks the recording format and changes its value if it's invalid
  * \param format The format to check
@@ -814,15 +814,15 @@ DWORD GetMaximumVolumeFileSize(const char *path)
 /** Finds the name of a file that data can be written to
  * \param fileName A pointer to where the file name will be stored
  * \param length   The length of \a fileName in bytes
- * \return true if a file name was found or false if no file name is available
+ * \return TRUE if a file name was found or FALSE if no file name is available
  */
 
-bool FindNextFileName(char *fileName, DWORD length)
+BOOL FindNextFileName(char *fileName, DWORD length)
 {
     int curFile = 0;
 
     if (!timeShift)
-       return false;
+       return FALSE;
 
     do
     {
@@ -831,18 +831,18 @@ bool FindNextFileName(char *fileName, DWORD length)
             ErrorBox("Could not create a file.  "
                      "Delete some of your video files and try again.");
 
-            return false;
+            return FALSE;
         }
 
         if (_snprintf(fileName, length, "%sds%.3u.avi",
                       timeShift->savingPath, curFile++) >= length)
         {
             BUG();
-            return false;
+            return FALSE;
         }
     } while (GetFileAttributes(fileName) != 0xffffffff);
 
-    return true;
+    return TRUE;
 }
 
 /**********************************************************************
@@ -850,10 +850,10 @@ bool FindNextFileName(char *fileName, DWORD length)
  **********************************************************************/
 
 /** TimeShift init
- * \return true if the initialization succeeded or false if it failed
+ * \return TRUE if the initialization succeeded or FALSE if it failed
  */
 
-bool TimeShiftInit(HWND hWnd)
+BOOL TimeShiftInit(HWND hWnd)
 {
     WAVEFORMATEX *wfx;
 
@@ -861,7 +861,7 @@ bool TimeShiftInit(HWND hWnd)
     {
         timeShift = (TIME_SHIFT *)malloc(sizeof(TIME_SHIFT));
         if (!timeShift)
-           return false;
+           return FALSE;
 
         memset(timeShift, 0, sizeof(TIME_SHIFT));
 
@@ -892,7 +892,7 @@ bool TimeShiftInit(HWND hWnd)
     } else
       BUG();
 
-    return true;
+    return TRUE;
 }
 
 /** TimeShift shutdown */
@@ -911,9 +911,9 @@ void TimeShiftShutdown(void)
       BUG();
 }
 
-bool TimeShiftPause(void)
+BOOL TimeShiftPause(void)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift)
     {
@@ -927,7 +927,7 @@ bool TimeShiftPause(void)
            {
                 /* Pause recording/shifting */
                 /*timeShift->mode = MODE_PAUSED;
-                result = true;*/
+                result = TRUE;*/
            }
 
         LeaveCriticalSection(&timeShift->lock);
@@ -936,17 +936,17 @@ bool TimeShiftPause(void)
     return result;
 }
 
-bool TimeShiftRecord(void)
+BOOL TimeShiftRecord(void)
 {
     int       deviceId;
     DWORD     rate, scale;
     char      fileName[MAX_PATH + 1];
-    bool      result = false;
+    BOOL      result = FALSE;
     ULONGLONG freeSpace;
     DWORD     limit;
 
     if (!timeShift)
-       return false;
+       return FALSE;
 
     /* If less than 300 MB free disk space don't even start recoding */
     freeSpace = GetFreeDiskSpace();
@@ -958,7 +958,7 @@ bool TimeShiftRecord(void)
                    "Information",
                    MB_ICONEXCLAMATION | MB_OK);
 
-        return false;
+        return FALSE;
     }
 
     EnterCriticalSection(&timeShift->lock);
@@ -998,7 +998,7 @@ bool TimeShiftRecord(void)
             }
         }
 
-        result = true;
+        result = TRUE;
 
         /* This buffer shouldn't be allocated at this point */
         if (timeShift->buffer.record)
@@ -1018,7 +1018,7 @@ bool TimeShiftRecord(void)
                                         "Error",
                                         MB_OK | MB_ICONERROR);
 
-            result = false;
+            result = FALSE;
         }
 
         /* Get the file name to use */
@@ -1035,7 +1035,7 @@ bool TimeShiftRecord(void)
                                             "Error",
                                             MB_OK | MB_ICONERROR);
 
-                result = false;
+                result = FALSE;
             }
 
             if (result)
@@ -1103,11 +1103,11 @@ bool TimeShiftRecord(void)
                    {
                        aviDisplayError(timeShift->file, timeShift->hWnd, NULL);
                        TimeShiftStop();
-                       result = false;
+                       result = FALSE;
                    }
             }
         } else
-          result = false;
+          result = FALSE;
     }
 
     LeaveCriticalSection(&timeShift->lock);
@@ -1115,9 +1115,9 @@ bool TimeShiftRecord(void)
     return result;
 }
 
-bool TimeShiftStop(void)
+BOOL TimeShiftStop(void)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift)
     {
@@ -1139,7 +1139,7 @@ bool TimeShiftStop(void)
 
         LeaveCriticalSection(&timeShift->lock);
 
-        result = true;
+        result = TRUE;
     }
 
     return result;
@@ -1149,7 +1149,7 @@ bool TimeShiftStop(void)
  * \note Internal function
  */
 
-bool TimeShiftWriteVideo(TDeinterlaceInfo *pInfo)
+BOOL TimeShiftWriteVideo(TDeinterlaceInfo *pInfo)
 {
     aviTime_t frameTime;
     LPBYTE    dest;
@@ -1159,10 +1159,10 @@ bool TimeShiftWriteVideo(TDeinterlaceInfo *pInfo)
     long      pitch;
     int       offset;
     BYTE      *scanLine[2];
-    bool      result = true;
+    BOOL      result = TRUE;
 
     if (!timeShift || !timeShift->file || !pInfo->PictureHistory[0])
-       return false;
+       return FALSE;
 
     if ((timeShift->recHeight==TS_HALFHEIGHTEVEN &&
          (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)) ||
@@ -1275,7 +1275,7 @@ bool TimeShiftWriteVideo(TDeinterlaceInfo *pInfo)
 
             if (!aviSaveFrame(timeShift->file, timeShift->buffer.record,
                               frameTime))
-               result = false;
+               result = FALSE;
         }
     }
 
@@ -1283,10 +1283,10 @@ bool TimeShiftWriteVideo(TDeinterlaceInfo *pInfo)
 }
 
 /* Called from the capture thread */
-bool TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo)
+BOOL TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo)
 {
-    bool result = false;
-    bool error  = false;
+    BOOL result = FALSE;
+    BOOL error  = FALSE;
 
     if (timeShift)
     {
@@ -1298,8 +1298,8 @@ bool TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo)
         {
             if (!TimeShiftWriteVideo(pInfo))
             {
-                result = false;
-                error  = true;
+                result = FALSE;
+                error  = TRUE;
             } else
             {
                 /* If the file size limit has been reached then start recording
@@ -1330,44 +1330,44 @@ bool TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo)
     return result;
 }
 
-bool TimeShiftIsRunning(void)
+BOOL TimeShiftIsRunning(void)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift)
     {
         if (timeShift->mode != MODE_STOPPED)
-           result = true;
+           result = TRUE;
     }
 
     return result;
 }
 
-bool TimeShiftWorkOnInputFrames(void)
+BOOL TimeShiftWorkOnInputFrames(void)
 {
-    return true;
+    return TRUE;
 }
 
-bool TimeShiftCancelSchedule(void)
+BOOL TimeShiftCancelSchedule(void)
 {
-    return true;
+    return TRUE;
 }
 
 /**********************************************************************
  *                    TimeShift get/set functions                     *
  **********************************************************************/
 
-bool TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
+BOOL TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
                             tsFormat_t format)
 {
     CSource *pSource = Providers_GetCurrentSource();
     int     w, h;
-    bool    result = false;
+    BOOL    result = FALSE;
 
     if (!pSource || !bih)
     {
         BUG();
-        return false;
+        return FALSE;
     }
 
     /* Use the default width and field heights to determine the size */
@@ -1388,14 +1388,14 @@ bool TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
     bih->biCompression = format==FORMAT_YUY2 ? YUY2_FOURCC : RGB_FOURCC;
     bih->biSizeImage   = (bih->biBitCount >> 3) * bih->biWidth * bih->biHeight;
 
-    return true;
+    return TRUE;
 }
 
-bool TimeShiftGetWaveInDeviceIndex(int *index)
+BOOL TimeShiftGetWaveInDeviceIndex(int *index)
 {
     int        count;
     int        i;
-    bool       result = false;
+    BOOL       result = FALSE;
     WAVEINCAPS wic;
 
     if (timeShift && index)
@@ -1413,12 +1413,12 @@ bool TimeShiftGetWaveInDeviceIndex(int *index)
                     if (!lstrcmp(timeShift->waveInDevice, wic.szPname))
                     {
                         *index = i;
-                        result = true;
+                        result = TRUE;
                     }
                 }
             }
         } else
-          result = true;
+          result = TRUE;
 
         LeaveCriticalSection(&timeShift->lock);
     }
@@ -1426,9 +1426,9 @@ bool TimeShiftGetWaveInDeviceIndex(int *index)
     return result;
 }
 
-bool TimeShiftSetWaveInDevice(char *pszDevice)
+BOOL TimeShiftSetWaveInDevice(char *pszDevice)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift && pszDevice)
     {
@@ -1437,7 +1437,7 @@ bool TimeShiftSetWaveInDevice(char *pszDevice)
         {
             strncpy(timeShift->waveInDevice, pszDevice,
                     sizeof(timeShift->waveInDevice));
-            result = true;
+            result = TRUE;
         }
 
         LeaveCriticalSection(&timeShift->lock);
@@ -1446,11 +1446,11 @@ bool TimeShiftSetWaveInDevice(char *pszDevice)
     return result;
 }
 
-bool TimeShiftGetWaveOutDeviceIndex(int *index)
+BOOL TimeShiftGetWaveOutDeviceIndex(int *index)
 {
     int         count;
     int         i;
-    bool        result = false;
+    BOOL        result = FALSE;
     WAVEOUTCAPS woc;
 
     if (timeShift && index)
@@ -1468,12 +1468,12 @@ bool TimeShiftGetWaveOutDeviceIndex(int *index)
                     if (!lstrcmp(timeShift->waveOutDevice, woc.szPname))
                     {
                         *index = i;
-                        result = true;
+                        result = TRUE;
                     }
                 }
             }
         } else
-          result = true;
+          result = TRUE;
 
         LeaveCriticalSection(&timeShift->lock);
     }
@@ -1481,9 +1481,9 @@ bool TimeShiftGetWaveOutDeviceIndex(int *index)
     return result;
 }
 
-bool TimeShiftSetWaveOutDevice(char *pszDevice)
+BOOL TimeShiftSetWaveOutDevice(char *pszDevice)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift && pszDevice)
     {
@@ -1492,7 +1492,7 @@ bool TimeShiftSetWaveOutDevice(char *pszDevice)
         {
             strncpy(timeShift->waveOutDevice, pszDevice,
                     sizeof(timeShift->waveOutDevice));
-            result = true;
+            result = TRUE;
         }
 
         LeaveCriticalSection(&timeShift->lock);
@@ -1502,18 +1502,18 @@ bool TimeShiftSetWaveOutDevice(char *pszDevice)
 }
 
 /** Determines if the saving path is valid
- * \return true if the saving path is valid or false otherwise
+ * \return TRUE if the saving path is valid or FALSE otherwise
  * \pre The path to check should be set in savingPath in timeShift
  * \pre If the path contains slashes, they must be back slashes
  */
 
-bool TimeShiftVerifySavingPath(void)
+BOOL TimeShiftVerifySavingPath(void)
 {
-    bool  result;
+    BOOL  result;
     DWORD attr;
     char  *subString;
 
-    result = true;
+    result = TRUE;
 
     /* Check the file attributes first. Make sure the path exists. */
     attr = GetFileAttributes(timeShift->savingPath);
@@ -1534,12 +1534,12 @@ bool TimeShiftVerifySavingPath(void)
                 attr = GetFileAttributes(timeShift->savingPath);
                 if (attr==INVALID_FILE_ATTRIBUTES ||
                     !(attr & FILE_ATTRIBUTE_DIRECTORY))
-                   result = false;
+                   result = FALSE;
             } else
-              result = false;
+              result = FALSE;
         }
     } else
-      result = false;
+      result = FALSE;
 
     return result;
 }
@@ -1548,18 +1548,18 @@ bool TimeShiftVerifySavingPath(void)
  * given path was invalid.
  * \param path The new path to set. The default path is always set if this is
  *             NULL.
- * \return true if \a path was used or false if the default path was set
+ * \return TRUE if \a path was used or FALSE if the default path was set
  *         instead
  */
 
-bool TimeShiftSetSavingPath(char *path)
+BOOL TimeShiftSetSavingPath(char *path)
 {
     DWORD size;
     BOOL  failed = TRUE;
     int   i;
 
     if (!timeShift)
-       return false;
+       return FALSE;
 
     EnterCriticalSection(&timeShift->lock);
 
@@ -1627,20 +1627,20 @@ bool TimeShiftSetSavingPath(char *path)
 
     LeaveCriticalSection(&timeShift->lock);
 
-    return failed ? false : true;
+    return failed ? FALSE : TRUE;
 }
 
-bool TimeShiftIsPathValid(const char *path)
+BOOL TimeShiftIsPathValid(const char *path)
 {
     DWORD attr = GetFileAttributes(path);
 
     return (attr==INVALID_FILE_ATTRIBUTES ||
-            !(attr & FILE_ATTRIBUTE_DIRECTORY)) ? false : true;
+            !(attr & FILE_ATTRIBUTE_DIRECTORY)) ? FALSE : TRUE;
 }
 
-bool TimeShiftSetFileSizeLimit(DWORD sizeLimit)
+BOOL TimeShiftSetFileSizeLimit(DWORD sizeLimit)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift)
     {
@@ -1652,7 +1652,7 @@ bool TimeShiftSetFileSizeLimit(DWORD sizeLimit)
                sizeLimit = MAX_FILE_SIZE;
 
             timeShift->sizeLimit = sizeLimit;
-            result               = true;
+            result               = TRUE;
         }
 
         LeaveCriticalSection(&timeShift->lock);
@@ -1671,9 +1671,9 @@ DWORD TimeShiftGetFileSizeLimit(void)
     return timeShift ? timeShift->sizeLimit : 0;
 }
 
-bool TimeShiftGetDimensions(int *w, int *h)
+BOOL TimeShiftGetDimensions(int *w, int *h)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift && w && h)
     {
@@ -1682,54 +1682,54 @@ bool TimeShiftGetDimensions(int *w, int *h)
         *h = timeShift->bih.biHeight;
         LeaveCriticalSection(&timeShift->lock);
 
-        result = true;
+        result = TRUE;
     }
 
     return result;
 }
 
-bool TimeShiftGetWaveInDevice(char **ppszDevice)
+BOOL TimeShiftGetWaveInDevice(char **ppszDevice)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift && ppszDevice)
     {
         *ppszDevice = (char *)&timeShift->waveInDevice;
-        result = true;
+        result = TRUE;
     }
 
     return result;
 }
 
-bool TimeShiftGetWaveOutDevice(char **ppszDevice)
+BOOL TimeShiftGetWaveOutDevice(char **ppszDevice)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift && ppszDevice)
     {
         *ppszDevice = (char*)&timeShift->waveOutDevice;
-        result = true;
+        result = TRUE;
     }
 
     return result;
 }
 
-bool TimeShiftGetRecHeight(int *index)
+BOOL TimeShiftGetRecHeight(int *index)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift && index)
     {
         *index = timeShift->recHeight;
-        result = true;
+        result = TRUE;
     }
 
     return result;
 }
 
-bool TimeShiftSetRecHeight(int index)
+BOOL TimeShiftSetRecHeight(int index)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift)
     {
@@ -1738,7 +1738,7 @@ bool TimeShiftSetRecHeight(int index)
         if (timeShift->mode==MODE_STOPPED)
         {
             timeShift->recHeight = index;
-            result               = true;
+            result               = TRUE;
         }
 
         LeaveCriticalSection(&timeShift->lock);
@@ -1747,22 +1747,22 @@ bool TimeShiftSetRecHeight(int index)
     return result;
 }
 
-bool TimeShiftGetRecFormat(tsFormat_t *format)
+BOOL TimeShiftGetRecFormat(tsFormat_t *format)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift && format)
     {
         *format = timeShift->format;
-        result  = true;
+        result  = TRUE;
     }
 
     return result;
 }
 
-bool TimeShiftSetRecFormat(tsFormat_t format)
+BOOL TimeShiftSetRecFormat(tsFormat_t format)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift)
     {
@@ -1771,7 +1771,7 @@ bool TimeShiftSetRecFormat(tsFormat_t format)
         if (timeShift->mode==MODE_STOPPED)
         {
             timeShift->format = format;
-            result            = true;
+            result            = TRUE;
         }
 
         LeaveCriticalSection(&timeShift->lock);
@@ -1780,9 +1780,9 @@ bool TimeShiftSetRecFormat(tsFormat_t format)
     return result;
 }
 
-bool TimeShiftGetFourCC(FOURCC *fcc)
+BOOL TimeShiftGetFourCC(FOURCC *fcc)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift && fcc)
     {
@@ -1791,7 +1791,7 @@ bool TimeShiftGetFourCC(FOURCC *fcc)
         if (timeShift->mode==MODE_STOPPED)
         {
             *fcc   = timeShift->fccHandler;
-            result = true;
+            result = TRUE;
         }
 
         LeaveCriticalSection(&timeShift->lock);
@@ -1800,9 +1800,9 @@ bool TimeShiftGetFourCC(FOURCC *fcc)
     return result;
 }
 
-bool TimeShiftSetFourCC(FOURCC fcc)
+BOOL TimeShiftSetFourCC(FOURCC fcc)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift)
     {
@@ -1811,7 +1811,7 @@ bool TimeShiftSetFourCC(FOURCC fcc)
         if (timeShift->mode==MODE_STOPPED)
         {
             timeShift->fccHandler = fcc;
-            result                = true;
+            result                = TRUE;
         }
 
         LeaveCriticalSection(&timeShift->lock);
@@ -1825,14 +1825,14 @@ bool TimeShiftSetFourCC(FOURCC fcc)
  * \param length    The total length of dest in bytes
  * \param recHeight A TS_*HEIGHT constant
  * \param format    A FORMAT_* constant
- * \return true if the description was saved in \a dest or false if there was
+ * \return TRUE if the description was saved in \a dest or FALSE if there was
  *         an error
  */
 
-bool TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
+BOOL TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
                                       tsFormat_t format)
 {
-    bool             result = false;
+    BOOL             result = FALSE;
     BITMAPINFOHEADER bih;
 
     if (dest)
@@ -1844,7 +1844,7 @@ bool TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
                                 bih.biHeight,
                                 bih.biBitCount,
                                 format==FORMAT_YUY2 ? "YUY2" : "RGB") > 0)
-               result = true;
+               result = TRUE;
         }
     }
 
@@ -1854,13 +1854,13 @@ bool TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
 /** Gets a text description describing the specified audio settings
  * \param dest   Where the text should be stored
  * \param length The total length of dest in bytes
- * \return true if the description was saved in \a dest or false if there was
+ * \return TRUE if the description was saved in \a dest or FALSE if there was
  *         an error
  */
 
-bool TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length)
+BOOL TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift && dest)
     {
@@ -1871,7 +1871,7 @@ bool TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length)
                       timeShift->waveFormat.wBitsPerSample,
                       timeShift->waveFormat.nChannels==2 ? "stereo" :
                                                            "mono") > 0)
-           result = true;
+           result = TRUE;
 
         LeaveCriticalSection(&timeShift->lock);
     }
@@ -1883,9 +1883,9 @@ bool TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length)
  *                    TimeShift dialog functions                      *
  **********************************************************************/
 
-bool TimeShiftOnOptions(void)
+BOOL TimeShiftOnOptions(void)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift)
     {
@@ -1898,7 +1898,7 @@ bool TimeShiftOnOptions(void)
             CTSOptionsDlg dlg(CWnd::FromHandle(timeShift->hWnd));
             if (dlg.DoModal()==IDOK)
             {
-                result = true;
+                result = TRUE;
                 TimeShiftWriteToINI();
             }
         } else
@@ -1917,16 +1917,16 @@ bool TimeShiftOnOptions(void)
  * \param format     A FORMAT_* constant
  * \param fccHandler A pointer to the default FCC to use. The selected FCC will
  *                   also be stored here.
- * \retval true  A new FCC has been selected and \a fccHandler was updated
- * \retval false A new FCC was not selected and the value of \a fccHandler was
+ * \retval TRUE  A new FCC has been selected and \a fccHandler was updated
+ * \retval FALSE A new FCC was not selected and the value of \a fccHandler was
  *               not changed
  */
 
-bool TimeShiftVideoCompressionOptions(HWND hWndParent, int recHeight,
+BOOL TimeShiftVideoCompressionOptions(HWND hWndParent, int recHeight,
                                       tsFormat_t format, FOURCC *fccHandler)
 {
     COMPVARS         cv;
-    bool             result = false;
+    BOOL             result = FALSE;
     BITMAPINFOHEADER bih;
 
     if (fccHandler && TimeShiftGetDimensions(&bih, recHeight, format))
@@ -1941,7 +1941,7 @@ bool TimeShiftVideoCompressionOptions(HWND hWndParent, int recHeight,
         if (ICCompressorChoose(hWndParent, 0, &bih, NULL, &cv, NULL))
         {
             *fccHandler = cv.fccHandler;
-            result      = true;
+            result      = TRUE;
 
             ICCompressorFree(&cv);
         }
@@ -1951,9 +1951,9 @@ bool TimeShiftVideoCompressionOptions(HWND hWndParent, int recHeight,
     return result;
 }
 
-bool TimeShiftOnSetMenu(HMENU hMenu)
+BOOL TimeShiftOnSetMenu(HMENU hMenu)
 {
-    bool result = false;
+    BOOL result = FALSE;
     int  item   = IDM_TSSTOP;
 
     if (timeShift)
@@ -2002,11 +2002,11 @@ bool TimeShiftOnSetMenu(HMENU hMenu)
  *                        TimeShift settings                          *
  **********************************************************************/
 
-bool TimeShiftReadFromINI(void)
+BOOL TimeShiftReadFromINI(void)
 {
     extern char szIniFile[MAX_PATH];
     char        path[MAX_PATH + 1];
-    bool        result = false;
+    BOOL        result = FALSE;
 
     if (timeShift)
     {
@@ -2043,16 +2043,16 @@ bool TimeShiftReadFromINI(void)
                                                        timeShift->sizeLimit,
                                                        szIniFile));
 
-        result = true;
+        result = TRUE;
     }
 
     return result;
 }
 
-bool TimeShiftWriteToINI(void)
+BOOL TimeShiftWriteToINI(void)
 {
     extern char szIniFile[MAX_PATH];
-    bool        result = false;
+    BOOL        result = FALSE;
     TCHAR       temp[32];
 
     if (timeShift)
@@ -2079,7 +2079,7 @@ bool TimeShiftWriteToINI(void)
                                   &timeShift->fccHandler, sizeof(FOURCC),
                                   szIniFile);
 
-        result = true;
+        result = TRUE;
     }
 
     return result;
@@ -2097,11 +2097,11 @@ bool TimeShiftWriteToINI(void)
 
 
 #ifdef ____TO_DO
-bool CTimeShift::OnRecord(void)
+BOOL CTimeShift::OnRecord(void)
 {
     AssureCreated();
 
-    bool result = false;
+    BOOL result = FALSE;
     extern char szIniFile[MAX_PATH];
 
     //////////////////////////////////////////
@@ -2117,7 +2117,7 @@ bool CTimeShift::OnRecord(void)
 
     if (m_Start != 0) //has a schedule time been set (0 = not set)?
     {
-        ScheduleF = true; // set the flag to show it is a scheduled recording
+        ScheduleF = TRUE; // set the flag to show it is a scheduled recording
         /* 
         Get local time and fill the structure.
         For reference: the structure of tm is:
@@ -2177,16 +2177,16 @@ bool CTimeShift::OnRecord(void)
         // Do a timer messagebox to the start of the scheduled recording
         SchedMessageBox mbox(CWnd::FromHandle(hWnd));   // handle
         int m_delay = sleeptime; // set the count-down period
-        bool m_close = true; // irrelevant - hard coded the switch
+        BOOL m_close = TRUE; // irrelevant - hard coded the switch
         // irrelevant - hardcoded the icon
         SchedMessageBox::MBIcon mbicon = SchedMessageBox::MBIcon::MBICONINFORMATION;
         // call the timer messagebox
         mbox.MessageBox("Message is hard coded! NULL", m_delay,
             m_close,(SchedMessageBox::MBIcon)mbicon);
 
-        if (true == CancelSched) // Was the scheduled recording cancelled
+        if (TRUE == CancelSched) // Was the scheduled recording cancelled
         {
-            CancelSched = false; // Reset flag for next time thru
+            CancelSched = FALSE; // Reset flag for next time thru
             return 0; // Quit
         }
     }
@@ -2201,9 +2201,9 @@ bool CTimeShift::OnRecord(void)
     // Need to flag this is first time thru
     // because can come thru here more than once
     // during a single recording (on a file split)
-    if (false == RecordTimerCheckedF)
+    if (FALSE == RecordTimerCheckedF)
     {
-        RecordTimerCheckedF = true; // set the checked flag
+        RecordTimerCheckedF = TRUE; // set the checked flag
 
         // Get the Timed Recordng value from INI file   
         m_Time = 0; // Initialise
@@ -2212,7 +2212,7 @@ bool CTimeShift::OnRecord(void)
 
         if (m_Time != 0) // Has the record timer been set
         {
-            RecordTimerF = true; // set the flag to show it is a timed recording
+            RecordTimerF = TRUE; // set the flag to show it is a timed recording
 
             // do the calcs to find recording end time
             time_t seconds;
@@ -2228,7 +2228,7 @@ bool CTimeShift::OnRecord(void)
         }
         else
         {
-            RecordTimerCheckedF = false; // need to reset check flag
+            RecordTimerCheckedF = FALSE; // need to reset check flag
             // in case it was just a manual recording - so we check 
             // next time there is a recording to see if timed
         }
@@ -2251,7 +2251,7 @@ bool CTimeShift::OnRecord(void)
             }
         }
 
-        // if nofreespace is true it means a recording was in progress but running
+        // if nofreespace is TRUE it means a recording was in progress but running
         // low on space and the disk space check routine has decided another file
         // cannot be started (on a file split), and set the flag to get out of TimeShift
         if (nofreespace) 
@@ -2283,13 +2283,13 @@ bool CTimeShift::OnRecord(void)
                     "Information",
                     MB_ICONEXCLAMATION | MB_OK);
             }
-            nofreespace = false; // Reset the nofreespace flag
+            nofreespace = FALSE; // Reset the nofreespace flag
             
             // Reset the flags for scheduled / timed recording
-            RecordTimerCheckedF = false; // We check again on new recording
-            ScheduleF = false; // Rest flag so to check again on new recording
-            TimedRecodingDone = false; // Rest flag so to check again on new recording          
-            RecordTimerF = false; // Rest flag so to check again on new recording
+            RecordTimerCheckedF = FALSE; // We check again on new recording
+            ScheduleF = FALSE; // Rest flag so to check again on new recording
+            TimedRecodingDone = FALSE; // Rest flag so to check again on new recording          
+            RecordTimerF = FALSE; // Rest flag so to check again on new recording
             return result; // Exit TimeShift
         }
     
@@ -2314,17 +2314,17 @@ bool CTimeShift::OnRecord(void)
                         MB_ICONEXCLAMATION | MB_OK);
             }
             // Initialise the flags for scheduled / timed recording
-            ScheduleF = false;
-            TimedRecodingDone = false;
-            RecordTimerCheckedF = false;
-            RecordTimerF = false;
+            ScheduleF = FALSE;
+            TimedRecodingDone = FALSE;
+            RecordTimerCheckedF = FALSE;
+            RecordTimerF = FALSE;
             return result; //exit TimeShift         
         }
 
         // Only start recording if we're stopped.
         result =
             m_pTimeShift->m_mode == MODE_STOPPED ?
-            m_pTimeShift->Record(false) : false;
+            m_pTimeShift->Record(FALSE) : FALSE;
 
         LeaveCriticalSection(&m_pTimeShift->m_lock);
     }
@@ -2332,9 +2332,9 @@ bool CTimeShift::OnRecord(void)
     return result;
 }
 
-bool TimeShiftSetPixelWidth(int pixelWidth)
+BOOL TimeShiftSetPixelWidth(int pixelWidth)
 {
-    bool    result = false;
+    BOOL    result = FALSE;
     CSource *pSource;
 
     if (timeShift)
@@ -2343,15 +2343,15 @@ bool TimeShiftSetPixelWidth(int pixelWidth)
         if (pSource)
            pSource->SetWidth(pixelWidth);
 
-        result = true;
+        result = TRUE;
     }
 
     return result;
 }
 
-bool TimeShiftDoMute(bool mute)
+BOOL TimeShiftDoMute(BOOL mute)
 {
-    bool result = false;
+    BOOL result = FALSE;
 
     if (timeShift)
     {
@@ -2395,7 +2395,7 @@ bool TimeShiftDoMute(bool mute)
             m_pTimeShift->m_origUseMixer = -1;
         }*/
 
-        result = true;
+        result = TRUE;
     }
 
     return result;

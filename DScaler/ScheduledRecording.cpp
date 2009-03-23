@@ -57,8 +57,8 @@ DWORD WINAPI RecordThreadProc(LPVOID lParam)
 ******************************************/
 CScheduleDlg::CScheduleDlg(CWnd *pParent)
     : CDialog(IDD_SCHEDULE, pParent),
-    m_bPrevTimeSet(true),
-    m_bCtrlsInit(false)
+    m_bPrevTimeSet(TRUE),
+    m_bCtrlsInit(FALSE)
 {
 }
 
@@ -121,7 +121,7 @@ void CScheduleDlg::OnDurationUpdate()
     if(!m_bPrevTimeSet)
     {
         ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_TIMEPICKER))->GetTime(&prev_time);
-        m_bPrevTimeSet = true;
+        m_bPrevTimeSet = TRUE;
     }
 
     CTimeSpan end_timespan(0, 0, atoi(str_dur.GetBuffer(0)), 0);
@@ -154,7 +154,7 @@ void CScheduleDlg::OnTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult)
 
     CTimeSpan dur_timespan = end_timespan - start_timespan;
     SetDurationCtrl((int)dur_timespan.GetTotalMinutes());
-    m_bPrevTimeSet = false;
+    m_bPrevTimeSet = FALSE;
 }
 
 void CScheduleDlg::OnEndTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult)
@@ -235,7 +235,7 @@ void CScheduleDlg::InitCtrls()
     ((CComboBox*)GetDlgItem(IDC_SCHEDULE_COMBO))->SelectString(0, channels[0].c_str());
     ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_TIMEPICKER))->GetTime(&prev_time);
 
-    m_bCtrlsInit = true;
+    m_bCtrlsInit = TRUE;
 }
 
 /*****************************************
@@ -253,30 +253,30 @@ CSchedule::CSchedule(const string& name, const string& program_name, int duratio
 /*****************************************
 *    CScheduledRecording funtions
 ******************************************/
-CScheduledRecording::CScheduledRecording():m_bSchedulesUpdate(true),m_bExitThread(false)
+CScheduledRecording::CScheduledRecording():m_bSchedulesUpdate(TRUE),m_bExitThread(FALSE)
 {}
 
-bool CScheduledRecording::run()
+BOOL CScheduledRecording::run()
 {
     while(!processSchedules())
     {
         if(m_bExitThread)
-            return false;
+            return FALSE;
         else
-            SleepEx(500,false);
+            SleepEx(500,FALSE);
     }
     while(!IsEndOfRecording())
     {
         if(m_bExitThread)
-            return false;
+            return FALSE;
         else
         {
             ShowText(GetMainWnd(), "Recording");
-            SleepEx(500,false);
+            SleepEx(500,FALSE);
         }
     }
     
-    return true;
+    return TRUE;
 }
 
 void CScheduledRecording::initScheduledRecordingThreadProc()
@@ -534,15 +534,15 @@ void CScheduledRecording::loadFromXml()
     }
 }
 
-bool CScheduledRecording::processSchedules()
+BOOL CScheduledRecording::processSchedules()
 {
     if(m_bSchedulesUpdate)
         loadFromXml();
         
     if(!m_schedules.size())
-        return false;
+        return FALSE;
 
-    m_bSchedulesUpdate = false;
+    m_bSchedulesUpdate = FALSE;
     
     CTime time_now = CTime::GetCurrentTime();
         
@@ -553,10 +553,10 @@ bool CScheduledRecording::processSchedules()
         if(time_now == time_schedule && iter->getState() == READY)
         {
             startRecording(*iter,time_schedule);
-            return true;
+            return TRUE;
         }
     }
-    return false;
+    return FALSE;
 }
 
 void CScheduledRecording::showRecords()
@@ -674,12 +674,12 @@ void CScheduledRecording::startRecording(CSchedule recording_program, CTime time
     }
 }
 
-bool CScheduledRecording::IsEndOfRecording()
+BOOL CScheduledRecording::IsEndOfRecording()
 {
     CTime time_now = CTime::GetCurrentTime();
     
     if(m_recording_program.getTimeEnd() != time_now && TimeShiftIsRunning())
-        return false;
+        return FALSE;
     else
     {
         if(!TimeShiftIsRunning())
@@ -688,7 +688,7 @@ bool CScheduledRecording::IsEndOfRecording()
         if(m_recording_program.getTimeEnd() == time_now)
             stopRecording(SUCCEED);
         
-        return true;
+        return TRUE;
     }
             
 }
@@ -724,5 +724,5 @@ void CScheduledRecording::exitScheduledRecording()
         saveToXml(m_schedules);
     }
     
-    m_bExitThread = true;
+    m_bExitThread = TRUE;
 }

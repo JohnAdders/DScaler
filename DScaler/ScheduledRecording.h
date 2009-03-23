@@ -40,8 +40,8 @@ private:
     void SetDurationCtrl(int minutes);
 
     SYSTEMTIME prev_time;
-    bool m_bPrevTimeSet;
-    bool m_bCtrlsInit;
+    BOOL m_bPrevTimeSet;
+    BOOL m_bCtrlsInit;
 };
 
 void ShowSchedRecDlg();
@@ -92,7 +92,7 @@ public:
     
     void getChannels(std::vector<std::string> &channels);
     
-    bool run();
+    BOOL run();
                 
 private:
     void loadFromXml();
@@ -100,13 +100,13 @@ private:
     void setRecordState(const char* schedule_name, int state);
     int  getRecordsCount();
     
-    bool IsEndOfRecording();
-    bool processSchedules();
+    BOOL IsEndOfRecording();
+    BOOL processSchedules();
     void stopRecording(int state);
     void startRecording(CSchedule recording_program, CTime time_start);
 
-    bool m_bSchedulesUpdate;
-    bool m_bExitThread;
+    BOOL m_bSchedulesUpdate;
+    BOOL m_bExitThread;
 
     std::vector<CSchedule> m_schedules;
     CSchedule m_recording_program;

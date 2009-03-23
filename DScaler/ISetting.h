@@ -33,34 +33,6 @@ class CSettingGroup;
 
 /** Interface for control of a setting
 */
-class ISetting
-{
-public:
-    virtual ~ISetting() {;};
-    virtual void SetDefault() = 0;
-    virtual SETTING_TYPE GetType() = 0;
-    virtual void ChangeValue(eCHANGEVALUE NewValue) = 0;
-    virtual BOOL ReadFromIni() = 0;
-    virtual void WriteToIni(BOOL bOptimizeFileAccess) = 0;
-    virtual BOOL ReadFromIniSubSection(LPCSTR szSubSection) = 0;
-    virtual void WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess = TRUE) = 0;  
-    virtual long GetValue() = 0;
-    virtual long GetMin() = 0;
-    virtual long GetMax() = 0;
-    virtual long GetDefault() = 0;
-    virtual void ChangeDefault(long NewDefault, BOOL bDontSetValue = FALSE) = 0;
-    virtual void SetValue(long NewValue, BOOL bSupressOnChange = FALSE) = 0;
-    virtual void OnChange(long NewValue, long OldValue) {;};
-    virtual void DisableOnChange() = 0;
-    virtual void EnableOnChange() = 0;
-    virtual void OSDShow() = 0;
-    virtual const char** GetList() {return NULL;};
-    virtual void SetupControl(HWND hWnd) = 0;
-    virtual void SetControlValue(HWND hWnd) = 0;
-    virtual void SetFromControl(HWND hWnd) = 0;
-    virtual void SetGroup(CSettingGroup* pGroup) = 0; 
-    virtual CSettingGroup* GetGroup() = 0;
-};
 
 class CSimpleSetting;
 class CYesNoSetting;
@@ -97,7 +69,7 @@ public:
 
     BOOL IsGroupActive();
 
-    void AddSetting(ISetting *pSetting);
+    void AddSetting(CSimpleSetting *pSetting);
     CSimpleSetting* GetIsActiveSetting();
 
 protected:
@@ -105,7 +77,7 @@ protected:
     std::string m_Name;
     DWORD m_Flags;
 
-    CYesNoSetting* m_IsActive;
+    SmartPtr<CYesNoSetting> m_IsActive;
 };
 
 #endif

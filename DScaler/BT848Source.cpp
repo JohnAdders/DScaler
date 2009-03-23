@@ -348,7 +348,6 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 
     m_Volume = new CVolumeSetting(this, "Volume", 900, 0, 1000, IniSection, pAudioControl);
     m_Volume->SetStepValue(20);
-    //m_Volume->SetOSDDivider(10);
     m_Settings.push_back(m_Volume);
 
     m_Bass = new CBassSetting(this, "Bass", 0, -96, 127, IniSection, pAudioControl);
@@ -964,137 +963,137 @@ void CBT848Source::SetFormat(eVideoFormat NewFormat)
 }
 
 
-ISetting* CBT848Source::GetBrightness()
+CSliderSetting* CBT848Source::GetBrightness()
 {
     return m_Brightness;
 }
 
-ISetting* CBT848Source::GetContrast()
+CSliderSetting* CBT848Source::GetContrast()
 {
     return m_Contrast;
 }
 
-ISetting* CBT848Source::GetHue()
+CSliderSetting* CBT848Source::GetHue()
 {
     return m_Hue;
 }
 
-ISetting* CBT848Source::GetSaturation()
+CSliderSetting* CBT848Source::GetSaturation()
 {
     return m_Saturation;
 }
 
-ISetting* CBT848Source::GetSaturationU()
+CSliderSetting* CBT848Source::GetSaturationU()
 {
     return m_SaturationU;
 }
 
-ISetting* CBT848Source::GetSaturationV()
+CSliderSetting* CBT848Source::GetSaturationV()
 {
     return m_SaturationV;
 }
 
-ISetting* CBT848Source::GetTopOverscan()
+CSliderSetting* CBT848Source::GetTopOverscan()
 {
     return m_TopOverscan;
 }
 
-ISetting* CBT848Source::GetBottomOverscan()
+CSliderSetting* CBT848Source::GetBottomOverscan()
 {
     return m_BottomOverscan;
 }
 
-ISetting* CBT848Source::GetLeftOverscan()
+CSliderSetting* CBT848Source::GetLeftOverscan()
 {
     return m_LeftOverscan;
 }
 
-ISetting* CBT848Source::GetRightOverscan()
+CSliderSetting* CBT848Source::GetRightOverscan()
 {
     return m_RightOverscan;
 }
 
-ISetting* CBT848Source::GetHDelay()
+CSliderSetting* CBT848Source::GetHDelay()
 {
     return m_HDelay;
 }
 
-ISetting* CBT848Source::GetVDelay()
+CSliderSetting* CBT848Source::GetVDelay()
 {
     return m_VDelay;
 }
 
-void CBT848Source::BtAgcDisableOnChange(long NewValue, long OldValue)
+void CBT848Source::BtAgcDisableOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetAgcDisable(NewValue);
 }
 
-void CBT848Source::BtCrushOnChange(long NewValue, long OldValue)
+void CBT848Source::BtCrushOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetCrush(NewValue);
 }
 
-void CBT848Source::BtEvenChromaAGCOnChange(long NewValue, long OldValue)
+void CBT848Source::BtEvenChromaAGCOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetEvenChromaAGC(NewValue);
 }
 
-void CBT848Source::BtOddChromaAGCOnChange(long NewValue, long OldValue)
+void CBT848Source::BtOddChromaAGCOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetOddChromaAGC(NewValue);
 }
 
-void CBT848Source::BtEvenLumaPeakOnChange(long NewValue, long OldValue)
+void CBT848Source::BtEvenLumaPeakOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetEvenLumaPeak(NewValue);
 }
 
-void CBT848Source::BtOddLumaPeakOnChange(long NewValue, long OldValue)
+void CBT848Source::BtOddLumaPeakOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetOddLumaPeak(NewValue);
 }
 
-void CBT848Source::BtFullLumaRangeOnChange(long NewValue, long OldValue)
+void CBT848Source::BtFullLumaRangeOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetFullLumaRange(NewValue);
 }
 
-void CBT848Source::BtEvenLumaDecOnChange(long NewValue, long OldValue)
+void CBT848Source::BtEvenLumaDecOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetEvenLumaDec(NewValue);
 }
 
-void CBT848Source::BtOddLumaDecOnChange(long NewValue, long OldValue)
+void CBT848Source::BtOddLumaDecOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetOddLumaDec(NewValue);
 }
 
-void CBT848Source::BtEvenCombOnChange(long NewValue, long OldValue)
+void CBT848Source::BtEvenCombOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetEvenComb(NewValue);
 }
 
-void CBT848Source::BtOddCombOnChange(long NewValue, long OldValue)
+void CBT848Source::BtOddCombOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetOddComb(NewValue);
 }
 
-void CBT848Source::BtColorBarsOnChange(long NewValue, long OldValue)
+void CBT848Source::BtColorBarsOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetColorBars(NewValue);
 }
 
-void CBT848Source::BtGammaCorrectionOnChange(long NewValue, long OldValue)
+void CBT848Source::BtGammaCorrectionOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetGammaCorrection(NewValue);
 }
 
-void CBT848Source::BtVertFilterOnChange(long NewValue, long OldValue)
+void CBT848Source::BtVertFilterOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetVertFilter(NewValue);
 }
 
-void CBT848Source::BtHorFilterOnChange(long NewValue, long OldValue)
+void CBT848Source::BtHorFilterOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetHorFilter(NewValue);
 }
@@ -1486,12 +1485,12 @@ void CBT848Source::BtWhiteCrushDownOnChange(long NewValue, long OldValue)
     m_pBT848Card->SetWhiteCrushDown((BYTE)NewValue);
 }
 
-void CBT848Source::BtCoringOnChange(long NewValue, long OldValue)
+void CBT848Source::BtCoringOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetCoring(NewValue);
 }
 
-void CBT848Source::BtColorKillOnChange(long NewValue, long OldValue)
+void CBT848Source::BtColorKillOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetColorKill(NewValue);
 }
@@ -1642,7 +1641,7 @@ void CBT848Source::VertOffsetOnChange(long NewValue, long OldValue)
     }
 }
 
-void CBT848Source::IsVideoProgressiveOnChange(long NewValue, long OldValue)
+void CBT848Source::IsVideoProgressiveOnChange(BOOL NewValue, BOOL OldValue)
 {
     // since this setting affects the DMA program, we must do a stop/start
     Stop_Capture();
@@ -1721,7 +1720,7 @@ void CBT848Source::AD9882SOGThreshOnChange(long NewValue, long OldValue)
     }
 }
 
-void CBT848Source::AD9882SOGOnChange(long NewValue, long OldValue)
+void CBT848Source::AD9882SOGOnChange(BOOL NewValue, BOOL OldValue)
 {
     if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
     {
@@ -1729,7 +1728,7 @@ void CBT848Source::AD9882SOGOnChange(long NewValue, long OldValue)
     }
 }
 
-void CBT848Source::AD9882CoastSelOnChange(long NewValue, long OldValue)
+void CBT848Source::AD9882CoastSelOnChange(BOOL NewValue, BOOL OldValue)
 {
     if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
     {
@@ -1737,7 +1736,7 @@ void CBT848Source::AD9882CoastSelOnChange(long NewValue, long OldValue)
     }
 }
 
-void CBT848Source::AD9882CoastOvrOnChange(long NewValue, long OldValue)
+void CBT848Source::AD9882CoastOvrOnChange(BOOL NewValue, BOOL OldValue)
 {
     if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
     {
@@ -1745,7 +1744,7 @@ void CBT848Source::AD9882CoastOvrOnChange(long NewValue, long OldValue)
     }
 }
 
-void CBT848Source::AD9882CoastPolOnChange(long NewValue, long OldValue)
+void CBT848Source::AD9882CoastPolOnChange(BOOL NewValue, BOOL OldValue)
 {
     if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
     {

@@ -233,7 +233,7 @@ SmartPtr& operator=(Y* raw)
 */
 
 
-	operator bool() const
+	operator BOOL() const
 	{
 		return IsValid();
 	}
@@ -279,16 +279,16 @@ SmartPtr& operator=(Y* raw)
 /* 
 	Is there only one reference on the counter?
 */
-	bool IsUnique() const
+	BOOL IsUnique() const
 	{
-		if (counter && counter->count == 1) return true; 
-		return false; 
+		if (counter && counter->count == 1) return TRUE; 
+		return FALSE; 
 	}
 	
-	bool IsValid() const
+	BOOL IsValid() const
 	{
-		if (counter && rawPtr) return true;
-		return false; 
+		if (counter && rawPtr) return TRUE;
+		return FALSE; 
 	}
 
 	unsigned GetCount() const
@@ -333,23 +333,23 @@ private:
 
 
 template <typename X, typename Y>
-bool operator==(const SmartPtr< X >& lptr, const SmartPtr< Y >& rptr) 
+BOOL operator==(const SmartPtr< X >& lptr, const SmartPtr< Y >& rptr) 
 {
 	return lptr.GetRawPointer() == rptr.GetRawPointer(); 
 }
 
 template <typename X, typename Y>
-bool operator==(const SmartPtr< X >& lptr, Y* raw) 
+BOOL operator==(const SmartPtr< X >& lptr, Y* raw) 
 {
 	return lptr.GetRawPointer() == raw ; 
 }
 
 template <typename X>
-bool operator==(const SmartPtr< X >& lptr, long num)
+BOOL operator==(const SmartPtr< X >& lptr, long num)
 {
 	if (num == 0 && !lptr.IsValid())  //both pointer and address are null
 	{
-		return true; 
+		return TRUE; 
 	}
 
 	else //convert num to a pointer, compare addresses
@@ -360,25 +360,25 @@ bool operator==(const SmartPtr< X >& lptr, long num)
 } 
 
 template <typename X, typename Y>
-bool operator!=(const SmartPtr< X >& lptr, const SmartPtr< Y >& rptr) 
+BOOL operator!=(const SmartPtr< X >& lptr, const SmartPtr< Y >& rptr) 
 {
 	return ( !operator==(lptr, rptr) );
 }
 
 template <typename X, typename Y>
-bool operator!=(const SmartPtr< X >& lptr, Y* raw) 
+BOOL operator!=(const SmartPtr< X >& lptr, Y* raw) 
 {
 	return ( !operator==(lptr, raw) );
 }
 
 template <typename X>
-bool operator!=(const SmartPtr< X >& lptr, long num)
+BOOL operator!=(const SmartPtr< X >& lptr, long num)
 {
 	return (!operator==(lptr, num) ); 
 }
 
 template <typename X>
-bool operator!(const SmartPtr< X >& p)
+BOOL operator!(const SmartPtr< X >& p)
 {
 	return (!p.IsValid());
 }
@@ -386,19 +386,19 @@ bool operator!(const SmartPtr< X >& p)
 
 /* less than comparisons for storage in containers */
 template <typename X, typename Y>
-bool operator< (const SmartPtr< X >& lptr, const SmartPtr < Y >& rptr)
+BOOL operator< (const SmartPtr< X >& lptr, const SmartPtr < Y >& rptr)
 {
 	return lptr.GetRawPointer() < rptr.GetRawPointer();
 }
 
 template <typename X, typename Y>
-bool operator< (const SmartPtr< X >& lptr, Y* raw)
+BOOL operator< (const SmartPtr< X >& lptr, Y* raw)
 {
 	return lptr.GetRawPointer() < raw;
 }
 
 template <typename X, typename Y>
-bool operator< (X* raw, const SmartPtr< Y >& rptr)
+BOOL operator< (X* raw, const SmartPtr< Y >& rptr)
 {
 	return raw < rptr.GetRawPointer();
 }

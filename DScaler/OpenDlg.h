@@ -42,10 +42,10 @@ public:
     /**
      * Creates a open dialog and shows it.
      * @param hParent parent window
-     * @param FileName filename of selected file if returned true
-     * @return true if a file was selected and closed with ok button
+     * @param FileName filename of selected file if returned TRUE
+     * @return TRUE if a file was selected and closed with ok button
      */
-    static bool ShowOpenDialog(HWND hParent,CString &FileName);
+    static BOOL ShowOpenDialog(HWND hParent,CString &FileName);
 
 // Dialog Data
     //{{AFX_DATA(COpenDlg)

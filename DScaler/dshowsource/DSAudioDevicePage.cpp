@@ -48,7 +48,7 @@ CDSAudioDevicePage::CDSAudioDevicePage(CString name,std::string &AudioDevice)
     //}}AFX_DATA_INIT
 }
 
-CDSAudioDevicePage::CDSAudioDevicePage(CString name,std::string &AudioDevice,bool *bConnectAudio)
+CDSAudioDevicePage::CDSAudioDevicePage(CString name,std::string &AudioDevice,BOOL *bConnectAudio)
     : CTreeSettingsPage(name,CDSAudioDevicePage::IDD),m_AudioDeviceSetting(AudioDevice),m_bConnectAudio(bConnectAudio)
 {
     //{{AFX_DATA_INIT(CDSAudioDevicePage)
@@ -84,7 +84,7 @@ BOOL CDSAudioDevicePage::OnInitDialog()
     try
     {
         CDShowDevEnum devenum(CLSID_AudioRendererCategory);
-        while(devenum.getNext()==true)
+        while(devenum.getNext()==TRUE)
         {
             string deviceName=devenum.getProperty("FriendlyName");
             int pos=m_AudioDevice.AddString(deviceName.c_str());

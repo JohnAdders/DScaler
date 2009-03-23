@@ -169,7 +169,7 @@ BOOL CTSOptionsDlg::IsChecked(int id)
     if (hwnd)
         return BST_CHECKED & (int)::SendMessage(hwnd, BM_GETCHECK, 0, 0);
 
-    return false;
+    return FALSE;
 }
 
 void CTSOptionsDlg::SetChecked(int id, BOOL checked)

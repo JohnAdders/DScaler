@@ -91,10 +91,10 @@ typedef struct
 } TTVFormat;
 
 TTVFormat* GetTVFormat(eVideoFormat Format);
-bool IsPALVideoFormat(eVideoFormat Format);
-bool IsNTSCVideoFormat(eVideoFormat Format);
-bool IsSECAMVideoFormat(eVideoFormat Format);
-bool IsRGBVideoFormat(eVideoFormat Format);
+BOOL IsPALVideoFormat(eVideoFormat Format);
+BOOL IsNTSCVideoFormat(eVideoFormat Format);
+BOOL IsSECAMVideoFormat(eVideoFormat Format);
+BOOL IsRGBVideoFormat(eVideoFormat Format);
 
 extern const char* VideoFormatNames[];
 extern const char* VideoFormatSaveNames[];

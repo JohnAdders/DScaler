@@ -49,13 +49,13 @@ public:
 class CDShowCaptureDevice : public CDShowBaseSource  
 {
 public:
-    CDShowCaptureDevice(IGraphBuilder *pGraph, std::string device, std::string deviceName,bool bConnectAudio);
+    CDShowCaptureDevice(IGraphBuilder *pGraph, std::string device, std::string deviceName,BOOL bConnectAudio);
     virtual ~CDShowCaptureDevice();
     
     eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_CAPTURE;}
 
     void Connect(CComPtr<IBaseFilter> VideoFilter);
-    bool IsConnected() {return m_bIsConnected;};
+    BOOL IsConnected() {return m_bIsConnected;};
     long GetNumDroppedFrames();
 
     /**
@@ -69,14 +69,14 @@ public:
     CDShowDirectTuner *GetTuner();
     
     // IAMAnalogVideoDecoder
-    bool hasVideoDec() {return m_pAVideoDec!=NULL;}
+    BOOL hasVideoDec() {return m_pAVideoDec!=NULL;}
     long GetSupportedTVFormats();
     AnalogVideoStandard GetTVFormat();
     void PutTVFormat(AnalogVideoStandard format);
-    bool IsHorizontalLocked();
+    BOOL IsHorizontalLocked();
 
     // IAMVideoProcAmp
-    bool hasVideoProcAmp() {return m_pVideoProcAmp!=NULL;}
+    BOOL hasVideoProcAmp() {return m_pVideoProcAmp!=NULL;}
     void set(long prop,long value,long flags);
     void get(long prop,long *pValue,long *pFlags=NULL);
     void getRange(long prop,long *pMin,long *pMax, long *pStepSize=NULL,long *pDefault=NULL,long *pFlags=NULL);
@@ -87,15 +87,15 @@ public:
     CDShowTVAudio* GetTVAudio();
 
     //experimental btwincap style ir support
-    /*bool driverSupportsIR();
-    bool isRemotePresent();
+    /*BOOL driverSupportsIR();
+    BOOL isRemotePresent();
     ULONG getRemoteCode();*/
 
 private:
     
     void findIAMDroppedFrames(CComPtr<IBaseFilter> filter);
-    bool m_bIsConnected;
-    bool m_bConnectAudio;
+    BOOL m_bIsConnected;
+    BOOL m_bConnectAudio;
     CDShowBaseCrossbar *m_pCrossbar;
     CDShowDirectTuner *m_pTVTuner;
     CDShowTVAudio *m_pTVAudio;

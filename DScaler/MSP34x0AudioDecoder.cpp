@@ -51,22 +51,22 @@ static char THIS_FILE[]=__FILE__;
 
 CMSP34x0AudioDecoder::CMSP34x0AudioDecoder() : CAudioDecoder(), CMSP34x0()
 {
-    m_IsInitialized = false;
-    m_bHasEqualizer = false;
-    m_bHasDolby = false;
-    m_bUseInputPin1 = false;
-    m_ForceAMSound = false;
+    m_IsInitialized = FALSE;
+    m_bHasEqualizer = FALSE;
+    m_bHasDolby = FALSE;
+    m_bUseInputPin1 = FALSE;
+    m_ForceAMSound = FALSE;
 
     m_MSP34xxThread = NULL;
-    m_bStopThread = false;
+    m_bStopThread = FALSE;
     m_AutoDetecting = 0;
 
-    m_ForceVersionA = false;
-    m_ForceVersionD = false;
-    m_ForceVersionG = false;
-    m_ForceHasEqualizer = false;
+    m_ForceVersionA = FALSE;
+    m_ForceVersionD = FALSE;
+    m_ForceVersionG = FALSE;
+    m_ForceHasEqualizer = FALSE;
 
-    m_KeepWatchingStereo = false;
+    m_KeepWatchingStereo = FALSE;
 
     m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_NONE;
 
@@ -82,12 +82,12 @@ CMSP34x0AudioDecoder::~CMSP34x0AudioDecoder()
 }
 
 ////
-bool CMSP34x0AudioDecoder::GetUseInputPin1()
+BOOL CMSP34x0AudioDecoder::GetUseInputPin1()
 {
     return m_bUseInputPin1;
 }
 
-void CMSP34x0AudioDecoder::SetUseInputPin1(bool AValue)
+void CMSP34x0AudioDecoder::SetUseInputPin1(BOOL AValue)
 {
     m_bUseInputPin1 = AValue;
     if(m_IsInitialized)
@@ -387,13 +387,13 @@ void CMSP34x0AudioDecoder::Initialize()
 {
     Reset();
 
-    m_bHasEqualizer = false;
-    m_bHasDolby = false;
+    m_bHasEqualizer = FALSE;
+    m_bHasDolby = FALSE;
 
     if((GetVersion() & 0xFF) >= 0x07)
     {
         m_MSPVersion = MSPVersionG;
-        m_bHasDolby = true;
+        m_bHasDolby = TRUE;
     }
     else if((GetVersion() & 0xFF) >= 0x04)
     {
@@ -420,12 +420,12 @@ void CMSP34x0AudioDecoder::Initialize()
     if ((GetVersion() & 0xFF) >= 0x03)
     {
         // Equalizer supported by revisions C and higher
-        m_bHasEqualizer = true;
+        m_bHasEqualizer = TRUE;
     }
 
     if (m_ForceHasEqualizer)
     {
-        m_bHasEqualizer = true;
+        m_bHasEqualizer = TRUE;
     }
 
     if(m_MSPVersion == MSPVersionG)
@@ -436,7 +436,7 @@ void CMSP34x0AudioDecoder::Initialize()
     {
         InitializeRevA();
     }
-    m_IsInitialized = true;
+    m_IsInitialized = TRUE;
 }
 
 
@@ -740,7 +740,7 @@ void CMSP34x0AudioDecoder::SetAudioStandard(long Standard, eVideoFormat VideoFor
     }
     else
     {
-        SetStandardRevA((eStandard)Standard, VideoFormat, true, m_SoundChannel);
+        SetStandardRevA((eStandard)Standard, VideoFormat, TRUE, m_SoundChannel);
     }
 }
 
@@ -939,7 +939,7 @@ void CMSP34x0AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
         }
         else
         {
-            SetStandardRevA(MSP34x0_STANDARD_AUTO, m_VideoFormat, false, SOUNDCHANNEL_MONO);
+            SetStandardRevA(MSP34x0_STANDARD_AUTO, m_VideoFormat, FALSE, SOUNDCHANNEL_MONO);
         }
     }
 
@@ -1001,7 +1001,7 @@ void CMSP34x0AudioDecoder::StartThread()
     }
     LOGD("MSP34xx: StartThread: Create thread\n");
 
-    m_bStopThread = false;
+    m_bStopThread = FALSE;
 
     m_MSP34xxThread = CreateThread((LPSECURITY_ATTRIBUTES) NULL,  // No security.
                              (DWORD) 0,                     // Same stack size.
@@ -1015,13 +1015,13 @@ void CMSP34x0AudioDecoder::StopThread()
 {
     DWORD ExitCode;
     int i;
-    bool Thread_Stopped = false;
+    BOOL Thread_Stopped = FALSE;
 
     LOGD("MSP34xx: StopThread: Try stop\n");
     if (m_MSP34xxThread != NULL)
     {
         i = 10;
-        m_bStopThread = true;
+        m_bStopThread = TRUE;
         ResumeThread(m_MSP34xxThread);
         while(i-- > 0 && !Thread_Stopped)
         {
@@ -1029,7 +1029,7 @@ void CMSP34x0AudioDecoder::StopThread()
             {
                 if (ExitCode != STILL_ACTIVE)
                 {                    
-                    Thread_Stopped = true;
+                    Thread_Stopped = TRUE;
                 }
                 else
                 {                    
@@ -1038,11 +1038,11 @@ void CMSP34x0AudioDecoder::StopThread()
             }
             else
             {
-                Thread_Stopped = true;
+                Thread_Stopped = TRUE;
             }
         }
 
-        if (Thread_Stopped == false)
+        if (Thread_Stopped == FALSE)
         {
             LOGD("MSP34xx: StopThread: Terminate thread\n");
             TerminateThread(m_MSP34xxThread, 0);
@@ -1104,7 +1104,7 @@ int CMSP34x0AudioDecoder::DetectThread()
 
                     m_AudioStandard = standard;
 
-                    SetStandardRevG(standard, m_VideoFormat, true);
+                    SetStandardRevG(standard, m_VideoFormat, TRUE);
 
                     AutoDetecting = 2;  //Detect stereo modes
 
@@ -1129,7 +1129,7 @@ int CMSP34x0AudioDecoder::DetectThread()
                     m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_MONO;
                     m_AudioStandard = standard;
 
-                    SetStandardRevA(standard, m_VideoFormat, true, SOUNDCHANNEL_MONO);
+                    SetStandardRevA(standard, m_VideoFormat, TRUE, SOUNDCHANNEL_MONO);
 
                      EventCollector->RaiseEvent(this,EVENT_AUDIOSTANDARD_DETECTED, 0, standard);
 

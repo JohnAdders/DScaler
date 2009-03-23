@@ -2954,7 +2954,7 @@ BOOL VT_RegionOnChange(long NewValue)
 
 BOOL VT_ShowSubcodeInOSDOnChange(long NewValue)
 {
-    VTShowSubcodeInOSD = NewValue;
+    VTShowSubcodeInOSD = NewValue ;
     VT_SetPageOSD(VTPageOSD);
 
     if (VT_GetState() != VT_OFF)

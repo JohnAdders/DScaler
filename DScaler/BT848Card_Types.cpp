@@ -4407,16 +4407,16 @@ const eTunerId CBT848Card::m_Tuners_miro[] =
     TUNER_ABSENT  
 };
 
-const bool CBT848Card::m_Tuners_miro_fm[] = 
+const BOOL CBT848Card::m_Tuners_miro_fm[] = 
 { 
-    false   ,false  ,false  ,false  ,   
-    false   ,false  ,false  ,false  ,  
-    false   ,false  ,false  ,false  ,  
-    false   ,false  ,false  ,true   ,
-    true    ,true     ,true   ,true ,   
-    true    ,true     ,true   ,false    ,  
-    false   ,false  ,false  ,false  ,  
-    false   ,false   ,false  ,false 
+    FALSE   ,FALSE  ,FALSE  ,FALSE  ,   
+    FALSE   ,FALSE  ,FALSE  ,FALSE  ,  
+    FALSE   ,FALSE  ,FALSE  ,FALSE  ,  
+    FALSE   ,FALSE  ,FALSE  ,TRUE   ,
+    TRUE    ,TRUE     ,TRUE   ,TRUE ,   
+    TRUE    ,TRUE     ,TRUE   ,FALSE    ,  
+    FALSE   ,FALSE  ,FALSE  ,FALSE  ,  
+    FALSE   ,FALSE   ,FALSE  ,FALSE 
 };
 
 const eTunerId CBT848Card::m_Tuners_avermedia_0[] = 
@@ -4469,10 +4469,10 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
    eTunerId TunerId=TUNER_ABSENT;
   
     // Maybe for future use
-    bool TVTunerDoesFM=false;
-    bool HasRemoteControl=false;
+    BOOL TVTunerDoesFM=FALSE;
+    BOOL HasRemoteControl=FALSE;
     // Not implemented yet
-    bool HasTEA5757=false;
+    BOOL HasTEA5757=FALSE;
 
     if(m_TVCards[CardId].TunerId == TUNER_USER_SETUP)
     {
@@ -4504,7 +4504,7 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                 LOG(2, "AutoDetectTuner: Lifetec card. ID: %08x",id);
                     if (id & 0x4000) 
                     {
-                        TVTunerDoesFM = true;                  
+                        TVTunerDoesFM = TRUE;                  
                     } 
             }
             break;
@@ -4537,18 +4537,18 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                     
                     if (Val & 0x20) 
                     {
-                        TVTunerDoesFM = true;
+                        TVTunerDoesFM = TRUE;
                         if (m_Tuners_miro_fm[Id]) 
                         {
-                            HasTEA5757 = true;
-                            TVTunerDoesFM = false;
+                            HasTEA5757 = TRUE;
+                            TVTunerDoesFM = FALSE;
                         }
                     }
                  }
                  else
                  {
                      Id = 63-Id;
-                     TVTunerDoesFM = false;
+                     TVTunerDoesFM = FALSE;
                      switch (Id)
                      {
                      case 1: //PAL / mono
@@ -4653,15 +4653,15 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                 int blk2 = Eeprom[1] + 3;
                 int radio = Eeprom[blk2-1] & 0x01;
                     int infrared = Eeprom[blk2-1] & 0x04;
-                    TVTunerDoesFM = false;
+                    TVTunerDoesFM = FALSE;
                     if (radio) 
                     {
-                        TVTunerDoesFM = true;
+                        TVTunerDoesFM = TRUE;
                     }
-                    HasRemoteControl = false;
+                    HasRemoteControl = FALSE;
                     if (infrared) 
                     {
-                        HasRemoteControl = true;
+                        HasRemoteControl = TRUE;
                     }
             }
             break;                                  
@@ -4699,13 +4699,13 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                         }   
                 }
                 // We assume we have a remote control
-                    HasRemoteControl = true;
+                    HasRemoteControl = TRUE;
             }
             break;
                   case TVCARD_VHX:            
             {
-                TVTunerDoesFM = false;
-                    HasTEA5757 = true;
+                TVTunerDoesFM = FALSE;
+                    HasTEA5757 = TRUE;
             }
             break;
           case TVCARD_MAGICTVIEW061:
@@ -4723,14 +4723,14 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                 
                 if (Id == 0x4002144f) 
                 {
-                         TVTunerDoesFM = true;
+                         TVTunerDoesFM = TRUE;
                 }
             }
             break;
           case TVCARD_PXELVWPLTVPRO:
           case TVCARD_WINFAST2000:
             {
-                HasRemoteControl = true;
+                HasRemoteControl = TRUE;
             }
             break;
           default:
@@ -4849,12 +4849,12 @@ eTVCardId CBT848Card::AutoDetectCardType()
 
 #define I2C_MSP3400C_0 0x80
 
-bool CBT848Card::AutoDetectMSP3400()
+BOOL CBT848Card::AutoDetectMSP3400()
 {
     BYTE writebf[4];
     BYTE readbf[3];
     
-    bool HasMSP34xx = false;
+    BOOL HasMSP34xx = FALSE;
 
     writebf[0] = I2C_MSP3400C_0; //address
 
@@ -4887,7 +4887,7 @@ bool CBT848Card::AutoDetectMSP3400()
                     if ( (rev1 != rev2) || (rev1 != 0 && rev1 != 0xFFFF) ) 
                     {
                         // Revision seems to be OK! ... Accept!
-                        HasMSP34xx = true;
+                        HasMSP34xx = TRUE;
                     }
                 }
             }
@@ -5174,7 +5174,7 @@ void CBT848Card::CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN)
 void CBT848Card::CtrlSilkSDISwitch(BYTE SLV, BYTE IEN)
 {
     BYTE Buffer[] = {SLV, IEN};
-    // The switch is flakey sometimes; it will return true, but won't
+    // The switch is flakey sometimes; it will return TRUE, but won't
     // switch it; if you do multiple times in a row, however, it switches
     // fine.  Not sure whether it's DScaler or the switch.  Guessing the
     // switch.

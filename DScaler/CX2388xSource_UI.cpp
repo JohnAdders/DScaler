@@ -129,7 +129,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
 
             // Update the string name value to reflect the newly selected card.
             i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
-            pThis->m_CardName->SetValue(reinterpret_cast<long>(pThis->GetCard()->GetCardName((eCX2388xCardId) i ).c_str()));
+            pThis->m_CardName->SetValue(pThis->GetCard()->GetCardName((eCX2388xCardId) i ).c_str());
 
             WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);

@@ -45,21 +45,21 @@ void CTDA9874::Reset()
     //TODO
 }
 
-bool CTDA9874::IsDevicePresent(int& dic, int& sic)
+BOOL CTDA9874::IsDevicePresent(int& dic, int& sic)
 {
-    // since 0 is a true value make sure we get a change
+    // since 0 is a TRUE value make sure we get a change
     BYTE result[1] = {3};
 
-    if(ReadFromSubAddress(TDA9874A_DIC, 0, 0, result, sizeof(result)) == false)
+    if(ReadFromSubAddress(TDA9874A_DIC, 0, 0, result, sizeof(result)) == FALSE)
     {
-        return false;
+        return FALSE;
     }
 
     dic = result[0];
     
-    if(ReadFromSubAddress(TDA9874A_SIC, 0, 0, result, sizeof(result)) == false)
+    if(ReadFromSubAddress(TDA9874A_SIC, 0, 0, result, sizeof(result)) == FALSE)
     {
-        return false;
+        return FALSE;
     }
 
     sic = result[0];
@@ -68,8 +68,8 @@ bool CTDA9874::IsDevicePresent(int& dic, int& sic)
     {
         LOG(1, "TDA9874%s audio decoder found: dic=0x%x, sic=0x%x", (dic == 0x11) ? "a":"h", dic, sic);
         m_iDic = dic;
-        return true;
+        return TRUE;
     }
 
-    return false; 
+    return FALSE; 
 }

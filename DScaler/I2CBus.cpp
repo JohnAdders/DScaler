@@ -39,7 +39,7 @@ CI2CBus::~CI2CBus()
 {
 }
 
-bool CI2CBus::Read(const BYTE *writeBuffer,
+BOOL CI2CBus::Read(const BYTE *writeBuffer,
                   size_t writeBufferSize,
                   BYTE *readBuffer,
                   size_t readBufferSize)
@@ -49,7 +49,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
     ASSERT(readBuffer != 0 || readBufferSize == 0);
 
     if (readBufferSize == 0)
-        return true;
+        return TRUE;
 
     BYTE address = writeBuffer[0];
 
@@ -64,10 +64,10 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
         // send the address
         if (!Write(address & ~1))
         {
-            LOGD("I2CBus::write(0x%x) returned true for write address in CI2CBus::read\n", address & ~1);
+            LOGD("I2CBus::write(0x%x) returned TRUE for write address in CI2CBus::read\n", address & ~1);
             Stop();
             Unlock();
-            return false;
+            return FALSE;
         }
 
         for (size_t i = 1; i < (writeBufferSize - 1); i++)
@@ -76,7 +76,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
             {
                 Stop();
                 Unlock();
-                return false;
+                return FALSE;
             }
         }
 
@@ -92,24 +92,24 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
     // The read address requires a negative ack
     if (!Write(address | 1))
     {
-        LOGD("I2CBus::write(0x%x) returned false for read address in CI2CBus::read\n", address | 1);
+        LOGD("I2CBus::write(0x%x) returned FALSE for read address in CI2CBus::read\n", address | 1);
         Stop();
         Unlock();
-        return false;
+        return FALSE;
     }
     
     size_t i;
 
     for (i = 0; i < (readBufferSize - 1); i++)
-        readBuffer[i] = Read(false);
-    readBuffer[i] = Read(true);
+        readBuffer[i] = Read(FALSE);
+    readBuffer[i] = Read(TRUE);
     Stop();
     Unlock();
 
-    return true;
+    return TRUE;
 }
 
-bool CI2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
+BOOL CI2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
 {
     ASSERT(writeBuffer != 0);
     ASSERT(writeBufferSize >= 1);
@@ -126,12 +126,12 @@ bool CI2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
         {
             Stop();
             Unlock();
-            return false;
+            return FALSE;
         }
     }
 
     Stop();
     Unlock();
 
-    return true;
+    return TRUE;
 }

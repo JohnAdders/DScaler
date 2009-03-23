@@ -41,7 +41,7 @@ static char THIS_FILE[]=__FILE__;
 
 
 CDShowFileSource::CDShowFileSource(IGraphBuilder *pGraph,string filename)
-:CDShowBaseSource(pGraph),m_file(filename),m_bIsConnected(false)
+:CDShowBaseSource(pGraph),m_file(filename),m_bIsConnected(FALSE)
 {
     USES_CONVERSION;
     HRESULT hr=m_pBuilder.CoCreateInstance(CLSID_CaptureGraphBuilder2);
@@ -89,8 +89,8 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
             //that didnt work, try to manualy connect the pins on the source filter
             CDShowPinEnum outPins(m_pFileSource,PINDIR_OUTPUT);
             CComPtr<IPin> outPin;
-            bool bSucceeded=false;
-            while(outPin=outPins.next(),bSucceeded==false && outPin!=NULL)
+            BOOL bSucceeded=FALSE;
+            while(outPin=outPins.next(),bSucceeded==FALSE && outPin!=NULL)
             {
                 CDShowPinEnum inPins(VideoFilter,PINDIR_INPUT);
                 CComPtr<IPin> inPin;
@@ -115,7 +115,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
                             }
                         }
 
-                        bSucceeded=true;
+                        bSucceeded=TRUE;
                         break;
                     }
                 }
@@ -127,7 +127,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
         }
 
         //try to render audio, if this fails then this file probably don't have any audio
-        bool bAudioRendered=false;
+        BOOL bAudioRendered=FALSE;
         int AudioStreamCount=0;
         /*
         Connect all audio streams, not sure if this is a good idea, but it 
@@ -138,7 +138,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
         */
         while(hr=m_pBuilder->RenderStream(NULL,&MEDIATYPE_Audio,m_pFileSource,NULL,GetNewAudioRenderer()),SUCCEEDED(hr))
         {
-            bAudioRendered=true;
+            bAudioRendered=TRUE;
             AudioStreamCount++;
         }
         if(bAudioRendered)
@@ -165,7 +165,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
             throw CDShowException("Failed to get filter enumerator!!!",hr);
         }
         
-        bool bFound=false;
+        BOOL bFound=FALSE;
         CComPtr<IDSRendFilter> pDSRend;
         CComPtr<IBaseFilter> pFilter;
         while(hr=filterEnum.next(&pFilter),hr==S_OK && pFilter!=NULL)
@@ -179,7 +179,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
             hr=pFilter.QueryInterface(&pDSRend);
             if(SUCCEEDED(hr))
             {
-                bFound=true;
+                bFound=TRUE;
                 //replace the dsrend filter in the grf file with our renderer.
                 //this might need to be changed to allow settings on the 
                 //dsrend filter from the grf file to be preserved
@@ -298,7 +298,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
         }
     }
     
-    m_bIsConnected=true;
+    m_bIsConnected=TRUE;
 }
 
 #endif

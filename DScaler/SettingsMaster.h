@@ -66,7 +66,7 @@ protected:
     std::string m_ChannelName;
 
 protected:        
-    void ParseAllSettings(bool IsLoad);
+    void ParseAllSettings(BOOL IsLoad);
     void MakeSubSection(std::string& SubSection, CSettingGroup* pGroup);
 
 public:

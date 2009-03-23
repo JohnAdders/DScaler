@@ -70,7 +70,7 @@ protected:
     //}}AFX_MSG
     DECLARE_MESSAGE_MAP()
     void OnOK();
-    bool OnSetActive();
+    BOOL OnSetActive();
 
 private:
     /**
@@ -109,7 +109,7 @@ private:
     public:
         CPageSite *m_pPageSite;
         CComPtr<IPropertyPage> m_pPropertyPage;
-        bool m_bActivated;
+        BOOL m_bActivated;
     };
     ///vector of all pages
     std::vector<CPageInfo*> m_pages;

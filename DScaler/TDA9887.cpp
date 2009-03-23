@@ -55,25 +55,25 @@ CTDA9887* CTDA9887::CreateDetectedTDA9887(IN CI2CBus* i2cBus)
     return pTDA9887;
 }
 
-bool CTDA9887::SetDetectedI2CAddress(IN CI2CBus* i2cBus)
+BOOL CTDA9887::SetDetectedI2CAddress(IN CI2CBus* i2cBus)
 {
     BYTE tda9887Addresses[4] = { I2C_TDA9887_0, I2C_TDA9887_1,
                                  I2C_TDA9887_2, I2C_TDA9887_3 };
     return IExternalIFDemodulator::SetDetectedI2CAddress(i2cBus, tda9887Addresses, 4);
 }
 
-bool CTDA9887::Detect()
+BOOL CTDA9887::Detect()
 {
     BYTE tda9887set[5] = { m_DeviceAddress, 0x00, 0x54, 0x70, 0x44 };
     return m_I2CBus->Write(tda9887set, 5);
 }
 
-void CTDA9887::Init(bool bPreInit, eVideoFormat videoFormat)
+void CTDA9887::Init(BOOL bPreInit, eVideoFormat videoFormat)
 {
     TunerSet(bPreInit, videoFormat);
 }
 
-void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
+void CTDA9887::TunerSet(BOOL bPreSet, eVideoFormat VideoFormat)
 {
    static BYTE tda9887set_pal_bg[] =   {m_DeviceAddress, 0x00, 0x96, 0x70, 0x49};
    static BYTE tda9887set_pal_i[] =    {m_DeviceAddress, 0x00, 0x96, 0x70, 0x4a};
@@ -191,12 +191,12 @@ CTDA9887Pinnacle::~CTDA9887Pinnacle()
 }
 
 
-void CTDA9887Pinnacle::Init(bool bPreInit, eVideoFormat videoFormat)
+void CTDA9887Pinnacle::Init(BOOL bPreInit, eVideoFormat videoFormat)
 {
     TunerSet(bPreInit, videoFormat);
 }
 
-void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
+void CTDA9887Pinnacle::TunerSet(BOOL bPreSet, eVideoFormat videoFormat)
 {
     static BYTE bData[5];
 
@@ -494,7 +494,7 @@ CTDA9887Ex* CTDA9887Ex::CreateDetectedTDA9887Ex(IN CI2CBus* i2cBus)
     return pTDA9887Ex;
 }
 
-void CTDA9887Ex::TunerSet(IN bool bPreSet, IN eVideoFormat format)
+void CTDA9887Ex::TunerSet(IN BOOL bPreSet, IN eVideoFormat format)
 {
     eTDA9887Format tdaFormat = VideoFormat2TDA9887Format(format);
     if (tdaFormat == TDA9887_FORMAT_NONE)
@@ -507,7 +507,7 @@ void CTDA9887Ex::TunerSet(IN bool bPreSet, IN eVideoFormat format)
     }
 }
 
-void CTDA9887Ex::TunerSet(IN bool bPreSet, IN eTDA9887Format format)
+void CTDA9887Ex::TunerSet(IN BOOL bPreSet, IN eTDA9887Format format)
 {
     if (!bPreSet || format == TDA9887_FORMAT_NONE)
     {
@@ -611,7 +611,7 @@ eTDA9887Format CTDA9887Ex::VideoFormat2TDA9887Format(IN eVideoFormat format)
     return TDA9887_FORMAT_NONE;
 }
 
-void CTDA9887Ex::SetBit(IN OUT BYTE& bits, IN BYTE bit, IN bool set)
+void CTDA9887Ex::SetBit(IN OUT BYTE& bits, IN BYTE bit, IN BOOL set)
 {
     if (set)
     {

@@ -46,25 +46,25 @@ void CI2CBusForLineInterface::Sleep()
 
 void CI2CBusForLineInterface::SetSDALo()
 {
-    m_LineInterface->SetSDA(false);
+    m_LineInterface->SetSDA(FALSE);
     Sleep();
 }
 
 void CI2CBusForLineInterface::SetSDAHi()
 {
-    m_LineInterface->SetSDA(true);
+    m_LineInterface->SetSDA(TRUE);
     Sleep();
 }
 
 void CI2CBusForLineInterface::SetSCLLo()
 {
-    m_LineInterface->SetSCL(false);
+    m_LineInterface->SetSCL(FALSE);
     Sleep();
 }
 
 void CI2CBusForLineInterface::SetSCLHi()
 {
-    m_LineInterface->SetSCL(true);
+    m_LineInterface->SetSCL(TRUE);
     Sleep();
     while (!m_LineInterface->GetSCL()) 
     {    
@@ -73,7 +73,7 @@ void CI2CBusForLineInterface::SetSCLHi()
          * This is safer as some chips may hold it low
          * while they are processing data internally. 
          */
-        m_LineInterface->SetSCL(true);
+        m_LineInterface->SetSCL(TRUE);
         /// \todo FIXME yield here/timeout
     }
 }
@@ -110,21 +110,21 @@ void CI2CBusForLineInterface::Stop()
 }
 
 
-bool CI2CBusForLineInterface::GetAcknowledge()
+BOOL CI2CBusForLineInterface::GetAcknowledge()
 {
     ASSERT(m_LineInterface != 0);
     
     SetSCLLo();
     SetSDAHi();
     // SDA = 0 means the slave ACK'd
-    bool result = m_LineInterface->GetSDA();
+    BOOL result = m_LineInterface->GetSDA();
     SetSCLHi();
     SetSCLLo();
     LOG(4, result ? "I2C BusForLine got NAK" : "I2C BusForLine got ACK");
     return !result;
 }
 
-bool CI2CBusForLineInterface::Write(BYTE byte)
+BOOL CI2CBusForLineInterface::Write(BYTE byte)
 {
     ASSERT(m_LineInterface != 0);
 
@@ -145,7 +145,7 @@ bool CI2CBusForLineInterface::Write(BYTE byte)
     return GetAcknowledge();
 }
 
-unsigned char CI2CBusForLineInterface::Read(bool last)
+unsigned char CI2CBusForLineInterface::Read(BOOL last)
 {
     ASSERT(m_LineInterface != 0);
 

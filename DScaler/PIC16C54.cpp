@@ -35,7 +35,7 @@ CPIC16C54::CPIC16C54(void)
 {
 }
 
-bool CPIC16C54::IsDevicePresent()
+BOOL CPIC16C54::IsDevicePresent()
 {
     // unmute and switch audio source to tuner
     BYTE buffer = PIC16C54_MISC_SND_NOTMUTE | PIC16C54_MISC_SWITCH_TUNER;

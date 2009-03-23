@@ -248,7 +248,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 
     UpdateDroppedFields();
     
-    static bool FieldFlag=true;
+    static BOOL FieldFlag=TRUE;
     for(int i=0;i<size;i++)
     {
         m_PictureHistory[i].pData=fields[i].pBuffer;
@@ -259,7 +259,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         }
         else
         {
-            m_PictureHistory[i].Flags= FieldFlag==true ? PICTURE_INTERLACED_EVEN : PICTURE_INTERLACED_ODD;
+            m_PictureHistory[i].Flags= FieldFlag==TRUE ? PICTURE_INTERLACED_EVEN : PICTURE_INTERLACED_ODD;
             FieldFlag=!FieldFlag;
         }
             
@@ -406,7 +406,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             vector<CTreeSettingsPage*> pages;
             CTreeSettingsPage *pPage=NULL;
             
-            bool bHasSubPage=false;
+            BOOL bHasSubPage=FALSE;
             while(m_pDSGraph->getFilterPropertyPage(filterIndex,&pPage,bHasSubPage))
             {
                 pages.push_back(pPage);
@@ -504,7 +504,7 @@ void CDSSourceBase::UnMute()
     }
 }
 
-ISetting* CDSSourceBase::GetVolume()
+CSliderSetting* CDSSourceBase::GetVolume()
 {
     if(m_pDSGraph==NULL)
     {
@@ -533,7 +533,7 @@ ISetting* CDSSourceBase::GetVolume()
     }
 }
 
-ISetting* CDSSourceBase::GetBalance()
+CSliderSetting* CDSSourceBase::GetBalance()
 {
     if(m_pDSGraph==NULL)
     {

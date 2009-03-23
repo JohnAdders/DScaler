@@ -32,7 +32,7 @@ static char THIS_FILE[] = __FILE__;
 
 CGradientStatic::CGradientStatic() :
     m_iSpacing(10),
-    m_bUsingDefaultColors(true),
+    m_bUsingDefaultColors(TRUE),
     //try to use msimg32.dll for drawing the gradient
     m_pfnGradientFill("msimg32.dll", "GradientFill")
 {
@@ -190,13 +190,13 @@ void CGradientStatic::SetGradientColor(COLORREF clLeft,COLORREF clRight)
 {
     m_clLeft=clLeft;
     m_clRight=clRight;
-    m_bUsingDefaultColors=false;
+    m_bUsingDefaultColors=FALSE;
 }
 
 void CGradientStatic::SetTextColor(COLORREF cl)
 {
     m_clText=cl;
-    m_bUsingDefaultColors=false;
+    m_bUsingDefaultColors=FALSE;
 }
 
 void CGradientStatic::OnSysColorChange()

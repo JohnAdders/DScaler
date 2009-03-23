@@ -45,7 +45,7 @@ public:
     CTDA9873AudioDecoder();
     virtual ~CTDA9873AudioDecoder();
 
-    bool Initialize();
+    BOOL Initialize();
 
     // Sound Channels
     void SetSoundChannel(eSoundChannel SoundChannel);
@@ -126,18 +126,18 @@ private:
     BYTE m_ShadowReg[TDA9873_REG_LAST_ONE];
 
     HANDLE m_TDA9873Thread;
-    volatile bool m_StopThread;
-    volatile bool m_ThreadWait;
-    volatile bool m_DetectSupportedSoundChannels;
+    volatile BOOL m_StopThread;
+    volatile BOOL m_ThreadWait;
+    volatile BOOL m_DetectSupportedSoundChannels;
     volatile eSoundChannel m_TargetSoundChannel;
     volatile long m_DetectInterval10ms;
     volatile int m_AutoDetecting;
     volatile eSupportedSoundChannels m_SupportedSoundChannels;
 
     BYTE ReadStatus();
-    bool Write(eReg SubAddress, BYTE Data, BYTE Mask = 0xff);
+    BOOL Write(eReg SubAddress, BYTE Data, BYTE Mask = 0xff);
 
-    bool Detect();
+    BOOL Detect();
 
     int Standard2Index(long Standard);
 

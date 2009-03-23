@@ -125,7 +125,7 @@ void CToolbarControl::CreateSettings(LPCSTR IniSection)
     ReadFromIni();
 }
 
-void CToolbarControl::ShowToolbar1OnChange(long OldValue, long NewValue)
+void CToolbarControl::ShowToolbar1OnChange(BOOL OldValue, BOOL NewValue)
 {
 }
 

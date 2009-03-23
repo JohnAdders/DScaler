@@ -113,13 +113,13 @@ public:
     static CTDA9887* CreateDetectedTDA9887(IN CI2CBus* i2cBus);
 
     // Sets the device to use a detected I2C address.
-    virtual bool SetDetectedI2CAddress(IN CI2CBus* i2cBus);
+    virtual BOOL SetDetectedI2CAddress(IN CI2CBus* i2cBus);
 
     // Detects if a TDA9887 device exists at the attached address.
-    virtual bool Detect();
+    virtual BOOL Detect();
 
-    virtual void Init(bool bPreInit, eVideoFormat videoFormat);
-    virtual void TunerSet(bool bPreSet, eVideoFormat videoFormat);
+    virtual void Init(BOOL bPreInit, eVideoFormat videoFormat);
+    virtual void TunerSet(BOOL bPreSet, eVideoFormat videoFormat);
 
     virtual eTunerAFCStatus GetAFCStatus(long &nFreqDeviation);
 protected:
@@ -138,8 +138,8 @@ public:
     CTDA9887Pinnacle(int CardId);
     virtual ~CTDA9887Pinnacle();
 
-    virtual void Init(bool bPreInit, eVideoFormat videoFormat);
-    virtual void TunerSet(bool bPreSet, eVideoFormat videoFormat);
+    virtual void Init(BOOL bPreInit, eVideoFormat videoFormat);
+    virtual void TunerSet(BOOL bPreSet, eVideoFormat videoFormat);
 private:
     int m_CardId;
     eVideoFormat m_LastVideoFormat;
@@ -216,8 +216,8 @@ public:
     // Return a CTDA9887 object or NULL if none is detected.
     static CTDA9887Ex* CreateDetectedTDA9887Ex(IN CI2CBus* i2cBus);
 
-    virtual void TunerSet(IN bool bPreSet, IN eVideoFormat format);
-    virtual void TunerSet(IN bool bPreSet, IN eTDA9887Format format);
+    virtual void TunerSet(IN BOOL bPreSet, IN eVideoFormat format);
+    virtual void TunerSet(IN BOOL bPreSet, IN eTDA9887Format format);
 
     virtual void SetModes(IN eTDA9887Format format, IN BYTE mask, IN BYTE bits);
     virtual void SetModes(IN eTDA9887Format format, IN TTDA9887Modes* modes);
@@ -234,7 +234,7 @@ protected:
     // Converter for converting eVideoFormat to eTDA9887Format
     eTDA9887Format VideoFormat2TDA9887Format(IN eVideoFormat format);
     // Helper function for setting and unsetting bits.
-    void SetBit(IN OUT BYTE& bits, IN BYTE bit, IN bool set);
+    void SetBit(IN OUT BYTE& bits, IN BYTE bit, IN BOOL set);
 
     // Standard settings for TDA9887.
     static const TTDABytes k_TDAStandardtSettings[TDA9887_FORMAT_LASTONE];

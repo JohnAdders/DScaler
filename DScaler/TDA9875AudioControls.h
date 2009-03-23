@@ -40,7 +40,7 @@ class CTDA9875AudioControls : public CTDA9875, public CAudioControls, public CEv
 {
 public:
 
-    bool m_bKeepItMuted;
+    BOOL m_bKeepItMuted;
 
     CTDA9875AudioControls();
     virtual ~CTDA9875AudioControls() {};    
@@ -48,49 +48,49 @@ public:
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
     // from IAudioControls
-    bool HasMute();
-    void SetMute(bool mute = true);
-    bool IsMuted();
+    BOOL HasMute();
+    void SetMute(BOOL mute = TRUE);
+    BOOL IsMuted();
     
-    bool HasVolume();
+    BOOL HasVolume();
     void SetVolume(WORD nVolume);
     WORD GetVolume();
 
-    bool HasBalance();
+    BOOL HasBalance();
     void SetBalance(WORD nBalance);
     WORD GetBalance();
     
-    bool HasBass();
+    BOOL HasBass();
     void SetBass(WORD nLevel);
     WORD GetBass();
 
-    bool HasTreble();
+    BOOL HasTreble();
     void SetTreble(WORD nLevel);
     WORD GetTreble();
     
-    bool HasEqualizers();
+    BOOL HasEqualizers();
 
-    bool HasBassBoost();
-    void SetBassBoost(bool bBoost);
-    bool IsBassBoosted();
+    BOOL HasBassBoost();
+    void SetBassBoost(BOOL bBoost);
+    BOOL IsBassBoosted();
 
-    bool HasLoudness();
+    BOOL HasLoudness();
     void SetLoudness(WORD nLevel);
     WORD GetLoudness();
    
-    bool HasDolby();
+    BOOL HasDolby();
 
-    bool HasAutoVolumeCorrection();
+    BOOL HasAutoVolumeCorrection();
     void SetAutoVolumeCorrection(long milliSeconds);
     long GetAutoVolumeCorrection();
 
-    bool HasSpatialEffect();
+    BOOL HasSpatialEffect();
     void SetSpatialEffect(int nLevel);
     int  GetSpatialEffect();
 
 private:
 
-    bool m_bMuted;
+    BOOL m_bMuted;
     short m_nVolume;
     short m_nBalance;
     short m_nBass;
@@ -103,7 +103,7 @@ private:
     BYTE m_bAVLReg;
     int m_nAVLDecay;
 
-    bool m_bBassBoost;
+    BOOL m_bBassBoost;
 
     eSoundChannel m_SoundChannel;
 };

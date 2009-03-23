@@ -170,7 +170,7 @@ void CToolbarChannels::OnEvent(CEventObject *pEventObject, eEventType Event, lon
 }
 
 
-void CToolbarChannels::UpdateControls(HWND hWnd, bool bInitDialog)
+void CToolbarChannels::UpdateControls(HWND hWnd, BOOL bInitDialog)
 {
    if (hWnd == NULL)
    {
@@ -398,7 +398,7 @@ m_hIconLang2(NULL)
         
         if (Providers_GetCurrentSource() != NULL)
         {
-            ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+            CSliderSetting* pSetting = Providers_GetCurrentSource()->GetVolume();
             if (pSetting != NULL)
             {
                 m_VolumeMin = pSetting->GetMin();
@@ -452,8 +452,8 @@ CToolbarVolume::~CToolbarVolume()
 
 void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    bool bVolumeLimitsChanged = FALSE;
-    bool bDoUpdate = FALSE;
+    BOOL bVolumeLimitsChanged = FALSE;
+    BOOL bDoUpdate = FALSE;
     if ((Event == EVENT_SOURCE_CHANGE) || (Mixer_IsEnabled() != m_UseMixer))
     {
         m_VolumeMin = 0;
@@ -462,7 +462,7 @@ void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldVa
     
         if (!Mixer_IsEnabled() && (Providers_GetCurrentSource() != NULL))
         {
-            ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+            CSliderSetting* pSetting = Providers_GetCurrentSource()->GetVolume();
             if (pSetting != NULL)
             {
                 m_VolumeMin = pSetting->GetMin();
@@ -518,7 +518,7 @@ void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldVa
     }
 }
 
-void CToolbarVolume::UpdateControls(HWND hWnd, bool bInitDialog)
+void CToolbarVolume::UpdateControls(HWND hWnd, BOOL bInitDialog)
 {
     if (hWnd == NULL)
     {
@@ -754,8 +754,8 @@ CToolbarMediaPlayer::~CToolbarMediaPlayer()
 
 void CToolbarMediaPlayer::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    bool bDurationChanged = FALSE;
-    bool bDoUpdate = FALSE;
+    BOOL bDurationChanged = FALSE;
+    BOOL bDoUpdate = FALSE;
     if (Event == EVENT_SOURCE_CHANGE)
     {
         m_Elapsed = 0;
@@ -794,7 +794,7 @@ void CToolbarMediaPlayer::OnEvent(CEventObject *pObject, eEventType Event, long 
     }
 }
 
-void CToolbarMediaPlayer::UpdateControls(HWND hWnd, bool bInitDialog)
+void CToolbarMediaPlayer::UpdateControls(HWND hWnd, BOOL bInitDialog)
 {
     if (hWnd == NULL)
     {

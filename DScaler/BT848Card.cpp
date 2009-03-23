@@ -106,7 +106,7 @@ CBT848Card::CBT848Card(SmartPtr<CHardwareDriver> pDriver) :
     m_CurrentInput(0),
     m_TunerType("n/a"),
     m_AudioDecoderType("n/a"),
-    m_I2CInitialized(false),
+    m_I2CInitialized(FALSE),
     m_I2CBus(new CI2CBusForLineInterface(this)),
     m_AudioControls(new CAudioControls()),
     m_AudioDecoder(new CAudioDecoder())
@@ -934,7 +934,7 @@ void CBT848Card::InitializeI2C()
     
     m_I2CSleepCycle = (unsigned long)(frequency / 50000);
     
-    m_I2CInitialized = true;
+    m_I2CInitialized = TRUE;
 }
 
 void CBT848Card::Sleep()
@@ -950,7 +950,7 @@ void CBT848Card::Sleep()
     }
 }
 
-void CBT848Card::SetSDA(bool value)
+void CBT848Card::SetSDA(BOOL value)
 {
     if (!m_I2CInitialized)
     {
@@ -969,7 +969,7 @@ void CBT848Card::SetSDA(bool value)
     WriteDword(BT848_I2C, m_I2CRegister);
 }
 
-void CBT848Card::SetSCL(bool value)
+void CBT848Card::SetSCL(BOOL value)
 {
     if (!m_I2CInitialized)
     {
@@ -988,24 +988,24 @@ void CBT848Card::SetSCL(bool value)
     WriteDword(BT848_I2C, m_I2CRegister);
 }
 
-bool CBT848Card::GetSDA()
+BOOL CBT848Card::GetSDA()
 {
     if (!m_I2CInitialized)
     {
         InitializeI2C();
     }
-    bool state = ReadDword(BT848_I2C) & BT848_I2C_SDA ? true : false;
+    BOOL state = ReadDword(BT848_I2C) & BT848_I2C_SDA ? TRUE : FALSE;
     LOG(3, state ? "BT848 GetSDA - d^" : "BT848 GetSDA - d_");
     return state;
 }
 
-bool CBT848Card::GetSCL()
+BOOL CBT848Card::GetSCL()
 {
     if (!m_I2CInitialized)
     {
         InitializeI2C();
     }
-    bool state = ReadDword(BT848_I2C) & BT848_I2C_SCL ? true : false;
+    BOOL state = ReadDword(BT848_I2C) & BT848_I2C_SCL ? TRUE : FALSE;
     LOG(3, state ? "BT848 GetSCL - c^" : "BT848 GetSCL - c_");
     return state;
 }

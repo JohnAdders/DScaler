@@ -1582,9 +1582,9 @@ COverlayOutput::COverlayOutput(void) :
     g_OverlayColor = RGB(32, 16, 16);
     bCanColorKey=FALSE;
     BackBuffers=-1;
-    bCanDoBob=false;
-    bCanDoFlipInterval=false;
-    bCanDoColorKey=false;
+    bCanDoBob=FALSE;
+    bCanDoFlipInterval=FALSE;
+    bCanDoColorKey=FALSE;
     pDDColorControl=NULL;
     bUseOverlayControls=FALSE;
     bAllowBobMode=FALSE;
@@ -1598,7 +1598,7 @@ COverlayOutput::COverlayOutput(void) :
     FlipResult=0;
     DestSizeAlign=1;
     SrcSizeAlign=1;
-    m_bSettingInitialized = false;
+    m_bSettingInitialized = FALSE;
     bIsRGB = FALSE;
     
     InitializeCriticalSection(&hDDCritSect);

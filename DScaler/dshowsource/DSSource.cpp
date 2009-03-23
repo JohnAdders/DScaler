@@ -126,7 +126,7 @@ BOOL CDSCaptureSource::OpenMediaFile(const string& FileName, BOOL NewPlayList)
     return FALSE;
 }
 
-ISetting* CDSCaptureSource::GetBrightness()
+CSliderSetting* CDSCaptureSource::GetBrightness()
 {
     if(m_pDSGraph==NULL)
     {
@@ -190,7 +190,7 @@ void CDSCaptureSource::BrightnessOnChange(long Brightness, long OldValue)
     }
 }
 
-ISetting* CDSCaptureSource::GetContrast()
+CSliderSetting* CDSCaptureSource::GetContrast()
 {
     if(m_pDSGraph==NULL)
     {
@@ -253,7 +253,7 @@ void CDSCaptureSource::ContrastOnChange(long Contrast, long OldValue)
     }
 }
 
-ISetting* CDSCaptureSource::GetHue()
+CSliderSetting* CDSCaptureSource::GetHue()
 {
     if(m_pDSGraph==NULL)
     {
@@ -316,7 +316,7 @@ void CDSCaptureSource::HueOnChange(long Hue, long OldValue)
     }
 }
 
-ISetting* CDSCaptureSource::GetSaturation()
+CSliderSetting* CDSCaptureSource::GetSaturation()
 {
     if(m_pDSGraph==NULL)
     {
@@ -512,7 +512,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
     {
         CTreeSettingsDlg dlg(CString("DirectShow Settings"));
 
-        bool bConnectAudio=(m_ConnectAudio->GetValue()!=0);
+        BOOL bConnectAudio=(m_ConnectAudio->GetValue()!=0);
         CDSAudioDevicePage AudioDevice(CString("Audio output"),m_AudioDevice,&bConnectAudio);
         CDSVideoFormatPage VidemFmt(CString("Resolution"),m_VideoFmt,m_Resolution);
 
@@ -989,17 +989,17 @@ eVideoFormat CDSCaptureSource::CDummyTuner::GetDefaultVideoFormat()
 {
     return VIDEOFORMAT_PAL_B;
 }
-bool CDSCaptureSource::CDummyTuner::HasRadio() const
+BOOL CDSCaptureSource::CDummyTuner::HasRadio() const
 {
-    return false;
+    return FALSE;
 }
-bool CDSCaptureSource::CDummyTuner::SetRadioFrequency(long nFrequency)
+BOOL CDSCaptureSource::CDummyTuner::SetRadioFrequency(long nFrequency)
 {
-    return false;
+    return FALSE;
 }
-bool CDSCaptureSource::CDummyTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
+BOOL CDSCaptureSource::CDummyTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
 {
-    return false;
+    return FALSE;
 }
 long CDSCaptureSource::CDummyTuner::GetFrequency()
 {
@@ -1062,7 +1062,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
         for(int i=0;i<cIn;i++)
         {
             ASSERT((IDM_CROSSBAR_INPUT0+i)<=IDM_CROSSBAR_INPUT_MAX);
-            bool bSelected=pCrossbar->IsInputSelected(i);
+            BOOL bSelected=pCrossbar->IsInputSelected(i);
 
             //is it an audio or video input?
             if(pCrossbar->GetInputType(i)<4096)
@@ -1133,7 +1133,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
     }
 
     //resolution submenu
-    bool ResAdded=false;
+    BOOL ResAdded=FALSE;
     CMenu ResSubMenu;
     ResSubMenu.CreateMenu();
 
@@ -1141,7 +1141,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
     {
         ASSERT(IDM_DSHOW_RES_0+index<=IDM_DSHOW_RES_MAX);
         ResSubMenu.AppendMenu(MF_STRING|(m_Resolution->GetValue()==index?MF_CHECKED:MF_UNCHECKED),IDM_DSHOW_RES_0+index,m_VideoFmt[index].m_Name.c_str());
-        ResAdded=true;
+        ResAdded=TRUE;
     }
 
     if(ResAdded)
@@ -1214,22 +1214,22 @@ string CDSCaptureSource::GetMenuLabel()
     return "";
 }
 
-ISetting* CDSCaptureSource::GetTopOverscan()
+CSliderSetting* CDSCaptureSource::GetTopOverscan()
 {
     return m_TopOverscan;
 }
 
-ISetting* CDSCaptureSource::GetBottomOverscan()
+CSliderSetting* CDSCaptureSource::GetBottomOverscan()
 {
     return m_BottomOverscan;
 }
 
-ISetting* CDSCaptureSource::GetLeftOverscan()
+CSliderSetting* CDSCaptureSource::GetLeftOverscan()
 {
     return m_LeftOverscan;
 }
 
-ISetting* CDSCaptureSource::GetRightOverscan()
+CSliderSetting* CDSCaptureSource::GetRightOverscan()
 {
     return m_RightOverscan;
 }
@@ -1300,7 +1300,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
                 LOG(2,"DSCaptureSource: Set video input to %d", NewValue);
 
                 //set the related pin too since this is a video pin,maybe this shoud be user configurable?
-                pCrossbar->SetInputIndex(NewValue,true);
+                pCrossbar->SetInputIndex(NewValue,TRUE);
 
                 PhysicalConnectorType NewInputType = pCrossbar->GetInputType(NewValue);
                 
@@ -1357,7 +1357,7 @@ void CDSCaptureSource::AudioInputOnChange(long NewValue, long OldValue)
                 PhysicalConnectorType type=pCrossbar->GetInputType(NewValue);
                 if(type>=0x1000)
                 {
-                    pCrossbar->SetInputIndex(NewValue,false);
+                    pCrossbar->SetInputIndex(NewValue,FALSE);
                 }
                 else
                 {
@@ -1498,7 +1498,7 @@ void CDSCaptureSource::ResolutionOnChange(long NewValue, long OldValue)
     //
 }
 
-void CDSCaptureSource::ConnectAudioOnChange(long NewValue, long OldValue)
+void CDSCaptureSource::ConnectAudioOnChange(BOOL NewValue, BOOL OldValue)
 {
     //
 }

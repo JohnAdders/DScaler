@@ -51,10 +51,10 @@ public:
     {
     public:
         CVideoFormat()
-            :m_Width(0),m_Height(0),m_bForceYUY2(false),m_FieldFmt(DSREND_FIELD_FORMAT_AUTO)
+            :m_Width(0),m_Height(0),m_bForceYUY2(FALSE),m_FieldFmt(DSREND_FIELD_FORMAT_AUTO)
         {
         }
-        bool operator==(CVideoFormat &fmt);
+        BOOL operator==(CVideoFormat &fmt);
         operator std::string();
         void operator=(std::string &str);
 
@@ -64,7 +64,7 @@ public:
         ///Height
         long m_Height;
         ///Make dsrend filter only accept YUY2, currently unused
-        bool m_bForceYUY2;
+        BOOL m_bForceYUY2;
         ///Field format, currently unused
         DSREND_FIELD_FORMAT m_FieldFmt;
     };
@@ -86,7 +86,7 @@ public:
      * Creates a filtergraph with a capture device as source.
      * @throws CDShowException
      */
-    CDShowGraph(std::string device, std::string deviceName, std::string AudioDevice, bool bConnectAudio);
+    CDShowGraph(std::string device, std::string deviceName, std::string AudioDevice, BOOL bConnectAudio);
 
     /**
      * Creates a filtergraph with a file as source
@@ -101,7 +101,7 @@ public:
      */
     CDShowBaseSource* getSourceDevice();
     void getConnectionMediatype(AM_MEDIA_TYPE *pmt);
-    bool GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info,DWORD dwLateness);
+    BOOL GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info,DWORD dwLateness);
 
     /**
      * Get number of dropped frames.
@@ -121,22 +121,22 @@ public:
      * Creates a propertypage for a filter.
      * This function creates a propertypage for the filter indicated by index.
      * To get all pages call this function with index set to 0 and then
-     * increase it until the function returns false.
+     * increase it until the function returns FALSE.
      * The caller is responsibel of deleting the returnd propertypage with
      * delete.
      *
      * @param index filter index
      * @param ppPage pointer to created propertypage
-     * @param bHasSubPages true if specified filter has subpages
-     * @return true if the propertypage was successfully created
+     * @param bHasSubPages TRUE if specified filter has subpages
+     * @return TRUE if the propertypage was successfully created
      */
-    bool getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,bool &bHasSubPages);
+    BOOL getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,BOOL &bHasSubPages);
 
     /**
      * This function works almost the same as getFilterPropertyPage() but returns the subpage.
-     * @return true if successfull
+     * @return TRUE if successfull
      */
-    bool getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage);
+    BOOL getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage);
 
     /**
      * Changes connection settings to dsrend filter.
@@ -150,9 +150,9 @@ public:
     /**
      * Checks if a resolution is valid and can be selected.
      * @param fmt video format to check
-     * @return true if valid
+     * @return TRUE if valid
      */
-    bool IsValidRes(CDShowGraph::CVideoFormat fmt);
+    BOOL IsValidRes(CDShowGraph::CVideoFormat fmt);
 
     /**
      * Disables the graph reference clock.

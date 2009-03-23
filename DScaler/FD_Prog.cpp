@@ -33,7 +33,7 @@ long ThresholdMotion = 10;
 long RepeatCount = 4;
 
 
-bool ProgExpectChange(TDeinterlaceInfo* pInfo, eProgressivePulldownMode FilmMode);
+BOOL ProgExpectChange(TDeinterlaceInfo* pInfo, eProgressivePulldownMode FilmMode);
 
 
 void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
@@ -283,7 +283,7 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
 
 BOOL ProgMode(TDeinterlaceInfo* pInfo)
 {
-    if(ProgExpectChange(pInfo, GetProgMode()) == true)
+    if(ProgExpectChange(pInfo, GetProgMode()) == TRUE)
     {
         BYTE* CurrentLine = pInfo->PictureHistory[0]->pData;
         if (CurrentLine != NULL)
@@ -312,7 +312,7 @@ BOOL ProgMode(TDeinterlaceInfo* pInfo)
     }
 }
 
-bool ProgExpectChange(TDeinterlaceInfo* pInfo, eProgressivePulldownMode FilmMode)
+BOOL ProgExpectChange(TDeinterlaceInfo* pInfo, eProgressivePulldownMode FilmMode)
 {
     switch(FilmMode)
     {

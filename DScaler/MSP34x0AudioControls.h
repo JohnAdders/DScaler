@@ -47,9 +47,9 @@ public:
     void SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);    
 
     // from IAudioControls
-    bool HasMute();
-    void SetMute(bool mute=true);
-    bool IsMuted();
+    BOOL HasMute();
+    void SetMute(BOOL mute=TRUE);
+    BOOL IsMuted();
     void SetVolume(WORD nVolume);
     WORD GetVolume();
     void SetBalance(WORD nBalance);
@@ -58,30 +58,30 @@ public:
     WORD GetBass();
     void SetTreble(WORD nLevel);
     WORD GetTreble();
-    bool HasEqualizers();
+    BOOL HasEqualizers();
     WORD GetEqualizerCount();
     void SetEqualizerLevel(WORD nIndex, WORD nLevel);
     WORD GetEqualizerLevel(WORD nIndex);
-    bool HasBassBoost();
-    void SetBassBoost(bool bBoost);
-    bool IsBassBoosted();
-    bool HasLoudness();
+    BOOL HasBassBoost();
+    void SetBassBoost(BOOL bBoost);
+    BOOL IsBassBoosted();
+    BOOL HasLoudness();
     void SetLoudness(WORD nLevel);
     WORD GetLoudness();
-    bool HasAutoVolumeCorrection();
+    BOOL HasAutoVolumeCorrection();
     void SetAutoVolumeCorrection(long milliSeconds);
     long GetAutoVolumeCorrection();
-    bool HasSpatialEffect();
+    BOOL HasSpatialEffect();
     void SetSpatialEffect(int nLevel);
     int  GetSpatialEffect();
 
 private:
-    bool m_bMuted;
+    BOOL m_bMuted;
     int m_nVolume;
     int m_nBalance;
     int m_nBass;
     int m_nTreble;
-    bool m_bBassBoost;
+    BOOL m_bBassBoost;
 };
 
 #endif // !defined(__MSP34X0AUDIOCONTROLS_H__)

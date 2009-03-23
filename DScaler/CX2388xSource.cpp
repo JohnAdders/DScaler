@@ -402,7 +402,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_VerticalSyncDetection = new CVerticalSyncDetectionSetting(this, "Vertical Sync Detection", TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_VerticalSyncDetection);
 
-    m_CardName = new CStringSetting("Card Name", reinterpret_cast<long>(""), IniSection, "CardName");
+    m_CardName = new CStringSetting("Card Name", "", IniSection, "CardName");
     m_Settings.push_back(m_CardName);
 
 #ifdef _DEBUG    
@@ -843,27 +843,27 @@ void CCX2388xSource::SetFormat(eVideoFormat NewFormat)
 }
 
 
-ISetting* CCX2388xSource::GetBrightness()
+CSliderSetting* CCX2388xSource::GetBrightness()
 {
     return m_Brightness;
 }
 
-ISetting* CCX2388xSource::GetContrast()
+CSliderSetting* CCX2388xSource::GetContrast()
 {
     return m_Contrast;
 }
 
-ISetting* CCX2388xSource::GetHue()
+CSliderSetting* CCX2388xSource::GetHue()
 {
     return m_Hue;
 }
 
-ISetting* CCX2388xSource::GetSaturation()
+CSliderSetting* CCX2388xSource::GetSaturation()
 {
     return m_Saturation;
 }
 
-ISetting* CCX2388xSource::GetSaturationU()
+CSliderSetting* CCX2388xSource::GetSaturationU()
 {
     if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
@@ -875,7 +875,7 @@ ISetting* CCX2388xSource::GetSaturationU()
     }
 }
 
-ISetting* CCX2388xSource::GetSaturationV()
+CSliderSetting* CCX2388xSource::GetSaturationV()
 {
     if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
@@ -887,7 +887,7 @@ ISetting* CCX2388xSource::GetSaturationV()
     }
 }
 
-ISetting* CCX2388xSource::GetAnalogueBlanking()
+CYesNoSetting* CCX2388xSource::GetAnalogueBlanking()
 {
     if(m_CurrentX == 720)
     {
@@ -899,32 +899,32 @@ ISetting* CCX2388xSource::GetAnalogueBlanking()
     }
 }
 
-ISetting* CCX2388xSource::GetTopOverscan()
+CSliderSetting* CCX2388xSource::GetTopOverscan()
 {
     return m_TopOverscan;
 }
 
-ISetting* CCX2388xSource::GetBottomOverscan()
+CSliderSetting* CCX2388xSource::GetBottomOverscan()
 {
     return m_BottomOverscan;
 }
 
-ISetting* CCX2388xSource::GetLeftOverscan()
+CSliderSetting* CCX2388xSource::GetLeftOverscan()
 {
     return m_LeftOverscan;
 }
 
-ISetting* CCX2388xSource::GetRightOverscan()
+CSliderSetting* CCX2388xSource::GetRightOverscan()
 {
     return m_RightOverscan;
 }
 
-ISetting* CCX2388xSource::GetHDelay()
+CSliderSetting* CCX2388xSource::GetHDelay()
 {
     return m_HDelay;
 }
 
-ISetting* CCX2388xSource::GetVDelay()
+CSliderSetting* CCX2388xSource::GetVDelay()
 {
     return m_VDelay;
 }
@@ -1421,7 +1421,7 @@ void CCX2388xSource::SaturationOnChange(long Sat, long OldValue)
     }
 }
 
-void CCX2388xSource::AnalogueBlankingOnChange(long NewValue, long OldValue)
+void CCX2388xSource::AnalogueBlankingOnChange(BOOL NewValue, BOOL OldValue)
 {
     AspectSettings.bAnalogueBlanking = NewValue;
     WorkoutOverlaySize(TRUE);
@@ -1475,7 +1475,7 @@ void CCX2388xSource::SetupCard()
 
     // If the string card name is set, recalculate the card type based on
     // the given name.
-    LPSTR cardName = reinterpret_cast<char*>(m_CardName->GetValue());
+    LPCSTR cardName = m_CardName->GetValue();
     if (*cardName != '\0')
     {
         m_CardType->SetValue(m_pCard->GetCardByName(cardName));
@@ -1484,8 +1484,7 @@ void CCX2388xSource::SetupCard()
     {
         // Otherwise set the card name setting based on the card type for
         // future use.
-        m_CardName->SetValue(reinterpret_cast<long>(
-            m_pCard->GetCardName((eCX2388xCardId)m_CardType->GetValue()).c_str()));
+        m_CardName->SetValue(m_pCard->GetCardName((eCX2388xCardId)m_CardType->GetValue()).c_str());
     }
 
     if(m_CardType->GetValue() == CX2388xCARD_UNKNOWN)
@@ -1652,29 +1651,29 @@ void CCX2388xSource::HandleTimerMessages(int TimerId)
     UpdateAudioStatus();
 }
 
-void CCX2388xSource::IsVideoProgressiveOnChange(long NewValue, long OldValue)
+void CCX2388xSource::IsVideoProgressiveOnChange(BOOL NewValue, BOOL OldValue)
 {
     Stop_Capture();
     Reset();
     Start_Capture();
 }
 
-void CCX2388xSource::LumaAGCOnChange(long NewValue, long OldValue)
+void CCX2388xSource::LumaAGCOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pCard->SetLumaAGC(NewValue);
 }
 
-void CCX2388xSource::ChromaAGCOnChange(long NewValue, long OldValue)
+void CCX2388xSource::ChromaAGCOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pCard->SetChromaAGC(NewValue);
 }
 
-void CCX2388xSource::FastSubcarrierLockOnChange(long NewValue, long OldValue)
+void CCX2388xSource::FastSubcarrierLockOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pCard->SetFastSubcarrierLock(NewValue);
 }
 
-void CCX2388xSource::WhiteCrushOnChange(long NewValue, long OldValue)
+void CCX2388xSource::WhiteCrushOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pCard->SetWhiteCrushEnable(NewValue);
 }
@@ -1694,12 +1693,12 @@ void CCX2388xSource::WhiteCrushMajorityPointOnChange(long NewValue, long OldValu
     m_pCard->SetWhiteCrushMajorityPoint((CCX2388xCard::eWhiteCrushMajSel)NewValue);
 }
 
-void CCX2388xSource::WhiteCrushPerFrameOnChange(long NewValue, long OldValue)
+void CCX2388xSource::WhiteCrushPerFrameOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pCard->SetWhiteCrushPerFrame(NewValue);
 }
 
-void CCX2388xSource::LowColorRemovalOnChange(long NewValue, long OldValue)
+void CCX2388xSource::LowColorRemovalOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pCard->SetLowColorRemoval(NewValue);
 }
@@ -1709,7 +1708,7 @@ void CCX2388xSource::CombFilterOnChange(long NewValue, long OldValue)
     m_pCard->SetCombFilter((CCX2388xCard::eCombFilter)NewValue);
 }
 
-void CCX2388xSource::FullLumaRangeOnChange(long NewValue, long OldValue)
+void CCX2388xSource::FullLumaRangeOnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pCard->SetFullLumaRange(NewValue);
 }
@@ -1749,7 +1748,7 @@ void CCX2388xSource::ThirdChromaDemodOnChange(long NewValue, long OldValue)
     m_pCard->SetThirdChromaDemod((CCX2388xCard::eFlagWithDefault)NewValue);
 }
 
-void CCX2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)
+void CCX2388xSource::FLIFilmDetectOnChange(BOOL NewValue, BOOL OldValue)
 {
     if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
@@ -1872,11 +1871,11 @@ SmartPtr<ITuner> CCX2388xSource::GetTuner()
     return m_pCard->GetTuner();
 }
 
-void CCX2388xSource::ConexantStopDriverOnChange(long NewValue,long OldValue)
+void CCX2388xSource::ConexantStopDriverOnChange(BOOL NewValue,BOOL OldValue)
 {
 }
 
-void CCX2388xSource::AutoMuteOnChange(long NewValue,long OldValue)
+void CCX2388xSource::AutoMuteOnChange(BOOL NewValue,BOOL OldValue)
 {
     if(Audio_IsMute() && !Audio_GetUserMute())
     {
@@ -1884,7 +1883,7 @@ void CCX2388xSource::AutoMuteOnChange(long NewValue,long OldValue)
     }
 }
 
-void CCX2388xSource::VerticalSyncDetectionOnChange(long NewValue,long OldValue)
+void CCX2388xSource::VerticalSyncDetectionOnChange(BOOL NewValue,BOOL OldValue)
 {
     m_pCard->SetVerticalSyncDetection(NewValue);
 }

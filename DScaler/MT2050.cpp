@@ -32,9 +32,9 @@
 
 
 CMT2050::CMT2050(eVideoFormat DefaultVideoFormat) :
-    m_Initialized(false),
+    m_Initialized(FALSE),
     m_Frequency (0),
-    m_Locked(false)      
+    m_Locked(FALSE)      
 {
     m_DefaultVideoFormat = DefaultVideoFormat;    
 }
@@ -54,9 +54,9 @@ eVideoFormat CMT2050::GetDefaultVideoFormat()
     return m_DefaultVideoFormat;
 }
 
-bool CMT2050::HasRadio() const
+BOOL CMT2050::HasRadio() const
 {
-    return false;
+    return FALSE;
 }
 
 
@@ -128,7 +128,7 @@ void CMT2050::Initialize()
         m_ExternalIFDemodulator->Init(FALSE, m_DefaultVideoFormat);
     }
     
-    m_Initialized = true;
+    m_Initialized = TRUE;
 }
 
 int CMT2050::SpurCheck(int flos1, int flos2, int fifbw, int fout)
@@ -278,7 +278,7 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
     SetRegister(5, buf[0x04]);
 
 //3.5 Allow LO to lock
-    m_Locked = false;
+    m_Locked = FALSE;
     Sleep(50);
     int nlock = 0, Status;
     do {
@@ -286,7 +286,7 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
         Status &= 0x88;
         if (Status == 0x88)
         {
-            m_Locked = true;
+            m_Locked = TRUE;
             break;
         }
         Sleep(2);
@@ -299,7 +299,7 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
     }
 }
 
-bool CMT2050::SetTVFrequency(long frequency, eVideoFormat videoFormat)
+BOOL CMT2050::SetTVFrequency(long frequency, eVideoFormat videoFormat)
 {
     if (!m_Initialized)
     {
@@ -320,12 +320,12 @@ bool CMT2050::SetTVFrequency(long frequency, eVideoFormat videoFormat)
     m_Frequency = frequency;
 
     SetIFFreq(frequency, 1220 * 1000 * 1000, if2, videoFormat);
-    return true;
+    return TRUE;
 }
 
-bool CMT2050::SetRadioFrequency(long nFrequency)
+BOOL CMT2050::SetRadioFrequency(long nFrequency)
 {
-    return false;
+    return FALSE;
 }
 
 long CMT2050::GetFrequency()

@@ -147,7 +147,7 @@ BOOL CTreeSettingsGeneric::OnInitDialog()
     //add relevant settings to listbox
     for(int i=0;i<m_SettingsCount;i++)
     {
-        CSimpleSetting* pSetting = (CSimpleSetting*)m_Settings[i];
+        CSimpleSetting* pSetting = m_Settings[i];
         if ((pSetting != NULL) && (pSetting->GetDisplayName() != NULL) && (pSetting->GetType() != NOT_PRESENT))
         {
             int index=m_ListBox.AddString(pSetting->GetDisplayName());
@@ -175,60 +175,77 @@ void CTreeSettingsGeneric::OnSelchangeList()
 
     if (m_Settings[m_CurrentSetting] != NULL)
     {
+        
         Type = m_Settings[m_CurrentSetting]->GetType();
-    }
 
-    switch(Type)
-    {
-    case YESNO:
-    case ONOFF:
-        m_DefaultButton.ShowWindow(SW_SHOWNA);
-        m_CheckBox.ShowWindow(SW_SHOWNA);
-        m_Edit.ShowWindow(SW_HIDE);
-        m_EditString.ShowWindow(SW_HIDE);
-        m_Slider.ShowWindow(SW_HIDE);
-        m_Spin.ShowWindow(SW_HIDE);
-        m_Combo.ShowWindow(SW_HIDE);
-        break;
-
-    case SLIDER:
-        m_DefaultButton.ShowWindow(SW_SHOWNA);
-        m_Edit.ShowWindow(SW_SHOWNA);
-        if ( (m_Settings[m_CurrentSetting] != NULL) && (m_Settings[m_CurrentSetting]->GetMax() <= UD_MAXVAL) && (m_Settings[m_CurrentSetting]->GetMin() >= UD_MINVAL) )
+        switch(Type)
         {
-            m_Spin.ShowWindow(SW_SHOWNA);
-        }
-        else
-        {
+        case YESNO:
+        case ONOFF:
+            m_DefaultButton.ShowWindow(SW_SHOWNA);
+            m_CheckBox.ShowWindow(SW_SHOWNA);
+            m_Edit.ShowWindow(SW_HIDE);
+            m_EditString.ShowWindow(SW_HIDE);
+            m_Slider.ShowWindow(SW_HIDE);
             m_Spin.ShowWindow(SW_HIDE);
+            m_Combo.ShowWindow(SW_HIDE);
+            m_Settings[m_CurrentSetting]->SetupControl(m_DefaultButton);
+            m_Settings[m_CurrentSetting]->SetupControl(m_CheckBox);
+            break;
+
+        case SLIDER:
+            m_DefaultButton.ShowWindow(SW_SHOWNA);
+            m_Edit.ShowWindow(SW_SHOWNA);
+            m_Spin.ShowWindow(SW_SHOWNA);
+            m_Slider.ShowWindow(SW_SHOWNA);
+            m_EditString.ShowWindow(SW_HIDE);
+            m_CheckBox.ShowWindow(SW_HIDE);
+            m_Combo.ShowWindow(SW_HIDE);
+            m_Settings[m_CurrentSetting]->SetupControl(m_Edit);
+            m_Settings[m_CurrentSetting]->SetupControl(m_Spin);
+            m_Settings[m_CurrentSetting]->SetupControl(m_Slider);
+            break;
+
+        case ITEMFROMLIST:
+            m_CheckBox.ShowWindow(SW_HIDE);
+            m_DefaultButton.ShowWindow(SW_SHOWNA);
+            m_Edit.ShowWindow(SW_HIDE);
+            m_EditString.ShowWindow(SW_HIDE);
+            m_Slider.ShowWindow(SW_HIDE);
+            m_Spin.ShowWindow(SW_HIDE);
+            m_Combo.ShowWindow(SW_SHOWNA);
+            m_Settings[m_CurrentSetting]->SetupControl(m_Combo);
+            break;
+
+        case CHARSTRING:
+            m_DefaultButton.ShowWindow(SW_SHOWNA);
+            m_EditString.ShowWindow(SW_SHOWNA);
+            m_CheckBox.ShowWindow(SW_HIDE);
+            m_Edit.ShowWindow(SW_HIDE);
+            m_Slider.ShowWindow(SW_HIDE);
+            m_Spin.ShowWindow(SW_HIDE);
+            m_Combo.ShowWindow(SW_HIDE);
+            m_Settings[m_CurrentSetting]->SetupControl(m_EditString);
+            break;
+        default:
+            break;
         }
-        m_Slider.ShowWindow(SW_SHOWNA);
-        m_EditString.ShowWindow(SW_HIDE);
-        m_CheckBox.ShowWindow(SW_HIDE);
-        m_Combo.ShowWindow(SW_HIDE);
-        break;
 
-    case ITEMFROMLIST:
-        m_CheckBox.ShowWindow(SW_HIDE);
-        m_DefaultButton.ShowWindow(SW_SHOWNA);
-        m_Edit.ShowWindow(SW_HIDE);
-        m_EditString.ShowWindow(SW_HIDE);
-        m_Slider.ShowWindow(SW_HIDE);
-        m_Spin.ShowWindow(SW_HIDE);
-        m_Combo.ShowWindow(SW_SHOWNA);
-        break;
+        string szName;
+        szName = m_Settings[m_CurrentSetting]->GetDisplayName();
+        if (szName.empty())
+        {
+            szName = m_Settings[m_CurrentSetting]->GetEntry();
+        }
 
-    case CHARSTRING:
-        m_DefaultButton.ShowWindow(SW_SHOWNA);
-        m_EditString.ShowWindow(SW_SHOWNA);
-        m_CheckBox.ShowWindow(SW_HIDE);
-        m_Edit.ShowWindow(SW_HIDE);
-        m_Slider.ShowWindow(SW_HIDE);
-        m_Spin.ShowWindow(SW_HIDE);
-        m_Combo.ShowWindow(SW_HIDE);
-        break;
-
-    default:
+        m_TopGroupBox.SetWindowText("");
+        m_SavePerInfoBox.SetWindowText(szName.c_str());
+        m_SavePerInfoBox.ShowWindow(SW_HIDE);
+        
+        UpdateControls(NULL);
+    }
+    else
+    {
         m_CheckBox.ShowWindow(SW_HIDE);
         m_DefaultButton.ShowWindow(SW_HIDE);
         m_Edit.ShowWindow(SW_HIDE);
@@ -236,65 +253,14 @@ void CTreeSettingsGeneric::OnSelchangeList()
         m_Slider.ShowWindow(SW_HIDE);
         m_Spin.ShowWindow(SW_HIDE);
         m_Combo.ShowWindow(SW_HIDE);
-        break;
     }
 
-
-    char *szName = NULL;
-    if (m_Settings[m_CurrentSetting] != NULL)
-    {
-        szName = (char*)((CSimpleSetting*)m_Settings[m_CurrentSetting])->GetDisplayName();
-        if (szName == NULL)
-        {
-            szName = (char*)((CSimpleSetting*)m_Settings[m_CurrentSetting])->GetEntry();
-        }
-    }
-
-    if (szName == NULL)
-    {
-        szName = "";
-    }
-
-    // JA 10/Jan/2003
-    // supressed display of boxes to avoid user confusion
-    // boxes are invisible in dialog
-    BOOL bShowBoxes = FALSE;
-    if (bShowBoxes)
-    {
-        m_SavePerInfoBox.ShowWindow(SW_HIDE);
-        m_CheckGlobalBox.ShowWindow(SW_SHOW);
-        m_CheckSourceBox.ShowWindow(SW_SHOW);
-        m_CheckVideoInputBox.ShowWindow(SW_SHOW);
-        m_CheckAudioInputBox.ShowWindow(SW_SHOW);
-        m_CheckVideoFormatBox.ShowWindow(SW_SHOW);
-        m_CheckChannelBox.ShowWindow(SW_SHOW);
-
-        char szBuffer[200];
-
-        if (szName[0] != 0)
-        {
-            sprintf(szBuffer,"Load and save \"%s\" per",szName);
-        } else {
-            szBuffer[0] = 0;
-        }
-        m_TopGroupBox.SetWindowText(szBuffer);
-    }
-    else
-    {
-        m_CheckGlobalBox.ShowWindow(SW_HIDE);
-        m_CheckSourceBox.ShowWindow(SW_HIDE);
-        m_CheckVideoInputBox.ShowWindow(SW_HIDE);
-        m_CheckAudioInputBox.ShowWindow(SW_HIDE);
-        m_CheckVideoFormatBox.ShowWindow(SW_HIDE);
-        m_CheckChannelBox.ShowWindow(SW_HIDE);
-
-        m_TopGroupBox.SetWindowText("");
-        m_SavePerInfoBox.SetWindowText(szName);
-        //m_SavePerInfoBox.ShowWindow(SW_SHOW);
-        m_SavePerInfoBox.ShowWindow(SW_HIDE);
-    }
-
-    UpdateControls(&m_ListBox);
+    m_CheckGlobalBox.ShowWindow(SW_HIDE);
+    m_CheckSourceBox.ShowWindow(SW_HIDE);
+    m_CheckVideoInputBox.ShowWindow(SW_HIDE);
+    m_CheckAudioInputBox.ShowWindow(SW_HIDE);
+    m_CheckVideoFormatBox.ShowWindow(SW_HIDE);
+    m_CheckChannelBox.ShowWindow(SW_HIDE);
 }
 
 // atnak 2005/03/05:
@@ -304,7 +270,7 @@ void CTreeSettingsGeneric::UpdateControls(CWnd* pChangedControl)
 {
     ASSERT(m_CurrentSetting>=0 && m_CurrentSetting<m_SettingsCount);
 
-    static bool bInUpdate = false;
+    static BOOL bInUpdate = FALSE;
 
     //if we dont do this check there will be a loop
     if(bInUpdate)
@@ -315,122 +281,40 @@ void CTreeSettingsGeneric::UpdateControls(CWnd* pChangedControl)
     {
         return;
     }
-    bInUpdate = true;
+    bInUpdate = TRUE;
 
 
     if((m_Spin.GetStyle() & WS_VISIBLE) && (&m_Spin != pChangedControl))
     {
-        m_Spin.SetRange32(m_Settings[m_CurrentSetting]->GetMin(),m_Settings[m_CurrentSetting]->GetMax());
-        m_Spin.SetPos(m_Settings[m_CurrentSetting]->GetValue());
+        m_Settings[m_CurrentSetting]->SetControlValue(m_Spin);
     }
 
     if((m_Edit.GetStyle() & WS_VISIBLE) && (&m_Edit != pChangedControl))
     {
-        CString newValue;
-        newValue.Format("%d", m_Settings[m_CurrentSetting]->GetValue());
-        m_Edit.SetWindowText(newValue);
+        m_Settings[m_CurrentSetting]->SetControlValue(m_Edit);
     }
 
     if((m_EditString.GetStyle() & WS_VISIBLE) && (&m_EditString != pChangedControl))
     {
-        CString newValue;
-        newValue.Format("%s", (char*)(m_Settings[m_CurrentSetting]->GetValue()));
-        m_EditString.SetWindowText(newValue);
+        m_Settings[m_CurrentSetting]->SetControlValue(m_EditString);
     }
 
     if((m_CheckBox.GetStyle() & WS_VISIBLE) && (&m_CheckBox != pChangedControl))
     {
-        m_CheckBox.SetCheck(m_Settings[m_CurrentSetting]->GetValue());
-        m_CheckBox.SetWindowText(((CSimpleSetting*)m_Settings[m_CurrentSetting])->GetDisplayName());
+        m_Settings[m_CurrentSetting]->SetControlValue(m_CheckBox);
     }
 
-    if((m_Slider.GetStyle() & WS_VISIBLE) &&
-        (m_Settings[m_CurrentSetting]->GetType() == SLIDER) && (&m_Slider != pChangedControl))
+    if((m_Slider.GetStyle() & WS_VISIBLE) && (&m_Slider != pChangedControl))
     {
-        //Setting_SetupSlider(m_Settings[m_CurrentSetting], m_Slider.m_hWnd);
-        CSliderSetting *pSetting = (CSliderSetting*)m_Settings[m_CurrentSetting];
-        pSetting->SetupControl(m_Slider.m_hWnd);
+        m_Settings[m_CurrentSetting]->SetControlValue(m_Slider);
     }
 
-    if((m_Combo.GetStyle() & WS_VISIBLE) &&
-        (m_Settings[m_CurrentSetting]->GetType() == ITEMFROMLIST) && (&m_Combo != pChangedControl))
+    if((m_Combo.GetStyle() & WS_VISIBLE) && (&m_Combo != pChangedControl))
     {
-        CListSetting *pSetting = (CListSetting*)m_Settings[m_CurrentSetting];
-        char **pszList = (char**)pSetting->GetList();
-
-        if(pszList != NULL)
-        {
-            char szString[128];         //\memory bound assumption
-            int count=0;
-            bool bListIsSame=false;
-
-            //count the number of items
-            for(int i(pSetting->GetMin()); i <= pSetting->GetMax(); ++i)
-            {
-                //is there any text for this item?
-                if ( (pszList[i] != NULL) && (*pszList[i] != '\0') )
-                {
-                    count++;
-                }
-            }
-
-            //make sure the number of items is the same
-            if (m_Combo.GetCount() == count)
-            {
-                bListIsSame=true;
-                //find the current value in the combo box
-                for(int pos(0); pos < m_Combo.GetCount(); pos++)
-                {
-                    int i=m_Combo.GetItemData(pos);
-
-                    //check item is the same
-                    m_Combo.GetLBText(pos, szString);
-                    if(strcmp(pszList[i], szString) != 0)
-                    {
-                        bListIsSame=false;
-                        break;
-                    }
-
-                    //is this item the current Value?
-                    if(i == pSetting->GetValue())
-                    {
-                        m_Combo.SetCurSel(pos);
-                    }
-                }
-            }
-
-            //is the list the same?
-            if (bListIsSame==false)
-            {
-                //recreate the list
-                m_Combo.ResetContent();
-                for(int i(pSetting->GetMin()); i <= pSetting->GetMax(); ++i)
-                {
-                    //is there any text for this item?
-                    if ( (pszList[i] != NULL) && (*pszList[i] != '\0') )
-                    {
-                        int pos=m_Combo.AddString(pszList[i]);
-
-                        //store Value in itemdata
-                        m_Combo.SetItemData(pos,i);
-
-                        //is this item the current Value?
-                        if(pSetting->GetValue() == i)
-                        {
-                            m_Combo.SetCurSel(pos);
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            //clear out the list
-            m_Combo.ResetContent();
-        }
+        m_Settings[m_CurrentSetting]->SetControlValue(m_Combo);
     }
 
-    bInUpdate = false;
+    bInUpdate = FALSE;
 }
 
 void CTreeSettingsGeneric::OnChangeEdit()
@@ -438,12 +322,9 @@ void CTreeSettingsGeneric::OnChangeEdit()
     if(m_Edit.m_hWnd==NULL)
         return;
 
-    CString Value;
-    m_Edit.GetWindowText(Value);
-
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-        m_Settings[m_CurrentSetting]->SetValue(atol(Value));
+        m_Settings[m_CurrentSetting]->SetFromControl(m_Edit);
     }
 
     UpdateControls(&m_Edit);
@@ -454,12 +335,9 @@ void CTreeSettingsGeneric::OnChangeEditString()
     if(m_EditString.m_hWnd==NULL)
         return;
 
-    CString Value;
-    m_EditString.GetWindowText(Value);
-
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-        m_Settings[m_CurrentSetting]->SetValue((long)Value.GetBuffer(255));
+        m_Settings[m_CurrentSetting]->SetFromControl(m_EditString);
     }
 
     UpdateControls(&m_EditString);
@@ -469,10 +347,9 @@ void CTreeSettingsGeneric::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrol
 {
     //slider has changed
 
-    if ( (m_Settings[m_CurrentSetting] != NULL) && (m_Settings[m_CurrentSetting]->GetType() == SLIDER) )
+    if ( (m_Settings[m_CurrentSetting] != NULL))
     {
-        CSliderSetting *pSetting = (CSliderSetting*)m_Settings[m_CurrentSetting];
-        pSetting->SetFromControl(m_Slider.m_hWnd);
+        m_Settings[m_CurrentSetting]->SetFromControl(m_Slider.m_hWnd);
     }
 
     UpdateControls(&m_Slider);
@@ -482,7 +359,7 @@ void CTreeSettingsGeneric::OnSettingsDefault()
 {
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-        m_Settings[m_CurrentSetting]->SetDefault();
+        m_Settings[m_CurrentSetting]->ChangeValue(RESET_SILENT);
     }
 
     UpdateControls(NULL);
@@ -492,7 +369,7 @@ void CTreeSettingsGeneric::OnCheckClick()
 {
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-        m_Settings[m_CurrentSetting]->SetValue(m_CheckBox.GetCheck());
+        m_Settings[m_CurrentSetting]->SetFromControl(m_CheckBox);
     }
 
     UpdateControls(NULL);
@@ -533,7 +410,7 @@ void CTreeSettingsGeneric::OnSelchangeChoosefromlist()
 {
     if((m_Combo.GetCurSel()!=CB_ERR) && (m_Settings[m_CurrentSetting] != NULL))
     {
-        m_Settings[m_CurrentSetting]->SetValue(m_Combo.GetItemData(m_Combo.GetCurSel()));
+        m_Settings[m_CurrentSetting]->SetFromControl(m_Combo);
     }
     UpdateControls(&m_Combo);
 }
@@ -544,18 +421,18 @@ void CTreeSettingsGeneric::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResul
 
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-        long Value = m_Settings[m_CurrentSetting]->GetValue();
+        CSimpleSetting* Slider = m_Settings[m_CurrentSetting];
 
         if(pNMUpDown->iDelta > 0)
         {
-            ((CSimpleSetting*)m_Settings[m_CurrentSetting])->Up();
+            Slider->ChangeValue(ADJUSTDOWN_SILENT);
         }
         else
         {
-            ((CSimpleSetting*)m_Settings[m_CurrentSetting])->Down();
+            Slider->ChangeValue(ADJUSTUP_SILENT);
         }
 
-        *pResult = m_Settings[m_CurrentSetting]->GetValue();
+        *pResult = 0;
     }
 
     UpdateControls(NULL);

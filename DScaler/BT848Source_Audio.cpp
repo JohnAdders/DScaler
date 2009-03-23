@@ -34,12 +34,12 @@
 
 using namespace std;
 
-ISetting* CBT848Source::GetVolume()
+CSliderSetting* CBT848Source::GetVolume()
 {
     return m_Volume;
 }
 
-ISetting* CBT848Source::GetBalance()
+CSliderSetting* CBT848Source::GetBalance()
 {
     return m_Balance;
 }
@@ -130,7 +130,7 @@ void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)
     EventCollector->RaiseEvent(this, EVENT_SOUNDCHANNEL, OldValue, NewValue);
 }
 
-void CBT848Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
+void CBT848Source::AutoStereoSelectOnChange(BOOL NewValue, BOOL OldValue)
 {
     if (NewValue)
     {
@@ -144,12 +144,12 @@ void CBT848Source::AutoStereoDetectIntervalOnChange(long NewValue, long OldValue
 {
 }
 
-void CBT848Source::UseInputPin1OnChange(long NewValue, long OldValue)
+void CBT848Source::UseInputPin1OnChange(BOOL NewValue, BOOL OldValue)
 {
     m_pBT848Card->SetUseInputPin1(m_UseInputPin1->GetValue() != 0);
 }
 
-void CBT848Source::UseEqualizerOnChange(long NewValue, long OldValue)
+void CBT848Source::UseEqualizerOnChange(BOOL NewValue, BOOL OldValue)
 {
     if(m_pBT848Card->HasAudioEqualizers())
     {
@@ -226,9 +226,9 @@ void CBT848Source::AudioLoudnessOnChange(long NewValue, long OldValue)
     m_pBT848Card->SetAudioLoudness((WORD)m_AudioLoudness->GetValue());
 }
 
-void CBT848Source::AudioSuperbassOnChange(long NewValue, long OldValue)
+void CBT848Source::AudioSuperbassOnChange(BOOL NewValue, BOOL OldValue)
 {
-    m_pBT848Card->SetAudioBassBoost(m_AudioSuperbass->GetValue() ? true : false );
+    m_pBT848Card->SetAudioBassBoost(m_AudioSuperbass->GetValue() ? TRUE : FALSE );
 }
 
 void CBT848Source::AudioSpatialEffectOnChange(long NewValue, long OldValue)
@@ -403,7 +403,7 @@ void CBT848Source::AudioStandardMinorCarrierOnChange(long NewValue, long OldValu
     }
 }
 
-void CBT848Source::AudioStandardInStatusBarOnChange(long NewValue, long OldValue)
+void CBT848Source::AudioStandardInStatusBarOnChange(BOOL NewValue, BOOL OldValue)
 {
 
 }
@@ -478,7 +478,7 @@ void CBT848Source::HandleTimerMessages(int TimerId)
     }
 }
 
-ISetting* CBT848Source::GetCurrentAudioSetting()
+CSliderSetting* CBT848Source::GetCurrentAudioSetting()
 {
     switch(m_VideoSource->GetValue())
     {

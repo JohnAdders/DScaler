@@ -38,10 +38,10 @@ class CPreTuneVoodooFM : public IExternalIFDemodulator
 public:
     CPreTuneVoodooFM(CBT848Card* pBT848Card);
 
-    void TunerSet(bool bPreSet, eVideoFormat videoFormat);
-    bool Detect();
+    void TunerSet(BOOL bPreSet, eVideoFormat videoFormat);
+    BOOL Detect();
 
-    void Init(bool bPreInit, eVideoFormat videoFormat) { TunerSet(bPreInit, videoFormat); }
+    void Init(BOOL bPreInit, eVideoFormat videoFormat) { TunerSet(bPreInit, videoFormat); }
     eTunerAFCStatus GetAFCStatus(long &nFreqDeviation) { return TUNER_AFC_NOTSUPPORTED; }
 protected:
     // from CI2CDevice

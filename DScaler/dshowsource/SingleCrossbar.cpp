@@ -68,7 +68,7 @@ PhysicalConnectorType CDShowSingleCrossbar::GetInputType(long Index)
     return (PhysicalConnectorType)type;
 }
 
-void CDShowSingleCrossbar::SetInputIndex(long Index,bool bSetRelated)
+void CDShowSingleCrossbar::SetInputIndex(long Index,BOOL bSetRelated)
 {
     long cInputPinRelated,cOutputPinRelated,type;
     long cInput,cOutput;
@@ -80,7 +80,7 @@ void CDShowSingleCrossbar::SetInputIndex(long Index,bool bSetRelated)
     }
 
     //set the related pin too?
-    if(bSetRelated==true)
+    if(bSetRelated==TRUE)
     {
         hr=m_crossbar->get_CrossbarPinInfo(TRUE,Index,&cInputPinRelated,&type);
         if(FAILED(hr))
@@ -90,7 +90,7 @@ void CDShowSingleCrossbar::SetInputIndex(long Index,bool bSetRelated)
     }
     
     //check all outputs to see if its posibel to connect with selected input
-    bool bInputRouted=false;
+    BOOL bInputRouted=FALSE;
     for(int i=0;i<cOutput;i++)
     {
         //CanRoute returns S_FALSE if it cant route
@@ -105,18 +105,18 @@ void CDShowSingleCrossbar::SetInputIndex(long Index,bool bSetRelated)
             //output pin for related pin
             hr=m_crossbar->get_CrossbarPinInfo(FALSE,i,&cOutputPinRelated,&type);
             
-            bInputRouted=true;
+            bInputRouted=TRUE;
             break;
         }
     }
     
     //successfull?
-    if(bInputRouted==false)
+    if(bInputRouted==FALSE)
     {
         throw CCrossbarException("Cant find route");
     }
 
-    if(bSetRelated==true)
+    if(bSetRelated==TRUE)
     {
         if(SUCCEEDED(m_crossbar->CanRoute(cOutputPinRelated,cInputPinRelated)))
         {
@@ -140,7 +140,7 @@ long CDShowSingleCrossbar::GetInputIndex(long OutIndex)
     return InputIndex;
 }
 
-bool CDShowSingleCrossbar::IsInputSelected(long index)
+BOOL CDShowSingleCrossbar::IsInputSelected(long index)
 {
     long cInput,cOutput;
     GetPinCounts(cInput,cOutput);
@@ -150,9 +150,9 @@ bool CDShowSingleCrossbar::IsInputSelected(long index)
         long inputIndex=GetInputIndex(i);
         if(index==inputIndex)
         {
-            return true;
+            return TRUE;
         }
     }
-    return false;
+    return FALSE;
 }
 #endif

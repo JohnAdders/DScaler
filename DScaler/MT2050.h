@@ -41,9 +41,9 @@ public:
     // from ITuner
     eTunerId GetTunerId();
     eVideoFormat GetDefaultVideoFormat();
-    bool HasRadio() const;
-    bool SetRadioFrequency(long nFrequency);
-    bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
+    BOOL HasRadio() const;
+    BOOL SetRadioFrequency(long nFrequency);
+    BOOL SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
 
     long GetFrequency();
     eTunerLocked IsLocked();
@@ -60,14 +60,14 @@ private:
     int SpurCheck(int flos1, int flos2, int fifbw, int fout);
     void SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat);
 
-    void PrepareTDA9887(bool bPrepare, eVideoFormat videoFormat);
-    void PrepareVoodooTV(bool bPrepare, eVideoFormat videoFormat);
+    void PrepareTDA9887(BOOL bPrepare, eVideoFormat videoFormat);
+    void PrepareVoodooTV(BOOL bPrepare, eVideoFormat videoFormat);
 
 private:
-    bool m_Initialized;
+    BOOL m_Initialized;
     eVideoFormat m_DefaultVideoFormat;
     long m_Frequency;
-    bool m_Locked;
+    BOOL m_Locked;
 };
 
 #endif // !defined(__MT2050_H__)

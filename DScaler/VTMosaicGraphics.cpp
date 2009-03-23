@@ -58,7 +58,7 @@ BYTE CVTMosaicGraphics::m_BitTable[3][2] =
 
 
 void CVTMosaicGraphics::DrawG1Mosaic(HDC hDC, LPRECT lpRect, BYTE uChar,
-                                      HBRUSH hBrush, bool bSeparated)
+                                      HBRUSH hBrush, BOOL bSeparated)
 {
     int x_m = (lpRect->right - lpRect->left) % 2;
     int y_m = (lpRect->bottom - lpRect->top) % 3;

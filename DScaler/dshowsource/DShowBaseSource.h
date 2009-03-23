@@ -47,9 +47,9 @@ public:
 
     /**
      * Checks if this source is connected
-     * @return true if this source is connected
+     * @return TRUE if this source is connected
      */
-    virtual bool IsConnected()=0;
+    virtual BOOL IsConnected()=0;
 
     /**
      * Gets number of dropped frames.

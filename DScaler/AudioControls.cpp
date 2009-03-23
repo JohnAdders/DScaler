@@ -39,21 +39,21 @@ CAudioControls::~CAudioControls()
 }
 
 
-bool CAudioControls::HasMute()
+BOOL CAudioControls::HasMute()
 {
     return FALSE;
 }
 
-void CAudioControls::SetMute(bool bMute)
+void CAudioControls::SetMute(BOOL bMute)
 {
 }
 
-bool CAudioControls::IsMuted()
+BOOL CAudioControls::IsMuted()
 {
     return FALSE;
 }
 
-bool CAudioControls::HasVolume()
+BOOL CAudioControls::HasVolume()
 {
     return FALSE;
 }
@@ -67,7 +67,7 @@ WORD CAudioControls::GetVolume()
     return 0;
 }
 
-bool CAudioControls::HasBalance()
+BOOL CAudioControls::HasBalance()
 {
     return FALSE;
 }
@@ -81,7 +81,7 @@ WORD CAudioControls::GetBalance()
     return 0;
 }
 
-bool CAudioControls::HasBass()
+BOOL CAudioControls::HasBass()
 {
     return FALSE;
 }
@@ -95,7 +95,7 @@ WORD CAudioControls::GetBass()
     return 0;
 }
 
-bool CAudioControls::HasTreble()
+BOOL CAudioControls::HasTreble()
 {
     return FALSE;
 }
@@ -109,7 +109,7 @@ WORD CAudioControls::GetTreble()
     return 0;
 }
 
-bool CAudioControls::HasEqualizers()
+BOOL CAudioControls::HasEqualizers()
 {
     return FALSE;
 }
@@ -128,21 +128,21 @@ WORD CAudioControls::GetEqualizerLevel(WORD nIndex)
     return 0;
 }
 
-bool CAudioControls::HasBassBoost()
+BOOL CAudioControls::HasBassBoost()
 {
     return FALSE;
 }
 
-void CAudioControls::SetBassBoost(bool bBoost)
+void CAudioControls::SetBassBoost(BOOL bBoost)
 {
 }
 
-bool CAudioControls::IsBassBoosted()
+BOOL CAudioControls::IsBassBoosted()
 {
     return FALSE;
 }
 
-bool CAudioControls::HasLoudness()
+BOOL CAudioControls::HasLoudness()
 {
     return FALSE;
 }
@@ -156,7 +156,7 @@ WORD CAudioControls::GetLoudness()
     return 0;
 }
 
-bool CAudioControls::HasSpatialEffect()
+BOOL CAudioControls::HasSpatialEffect()
 {
     return FALSE;
 }
@@ -170,7 +170,7 @@ int CAudioControls::GetSpatialEffect()
     return 0;
 }
 
-bool CAudioControls::HasDolby()
+BOOL CAudioControls::HasDolby()
 {
     return FALSE;
 }
@@ -179,7 +179,7 @@ void CAudioControls::SetDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan,
 {
 }
 
-bool CAudioControls::HasAutoVolumeCorrection()
+BOOL CAudioControls::HasAutoVolumeCorrection()
 {
     return FALSE;
 }

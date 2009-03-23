@@ -38,8 +38,8 @@ CPCICard::CPCICard(CHardwareDriver* pDriver) :
             m_MemoryBase(0),
             m_bOpen(FALSE),
             m_hStateFile(INVALID_HANDLE_VALUE),
-            m_bStateIsReading(false),
-            m_SupportsACPI(false),
+            m_bStateIsReading(FALSE),
+            m_SupportsACPI(FALSE),
             m_InitialACPIStatus(0)
 {
     InitializeCriticalSection(&m_CriticalSection);
@@ -682,7 +682,7 @@ void CPCICard::SaveState()
     long BuildNum(GetBuildNum());
     WriteFile(m_hStateFile, &BuildNum, 4, &BytesWritten, NULL);
 
-    m_bStateIsReading = false;
+    m_bStateIsReading = FALSE;
     ManageMyState();
 }
 
@@ -700,7 +700,7 @@ void CPCICard::RestoreState()
 
         if(StoredBuildNumber == GetBuildNum())
         {
-            m_bStateIsReading = true;
+            m_bStateIsReading = TRUE;
             ManageMyState();
         }
         else

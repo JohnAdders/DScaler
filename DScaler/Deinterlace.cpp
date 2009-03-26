@@ -36,11 +36,16 @@
 #include "DebugLog.h"
 #include "Providers.h"
 #include "DynamicFunction.h"
+#include "SettingsMaster.h"
+
+using namespace std;
 
 // Statistics
 long    nInitialTicks = -1;
 long    nLastTicks = 0;
 long    nTotalDeintModeChanges = 0;
+
+vector< SmartPtr<CSettingsHolder> > DeinterlaceHolders;
 
 DEINTERLACE_METHOD ProgressiveMethods[PROGPULLDOWNMODES_LAST_ONE] =
 {
@@ -549,11 +554,11 @@ void PrepareDeinterlaceMode()
 
     if(GetTVFormat(VideoFormat)->Is25fps)
     {
-        SetVideoDeinterlaceIndex(Setting_GetValue(FD50_GetSetting(PALFILMFALLBACKMODE)));
+        SetVideoDeinterlaceIndex(Setting_GetValue(WM_FD50_GETVALUE, PALFILMFALLBACKMODE));
     }
     else
     {
-        SetVideoDeinterlaceIndex(Setting_GetValue(FD60_GetSetting(NTSCFILMFALLBACKMODE)));
+        SetVideoDeinterlaceIndex(Setting_GetValue(WM_FD60_GETVALUE, NTSCFILMFALLBACKMODE));
     }
     // If that didn't work then go into whatever they loaded up first
     if(gVideoPulldownMode == -1)
@@ -670,7 +675,7 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
             {
                 bFound = TRUE;
                 nDeinterlaceIndex = VideoDeintMethods[i]->nMethodIndex;
-                if(!bIsFilmMode || (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)) == FALSE))
+                if(!bIsFilmMode || (Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT) == FALSE))
                 {
                     SetVideoDeinterlaceMode(i);
                     OSD_ShowText(GetDeinterlaceModeName(), 0);
@@ -690,11 +695,11 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
         eVideoFormat VideoFormat(Providers_GetCurrentSource()->GetFormat());
         if(GetTVFormat(VideoFormat)->Is25fps)
         {
-            Setting_SetValue(FD50_GetSetting(PALFILMFALLBACKMODE), nDeinterlaceIndex);
+            Setting_SetValue(WM_FD50_GETVALUE, PALFILMFALLBACKMODE, nDeinterlaceIndex);
         }
         else
         {
-            Setting_SetValue(FD60_GetSetting(NTSCFILMFALLBACKMODE), nDeinterlaceIndex);
+            Setting_SetValue(WM_FD60_GETVALUE, NTSCFILMFALLBACKMODE, nDeinterlaceIndex);
         }
     }
     return bFound;
@@ -718,16 +723,17 @@ void LoadDeintPlugin(LPCSTR szFileName)
         {
             VideoDeintMethods[NumVideoModes] = pMethod;
             
-            // read in settings
-            for(int i = 0; i < pMethod->nSettings; i++)
-            {
-                Setting_ReadFromIni(&(pMethod->pSettings[i]));
-            }
+            SmartPtr<CSettingsHolder> Holder(new CSettingsHolder(WM_APP + pMethod->nSettingsOffset, pMethod->HelpID));
+            Holder->AddSettings(pMethod->pSettings, pMethod->nSettings);
+            Holder->ReadFromIni();
+            SettingsMaster->Register(Holder);
+
             if(pMethod->pfnPluginInit != NULL)
             {
                 pMethod->pfnPluginInit();
             }
             NumVideoModes++;
+            DeinterlaceHolders.push_back(Holder);
         }
     }
 }
@@ -742,7 +748,9 @@ void UnloadDeinterlacePlugins()
             VideoDeintMethods[i]->pfnPluginExit();
         }
         VideoDeintMethods[i] = NULL;
+        SettingsMaster->Unregister(DeinterlaceHolders[i]);
     }
+    DeinterlaceHolders.clear();
     NumVideoModes = 0;
 }
 
@@ -854,112 +862,18 @@ BOOL LoadDeinterlacePlugins()
     }
 }
 
-void GetDeinterlaceSettings(DEINTERLACE_METHOD**& DeinterlaceMethods,long& NumMethods)
+void GetDeinterlaceSettings(vector< SmartPtr<CSettingsHolder> >& Holders, vector< string >& Names)
 {
-    //ASSERT(ppSettings!=NULL && *pNumFilters!=NULL);
-    DeinterlaceMethods = VideoDeintMethods;
-    NumMethods = NumVideoModes;
+    Holders = DeinterlaceHolders;
+    Names.clear();
+    for(int i(0); i < NumVideoModes; i++)
+    {
+        Names.push_back(VideoDeintMethods[i]->szName);
+    }
 }
 
 
 ////////////////////////////////////////////////////////////////////////////
-// Start of Settings related code
-// there are no settings at the moment but here is a good place to set
-// up the DeintModeNames array used where Modes are to be selected
-/////////////////////////////////////////////////////////////////////////////
-SETTING* Deinterlace_GetSetting(long nIndex, long Setting)
-{
-    if(nIndex < 0 || nIndex >= NumVideoModes)
-    {
-        return NULL;
-    }
-    if(Setting > -1 && Setting < VideoDeintMethods[nIndex]->nSettings)
-    {
-        return &(VideoDeintMethods[nIndex]->pSettings[Setting]);
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-LONG Deinterlace_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone)
-{
-    int i;
-    LONG RetVal = 0;
-    SETTING* pSetting;
-    for(i = 0; i < NumVideoModes; i++)
-    {
-        if(message == (UINT)(WM_APP + VideoDeintMethods[i]->nSettingsOffset))
-        {
-            *bDone = TRUE;
-            pSetting = Deinterlace_GetSetting(i, wParam);
-            if(pSetting != NULL)
-            {
-                RetVal =  Setting_GetValue(pSetting);
-            }
-            break;
-        }
-        else if(message == (UINT)(WM_APP + VideoDeintMethods[i]->nSettingsOffset + 100))
-        {
-            *bDone = TRUE;
-            pSetting = Deinterlace_GetSetting(i, wParam);
-            if(pSetting != NULL)
-            {
-                Setting_SetValue(pSetting, lParam);
-            }
-            break;
-        }
-        else if(message == (UINT)(WM_APP + VideoDeintMethods[i]->nSettingsOffset + 200))
-        {
-            *bDone = TRUE;
-            pSetting = Deinterlace_GetSetting(i, wParam);
-            if(pSetting != NULL)
-            {
-                Setting_ChangeValue(pSetting, (eCHANGEVALUE)lParam);
-            }
-            break;
-        }
-    }
-    return RetVal;
-}
-
-
-void Deinterlace_ReadSettingsFromIni()
-{
-    int i,j;
-    for(i = 0; i < NumVideoModes; i++)
-    {
-        for(j = 0; j < VideoDeintMethods[i]->nSettings; j++)
-        {
-            Setting_ReadFromIni(&(VideoDeintMethods[i]->pSettings[j]));
-        }
-    }
-}
-
-void Deinterlace_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i,j;
-    for(i = 0; i < NumVideoModes; i++)
-    {
-        for(j = 0; j < VideoDeintMethods[i]->nSettings; j++)
-        {
-            Setting_WriteToIni(&(VideoDeintMethods[i]->pSettings[j]), bOptimizeFileAccess);
-        }
-    }
-}
-
-void Deinterlace_FreeSettings()
-{
-    int i,j;
-    for(i = 0; i < NumVideoModes; i++)
-    {
-        for(j = 0; j < VideoDeintMethods[i]->nSettings; j++)
-        {
-            Setting_Free(&(VideoDeintMethods[i]->pSettings[j]));
-        }
-    }
-}
 
 void Deinterlace_SetMenu(HMENU hMenu)
 {

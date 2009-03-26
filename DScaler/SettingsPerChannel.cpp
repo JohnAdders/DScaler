@@ -85,28 +85,6 @@ SETTING SettingsPerChannel_CommonSettings[SETTINGSPERCHANNEL_SETTING_LASTONE] =
     },
 };
 
-
-void SettingsPerChannel_ReadSettingsFromIni()
-{
-    int i;
-    
-    // Common settings
-    for (i = 0; i < SETTINGSPERCHANNEL_SETTING_LASTONE; i++)
-    {       
-       Setting_ReadFromIni(&SettingsPerChannel_CommonSettings[i]);
-    }    
-}
-
-void SettingsPerChannel_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for (i = 0; i < SETTINGSPERCHANNEL_SETTING_LASTONE; i++)
-    {       
-       Setting_WriteToIni(&SettingsPerChannel_CommonSettings[i], bOptimizeFileAccess);
-    }
-}
-
-
 SETTING* SettingsPerChannel_GetSetting(int Setting)
 {
     if(Setting > -1 && Setting < SETTINGSPERCHANNEL_SETTING_LASTONE)

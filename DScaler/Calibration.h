@@ -142,13 +142,11 @@ private:
 
 
 /// Global instance of the calibration object
-extern CCalibration* pCalibration;
+extern SmartPtr<CCalibration> pCalibration;
 
 
 SETTING* Calibr_GetSetting(CALIBR_SETTING Setting);
-void Calibr_ReadSettingsFromIni();
-void Calibr_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-CTreeSettingsGeneric* Calibr_GetTreeSettingsPage();
+SmartPtr<CTreeSettingsGeneric> Calibr_GetTreeSettingsPage();
 
 
 #endif

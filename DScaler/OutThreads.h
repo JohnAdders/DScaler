@@ -50,9 +50,7 @@ typedef struct {
 
 // Get Hold of the OutThreads.c file settings
 SETTING* OutThreads_GetSetting(OUTTHREADS_SETTING Setting);
-void OutThreads_ReadSettingsFromIni();
-void OutThreads_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-CTreeSettingsGeneric* OutThreads_GetTreeSettingsPage();
+SmartPtr<CTreeSettingsGeneric> OutThreads_GetTreeSettingsPage();
 void OutThreads_SetMenu(HMENU hMenu);
 
 void ClearPictureHistory(TDeinterlaceInfo* pInfo);

@@ -37,6 +37,7 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 
 BOOL bStopVBI;
 HANDLE VBIThread;
@@ -223,22 +224,15 @@ SETTING* VBI_GetSetting(VBI_SETTING Setting)
     }
 }
 
-CSettingsHolderStandAlone VBISettingsHolder;
+CSettingsHolder VBISettingsHolder;
 
 void VBI_ReadSettingsFromIni()
 {
     if(VBISettingsHolder.GetNumSettings() == 0)
     {
-        CSettingGroup *pCaptureGroup = VBISettingsHolder.GetSettingsGroup("VBI - Capture", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-        CSettingGroup *pVBISettingsGroup = VBISettingsHolder.GetSettingsGroup("VBI - Settings", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+        CSettingGroup *pCaptureGroup = SettingsMaster->GetGroup("VBI - Capture", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
-        VBISettingsHolder.AddSetting(&VBISettings[CAPTURE_VBI], pCaptureGroup);
-
-        VBISettingsHolder.AddSetting(&VBISettings[CLOSEDCAPTIONMODE], pVBISettingsGroup);
-        VBISettingsHolder.AddSetting(&VBISettings[DOTELETEXT], pVBISettingsGroup);
-        VBISettingsHolder.AddSetting(&VBISettings[DOVPS], pVBISettingsGroup);
-        VBISettingsHolder.AddSetting(&VBISettings[DOWSS], pVBISettingsGroup);
-        VBISettingsHolder.AddSetting(&VBISettings[SEARCHHIGHLIGHT], pVBISettingsGroup);
+        VBISettingsHolder.AddSettings(VBISettings, VBI_SETTING_LASTONE, pCaptureGroup);
 
 #ifdef _DEBUG
         if (VBI_SETTING_LASTONE != VBISettingsHolder.GetNumSettings())
@@ -266,8 +260,8 @@ void VBI_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 void VBI_SetMenu(HMENU hMenu)
 {
-    int i = Setting_GetValue(Aspect_GetSetting(AUTODETECTASPECT));
-    BOOL LockWSS = (i == 2) || ( (i == 1) && Setting_GetValue(Aspect_GetSetting(USEWSS)) );
+    int i = Setting_GetValue(WM_ASPECT_GETVALUE, AUTODETECTASPECT);
+    BOOL LockWSS = (i == 2) || ( (i == 1) && Setting_GetValue(WM_ASPECT_GETVALUE, USEWSS)) ;
 
     EnableMenuItem(hMenu, IDM_PDC_OUT, MF_GRAYED);
     EnableMenuItem(hMenu, IDM_VT_OUT, MF_GRAYED);

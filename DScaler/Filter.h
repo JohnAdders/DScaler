@@ -25,17 +25,13 @@
 
 #include "DS_Filter.h"
 
+class CSettingsHolder;
+
 BOOL LoadFilterPlugins();
 void UnloadFilterPlugins();
-
-
 BOOL ProcessFilterSelection(HWND hWnd, WORD wMenuID);
-void GetFilterSettings(FILTER_METHOD**& MethodsArray,long& NumFilters);
-SETTING* Filter_GetSetting(long nIndex, long Setting);
-LONG Filter_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone);
-void Filter_ReadSettingsFromIni();
+void GetFilterSettings(std::vector< SmartPtr<CSettingsHolder> >& Holders,std::vector< std::string >& Names);
 void Filter_SetMenu(HMENU hMenu);
-void Filter_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 BOOL Filter_WillWeDoOutput();
 
 

@@ -32,73 +32,26 @@
 
 using namespace std;
 
-CSettingsHolder::CSettingsHolder(long SetMessage) :
-    m_SetMessage(SetMessage)
+CSettingsHolder::CSettingsHolder(long SetMessage, UINT HelpID) :
+    m_SetMessage(SetMessage),
+    m_HelpID(HelpID)
 {    
     m_SettingFlagsSection = "SettingFlags";
-        
-    m_pRegistered = FALSE;
-
-    RegisterMe();        
 }
 
 CSettingsHolder::~CSettingsHolder()
 {
-    if ((SettingsMaster != NULL) && m_pRegistered)
-    {
-        SettingsMaster->Unregister(this);
-        m_pRegistered = FALSE;
-    }
-    // Delete settings and write settings
-    ClearSettingList(TRUE, TRUE);
-}
-
-
-void CSettingsHolder::ClearSettingList(BOOL bDeleteSettings, BOOL bWriteSettings)
-{
-    for (int i = 0; i < m_Settings.size(); i++)
-    {
-        if (m_Settings[i] != NULL)
-        {
-            if (bWriteSettings)
-            {
-                m_Settings[i]->WriteToIni(TRUE);
-            }
-            if (bDeleteSettings)
-            {
-                delete m_Settings[i];
-            }
-            m_Settings[i] = NULL;
-        }
-    }    
-    m_Settings.clear();
-}
-
-/**
-     Registers the SettingsHolder to the SettingsMaster.
-     The SettingsMaster receives source/input/format & channel
-     change events and read&writes the proper settings from/to
-     the SettingsHolders.
-*/
-BOOL CSettingsHolder::RegisterMe()
-{
-    if (!m_pRegistered && (SettingsMaster != NULL))
-    {
-        m_pRegistered = TRUE;
-        SettingsMaster->Register(this);        
-    }
-    return m_pRegistered;
 }
 
 /**
     Add a settings to the list.
     Makes sure there are no duplicates.
 */
-void CSettingsHolder::AddSetting(CSimpleSetting* pSetting)
+void CSettingsHolder::AddSetting(SmartPtr<CSimpleSetting> pSetting)
 {    
     for (int i = 0; i < m_Settings.size(); i++)
     {
-        if (pSetting != NULL && m_Settings[i] == pSetting)
+        if (m_Settings[i] == pSetting)
         {
             //Already in list
             return; 
@@ -106,13 +59,14 @@ void CSettingsHolder::AddSetting(CSimpleSetting* pSetting)
     }
     //Add to list
     m_Settings.push_back(pSetting);
-    //
-    RegisterMe();
 }
 
 void CSettingsHolder::AddSetting(SETTING* pSetting, CSettingGroup* pGroup)
 {
-    AddSetting(new CSettingWrapper(pSetting));
+    if(pSetting != NULL)
+    {
+        AddSetting(new CSettingWrapper(pSetting));
+    }
 }
 
 /**
@@ -120,32 +74,20 @@ void CSettingsHolder::AddSetting(SETTING* pSetting, CSettingGroup* pGroup)
 */    
 void CSettingsHolder::ReadFromIni()
 {    
-    RegisterMe();
-    for(vector<CSimpleSetting*>::iterator it = m_Settings.begin();
-        it != m_Settings.end();
-        ++it)
+    for(SettingsArray::iterator it = m_Settings.begin(); it != m_Settings.end(); ++it)
     {
-        if((*it) != NULL)
-        {
-            (*it)->ReadFromIni();
-        }
+        (*it)->ReadFromIni();
     }
 }
 
 /**
-    Writes alls settings of the list to the .ini file.    
+    Writes all settings of the list to the .ini file.    
 */    
 void CSettingsHolder::WriteToIni(BOOL bOptimizeFileAccess)
 {    
-    RegisterMe();
-    for(vector<CSimpleSetting*>::iterator it = m_Settings.begin();
-        it != m_Settings.end();
-        ++it)
+    for(SettingsArray::iterator it = m_Settings.begin(); it != m_Settings.end(); ++it)
     {
-        if((*it) != NULL)
-        {
-            (*it)->WriteToIni(bOptimizeFileAccess);
-        }
+        (*it)->WriteToIni(bOptimizeFileAccess);
     }
 }
 
@@ -161,9 +103,8 @@ long CSettingsHolder::GetNumSettings()
 /**
     Get setting at index SettingsIndex.    
 */    
-CSimpleSetting* CSettingsHolder::GetSetting(long SettingIndex)
+SmartPtr<CSimpleSetting> CSettingsHolder::GetSetting(long SettingIndex)
 {
-    RegisterMe();
     if(SettingIndex >= 0 && SettingIndex < m_Settings.size())
     {
         return m_Settings[SettingIndex];
@@ -190,24 +131,21 @@ LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam
 
     if(wParam >= 0 && wParam < m_Settings.size())
     {
-        CSimpleSetting* pSetting = m_Settings[wParam];
-        if(pSetting != NULL)
+        SmartPtr<CSimpleSetting> pSetting = m_Settings[wParam];
+        if(message == m_SetMessage)
         {
-            if(message == m_SetMessage)
-            {
-                RetVal = pSetting->GetValueAsMessage();
-                *bHandled = TRUE;
-            }
-            else if(message == m_SetMessage + 100)
-            {
-                pSetting->SetValueFromMessage(lParam);
-                *bHandled = TRUE;
-            }
-            else if(message == m_SetMessage + 200)
-            {
-                pSetting->ChangeValue((eCHANGEVALUE)lParam);
-                *bHandled = TRUE;
-            }
+            RetVal = pSetting->GetValueAsMessage();
+            *bHandled = TRUE;
+        }
+        else if(message == m_SetMessage + 100)
+        {
+            pSetting->SetValueFromMessage(lParam);
+            *bHandled = TRUE;
+        }
+        else if(message == m_SetMessage + 200)
+        {
+            pSetting->ChangeValue((eCHANGEVALUE)lParam);
+            *bHandled = TRUE;
         }
     }
     return RetVal;
@@ -217,22 +155,15 @@ LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam
     Adds an array of SETTING structures to the SettingHolder.
     Optionally specify a default SettingGroup    
 */
-int CSettingsHolder::LoadSettingStructures(SETTING* pSetting, int StartNum, int Num, CSettingGroup* pGroup)
+void CSettingsHolder::AddSettings(SETTING* pSetting, int Num, CSettingGroup* pGroup)
 {
-    int Count(0);
-
-    m_Settings.clear();
-
-    for (int i(StartNum) ; i < Num; i++)
+    for (int i(0) ; i < Num; i++)
     {
         if(pSetting[i].szDisplayName != NULL)
         {
             AddSetting(&pSetting[i], pGroup);
-            ++Count;
         }
     }    
-    RegisterMe();
-    return Count;
 }
 
 /**
@@ -242,10 +173,7 @@ void CSettingsHolder::EnableOnChange()
 {
     for (int i = 0; i < m_Settings.size(); i++)
     {
-        if (m_Settings[i] != NULL)
-        {
-            m_Settings[i]->EnableOnChange();
-        }
+        m_Settings[i]->EnableOnChange();
     }
 }
 
@@ -256,32 +184,6 @@ void CSettingsHolder::DisableOnChange()
 {
     for (int i = 0; i < m_Settings.size(); i++)
     {
-        if (m_Settings[i] != NULL)
-        {
-            m_Settings[i]->DisableOnChange();
-        }
+        m_Settings[i]->DisableOnChange();
     }
-}
-
-/**
-    Get/Create a root group from the settingsmaster.
-    The SettingObject the group belongs to is the SettingHolder itself.
-*/
-CSettingGroup* CSettingsHolder::GetSettingsGroup(LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)
-{
-    RegisterMe();
-    return SettingsMaster->GetGroup(szName, Flags, IsActiveByDefault);
-}
-
-/**
-    A standalone SettingsHolder
-
-    
-*/
-CSettingsHolderStandAlone::CSettingsHolderStandAlone() : CSettingsHolder(0)
-{
-}
-
-CSettingsHolderStandAlone::~CSettingsHolderStandAlone()
-{
 }

@@ -50,23 +50,10 @@ public:
 
     /**
      * @param name name used in the tree
-     * @param settings pointer to array of SETTING
-     * @param count size of settings array
+     * @param SettingHolder Settings to display in Dialog
      */
-    CTreeSettingsGeneric(CString name,SETTING* settings,long count);
-    
-    /**
-     * @param name name used in the tree
-     * @param psettings pointer to array of SETTING pointers
-     * @param count size of settings array
-     */
-    CTreeSettingsGeneric(CString name,SETTING** psettings,long count);
-    
-    /**
-     * @param name name used in the tree
-     */
-    CTreeSettingsGeneric(CString name,std::vector<CSimpleSetting*> settings); 
-    ~CTreeSettingsGeneric();
+    CTreeSettingsGeneric(CString name,SmartPtr<CSettingsHolder> SettingHolder);
+    ~CTreeSettingsGeneric() {};
 
 // Dialog Data
     //{{AFX_DATA(CTreeSettingsGeneric)
@@ -123,9 +110,8 @@ protected:
 private:
     void UpdateControls(CWnd* pChangedControl);
     long m_SettingsCount;
-    CSettingsHolderStandAlone m_Settings;
+    SmartPtr<CSettingsHolder> m_Settings;
     long m_CurrentSetting;
-    BOOL m_DeleteSettingsOnExit;
 };
 
 //{{AFX_INSERT_LOCATION}}

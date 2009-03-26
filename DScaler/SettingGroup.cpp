@@ -56,16 +56,7 @@ BOOL CSettingGroup::IsGroupActive()
     return m_IsActive->GetValue();
 }
 
-CSimpleSetting* CSettingGroup::GetIsActiveSetting()
+SmartPtr<CSimpleSetting> CSettingGroup::GetIsActiveSetting()
 {
     return m_IsActive;
-}
-
-
-/** 
-    Adds group to pSetting    
-*/
-void CSettingGroup::AddSetting(CSimpleSetting *pSetting)
-{
-    pSetting->SetGroup(this);
 }

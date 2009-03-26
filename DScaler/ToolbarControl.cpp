@@ -432,7 +432,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
             Toolbar1->SetChildPosition(Toolbar1MediaPlayer, LOWORD(m_Toolbar1MediaPlayer->GetValue()), 0);
             // Temporary : hide the toolbar when a skin is enabled
             // TODO : integrate this new toolbar in the skins
-            extern char* szSkinName;
+            extern SettingStringValue szSkinName;
             if ( ((HIWORD(m_Toolbar1MediaPlayer->GetValue())&3)==3)
               && ( (szSkinName == NULL) || (szSkinName[0] == 0)) )
             {
@@ -703,7 +703,7 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
         m_ShowToolbar1->SetValue(!m_ShowToolbar1->GetValue());        
         if ((Toolbar1 == NULL) && (m_ShowToolbar1->GetValue()))
         {
-            extern char* szSkinName;
+            extern SettingStringValue szSkinName;
             CToolbarControl::Set(hWnd, szSkinName);    
         }
         else

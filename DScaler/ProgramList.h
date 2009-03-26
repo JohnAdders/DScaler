@@ -31,16 +31,12 @@
 
 // Get Hold of the OutThreads.c file settings
 SETTING* Channels_GetSetting(CHANNELS_SETTING Setting);
-void Channels_ReadSettingsFromIni();
-void Channels_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Channels_UpdateMenu(HMENU hMenu);
 void Channels_SetMenu(HMENU hMenu);
 BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID);
 
 SETTING* AntiPlop_GetSetting(ANTIPLOP_SETTING Setting);
-void AntiPlop_ReadSettingsFromIni();
-void AntiPlop_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-CTreeSettingsGeneric* AntiPlop_GetTreeSettingsPage();
+SmartPtr<CTreeSettingsGeneric> AntiPlop_GetTreeSettingsPage();
 
 void Channels_Exit();
 

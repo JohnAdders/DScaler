@@ -69,8 +69,7 @@ public:
 
     BOOL IsGroupActive();
 
-    void AddSetting(CSimpleSetting *pSetting);
-    CSimpleSetting* GetIsActiveSetting();
+    SmartPtr<CSimpleSetting> GetIsActiveSetting();
 
 protected:
     /// Name of the group

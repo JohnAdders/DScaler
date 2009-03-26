@@ -32,6 +32,7 @@
 #include "AspectRatio.h"
 #include "OutThreads.h"
 #include "PathHelpers.h"
+#include "SettingsMaster.h"
 
 using namespace std;
 
@@ -1552,7 +1553,7 @@ BOOL CCalibration::step_process(TDeinterlaceInfo* pInfo, unsigned int sig_compon
 
 /////////////////////////////////////////////////////////////////////////////
 
-CCalibration* pCalibration = NULL;
+SmartPtr<CCalibration> pCalibration;
 
 /////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
@@ -1599,25 +1600,8 @@ SETTING* Calibr_GetSetting(CALIBR_SETTING Setting)
     }
 }
 
-void Calibr_ReadSettingsFromIni()
+SmartPtr<CTreeSettingsGeneric> Calibr_GetTreeSettingsPage()
 {
-    int i;
-    for(i = 0; i < CALIBR_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(CalibrSettings[i]));
-    }
-}
-
-void Calibr_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < CALIBR_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(CalibrSettings[i]), bOptimizeFileAccess);
-    }
-}
-
-CTreeSettingsGeneric* Calibr_GetTreeSettingsPage()
-{
-    return new CTreeSettingsGeneric("Card Calibration Settings",CalibrSettings, CALIBR_SETTING_LASTONE);
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_CALIBR_GETVALUE));
+    return new CTreeSettingsGeneric("Card Calibration Settings", Holder);
 }

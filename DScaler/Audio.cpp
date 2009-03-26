@@ -209,24 +209,6 @@ SETTING* Audio_GetSetting(AUDIO_SETTING Setting)
     }
 }
 
-void Audio_ReadSettingsFromIni()
-{
-    int i;
-    for(i = 0; i < AUDIO_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(AudioSettings[i]));
-    }
-}
-
-void Audio_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < AUDIO_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(AudioSettings[i]), bOptimizeFileAccess);
-    }
-}
-
 void Audio_SetMenu(HMENU hMenu)
 {
     CheckMenuItemBool(hMenu, IDM_MUTE, bUserMute);

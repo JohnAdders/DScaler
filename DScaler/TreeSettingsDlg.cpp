@@ -74,6 +74,13 @@ CTreeSettingsDlg::CTreeSettingsDlg(CString caption,CWnd* pParent /*=NULL*/)
 
 }
 
+CTreeSettingsDlg::~CTreeSettingsDlg()
+{
+    for(size_t i(0); i < m_pages.size(); ++i)
+    {
+        m_pages[i].m_pPage = 0L;
+    }
+}
 
 void CTreeSettingsDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -200,7 +207,7 @@ BOOL CTreeSettingsDlg::OnInitDialog()
                 hParent=m_pages[m_pages[i].m_parent].m_hTreeItem;
             }
         }
-        HTREEITEM hNode=m_tree.InsertItem(m_pages[i].m_pPage->GetName(),m_pages[i].m_imageIndex,m_pages[i].m_imageIndexSelected,hParent);
+        HTREEITEM hNode=m_tree.InsertItem(m_pages[i].m_pPage->GetName(), 0, 0, hParent);
         int ExpandPage = m_iStartPage;
         if ((ExpandPage<0) || (ExpandPage>=m_pages.size()))
         {
@@ -230,14 +237,12 @@ BOOL CTreeSettingsDlg::OnInitDialog()
                   // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-int CTreeSettingsDlg::AddPage(CTreeSettingsPage *pPage,int parent,int imageIndex,int imageIndexSelected)
+int CTreeSettingsDlg::AddPage(SmartPtr<CTreeSettingsPage> pPage,int parent)
 {
     CPageInfo newPage;
     newPage.m_pPage=pPage;
     newPage.m_parent=parent;
     newPage.m_hTreeItem=NULL;
-    newPage.m_imageIndex=imageIndex;
-    newPage.m_imageIndexSelected=imageIndexSelected;
     m_pages.push_back(newPage);
     return m_pages.size()-1;
 }
@@ -420,193 +425,153 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         mask = FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK;
     }
 
-    vector<CTreeSettingsPage*> pages;
     CTreeSettingsDlg dlg(CString("DScaler settings"));
 
-    long Num;
     long i;
 
-    CTreeSettingsPage RootPage(CString("Filter settings"),IDD_TREESETTINGS_EMPTY);
+    SmartPtr<CTreeSettingsPage> RootPage(new CTreeSettingsPage(CString("Filter settings"),IDD_TREESETTINGS_EMPTY));
 
     //the default help id is HID_BASE_RESOURCE+dialog template id
     //but we cant use that for empty pages and the generic property page
     //so set a new help id to use insted.
     //since the IDH_FILTERS already contains HID_BASE_RESOURCE, subtract that
-    RootPage.SetHelpID(IDH_FILTERS);
+    RootPage->SetHelpID(IDH_FILTERS);
 
     if (mask & FILTER_SETTINGS_MASK)
     {
-        int Root = dlg.AddPage(&RootPage);
-        FILTER_METHOD** FilterMethods;
-        GetFilterSettings(FilterMethods, Num);
-        for(i = 0; i < Num; i++)
+        int Root = dlg.AddPage(RootPage);
+        vector< SmartPtr<CSettingsHolder> > Holders;
+        vector< string > Names;
+        GetFilterSettings(Holders, Names);
+        for(i = 0; i < Holders.size(); i++)
         {
-            CTreeSettingsGeneric *pPage = new CTreeSettingsGeneric(
-                                                                    FilterMethods[i]->szName,
-                                                                    FilterMethods[i]->pSettings,
-                                                                    FilterMethods[i]->nSettings
-                                                                  );
-            pPage->SetHelpID(FilterMethods[i]->HelpID);
-
-            pages.push_back(pPage);
+            SmartPtr<CTreeSettingsGeneric> pPage = new CTreeSettingsGeneric(Names[i].c_str(), Holders[i]);
+            pPage->SetHelpID(Holders[i]->GetHelpID());
             dlg.AddPage(pPage, Root);
         }
     }
 
-    CTreeSettingsPage DeintRootPage(CString("Video Methods"), IDD_TREESETTINGS_EMPTY);
-    DeintRootPage.SetHelpID(IDH_DEINTERLACE);
+    SmartPtr<CTreeSettingsPage> DeintRootPage(new CTreeSettingsPage(CString("Video Methods"), IDD_TREESETTINGS_EMPTY));
+    DeintRootPage->SetHelpID(IDH_DEINTERLACE);
 
     if (mask & DEINTERLACE_SETTINGS_MASK)
     {
-        int Root = dlg.AddPage(&DeintRootPage);
-        DEINTERLACE_METHOD** DeintMethods;
-        GetDeinterlaceSettings(DeintMethods, Num);
-        for(i = 0; i < Num; i++)
+        int Root = dlg.AddPage(DeintRootPage);
+        vector< SmartPtr<CSettingsHolder> > Holders;
+        vector< string > Names;
+        GetDeinterlaceSettings(Holders, Names);
+        for(i = 0; i < Holders.size(); i++)
         {
-            CTreeSettingsGeneric* pPage = new CTreeSettingsGeneric(
-                                                                    DeintMethods[i]->szName,
-                                                                    DeintMethods[i]->pSettings,
-                                                                    DeintMethods[i]->nSettings
-                                                                  );
-            pPage->SetHelpID(DeintMethods[i]->HelpID);
-
-            pages.push_back(pPage);
+            SmartPtr<CTreeSettingsGeneric> pPage = new CTreeSettingsGeneric(Names[i].c_str(), Holders[i]);
+            pPage->SetHelpID(Holders[i]->GetHelpID());
             dlg.AddPage(pPage, Root);
         }
     }
 
-    CTreeSettingsPage AdvRootPage(CString("Advanced Settings"), IDD_TREESETTINGS_EMPTY);
-    AdvRootPage.SetHelpID(IDH_ADVANCED);
+    SmartPtr<CTreeSettingsPage> AdvRootPage(new CTreeSettingsPage(CString("Advanced Settings"), IDD_TREESETTINGS_EMPTY));
+    AdvRootPage->SetHelpID(IDH_ADVANCED);
 
     if (mask & ADVANCED_SETTINGS_MASK)
     {
-        int Root = dlg.AddPage(&AdvRootPage);
-        CTreeSettingsPage* pPage;
+        int Root = dlg.AddPage(AdvRootPage);
+        SmartPtr<CTreeSettingsPage> pPage;
 
         if (Providers_GetCurrentSource())
         {
             pPage = Providers_GetCurrentSource()->GetTreeSettingsPage();
-            if (pPage != NULL)
+            if (pPage)
             {
-                pages.push_back(pPage);
                 dlg.AddPage(pPage, Root);
             }
         }
 
         pPage = FD50_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_22_PULLDOWN);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = FD60_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_32_PULLDOWN);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = FD_Common_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_PULLDOWN_SHARED);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = FDProg_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_PULLDOWN_SHARED);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = Aspect_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_ASPECT);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = Timing_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_TIMING);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = OutThreads_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_ADVANCED);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = AntiPlop_GetTreeSettingsPage();
         // \todo AntiPlop Help
         pPage->SetHelpID(IDH_ADVANCED);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = OSD_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_ADVANCED);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = VideoText_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_TELETEXT);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = DScaler_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_ADVANCED);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = SettingsMaster->GetTreeSettingsPage();
         pPage->SetHelpID(IDH_SETTINGSBYCHANNEL);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = Still_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_STILL);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = Calibr_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_CALIBRATION);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = Overlay_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_OVERLAY);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = Debug_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_LOGGING);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = DScaler_GetTreeSettingsPage3();
         pPage->SetHelpID(IDH_ADVANCED);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = DScaler_GetTreeSettingsPage4();
         pPage->SetHelpID(IDH_ADVANCED);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = DScaler_GetTreeSettingsPage2();
         pPage->SetHelpID(IDH_ADVANCED);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = EPG_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_EPG);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
 
         pPage = D3D9_GetTreeSettingsPage();
         pPage->SetHelpID(IDH_D3D9);
-        pages.push_back(pPage);
         dlg.AddPage(pPage, Root);
     }
 
     dlg.DoModal();
-
-    for(vector<CTreeSettingsPage*>::iterator it=pages.begin();it!=pages.end();it++)
-    {
-        delete *it;
-    }
-    pages.erase(pages.begin(),pages.end());
 }
 
 // the next code based on free sources from

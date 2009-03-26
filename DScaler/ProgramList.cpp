@@ -607,8 +607,8 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 
             // if teletext is active then get channel names
             if (   bCaptureVBI
-                && (   Setting_GetValue(VBI_GetSetting(DOTELETEXT))
-                    || Setting_GetValue(VBI_GetSetting(DOVPS)) ) )
+                && (   Setting_GetValue(WM_VBI_GETVALUE, DOTELETEXT)
+                    || Setting_GetValue(WM_VBI_GETVALUE, DOVPS)) ) 
             {
                 // Torsten's comment:
                 // Because VBI decoding is not stopped before tuned
@@ -1345,7 +1345,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     ErrorBox((LPCSTR)dummy);
                     dummy.Empty();
                 }
-                WriteSettingsToIni(TRUE);
+                SettingsMaster->SaveAllSettings(TRUE);
                 MyEPG.ReloadEPGData();    // Reload EPG data
                 EndDialog(hDlg, TRUE);
             }
@@ -1481,10 +1481,10 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 // the settings master when the input is changed to tuner
                 if(OldChannel != NewChannel)
                 {
-                    SettingsMaster->SaveSettings();
+                    SettingsMaster->SaveGroupedSettings();
                 }
                 
-                if (EventCollector != NULL)
+                if (EventCollector)
                 {
                     EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_PRECHANGE, OldChannel, NewChannel);
                 }
@@ -1526,7 +1526,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
 
                 Audio_Unmute(PostSwitchMuteDelay);
 
-                if (EventCollector != NULL)
+                if (EventCollector)
                 {
                     EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_CHANGE, OldChannel, NewChannel);
                 }
@@ -1536,7 +1536,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 // channel name on the settings master
                 if(OldChannel != NewChannel)
                 {
-                    SettingsMaster->LoadSettings();
+                    SettingsMaster->LoadGroupedSettings();
                 }
 
                 VBI_ChannelChange();   
@@ -1863,24 +1863,6 @@ SETTING* Channels_GetSetting(CHANNELS_SETTING Setting)
     }
 }
 
-void Channels_ReadSettingsFromIni()
-{
-    int i;
-    for(i = 0; i < CHANNELS_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(ChannelsSettings[i]));
-    }
-}
-
-void Channels_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < CHANNELS_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(ChannelsSettings[i]), bOptimizeFileAccess);
-    }
-}
-
 SETTING AntiPlopSettings[ANTIPLOP_SETTING_LASTONE] =
 {
     {
@@ -1909,27 +1891,10 @@ SETTING* AntiPlop_GetSetting(ANTIPLOP_SETTING Setting)
     }
 }
 
-void AntiPlop_ReadSettingsFromIni()
+SmartPtr<CTreeSettingsGeneric> AntiPlop_GetTreeSettingsPage()
 {
-    int i;
-    for(i = 0; i < ANTIPLOP_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(AntiPlopSettings[i]));
-    }
-}
-
-void AntiPlop_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < ANTIPLOP_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(AntiPlopSettings[i]), bOptimizeFileAccess);
-    }
-}
-
-CTreeSettingsGeneric* AntiPlop_GetTreeSettingsPage()
-{
-    return new CTreeSettingsGeneric("Anti Plop Settings", AntiPlopSettings, ANTIPLOP_SETTING_LASTONE);
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_ANTIPLOP_GETVALUE));
+    return new CTreeSettingsGeneric("Anti Plop Settings", Holder);
 }
 
 

@@ -40,6 +40,7 @@
 #include "OSD.h"
 #include "MultiFrames.h"
 #include "PathHelpers.h"
+#include "SettingsMaster.h"
 
 using namespace std;
 
@@ -70,8 +71,8 @@ static const char *StillFormatNames[STILL_FORMAT_LASTONE] =
     "JPEG",
 };
 
-static char ExePath[MAX_PATH] = {0};
-static char* SavingPath = NULL;
+const string ExePath = GetInstallationPath();
+SettingStringValue SavingPath;
 
 extern long NumFilters;
 extern FILTER_METHOD* Filters[];
@@ -561,7 +562,7 @@ BOOL CStillSource::FindFileName(time_t TimeStamp, string& FileName)
     string extension;
     struct stat st;
 
-    switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+    switch ((eStillFormat)Setting_GetValue(WM_STILL_GETVALUE, FORMATSAVING))
     {
     case STILL_TIFF_RGB:
     case STILL_TIFF_YCbCr:
@@ -616,10 +617,10 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
     int NewFrameWidth = FrameWidth;
     BYTE* NewBuf = NULL;
 
-    if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
+    if (Setting_GetValue(WM_STILL_GETVALUE, SAVEINSAMEFILE))
     {
         string extension;
-        switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+        switch ((eStillFormat)Setting_GetValue(WM_STILL_GETVALUE, FORMATSAVING))
         {
         case STILL_TIFF_RGB:
         case STILL_TIFF_YCbCr:
@@ -652,7 +653,7 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 
     m_SquarePixels = AspectSettings.SquarePixels;
 
-    if (!m_SquarePixels && Setting_GetValue(Still_GetSetting(KEEPORIGINALRATIO)))
+    if (!m_SquarePixels && Setting_GetValue(WM_STILL_GETVALUE, KEEPORIGINALRATIO))
     {
         double Width;
 
@@ -687,7 +688,7 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 
     string Context = BuildDScalerContext();
 
-    switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+    switch ((eStillFormat)Setting_GetValue(WM_STILL_GETVALUE, FORMATSAVING))
     {
     case STILL_TIFF_RGB:
         {
@@ -793,7 +794,7 @@ void CStillSource::SaveInFile(int pos)
     NewFrameWidth = FrameWidth;
     NewBuf = NULL;
 
-    if (!m_SquarePixels && Setting_GetValue(Still_GetSetting(KEEPORIGINALRATIO)))
+    if (!m_SquarePixels && Setting_GetValue(WM_STILL_GETVALUE, KEEPORIGINALRATIO))
     {
         double Width;
 
@@ -826,7 +827,7 @@ void CStillSource::SaveInFile(int pos)
         }
     }
 
-    switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+    switch ((eStillFormat)Setting_GetValue(WM_STILL_GETVALUE, FORMATSAVING))
     {
     case STILL_TIFF_RGB:
         {
@@ -1193,7 +1194,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         m_SlideShowActive = !m_SlideShowActive;
         if (m_SlideShowActive)
         {
-            SetTimer(hWnd, TIMER_SLIDESHOW, Setting_GetValue(Still_GetSetting(SLIDESHOWDELAY)) * 1000, NULL);
+            SetTimer(hWnd, TIMER_SLIDESHOW, Setting_GetValue(WM_STILL_GETVALUE, SLIDESHOWDELAY) * 1000, NULL);
         }
         else
         {
@@ -1720,7 +1721,7 @@ void CStillSource::HandleTimerMessages(int TimerId)
         m_NewFileRequested = STILL_REQ_NEXT_CIRC;
         m_NewFileReqPos = m_Position + 1;
         m_SlideShowActive = TRUE;
-        SetTimer(GetMainWnd(), TIMER_SLIDESHOW, Setting_GetValue(Still_GetSetting(SLIDESHOWDELAY)) * 1000, NULL);
+        SetTimer(GetMainWnd(), TIMER_SLIDESHOW, Setting_GetValue(WM_STILL_GETVALUE, SLIDESHOWDELAY) * 1000, NULL);
     }
 }
 
@@ -1894,8 +1895,8 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
         "Still", "MaxMemForStills", NULL,
     },
     {
-        "Saving path for stills", CHARSTRING, 0, (long*)&SavingPath,
-         (long)ExePath, 0, 0, 0, 0,
+         "Saving path for stills", CHARSTRING, 0, SavingPath.GetPointer(),
+         (long)ExePath.c_str(), 0, 0, 0, 0,
          NULL,
         "Still", "SavingPath", NULL,
     },
@@ -1914,49 +1915,11 @@ SETTING* Still_GetSetting(STILL_SETTING Setting)
     }
 }
 
-void Still_ReadSettingsFromIni()
+SmartPtr<CTreeSettingsGeneric> Still_GetTreeSettingsPage()
 {
-    int i;
-    struct stat st;
-
-    GetModuleFileName (NULL, ExePath, sizeof(ExePath));
-    *(strrchr(ExePath, '\\')) = '\0';
-
-    for(i = 0; i < STILL_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(StillSettings[i]));
-    }
-
-    if ((SavingPath == NULL) || stat(SavingPath, &st))
-    {
-        LOG(1, "Incorrect path for snapshots; using %s", ExePath);
-        Setting_SetValue(Still_GetSetting(SAVINGPATH), (long)ExePath);
-    }
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_STILL_GETVALUE));
+    return new CTreeSettingsGeneric("Still Settings", Holder);
 }
-
-void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < STILL_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(StillSettings[i]), bOptimizeFileAccess);
-    }
-}
-
-CTreeSettingsGeneric* Still_GetTreeSettingsPage()
-{
-    return new CTreeSettingsGeneric("Still Settings",StillSettings, STILL_SETTING_LASTONE);
-}
-
-void Still_FreeSettings()
-{
-    int i;
-    for(i = 0; i < STILL_SETTING_LASTONE; i++)
-    {
-        Setting_Free(&StillSettings[i]);
-    }
-}
-
 
 BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight)
 {

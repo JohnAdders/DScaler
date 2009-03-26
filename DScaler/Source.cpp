@@ -122,5 +122,5 @@ void CSource::SetSourceAsCurrent()
 
 void CSource::UnsetSourceAsCurrent()
 {
-    SettingsMaster->SaveSettings();
+    SettingsMaster->SaveGroupedSettings();
 }

@@ -1130,6 +1130,15 @@ void VBI_VT_Init()
     {
         VTHilightListArray[i] = NULL;
     }
+
+    if (!VT_GetAutoCodepage())
+    {
+        VT_SetCodepage(NULL, NULL, VTUserCodepage);
+    }
+
+    VTDecoder.SetCachingControl(VTCachingControl);
+    VTDecoder.SetHighGranularityCaching(VTHighGranularityCaching);
+    VTDecoder.SetSubstituteSpacesForError(VTSubstituteErrorsWithSpaces);
 }
 
 
@@ -2887,50 +2896,20 @@ SETTING* VT_GetSetting(VT_SETTING Setting)
     }
 }
 
-
-void VT_ReadSettingsFromIni()
-{
-    for (int i = 0; i < VT_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&VTSettings[i]);
-    }
-
-    if (!VT_GetAutoCodepage())
-    {
-        VT_SetCodepage(NULL, NULL, VTUserCodepage);
-    }
-
-    VTDecoder.SetCachingControl(VTCachingControl);
-    VTDecoder.SetHighGranularityCaching(VTHighGranularityCaching);
-    VTDecoder.SetSubstituteSpacesForError(VTSubstituteErrorsWithSpaces);
-}
-
-
-void VT_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    for (int i = 0; i < VT_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&VTSettings[i], bOptimizeFileAccess);
-    }
-}
-
-
-CTreeSettingsGeneric* VideoText_GetTreeSettingsPage()
+SmartPtr<CTreeSettingsGeneric> VideoText_GetTreeSettingsPage()
 {
     // Teletext Settings
-    SETTING* VideoTextSettings[] =
-    {
-        &VTSettings[VT_LANGUAGE_REGION              ],
-        &VTSettings[VT_SHOW_SUBCODE_OSD             ],
-        &VTSettings[VT_LINES_CACHINGCONTROL         ],
-        &VTSettings[VT_HIGH_GRANULARITY_CACHING     ],
-        &VTSettings[VT_SUBSTITUTE_ERROR_SPACES      ],
-        &VTSettings[VT_SUBTITLE_DUPLICATION_FILTER  ],
-        &VTSettings[VT_DOUBLEHEIGHT_SUBTITLES_FILTER],
-    };
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
+    
+    Holder->AddSetting(&VTSettings[VT_LANGUAGE_REGION              ]);
+    Holder->AddSetting(&VTSettings[VT_SHOW_SUBCODE_OSD             ]);
+    Holder->AddSetting(&VTSettings[VT_LINES_CACHINGCONTROL         ]);
+    Holder->AddSetting(&VTSettings[VT_HIGH_GRANULARITY_CACHING     ]);
+    Holder->AddSetting(&VTSettings[VT_SUBSTITUTE_ERROR_SPACES      ]);
+    Holder->AddSetting(&VTSettings[VT_SUBTITLE_DUPLICATION_FILTER  ]);
+    Holder->AddSetting(&VTSettings[VT_DOUBLEHEIGHT_SUBTITLES_FILTER]);
 
-    WORD nCount = sizeof(VideoTextSettings)/sizeof(SETTING*);
-    return new CTreeSettingsGeneric("Teletext Settings", VideoTextSettings, nCount);
+    return new CTreeSettingsGeneric("Teletext Settings", Holder);
 }
 
 

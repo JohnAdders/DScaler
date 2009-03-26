@@ -41,6 +41,7 @@
 #include "VBI.h"
 #include "VBI_VideoText.h"
 #include "VBI_VPSdecode.h"
+#include "SettingsMaster.h"
 
 using namespace std;
 
@@ -48,7 +49,7 @@ using namespace std;
 #define OSD_COLOR_SECTION   RGB(150,150,255)
 #define OSD_COLOR_CURRENT   RGB(200,150,0)
 
-static char* OSD_szFontName = NULL;
+SettingStringValue OSD_szFontName;
 
 
 // OSD placement values
@@ -183,27 +184,6 @@ static const char* OSD_szBackgroundNames[OSDB_LASTONE] =
 
 
 static char TextLines[128][512];
-
-
-void OSD_Init()
-{
-    // nothing to do
-}
-
-
-void OSD_Exit()
-{
-    TOSDCommand* pOSDCommand;
-
-    // Clean up any unhandled commands
-    pOSDCommand = (TOSDCommand*)InterlockedExchange(
-        (LPLONG)&OSD_pPendingCommand, (LONG)NULL);
-
-    if (pOSDCommand != NULL)
-    {
-        OSD_FreeCommand(pOSDCommand);
-    }
-}
 
 
 //---------------------------------------------------------------------------
@@ -652,8 +632,11 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
         nFontSize = (int)((double)nYWinSize * (OSD_Text[i].Size / 100.00));
 
         // Set specified font
-        strcpy(szCurrentFont, OSD_szFontName);
-        hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, DEFAULT_PITCH | FF_DONTCARE, OSD_szFontName);
+        if(OSD_szFontName)
+        {
+            strcpy(szCurrentFont, OSD_szFontName);
+            hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, DEFAULT_PITCH | FF_DONTCARE, OSD_szFontName);
+        }
         if (hOSDFont == NULL)
         {
             // Fallback to Arial
@@ -956,7 +939,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     OSD_AddText(pSource != NULL ? pSource->GetStatus().c_str() : "", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Audio mute
-    if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
+    if (Setting_GetValue(WM_AUDIO_GETVALUE, SYSTEMINMUTE) == TRUE)
     {
         OSD_AddText("Volume Mute", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     }
@@ -978,17 +961,17 @@ static void OSD_RefreshGeneralScreen(double Size)
     // Source ratio
     if (!AspectSettings.SquarePixels)
     {
-        sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) / 1000.0);
-        if ( (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 1)
-          && (Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) != 1333) )
+        sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(WM_ASPECT_GETVALUE, SOURCE_ASPECT) / 1000.0);
+        if ( (Setting_GetValue(WM_ASPECT_GETVALUE, ASPECT_MODE)) == 1
+          && (Setting_GetValue(WM_ASPECT_GETVALUE, SOURCE_ASPECT)) != 1333) 
         {
             strcat(szInfo, " Letterbox");
         }
-        else if (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 2)
+        else if (Setting_GetValue(WM_ASPECT_GETVALUE, ASPECT_MODE) == 2)
         {
             strcat(szInfo, " Anamorphic");
         }
-        if (Setting_GetValue(Aspect_GetSetting(AUTODETECTASPECT)))
+        if (Setting_GetValue(WM_ASPECT_GETVALUE, AUTODETECTASPECT))
         {
             strcat(szInfo, " auto");
         }
@@ -998,22 +981,22 @@ static void OSD_RefreshGeneralScreen(double Size)
     // Display ratio
     nLine++;
     OSD_AddText("Display", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    if (Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) == 0)
+    if (Setting_GetValue(WM_ASPECT_GETVALUE, TARGET_ASPECT) == 0)
     {
         strcpy(szInfo, "Ratio from current resolution");
     }
     else
     {
-        sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) / 1000.0);
+        sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(WM_ASPECT_GETVALUE, TARGET_ASPECT) / 1000.0);
     }
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Video and overlay settings
     nLine = 4;
     DisplayTitle = FALSE;
-    UseOverlayCtrl = Setting_GetValue(Overlay_GetSetting(USEOVERLAYCONTROLS));
+    UseOverlayCtrl = Setting_GetValue(WM_OTHER_GETVALUE, USEOVERLAYCONTROLS);
     pSetting = pSource != NULL ? pSource->GetBrightness() : NULL;
-    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYBRIGHTNESS));
+    OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYBRIGHTNESS);
     if(pSetting != NULL || UseOverlayCtrl)
     {
         OSD_AddText("Brightness", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1032,7 +1015,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         nLine++;
     }
     pSetting = pSource != NULL ? pSource->GetContrast() : NULL;
-    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYCONTRAST));
+    OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYCONTRAST);
     if(pSetting != NULL || UseOverlayCtrl)
     {
         OSD_AddText("Contrast", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1051,7 +1034,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         nLine++;
     }
     pSetting = pSource != NULL ? pSource->GetHue() : NULL;
-    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYHUE));
+    OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYHUE);
     if(pSetting != NULL || UseOverlayCtrl)
     {
         OSD_AddText("Hue", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1070,7 +1053,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         nLine++;
     }
     pSetting = pSource != NULL ? pSource->GetSaturation() : NULL;
-    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYSATURATION));
+    OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYSATURATION);
     if(pSetting != NULL || UseOverlayCtrl)
     {
         OSD_AddText("Color", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1104,7 +1087,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         DisplayTitle = TRUE;
         nLine++;
     }
-    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYGAMMA));
+    OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYGAMMA);
     if(UseOverlayCtrl)
     {
         OSD_AddText("Gamma", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1112,7 +1095,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         DisplayTitle = TRUE;
         nLine++;
     }
-    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYSHARPNESS));
+    OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYSHARPNESS);
     if(UseOverlayCtrl)
     {
         OSD_AddText("Sharpness", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1134,17 +1117,17 @@ static void OSD_RefreshGeneralScreen(double Size)
 
     // Deinterlace Mode
     nLine = -1;
-    if (Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)))
+    if (Setting_GetValue(WM_OUTTHREADS_GETVALUE, DOACCURATEFLIPS))
     {
         OSD_AddText("Judder Terminator", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
     }
     if (!IsProgressiveMode())
     {
-        if (Setting_GetValue(FD60_GetSetting(FALLBACKTOVIDEO)))
+        if (Setting_GetValue(WM_FD60_GETVALUE, FALLBACKTOVIDEO))
         {
             OSD_AddText("Fallback on Bad Pulldown", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         }
-        if (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
+        if (Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT))
         {
             OSD_AddText("Auto Pulldown Detect", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         }
@@ -1226,7 +1209,7 @@ static void OSD_RefreshStatisticsScreen(double Size)
 //    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageUsedFields());
 //    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    if (Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)))
+    if (Setting_GetValue(WM_OUTTHREADS_GETVALUE, DOACCURATEFLIPS))
     {
         OSD_AddText("No flip at time", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
@@ -1823,12 +1806,12 @@ static void OSD_RefreshCalibrationScreen(double Size)
         {
             nLine = 4;
 
-            if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+            if ( Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_RGB_DELTA)
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
                 OSD_AddText("Delta RGB", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
             }
-            if ( Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA))
+            if ( Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_YUV_DELTA)
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
                 OSD_AddText("Delta YUV", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1862,7 +1845,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
 
                         avail1 = (*it)->GetDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
                         if ( avail1
-                          && Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                          && Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_RGB_DELTA)
                           && (pCalibration->GetType() == CAL_MANUAL) )
                         {
                             sprintf (szInfo, "(%+d,%+d,%+d) (%d)", dif_val1, dif_val2, dif_val3, dif_total1);
@@ -1870,7 +1853,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
                         }
                         avail2 = (*it)->GetDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
                         if ( avail2
-                          && Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA))
+                          && Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_YUV_DELTA)
                           && (pCalibration->GetType() == CAL_MANUAL) )
                         {
                             sprintf (szInfo, "(%d) (%+d,%+d,%+d)", dif_total2, dif_val1, dif_val2, dif_val3);
@@ -1880,15 +1863,15 @@ static void OSD_RefreshCalibrationScreen(double Size)
                         if (pCalibration->GetType() == CAL_MANUAL)
                         {
                             if ( avail1
-                              && Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
-                              && ! Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
+                              && Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_RGB_DELTA)
+                              && ! Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_YUV_DELTA) )
                             {
                                 OSD_GetTextResult(dif_total1, szInfo, &Color);
                                 OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
                             }
                             else if ( avail2
-                                   && ! Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
-                                   && Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
+                                   && ! Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_RGB_DELTA)
+                                   && Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_YUV_DELTA) )
                             {
                                 OSD_GetTextResult(dif_total2, szInfo, &Color);
                                 OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
@@ -2011,7 +1994,7 @@ static void OSD_DisplayProgrammeInfos(double Size)
 
     if (Size == 0)
     {
-        Size = Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE));
+        Size = Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE));
     }
 
     struct tm *date_tm;
@@ -2043,7 +2026,7 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 
     if (Size == 0)
     {
-        Size = Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE));
+        Size = Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE));
     }
 
     int nLine = 1;
@@ -2113,7 +2096,7 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 
         // Cut the description test on several lines and
         // determine the number of necessary lines
-        int nb2 = OSD_CutLines(Description.c_str(), Setting_GetValue(EPG_GetSetting(EPG_MAXCHARSPERLINE)));
+        int nb2 = OSD_CutLines(Description.c_str(), Setting_GetValue(WM_EPG_GETVALUE, (EPG_MAXCHARSPERLINE)));
 
         // Display the lines skipping first lines if required
         int IdxFirstLine;
@@ -2147,7 +2130,7 @@ static void OSD_RefreshProgrammesScreen(double Size)
 
     if (Size == 0)
     {
-        Size = Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE));
+        Size = Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE));
     }
 
     // Title
@@ -2685,7 +2668,7 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
         "OSD", "UseDeveloperScreen", NULL,
     },
     {
-        "Font Name", CHARSTRING, 0, (long*)&OSD_szFontName,
+        "Font Name", CHARSTRING, 0, OSD_szFontName.GetPointer(),
          (long)"Arial", 0, 0, 0, 0,
          NULL,
         "OSD", "FontName", NULL,
@@ -2705,33 +2688,29 @@ SETTING* OSD_GetSetting(OSD_SETTING Setting)
     }
 }
 
-void OSD_ReadSettingsFromIni()
+SmartPtr<CTreeSettingsGeneric> OSD_GetTreeSettingsPage()
 {
-    for(int i = 0; i < OSD_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(OSDSettings[i]));
-    }
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_OSD_GETVALUE));
+    return new CTreeSettingsGeneric("OSD Settings", Holder);
+}
+
+void OSD_Init()
+{
     OSD_AutoHide_OnChange(OSD_bAutoHide);
 }
 
-void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess)
+
+void OSD_Exit()
 {
-    for(int i = 0; i < OSD_SETTING_LASTONE; i++)
+    TOSDCommand* pOSDCommand;
+
+    // Clean up any unhandled commands
+    pOSDCommand = (TOSDCommand*)InterlockedExchange(
+        (LPLONG)&OSD_pPendingCommand, (LONG)NULL);
+
+    if (pOSDCommand != NULL)
     {
-        Setting_WriteToIni(&(OSDSettings[i]), bOptimizeFileAccess);
+        OSD_FreeCommand(pOSDCommand);
     }
 }
 
-CTreeSettingsGeneric* OSD_GetTreeSettingsPage()
-{
-    return new CTreeSettingsGeneric("OSD Settings",OSDSettings, OSD_SETTING_LASTONE);
-}
-
-void OSD_FreeSettings()
-{
-    int i;
-    for(i = 0; i < OSD_SETTING_LASTONE; i++)
-    {
-        Setting_Free(&OSDSettings[i]);
-    }
-}

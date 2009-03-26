@@ -24,6 +24,8 @@
 #include "Channels.h"
 #include "DScaler.h"
 #include "ScheduledRecording.h"
+#include "Crash.h"
+#include "DebugLog.h"
 #include <afxdtctl.h>
 #include <vector>
 
@@ -31,6 +33,7 @@ using namespace std;
 
 SmartPtr<CScheduledRecording> pSchRec;
 CScheduleDlg* pSchDlg;
+HANDLE  gThreadId = NULL;
 
 enum STATE {READY,SUCCEED,CANCELED,RECORDING};
 
@@ -45,8 +48,10 @@ void ShowSchedRecDlg()
 
 DWORD WINAPI RecordThreadProc(LPVOID lParam)
 {
+    DScalerThread("Scheduled Recording Thread");
+    /// \todo proper thread control
     pSchRec = new CScheduledRecording();
-    while(pSchRec->run())
+    while(pSchRec && pSchRec->run())
     {}
     
     return 0;
@@ -276,12 +281,12 @@ BOOL CScheduledRecording::run()
         }
     }
     
-    return TRUE;
+    return 0;
 }
 
 void CScheduledRecording::initScheduledRecordingThreadProc()
 {
-    CreateThread(NULL,0,RecordThreadProc,NULL,0,0);
+    gThreadId = CreateThread(NULL,0,RecordThreadProc,NULL,0,0);
 }
 
 void CScheduledRecording::getChannels(std::vector<std::string> &channels)
@@ -724,5 +729,23 @@ void CScheduledRecording::exitScheduledRecording()
         saveToXml(m_schedules);
     }
     
-    m_bExitThread = TRUE;
+    if (gThreadId != NULL)
+    {
+        SetThreadPriority(gThreadId, THREAD_PRIORITY_NORMAL);
+
+        // Signal the stop
+        m_bExitThread = TRUE;
+
+        // Wait one second for the thread to exit gracefully
+        DWORD dwResult = WaitForSingleObject(gThreadId, 1000);
+
+        if (dwResult != WAIT_OBJECT_0)
+        {
+            LOG(3,"Timeout waiting for RecordingThread to exit, terminating it via TerminateThread()");
+            TerminateThread(gThreadId, 0);
+        }
+
+        CloseHandle(gThreadId);
+        gThreadId = NULL;
+    }
 }

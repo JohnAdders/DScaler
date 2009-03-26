@@ -43,6 +43,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam) = 0;
     void ChangeValue(eCHANGEVALUE TypeOfChange);
     virtual std::string GetDisplayValue() = 0;
+    virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE) = 0;
     
     void OSDShow();
     const std::string& GetDisplayName();
@@ -105,6 +106,7 @@ public:
     virtual LPARAM GetValueAsMessage();
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual std::string GetDisplayValue();
+    virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
 private:    
     virtual std::string GetValueAsString();
     virtual void SetValueFromString(const std::string& NewValue);
@@ -130,8 +132,8 @@ public:
     void SetFromControl(HWND hWnd);
     virtual LPARAM GetValueAsMessage();
     virtual void SetValueFromMessage(LPARAM LParam);
-    void ChangeDefault(BOOL NewDefault, BOOL bDontSetValue = FALSE);
     virtual std::string GetDisplayValue();
+    virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
 private:    
     virtual std::string GetValueAsString();
     virtual void SetValueFromString(const std::string& NewValue);
@@ -160,10 +162,10 @@ public:
     void SetupControl(HWND hWnd);
     void SetControlValue(HWND hWnd);
     void SetFromControl(HWND hWnd);
-    void ChangeDefault(long NewDefault, BOOL bDontSetValue = FALSE);
     virtual LPARAM GetValueAsMessage();
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual std::string GetDisplayValue();
+    virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
 private:    
     virtual std::string GetValueAsString();
     virtual void SetValueFromString(const std::string& NewValue);
@@ -194,7 +196,7 @@ public:
     void SetFromControl(HWND hWnd);
     virtual LPARAM GetValueAsMessage();
     virtual void SetValueFromMessage(LPARAM LParam);
-    void ChangeDefault(long NewDefault, BOOL bDontSetValue = FALSE);
+    virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
     virtual std::string GetDisplayValue();
 private:    
     virtual std::string GetValueAsString();
@@ -232,6 +234,7 @@ public:
     virtual LPARAM GetValueAsMessage();
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual std::string GetDisplayValue();
+    virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
 private:    
     virtual std::string GetValueAsString();
     virtual void SetValueFromString(const std::string& NewValue);
@@ -240,6 +243,21 @@ private:
     std::string m_Value;
     std::string m_Default;
 
+};
+
+/// This class should be used to store the value of all string settings within the
+/// main DScaler app, using this class means that the allocated string gets deleted properly on exit
+class SettingStringValue
+{
+public:
+    SettingStringValue();
+    ~SettingStringValue();
+    operator LPSTR();
+    operator bool();
+    long* GetPointer();
+    void clear();
+private:
+    char* m_Value;
 };
 
 

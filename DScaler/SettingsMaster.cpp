@@ -30,60 +30,146 @@
 #include "TVFormats.h"
 #include "ProgramList.h"
 #include "DebugLog.h"
+#include "Settings.h"
+#include "Audio.h"
+#include "VBI.h"
+#include "OutThreads.h"
+#include "deinterlace.h"
+#include "AspectRatio.h"
+#include "DebugLog.h"
+#include "MixerDev.h"
+#include "DScaler.h"
+#include "ProgramList.h"
+#include "OverlayOutput.h"
+#include "D3D9Output.h"
+#include "FD_50Hz.h"
+#include "FD_60Hz.h"
+#include "FD_Common.h"
+#include "FD_Prog.h"
+#include "Slider.h"
+#include "Splash.h"
+#include "OSD.h"
+#include "Filter.h"
+#include "FieldTiming.h"
+#include "VBI_VideoText.h"
+#include "Providers.h"
+#include "Calibration.h"
+#include "StillSource.h"
+#include "SettingsPerChannel.h"
+#include "TimeShift.h"
+#include "EPG.h"
 
 using namespace std;
 
-CSettingsMaster::CSettingsMaster() 
+CSettingsMaster::CSettingsMaster(LPCSTR szIniFile) :
+    m_sIniFile(szIniFile)
 {
 }
 
 CSettingsMaster::~CSettingsMaster()
 {
-    for (int i = 0; i < m_SettingsGroups.size(); i++)
-    {
-        delete m_SettingsGroups[i];
-    }
-    m_SettingsGroups.clear();
 }
 
-void CSettingsMaster::LoadOneSetting(CSimpleSetting* pSetting)
+void CSettingsMaster::Initialize()
 {
-    if (pSetting != NULL)
-    {
-        string SubSection("");
+    AddSettings(WM_DEBUG_GETVALUE, (GENERICGETSETTING)Debug_GetSetting);
+    Register(Aspect_GetSettingsHolder());
+    AddSettings(WM_DSCALER_GETVALUE, (GENERICGETSETTING)DScaler_GetSetting);
+    AddSettings(WM_OUTTHREADS_GETVALUE, (GENERICGETSETTING)OutThreads_GetSetting);
+    AddSettings(WM_OTHER_GETVALUE, (GENERICGETSETTING)Overlay_GetSetting);
+    AddSettings(WM_FD50_GETVALUE, (GENERICGETSETTING)FD50_GetSetting);
+    AddSettings(WM_FD60_GETVALUE, (GENERICGETSETTING)FD60_GetSetting);
+    AddSettings(WM_FD_COMMON_GETVALUE, (GENERICGETSETTING)FD_Common_GetSetting);
+    AddSettings(WM_OSD_GETVALUE, (GENERICGETSETTING)OSD_GetSetting);
+    AddSettings(WM_VBI_GETVALUE, (GENERICGETSETTING)VBI_GetSetting);
+    AddSettings(WM_TIMING_GETVALUE, (GENERICGETSETTING)Timing_GetSetting);
+    AddSettings(WM_CHANNELS_GETVALUE, (GENERICGETSETTING)Channels_GetSetting);
+    AddSettings(WM_AUDIO_GETVALUE, (GENERICGETSETTING)Audio_GetSetting);
+    AddSettings(WM_VT_GETVALUE, (GENERICGETSETTING)VT_GetSetting);
+    AddSettings(WM_CALIBR_GETVALUE, (GENERICGETSETTING)Calibr_GetSetting);
+    AddSettings(WM_STILL_GETVALUE, (GENERICGETSETTING)Still_GetSetting);
+    AddSettings(WM_ANTIPLOP_GETVALUE, (GENERICGETSETTING)AntiPlop_GetSetting);
+    AddSettings(WM_SETTINGSPERCHANNEL_GETVALUE, (GENERICGETSETTING)SettingsPerChannel_GetSetting);
+    AddSettings(WM_FDPROG_GETVALUE, (GENERICGETSETTING)FDProg_GetSetting);
+    AddSettings(WM_EPG_GETVALUE, (GENERICGETSETTING)EPG_GetSetting);
+    //AddSettings(WM_D3D9_GETVALUE, (GENERICGETSETTING)D3D9_GetSetting);
 
-        CSettingGroup* pGroup = pSetting->GetGroup();
-        if(pGroup != NULL)
+    for(Holders::iterator it = m_Holders.begin(); it != m_Holders.end(); ++it)
+    {
+        (*it)->DisableOnChange();
+        (*it)->ReadFromIni();
+        (*it)->EnableOnChange();
+    }
+
+    Providers_ReadFromIni();
+}
+
+void CSettingsMaster::AddSettings(long MessageIdRoot, GENERICGETSETTING GetSettingFunction)
+{
+    SmartPtr<CSettingsHolder> Holder = new CSettingsHolder(MessageIdRoot);
+    int i(0);
+
+    SETTING* NewSetting = GetSettingFunction(i);
+    while(NewSetting != NULL)
+    {
+        Holder->AddSetting(new CSettingWrapper(NewSetting));
+        ++i;
+        NewSetting = GetSettingFunction(i);
+    }
+    
+    m_Holders.push_back(Holder);
+}
+void CSettingsMaster::LoadOneGroupedSetting(CSimpleSetting* pSetting)
+{
+    string SubSection("");
+
+    CSettingGroup* pGroup = pSetting->GetGroup();
+    if(pGroup != NULL)
+    {
+        if(pGroup->IsGroupActive())
         {
-            if(pGroup->IsGroupActive())
+            MakeSubSection(SubSection, pGroup);
+            if(SubSection.length() > 0)
             {
-                MakeSubSection(SubSection, pGroup);
-                if(SubSection.length() > 0)
-                {
-                    pSetting->ReadFromIniSubSection(SubSection);
-                }
+                pSetting->ReadFromIniSubSection(SubSection);
             }
         }
     }
 }
 
-void CSettingsMaster::WriteOneSetting(CSimpleSetting* pSetting)
+void CSettingsMaster::WriteOneGroupedSetting(CSimpleSetting* pSetting)
 {
-    if (pSetting != NULL)
+    CSettingGroup* pGroup = pSetting->GetGroup();
+    if(pGroup != NULL)
     {
-        string SubSection("");
-
-        CSettingGroup* pGroup = pSetting->GetGroup();
-        if(pGroup != NULL)
+        if(pGroup->IsGroupActive())
         {
-            if(pGroup->IsGroupActive())
+            string SubSection;
+            MakeSubSection(SubSection, pGroup);
+            if(SubSection.length() > 0)
             {
-                MakeSubSection(SubSection, pGroup);
-                if(SubSection.length() > 0)
-                {
-                    pSetting->WriteToIniSubSection(SubSection.c_str());
-                }
+                pSetting->WriteToIniSubSection(SubSection.c_str());
             }
+        }
+    }
+}
+
+
+void CSettingsMaster::ParseSettingHolder(CSettingsHolder* Holder, BOOL IsLoad)
+{
+    int Num = Holder->GetNumSettings();
+    
+    BOOL bAction = FALSE;
+    
+    for (int n = 0; n < Num; n++)
+    {
+        if (IsLoad)
+        {
+            LoadOneGroupedSetting(Holder->GetSetting(n));
+        }
+        else
+        {
+            WriteOneGroupedSetting(Holder->GetSetting(n));
         }
     }
 }
@@ -96,40 +182,9 @@ void CSettingsMaster::ParseAllSettings(BOOL IsLoad)
 {
     for (int i = 0; i < m_Holders.size(); i++)
     {
-        if ((m_Holders[i].bIsSource) && (m_Holders[i].pHolder!=NULL))  //only save/load setting of its own 
-        {
-            CSource* pSource;
-            try 
-            {
-                pSource = dynamic_cast<CSource*>(m_Holders[i].pHolder);            
-            } 
-            catch (...)
-            {
-                pSource = NULL;
-            }
-            // Skip the holder if the source isn't the current one
-            if ((pSource != NULL) && (pSource != Providers_GetCurrentSource()))
-            {
-                continue;
-            }
-        }
-        
-        int Num = m_Holders[i].pHolder->GetNumSettings();
-        
-        BOOL bAction = FALSE;
-        
-        for (int n = 0; n < Num; n++)
-        {
-            if (IsLoad)
-            {
-                LoadOneSetting((CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n));
-            }
-            else
-            {
-                WriteOneSetting((CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n));
-            }
-        }
+        ParseSettingHolder(m_Holders[i], IsLoad);
     }
+    ParseSettingHolder(Providers_GetCurrentSource(), IsLoad);
 }
 
 void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
@@ -216,77 +271,43 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
     }
 }
 
-void CSettingsMaster::LoadSettings()
+void CSettingsMaster::LoadGroupedSettings()
 {
-//LOG(1, "LoadSettings m_SourceName %s", m_SourceName.c_str());
-//LOG(1, "LoadSettings m_VideoInputName %s", m_VideoInputName.c_str());
-//LOG(1, "LoadSettings m_AudioInputName %s", m_AudioInputName.c_str());
-//LOG(1, "LoadSettings m_VideoFormatName %s", m_VideoFormatName.c_str());
-//LOG(1, "LoadSettings m_ChannelName %s", m_ChannelName.c_str());
+//LOG(1, "LoadGroupedSettings m_SourceName %s", m_SourceName.c_str());
+//LOG(1, "LoadGroupedSettings m_VideoInputName %s", m_VideoInputName.c_str());
+//LOG(1, "LoadGroupedSettings m_AudioInputName %s", m_AudioInputName.c_str());
+//LOG(1, "LoadGroupedSettings m_VideoFormatName %s", m_VideoFormatName.c_str());
+//LOG(1, "LoadGroupedSettings m_ChannelName %s", m_ChannelName.c_str());
     ParseAllSettings(TRUE);
 }
 
 
-void CSettingsMaster::SaveSettings()
+void CSettingsMaster::SaveGroupedSettings()
 {
-//LOG(1, "SaveSettings m_SourceName %s", m_SourceName.c_str());
-//LOG(1, "SaveSettings m_VideoInputName %s", m_VideoInputName.c_str());
-//LOG(1, "SaveSettings m_AudioInputName %s", m_AudioInputName.c_str());
-//LOG(1, "SaveSettings m_VideoFormatName %s", m_VideoFormatName.c_str());
-//LOG(1, "SaveSettings m_ChannelName %s", m_ChannelName.c_str());
+//LOG(1, "SaveGroupedSettings m_SourceName %s", m_SourceName.c_str());
+//LOG(1, "SaveGroupedSettings m_VideoInputName %s", m_VideoInputName.c_str());
+//LOG(1, "SaveGroupedSettings m_AudioInputName %s", m_AudioInputName.c_str());
+//LOG(1, "SaveGroupedSettings m_VideoFormatName %s", m_VideoFormatName.c_str());
+//LOG(1, "SaveGroupedSettings m_ChannelName %s", m_ChannelName.c_str());
     ParseAllSettings(FALSE);
 }
 
-void CSettingsMaster::Register(CSettingsHolder* pHolder)
+void CSettingsMaster::Register(SmartPtr<CSettingsHolder> pHolder)
 {
-    if (pHolder == NULL)
-    {
-        return;
-    }
-       
-    Unregister(pHolder);
-
-    TSettingsHolderInfo shi;
-    BOOL bIsSource = FALSE;
-
-    shi.pHolder = pHolder;
-
-    //Find out if the settingsholder is part of a source
-    try
-    {
-        CSource* pSource;
-        pSource = dynamic_cast<CSource*>(pHolder);
-        if (pSource != NULL)
-        {
-            //Successfull cast. So holder is a source
-            bIsSource = TRUE;
-        }
-    }
-    catch (...)
-    {
-        bIsSource = FALSE;
-    }
-    shi.bIsSource = bIsSource;
-
     //Add to holder list
-    m_Holders.push_back(shi);  
+    m_Holders.push_back(pHolder);
 }
 
-void CSettingsMaster::Unregister(CSettingsHolder* pHolder)
+void CSettingsMaster::Unregister(SmartPtr<CSettingsHolder> pHolder)
 {
-    vector<TSettingsHolderInfo> NewList;
     for (int i = 0; i < m_Holders.size(); i++)
     {
-        if (m_Holders[i].pHolder == pHolder)
+        if (m_Holders[i] == pHolder)
         {
-            //
+            m_Holders.erase(m_Holders.begin() + i);
+            return;
         } 
-        else 
-        {
-            NewList.push_back(m_Holders[i]);
-        }
     }
-    m_Holders = NewList;
 }
 
 void CSettingsMaster::SetSource(CSource* pSource)
@@ -299,7 +320,6 @@ void CSettingsMaster::SetSource(CSource* pSource)
     {
         m_SourceName = "";
     }
-//LOG(1, "m_SourceName %s", m_SourceName.c_str());
 }
 
 void CSettingsMaster::SetChannelName(long NewValue)
@@ -312,35 +332,30 @@ void CSettingsMaster::SetChannelName(long NewValue)
     {
         m_ChannelName = "";
     }
-//LOG(1, "m_ChannelName %s", m_ChannelName.c_str());
 }
 
 void CSettingsMaster::SetVideoInput(long NewValue)
 {
     if (NewValue>=0)
     {
-        char szBuffer[33];
-        m_VideoInputName = string("VideoInput") +  _itoa(NewValue, szBuffer, 10);
+        m_VideoInputName = MakeString() << "VideoInput" << NewValue;
     }
     else
     {
         m_VideoInputName = "";
     }
-//LOG(1, "m_VideoInputName %s", m_VideoInputName.c_str());
 }
 
 void CSettingsMaster::SetAudioInput(long NewValue)
 {
     if (NewValue>=0)
     {
-        char szBuffer[33];
-        m_AudioInputName = string("AudioInput") +  _itoa(NewValue, szBuffer, 10);
+        m_AudioInputName = MakeString() << "AudioInput" << NewValue;
     }
     else
     {
         m_AudioInputName = "";
     }
-//LOG(1, "m_AudioInputName %s", m_AudioInputName.c_str());
 }
 
 void CSettingsMaster::SetVideoFormat(long NewValue)
@@ -365,18 +380,95 @@ CSettingGroup* CSettingsMaster::GetGroup(LPCSTR szName, DWORD Flags, BOOL IsActi
             return m_SettingsGroups[i];
         }
     }
-    CSettingGroup* pNewGroup = new CSettingGroup(szName, Flags, IsActiveByDefault);
+    SmartPtr<CSettingGroup> pNewGroup = new CSettingGroup(szName, Flags, IsActiveByDefault);
     m_SettingsGroups.push_back(pNewGroup);
     return pNewGroup;
 }
 
-CTreeSettingsGeneric* CSettingsMaster::GetTreeSettingsPage()
+SmartPtr<CTreeSettingsGeneric> CSettingsMaster::GetTreeSettingsPage()
 {
-    vector <CSimpleSetting*>vSettingsList;
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
 
     for (int i = 0; i < m_SettingsGroups.size(); i++)
     {
-        vSettingsList.push_back(m_SettingsGroups[i]->GetIsActiveSetting());
+        Holder->AddSetting(m_SettingsGroups[i]->GetIsActiveSetting());
     }
-    return new CTreeSettingsGeneric("Activate Setting's Saving",vSettingsList);
+    return new CTreeSettingsGeneric("Activate Setting's Saving", Holder);
 }
+
+
+void CSettingsMaster::SaveAllSettings(BOOL bOptimizeFileAccess)
+{
+    for(Holders::iterator it = m_Holders.begin(); it != m_Holders.end(); ++it)
+    {
+        (*it)->WriteToIni(bOptimizeFileAccess);
+    }
+
+    Providers_WriteToIni(bOptimizeFileAccess);
+
+    // These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
+    WritePrivateProfileString(NULL, NULL, NULL, m_sIniFile.c_str());
+
+    //BeautifyIniFile(m_sIniFile.c_str());
+}
+
+SmartPtr<CSettingsHolder> CSettingsMaster::FindMsgHolder(long Message)
+{
+    for(Holders::iterator it = m_Holders.begin(); it != m_Holders.end(); ++it)
+    {
+        if(Message == (*it)->GetMessageID())
+        {
+            return *it;
+        }
+    }
+    return 0L;
+}
+
+LONG CSettingsMaster::HandleSettingMsgs(HWND hWnd, UINT Message, UINT wParam, LONG lParam, BOOL* bDone)
+{
+    *bDone = FALSE;
+
+    SmartPtr<CSettingsHolder> Holder(FindMsgHolder(Message));
+    if(Holder)
+    {
+        SmartPtr<CSimpleSetting> Setting = Holder->GetSetting(wParam);
+        if(Setting)
+        {
+            *bDone = TRUE;
+            return Setting->GetValueAsMessage();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    Holder = FindMsgHolder(Message - 100);
+    if(Holder)
+    {
+        SmartPtr<CSimpleSetting> Setting = Holder->GetSetting(wParam);
+        if(Setting)
+        {
+            *bDone = TRUE;
+            Setting->SetValueFromMessage(lParam);
+        }
+        return 0;
+    }
+
+    Holder = FindMsgHolder(Message - 200);
+    if(Holder)
+    {
+        SmartPtr<CSimpleSetting> Setting = Holder->GetSetting(wParam);
+        if(Setting)
+        {
+            *bDone = TRUE;
+            Setting->ChangeValue((eCHANGEVALUE)lParam);
+        }
+        return 0;
+    }
+    else
+    {
+        return 0;
+    }
+}
+

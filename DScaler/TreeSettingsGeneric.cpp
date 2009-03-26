@@ -37,61 +37,14 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CTreeSettingsGeneric dialog
 
-CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTING* settings,long count)
+CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SmartPtr<CSettingsHolder> SettingHolder)
     :CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
     m_CurrentSetting(0),
-    m_Settings(),
-    m_DeleteSettingsOnExit(FALSE)
+    m_Settings(SettingHolder)
 {
     //{{AFX_DATA_INIT(CTreeSettingsGeneric)
     //}}AFX_DATA_INIT
-
-    m_SettingsCount = m_Settings.LoadSettingStructures(settings, 0, count);
-    m_DeleteSettingsOnExit = TRUE;
-}
-
-CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTING** settings,long count)
-    :CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
-    m_CurrentSetting(0),
-    m_Settings(),
-    m_DeleteSettingsOnExit(FALSE)
-{
-    //{{AFX_DATA_INIT(CTreeSettingsGeneric)
-    //}}AFX_DATA_INIT
-
-    for (int i(0); i < count; i++)
-    {
-        m_Settings.AddSetting(settings[i]);
-    }
-
-    // This RegisterMe() function and its use seems
-    // VERY hacky and redundant.  It's protected so
-    // I can't call it here anyway.  AddSetting()
-    // calls it once in every loop above so it's
-    // really not necessary here.  --atnak 02-10-24
-    // m_Settings.RegisterMe();
-
-    m_SettingsCount = count;
-    m_DeleteSettingsOnExit = TRUE;
-}
-
-CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,vector<CSimpleSetting*> csettings)
-    :CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
-    m_CurrentSetting(0),
-    m_Settings(),
-    m_DeleteSettingsOnExit(FALSE)
-{
-    m_SettingsCount = csettings.size();
-    for (int i = 0; i < m_SettingsCount; i++)
-    {
-        m_Settings.AddSetting(csettings[i]);
-    }
-}
-
-CTreeSettingsGeneric::~CTreeSettingsGeneric()
-{
-    //Clear list, don't write settings
-    m_Settings.ClearSettingList(m_DeleteSettingsOnExit, FALSE);
+    m_SettingsCount = m_Settings->GetNumSettings();
 }
 
 void CTreeSettingsGeneric::DoDataExchange(CDataExchange* pDX)
@@ -147,7 +100,7 @@ BOOL CTreeSettingsGeneric::OnInitDialog()
     //add relevant settings to listbox
     for(int i=0;i<m_SettingsCount;i++)
     {
-        CSimpleSetting* pSetting = m_Settings[i];
+        CSimpleSetting* pSetting = m_Settings->GetSetting(i);
         if ((pSetting != NULL) && !pSetting->GetDisplayName().empty() && (pSetting->GetType() != NOT_PRESENT))
         {
             int index=m_ListBox.AddString(pSetting->GetDisplayName().c_str());
@@ -161,8 +114,8 @@ BOOL CTreeSettingsGeneric::OnInitDialog()
     if(m_SettingsCount>0)
     {
         m_ListBox.SetCurSel(0);
-        OnSelchangeList();
     }
+    OnSelchangeList();
     return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -173,10 +126,9 @@ void CTreeSettingsGeneric::OnSelchangeList()
 
     SETTING_TYPE Type = NOT_PRESENT;
 
-    if (m_Settings[m_CurrentSetting] != NULL)
+    if (m_CurrentSetting >= 0 && m_CurrentSetting < m_SettingsCount)
     {
-        
-        Type = m_Settings[m_CurrentSetting]->GetType();
+        Type = m_Settings->GetSetting(m_CurrentSetting)->GetType();
 
         switch(Type)
         {
@@ -189,8 +141,7 @@ void CTreeSettingsGeneric::OnSelchangeList()
             m_Slider.ShowWindow(SW_HIDE);
             m_Spin.ShowWindow(SW_HIDE);
             m_Combo.ShowWindow(SW_HIDE);
-            m_Settings[m_CurrentSetting]->SetupControl(m_DefaultButton);
-            m_Settings[m_CurrentSetting]->SetupControl(m_CheckBox);
+            m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_CheckBox);
             break;
 
         case SLIDER:
@@ -201,9 +152,9 @@ void CTreeSettingsGeneric::OnSelchangeList()
             m_EditString.ShowWindow(SW_HIDE);
             m_CheckBox.ShowWindow(SW_HIDE);
             m_Combo.ShowWindow(SW_HIDE);
-            m_Settings[m_CurrentSetting]->SetupControl(m_Edit);
-            m_Settings[m_CurrentSetting]->SetupControl(m_Spin);
-            m_Settings[m_CurrentSetting]->SetupControl(m_Slider);
+            m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_Edit);
+            m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_Spin);
+            m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_Slider);
             break;
 
         case ITEMFROMLIST:
@@ -214,7 +165,7 @@ void CTreeSettingsGeneric::OnSelchangeList()
             m_Slider.ShowWindow(SW_HIDE);
             m_Spin.ShowWindow(SW_HIDE);
             m_Combo.ShowWindow(SW_SHOWNA);
-            m_Settings[m_CurrentSetting]->SetupControl(m_Combo);
+            m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_Combo);
             break;
 
         case CHARSTRING:
@@ -225,17 +176,17 @@ void CTreeSettingsGeneric::OnSelchangeList()
             m_Slider.ShowWindow(SW_HIDE);
             m_Spin.ShowWindow(SW_HIDE);
             m_Combo.ShowWindow(SW_HIDE);
-            m_Settings[m_CurrentSetting]->SetupControl(m_EditString);
+            m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_EditString);
             break;
         default:
             break;
         }
 
         string szName;
-        szName = m_Settings[m_CurrentSetting]->GetDisplayName();
+        szName = m_Settings->GetSetting(m_CurrentSetting)->GetDisplayName();
         if (szName.empty())
         {
-            szName = m_Settings[m_CurrentSetting]->GetEntry();
+            szName = m_Settings->GetSetting(m_CurrentSetting)->GetEntry();
         }
 
         m_TopGroupBox.SetWindowText("");
@@ -277,41 +228,36 @@ void CTreeSettingsGeneric::UpdateControls(CWnd* pChangedControl)
     {
         return;
     }
-    if (m_Settings[m_CurrentSetting] == NULL)
-    {
-        return;
-    }
     bInUpdate = TRUE;
-
 
     if((m_Spin.GetStyle() & WS_VISIBLE) && (&m_Spin != pChangedControl))
     {
-        m_Settings[m_CurrentSetting]->SetControlValue(m_Spin);
+        m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_Spin);
     }
 
     if((m_Edit.GetStyle() & WS_VISIBLE) && (&m_Edit != pChangedControl))
     {
-        m_Settings[m_CurrentSetting]->SetControlValue(m_Edit);
+        m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_Edit);
     }
 
     if((m_EditString.GetStyle() & WS_VISIBLE) && (&m_EditString != pChangedControl))
     {
-        m_Settings[m_CurrentSetting]->SetControlValue(m_EditString);
+        m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_EditString);
     }
 
     if((m_CheckBox.GetStyle() & WS_VISIBLE) && (&m_CheckBox != pChangedControl))
     {
-        m_Settings[m_CurrentSetting]->SetControlValue(m_CheckBox);
+        m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_CheckBox);
     }
 
     if((m_Slider.GetStyle() & WS_VISIBLE) && (&m_Slider != pChangedControl))
     {
-        m_Settings[m_CurrentSetting]->SetControlValue(m_Slider);
+        m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_Slider);
     }
 
     if((m_Combo.GetStyle() & WS_VISIBLE) && (&m_Combo != pChangedControl))
     {
-        m_Settings[m_CurrentSetting]->SetControlValue(m_Combo);
+        m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_Combo);
     }
 
     bInUpdate = FALSE;
@@ -322,10 +268,7 @@ void CTreeSettingsGeneric::OnChangeEdit()
     if(m_Edit.m_hWnd==NULL)
         return;
 
-    if (m_Settings[m_CurrentSetting] != NULL)
-    {
-        m_Settings[m_CurrentSetting]->SetFromControl(m_Edit);
-    }
+    m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_Edit);
 
     UpdateControls(&m_Edit);
 }
@@ -335,10 +278,7 @@ void CTreeSettingsGeneric::OnChangeEditString()
     if(m_EditString.m_hWnd==NULL)
         return;
 
-    if (m_Settings[m_CurrentSetting] != NULL)
-    {
-        m_Settings[m_CurrentSetting]->SetFromControl(m_EditString);
-    }
+    m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_EditString);
 
     UpdateControls(&m_EditString);
 }
@@ -347,30 +287,21 @@ void CTreeSettingsGeneric::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrol
 {
     //slider has changed
 
-    if ( (m_Settings[m_CurrentSetting] != NULL))
-    {
-        m_Settings[m_CurrentSetting]->SetFromControl(m_Slider.m_hWnd);
-    }
+    m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_Slider.m_hWnd);
 
     UpdateControls(&m_Slider);
 }
 
 void CTreeSettingsGeneric::OnSettingsDefault()
 {
-    if (m_Settings[m_CurrentSetting] != NULL)
-    {
-        m_Settings[m_CurrentSetting]->ChangeValue(RESET_SILENT);
-    }
+    m_Settings->GetSetting(m_CurrentSetting)->ChangeValue(RESET_SILENT);
 
     UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckClick()
 {
-    if (m_Settings[m_CurrentSetting] != NULL)
-    {
-        m_Settings[m_CurrentSetting]->SetFromControl(m_CheckBox);
-    }
+    m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_CheckBox);
 
     UpdateControls(NULL);
 }
@@ -408,9 +339,9 @@ void CTreeSettingsGeneric::OnCheckChannelClick()
 
 void CTreeSettingsGeneric::OnSelchangeChoosefromlist()
 {
-    if((m_Combo.GetCurSel()!=CB_ERR) && (m_Settings[m_CurrentSetting] != NULL))
+    if((m_Combo.GetCurSel()!=CB_ERR))
     {
-        m_Settings[m_CurrentSetting]->SetFromControl(m_Combo);
+        m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_Combo);
     }
     UpdateControls(&m_Combo);
 }
@@ -419,31 +350,26 @@ void CTreeSettingsGeneric::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResul
 {
     NM_UPDOWN* pNMUpDown = (NM_UPDOWN*)pNMHDR;
 
-    if (m_Settings[m_CurrentSetting] != NULL)
+    CSimpleSetting* Slider = m_Settings->GetSetting(m_CurrentSetting);
+
+    if(pNMUpDown->iDelta > 0)
     {
-        CSimpleSetting* Slider = m_Settings[m_CurrentSetting];
-
-        if(pNMUpDown->iDelta > 0)
-        {
-            Slider->ChangeValue(ADJUSTDOWN_SILENT);
-        }
-        else
-        {
-            Slider->ChangeValue(ADJUSTUP_SILENT);
-        }
-
-        *pResult = 0;
+        Slider->ChangeValue(ADJUSTDOWN_SILENT);
     }
+    else
+    {
+        Slider->ChangeValue(ADJUSTUP_SILENT);
+    }
+
+    *pResult = 0;
 
     UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnOK()
 {
-    //WriteSettingsToIni(TRUE);
-
-    //Write settings & clear list
-    m_Settings.ClearSettingList(m_DeleteSettingsOnExit, TRUE);
+    //Write settings
+    m_Settings->WriteToIni(TRUE);
     CTreeSettingsPage::OnOK();
 }
 

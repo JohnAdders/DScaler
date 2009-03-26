@@ -45,15 +45,48 @@ class CTreeSettingsGeneric;
 */
 class CSettingsMaster
 {
-protected:
-    typedef struct 
-    {
-        CSettingsHolder* pHolder;
-        BOOL bIsSource;    
-    } TSettingsHolderInfo;
+public:
+    CSettingsMaster(LPCSTR szIniFile);
+    ~CSettingsMaster();
     
+    void Initialize();
+
+    void Register(SmartPtr<CSettingsHolder> pHolder);
+    void Unregister(SmartPtr<CSettingsHolder> pHolder);        
+
+    void SetSource(CSource* pSource);
+    void SetChannelName(long NewValue);
+    void SetVideoInput(long NewValue);
+    void SetAudioInput(long NewValue);
+    void SetVideoFormat(long NewValue);
+
+    void SaveGroupedSettings();
+    void LoadGroupedSettings();
+
+    void SaveAllSettings(BOOL bOptimizeFileAccess);
+
+    CSettingGroup* GetGroup(LPCSTR szDisplayName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
+
+    SmartPtr<CTreeSettingsGeneric> GetTreeSettingsPage();
+
+    void LoadOneGroupedSetting(CSimpleSetting* pSetting);
+    void WriteOneGroupedSetting(CSimpleSetting* pSetting);
+
+    LONG HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone);
+
+    SmartPtr<CSettingsHolder> FindMsgHolder(long Message);
+
+private:        
+    typedef SETTING* (__cdecl *GENERICGETSETTING)(long SettingIndex);
+    void AddSettings(long MessageIdRoot, GENERICGETSETTING GetSettingFunction);
+
+    void ParseSettingHolder(CSettingsHolder* Holder, BOOL IsLoad);
+    void ParseAllSettings(BOOL IsLoad);
+    void MakeSubSection(std::string& SubSection, CSettingGroup* pGroup);
+
+    typedef std::vector< SmartPtr<CSettingsHolder> > Holders;
     /// List of setting holders
-    std::vector<TSettingsHolderInfo> m_Holders;
+    Holders m_Holders;
 
     /// Name of the ini file
     std::string m_sIniFile;
@@ -65,39 +98,10 @@ protected:
     std::string m_VideoFormatName;
     std::string m_ChannelName;
 
-protected:        
-    void ParseAllSettings(BOOL IsLoad);
-    void MakeSubSection(std::string& SubSection, CSettingGroup* pGroup);
-
-public:
-    CSettingsMaster();
-    ~CSettingsMaster();
-    
-    void IniFile(LPCSTR szIniFile) { m_sIniFile = szIniFile; }
-    void Register(CSettingsHolder* pHolder);
-    void Unregister(CSettingsHolder* pHolder);        
-
-    void SetSource(CSource* pSource);
-    void SetChannelName(long NewValue);
-    void SetVideoInput(long NewValue);
-    void SetAudioInput(long NewValue);
-    void SetVideoFormat(long NewValue);
-
-    void SaveSettings();
-    void LoadSettings();
-
-    CSettingGroup* GetGroup(LPCSTR szDisplayName, DWORD Flags, BOOL IsActiveByDefault);
-
-    CTreeSettingsGeneric* GetTreeSettingsPage();
-
-    void LoadOneSetting(CSimpleSetting* pSetting);
-    void WriteOneSetting(CSimpleSetting* pSetting);
-
-private:    
-    std::vector<CSettingGroup*> m_SettingsGroups;
+    std::vector< SmartPtr<CSettingGroup> > m_SettingsGroups;
 };
 
-extern CSettingsMaster* SettingsMaster;
+extern SmartPtr<CSettingsMaster> SettingsMaster;
 
 
 #endif

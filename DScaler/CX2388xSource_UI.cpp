@@ -39,6 +39,7 @@
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 #include "LibraryCache.h"
 
 using namespace std;
@@ -131,7 +132,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
             pThis->m_CardName->SetValue(pThis->GetCard()->GetCardName((eCX2388xCardId) i ).c_str());
 
-            WriteSettingsToIni(TRUE);
+            SettingsMaster->SaveAllSettings(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
@@ -622,47 +623,47 @@ void CCX2388xSource::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
 
 CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
 {
-    vector <CSimpleSetting*>vSettingsList;
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
 
-    vSettingsList.push_back(m_HDelay);
-    vSettingsList.push_back(m_VDelay);
-    vSettingsList.push_back(m_AnalogueBlanking);
-    vSettingsList.push_back(m_ConexantStopDriver);
+    Holder->AddSetting(m_HDelay);
+    Holder->AddSetting(m_VDelay);
+    Holder->AddSetting(m_AnalogueBlanking);
+    Holder->AddSetting(m_ConexantStopDriver);
 
     if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
-        vSettingsList.push_back(m_EatLinesAtTop);
-        vSettingsList.push_back(m_Sharpness);
+        Holder->AddSetting(m_EatLinesAtTop);
+        Holder->AddSetting(m_Sharpness);
     }
     else
     {
-        vSettingsList.push_back(m_LumaAGC);
-        vSettingsList.push_back(m_ChromaAGC);
-        vSettingsList.push_back(m_FastSubcarrierLock);
-        vSettingsList.push_back(m_WhiteCrush);
-        vSettingsList.push_back(m_LowColorRemoval);
-        vSettingsList.push_back(m_CombFilter);
-        vSettingsList.push_back(m_FullLumaRange);
-        vSettingsList.push_back(m_Remodulation);
-        vSettingsList.push_back(m_Chroma2HComb);
-        vSettingsList.push_back(m_ForceRemodExcessChroma);
-        vSettingsList.push_back(m_IFXInterpolation);
-        vSettingsList.push_back(m_CombRange);
-        vSettingsList.push_back(m_SecondChromaDemod);
-        vSettingsList.push_back(m_ThirdChromaDemod);
-        vSettingsList.push_back(m_WhiteCrushUp);
-        vSettingsList.push_back(m_WhiteCrushDown);
-        vSettingsList.push_back(m_WhiteCrushMajorityPoint);
-        vSettingsList.push_back(m_WhiteCrushPerFrame);
-        vSettingsList.push_back(m_Volume);
-        vSettingsList.push_back(m_Balance);
-        vSettingsList.push_back(m_AudioStandard);
-        vSettingsList.push_back(m_StereoType);
-        vSettingsList.push_back(m_AutoMute);
-        vSettingsList.push_back(m_VerticalSyncDetection);
+        Holder->AddSetting(m_LumaAGC);
+        Holder->AddSetting(m_ChromaAGC);
+        Holder->AddSetting(m_FastSubcarrierLock);
+        Holder->AddSetting(m_WhiteCrush);
+        Holder->AddSetting(m_LowColorRemoval);
+        Holder->AddSetting(m_CombFilter);
+        Holder->AddSetting(m_FullLumaRange);
+        Holder->AddSetting(m_Remodulation);
+        Holder->AddSetting(m_Chroma2HComb);
+        Holder->AddSetting(m_ForceRemodExcessChroma);
+        Holder->AddSetting(m_IFXInterpolation);
+        Holder->AddSetting(m_CombRange);
+        Holder->AddSetting(m_SecondChromaDemod);
+        Holder->AddSetting(m_ThirdChromaDemod);
+        Holder->AddSetting(m_WhiteCrushUp);
+        Holder->AddSetting(m_WhiteCrushDown);
+        Holder->AddSetting(m_WhiteCrushMajorityPoint);
+        Holder->AddSetting(m_WhiteCrushPerFrame);
+        Holder->AddSetting(m_Volume);
+        Holder->AddSetting(m_Balance);
+        Holder->AddSetting(m_AudioStandard);
+        Holder->AddSetting(m_StereoType);
+        Holder->AddSetting(m_AutoMute);
+        Holder->AddSetting(m_VerticalSyncDetection);
     }
 
-    return new CTreeSettingsGeneric("CX2388x Advanced",vSettingsList);
+    return new CTreeSettingsGeneric("CX2388x Advanced", Holder);
 }
 
 void CCX2388xSource::InitializeUI()

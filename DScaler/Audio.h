@@ -32,8 +32,6 @@
 
 // Get Hold of the Audio.cpp file settings
 SETTING* Audio_GetSetting(AUDIO_SETTING Setting);
-void Audio_ReadSettingsFromIni();
-void Audio_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Audio_SetMenu(HMENU hMenu);
 
 void Initialize_Mute();

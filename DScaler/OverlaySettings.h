@@ -26,7 +26,5 @@
 #include "Settings.h"
 
 BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-void OverlaySettings_Load();
-void OverlaySettings_Save();
 
 #endif

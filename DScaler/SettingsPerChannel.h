@@ -25,8 +25,6 @@
 
 #include "setting.h"
 
-void SettingsPerChannel_ReadSettingsFromIni();
-void SettingsPerChannel_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 SETTING* SettingsPerChannel_GetSetting(int iSetting);
 
 BOOL SettingsPerChannel_IsPerChannel();

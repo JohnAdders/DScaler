@@ -200,14 +200,14 @@ int SMPeriods[SMPeriodCount] =
 
 HRGN DScalerWindowRgn = NULL;
 
-char* szSkinName = NULL;
+SettingStringValue szSkinName;
 char szSkinDirectory[MAX_PATH+1];
 vector<string> vSkinNameList;
 
-CSettingsMaster* SettingsMaster = NULL;
-CEventCollector* EventCollector = NULL;
-CWindowBorder* WindowBorder = NULL;
-CToolbarControl* ToolbarControl = NULL;
+SmartPtr<CSettingsMaster> SettingsMaster;
+SmartPtr<CEventCollector> EventCollector;
+SmartPtr<CWindowBorder> WindowBorder;
+SmartPtr<CToolbarControl> ToolbarControl;
 
 CPaintingHDC OffscreenHDC;
 
@@ -229,7 +229,7 @@ HMENU CreateDScalerPopupMenu();
 BOOL IsStatusBarVisible();
 BOOL IsToolBarVisible();
 HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState);
-void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow);
+void SetWindowBorder(HWND hWnd, BOOL bShow);
 void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
 LPCSTR GetSkinDirectory();
 LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
@@ -238,7 +238,7 @@ LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam);
 LONG OnInput(HWND hWnd, UINT wParam, LONG lParam);
 void SetTray(BOOL Way);
 int On_IconHandler(WPARAM wParam, LPARAM lParam);
-
+BOOL DoWeNeedToShowHWSetupBox();
 static BOOL g_bOverlayStopped = FALSE;
 
 static const char* UIPriorityNames[3] = 
@@ -415,9 +415,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // Required to use slider control
     InitCommonControls();
 
-    // setup default ini file
     SetIniFileForSettings("");
-    
+
     // Process the command line arguments.
     // The following arguments are supported
     // -i<inifile>      specification of the ini file.
@@ -449,7 +448,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
             case 'd':
                 if(strcmp(szParameter, "riverinstall") == 0)
                 {
-                    DWORD result = 0;                  
+                    DWORD result = 0;
                     CHardwareDriver* HardwareDriver = NULL;
                     
                     HardwareDriver = new CHardwareDriver();
@@ -469,7 +468,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
                 }
                 else if(strcmp(szParameter, "riveruninstall") == 0)
                 {
-                    DWORD result = 0;                  
+                    DWORD result = 0;
                     CHardwareDriver* HardwareDriver = NULL;
                     
                     HardwareDriver = new CHardwareDriver();
@@ -488,7 +487,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
                     return result;
                 }
             case 'i':
-                SetIniFileForSettings(szParameter);              
+                SetIniFileForSettings(szParameter);
                 break;
             case 'c':
                 sscanf(szParameter, "%d", &InitialChannel);
@@ -528,35 +527,39 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     }
 #endif
 
-    ShowHWSetupBox =    !Setting_ReadFromIni(DScaler_GetSetting(PROCESSORSPEED))
-                     || !Setting_ReadFromIni(DScaler_GetSetting(TRADEOFF))
-                     || !Setting_ReadFromIni(DScaler_GetSetting(FULLCPU))
-                     || !Setting_ReadFromIni(DScaler_GetSetting(VIDEOCARD));
+    ShowHWSetupBox =  DoWeNeedToShowHWSetupBox();
 
     // Event collector
-    if (EventCollector == NULL)
+    if (!EventCollector)
     {
-        EventCollector = new CEventCollector();        
+        EventCollector = new CEventCollector();
     }
         
-    // Master setting. Holds all settings in the future
-    //  For now, only settings that are registered here respond to events 
-    //  like source/input/format/channel changes
-    if (SettingsMaster == NULL)
-    {
-        SettingsMaster = new CSettingsMaster();
-    }
-    SettingsMaster->IniFile(GetIniFileForSettings());
-
-    // load up ini file settings after parsing parms as 
-    // the ini file location may have changed
-    LoadSettingsFromIni();
+    /// Master setting. Holds all settings
+    SettingsMaster = new CSettingsMaster(GetIniFileForSettings());
     
+    /// Loads up the values from the ini file
+    SettingsMaster->Initialize();
+
+    // do stuff required once the settings are loaded
+    if(bForceFullScreen)
+    {
+        bIsFullScreen = TRUE;
+    }
+    if(bKeyboardLock)
+    {
+        SetKeyboardLock(TRUE);
+    }
+    ScreensaverOff_OnChange(bScreensaverOff);
+
+    VT_SetAutoCodepage(NULL, NULL, bVTAutoCodePage);
+    VT_SetAntialias(NULL, NULL, bVTAntiAlias);
+
     SetActiveOutput(OutputMethod);
 
     // make sure dscaler.ini exists with many of the options in it.
     // even if dscaler crashes a new user is able to make changes to dscaler.ini.
-    WriteSettingsToIni(TRUE);
+    SettingsMaster->SaveAllSettings(TRUE);
 
     // Initialize the audio muting module
     Initialize_Mute();
@@ -620,10 +623,10 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
       || (MainWndTop > screenRect.bottom)
       || ((MainWndTop+MainWndHeight) < screenRect.top) )
     {
-        Setting_SetDefault(DScaler_GetSetting(STARTLEFT));
-        Setting_SetDefault(DScaler_GetSetting(STARTTOP));
-        Setting_SetDefault(DScaler_GetSetting(STARTWIDTH));
-        Setting_SetDefault(DScaler_GetSetting(STARTHEIGHT));
+        Setting_SetDefault(WM_DSCALER_GETVALUE, STARTLEFT);
+        Setting_SetDefault(WM_DSCALER_GETVALUE, STARTTOP);
+        Setting_SetDefault(WM_DSCALER_GETVALUE, STARTWIDTH);
+        Setting_SetDefault(WM_DSCALER_GETVALUE, STARTHEIGHT);
         SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
     }
 
@@ -1400,9 +1403,9 @@ BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar)
 
     if(bIsFullScreen == TRUE) 
     {
-        if (WithToolbar == FALSE && ToolbarControl != NULL)
+        if (WithToolbar == FALSE && ToolbarControl)
         {
-            ToolbarControl->AdjustArea(lpRect, 1);        
+            ToolbarControl->AdjustArea(lpRect, 1);
         }
 
         return result;
@@ -1415,14 +1418,14 @@ BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar)
             lpRect->bottom -= StatusBar_Height();
         }
 
-        if ((WindowBorder!=NULL) && WindowBorder->Visible())
+        if (WindowBorder && WindowBorder->Visible())
         {
             WindowBorder->AdjustArea(lpRect,1);
         }
 
-        if (ToolbarControl!=NULL)
+        if (ToolbarControl)
         {
-            ToolbarControl->AdjustArea(lpRect, 1);        
+            ToolbarControl->AdjustArea(lpRect, 1);
         }
     }
     return result;
@@ -1430,12 +1433,12 @@ BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar)
 
 void AddDisplayAreaRect(HWND hWnd, LPRECT lpRect)
 {
-    if (ToolbarControl!=NULL)
+    if (ToolbarControl)
     {
         ToolbarControl->AdjustArea(lpRect, 0);    
     }
 
-    if ((WindowBorder!=NULL) && WindowBorder->Visible())
+    if ((WindowBorder) && WindowBorder->Visible())
     { 
        WindowBorder->AdjustArea(lpRect,0);
     }    
@@ -1568,27 +1571,24 @@ LPCSTR GetSkinDirectory()
     return szSkinDirectory;
 }
 
-void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow)
+void SetWindowBorder(HWND hWnd, BOOL bShow)
 {
-    if (WindowBorder==NULL) 
+    if (!WindowBorder) 
     {                
-        if ((szSkinName == NULL) || (szSkinName[0] == 0))
+        if (!szSkinName)
         {
             //Don't make the windowborder unless it is necessary
             return;
         }
         WindowBorder = new CWindowBorder(hWnd, hDScalerInst, BorderGetClientRect);
-
-        //Test border (white)
-        //WindowBorder->SolidBorder(10,10,10,10, 0xFFFFFF);        
     }
 
-    if ((szSkinName != NULL) && (szSkinName[0] == 0))
+    if (WindowBorder && !szSkinName)
     {
         WindowBorder->ClearSkin();
     }
 
-    if ((szSkinName != NULL) && (szSkinName[0] != 0))
+    if (szSkinName)
     {
         char szSkinIniFile[MAX_PATH*2];
         strcpy(szSkinIniFile,GetSkinDirectory());
@@ -1609,7 +1609,7 @@ void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow)
         ///\todo Process errors    
     }
     
-    if (bShow && !bIsFullScreen && ((szSkinName == NULL) || (szSkinName[0]!=0)))
+    if (bShow && !bIsFullScreen)
     {
         WindowBorder->Show();                        
     }
@@ -1699,21 +1699,24 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
         }
     }
 
-    CheckMenuItemBool(hMenu, IDM_SKIN_NONE, ((vSkinNameList.size()==0) || (szSkinName[0] == 0)));
+    CheckMenuItemBool(hMenu, IDM_SKIN_NONE, ((vSkinNameList.size()==0) || !szSkinName));
         
     int Found = 0;
-    for (size_t i = 0; i < vSkinNameList.size(); i++)
+    if(szSkinName)
     {
-        if ((Found == 0) && (vSkinNameList[i] == szSkinName))
+        for (size_t i = 0; i < vSkinNameList.size(); i++)
         {
-            Found = 1;
+            if ((Found == 0) && (vSkinNameList[i] == (LPCSTR)szSkinName))
+            {
+                Found = 1;
+            }
+            CheckMenuItemBool(hMenu, IDM_SKIN_FIRST+i, (Found==1));
+            if (Found==1) 
+            {
+                Found=2;
+            }
         }
-        CheckMenuItemBool(hMenu, IDM_SKIN_FIRST+i, (Found==1));
-        if (Found==1) 
-        {
-            Found=2;
-        }
-    }    
+    }
 }
 
 ///**************************************************************************
@@ -1968,15 +1971,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
     
         case IDM_AUTO_FORMAT:
-            if(Setting_GetValue(Timing_GetSetting(AUTOFORMATDETECT)))
+            if(Setting_GetValue(WM_TIMING_GETVALUE, AUTOFORMATDETECT))
             {
                 ShowText(hWnd, "Auto Format Detection OFF");
-                Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), FALSE);
+                Setting_SetValue(WM_TIMING_GETVALUE, AUTOFORMATDETECT, FALSE);
             }
             else
             {
                 ShowText(hWnd, "Auto Format Detection ON");
-                Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), TRUE);
+                Setting_SetValue(WM_TIMING_GETVALUE, AUTOFORMATDETECT, TRUE);
             }
             break;
 
@@ -2212,57 +2215,57 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         
         case IDM_AUTODETECT:
             KillTimer(hWnd, TIMER_FINDPULL);
-            if(Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
+            if(Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT))
             {
                 ShowText(hWnd, "Auto Pulldown Detection OFF");
-                Setting_SetValue(OutThreads_GetSetting(AUTODETECT), FALSE);
+                Setting_SetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT, FALSE);
             }
             else
             {
                 ShowText(hWnd, "Auto Pulldown Detection ON");
-                Setting_SetValue(OutThreads_GetSetting(AUTODETECT), TRUE);
+                Setting_SetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT, TRUE);
             }
             // Set Deinterlace Mode to film fallback in
             // either case
             if(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps)
             {
-                SetVideoDeinterlaceIndex(Setting_GetValue(FD50_GetSetting(PALFILMFALLBACKMODE)));
+                SetVideoDeinterlaceIndex(Setting_GetValue(WM_FD50_GETVALUE, PALFILMFALLBACKMODE));
             }
             else
             {
-                SetVideoDeinterlaceIndex(Setting_GetValue(FD60_GetSetting(NTSCFILMFALLBACKMODE)));
+                SetVideoDeinterlaceIndex(Setting_GetValue(WM_FD60_GETVALUE, NTSCFILMFALLBACKMODE));
             }
             break;
 
         case IDM_FINDLOCK_PULL:
-            if(!Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
+            if(!Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT))
             {
-                Setting_SetValue(OutThreads_GetSetting(AUTODETECT), TRUE);
+                Setting_SetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT, TRUE);
             }
             // Set Deinterlace Mode to film fallback in
             // either case
             if(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps)
             {
-                SetVideoDeinterlaceIndex(Setting_GetValue(FD50_GetSetting(PALFILMFALLBACKMODE)));
+                SetVideoDeinterlaceIndex(Setting_GetValue(WM_FD50_GETVALUE, PALFILMFALLBACKMODE));
             }
             else
             {
-                SetVideoDeinterlaceIndex(Setting_GetValue(FD60_GetSetting(NTSCFILMFALLBACKMODE)));
+                SetVideoDeinterlaceIndex(Setting_GetValue(WM_FD60_GETVALUE, NTSCFILMFALLBACKMODE));
             }
             SetTimer(hWnd, TIMER_FINDPULL, TIMER_FINDPULL_MS, NULL);
 //            ShowText(hWnd, "Searching Film mode ...");
             break;
 
         case IDM_FALLBACK:
-            if(Setting_GetValue(FD60_GetSetting(FALLBACKTOVIDEO)))
+            if(Setting_GetValue(WM_FD60_GETVALUE, FALLBACKTOVIDEO))
             {
                 ShowText(hWnd, "Fallback on Bad Pulldown OFF");
-                Setting_SetValue(FD60_GetSetting(FALLBACKTOVIDEO), FALSE);
+                Setting_SetValue(WM_FD60_GETVALUE, FALLBACKTOVIDEO, FALSE);
             }
             else
             {
                 ShowText(hWnd, "Fallback on Bad Pulldown ON");
-                Setting_SetValue(FD60_GetSetting(FALLBACKTOVIDEO), TRUE);
+                Setting_SetValue(WM_FD60_GETVALUE, FALLBACKTOVIDEO, TRUE);
             }
             break;
 
@@ -2274,7 +2277,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_32PULL4:
         case IDM_32PULL5:
             KillTimer(hWnd, TIMER_FINDPULL);
-            Setting_SetValue(OutThreads_GetSetting(AUTODETECT), FALSE);
+            Setting_SetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT, FALSE);
             SetFilmDeinterlaceMode((eFilmPulldownMode)(LOWORD(wParam) - IDM_22PULLODD));
             ShowText(hWnd, GetDeinterlaceModeName());
             break;
@@ -2575,8 +2578,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 Cursor_VTUpdate();
                 InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
             }
-            Setting_SetValue(VBI_GetSetting(DOTELETEXT),
-                !Setting_GetValue(VBI_GetSetting(DOTELETEXT)));
+            Setting_SetValue(WM_VBI_GETVALUE, DOTELETEXT,
+                !Setting_GetValue(WM_VBI_GETVALUE, DOTELETEXT));
             break;
 
         case IDM_CCOFF:
@@ -2588,18 +2591,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TEXT2:
         case IDM_TEXT3:
         case IDM_TEXT4:
-            Setting_SetValue(VBI_GetSetting(CLOSEDCAPTIONMODE), 
+            Setting_SetValue(WM_VBI_GETVALUE, CLOSEDCAPTIONMODE, 
                 LOWORD(wParam) - IDM_CCOFF);
             break;
 
         case IDM_VBI_VPS:
-            Setting_SetValue(VBI_GetSetting(DOVPS), 
-                !Setting_GetValue(VBI_GetSetting(DOVPS)));
+            Setting_SetValue(WM_VBI_GETVALUE, DOVPS, 
+                !Setting_GetValue(WM_VBI_GETVALUE, DOVPS));
             break;
 
         case IDM_VBI_WSS:
-            Setting_SetValue(VBI_GetSetting(DOWSS), 
-                !Setting_GetValue(VBI_GetSetting(DOWSS)));
+            Setting_SetValue(WM_VBI_GETVALUE, DOWSS, 
+                !Setting_GetValue(WM_VBI_GETVALUE, DOWSS));
             break;
 
         case IDM_CALL_VIDEOTEXT:
@@ -2622,11 +2625,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             
                 if (NewState != VT_OFF)
                 {
-                    if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+                    if (!Setting_GetValue(WM_VBI_GETVALUE, CAPTURE_VBI))
                     {
                         SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
                     }
-                    if (!Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
+                    if (!Setting_GetValue(WM_VBI_GETVALUE, DOTELETEXT))
                     {
                         SendMessage(hWnd, WM_COMMAND, IDM_VBI_VT, 0);
                     }
@@ -2662,11 +2665,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     NewState = VT_MIXED;
                 }
 
-                if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+                if (!Setting_GetValue(WM_VBI_GETVALUE, CAPTURE_VBI))
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
                 }
-                if (!Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
+                if (!Setting_GetValue(WM_VBI_GETVALUE, DOTELETEXT))
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_VBI_VT, 0);
                 }
@@ -2716,14 +2719,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
             }
             Stop_Capture();
-            Setting_SetValue(VBI_GetSetting(CAPTURE_VBI),
-                !Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)));
+            Setting_SetValue(WM_VBI_GETVALUE, CAPTURE_VBI,
+                !Setting_GetValue(WM_VBI_GETVALUE, CAPTURE_VBI));
             Start_Capture();
             break;
 
         case IDM_VT_SEARCHHIGHLIGHT:
-            Setting_SetValue(VBI_GetSetting(SEARCHHIGHLIGHT), 
-                !Setting_GetValue(VBI_GetSetting(SEARCHHIGHLIGHT)));
+            Setting_SetValue(WM_VBI_GETVALUE, SEARCHHIGHLIGHT, 
+                !Setting_GetValue(WM_VBI_GETVALUE, SEARCHHIGHLIGHT));
             InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
             break;
 
@@ -2785,20 +2788,20 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_JUDDERTERMINATOR:
             Stop_Capture();
-            Setting_SetValue(OutThreads_GetSetting(DOACCURATEFLIPS), 
-                !Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)));
+            Setting_SetValue(WM_OUTTHREADS_GETVALUE, DOACCURATEFLIPS, 
+                !Setting_GetValue(WM_OUTTHREADS_GETVALUE, DOACCURATEFLIPS));
             Start_Capture();
             break;
 
         case IDM_USECHROMA:
             Stop_Capture();
-            Setting_SetValue(FD_Common_GetSetting(USECHROMA), 
-                !Setting_GetValue(FD_Common_GetSetting(USECHROMA)));
+            Setting_SetValue(WM_FD_COMMON_GETVALUE, USECHROMA, 
+                !Setting_GetValue(WM_FD_COMMON_GETVALUE, USECHROMA));
             Start_Capture();
             break;
 
         case IDM_SPACEBAR:
-            if(!Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
+            if(!Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT))
             {
                 IncrementDeinterlaceMode();
                 ShowText(hWnd, GetDeinterlaceModeName());
@@ -2806,7 +2809,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_SHIFT_SPACEBAR:
-            if (!Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
+            if (!Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT))
             {
                 DecrementDeinterlaceMode();
                 ShowText(hWnd, GetDeinterlaceModeName());
@@ -2852,7 +2855,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TAKECONSECUTIVESTILL:
             // Take cpnsecutive stills
             req.type = REQ_STILL;
-            req.param1 = Setting_GetValue(Still_GetSetting(NBCONSECUTIVESTILLS));
+            req.param1 = Setting_GetValue(WM_STILL_GETVALUE, NBCONSECUTIVESTILLS);
             PutRequest(&req);
             break;
 
@@ -2865,7 +2868,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 req.param1 = 1;
                 PutRequest(&req);
                 // The setting value is changed from a number of seconds to a number of 1/10 of seconds
-                SetTimer(hWnd, TIMER_TAKESTILL, Setting_GetValue(Still_GetSetting(DELAYBETWEENSTILLS)) * 100, NULL);
+                SetTimer(hWnd, TIMER_TAKESTILL, Setting_GetValue(WM_STILL_GETVALUE, DELAYBETWEENSTILLS) * 100, NULL);
             }
             break;
 
@@ -2970,7 +2973,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_SAVE_SETTINGS_NOW:
-            WriteSettingsToIni(FALSE);
+            SettingsMaster->SaveAllSettings(FALSE);
             break;
 
         case IDM_OSD_CC_TEXT:
@@ -3010,7 +3013,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_USE_DSCALER_OVERLAY:
-            Setting_SetValue(Overlay_GetSetting(USEOVERLAYCONTROLS), !Setting_GetValue(Overlay_GetSetting(USEOVERLAYCONTROLS)));
+            Setting_SetValue(WM_OTHER_GETVALUE, USEOVERLAYCONTROLS, !Setting_GetValue(WM_OTHER_GETVALUE, USEOVERLAYCONTROLS));
             break;
 
         case IDM_FAST_REPAINT:
@@ -3038,7 +3041,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
                 OSD_Redraw(hDC, &Rect);
 
-                if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible())
+                if (!bIsFullScreen && (WindowBorder) && WindowBorder->Visible())
                 {
                     WindowBorder->Paint(hWnd, hDC, &Rect);
                 }
@@ -3094,7 +3097,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if ( pCalibration->IsRunning()
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
-                Setting_Up(Calibr_GetSetting(LEFT_SOURCE_CROPPING));
+                Setting_Up(WM_CALIBR_GETVALUE, LEFT_SOURCE_CROPPING);
                 SendMessage(hWnd, WM_COMMAND, IDM_LEFT_CROP_CURRENT, 0);
             }
             break;
@@ -3103,7 +3106,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if ( pCalibration->IsRunning()
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
-                Setting_Down(Calibr_GetSetting(LEFT_SOURCE_CROPPING));
+                Setting_Down(WM_CALIBR_GETVALUE, LEFT_SOURCE_CROPPING);
                 SendMessage(hWnd, WM_COMMAND, IDM_LEFT_CROP_CURRENT, 0);
             }
             break;
@@ -3112,7 +3115,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if ( pCalibration->IsRunning()
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
-                Setting_OSDShow(Calibr_GetSetting(LEFT_SOURCE_CROPPING), hWnd);
+                Setting_OSDShow(WM_CALIBR_GETVALUE, LEFT_SOURCE_CROPPING, hWnd);
             }
             break;
 
@@ -3120,7 +3123,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if ( pCalibration->IsRunning()
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
-                Setting_Up(Calibr_GetSetting(RIGHT_SOURCE_CROPPING));
+                Setting_Up(WM_CALIBR_GETVALUE, RIGHT_SOURCE_CROPPING);
                 SendMessage(hWnd, WM_COMMAND, IDM_RIGHT_CROP_CURRENT, 0);
             }
             break;
@@ -3129,7 +3132,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if ( pCalibration->IsRunning()
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
-                Setting_Down(Calibr_GetSetting(RIGHT_SOURCE_CROPPING));
+                Setting_Down(WM_CALIBR_GETVALUE, RIGHT_SOURCE_CROPPING);
                 SendMessage(hWnd, WM_COMMAND, IDM_RIGHT_CROP_CURRENT, 0);
             }
             break;
@@ -3138,7 +3141,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if ( pCalibration->IsRunning()
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
-                Setting_OSDShow(Calibr_GetSetting(RIGHT_SOURCE_CROPPING), hWnd);
+                Setting_OSDShow(WM_CALIBR_GETVALUE, RIGHT_SOURCE_CROPPING, hWnd);
             }
             break;
 
@@ -3159,15 +3162,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case ID_SETTINGS_SAVESETTINGSPERCHANNEL:
-            Setting_SetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYCHANNEL), !Setting_GetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYCHANNEL)));
+            Setting_SetValue(WM_SETTINGSPERCHANNEL_GETVALUE, SETTINGSPERCHANNEL_BYCHANNEL, !Setting_GetValue(WM_SETTINGSPERCHANNEL_GETVALUE, SETTINGSPERCHANNEL_BYCHANNEL));
             break;
 
         case ID_SETTINGS_SAVESETTINGSPERINPUT:
-            Setting_SetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYINPUT), !Setting_GetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYINPUT)));
+            Setting_SetValue(WM_SETTINGSPERCHANNEL_GETVALUE, SETTINGSPERCHANNEL_BYINPUT, !Setting_GetValue(WM_SETTINGSPERCHANNEL_GETVALUE, SETTINGSPERCHANNEL_BYINPUT));
             break;
 
         case ID_SETTINGS_SAVESETTINGSPERFORMAT:
-            Setting_SetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYFORMAT), !Setting_GetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYFORMAT)));
+            Setting_SetValue(WM_SETTINGSPERCHANNEL_GETVALUE, SETTINGSPERCHANNEL_BYFORMAT, !Setting_GetValue(WM_SETTINGSPERCHANNEL_GETVALUE, SETTINGSPERCHANNEL_BYFORMAT));
             break;
 
         case IDM_DEINTERLACE_SHOWVIDEOMETHODUI:
@@ -3186,10 +3189,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_SKIN_NONE:
-            szSkinName[0] = 0;
+            szSkinName.clear();
             Skin_SetMenu(hMenu, TRUE);
-            SetWindowBorder(hWnd, szSkinName, FALSE);
-            if (ToolbarControl!=NULL)
+            SetWindowBorder(hWnd, FALSE);
+            if (ToolbarControl)
             {
                 ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);
             }
@@ -3240,8 +3243,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     strcpy(szSkinName, vSkinNameList[n].c_str());
                 }
                 Skin_SetMenu(hMenu, TRUE);
-                SetWindowBorder(hWnd, szSkinName, TRUE);  
-                if (ToolbarControl!=NULL)
+                SetWindowBorder(hWnd, TRUE);  
+                if (ToolbarControl)
                 {
                     ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);
                 }
@@ -3291,11 +3294,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 bDone = ProcessOutResoSelection(hWnd, LOWORD(wParam));
             }
-            if(!bDone && pCalibration != NULL)
+            if(!bDone && pCalibration)
             {
                 bDone = pCalibration->ProcessSelection(hWnd, LOWORD(wParam));
             }
-            if(!bDone && ToolbarControl != NULL)
+            if(!bDone && ToolbarControl)
             {
                 bDone = ToolbarControl->ProcessToolbar1Selection(hWnd, LOWORD(wParam));
                 if (bDone)
@@ -3326,7 +3329,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         // Updates the menu checkbox settings
         SetMenuAnalog();
-        if (ToolbarControl!=NULL)
+        if (ToolbarControl)
         {
             ToolbarControl->UpdateMenu(hMenu);
         }
@@ -3466,7 +3469,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     Cursor_VTUpdate(newx, newy);
                 }
-                if (bIsFullScreen && ToolbarControl != NULL)
+                if (bIsFullScreen && ToolbarControl)
                 {
                     POINT Point;
                     Point.x = x;
@@ -3539,7 +3542,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case TIMER_STATUS:
             if (IsStatusBarVisible() && (Providers_GetCurrentSource() != NULL))
             {
-                if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
+                if (Setting_GetValue(WM_AUDIO_GETVALUE, SYSTEMINMUTE) == TRUE)
                 {
                     StatusBar_ShowText(STATUS_TEXT, "Volume Mute");
                 }
@@ -3655,7 +3658,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             // JA 21/12/00 Added KillTimer so that settings are not
             // written repeatedly
             KillTimer(hWnd, TIMER_AUTOSAVE);
-            WriteSettingsToIni(TRUE);
+            SettingsMaster->SaveAllSettings(TRUE);
             break;
         //-------------------------------
         case OSD_TIMER_ID:
@@ -3676,7 +3679,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (Cursor_IsOurs() != FALSE)
             {
                 KillTimer(hWnd, TIMER_HIDECURSOR);
-                if (ToolbarControl != NULL) 
+                if (ToolbarControl) 
                 {
                     POINT Point;        
                     GetCursorPos(&Point);
@@ -3702,7 +3705,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case TIMER_FINDPULL:
             {
                 KillTimer(hWnd, TIMER_FINDPULL);
-                Setting_SetValue(OutThreads_GetSetting(AUTODETECT), FALSE);
+                Setting_SetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT, FALSE);
                 ShowText(hWnd, GetDeinterlaceModeName());
             }
             break;
@@ -3868,7 +3871,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
             OffscreenHDC.EndPaint();
 
-            if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible())
+            if (!bIsFullScreen && (WindowBorder) && WindowBorder->Visible())
             {
                 WindowBorder->Paint(hWnd, sPaint.hdc, &sPaint.rcPaint);
             }
@@ -3915,7 +3918,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case UWM_EVENTADDEDTOQUEUE:
-        if (EventCollector != NULL)
+        if (EventCollector)
         {
             EventCollector->ProcessEvents();
         }
@@ -3967,15 +3970,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             LONG RetVal = Remote_HandleMsgs(hWnd, message, wParam, lParam, &bDone);
             if(!bDone)
             {
-                RetVal = Settings_HandleSettingMsgs(hWnd, message, wParam, lParam, &bDone);
-            }
-            if(!bDone)
-            {
-                RetVal = Deinterlace_HandleSettingsMsg(hWnd, message, wParam, lParam, &bDone);
-            }
-            if(!bDone)
-            {
-                RetVal = Filter_HandleSettingsMsg(hWnd, message, wParam, lParam, &bDone);
+                RetVal = SettingsMaster->HandleSettingMsgs(hWnd, message, wParam, lParam, &bDone);
             }
             if(!bDone)
             {
@@ -4073,7 +4068,7 @@ void MainWndOnInitBT(HWND hWnd)
     {
         if (ShowHWSetupBox)
         {
-            Providers_ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
+            Providers_ChangeSettingsBasedOnHW(Setting_GetValue(WM_DSCALER_GETVALUE, PROCESSORSPEED), Setting_GetValue(WM_DSCALER_GETVALUE, TRADEOFF));
         }
 
         if(GetActiveOutput()->InitDD(hWnd) == TRUE)
@@ -4173,18 +4168,18 @@ void MainWndOnInitBT(HWND hWnd)
         }
 
         AddSplashTextLine("Load Toolbars");
-        if (ToolbarControl == NULL)
+        if (!ToolbarControl)
         {
             ToolbarControl = new CToolbarControl(WM_TOOLBARS_GETVALUE);
             ToolbarControl->Set(hWnd, NULL);
         }
 
-        if (szSkinName[0] != 0)
+        if (szSkinName)
         {
             AddSplashTextLine("Load Skin");
             
-            SetWindowBorder(hWnd, szSkinName, (szSkinName[0]!=0));  
-            if (ToolbarControl!=NULL)
+            SetWindowBorder(hWnd, (bool)szSkinName);  
+            if (ToolbarControl)
             {
                 ToolbarControl->Set(hWnd, szSkinName);  
             }
@@ -4193,7 +4188,7 @@ void MainWndOnInitBT(HWND hWnd)
         // We must do two calls, the first one displaying the toolbar
         // in order to have the correct toolbar rectangle initialized,
         // and the second to hide the toolbar if in full scrren mode
-        if (ToolbarControl == NULL)
+        if (ToolbarControl)
         {
             ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
         }
@@ -4226,7 +4221,7 @@ void MainWndOnInitBT(HWND hWnd)
         VT_UpdateMenu(hMenu);
         OutReso_UpdateMenu(hMenu);
         SetMenuAnalog();
-        if (ToolbarControl!=NULL)
+        if (ToolbarControl)
         {
             ToolbarControl->UpdateMenu(hMenu);
         }
@@ -4265,8 +4260,8 @@ void MainWndOnInitBT(HWND hWnd)
         
         if (InitialTextPage >= 0x100)
         {
-            Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
-            Setting_SetValue(VBI_GetSetting(DOTELETEXT), TRUE);
+            Setting_SetValue(WM_VBI_GETVALUE, CAPTURE_VBI, TRUE);
+            Setting_SetValue(WM_VBI_GETVALUE, DOTELETEXT, TRUE);
 
             VT_SetState(NULL, NULL, VT_BLACK);
             VT_SetPage(NULL, NULL, InitialTextPage);
@@ -4456,10 +4451,9 @@ void MainWndOnDestroy()
     try
     {
         LOG(1, "Try free skinned border");
-        if (WindowBorder != NULL)
+        if (WindowBorder)
         {
-            delete WindowBorder;
-            WindowBorder = NULL;
+            WindowBorder = 0L;
         }            
     }
     catch(...) {LOG(1, "Error free skinned border");}
@@ -4467,32 +4461,34 @@ void MainWndOnDestroy()
     try
     {
         LOG(1, "Try free toolbars");
-        if (ToolbarControl!=NULL)
+        if (ToolbarControl)
         {
-            delete ToolbarControl;
-            ToolbarControl = NULL;
+            ToolbarControl = 0L;
         }
     }
     catch(...) {LOG(1, "Error free toolbars");}    
 
-    try
+    if(SettingsMaster)
     {
-        // save settings per cahnnel/input ets
-        // must be done before providers are unloaded
-        LOG(1, "SettingsMaster->SaveSettings");
-        SettingsMaster->SaveSettings();
-    }
-    catch(...) {LOG(1, "Error SettingsMaster->SaveSettings");}
+        try
+        {
+            // save settings per cahnnel/input ets
+            // must be done before providers are unloaded
+            LOG(1, "SettingsMaster->SaveGroupedSettings");
+            SettingsMaster->SaveGroupedSettings();
+        }
+        catch(...) {LOG(1, "Error SettingsMaster->SaveGroupedSettings");}
     
-    try
-    {
-        // write out setting with optimize on 
-        // to avoid delay on flushing file
-        // all the setting should be filled out anyway
-        LOG(1, "WriteSettingsToIni");
-        WriteSettingsToIni(TRUE);
+        try
+        {
+            // write out setting with optimize on 
+            // to avoid delay on flushing file
+            // all the setting should be filled out anyway
+            LOG(1, "SettingsMaster->SaveAllSettings");
+            SettingsMaster->SaveAllSettings(TRUE);
+        }
+        catch(...) {LOG(1, "Error SettingsMaster->SaveAllSettings");}
     }
-    catch(...) {LOG(1, "Error WriteSettingsToIni");}
 
     try
     {
@@ -4500,22 +4496,6 @@ void MainWndOnDestroy()
         Providers_Unload();
     }
     catch(...) {LOG(1, "Error Providers_Unload");}
-
-    
-    try
-    {
-        LOG(1, "Try free settings");
-        if (SettingsMaster != NULL)
-        {
-            delete SettingsMaster;
-            SettingsMaster = NULL;
-        }                
-        FreeSettings();
-        // Free of filters settings is done later when calling UnloadFilterPlugins
-        // Free of sources dependent settings is already done when calling Providers_Unload
-    }
-    catch(...) {LOG(1, "Error free settings");}
-    
 
     try
     {
@@ -4532,17 +4512,6 @@ void MainWndOnDestroy()
     }
     catch(...) {LOG(1, "Error SetTray(FALSE)");}
 
-    try
-    {
-        LOG(1, "Try free EventCollector");
-        if (EventCollector != NULL)
-        {
-            delete EventCollector;
-            EventCollector = NULL;
-        }
-    }
-    catch(...) {LOG(1, "Error free EventCollector");}
-    
     try
     {
         LOG(1, "Try ExitDD");
@@ -4666,7 +4635,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 {
     StatusBar_Adjust(hWnd);
-    if (ToolbarControl!=NULL)
+    if (ToolbarControl)
     {
         ToolbarControl->Adjust(hWnd, FALSE, TRUE);
     }
@@ -4758,7 +4727,7 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_VT_AUTOCODEPAGE, bVTAutoCodePage);
     CheckMenuItemBool(hMenu, IDM_VT_ANTIALIAS, bVTAntiAlias);
 
-    CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(Overlay_GetSetting(USEOVERLAYCONTROLS)));
+    CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(WM_OTHER_GETVALUE, USEOVERLAYCONTROLS));
     EnableMenuItem(hMenu,IDM_OVERLAYSETTINGS, (GetActiveOutput()->CanDoOverlayColorControl())?MF_ENABLED:MF_GRAYED);
 
     EnableMenuItem(hMenu, IDM_OVERLAY_START, bMinimized ? MF_GRAYED : MF_ENABLED);
@@ -5092,10 +5061,8 @@ void CleanUpMemory()
         DestroyMenu(hMenu);
     }
     Channels_Exit();
-    delete pCalibration;
-    pCalibration = NULL;
-    delete pPerf;
-    pPerf = NULL;
+    pCalibration = 0L;
+    pPerf = 0L;
     if(hMainWindowEvent != NULL)
     {
         ResetEvent(hMainWindowEvent);
@@ -5189,7 +5156,7 @@ void UpdateWindowState()
         }
         else
         {
-            if ((WindowBorder!=NULL) && WindowBorder->Visible())
+            if ((WindowBorder) && WindowBorder->Visible())
             {
                 SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));                
             }
@@ -5200,7 +5167,7 @@ void UpdateWindowState()
             SetMenu(hWnd, NULL);            
         }
         StatusBar_ShowWindow(bDisplayStatusBar);
-        if (ToolbarControl!=NULL)
+        if (ToolbarControl)
         {
             ToolbarControl->Adjust(hWnd, FALSE, FALSE);
         }
@@ -5219,7 +5186,7 @@ void UpdateWindowState()
 
 HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
 {
-    if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible() && !bShowMenu)
+    if (!bIsFullScreen && (WindowBorder) && WindowBorder->Visible() && !bShowMenu)
     {   
         RECT rcExtra;
         if (IsStatusBarVisible())
@@ -5267,7 +5234,7 @@ BOOL IsStatusBarVisible()
 
 BOOL IsToolBarVisible()
 {
-    return (ToolbarControl != NULL && ToolbarControl->Visible());
+    return (ToolbarControl && ToolbarControl->Visible());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -5693,7 +5660,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
             KillTimer(hWnd, TIMER_STATUS);
             OutReso_Change(hWnd, hPSWnd, FALSE, TRUE, NULL, FALSE);
         }
-        if (WindowBorder!=NULL)
+        if (WindowBorder)
         {
             if (bIsFullScreen && WindowBorder->Visible())
             {                
@@ -5704,7 +5671,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
                 WindowBorder->Show();
             }
         }
-        if (ToolbarControl!=NULL)
+        if (ToolbarControl)
         {            
             ToolbarControl->Set(hWnd, NULL, 0, 1);
         }
@@ -5717,7 +5684,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
         // We must do two calls, the first one displaying the toolbar
         // in order to have the correct toolbar rectangle initialized,
         // and the second to hide the toolbar if in full scrren mode
-        if (ToolbarControl!=NULL)
+        if (ToolbarControl)
         {
             ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0, 1);
         }
@@ -5792,7 +5759,7 @@ BOOL DisplayStatusBar_OnChange(long NewValue)
         {
             KillTimer(hWnd, TIMER_STATUS);
         }
-        if (ToolbarControl!=NULL)
+        if (ToolbarControl)
         {
             ToolbarControl->Adjust(hWnd, TRUE, FALSE);
         }        
@@ -6066,19 +6033,19 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "MainWindow", "ResoFullScreen", NULL,
     },
     {
-        "PowerStrip resolution for 576i sources", CHARSTRING, 0, (long*)&PStrip576i,
+        "PowerStrip resolution for 576i sources", CHARSTRING, 0, PStrip576i.GetPointer(),
         (long)"", 0, 0, 0, 0,
         NULL,
         "PStripOutResolution", "576i", NULL,
     },
     {
-        "PowerStrip resolution for 480i sources", CHARSTRING, 0, (long*)&PStrip480i,
+        "PowerStrip resolution for 480i sources", CHARSTRING, 0, PStrip480i.GetPointer(),
         (long)"", 0, 0, 0, 0,
         NULL,
         "PStripOutResolution", "480i", NULL,
     },
     {
-        "Skin name", CHARSTRING, 0, (long*)&szSkinName,
+        "Skin name", CHARSTRING, 0, szSkinName.GetPointer(),
         (long)"", 0, 0, 0, 0,
         NULL,
         "MainWindow", "SkinName", NULL,
@@ -6116,89 +6083,56 @@ SETTING* DScaler_GetSetting(DSCALER_SETTING Setting)
     }
 }
 
-void DScaler_ReadSettingsFromIni()
+BOOL IniSettingNotPresent(DSCALER_SETTING WhichSetting)
 {
-    int i;
-    for(i = 0; i < DSCALER_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(DScalerSettings[i]));
-    }
-
-    if(bForceFullScreen)
-    {
-        bIsFullScreen = TRUE;
-    }
-    if(bKeyboardLock)
-    {
-        SetKeyboardLock(TRUE);
-    }
-    ScreensaverOff_OnChange(bScreensaverOff);
-
-    VT_SetAutoCodepage(NULL, NULL, bVTAutoCodePage);
-    VT_SetAntialias(NULL, NULL, bVTAntiAlias);
+    CSettingWrapper TempSetting(&DScalerSettings[WhichSetting]);
+    return (TempSetting.ReadFromIni() == FALSE);
 }
 
-void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)
+BOOL DoWeNeedToShowHWSetupBox()
 {
-    int i;
-    for(i = 0; i < DSCALER_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(DScalerSettings[i]), bOptimizeFileAccess);
-    }
+    return IniSettingNotPresent(PROCESSORSPEED) ||
+            IniSettingNotPresent(TRADEOFF) ||
+            IniSettingNotPresent(FULLCPU) ||
+            IniSettingNotPresent(VIDEOCARD);
 }
 
-void DScaler_FreeSettings()
+SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage()
 {
-    int i;
-    for(i = 0; i < DSCALER_SETTING_LASTONE; i++)
-    {
-        Setting_Free(&(DScalerSettings[i]));
-    }
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
+    Holder->AddSettings(&DScalerSettings[WINDOWPRIORITY], AUTOSAVESETTINGS - WINDOWPRIORITY);
+    return new CTreeSettingsGeneric("Threads Priority Settings", Holder);
 }
 
-CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()
+SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage2()
 {
-    return new CTreeSettingsGeneric("Threads Priority Settings", &DScalerSettings[WINDOWPRIORITY], AUTOSAVESETTINGS - WINDOWPRIORITY);
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
+    Holder->AddSettings(&DScalerSettings[DISPLAYSPLASHSCREEN], 1);
+    Holder->AddSettings(&DScalerSettings[AUTOHIDECURSOR], 1);
+    Holder->AddSettings(&DScalerSettings[LOCKKEYBOARD], 1);
+    Holder->AddSettings(&DScalerSettings[LOCKKEYBOARDMAINWINDOWONLY], 1);
+    Holder->AddSettings(&DScalerSettings[SCREENSAVEROFF], 1);
+    Holder->AddSettings(&DScalerSettings[SINGLEKEYTELETEXTTOGGLE], 1);
+    Holder->AddSettings(&DScalerSettings[MINIMIZEHANDLING], 1);
+    return new CTreeSettingsGeneric("Other Settings", Holder);
 }
 
-CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2()
+SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage3()
 {
-    // Other Settings
-    SETTING* OtherSettings[7] =
-    {
-        &DScalerSettings[DISPLAYSPLASHSCREEN    ],
-        &DScalerSettings[AUTOHIDECURSOR         ],
-        &DScalerSettings[LOCKKEYBOARD           ],
-        &DScalerSettings[LOCKKEYBOARDMAINWINDOWONLY],
-        &DScalerSettings[SCREENSAVEROFF         ],
-        &DScalerSettings[SINGLEKEYTELETEXTTOGGLE],
-        &DScalerSettings[MINIMIZEHANDLING       ],
-    };
-    return new CTreeSettingsGeneric("Other Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
+    Holder->AddSettings(&DScalerSettings[REVERSECHANNELSCROLLING], 1);
+    Holder->AddSettings(&DScalerSettings[CHANNELPREVIEWWNBCOLS], 1);
+    Holder->AddSettings(&DScalerSettings[CHANNELPREVIEWNBROWS], 1);
+    Holder->AddSettings(&DScalerSettings[CHANNELENTERTIME], 1);
+    return new CTreeSettingsGeneric("Channel Settings", Holder);
 }
 
-CTreeSettingsGeneric* DScaler_GetTreeSettingsPage3()
+SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage4()
 {
-    // Channel Settings
-    SETTING* OtherSettings[4] =
-    {
-        &DScalerSettings[REVERSECHANNELSCROLLING],
-        &DScalerSettings[CHANNELPREVIEWWNBCOLS],
-        &DScalerSettings[CHANNELPREVIEWNBROWS],
-        &DScalerSettings[CHANNELENTERTIME],
-    };
-    return new CTreeSettingsGeneric("Channel Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
-}
-
-CTreeSettingsGeneric* DScaler_GetTreeSettingsPage4()
-{
-    // PowerStrip Settings
-    SETTING* OtherSettings[2] =
-    {
-        &DScalerSettings[PSTRIPRESO576I            ],
-        &DScalerSettings[PSTRIPRESO480I            ],
-    };
-    return new CTreeSettingsGeneric("PowerStrip Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
+    Holder->AddSettings(&DScalerSettings[PSTRIPRESO576I], 1);
+    Holder->AddSettings(&DScalerSettings[PSTRIPRESO480I], 1);
+    return new CTreeSettingsGeneric("PowerStrip Settings", Holder);
 }
 
 HWND GetMainWnd()

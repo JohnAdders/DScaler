@@ -241,7 +241,7 @@ BOOL CSimpleSetting::ReadFromIniSubSection(const string& SubSection)
         if (Len <= 0)
         {
             IsSettingInIniFile = FALSE;
-            ChangeValueInternal(RESET);
+            ChangeValueInternal(RESET_SILENT);
             m_LastSavedValueIniSection.clear();
             m_LastSavedValue.clear();
         }
@@ -513,12 +513,12 @@ void CListSetting::SetFromControl(HWND hWnd)
 
  /** Change default value
 */
-void CListSetting::ChangeDefault(long NewDefault, BOOL bDontSetValue)
+void CListSetting::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue)
 {
-    m_Default = NewDefault;
+    m_Default = NewDefaultAsMessageType;
     if (!bDontSetValue)    
     {
-        SetValue(NewDefault);
+        SetValue(NewDefaultAsMessageType);
     }
 }
 
@@ -615,12 +615,12 @@ void CSliderSetting::SetValueFromMessage(LPARAM LParam)
 
  /** Change default value
 */
-void CSliderSetting::ChangeDefault(long NewDefault, BOOL bDontSetValue)
+void CSliderSetting::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue)
 {
-    m_Default = NewDefault;
+    m_Default = NewDefaultAsMessageType;
     if (!bDontSetValue)    
     {
-        SetValue(NewDefault);
+        SetValue(NewDefaultAsMessageType);
     }
 }
 
@@ -740,12 +740,12 @@ void CYesNoSetting::SetupControl(HWND hWnd)
 
 /** Change default value
 */
-void CYesNoSetting::ChangeDefault(BOOL NewDefault, BOOL bDontSetValue)
+void CYesNoSetting::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue)
 {
-    m_Default = NewDefault;
+    m_Default = NewDefaultAsMessageType;
     if (!bDontSetValue)
     {
-        SetValue(NewDefault);
+        SetValue(NewDefaultAsMessageType);
     }
 }
 
@@ -860,6 +860,11 @@ std::string CStringSetting::GetValueAsString()
 std::string CStringSetting::GetDisplayValue()
 {
     return m_Value;
+}
+
+void CStringSetting::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue)
+{
+    throw logic_error("Can't change string defaults");
 }
 
 void CStringSetting::SetValue(const char* NewValue, BOOL bSuppressOnChange)
@@ -1061,6 +1066,21 @@ string CSettingWrapper::GetValueAsString()
         return *m_Setting->pValue ? (const char*)(*m_Setting->pValue) : "";
     }
 }
+void CSettingWrapper::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue)
+{
+    if(m_Setting->Type != CHARSTRING)
+    {
+        m_Setting->Default = NewDefaultAsMessageType;
+        if (!bDontSetValue)    
+        {
+            SetValue(NewDefaultAsMessageType);
+        }
+    }
+    else
+    {
+        throw logic_error("Can't change string defaults");
+    }
+}
 
 string CSettingWrapper::GetDisplayValue()
 {
@@ -1147,7 +1167,7 @@ void CSettingWrapper::SetValue(long NewValue)
             *m_Setting->pValue = 0;
         }
     }
-    if(IsOnChangeEnabled())
+    if(IsOnChangeEnabled() && m_Setting->pfnOnChange != NULL)
     {
         m_Setting->pfnOnChange(NewValue);
     }
@@ -1216,4 +1236,37 @@ void CSettingWrapper::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
     }
 }
 
+SettingStringValue::SettingStringValue() :
+    m_Value(0)
+{
+}
 
+SettingStringValue::~SettingStringValue()
+{
+    clear();
+}
+
+SettingStringValue::operator LPSTR()
+{
+    return m_Value;
+}
+
+SettingStringValue::operator bool()
+{
+    return m_Value != 0 && m_Value[0] != 0;
+}
+
+
+long* SettingStringValue::GetPointer()
+{
+    return (long*)&m_Value;
+}
+
+void SettingStringValue::clear()
+{
+    if(m_Value)
+    {
+        delete [] m_Value;
+        m_Value = 0;
+    }
+}

@@ -93,8 +93,11 @@ typedef enum
 typedef LPBYTE (*TSSCANLINECOPYPROC)(LPBYTE, LPBYTE, DWORD);
 typedef LPBYTE (*TSSCANLINEAVGPROC)(LPBYTE, LPBYTE, LPBYTE, DWORD);
 
-typedef struct
+class TIME_SHIFT
 {
+public:
+    TIME_SHIFT(HWND hWndIn);
+    ~TIME_SHIFT();
     CRITICAL_SECTION lock;
     tsMode_t         mode;          /**< Recording mode (state) */
     tsFormat_t       format;        /**< Recording format (color space) */
@@ -120,7 +123,7 @@ typedef struct
     TSSCANLINEAVGPROC  lpbAvgScanline;  /**< Average YUV data -> recording format */
 
     AVI_FILE *file;
-} TIME_SHIFT;
+};
 
 /**
   Here are some suggestions for TODO tasks...

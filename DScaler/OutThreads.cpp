@@ -38,6 +38,7 @@
 #include "DScaler.h"
 #include "DebugLog.h"
 #include "Settings.h"
+#include "SettingsMaster.h"
 #include "Filter.h"
 #include "Status.h"
 #include "FD_60Hz.h"
@@ -218,7 +219,7 @@ void PutRequest(TGUIRequest *req)
                 }
                 else
                 {
-                    Request.param2 = (Setting_GetValue(Still_GetSetting(STILLSINMEMORY)) == TRUE) ? 1 : 0;
+                    Request.param2 = (Setting_GetValue(WM_STILL_GETVALUE, STILLSINMEMORY)) == TRUE ? 1 : 0;
                 }
             }
             break;
@@ -630,11 +631,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 LOG(2, "MemUsed %d Mo", MemUsed / 1048576);
 
                 // Check that the max is not reached
-                if ((MemUsed / 1048576) >= Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)))
+                if ((MemUsed / 1048576) >= Setting_GetValue(WM_STILL_GETVALUE, MAXMEMFORSTILLS))
                 {
                     char text[128];
                     pAllocBuf = NULL;
-                    sprintf_s(text, 128, "Max memory (%d Mo) reached\nChange the maximum value or\nclose some open stills", Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)));
+                    sprintf_s(text, 128, "Max memory (%d Mo) reached\nChange the maximum value or\nclose some open stills", Setting_GetValue(WM_STILL_GETVALUE, MAXMEMFORSTILLS));
                     OSD_ShowText(text, 0);
                 }
                 else
@@ -1152,7 +1153,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 Request.param1--;
                 if (Request.param1 <= 0)
                 {
-                    if (Request.param2 && Setting_GetValue(Still_GetSetting(OSDFORSTILLS)))
+                    if (Request.param2 && Setting_GetValue(WM_STILL_GETVALUE, OSDFORSTILLS))
                     {
                         OSD_ShowText("Still(s) in memory", 0);
                     }
@@ -1286,27 +1287,11 @@ SETTING* OutThreads_GetSetting(OUTTHREADS_SETTING Setting)
     }
 }
 
-void OutThreads_ReadSettingsFromIni()
-{
-    int i;
-    for(i = 0; i < OUTTHREADS_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(OutThreadsSettings[i]));
-    }
-}
 
-void OutThreads_WriteSettingsToIni(BOOL bOptimizeFileAccess)
+SmartPtr<CTreeSettingsGeneric> OutThreads_GetTreeSettingsPage()
 {
-    int i;
-    for(i = 0; i < OUTTHREADS_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(OutThreadsSettings[i]), bOptimizeFileAccess);
-    }
-}
-
-CTreeSettingsGeneric* OutThreads_GetTreeSettingsPage()
-{
-    return new CTreeSettingsGeneric("Decoding / Output Settings", OutThreadsSettings, OUTTHREADS_SETTING_LASTONE);
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_OUTTHREADS_GETVALUE));
+    return new CTreeSettingsGeneric("Decoding / Output Settings", Holder);
 }
 
 void OutThreads_SetMenu(HMENU hMenu)

@@ -49,6 +49,7 @@ public:
      */
     CTreeSettingsPage(CString name,UINT nIDTemplate);   // standard constructor
     CTreeSettingsPage(CString TreeName,CString HeaderName,UINT nIDTemplate);
+    virtual ~CTreeSettingsPage() {};
 
 // Dialog Data
     //{{AFX_DATA(CTreeSettingsPage)

@@ -805,13 +805,13 @@ CTestPattern::CTestPattern(const string& FileName)
         return;
     }
 
-    m_Width = Setting_GetValue(Still_GetSetting(PATTERNWIDTH));
+    m_Width = Setting_GetValue(WM_STILL_GETVALUE, PATTERNWIDTH);
     // The width must be even
     if (m_Width%2)
     {
         m_Width--;
     }
-    m_Height = Setting_GetValue(Still_GetSetting(PATTERNHEIGTH));
+    m_Height = Setting_GetValue(WM_STILL_GETVALUE, PATTERNHEIGTH);
 
     while(!feof(FilePat))
     {

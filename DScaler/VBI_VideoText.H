@@ -118,12 +118,10 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
 SETTING* VT_GetSetting(VT_SETTING Setting);
-void VT_ReadSettingsFromIni();
-void VT_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void VT_UpdateMenu(HMENU hMenu);
 void VT_SetMenu(HMENU hMenu);
 
-CTreeSettingsGeneric* VideoText_GetTreeSettingsPage();
+SmartPtr<CTreeSettingsGeneric> VideoText_GetTreeSettingsPage();
 
 BOOL ProcessVTCodepageSelection(HWND hWnd, WORD wMenuID);
 

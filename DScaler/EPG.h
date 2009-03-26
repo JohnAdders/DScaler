@@ -163,10 +163,7 @@ private:
 
 
 SETTING* EPG_GetSetting(EPG_SETTING Setting);
-void EPG_ReadSettingsFromIni();
-void EPG_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-CTreeSettingsGeneric* EPG_GetTreeSettingsPage();
-void EPG_FreeSettings();
+SmartPtr<CTreeSettingsGeneric> EPG_GetTreeSettingsPage();
 
 
 extern CUserChannels MyChannels;

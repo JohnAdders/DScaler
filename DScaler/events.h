@@ -130,6 +130,6 @@ public:
 };
 
 //Defined, allocated & destroyed in Dscaler.cpp
-extern CEventCollector *EventCollector;
+extern SmartPtr<CEventCollector> EventCollector;
 
 #endif

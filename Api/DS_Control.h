@@ -51,7 +51,7 @@
 // Notes for DScaler developers
 //
 // This is the place to add settings for any new file you create
-// You should also update the LoadSettingsFromIni & SaveSettingsToIni
+// You should also update the SettingsMaster constructor
 // functions in Settings.h so that your setttings get loaded
 //
 /////////////////////////////////////////////////////////////////////////////

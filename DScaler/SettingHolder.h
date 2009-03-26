@@ -34,48 +34,35 @@ class CSource;
 class CSettingsHolder
 {
 public:
-    CSettingsHolder(long SetMessage);
-    ~CSettingsHolder();
+    CSettingsHolder(long SetMessage = 0, UINT HelpID = 0);
+    virtual ~CSettingsHolder();
     long GetNumSettings();
-    CSimpleSetting* GetSetting(long SettingIndex);
-    virtual void CreateSettings(LPCSTR IniSection) = 0;
     void ReadFromIni();    
     void WriteToIni(BOOL bOptimizeFileAccess);
+    long GetMessageID() { return m_SetMessage; }
 
-    void AddSetting(CSimpleSetting* pSetting);
-
+    void AddSetting(SmartPtr<CSimpleSetting> pSetting);
     void AddSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL);
+    void AddSettings(SETTING* pSetting, int Num, CSettingGroup* pGroup = NULL);
+
+    SmartPtr<CSimpleSetting> GetSetting(long SettingIndex);
 
     void DisableOnChange();
     void EnableOnChange();
 
-    void ClearSettingList(BOOL bDeleteSettings = TRUE, BOOL bWriteSettings = FALSE);
-
-    int LoadSettingStructures(SETTING* pSetting, int StartNum, int Num, CSettingGroup* pGroup = NULL);
+    UINT GetHelpID() { return m_HelpID;};
 
     LONG HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled);
-    
-    CSettingGroup *GetSettingsGroup(LPCSTR szDisplayName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
 
 protected:
-    std::vector<CSimpleSetting*>  m_Settings;
-    long                    m_SetMessage;
-    BOOL                    m_pRegistered;
-    std::string             m_SettingFlagsSection;
+    typedef std::vector< SmartPtr<CSimpleSetting> > SettingsArray;
 
-    BOOL   RegisterMe();
+    SettingsArray   m_Settings;
+    long            m_SetMessage;
+    std::string     m_SettingFlagsSection;
+    UINT            m_HelpID;
+
 };
 
-/** Standalone settings holder
-*/
-class CSettingsHolderStandAlone : public CSettingsHolder
-{
-public:
-    CSettingsHolderStandAlone();
-    ~CSettingsHolderStandAlone();
-    void CreateSettings(LPCSTR IniSection){;};
-
-    CSimpleSetting* operator[](int i) { if ((i>=0) && ((size_t)i<m_Settings.size())) { return m_Settings[i]; } return NULL; }
-};
 #endif
 

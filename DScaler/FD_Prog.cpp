@@ -27,6 +27,7 @@
 #include "FD_Prog.h"
 #include "Deinterlace.h"
 #include "DebugLog.h"
+#include "SettingsMaster.h"
 
 long ThresholdStill = 50;
 long ThresholdMotion = 10;
@@ -381,29 +382,12 @@ SETTING* FDProg_GetSetting(FDPROG_SETTING Setting)
     }
 }
 
-void FDProg_ReadSettingsFromIni()
-{
-    int i;
-    for(i = 0; i < FDPROG_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(FDProgSettings[i]));
-    }
-}
-
-void FDProg_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < FDPROG_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(FDProgSettings[i]), bOptimizeFileAccess);
-    }
-}
-
 void FDProg_SetMenu(HMENU hMenu)
 {
 }
 
-CTreeSettingsGeneric* FDProg_GetTreeSettingsPage()
+SmartPtr<CTreeSettingsGeneric> FDProg_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Progressive Pulldown Settings",FDProgSettings, FDPROG_SETTING_LASTONE);
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_FDPROG_GETVALUE));
+    return new CTreeSettingsGeneric("Progressive Pulldown Settings", Holder);
 }

@@ -445,7 +445,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
     {
         if (m_Mode == PREVIEW_CHANNELS)
         {
-            m_FrameFilled[m_CurrentFrame] = Setting_GetValue(Channels_GetSetting(CURRENTPROGRAM));
+            m_FrameFilled[m_CurrentFrame] = Setting_GetValue(WM_CHANNELS_GETVALUE, CURRENTPROGRAM);
         }
         else if (m_Mode == PREVIEW_STILLS)
         {

@@ -84,7 +84,10 @@ CEventObject::CEventObject()
 
 CEventObject::~CEventObject()
 {
-    EventCollector->Unregister(this);
+    if(EventCollector)
+    {
+        EventCollector->Unregister(this);
+    }
 }
 
 CEventCollector::CEventCollector()

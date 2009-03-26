@@ -146,7 +146,7 @@ void CBT848Source::SetSourceAsCurrent()
     else
     {
         // We read what is the video format saved for this video input
-        SettingsMaster->LoadOneSetting(m_VideoFormat);
+        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
     }
 
     // tell the world if the format has changed
@@ -156,7 +156,7 @@ void CBT848Source::SetSourceAsCurrent()
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
         // We save the video format attached to this video input
-        SettingsMaster->WriteOneSetting(m_VideoFormat);
+        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
@@ -164,7 +164,7 @@ void CBT848Source::SetSourceAsCurrent()
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
     // load up any channel/input/format specifc settings
-    SettingsMaster->LoadSettings();
+    SettingsMaster->LoadGroupedSettings();
 
     Reset();
 }
@@ -204,26 +204,26 @@ void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long Ol
 
 void CBT848Source::CreateSettings(LPCSTR IniSection)
 {
-    CSettingGroup *pVideoFormatGroup = GetSettingsGroup("BT848 - Video Format", SETTING_BY_INPUT, TRUE);
-    CSettingGroup *pVideoGroup = GetSettingsGroup("BT848 - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
-    CSettingGroup *pAudioGroup = GetSettingsGroup("BT848 - Audio", SETTING_BY_CHANNEL);
-    CSettingGroup *pAudioStandard = GetSettingsGroup("BT848 - Audio Standard", SETTING_BY_CHANNEL);
-    CSettingGroup *pPMSGroup = GetSettingsGroup("BT848 - PMS", SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
-    CSettingGroup *pAtlasGroup = GetSettingsGroup("BT848 - Atlas", SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pVideoFormatGroup = SettingsMaster->GetGroup("BT848 - Video Format", SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pVideoGroup = SettingsMaster->GetGroup("BT848 - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pAudioGroup = SettingsMaster->GetGroup("BT848 - Audio", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioStandard = SettingsMaster->GetGroup("BT848 - Audio Standard", SETTING_BY_CHANNEL);
+    CSettingGroup *pPMSGroup = SettingsMaster->GetGroup("BT848 - PMS", SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pAtlasGroup = SettingsMaster->GetGroup("BT848 - Atlas", SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
 
     //
     // WARNING : temporary change to have correct tuner audio input after DScaler first start
     //
-    //CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source", SETTING_BY_INPUT, TRUE);
-    CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source", 0);
+    //CSettingGroup *pAudioSource = SettingsMaster->GetGroup("BT848 - Audio Source", SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pAudioSource = SettingsMaster->GetGroup("BT848 - Audio Source", 0);
 
-    CSettingGroup *pAudioChannel = GetSettingsGroup("BT848 - Audio Channel", SETTING_BY_CHANNEL);
-    CSettingGroup *pAudioControl = GetSettingsGroup("BT848 - Audio Control", SETTING_BY_CHANNEL);
-    CSettingGroup *pAudioOther  = GetSettingsGroup("BT848 - Audio Other", SETTING_BY_CHANNEL);
-    CSettingGroup *pAudioEqualizerGroup = GetSettingsGroup("BT848 - Audio Equalizer", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioChannel = SettingsMaster->GetGroup("BT848 - Audio Channel", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioControl = SettingsMaster->GetGroup("BT848 - Audio Control", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioOther  = SettingsMaster->GetGroup("BT848 - Audio Other", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioEqualizerGroup = SettingsMaster->GetGroup("BT848 - Audio Equalizer", SETTING_BY_CHANNEL);
     
-    CSettingGroup *pAdvancedGroup = GetSettingsGroup("BT848 - Advanced Flags", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT);
-    CSettingGroup *pAdvancedTimingGroup = GetSettingsGroup("BT848 - Advanced Timing", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT);
+    CSettingGroup *pAdvancedGroup = SettingsMaster->GetGroup("BT848 - Advanced Flags", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT);
+    CSettingGroup *pAdvancedTimingGroup = SettingsMaster->GetGroup("BT848 - Advanced Timing", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT);
     
     m_Brightness = new CBrightnessSetting(this, "Brightness", DEFAULT_BRIGHTNESS_NTSC, -128, 127, IniSection, pVideoGroup);
     m_Settings.push_back(m_Brightness);
@@ -1339,7 +1339,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 
     Stop_Capture();
 
-    SettingsMaster->SaveSettings();
+    SettingsMaster->SaveGroupedSettings();
 
     // Capture is stopped so other onchange messages are
     // disabled so if anything that happens in those needs to be triggered
@@ -1362,7 +1362,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     else
     {
         // We read what is the video format saved for this video input
-        SettingsMaster->LoadOneSetting(m_VideoFormat);
+        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
     }
 
     // tell the world if the format has changed
@@ -1372,14 +1372,14 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
         // We save the video format attached to this video input
-        SettingsMaster->WriteOneSetting(m_VideoFormat);
+        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
-    SettingsMaster->LoadSettings();
+    SettingsMaster->LoadGroupedSettings();
 
     // reset here when we have all the settings
     Reset();
@@ -1392,7 +1392,7 @@ void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
 
-    SettingsMaster->SaveSettings();
+    SettingsMaster->SaveGroupedSettings();
 
     // OK Capture is stopped so other onchange messages are
     // disabled so if anything that happens in those needs to be triggered
@@ -1405,7 +1405,7 @@ void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
-    SettingsMaster->LoadSettings();
+    SettingsMaster->LoadGroupedSettings();
 
     // reset here when we have all the settings
     Reset();
@@ -2041,64 +2041,64 @@ SmartPtr<ITuner> CBT848Source::GetTuner()
 
 CTreeSettingsPage* CBT848Source::GetTreeSettingsPage()
 {
-    vector <CSimpleSetting*>vSettingsList;
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
 
     if(m_CardType->GetValue() != TVCARD_PMSDELUXE && m_CardType->GetValue() != TVCARD_SWEETSPOT)
     {
-        vSettingsList.push_back(m_BtAgcDisable);
-        vSettingsList.push_back(m_BtCrush);
-        vSettingsList.push_back(m_BtEvenChromaAGC);
-        vSettingsList.push_back(m_BtOddChromaAGC);
-        vSettingsList.push_back(m_BtEvenLumaPeak);
-        vSettingsList.push_back(m_BtOddLumaPeak);
-        vSettingsList.push_back(m_BtFullLumaRange);
-        vSettingsList.push_back(m_BtEvenLumaDec);
-        vSettingsList.push_back(m_BtOddLumaDec);
-        vSettingsList.push_back(m_BtEvenComb);
-        vSettingsList.push_back(m_BtOddComb);
-        vSettingsList.push_back(m_BtGammaCorrection);
-        vSettingsList.push_back(m_BtCoring);
-        vSettingsList.push_back(m_BtHorFilter);
-        vSettingsList.push_back(m_BtVertFilter);
-        vSettingsList.push_back(m_BtColorKill);
-        vSettingsList.push_back(m_BtWhiteCrushUp);
-        vSettingsList.push_back(m_BtWhiteCrushDown);
+        Holder->AddSetting(m_BtAgcDisable);
+        Holder->AddSetting(m_BtCrush);
+        Holder->AddSetting(m_BtEvenChromaAGC);
+        Holder->AddSetting(m_BtOddChromaAGC);
+        Holder->AddSetting(m_BtEvenLumaPeak);
+        Holder->AddSetting(m_BtOddLumaPeak);
+        Holder->AddSetting(m_BtFullLumaRange);
+        Holder->AddSetting(m_BtEvenLumaDec);
+        Holder->AddSetting(m_BtOddLumaDec);
+        Holder->AddSetting(m_BtEvenComb);
+        Holder->AddSetting(m_BtOddComb);
+        Holder->AddSetting(m_BtGammaCorrection);
+        Holder->AddSetting(m_BtCoring);
+        Holder->AddSetting(m_BtHorFilter);
+        Holder->AddSetting(m_BtVertFilter);
+        Holder->AddSetting(m_BtColorKill);
+        Holder->AddSetting(m_BtWhiteCrushUp);
+        Holder->AddSetting(m_BtWhiteCrushDown);
     }
     else
     {
-        vSettingsList.push_back(m_PMSGain1);
-        vSettingsList.push_back(m_PMSGain2);
-        vSettingsList.push_back(m_PMSGain3);
-        vSettingsList.push_back(m_PMSGain4);
+        Holder->AddSetting(m_PMSGain1);
+        Holder->AddSetting(m_PMSGain2);
+        Holder->AddSetting(m_PMSGain3);
+        Holder->AddSetting(m_PMSGain4);
     }
 
-    vSettingsList.push_back(m_BDelay);
-    vSettingsList.push_back(m_BtFullLumaRange);
-    vSettingsList.push_back(m_CustomPixelWidth);
-    vSettingsList.push_back(m_HDelay);
-    vSettingsList.push_back(m_VDelay);
-    vSettingsList.push_back(m_ReversePolarity);
+    Holder->AddSetting(m_BDelay);
+    Holder->AddSetting(m_BtFullLumaRange);
+    Holder->AddSetting(m_CustomPixelWidth);
+    Holder->AddSetting(m_HDelay);
+    Holder->AddSetting(m_VDelay);
+    Holder->AddSetting(m_ReversePolarity);
 
     if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
     {
-        vSettingsList.push_back(m_HorizOffset);
-        vSettingsList.push_back(m_VertOffset);
-        vSettingsList.push_back(m_AD9882PLL);
-        vSettingsList.push_back(m_AD9882VCO);
-        vSettingsList.push_back(m_AD9882Pump);
-        vSettingsList.push_back(m_AD9882Phase);
-        vSettingsList.push_back(m_AD9882PreCoast);
-        vSettingsList.push_back(m_AD9882PostCoast);
-        vSettingsList.push_back(m_AD9882HSync);
-        vSettingsList.push_back(m_AD9882SyncSep);
-        vSettingsList.push_back(m_AD9882SOGThresh);
-        vSettingsList.push_back(m_AD9882SOG);
-        vSettingsList.push_back(m_AD9882CoastSel);
-        vSettingsList.push_back(m_AD9882CoastOvr);
-        vSettingsList.push_back(m_AD9882CoastPol);
+        Holder->AddSetting(m_HorizOffset);
+        Holder->AddSetting(m_VertOffset);
+        Holder->AddSetting(m_AD9882PLL);
+        Holder->AddSetting(m_AD9882VCO);
+        Holder->AddSetting(m_AD9882Pump);
+        Holder->AddSetting(m_AD9882Phase);
+        Holder->AddSetting(m_AD9882PreCoast);
+        Holder->AddSetting(m_AD9882PostCoast);
+        Holder->AddSetting(m_AD9882HSync);
+        Holder->AddSetting(m_AD9882SyncSep);
+        Holder->AddSetting(m_AD9882SOGThresh);
+        Holder->AddSetting(m_AD9882SOG);
+        Holder->AddSetting(m_AD9882CoastSel);
+        Holder->AddSetting(m_AD9882CoastOvr);
+        Holder->AddSetting(m_AD9882CoastPol);
     }
 
-    return new CTreeSettingsGeneric("BT8x8 Advanced",vSettingsList);
+    return new CTreeSettingsGeneric("BT8x8 Advanced",Holder);
 }
 
 #endif // WANT_BT8X8_SUPPORT

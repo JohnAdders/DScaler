@@ -147,7 +147,5 @@ private:
     DynamicFunctionS3<HRESULT, GUID*, LPDIRECTDRAW*, IUnknown*> m_lpDirectDrawCreate;
 };
 
-CTreeSettingsGeneric* Overlay_GetTreeSettingsPage();
+SmartPtr<CTreeSettingsGeneric> Overlay_GetTreeSettingsPage();
 SETTING* Overlay_GetSetting(OTHER_SETTING Setting);
-void Overlay_ReadSettingsFromIni();
-void Overlay_WriteSettingsToIni(BOOL bOptimizeFileAccess);

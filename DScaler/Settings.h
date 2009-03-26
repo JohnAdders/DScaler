@@ -35,31 +35,22 @@
 // Functions to manipulate settings structure
 /////////////////////////////////////////////////////////////////////////////
 
-long Setting_GetValue(SETTING* pSetting);
-BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange=0);
-void Setting_SetDefault(SETTING* pSetting);
-void Setting_ChangeDefault(SETTING* pSetting, long Default, BOOL bDontTouchValue = FALSE);
-void Setting_SetupSlider(SETTING* pSetting, HWND hSlider);
-void Setting_SetControlValue(SETTING* pSetting, HWND hControl);
-BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl);
-BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault = FALSE);
-void Setting_WriteToIni(SETTING* pSetting, BOOL bOptimizeFileAccess);
-void Setting_OSDShow(SETTING* pSetting, HWND hWnd);
-void Setting_Up(SETTING* pSetting);
-void Setting_Down(SETTING* pSetting);
-void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue);
-void Setting_SetSection(SETTING* pSetting, LPSTR NewValue);
-LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone);
-void Setting_Free(SETTING* pSetting);
+long Setting_GetValue(long GetValueMsg, long SettingIndex);
+void Setting_SetValue(long GetValueMsg, long SettingIndex, long Value);
+void Setting_SetDefault(long GetValueMsg, long SettingIndex);
+void Setting_ChangeDefault(long GetValueMsg, long SettingIndex, long Default);
+void Setting_SetupSlider(long GetValueMsg, long SettingIndex, HWND hSlider);
+void Setting_SetControlValue(long GetValueMsg, long SettingIndex, HWND hControl);
+void Setting_SetFromControl(long GetValueMsg, long SettingIndex, HWND hControl);
+void Setting_OSDShow(long GetValueMsg, long SettingIndex, HWND hWnd);
+void Setting_Up(long GetValueMsg, long SettingIndex);
+void Setting_Down(long GetValueMsg, long SettingIndex);
 // End of new UI code header
 
 void SetIniFileForSettings(LPSTR Name);
 LPCSTR GetIniFileForSettings();
-void LoadSettingsFromIni();
-void WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void WritePrivateProfileInt(LPCTSTR lpAppName, LPCTSTR lpKeyName, int nValue, LPCTSTR lpFileName);
 int GetCurrentAdjustmentStepCount(void* pSetting);
-void FreeSettings();
 
 //---------------------------------------------------------------------------
 // 2000-12-19 Added by Mark Rejhon
@@ -79,6 +70,6 @@ void FreeSettings();
 #define CheckMenuItemBool(hMenu, MenuId, Condition) CheckMenuItem(hMenu, MenuId, (Condition)?MF_CHECKED:MF_UNCHECKED)
 #define EnableMenuItemBool(hMenu, MenuId, Condition) EnableMenuItem(hMenu, MenuId, (Condition)?MF_ENABLED:MF_GRAYED)
 
-
+void BeautifyIniFile(LPCTSTR lpIniFileName);
 
 #endif

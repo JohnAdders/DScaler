@@ -28,10 +28,8 @@
 
 // Get Hold of the FD_50Hz.c file settings
 SETTING* FDProg_GetSetting(FDPROG_SETTING Setting);
-void FDProg_ReadSettingsFromIni();
-void FDProg_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void FDProg_SetMenu(HMENU hMenu);
-CTreeSettingsGeneric* FDProg_GetTreeSettingsPage();
+SmartPtr<CTreeSettingsGeneric> FDProg_GetTreeSettingsPage();
 
 
 #define MAXMODESWITCHES 50  // Maximum number of switches to track in TrackModeSwitches()

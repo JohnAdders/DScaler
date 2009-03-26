@@ -137,6 +137,6 @@ private:
     BOOL        m_ResetRequested;
 };
 
-extern CPerf* pPerf;
+extern SmartPtr<CPerf> pPerf;
 
 #endif

@@ -50,6 +50,7 @@ class CTreeSettingsDlg : public CDialog
 // Construction
 public:
     CTreeSettingsDlg(CString caption,CWnd* pParent = NULL);   // standard constructor
+    virtual ~CTreeSettingsDlg();
 
     /**
      * Adds a new page to the tree.
@@ -59,7 +60,7 @@ public:
      * note that the parent must already have been added with a call to AddPage
      * @return integer used when adding new pages as a child of this one
      */
-    int AddPage(CTreeSettingsPage *pPage,int parent=-1,int imageIndex=0,int imageIndexSelected=0);
+    int AddPage(SmartPtr<CTreeSettingsPage> pPage,int parent=-1);
 
     BOOL ShowPage(int iPage);
 
@@ -103,15 +104,12 @@ protected:
 
 private:
     ///internal class. used for storing information about one page
-    class CPageInfo
+    typedef struct
     {
-    public:
-        CTreeSettingsPage *m_pPage;
+        SmartPtr<CTreeSettingsPage> m_pPage;
         int m_parent;
         HTREEITEM m_hTreeItem;
-        int m_imageIndex;
-        int m_imageIndexSelected;
-    };
+    } CPageInfo;
     ///vector of all pages
     std::vector<CPageInfo> m_pages;
     CString m_settingsDlgCaption;

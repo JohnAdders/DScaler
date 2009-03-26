@@ -104,7 +104,5 @@ public:
     OUTPUTTYPES Type();
 };
 
-CTreeSettingsGeneric* D3D9_GetTreeSettingsPage();
+SmartPtr<CTreeSettingsGeneric> D3D9_GetTreeSettingsPage();
 SETTING* D3D9_GetSetting(OTHER_SETTING Setting);
-void D3D9_ReadSettingsFromIni();
-void D3D9_WriteSettingsToIni(BOOL bOptimizeFileAccess);

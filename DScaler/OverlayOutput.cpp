@@ -28,6 +28,7 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 //#include <dxerr9.h>
 
 // cope with older DX header files
@@ -1622,11 +1623,11 @@ SETTING* Overlay_GetSetting(OTHER_SETTING Setting)
     }
 }
 
-CSettingsHolderStandAlone OverlaySettingsHolder;
+CSettingsHolder OverlaySettingsHolder;
 
 void Overlay_ReadSettingsFromIni()
 {
-    CSettingGroup *pOverlayGroup = OverlaySettingsHolder.GetSettingsGroup("Overlay", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pOverlayGroup = SettingsMaster->GetGroup("Overlay", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
     OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYBRIGHTNESS], pOverlayGroup);
     OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYCONTRAST], pOverlayGroup);
@@ -1658,7 +1659,9 @@ void Overlay_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     OverlaySettingsHolder.WriteToIni(bOptimizeFileAccess);
 }
 
-CTreeSettingsGeneric* Overlay_GetTreeSettingsPage()
+SmartPtr<CTreeSettingsGeneric> Overlay_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Overlay Settings", OverlayOutputInstance.GetOtherSettings(), OVERLAYBRIGHTNESS);
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
+    Holder->AddSettings(OverlayOutputInstance.GetOtherSettings(), OVERLAYBRIGHTNESS);
+    return new CTreeSettingsGeneric("Overlay Settings", Holder);
 }

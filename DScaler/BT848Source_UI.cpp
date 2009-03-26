@@ -34,6 +34,7 @@
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 #include "Slider.h"
 #include "OSD.h"
 #include "LibraryCache.h"
@@ -351,7 +352,7 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                 break;
 
             case IDOK:
-                WriteSettingsToIni(TRUE);
+                SettingsMaster->SaveAllSettings(TRUE);
                 EndDialog(hDlg, TRUE);
                 break;
             case IDCANCEL:
@@ -585,7 +586,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
             }
             break;
         case IDOK:
-            WriteSettingsToIni(TRUE);
+            SettingsMaster->SaveAllSettings(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         
@@ -729,7 +730,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
 
             i =  SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETCURSEL, 0, 0);
             pThis->m_CardType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i));
-            WriteSettingsToIni(TRUE);
+            SettingsMaster->SaveAllSettings(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:

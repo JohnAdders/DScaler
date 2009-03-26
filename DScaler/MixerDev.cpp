@@ -32,6 +32,7 @@
 #include "DScaler.h"
 #include "Audio.h"
 #include "Providers.h"
+#include "SettingsMaster.h"
 
 using namespace std;
 
@@ -40,13 +41,11 @@ using namespace std;
 
 //  MixerDev prototypes and globals
 
-void    _MixerDev_ReadSettingsFromIni();
-void    MixerDev_SettingSetSection(CSource* pSource);
-void    MixerDev_SettingSetSection(LPCSTR szSource);
+void MixerDev_UpdateSettings(CSource* pSource);
 
-static std::string  g_MixerDev_Section;
-static BOOL         g_bMixerDevInvalidSection = TRUE;
+static BOOL g_bMixerDevInvalidSection = TRUE;
 
+SmartPtr<CSettingsHolder> MixerSettings;
 
 //  Mixer typedefs
 
@@ -98,7 +97,7 @@ static BOOL     g_bUseMixer = FALSE;                        // Saved setting var
 static BOOL     g_bResetOnExit = FALSE;                     // Saved setting variable
 static BOOL     g_bNoHardwareMute = FALSE;                  // Saved setting variable
 
-static char*    g_pMixerName = NULL;                        // Saved setting variable
+SettingStringValue g_pMixerName;                            // Saved setting variable
                                                             // - mem-managed by Setting_Funcs
 
 static long     g_nDestinationIndex;                        // Saved setting variable
@@ -438,7 +437,7 @@ static void Mixer_OnInputChange(long nVideoInput)
 // Mixer_OnSourceChange(..) is responsible for switching the settings
 // around for different sources.  When the settings are is switched
 // for a specific CSource, all calls in this file, including those
-// such as WriteSettingsToIni and ReadSettingsFromIni, will work
+// such as SettingsMaster->SaveAllSettings and ReadSettingsFromIni, will work
 // exclusively for the settings of that CSource only.
 //
 // The special call Mixer_OnSourceChange(NULL) is used to set the mode
@@ -449,7 +448,6 @@ static void Mixer_OnSourceChange(CSource *pSource)
     Mixer_DoSettingsTransition(LoadSourceSettingsCallback, pSource);
 }
 
-
 static CMixer* LoadSourceSettingsCallback(void* pContext)
 {
     CSource* pSource = (CSource*)pContext;
@@ -459,8 +457,7 @@ static CMixer* LoadSourceSettingsCallback(void* pContext)
     // g_pCurrentMixer, the new mixer should be returned.
 
     // Load the new source's settings
-    MixerDev_SettingSetSection(pSource);
-    _MixerDev_ReadSettingsFromIni();
+    MixerDev_UpdateSettings(pSource);
 
     Mixer_SetupActiveInputs(pSource);
 
@@ -925,7 +922,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 Button_GetCheck(GetDlgItem(hDlg, IDC_RESETONEXIT)) == BST_CHECKED;
 
             Mixer_DoSettingsTransition(SynchronizeDlgChangesCallback, hDlg);
-            WriteSettingsToIni(TRUE);
+            SettingsMaster->SaveAllSettings(TRUE);
 
             // FALLTHROUGH
 
@@ -1262,16 +1259,14 @@ static CMixer* SynchronizeDlgChangesCallback(void* pContext)
     // settings, except g_pCurrentMixer.  Instead of changing
     // g_pCurrentMixer, the new mixer should be returned.
 
-    extern SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE];
-
     if (g_pDlgActiveMixer != NULL)
     {
-        Setting_SetValue(&MixerDevSettings[MIXERNAME], (long)g_pDlgActiveMixer->GetName(), FALSE);
+        Setting_SetValue(WM_MIXERDEV_GETVALUE, MIXERNAME, (long)g_pDlgActiveMixer->GetName());
         g_nDestinationIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_DEST));
     }
     else
     {
-        Setting_SetValue(&MixerDevSettings[MIXERNAME], (long)(const char*)"", FALSE);
+        Setting_SetValue(WM_MIXERDEV_GETVALUE, MIXERNAME, (long)(const char*)"");
         g_nDestinationIndex = -1;
     }
 
@@ -1944,7 +1939,7 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
         "Mixer", "Input6Index", NULL,
     },
     {
-        "Mixer Name", CHARSTRING, 0, (long*)&g_pMixerName,
+        "Mixer Name", CHARSTRING, 0, g_pMixerName.GetPointer(),
         (long)"", 0, 0, 0, 0,
         NULL,
         "Mixer", "MixerName", NULL,
@@ -1958,90 +1953,35 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
 };
 
 
-SETTING* MixerDev_GetSetting(MIXERDEV_SETTING nSetting)
+void MixerDev_UpdateSettings(CSource* pSource)
 {
-    if (nSetting >= 0 && nSetting < MIXERDEV_SETTING_LASTONE)
+    if(MixerSettings)
     {
-        return &(MixerDevSettings[nSetting]);
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-
-void MixerDev_ReadSettingsFromIni()
-{
-    MixerDev_SettingSetSection(Providers_GetCurrentSource());
-    _MixerDev_ReadSettingsFromIni();
-}
-
-
-void _MixerDev_ReadSettingsFromIni()
-{
-    if (g_bMixerDevInvalidSection)
-    {
-        MixerDev_FreeSettings();
-        g_bUseMixer = FALSE;
-        return;
+        SettingsMaster->Unregister(MixerSettings);
+        MixerSettings->WriteToIni(TRUE);
+        MixerSettings = 0L;
     }
 
-    for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(MixerDevSettings[i]));
-    }
-}
-
-
-void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    if (g_bMixerDevInvalidSection)
-    {
-        return;
-    }
-
-    for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(MixerDevSettings[i]), bOptimizeFileAccess);
-    }
-}
-
-
-void MixerDev_FreeSettings()
-{
-    for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
-    {
-        Setting_Free(&(MixerDevSettings[i]));
-    }
-}
-
-
-void MixerDev_SettingSetSection(CSource* pSource)
-{
     if (pSource == NULL)
     {
         g_bMixerDevInvalidSection = TRUE;
     }
     else
     {
-        MixerDev_SettingSetSection(pSource->IDString().c_str());
+        MixerSettings = new CSettingsHolder(WM_MIXERDEV_GETVALUE);
+        string MixerDev_Section(MakeString() << "MixerInput_" << pSource->IDString());
+        g_bMixerDevInvalidSection = FALSE;
+        
+        for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
+        {
+            MixerDevSettings[i].szIniSection = (char*)MixerDev_Section.c_str();
+        }
+
+        MixerSettings->AddSettings(MixerDevSettings, MIXERDEV_SETTING_LASTONE);
+        MixerSettings->ReadFromIni();
+        SettingsMaster->Register(MixerSettings);
     }
 }
-
-
-void MixerDev_SettingSetSection(LPCSTR szSource)
-{
-    g_MixerDev_Section = string("MixerInput_") + szSource;
-
-    g_bMixerDevInvalidSection = FALSE;
-
-    for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
-    {
-        Setting_SetSection(&(MixerDevSettings[i]), (char*)g_MixerDev_Section.c_str());
-    }
-}
-
 
 void MixerDev_SetMenu(HMENU hMenu)
 {

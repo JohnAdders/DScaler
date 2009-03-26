@@ -30,6 +30,7 @@
 #include "VBI_VideoText.h"
 #include "VBI_VPSdecode.h"
 #include "PathHelpers.h"
+#include "SettingsMaster.h"
 
 using namespace std;
 
@@ -248,7 +249,7 @@ int CEPG::ExecuteCommand(string command)
 //
 void CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 {
-    string Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
+    string Exe = (char*)Setting_GetValue(WM_EPG_GETVALUE, EPG_NXTVEPGPATH);
     string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
     string command = "\"" + m_CMDExe + "\" /C echo NextviewEPG database export ... && \""
         + Exe + "\" -dump xml5 -provider " + Provider + " > \"" + OutputFile + "\"";
@@ -432,7 +433,7 @@ int CEPG::SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax
             }
             else
             {
-                InsertProgramme(*it, Setting_GetValue(EPG_GetSetting(EPG_SORTING)));
+                InsertProgramme(*it, Setting_GetValue(WM_EPG_GETVALUE, (EPG_SORTING)));
             }
         }
     }
@@ -579,7 +580,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         break;
 
     case IDM_IMPORT_NEXTVIEW:
-        Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
+        Exe = (char*)Setting_GetValue(WM_EPG_GETVALUE, (EPG_NXTVEPGPATH));
         if ((Exe == NULL) || stat(Exe, &st))
         {
             MessageBox(hWnd, "NextviewEPG application not found.\nPlease go to the advanced settings to update its location.", "DScaler Warning", MB_ICONWARNING | MB_OK);
@@ -618,7 +619,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     case IDM_DISPLAY_EPG:
         if (   (m_Displayed == 1)
             && (m_UseProgFronBrowser == FALSE)
-            && (Setting_GetValue(EPG_GetSetting(EPG_TOGGLEBUTTONS)) == TRUE)
+            && (Setting_GetValue(WM_EPG_GETVALUE, (EPG_TOGGLEBUTTONS)) == TRUE)
            )
         {
             OSD_Clear();
@@ -634,7 +635,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, PRELOADING_EARLIER, PRELOADING_LATER);
             m_ShiftLines = 0;
             // Display the OSD screen
-            OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            OSD_ShowInfosScreen(2, Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE)));
             m_Displayed = 1;
         }
         else if (m_IdxShowSelectCur != -1)
@@ -643,7 +644,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_SearchCurrent = FALSE;
             m_ShiftLines = 0;
             // Display the OSD screen
-            OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            OSD_ShowInfosScreen(2, Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE)));
             m_Displayed = 1;
         }
         return TRUE;
@@ -651,7 +652,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
     case IDM_DISPLAY_EPG_NOW:
         if (   (m_Displayed == 2)
-            && (Setting_GetValue(EPG_GetSetting(EPG_TOGGLEBUTTONS)) == TRUE)
+            && (Setting_GetValue(WM_EPG_GETVALUE, (EPG_TOGGLEBUTTONS)) == TRUE)
            )
         {
             OSD_Clear();
@@ -666,7 +667,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         else
         {
             time(&TimeMin);
-            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(WM_EPG_GETVALUE, (EPG_TIMEFRAMEDURATION)) - 1;
             // Check if new EPG data have to be loaded
             LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
             // Select the corresponding programmes
@@ -674,7 +675,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         }
         m_UseProgFronBrowser = TRUE;
         // Display the OSD screen
-        OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+        OSD_ShowInfosScreen(3, Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE)));
         m_Displayed = 2;
         return TRUE;
         break;
@@ -695,9 +696,9 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             }
             else
             {
-                TimeMin = m_SearchTimeMin - ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
+                TimeMin = m_SearchTimeMin - ONE_HOUR * Setting_GetValue(WM_EPG_GETVALUE, (EPG_TIMEFRAMEDURATION));
             }
-            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(WM_EPG_GETVALUE, (EPG_TIMEFRAMEDURATION)) - 1;
             // Check if new EPG data have to be loaded
             LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
             // Select the corresponding programmes
@@ -719,13 +720,13 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 datetime_tm->tm_sec = 0;
                 datetime_tm->tm_min = 0;
                 TimeMin = mktime(datetime_tm);
-                TimeMin += ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
+                TimeMin += ONE_HOUR * Setting_GetValue(WM_EPG_GETVALUE, (EPG_TIMEFRAMEDURATION));
             }
             else
             {
-                TimeMin = m_SearchTimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
+                TimeMin = m_SearchTimeMin + ONE_HOUR * Setting_GetValue(WM_EPG_GETVALUE, (EPG_TIMEFRAMEDURATION));
             }
-            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(WM_EPG_GETVALUE, (EPG_TIMEFRAMEDURATION)) - 1;
             // Check if new EPG data have to be loaded
             LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
             // Select the corresponding programmes
@@ -745,7 +746,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         {
             m_ShiftLines++;
             // Refresh the OSD screen immediately
-            OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            OSD_ShowInfosScreen(2, Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE)));
         }
         return TRUE;
         break;
@@ -763,7 +764,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             {
                 m_ShiftLines--;
                 // Refresh the OSD screen immediately
-                OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+                OSD_ShowInfosScreen(2, Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE)));
             }
         }
         return TRUE;
@@ -804,7 +805,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 m_SearchCurrent = FALSE;
                 m_ShiftLines = 0;
                 // Refresh the OSD screen immediately
-                OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+                OSD_ShowInfosScreen(2, Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE)));
             }
         }
         return TRUE;
@@ -845,7 +846,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 m_SearchCurrent = FALSE;
                 m_ShiftLines = 0;
                 // Refresh the OSD screen immediately
-                OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+                OSD_ShowInfosScreen(2, Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE)));
             }
         }
         return TRUE;
@@ -905,14 +906,14 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 datetime_tm->tm_min = 0;
                 TimeMin = mktime(datetime_tm);
             }
-            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(WM_EPG_GETVALUE, (EPG_TIMEFRAMEDURATION)) - 1;
             // Check if new EPG data have to be loaded
             LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
             // Select the corresponding programmes
             SearchForProgrammes(NULL, TimeMin, TimeMax);
             m_UseProgFronBrowser = TRUE;
             // Display the OSD screen
-            OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            OSD_ShowInfosScreen(3, Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE)));
             m_Displayed = 2;
         }
         return TRUE;
@@ -957,14 +958,14 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             datetime_tm->tm_min = 0;
             datetime_tm->tm_hour = LOWORD(wParam) - IDM_EPG_HOUR0;
             TimeMin = mktime(datetime_tm);
-            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+            TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(WM_EPG_GETVALUE, (EPG_TIMEFRAMEDURATION)) - 1;
             // Check if new EPG data have to be loaded
             LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
             // Select the corresponding programmes
             SearchForProgrammes(NULL, TimeMin, TimeMax);
             m_UseProgFronBrowser = TRUE;
             // Display the OSD screen
-            OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+            OSD_ShowInfosScreen(3, Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE)));
             m_Displayed = 2;
         }
         return TRUE;
@@ -998,7 +999,7 @@ void CEPG::ShowOSD()
                 if (m_Displayed == 0)
                 {
                     // Display the OSD screen
-                    OSD_ShowInfosScreen(1, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+                    OSD_ShowInfosScreen(1, Setting_GetValue(WM_EPG_GETVALUE, (EPG_PERCENTAGESIZE)));
                 }
             }
         }
@@ -1039,7 +1040,7 @@ void CEPG::GetViewedChannelName(string &Channel)
         {
             Channel = Channel_GetName();
         }
-        else if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+        else if (Setting_GetValue(WM_VBI_GETVALUE, CAPTURE_VBI))
         {
             time_t CurrentTime;
             time(&CurrentTime);
@@ -1095,7 +1096,7 @@ void CEPG::ClearProgrammes()
 
 int CEPG::CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCSTR ChannelName)
 {
-    if (   (Setting_GetValue(EPG_GetSetting(EPG_CHANNELFILTERING)) == TRUE)
+    if (   (Setting_GetValue(WM_EPG_GETVALUE, (EPG_CHANNELFILTERING)) == TRUE)
         && !IsValidChannelName(ChannelName))
         return 0;
     // Keep only programmes scheduled between m_LoadedTimeMin and m_LoadedTimeMax
@@ -1273,7 +1274,7 @@ void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR C
     {
         AddProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, SubTitle, Category, Description);
     }
-    else if (Setting_GetValue(EPG_GetSetting(EPG_CHANNELFILTERING)) == FALSE)
+    else if (Setting_GetValue(WM_EPG_GETVALUE, (EPG_CHANNELFILTERING)) == FALSE)
     {
         AddProgramme(StartTime, EndTime, Title, ChannelEPGName, ChannelEPGName, -1, SubTitle, Category, Description);
     }
@@ -1364,7 +1365,7 @@ int CEPG::GetNextviewEPGProviders()
     ClearNextviewEPGProviders();
 
     struct stat st;
-    char* Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
+    char* Exe = (char*)Setting_GetValue(WM_EPG_GETVALUE, (EPG_NXTVEPGPATH));
     if ((Exe == NULL) || stat(Exe, &st))
     {
         return m_NextviewProviders.size();
@@ -1378,7 +1379,7 @@ int CEPG::GetNextviewEPGProviders()
     string* newProvider;
     char* c;
 
-    char* DefaultProvider = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPROVIDER));
+    char* DefaultProvider = (char*)Setting_GetValue(WM_EPG_GETVALUE, (EPG_NXTVEPGPROVIDER));
     if (strlen(DefaultProvider) > 0)
     {
         if (!strcmp(DefaultProvider, "merged"))
@@ -1566,9 +1567,9 @@ void CEPG::SetMenu(HMENU hMenu)
 // ---------------------- Settings ---------------------
 
 
-static char        ExePath[MAX_PATH] = {0};
-static char*    NextviewEPGExePath = NULL;
-static char*    NextviewEPGProvider = NULL;
+const string ExePath(GetInstallationPath() + "\\nxtvepg.exe");
+SettingStringValue NextviewEPGExePath;
+SettingStringValue NextviewEPGProvider;
 static long        EPG_DefaultSizePerc = 5;
 static long        EPG_FrameDuration = 1;
 static BOOL        EPG_ChannelFiltering = FALSE;
@@ -1613,8 +1614,8 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
         "EPG", "TimeFrameDuration", NULL,
     },
     {
-        "nxtvepg.exe file path", CHARSTRING, 0, (long*)&NextviewEPGExePath,
-         (long)ExePath, 0, 0, 0, 0,
+        "nxtvepg.exe file path", CHARSTRING, 0, NextviewEPGExePath.GetPointer(),
+         (long)ExePath.c_str(), 0, 0, 0, 0,
          NULL,
         "EPG", "nxtvepg.exe", NULL,
     },
@@ -1631,7 +1632,7 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
         "EPG", "MaxCharsPerLine", NULL,
     },
     {
-        "NextviewEPG default provider", CHARSTRING, 0, (long*)&NextviewEPGProvider,
+        "NextviewEPG default provider", CHARSTRING, 0, NextviewEPGProvider.GetPointer(),
          (long)"", 0, 0, 0, 0,
          NULL,
         "EPG", "NextviewProvider", NULL,
@@ -1663,46 +1664,10 @@ SETTING* EPG_GetSetting(EPG_SETTING Setting)
     }
 }
 
-void EPG_ReadSettingsFromIni()
+SmartPtr<CTreeSettingsGeneric> EPG_GetTreeSettingsPage()
 {
-    int i;
-
-    GetModuleFileName (NULL, ExePath, sizeof(ExePath));
-    *(strrchr(ExePath, '\\')) = '\0';
-    strcat(ExePath, "\\nxtvepg.exe");
-
-    for(i = 0; i < EPG_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(EPGSettings[i]));
-    }
-
-    if (NextviewEPGExePath == NULL)
-    {
-        Setting_SetValue(EPG_GetSetting(EPG_NXTVEPGPATH), (long)ExePath);
-    }
-}
-
-void EPG_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < EPG_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(EPGSettings[i]), bOptimizeFileAccess);
-    }
-}
-
-CTreeSettingsGeneric* EPG_GetTreeSettingsPage()
-{
-    return new CTreeSettingsGeneric("EPG Settings", EPGSettings, EPG_SETTING_LASTONE);
-}
-
-void EPG_FreeSettings()
-{
-    int i;
-    for(i = 0; i < EPG_SETTING_LASTONE; i++)
-    {
-        Setting_Free(&EPGSettings[i]);
-    }
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_EPG_GETVALUE));
+    return new CTreeSettingsGeneric("EPG Settings", Holder);
 }
 
 

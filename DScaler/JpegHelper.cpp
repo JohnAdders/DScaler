@@ -640,7 +640,7 @@ void CJpegHelper::SaveSnapshot(const string& FilePath, int Height, int Width, BY
     cinfo.in_color_space = JCS_YCbCr;
     jpeg_set_defaults(&cinfo);
     jpeg_set_colorspace(&cinfo, JCS_YCbCr);
-    quality = Setting_GetValue(Still_GetSetting(JPEGQUALITY));
+    quality = Setting_GetValue(WM_STILL_GETVALUE, JPEGQUALITY);
     jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
     cinfo.dct_method = JDCT_ISLOW;
     cinfo.optimize_coding = TRUE;

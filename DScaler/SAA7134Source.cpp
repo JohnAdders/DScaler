@@ -157,7 +157,7 @@ void CSAA7134Source::SetSourceAsCurrent()
     else
     {
         // We read what is the video format saved for this video input
-        SettingsMaster->LoadOneSetting(m_VideoFormat);
+        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
     }
     
     // tell the world if the format has changed
@@ -167,14 +167,14 @@ void CSAA7134Source::SetSourceAsCurrent()
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
         // We save the video format attached to this video input
-        SettingsMaster->WriteOneSetting(m_VideoFormat);
+        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
-    SettingsMaster->LoadSettings();
+    SettingsMaster->LoadGroupedSettings();
 
     Reset();
 }
@@ -188,16 +188,16 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     // set by channel
     // Also there is no format stored by input
 
-    CSettingGroup* pVideoFormatGroup = GetSettingsGroup("SAA7134 - Video Format", SETTING_BY_INPUT, TRUE);
-    CSettingGroup* pVideoGroup = GetSettingsGroup("SAA7134 - Video Basic", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
-    CSettingGroup* pGainControlGroup = GetSettingsGroup("SAA7134 - Video Gain Control", SETTING_BY_INPUT, TRUE);
-    CSettingGroup* pVideoMiscGroup = GetSettingsGroup("SAA7134 - Video Miscellaneous", SETTING_BY_INPUT | SETTING_BY_CHANNEL, TRUE);
+    CSettingGroup* pVideoFormatGroup = SettingsMaster->GetGroup("SAA7134 - Video Format", SETTING_BY_INPUT, TRUE);
+    CSettingGroup* pVideoGroup = SettingsMaster->GetGroup("SAA7134 - Video Basic", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup* pGainControlGroup = SettingsMaster->GetGroup("SAA7134 - Video Gain Control", SETTING_BY_INPUT, TRUE);
+    CSettingGroup* pVideoMiscGroup = SettingsMaster->GetGroup("SAA7134 - Video Miscellaneous", SETTING_BY_INPUT | SETTING_BY_CHANNEL, TRUE);
 
-    CSettingGroup* pAudioSourceGroup  = GetSettingsGroup("SAA7134 - Audio Source", SETTING_BY_INPUT, TRUE);
-    CSettingGroup* pAudioStandardGroup = GetSettingsGroup("SAA7134 - Audio Standard", SETTING_BY_FORMAT | SETTING_BY_INPUT | SETTING_BY_CHANNEL, TRUE);
-    CSettingGroup* pAudioCustomGroup = GetSettingsGroup("SAA7134 - Audio Standard Custom", SETTING_BY_CHANNEL, TRUE);
-    CSettingGroup* pAudioGroup = GetSettingsGroup("SAA7134 - Audio Basic", SETTING_BY_AUDIOINPUT, TRUE);
-    CSettingGroup* pAudioMiscGroup = GetSettingsGroup("SAA7134 - Audio Miscellaneous", SETTING_BY_AUDIOINPUT, TRUE);
+    CSettingGroup* pAudioSourceGroup  = SettingsMaster->GetGroup("SAA7134 - Audio Source", SETTING_BY_INPUT, TRUE);
+    CSettingGroup* pAudioStandardGroup = SettingsMaster->GetGroup("SAA7134 - Audio Standard", SETTING_BY_FORMAT | SETTING_BY_INPUT | SETTING_BY_CHANNEL, TRUE);
+    CSettingGroup* pAudioCustomGroup = SettingsMaster->GetGroup("SAA7134 - Audio Standard Custom", SETTING_BY_CHANNEL, TRUE);
+    CSettingGroup* pAudioGroup = SettingsMaster->GetGroup("SAA7134 - Audio Basic", SETTING_BY_AUDIOINPUT, TRUE);
+    CSettingGroup* pAudioMiscGroup = SettingsMaster->GetGroup("SAA7134 - Audio Miscellaneous", SETTING_BY_AUDIOINPUT, TRUE);
 
     m_Brightness = new CBrightnessSetting(this, "Brightness", SAA7134_DEFAULT_BRIGHTNESS, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Brightness);
@@ -1336,7 +1336,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
     Stop_Capture();
 
-    SettingsMaster->SaveSettings();
+    SettingsMaster->SaveGroupedSettings();
 
     // OK Capture is stopped so other onchange messages are
     // disabled so if anything that happens in those needs to be triggered
@@ -1359,7 +1359,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
     else
     {
         // We read what is the video format saved for this video input
-        SettingsMaster->LoadOneSetting(m_VideoFormat);
+        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
     }
 
     // tell the world if the format has changed
@@ -1369,14 +1369,14 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
         // We save the video format attached to this video input
-        SettingsMaster->WriteOneSetting(m_VideoFormat);
+        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
-    SettingsMaster->LoadSettings();
+    SettingsMaster->LoadGroupedSettings();
 
     // reset here when we have all the settings
     Reset();
@@ -1391,7 +1391,7 @@ void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
 //LOG(1, "CSAA7134Source::VideoFormatOnChange Old %d New %d", OldValue, NewValue);
     Stop_Capture();
 
-    SettingsMaster->SaveSettings();
+    SettingsMaster->SaveGroupedSettings();
 
     // OK Capture is stopped so other onchange messages are
     // disabled so if anything that happens in those needs to be triggered
@@ -1405,7 +1405,7 @@ void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
-    SettingsMaster->LoadSettings();
+    SettingsMaster->LoadGroupedSettings();
 
     Reset();
 

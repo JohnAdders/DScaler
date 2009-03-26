@@ -36,8 +36,8 @@
 #define PSTRIP_TIMING_STRING_SIZE    64
 
 extern int OutputReso;
-extern LPSTR PStrip576i;
-extern LPSTR PStrip480i;
+extern SettingStringValue PStrip576i;
+extern SettingStringValue PStrip480i;
 
 void OutReso_UpdateMenu(HMENU hMenu);
 void OutReso_SetMenu(HMENU hMenu);

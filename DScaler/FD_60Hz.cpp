@@ -31,6 +31,7 @@
 #include "FD_60Hz.h"
 #include "FD_Common.h"
 #include "DebugLog.h"
+#include "SettingsMaster.h"
 
 // Settings
 // Default values which can be overwritten by the INI file
@@ -686,30 +687,13 @@ SETTING* FD60_GetSetting(FD60_SETTING Setting)
     }
 }
 
-void FD60_ReadSettingsFromIni()
-{
-    int i;
-    for(i = 0; i < FD60_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(FD60Settings[i]));
-    }
-}
-
-void FD60_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < FD60_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(FD60Settings[i]), bOptimizeFileAccess);
-    }
-}
-
 void FD60_SetMenu(HMENU hMenu)
 {
     CheckMenuItemBool(hMenu, IDM_FALLBACK, bFallbackToVideo);
 }
 
-CTreeSettingsGeneric* FD60_GetTreeSettingsPage()
+SmartPtr<CTreeSettingsGeneric> FD60_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("3:2 Pulldown Settings",FD60Settings, FD60_SETTING_LASTONE);
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_FD60_GETVALUE));
+    return new CTreeSettingsGeneric("3:2 Pulldown Settings", Holder);
 }

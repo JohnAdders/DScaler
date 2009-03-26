@@ -40,6 +40,7 @@
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 #include "Slider.h"
 #include "..\help\helpids.h"
 #include "LibraryCache.h"
@@ -182,7 +183,7 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                 // Update the string name value to reflect the newly selected card.
                 pThis->m_CardName->SetValue(pThis->GetCard()->GetCardName((eSAA7134CardId)s_CardType).c_str());
             }
-            WriteSettingsToIni(TRUE);
+            SettingsMaster->SaveAllSettings(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
@@ -1624,27 +1625,27 @@ void CSAA7134Source::ChangeDefaultsForAudioInput(BOOL bDontSetValue)
 
 CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
 {
-    CTreeSettingsGeneric* pPage;
+    SmartPtr<CTreeSettingsGeneric> pPage;
 
-    vector <CSimpleSetting*>vSettingsList;
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
 
-    vSettingsList.push_back(m_AutomaticVolumeLevel);
-    vSettingsList.push_back(m_VBIUpscaleDivisor);
-    vSettingsList.push_back(m_VBIDebugOverlay);
-    vSettingsList.push_back(m_AutomaticGainControl);
-    vSettingsList.push_back(m_AdaptiveCombFilter);
-    vSettingsList.push_back(m_GainControlLevel);
-    vSettingsList.push_back(m_GammaControl);
-    vSettingsList.push_back(m_GammaLevel);
-    vSettingsList.push_back(m_VideoMirror);
-    vSettingsList.push_back(m_CustomPixelWidth);
-    vSettingsList.push_back(m_HDelay);
-    vSettingsList.push_back(m_VDelay);
-    vSettingsList.push_back(m_ReversePolarity);
-    vSettingsList.push_back(m_AudioLine1Voltage);
-    vSettingsList.push_back(m_AudioLine2Voltage);
+    Holder->AddSetting(m_AutomaticVolumeLevel);
+    Holder->AddSetting(m_VBIUpscaleDivisor);
+    Holder->AddSetting(m_VBIDebugOverlay);
+    Holder->AddSetting(m_AutomaticGainControl);
+    Holder->AddSetting(m_AdaptiveCombFilter);
+    Holder->AddSetting(m_GainControlLevel);
+    Holder->AddSetting(m_GammaControl);
+    Holder->AddSetting(m_GammaLevel);
+    Holder->AddSetting(m_VideoMirror);
+    Holder->AddSetting(m_CustomPixelWidth);
+    Holder->AddSetting(m_HDelay);
+    Holder->AddSetting(m_VDelay);
+    Holder->AddSetting(m_ReversePolarity);
+    Holder->AddSetting(m_AudioLine1Voltage);
+    Holder->AddSetting(m_AudioLine2Voltage);
 
-    pPage = new CTreeSettingsGeneric("SAA713x Advanced", vSettingsList);
+    pPage = new CTreeSettingsGeneric("SAA713x Advanced", Holder);
 
     pPage->SetHelpID(IDH_SAA713X_ADV);
 

@@ -32,6 +32,7 @@
 #include "AutoCriticalSection.h"
 #include "Audio.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 #include "ProgramList.h"
 #include "TreeSettingsDlg.h"
 #include "DSVideoFormatPage.h"
@@ -383,8 +384,8 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 {
     CDSSourceBase::CreateSettings(IniSection);
 
-    CSettingGroup *pVideoGroup = GetSettingsGroup("DS - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
-    CSettingGroup *pOverscanGroup = GetSettingsGroup("DS - Overscan", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pVideoGroup = SettingsMaster->GetGroup("DS - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pOverscanGroup = SettingsMaster->GetGroup("DS - Overscan", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
     //at this time we dont know what the min and max will be
     m_Brightness = new CBrightnessSetting(this, "Brightness", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup);

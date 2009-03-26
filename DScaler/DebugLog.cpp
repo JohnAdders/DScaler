@@ -24,13 +24,14 @@
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "DebugLog.h"
+#include "SettingsMaster.h"
 
 using namespace std;
 
 #define DEBUGLOGFILENAME "DScaler.log"
 
 static FILE* debugLog = NULL;
-char* DebugLogFilename = NULL;
+SettingStringValue DebugLogFilename;
 BOOL DebugLogEnabled = FALSE;
 long gDebugLogLevel = 1;
 BOOL FlushAfterEachWrite = FALSE;
@@ -55,11 +56,15 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
         return;
     }
 
-    if (debugLog == NULL && DebugLogFilename!=NULL && DebugLogFilename[0] != '\0')
+    if (debugLog == NULL && DebugLogFilename)
+    {
         debugLog = fopen(DebugLogFilename, "w");
+    }
 
     if (debugLog == NULL)
+    {
         return;
+    }
 
     SysTime = timeGetTime();
 
@@ -136,7 +141,7 @@ SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
         "Files", "FlushAfterEachWrite", FlushAfterEachWrite_OnChange,
     },
     {
-        "Debug Log File", CHARSTRING, 0, (long*)&DebugLogFilename,
+        "Debug Log File", CHARSTRING, 0, DebugLogFilename.GetPointer(),
         (long)DEBUGLOGFILENAME, 0, 0, 0, 0,
         NULL,
         "Files", "DebugLogFilename", NULL,
@@ -155,35 +160,8 @@ SETTING* Debug_GetSetting(DEBUG_SETTING Setting)
     }
 }
 
-void Debug_ReadSettingsFromIni()
+SmartPtr<CTreeSettingsGeneric> Debug_GetTreeSettingsPage()
 {
-    int i;
-    for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(DebugSettings[i]));
-    }
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_DEBUG_GETVALUE));
+    return new CTreeSettingsGeneric("Logging Settings", Holder);
 }
-
-void Debug_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(DebugSettings[i]), bOptimizeFileAccess);
-    }
-}
-
-CTreeSettingsGeneric* Debug_GetTreeSettingsPage()
-{
-    return new CTreeSettingsGeneric("Logging Settings",DebugSettings, DEBUG_SETTING_LASTONE);
-}
-
-void Debug_FreeSettings()
-{
-    int i;
-    for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
-    {
-        Setting_Free(&DebugSettings[i]);
-    }
-}
-

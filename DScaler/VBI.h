@@ -34,8 +34,6 @@
 
 // Get Hold of the FD_50Hz.c file settings
 SETTING* VBI_GetSetting(VBI_SETTING Setting);
-void VBI_ReadSettingsFromIni();
-void VBI_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void VBI_SetMenu(HMENU hMenu);
 
 #define VBI_VT  1

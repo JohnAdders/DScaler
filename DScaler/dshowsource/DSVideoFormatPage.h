@@ -45,6 +45,7 @@ class CDSVideoFormatPage : public CTreeSettingsPage
 // Construction
 public:
     CDSVideoFormatPage(CString name, std::vector<CDShowGraph::CVideoFormat> &fmts,CSliderSetting *pResolution);   // standard constructor
+    ~CDSVideoFormatPage() {};
 
 // Dialog Data
     //{{AFX_DATA(CDSVideoFormatPage)

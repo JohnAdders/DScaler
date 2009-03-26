@@ -236,10 +236,7 @@ BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* 
 std::string BuildDScalerContext();
 
 SETTING* Still_GetSetting(STILL_SETTING Setting);
-void Still_ReadSettingsFromIni();
-void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-CTreeSettingsGeneric* Still_GetTreeSettingsPage();
-void Still_FreeSettings();
+SmartPtr<CTreeSettingsGeneric> Still_GetTreeSettingsPage();
 
 
 #endif

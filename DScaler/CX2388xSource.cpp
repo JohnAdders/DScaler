@@ -184,7 +184,7 @@ void CCX2388xSource::SetSourceAsCurrent()
     else
     {
         // We read what is the video format saved for this video input
-        SettingsMaster->LoadOneSetting(m_VideoFormat);
+        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
     }
 
     // tell the world if the format has changed
@@ -194,14 +194,14 @@ void CCX2388xSource::SetSourceAsCurrent()
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
         // We save the video format attached to this video input
-        SettingsMaster->WriteOneSetting(m_VideoFormat);
+        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
-    SettingsMaster->LoadSettings();
+    SettingsMaster->LoadGroupedSettings();
 
     Reset();
 }
@@ -239,10 +239,10 @@ void CCX2388xSource::SetupPictureStructures()
 
 void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 {
-    CSettingGroup *pVideoFormatGroup = GetSettingsGroup("CX2388x - Video Format", SETTING_BY_INPUT, TRUE);
-    CSettingGroup *pVideoGroup = GetSettingsGroup("CX2388x - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
-    CSettingGroup *pH3DGroup = GetSettingsGroup("CX2388x - H3D", SETTING_BY_FORMAT | SETTING_BY_INPUT);
-    CSettingGroup *pAudioGroup = GetSettingsGroup("CX2388x - Audio", SETTING_BY_CHANNEL, FALSE);
+    CSettingGroup *pVideoFormatGroup = SettingsMaster->GetGroup("CX2388x - Video Format", SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pVideoGroup = SettingsMaster->GetGroup("CX2388x - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pH3DGroup = SettingsMaster->GetGroup("CX2388x - H3D", SETTING_BY_FORMAT | SETTING_BY_INPUT);
+    CSettingGroup *pAudioGroup = SettingsMaster->GetGroup("CX2388x - Audio", SETTING_BY_CHANNEL, FALSE);
 
     m_Brightness = new CBrightnessSetting(this, "Brightness", 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Brightness);
@@ -1290,7 +1290,7 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 
     Stop_Capture();
 
-    SettingsMaster->SaveSettings();
+    SettingsMaster->SaveGroupedSettings();
 
     // OK Capture is stopped so other onchange messages are
     // disabled so if anything that happens in those needs to be triggered
@@ -1313,7 +1313,7 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
     else
     {
         // We read what is the video format saved for this video input
-        SettingsMaster->LoadOneSetting(m_VideoFormat);
+        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
     }
 
     // tell the world if the format has changed
@@ -1323,14 +1323,14 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
         // We save the video format attached to this video input
-        SettingsMaster->WriteOneSetting(m_VideoFormat);
+        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
-    SettingsMaster->LoadSettings();
+    SettingsMaster->LoadGroupedSettings();
 
     // reset here when we have all the settings
     Reset();
@@ -1343,7 +1343,7 @@ void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
 
-    SettingsMaster->SaveSettings();
+    SettingsMaster->SaveGroupedSettings();
 
     // OK Capture is stopped so other onchange messages are
     // disabled so if anything that happens in those needs to be triggered
@@ -1356,7 +1356,7 @@ void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
-    SettingsMaster->LoadSettings();
+    SettingsMaster->LoadGroupedSettings();
 
     // reset here when we have all the settings
     Reset();

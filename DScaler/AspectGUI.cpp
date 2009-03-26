@@ -41,11 +41,10 @@
 #include "VBI.h"
 #include "OutThreads.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 #include "Providers.h"
 #include "OverlayOutput.h"
 
-
-CSettingsHolderStandAlone AspectSettingsHolder;
 
 BOOL Bounce_OnChange(long NewValue); // Forward declaration to reuse this code...
 BOOL Orbit_OnChange(long NewValue); // Forward declaration to reuse this code...
@@ -366,12 +365,12 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             ShowText(hWnd, "Auto Detect Black Bars ON");
             if (AspectSettings.bUseWSS)
             {
-                if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
+                if (!Setting_GetValue(WM_VBI_GETVALUE, DOWSS))
                 {
-                    Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
+                    Setting_SetValue(WM_VBI_GETVALUE, DOWSS, TRUE);
                     WSSWasEnabled = TRUE;
                 }
-                if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+                if (!Setting_GetValue(WM_VBI_GETVALUE, CAPTURE_VBI))
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
                 }
@@ -385,9 +384,9 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             ShowText(hWnd, "Auto Detect Black Bars OFF");
             if (AspectSettings.bUseWSS && WSSWasEnabled)
             {
-                if (Setting_GetValue(VBI_GetSetting(DOWSS)))
+                if (Setting_GetValue(WM_VBI_GETVALUE, DOWSS))
                 {
-                    Setting_SetValue(VBI_GetSetting(DOWSS), FALSE);
+                    Setting_SetValue(WM_VBI_GETVALUE, DOWSS, FALSE);
                 }
                 WSSWasEnabled = FALSE;
             }
@@ -407,21 +406,21 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         if (AspectSettings.AutoDetectAspect && AspectSettings.bUseWSS)
         {
-            if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
+            if (!Setting_GetValue(WM_VBI_GETVALUE, DOWSS))
             {
-                Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
+                Setting_SetValue(WM_VBI_GETVALUE, DOWSS, TRUE);
                 WSSWasEnabled = TRUE;
             }
-            if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+            if (!Setting_GetValue(WM_VBI_GETVALUE, CAPTURE_VBI))
             {
                 SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
             }
         }
         else if (AspectSettings.bUseWSS && WSSWasEnabled)
         {
-            if (Setting_GetValue(VBI_GetSetting(DOWSS)))
+            if (Setting_GetValue(WM_VBI_GETVALUE, DOWSS))
             {
-                Setting_SetValue(VBI_GetSetting(DOWSS), FALSE);
+                Setting_SetValue(WM_VBI_GETVALUE, DOWSS, FALSE);
             }
             WSSWasEnabled = FALSE;
         }
@@ -440,21 +439,21 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         if (AspectSettings.AutoDetectAspect)
         {
-            if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
+            if (!Setting_GetValue(WM_VBI_GETVALUE, DOWSS))
             {
-                Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
+                Setting_SetValue(WM_VBI_GETVALUE, DOWSS, TRUE);
                 WSSWasEnabled = TRUE;
             }
-            if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+            if (!Setting_GetValue(WM_VBI_GETVALUE, CAPTURE_VBI))
             {
                 SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
             }
         }
         else if (WSSWasEnabled)
         {
-            if (Setting_GetValue(VBI_GetSetting(DOWSS)))
+            if (Setting_GetValue(WM_VBI_GETVALUE, DOWSS))
             {
-                Setting_SetValue(VBI_GetSetting(DOWSS), FALSE);
+                Setting_SetValue(WM_VBI_GETVALUE, DOWSS, FALSE);
             }
             WSSWasEnabled = FALSE;
         }
@@ -1248,109 +1247,86 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
     },
 };
 
-SETTING* Aspect_GetSetting(ASPECT_SETTING Setting)
+
+SmartPtr<CSettingsHolder> Aspect_GetSettingsHolder()
 {
-    if(Setting > -1 && Setting < ASPECT_SETTING_LASTONE)
-    {
-        return &(AspectGUISettings[Setting]);
-    }
-    else
-    {
-        return NULL;
-    }
-}
+    SmartPtr<CSettingsHolder> AspectSettingsHolder(new CSettingsHolder(WM_ASPECT_GETVALUE));
+    CSettingGroup *pRatioGroup = SettingsMaster->GetGroup("Aspect - Aspect Ratio", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pBounceGroup = SettingsMaster->GetGroup("View - Bounce", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pAutoSizeGroup = SettingsMaster->GetGroup("View - AutoSize", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pOrbitGroup = SettingsMaster->GetGroup("View - Orbit", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pImagePositionGroup = SettingsMaster->GetGroup("View - Image position", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pZoomGroup = SettingsMaster->GetGroup("View - Zoom", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pMiscGroup = SettingsMaster->GetGroup("Aspect - Misc", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
-void Aspect_ReadSettingsFromIni()
-{
-    if(AspectSettingsHolder.GetNumSettings() == 0)
-    {
-        CSettingGroup *pRatioGroup = AspectSettingsHolder.GetSettingsGroup("Aspect - Aspect Ratio", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-        CSettingGroup *pBounceGroup = AspectSettingsHolder.GetSettingsGroup("View - Bounce", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-        CSettingGroup *pAutoSizeGroup = AspectSettingsHolder.GetSettingsGroup("View - AutoSize", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-        CSettingGroup *pOrbitGroup = AspectSettingsHolder.GetSettingsGroup("View - Orbit", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-        CSettingGroup *pImagePositionGroup = AspectSettingsHolder.GetSettingsGroup("View - Image position", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-        CSettingGroup *pZoomGroup = AspectSettingsHolder.GetSettingsGroup("View - Zoom", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-        CSettingGroup *pMiscGroup = AspectSettingsHolder.GetSettingsGroup("Aspect - Misc", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pAspectDetectGroup = SettingsMaster->GetGroup("Aspect Detect - AR Detect On Off", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pAspectDetectSettingsGroup = SettingsMaster->GetGroup("Aspect Detect - AR Detect Settings", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
-        CSettingGroup *pAspectDetectGroup = AspectSettingsHolder.GetSettingsGroup("Aspect Detect - AR Detect On Off", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-        CSettingGroup *pAspectDetectSettingsGroup = AspectSettingsHolder.GetSettingsGroup("Aspect Detect - AR Detect Settings", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[SOURCE_ASPECT], pRatioGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[CUSTOM_SOURCE_ASPECT], pRatioGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[TARGET_ASPECT], pRatioGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[CUSTOM_TARGET_ASPECT], pRatioGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ASPECT_MODE], pRatioGroup);
+    
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[VERTICALPOS], pImagePositionGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[HORIZONTALPOS], pImagePositionGroup);
+    
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[BOUNCE], pBounceGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[BOUNCEPERIOD], pBounceGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[BOUNCETIMERPERIOD], pBounceGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[BOUNCEAMPLITUDE], pBounceGroup);
 
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[SOURCE_ASPECT], pRatioGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[CUSTOM_SOURCE_ASPECT], pRatioGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[TARGET_ASPECT], pRatioGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[CUSTOM_TARGET_ASPECT], pRatioGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ASPECT_MODE], pRatioGroup);
-        
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[VERTICALPOS], pImagePositionGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[HORIZONTALPOS], pImagePositionGroup);
-        
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[BOUNCE], pBounceGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[BOUNCEPERIOD], pBounceGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[BOUNCETIMERPERIOD], pBounceGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[BOUNCEAMPLITUDE], pBounceGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[AUTOSIZEWINDOW], pAutoSizeGroup);
 
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[AUTOSIZEWINDOW], pAutoSizeGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ORBIT], pOrbitGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ORBITPERIODX], pOrbitGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ORBITPERIODY], pOrbitGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ORBITSIZE], pOrbitGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ORBITTIMERPERIOD], pOrbitGroup);
 
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ORBIT], pOrbitGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ORBITPERIODX], pOrbitGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ORBITPERIODY], pOrbitGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ORBITSIZE], pOrbitGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ORBITTIMERPERIOD], pOrbitGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[XZOOMFACTOR], pZoomGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[YZOOMFACTOR], pZoomGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[XZOOMCENTER], pZoomGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[YZOOMCENTER], pZoomGroup);
 
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[XZOOMFACTOR], pZoomGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[YZOOMFACTOR], pZoomGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[XZOOMCENTER], pZoomGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[YZOOMCENTER], pZoomGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[CLIPPING], pMiscGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[DEFERSETOVERLAY], pMiscGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[WAITFORVERTBLANKINDRAW], pMiscGroup);
 
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[CLIPPING], pMiscGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[DEFERSETOVERLAY], pMiscGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[WAITFORVERTBLANKINDRAW], pMiscGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[AUTODETECTASPECT], pAspectDetectGroup);
 
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[AUTODETECTASPECT], pAspectDetectGroup);
-
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[LUMINANCETHRESHOLD], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[IGNORENONBLACKPIXELS], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ZOOMINFRAMECOUNT], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ASPECTHISTORYTIME], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ASPECTCONSISTENCYTIME], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[SKIPPERCENT], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[CHROMARANGE], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ZOOMOUTFRAMECOUNT], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[ALLOWGREATERTHANSCREEN], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[MASKGREYSHADE], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[USEWSS], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[DEFAULTSOURCEASPECT], pAspectDetectSettingsGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[DEFAULTASPECTMODE], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[LUMINANCETHRESHOLD], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[IGNORENONBLACKPIXELS], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ZOOMINFRAMECOUNT], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ASPECTHISTORYTIME], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ASPECTCONSISTENCYTIME], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[SKIPPERCENT], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[CHROMARANGE], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ZOOMOUTFRAMECOUNT], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[ALLOWGREATERTHANSCREEN], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[MASKGREYSHADE], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[USEWSS], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[DEFAULTSOURCEASPECT], pAspectDetectSettingsGroup);
+    AspectSettingsHolder->AddSetting(&AspectGUISettings[DEFAULTASPECTMODE], pAspectDetectSettingsGroup);
 
 #ifdef _DEBUG
-        if (ASPECT_SETTING_LASTONE != AspectSettingsHolder.GetNumSettings())
-        {
-            LOGD("Number of settings in Aspect source is not equal to the number of settings in DS_Control.h\n");
-            LOGD("DS_Control.h or AspectGui.cpp are probably not in sync with each other.\n");
-        }
-#endif
+    if (ASPECT_SETTING_LASTONE != AspectSettingsHolder->GetNumSettings())
+    {
+        LOGD("Number of settings in Aspect source is not equal to the number of settings in DS_Control.h\n");
+        LOGD("DS_Control.h or AspectGui.cpp are probably not in sync with each other.\n");
     }
-    AspectSettingsHolder.DisableOnChange();
-    AspectSettingsHolder.ReadFromIni();
-}
-
-void Aspect_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    AspectSettingsHolder.WriteToIni(bOptimizeFileAccess);
+#endif
+    return AspectSettingsHolder;
 }
 
 void Aspect_FinalSetup()
 {
     Bounce_OnChange(AspectSettings.BounceEnabled);
     Orbit_OnChange(AspectSettings.OrbitEnabled);
-    AspectSettingsHolder.EnableOnChange();
 }
 
-CTreeSettingsGeneric* Aspect_GetTreeSettingsPage()
+SmartPtr<CTreeSettingsGeneric> Aspect_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric(
-                                    "Aspect Ratio Settings",
-                                    AspectGUISettings,
-                                    ASPECT_SETTING_LASTONE
-                                   );
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_ASPECT_GETVALUE));
+    return new CTreeSettingsGeneric("Aspect Ratio Settings", Holder);
 }

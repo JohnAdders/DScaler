@@ -32,6 +32,7 @@
 #include "FD_CommonFunctions.h"
 #include "DebugLog.h"
 #include "IOutput.h"
+#include "SettingsMaster.h"
 
 
 // Settings
@@ -766,29 +767,12 @@ SETTING* FD_Common_GetSetting(FD_COMMON_SETTING Setting)
     }
 }
 
-void FD_Common_ReadSettingsFromIni()
-{
-    int i;
-    for(i = 0; i < FD_COMMON_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(FD_CommonSettings[i]));
-    }
-}
-
-void FD_Common_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < FD_COMMON_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(FD_CommonSettings[i]), bOptimizeFileAccess);
-    }
-}
-
 void FD_Common_SetMenu(HMENU hMenu)
 {
 }
 
-CTreeSettingsGeneric* FD_Common_GetTreeSettingsPage()
+SmartPtr<CTreeSettingsGeneric> FD_Common_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Pulldown Shared Settings",FD_CommonSettings, FD_COMMON_SETTING_LASTONE);
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_FD_COMMON_GETVALUE));
+    return new CTreeSettingsGeneric("Pulldown Shared Settings", Holder);
 }

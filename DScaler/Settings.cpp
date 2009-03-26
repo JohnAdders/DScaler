@@ -49,182 +49,11 @@
 #include "Calibration.h"
 #include "StillSource.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 #include "TimeShift.h"
 #include "EPG.h"
 
-typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
-typedef void (__cdecl GENERICREADSETTINGS)();
-typedef void (__cdecl GENERICWRITESETTINGS)(BOOL);
-typedef void (__cdecl GENERICFREESETTINGS)();
-
-typedef struct
-{
-    UINT GetValueMessage;    
-    GENERICGETSETTING* pfnGetSetting;        
-    GENERICREADSETTINGS* pfnReadSettings;    
-    GENERICWRITESETTINGS* pfnWriteSettings;
-    GENERICFREESETTINGS* pfnFreeSettings;
-} TFileWithSettings;
-
-TFileWithSettings Settings[] =
-{
-    {
-        WM_DEBUG_GETVALUE,
-        (GENERICGETSETTING*)Debug_GetSetting,
-        Debug_ReadSettingsFromIni,
-        Debug_WriteSettingsToIni,
-        Debug_FreeSettings,
-    },
-    {
-        WM_ASPECT_GETVALUE,
-        (GENERICGETSETTING*)Aspect_GetSetting,
-        Aspect_ReadSettingsFromIni,
-        Aspect_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_DSCALER_GETVALUE,
-        (GENERICGETSETTING*)DScaler_GetSetting,
-        DScaler_ReadSettingsFromIni,
-        DScaler_WriteSettingsToIni,
-        DScaler_FreeSettings,
-    },
-    {
-        WM_OUTTHREADS_GETVALUE,
-        (GENERICGETSETTING*)OutThreads_GetSetting,
-        OutThreads_ReadSettingsFromIni,
-        OutThreads_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_OTHER_GETVALUE,
-        (GENERICGETSETTING*)Overlay_GetSetting,
-        Overlay_ReadSettingsFromIni,
-        Overlay_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_FD50_GETVALUE,
-        (GENERICGETSETTING*)FD50_GetSetting,
-        FD50_ReadSettingsFromIni,
-        FD50_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_FD60_GETVALUE,
-        (GENERICGETSETTING*)FD60_GetSetting,
-        FD60_ReadSettingsFromIni,
-        FD60_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_FD_COMMON_GETVALUE,
-        (GENERICGETSETTING*)FD_Common_GetSetting,
-        FD_Common_ReadSettingsFromIni,
-        FD_Common_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_OSD_GETVALUE,
-        (GENERICGETSETTING*)OSD_GetSetting,
-        OSD_ReadSettingsFromIni,
-        OSD_WriteSettingsToIni,
-        OSD_FreeSettings,
-    },
-    {
-        WM_VBI_GETVALUE,
-        (GENERICGETSETTING*)VBI_GetSetting,
-        VBI_ReadSettingsFromIni,
-        VBI_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_TIMING_GETVALUE,
-        (GENERICGETSETTING*)Timing_GetSetting,
-        Timing_ReadSettingsFromIni,
-        Timing_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_MIXERDEV_GETVALUE,
-        (GENERICGETSETTING*)MixerDev_GetSetting,
-        MixerDev_ReadSettingsFromIni,
-        MixerDev_WriteSettingsToIni,
-        MixerDev_FreeSettings,
-    },
-    {
-        WM_CHANNELS_GETVALUE,
-        (GENERICGETSETTING*)Channels_GetSetting,
-        Channels_ReadSettingsFromIni,
-        Channels_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_AUDIO_GETVALUE,
-        (GENERICGETSETTING*)Audio_GetSetting,
-        Audio_ReadSettingsFromIni,
-        Audio_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_VT_GETVALUE,
-        (GENERICGETSETTING*)VT_GetSetting,
-        VT_ReadSettingsFromIni,
-        VT_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_CALIBR_GETVALUE,
-        (GENERICGETSETTING*)Calibr_GetSetting,
-        Calibr_ReadSettingsFromIni,
-        Calibr_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_STILL_GETVALUE,
-        (GENERICGETSETTING*)Still_GetSetting,
-        Still_ReadSettingsFromIni,
-        Still_WriteSettingsToIni,
-        Still_FreeSettings,
-    },
-    {
-        WM_ANTIPLOP_GETVALUE,
-        (GENERICGETSETTING*)AntiPlop_GetSetting,
-        AntiPlop_ReadSettingsFromIni,
-        AntiPlop_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_SETTINGSPERCHANNEL_GETVALUE,
-        (GENERICGETSETTING*)SettingsPerChannel_GetSetting,
-        SettingsPerChannel_ReadSettingsFromIni,
-        SettingsPerChannel_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_FDPROG_GETVALUE,
-        (GENERICGETSETTING*)FDProg_GetSetting,
-        FDProg_ReadSettingsFromIni,
-        FDProg_WriteSettingsToIni,
-        NULL,
-    },
-    {
-        WM_EPG_GETVALUE,
-        (GENERICGETSETTING*)EPG_GetSetting,
-        EPG_ReadSettingsFromIni,
-        EPG_WriteSettingsToIni,
-        EPG_FreeSettings,
-    },
-    {
-        WM_D3D9_GETVALUE,
-        (GENERICGETSETTING*)D3D9_GetSetting,
-        D3D9_ReadSettingsFromIni,
-        D3D9_WriteSettingsToIni,
-        NULL,
-    },
-};
-
-#define NUMSETTINGS (sizeof(Settings)/ sizeof(TFileWithSettings))
+using namespace std;
 
 char szIniFile[MAX_PATH] = "DScaler.ini";
 
@@ -245,45 +74,6 @@ void SetIniFileForSettings(LPSTR Name)
 LPCSTR GetIniFileForSettings()
 {
     return szIniFile;
-}
-
-void LoadSettingsFromIni()
-{
-    for(int i(0); i < NUMSETTINGS; ++i)
-    {
-        if(Settings[i].pfnReadSettings != NULL)
-        {
-            Settings[i].pfnReadSettings();
-        }
-    }
-    Providers_ReadFromIni();       
-}
-
-LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone)
-{
-    LONG RetVal = 0;
-    *bDone = FALSE;
-    int i;
-
-    for(i = 0; (*bDone == FALSE) && (i < NUMSETTINGS); ++i)
-    {
-        if(message == Settings[i].GetValueMessage)
-        {
-            RetVal =  Setting_GetValue(Settings[i].pfnGetSetting(wParam));
-            *bDone = TRUE;
-        }
-        else if(message == Settings[i].GetValueMessage + 100)
-        {
-            Setting_SetValue(Settings[i].pfnGetSetting(wParam), lParam);
-            *bDone = TRUE;
-        }
-        else if(message == Settings[i].GetValueMessage + 200)
-        {
-            Setting_ChangeValue(Settings[i].pfnGetSetting(wParam), (eCHANGEVALUE)lParam);
-            *bDone = TRUE;
-        }
-    }
-    return RetVal;
 }
 
 // this function removes any comments, leading spaces and tabs, trailing spaces, tabs,
@@ -445,38 +235,6 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
     }
 }
 
-void WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    for(int i(0); i < NUMSETTINGS; ++i)
-    {
-        if(Settings[i].pfnWriteSettings != NULL)
-        {
-            Settings[i].pfnWriteSettings(bOptimizeFileAccess);
-        }
-    }
-
-    Deinterlace_WriteSettingsToIni(bOptimizeFileAccess);
-    Filter_WriteSettingsToIni(bOptimizeFileAccess);
-    Providers_WriteToIni(bOptimizeFileAccess);
-
-    // These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
-    WritePrivateProfileString(NULL, NULL, NULL, szIniFile);
-
-    BeautifyIniFile(szIniFile);
-}
-
-void FreeSettings()
-{
-    for(int i(0); i < NUMSETTINGS; ++i)
-    {
-        if (Settings[i].pfnFreeSettings != NULL)
-        {
-            Settings[i].pfnFreeSettings();
-        }
-    }
-    Deinterlace_FreeSettings();
-}
-
 void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, LPCTSTR lpFileName)
 {
     char szValue[128];
@@ -485,338 +243,78 @@ void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, 
     LOG(2, " WritePrivateProfileInt %s %s Value %s", lpAppName, lpKeyName, szValue);
 }
 
-long Setting_GetValue(SETTING* pSetting)
-{
-    if(pSetting == NULL)
-    {
-        return -1;
-    }
-    switch(pSetting->Type)
-    {
-    case YESNO:
-    case ONOFF:
-        return (BOOL) *pSetting->pValue;
-        break;
-    case ITEMFROMLIST:
-    case SLIDER:
-    case CHARSTRING:
-        return *pSetting->pValue;
-        break;
-    default:
-        return 0;
-    }
-}
 
-BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange)
+SmartPtr<CSimpleSetting> GetSetting(long GetValueMsg, long SettingIndex)
 {
-    long NewValue;
-    if(pSetting == NULL)
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(GetValueMsg));
+    if(Holder)
     {
-        return FALSE;
-    }
-
-    switch(pSetting->Type)
-    {
-    case YESNO:
-    case ONOFF:
-         NewValue = (Value != 0);
-        break;
-    case ITEMFROMLIST:
-    case SLIDER:
-        if(Value > pSetting->MaxValue)
+        SmartPtr<CSimpleSetting> Setting(Holder->GetSetting(SettingIndex));
+        if(Setting)
         {
-            NewValue = pSetting->MaxValue;
-        }
-        else if(Value < pSetting->MinValue)
-        {
-            NewValue = pSetting->MinValue;
+            return Setting;
         }
         else
         {
-            NewValue = Value;
-        }
-        break;
-    case CHARSTRING:
-        NewValue = Value;
-        break;
-    default:
-        return FALSE;
-        break;
-    }
-    
-    // If no action is needed, bail out early. This prevents the long delays when
-    // pSetting->pfnOnChange() takes a while.
-    if (pSetting->Type == CHARSTRING && *pSetting->pValue != NULL)
-    {
-        if (!strcmp((char *)(*pSetting->pValue), (char *)NewValue) && (iForceOnChange!=1))
-        {
-            return FALSE;
+            throw std::logic_error("Can't find setting");
         }
     }
     else
     {
-        if ((*pSetting->pValue == NewValue) && (iForceOnChange!=1))
-        {
-            return FALSE;
-        }
-    }
-
-    if ((pSetting->pfnOnChange != NULL) && (iForceOnChange>=0))
-    {
-        return pSetting->pfnOnChange(NewValue); 
-    }
-    else
-    {
-        if (pSetting->Type == CHARSTRING)
-        {
-            if (*pSetting->pValue != NULL)
-            {
-                delete [] (char *)(*pSetting->pValue);
-            }
-            char* str = new char[strlen((char *)NewValue) + 1];
-            strcpy(str, (char *)NewValue);
-            *pSetting->pValue = (long)str;
-        }
-        else
-        {
-            *pSetting->pValue = NewValue;
-        }
-        return FALSE;
+        throw std::logic_error("Can't find setting");
     }
 }
 
-
-void Setting_SetDefault(SETTING* pSetting)
+long Setting_GetValue(long GetValueMsg, long SettingIndex)
 {
-    Setting_SetValue(pSetting, pSetting->Default);
+    return GetSetting(GetValueMsg, SettingIndex)->GetValueAsMessage();
 }
 
-void Setting_SetupSlider(SETTING* pSetting, HWND hSlider)
+void Setting_SetValue(long GetValueMsg, long SettingIndex, long Value)
 {
-    Slider_ClearTicks(hSlider, TRUE);
-    Slider_SetRangeMax(hSlider, pSetting->MaxValue - pSetting->MinValue);
-    Slider_SetRangeMin(hSlider, 0);
-    Slider_SetPageSize(hSlider, pSetting->StepValue);
-    Slider_SetLineSize(hSlider, pSetting->StepValue);
-    if(GetWindowLong(hSlider, GWL_STYLE) & TBS_VERT)
-    {
-        Slider_SetTic(hSlider, pSetting->MaxValue - pSetting->Default);
-    }
-    else
-    {
-        Slider_SetTic(hSlider, pSetting->Default - pSetting->MinValue);
-    }
-    Setting_SetControlValue(pSetting, hSlider);
+    GetSetting(GetValueMsg, SettingIndex)->SetValueFromMessage(Value);
 }
 
-void Setting_SetControlValue(SETTING* pSetting, HWND hControl)
+void Setting_SetDefault(long GetValueMsg, long SettingIndex)
 {
-    switch(pSetting->Type)
-    {
-    case YESNO:
-    case ONOFF:
-        Button_SetCheck(hControl, *pSetting->pValue);
-        break;
-
-    case ITEMFROMLIST:
-        ComboBox_SetCurSel(hControl, *pSetting->pValue);
-        break;
-
-    case SLIDER:
-        if(GetWindowLong(hControl, GWL_STYLE) & TBS_VERT)
-        {
-            Slider_SetPos(hControl, pSetting->MaxValue - *pSetting->pValue);
-        }
-        else
-        {
-            Slider_SetPos(hControl, *pSetting->pValue - pSetting->MinValue);
-        }
-        break;
-    default:
-        break;
-    }
+    GetSetting(GetValueMsg, SettingIndex)->ChangeValue(RESET);
 }
 
-BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
+void Setting_ChangeDefault(long GetValueMsg, long SettingIndex, long Default)
 {
-    long nValue;
-
-    switch(pSetting->Type)
-    {
-    case YESNO:
-    case ONOFF:
-        nValue = (Button_GetCheck(hControl) == BST_CHECKED);
-        break;
-
-    case ITEMFROMLIST:
-        nValue = ComboBox_GetCurSel(hControl);
-        break;
-
-    case SLIDER:
-        nValue = Slider_GetPos(hControl);
-        if(GetWindowLong(hControl, GWL_STYLE) & TBS_VERT)
-        {
-            nValue = pSetting->MaxValue - nValue;
-        }
-        else
-        {
-            nValue = nValue + pSetting->MinValue;
-        }
-        break;
-    
-    default:
-        return FALSE;
-        break;
-    }
-    return Setting_SetValue(pSetting, nValue);
+    GetSetting(GetValueMsg, SettingIndex)->ChangeDefault(Default);
 }
 
-BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
+void Setting_SetupSlider(long GetValueMsg, long SettingIndex, HWND hSlider)
 {
-    long nValue;
-    long nSavedValue;
-    BOOL IsSettingInIniFile = TRUE;
-
-    if(pSetting->szIniSection != NULL)
-    {
-        if (pSetting->Type == CHARSTRING)
-        {
-            char szDefaultString[] = {0};
-            char szBuffer[256];
-            char* szValue;
-            nValue = GetPrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, szDefaultString, szBuffer, 255, szIniFile);
-            if (nValue <= 0)
-            {
-                IsSettingInIniFile = FALSE;
-                szValue = (char *)(pSetting->Default);            
-            }
-            else
-            {
-                IsSettingInIniFile = TRUE;
-                szValue = (char *)szBuffer;
-            }
-            if (IsSettingInIniFile || !bDontSetDefault)
-            {
-                if (*pSetting->pValue != NULL)
-                {
-                    delete [] (char *)(*pSetting->pValue);
-                }
-                char* str = new char[strlen(szValue) + 1];
-                strcpy(str, szValue);
-                *pSetting->pValue = (long)str;
-            }
-            LOG(2, " Setting_ReadFromIni %s %s Value %s", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
-        }
-        else
-        {
-            nValue = GetPrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, pSetting->MinValue - 100, szIniFile);
-            LOG(2, " Setting_ReadFromIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-            nSavedValue = nValue;
-            if(nValue == pSetting->MinValue - 100)
-            {
-                nValue = pSetting->Default;            
-                IsSettingInIniFile = FALSE;
-            }
-            // If the value is out of range, set it to its default value
-            if ( (nValue < pSetting->MinValue)
-              || (nValue > pSetting->MaxValue) )
-            {
-                if(nValue < pSetting->MinValue)
-                {
-                    LOG(1, "%s %s Was out of range - %d is too low", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-                }
-                else
-                {
-                    LOG(1, "%s %s Was out of range - %d is too high", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-                }
-                nValue = pSetting->Default;
-            }
-            if (IsSettingInIniFile || !bDontSetDefault)
-            {
-                *pSetting->pValue = nValue;
-            }
-            if(IsSettingInIniFile)
-            {
-                pSetting->LastSavedValue = nSavedValue;
-            }
-            else
-            {
-                pSetting->LastSavedValue = pSetting->MinValue - 100;
-            }
-        }
-    }
-    else
-    {
-        IsSettingInIniFile =  FALSE;
-    }
-    return IsSettingInIniFile;
+    GetSetting(GetValueMsg, SettingIndex)->SetupControl(hSlider);
 }
 
-void Setting_WriteToIni(SETTING* pSetting, BOOL bOptimizeFileAccess)
+void Setting_SetControlValue(long GetValueMsg, long SettingIndex, HWND hControl)
 {
-    if(pSetting->szIniSection != NULL)
-    {
-        if( !bOptimizeFileAccess || (pSetting->Type == CHARSTRING) || (pSetting->LastSavedValue != *pSetting->pValue) )
-        {
-            if (pSetting->Type == CHARSTRING)
-            {
-                WritePrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, (char *)(*pSetting->pValue), szIniFile);
-                LOG(2, " Setting_WriteToIni %s %s Value %s", pSetting->szIniSection, pSetting->szIniEntry, (char*)(*pSetting->pValue));
-            }
-            else
-            {
-                WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
-                pSetting->LastSavedValue = *pSetting->pValue;
-                LOG(2, " Setting_WriteToIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
-            }
-        }
-    }
+    GetSetting(GetValueMsg, SettingIndex)->SetControlValue(hControl);
 }
 
-void Setting_OSDShow(SETTING* pSetting, HWND hWnd)
+void Setting_SetFromControl(long GetValueMsg, long SettingIndex, HWND hControl)
 {
-    char szBuffer[1024] = "Unexpected Display Error";
-
-    if(pSetting->szDisplayName != NULL)
-    {
-        switch(pSetting->Type)
-        {
-        case ITEMFROMLIST:
-            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, pSetting->pszList[*(pSetting->pValue)]);
-            break;
-        case YESNO:
-            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue)?"YES":"NO");
-            break;
-        case ONOFF:
-            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue)?"ON":"OFF");
-            break;
-        case SLIDER:
-            if(pSetting->OSDDivider == 1)
-            {
-                sprintf(szBuffer, "%s %d", pSetting->szDisplayName, *(pSetting->pValue));
-            }
-            else if(pSetting->OSDDivider == 8)
-            {
-                sprintf(szBuffer, "%s %.3f", pSetting->szDisplayName, (float)*(pSetting->pValue) / (float)pSetting->OSDDivider);
-            }
-            else
-            {
-                sprintf(szBuffer, "%s %.*f", pSetting->szDisplayName, (int)log10((double)pSetting->OSDDivider), (float)*(pSetting->pValue) / (float)pSetting->OSDDivider);
-            }
-            break;
-        case CHARSTRING:
-            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *pSetting->pValue ? (char*)(*pSetting->pValue) : "");
-            break;
-        default:
-            break;
-        }
-        OSD_ShowText(szBuffer, 0);
-    }
-    else
-    {
-        OSD_ShowText("Not Supported", 0);
-    }
+    GetSetting(GetValueMsg, SettingIndex)->SetFromControl(hControl);
 }
+
+void Setting_OSDShow(long GetValueMsg, long SettingIndex, HWND hWnd)
+{
+    GetSetting(GetValueMsg, SettingIndex)->ChangeValue(DISPLAY);
+}
+
+void Setting_Up(long GetValueMsg, long SettingIndex)
+{
+    GetSetting(GetValueMsg, SettingIndex)->ChangeValue(ADJUSTUP);
+}
+
+void Setting_Down(long GetValueMsg, long SettingIndex)
+{
+    GetSetting(GetValueMsg, SettingIndex)->ChangeValue(ADJUSTDOWN);
+}
+
 //---------------------------------------------------------------------------
 // This function allows for accelerated slider adjustments
 // For example, adjusting Contrast or Brightness faster the longer 
@@ -889,151 +387,3 @@ int GetCurrentAdjustmentStepCount(void* pSetting)
     dwLastTick = dwTick;
     return nStepCount;
 }
-
-void Setting_SetSection(SETTING* pSetting, LPSTR NewValue)
-{
-    if(pSetting != NULL)
-    {
-        pSetting->szIniSection = NewValue;
-    }
-}
-
-void Setting_Up(SETTING* pSetting)
-{
-    int nStep = 0;
-
-    if (pSetting->Type == CHARSTRING)
-        return;
-
-    if (*pSetting->pValue < pSetting->MaxValue)
-    {
-        nStep = GetCurrentAdjustmentStepCount(pSetting) * pSetting->StepValue;
-        Setting_SetValue(pSetting, *pSetting->pValue + nStep);
-    }
-}
-
-void Setting_Down(SETTING* pSetting)
-{
-    int nStep = 0;
-
-    if (pSetting->Type == CHARSTRING)
-        return;
-
-    if (*pSetting->pValue > pSetting->MinValue)
-    {
-        nStep = GetCurrentAdjustmentStepCount(pSetting) * pSetting->StepValue;
-        Setting_SetValue(pSetting, *pSetting->pValue - nStep);
-    }
-}
-
-void Setting_ChangeDefault(SETTING* pSetting, long Default, BOOL bDontTouchValue)
-{
-    if (pSetting->Type == CHARSTRING)
-        return;
-
-    pSetting->Default = Default;
-    if (!bDontTouchValue)
-    {
-        *pSetting->pValue = Default;
-    }
-}
-
-void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)
-{
-    if(pSetting == NULL)
-    {
-        return;
-    }
-    switch(NewValue)
-    {
-    case DISPLAY:
-        Setting_OSDShow(pSetting, GetMainWnd());
-        break;
-    case ADJUSTUP:
-        if (pSetting->Type != CHARSTRING)
-        {
-            Setting_Up(pSetting);
-            Setting_OSDShow(pSetting, GetMainWnd());
-        }
-        break;
-    case ADJUSTDOWN:
-        if (pSetting->Type != CHARSTRING)
-        {
-            Setting_Down(pSetting);
-            Setting_OSDShow(pSetting, GetMainWnd());
-        }
-        break;
-    case INCREMENT:
-        if (pSetting->Type != CHARSTRING)
-        {
-            Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
-            Setting_OSDShow(pSetting, GetMainWnd());
-        }
-        break;
-    case DECREMENT:
-        if (pSetting->Type != CHARSTRING)
-        {
-            Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
-            Setting_OSDShow(pSetting, GetMainWnd());
-        }
-        break;
-    case RESET:
-        Setting_SetDefault(pSetting);
-        Setting_OSDShow(pSetting, GetMainWnd());
-        break;
-    case TOGGLEBOOL:
-        if(pSetting->Type == YESNO || pSetting->Type == ONOFF)
-        {
-            Setting_SetValue(pSetting, !Setting_GetValue(pSetting));
-            Setting_OSDShow(pSetting, GetMainWnd());
-        }
-        break;
-    case ADJUSTUP_SILENT:
-        if (pSetting->Type != CHARSTRING)
-        {
-            Setting_Up(pSetting);
-        }
-        break;
-    case ADJUSTDOWN_SILENT:
-        if (pSetting->Type != CHARSTRING)
-        {
-            Setting_Down(pSetting);
-        }
-        break;
-    case INCREMENT_SILENT:
-        if (pSetting->Type != CHARSTRING)
-        {
-            Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
-        }
-        break;
-    case DECREMENT_SILENT:
-        if (pSetting->Type != CHARSTRING)
-        {
-            Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
-        }
-        break;
-    case RESET_SILENT:
-        Setting_SetDefault(pSetting);
-        break;
-    case TOGGLEBOOL_SILENT:
-        if(pSetting->Type == YESNO || pSetting->Type == ONOFF)
-        {
-            Setting_SetValue(pSetting, !Setting_GetValue(pSetting));
-        }
-        break;
-    default:
-        break;
-    }
-}
-
-void Setting_Free(SETTING* pSetting)
-{
-    if ( (pSetting != NULL)
-      && (pSetting->Type == CHARSTRING)
-      && (*pSetting->pValue != NULL) )
-    {
-        delete [] (char *)(*pSetting->pValue);
-        *pSetting->pValue = NULL;
-    }
-}
-

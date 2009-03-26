@@ -28,13 +28,8 @@
 
 
 // Get Hold of the Deinterlace.c file settings
-SETTING* Deinterlace_GetSetting(long nIndex, long Setting);
-LONG Deinterlace_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone);
-void Deinterlace_ReadSettingsFromIni();
-void Deinterlace_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-void Deinterlace_FreeSettings();
 void Deinterlace_SetMenu(HMENU hMenu);
-void GetDeinterlaceSettings(DEINTERLACE_METHOD**& DeinterlaceMethods,long& NumMethods);
+void GetDeinterlaceSettings(std::vector< SmartPtr<CSettingsHolder> >& Holders,std::vector< std::string >& Names);
 
 
 

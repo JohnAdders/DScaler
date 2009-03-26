@@ -54,13 +54,6 @@ void    Mixer_Volume_Down();
 
 void    Mixer_SetupDlg(HWND hWndParent);
 
-
-//  Settings functions
-
-SETTING*    MixerDev_GetSetting(MIXERDEV_SETTING nSetting);
-void        MixerDev_ReadSettingsFromIni();
-void        MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-void        MixerDev_FreeSettings();
 void        MixerDev_SetMenu(HMENU hMenu);
 
 

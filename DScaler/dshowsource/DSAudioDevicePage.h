@@ -40,6 +40,7 @@ class CDSAudioDevicePage : public CTreeSettingsPage
 public:
     CDSAudioDevicePage(CString name,std::string &AudioDevice);   // standard constructor
     CDSAudioDevicePage(CString name,std::string &AudioDevice,BOOL *bConnectAudio);
+    ~CDSAudioDevicePage() {};
 
 // Dialog Data
     //{{AFX_DATA(CDSAudioDevicePage)

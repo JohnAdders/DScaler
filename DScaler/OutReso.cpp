@@ -146,8 +146,8 @@ static sResolution resSettings[] = {
 
 
 int OutputReso = 0;
-LPSTR PStrip576i = NULL;
-LPSTR PStrip480i = NULL;
+SettingStringValue PStrip576i;
+SettingStringValue PStrip480i;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -253,13 +253,9 @@ void OutReso_UpdateMenu(HMENU hMenu)
 
     // Update the value for the RESOFULLSCREEN setting to "none"
     // if the current value is greater than the number of items in menu
-    SETTING* pSetting = DScaler_GetSetting(RESOFULLSCREEN);
-    if (pSetting)
+    if (Setting_GetValue(WM_DSCALER_GETVALUE, RESOFULLSCREEN) > (j-1))
     {
-        if (Setting_GetValue(pSetting) > (j-1))
-        {
-            Setting_SetValue(pSetting, 0);
-        }
+        Setting_SetValue(WM_DSCALER_GETVALUE, RESOFULLSCREEN, 0);
     }
 }
 
@@ -358,7 +354,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
                 || (videoFormat == VIDEOFORMAT_PAL_I) || (videoFormat == VIDEOFORMAT_PAL_M) || (videoFormat == VIDEOFORMAT_PAL_N)
                 || (videoFormat == VIDEOFORMAT_PAL_60) || (videoFormat == VIDEOFORMAT_PAL_N_COMBO))
             {    
-                if(PStrip576i != lActualPStripTimingString)
+                if(PStrip576i && _stricmp(PStrip576i, lActualPStripTimingString) != 0)
                 {
                     aPStripTimingATOM = GlobalAddAtom(PStrip576i);
                     changeRes = TRUE;
@@ -367,7 +363,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
             // 480i_50Hz and 480i_60Hz
             else if((videoFormat == VIDEOFORMAT_NTSC_M) || (videoFormat == VIDEOFORMAT_NTSC_M_Japan) || (videoFormat == VIDEOFORMAT_NTSC_50))
             {    
-                if(PStrip480i != lActualPStripTimingString)
+                if(PStrip480i && _stricmp(PStrip480i, lActualPStripTimingString) != 0)
                 {
                     aPStripTimingATOM = GlobalAddAtom(PStrip480i);
                     changeRes = TRUE;

@@ -28,6 +28,7 @@
 #include "Deinterlace.h"
 #include "DScaler.h"
 #include "Providers.h"
+#include "SettingsMaster.h"
 
 LARGE_INTEGER TimerFrequency;
 HANDLE hTimerEvent;
@@ -516,31 +517,14 @@ SETTING* Timing_GetSetting(TIMING_SETTING Setting)
     }
 }
 
-void Timing_ReadSettingsFromIni()
-{
-    int i;
-    for(i = 0; i < TIMING_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(TimingSettings[i]));
-    }
-}
-
-void Timing_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < TIMING_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(TimingSettings[i]), bOptimizeFileAccess);
-    }
-}
-
 void Timing_SetMenu(HMENU hMenu)
 {
     CheckMenuItemBool(hMenu, IDM_AUTO_FORMAT, bDoAutoFormatDetect);
 }
 
-CTreeSettingsGeneric* Timing_GetTreeSettingsPage()
+SmartPtr<CTreeSettingsGeneric> Timing_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Field Timing Settings",TimingSettings, TIMING_SETTING_LASTONE);
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_TIMING_GETVALUE));
+    return new CTreeSettingsGeneric("Field Timing Settings", Holder);
 }
 

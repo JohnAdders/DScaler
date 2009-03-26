@@ -618,7 +618,7 @@ void Providers_ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 
 void Providers_NotifySourcePreChange()
 {
-    if (EventCollector != NULL)
+    if (EventCollector)
     {
         EventCollector->RaiseEvent(NULL, EVENT_SOURCE_PRECHANGE, (long)Providers_GetCurrentSource(), (long)Providers_GetCurrentSource(), NULL);
     }
@@ -629,7 +629,7 @@ void Providers_NotifySourcePreChange()
     // Laurent 30/05/2003 Not necessary because it is done two lines below
     // when calling UnsetSourceAsCurrent
     // good time to save the current settings
-    // SettingsMaster->SaveSettings();
+    // SettingsMaster->SaveGroupedSettings();
 }
 
 void Providers_NotifySourceChange(int OldSource)
@@ -640,7 +640,7 @@ void Providers_NotifySourceChange(int OldSource)
     {
         pOldSource = Sources[OldSource]->Object;
     }
-    if (EventCollector != NULL)
+    if (EventCollector)
     {
         EventCollector->RaiseEvent(NULL, EVENT_SOURCE_CHANGE, (long)pOldSource, (long)Providers_GetCurrentSource(), NULL);
     }

@@ -28,6 +28,7 @@
 #include "FD_60Hz.h"
 #include "FD_Common.h"
 #include "DebugLog.h"
+#include "SettingsMaster.h"
 
 long PALFilmFallbackIndex = INDEX_VIDEO_2FRAME;
 long PALBadCadenceIndex = INDEX_VIDEO_GREEDY;
@@ -390,25 +391,8 @@ SETTING* FD50_GetSetting(FD50_SETTING Setting)
     }
 }
 
-void FD50_ReadSettingsFromIni()
+SmartPtr<CTreeSettingsGeneric> FD50_GetTreeSettingsPage()
 {
-    int i;
-    for(i = 0; i < FD50_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(FD50Settings[i]));
-    }
-}
-
-void FD50_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-    for(i = 0; i < FD50_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(FD50Settings[i]), bOptimizeFileAccess);
-    }
-}
-
-CTreeSettingsGeneric* FD50_GetTreeSettingsPage()
-{
-    return new CTreeSettingsGeneric("2:2 Pulldown Settings",FD50Settings, FD50_SETTING_LASTONE);
+    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_FD50_GETVALUE));
+    return new CTreeSettingsGeneric("2:2 Pulldown Settings", Holder);
 }

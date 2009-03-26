@@ -34,14 +34,17 @@
 #include "crash.h"
 #include "DynamicFunction.h"
 
+
+using namespace std;
+
 long NumFilters = 0;
 
 FILTER_METHOD* Filters[100] = {NULL,};
 
 // Internal functions for per channel settings
-void RegisterSettings(FILTER_METHOD* Filter);
+void RegisterSettings(SmartPtr<CSettingsHolder> Holder, FILTER_METHOD* Filter);
 
-CSettingsHolderStandAlone FilterSettingsHolder;
+vector< SmartPtr<CSettingsHolder> > FilterHolders;
 
 long Filter_DoInput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
 {
@@ -120,18 +123,18 @@ void LoadFilterPlugin(LPCSTR szFileName)
             pMethod->InfoStructureVersion == DEINTERLACE_INFO_CURRENT_VERSION)
         {
             Filters[NumFilters] = pMethod;
+            SmartPtr<CSettingsHolder> Holder(new CSettingsHolder(WM_APP + pMethod->nSettingsOffset, pMethod->HelpID));
 
-            // read in settings
-            for(int i = 0; i < pMethod->nSettings; i++)
-            {
-                Setting_ReadFromIni(&(pMethod->pSettings[i]));
-            }
+            RegisterSettings(Holder, pMethod);
+            Holder->ReadFromIni();
+            SettingsMaster->Register(Holder);
 
             if(pMethod->pfnPluginStart != NULL)
             {
                 pMethod->pfnPluginStart();
             }
             NumFilters++;
+            FilterHolders.push_back(Holder);
         }
         else
         {
@@ -147,8 +150,6 @@ void LoadFilterPlugin(LPCSTR szFileName)
 void UnloadFilterPlugins()
 {
     // get rid of the settings before we unload the filters
-    FilterSettingsHolder.ClearSettingList(TRUE, TRUE);
-
     int i;
     for(i = 0; i < NumFilters; i++)
     {
@@ -156,8 +157,10 @@ void UnloadFilterPlugins()
         {
             Filters[i]->pfnPluginExit();
         }
+        SettingsMaster->Unregister(FilterHolders[i]);
         Filters[i] = NULL;
     }
+    FilterHolders.clear();
     NumFilters = 0;
 }
 
@@ -270,6 +273,7 @@ BOOL LoadFilterPlugins()
 
     if(NumFilters > 0)
     {
+
         HMENU hFilterMenu = GetFiltersSubmenu();
         if(hFilterMenu == NULL)
         {
@@ -279,8 +283,6 @@ BOOL LoadFilterPlugins()
         AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, "             Input Filters");
         for(i = 0; i < NumFilters; i++)
         {
-            RegisterSettings(Filters[i]);
-
             if(Filters[i]->bOnInput)
             {
                 AddUIForFilterPlugin(hFilterMenu, Filters[i], 7000 + i);
@@ -327,82 +329,19 @@ BOOL ProcessFilterSelection(HWND hWnd, WORD wMenuID)
     return FALSE;
 }
 
-void GetFilterSettings(FILTER_METHOD**& MethodsArray,long& Num)
+void GetFilterSettings(vector< SmartPtr<CSettingsHolder> >& Holders, vector< string >& Names)
 {
-    MethodsArray = Filters;
-    Num= NumFilters;
+    Holders = FilterHolders;
+    Names.clear();
+    for(int i(0); i < NumFilters; i++)
+    {
+        Names.push_back(Filters[i]->szName);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
-
-SETTING* Filter_GetSetting(long nIndex, long Setting)
-{
-    if(nIndex < 0 || nIndex >= NumFilters)
-    {
-        return NULL;
-    }
-    if(Setting > -1 && Setting < Filters[nIndex]->nSettings)
-    {
-        return &(Filters[nIndex]->pSettings[Setting]);
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-LONG Filter_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone)
-{
-    int i;
-    LONG RetVal = 0;
-    SETTING* pSetting;
-    for(i = 0; i < NumFilters; i++)
-    {
-        if(message == (UINT)(WM_APP + Filters[i]->nSettingsOffset))
-        {
-            *bDone = TRUE;
-            pSetting = Filter_GetSetting(i, wParam);
-            if(pSetting != NULL)
-            {
-                RetVal =  Setting_GetValue(pSetting);
-            }
-            break;
-        }
-        else if(message == (UINT)(WM_APP + Filters[i]->nSettingsOffset + 100))
-        {
-            *bDone = TRUE;
-            pSetting = Filter_GetSetting(i, wParam);
-            if(pSetting != NULL)
-            {
-                Setting_SetValue(pSetting, lParam);
-            }
-            break;
-        }
-        else if(message == (UINT)(WM_APP + Filters[i]->nSettingsOffset + 200))
-        {
-            *bDone = TRUE;
-            pSetting = Filter_GetSetting(i, wParam);
-            if(pSetting != NULL)
-            {
-                Setting_ChangeValue(pSetting, (eCHANGEVALUE)lParam);
-            }
-            break;
-        }
-    }
-    return RetVal;
-}
-
-void Filter_ReadSettingsFromIni()
-{
-    FilterSettingsHolder.ReadFromIni();
-}
-
-void Filter_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    FilterSettingsHolder.WriteToIni(bOptimizeFileAccess);
-}
 
 void Filter_SetMenu(HMENU hMenu)
 {
@@ -413,7 +352,7 @@ void Filter_SetMenu(HMENU hMenu)
     }
 }
 
-void RegisterSettings(FILTER_METHOD* Filter)
+void RegisterSettings(SmartPtr<CSettingsHolder> Holder, FILTER_METHOD* Filter)
 {
     char szDescription[100];
         
@@ -421,11 +360,11 @@ void RegisterSettings(FILTER_METHOD* Filter)
 
     int iOnOffSetting = -1;
 
-    CSettingGroup* pOnOffGroup = FilterSettingsHolder.GetSettingsGroup(szDescription, SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup* pOnOffGroup = SettingsMaster->GetGroup(szDescription, SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
     sprintf(szDescription,"Flt Settings - %s",Filter->szName);
 
-    CSettingGroup* pSettingsGroup = FilterSettingsHolder.GetSettingsGroup(szDescription, SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup* pSettingsGroup = SettingsMaster->GetGroup(szDescription, SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
     int i;
 
@@ -433,7 +372,7 @@ void RegisterSettings(FILTER_METHOD* Filter)
     {        
         if (Filter->pSettings[i].pValue == (long*)&Filter->bActive)
         {            
-            FilterSettingsHolder.AddSetting(&Filter->pSettings[i], pOnOffGroup);
+            Holder->AddSetting(Filter->pSettings + i, pOnOffGroup);
             iOnOffSetting = i;
             break;
         }        
@@ -443,9 +382,7 @@ void RegisterSettings(FILTER_METHOD* Filter)
     {        
         if (i != iOnOffSetting)
         {
-            FilterSettingsHolder.AddSetting(&Filter->pSettings[i], pSettingsGroup);
+            Holder->AddSetting(Filter->pSettings + i);
         }
     }
 }
-
-

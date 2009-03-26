@@ -29,6 +29,7 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 #include "PaintingHDC.h"
 #include <multimon.h>
 
@@ -741,11 +742,11 @@ SETTING* D3D9_GetSetting(OTHER_SETTING Setting)
     }
 }
 
-CSettingsHolderStandAlone D3D9SettingsHolder;
+CSettingsHolder D3D9SettingsHolder;
 
 void D3D9_ReadSettingsFromIni()
 {
-    CSettingGroup *pD3D9Group = D3D9SettingsHolder.GetSettingsGroup("D3D9", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pD3D9Group = SettingsMaster->GetGroup("D3D9", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
 #ifdef _DEBUG
     if (D3D9_SETTING_LASTONE != D3D9SettingsHolder.GetNumSettings())
@@ -765,7 +766,8 @@ void D3D9_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     D3D9SettingsHolder.WriteToIni(bOptimizeFileAccess);
 }
 
-CTreeSettingsGeneric* D3D9_GetTreeSettingsPage()
+SmartPtr<CTreeSettingsGeneric> D3D9_GetTreeSettingsPage()
 {    
-    return new CTreeSettingsGeneric("Direct3D Settings", D3D9OutputInstance.GetOtherSettings(), 0);
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
+    return new CTreeSettingsGeneric("Direct3D Settings", Holder);
 }

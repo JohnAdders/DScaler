@@ -78,7 +78,7 @@
 }
 
 /* This is just to ensure that the TimeShift data is handled properly */
-TIME_SHIFT *timeShift = NULL;
+SmartPtr<TIME_SHIFT> timeShift;
 
 /* Internal function prototypes */
 BOOL TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
@@ -845,6 +845,49 @@ BOOL FindNextFileName(char *fileName, DWORD length)
     return TRUE;
 }
 
+TIME_SHIFT::TIME_SHIFT(HWND hWndIn) :
+        mode(MODE_STOPPED),
+        format(FORMAT_YUY2),
+        recHeight(TS_HALFHEIGHTEVEN),
+        fccHandler(0),
+        hWnd(hWndIn),
+        lpbCopyScanline(0),
+        lpbAvgScanline(0),
+        file(0)
+
+{
+    memset(&bih, 0, sizeof(BITMAPINFOHEADER));
+    memset(&waveFormat, 0, sizeof(WAVEFORMATEX));
+    buffer.record = 0;
+
+    waveFormat.wFormatTag      = WAVE_FORMAT_PCM;
+    waveFormat.nChannels       = 2;
+    waveFormat.nSamplesPerSec  = 48000;
+    waveFormat.wBitsPerSample  = 16;
+    waveFormat.nBlockAlign     = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
+    waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
+
+    InitializeCriticalSection(&lock);
+
+
+    /* Set the default saving path */
+    TimeShiftSetSavingPath(NULL);
+
+    /* Overwrite any of the above defaults with whatever's in the INI
+       file */
+    TimeShiftReadFromINI();
+}
+
+TIME_SHIFT::~TIME_SHIFT()
+{
+    /* Stop recording */
+    TimeShiftStop();
+
+    DeleteCriticalSection(&timeShift->lock);
+}
+
+
+
 /**********************************************************************
  *                    TimeShift interface functions                   *
  **********************************************************************/
@@ -855,42 +898,16 @@ BOOL FindNextFileName(char *fileName, DWORD length)
 
 BOOL TimeShiftInit(HWND hWnd)
 {
-    WAVEFORMATEX *wfx;
 
     if (!timeShift)
     {
-        timeShift = (TIME_SHIFT *)malloc(sizeof(TIME_SHIFT));
-        if (!timeShift)
-           return FALSE;
+        timeShift = new TIME_SHIFT(hWnd);
 
-        memset(timeShift, 0, sizeof(TIME_SHIFT));
-
-        InitializeCriticalSection(&timeShift->lock);
-
-        timeShift->mode       = MODE_STOPPED;
-        timeShift->format     = FORMAT_YUY2;
-        timeShift->recHeight  = TS_HALFHEIGHTEVEN;
-        timeShift->fccHandler = 0;
-        timeShift->hWnd       = hWnd;
-
-        /* Default audio settings */
-        wfx = &timeShift->waveFormat;
-
-        wfx->wFormatTag      = WAVE_FORMAT_PCM;
-        wfx->nChannels       = 2;
-        wfx->nSamplesPerSec  = 48000;
-        wfx->wBitsPerSample  = 16;
-        wfx->nBlockAlign     = (wfx->nChannels * wfx->wBitsPerSample) / 8;
-        wfx->nAvgBytesPerSec = wfx->nSamplesPerSec * wfx->nBlockAlign;
-
-        /* Set the default saving path */
-        TimeShiftSetSavingPath(NULL);
-
-        /* Overwrite any of the above defaults with whatever's in the INI
-           file */
-        TimeShiftReadFromINI();
-    } else
-      BUG();
+    } 
+    else
+    {
+        BUG();
+    }
 
     return TRUE;
 }
@@ -900,13 +917,7 @@ void TimeShiftShutdown(void)
 {
     if (timeShift)
     {
-        /* Stop recording */
-        TimeShiftStop();
-
-        DeleteCriticalSection(&timeShift->lock);
-
-        free(timeShift);
-        timeShift = NULL;
+        timeShift = 0L;
     } else
       BUG();
 }
@@ -2084,17 +2095,6 @@ BOOL TimeShiftWriteToINI(void)
 
     return result;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 #ifdef ____TO_DO
 BOOL CTimeShift::OnRecord(void)

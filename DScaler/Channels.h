@@ -39,9 +39,6 @@ public:
 
     CChannel(LPCSTR Name, LPCSTR EPGName, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
     CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
-
-    CChannel(const CChannel& CopyFrom);
-    ~CChannel();
     LPCSTR GetName() const;
     LPCSTR GetEPGName() const;
     DWORD GetFrequency() const;
@@ -62,24 +59,9 @@ private:
 
 class CChannelList
 {
-
-
-public :
-    enum FileFormat {
-        FILE_FORMAT_ASCII = 0,
-        FILE_FORMAT_XML,
-        FILE_FORMAT_LASTONE
-    };
-
-private:
-    //Just in case I change my mind later on the type of this
-    typedef std::vector<CChannel*> Channels;
-
 public :
     CChannelList();
-    CChannelList(const CChannelList&);
-    CChannelList(DWORD dwBeginFrequency, DWORD dwEndFrequency, DWORD dwSteps);
-    ~CChannelList();
+    virtual ~CChannelList() {};
 
     void Clear();
 
@@ -93,76 +75,20 @@ public :
 
     DWORD GetHigherFrequency() const;
 
-    CChannel* GetChannel(int iChannelIndex) const;
+    SmartPtr<CChannel> GetChannel(int iChannelIndex) const;
 
-    CChannel* GetChannelByNumber(int iChannelNumber); //May return NULL
+    SmartPtr<CChannel> GetChannelByNumber(int iChannelNumber); //May return NULL
 
-    CChannel* GetChannelByFrequency(DWORD dwFreq); //May return NULL
-
-    inline BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, int eFormat, BOOL bActive = TRUE)
-    {
-        return AddChannel(szName, dwFreq, iChannelNumber, (eVideoFormat)eFormat, bActive);
-    }
-
-
-    BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive = TRUE);
-
-    BOOL AddChannel(LPCSTR szName, LPCSTR szEPGName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive = TRUE);
-
-    BOOL AddChannel(LPCSTR szName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive = TRUE);
-
-    BOOL AddChannel(LPCSTR szName, LPCSTR szEPGName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive = TRUE);
-
-    //Generates a name for you as the channels are not named
-    //in the channels.txt file (channels/country)
-    //It would be nice to use the comment next to the frequency
-    //but some are really too large..
-    BOOL AddChannel(DWORD dwFrequency, int iChannelNumber, eVideoFormat eVideoFormat = VIDEOFORMAT_LAST_TV, BOOL bActive = TRUE);
+    SmartPtr<CChannel> GetChannelByFrequency(DWORD dwFreq); //May return NULL
 
     //The given channel will be destroyed when list is cleared
-    BOOL AddChannel(CChannel*);
+    void AddChannel(SmartPtr<CChannel>);
 
-    BOOL RemoveChannel(int index);
+    void RemoveChannel(int index);
 
-    BOOL SetChannel(int index, CChannel* pChannel);
+    void SetChannel(int index, SmartPtr<CChannel> pChannel);
 
-    BOOL SwapChannels(int, int );
-
-    int AddChannels(const CChannelList* const);
-
-    BOOL WriteFile(LPCSTR, CChannelList::FileFormat)  const;
-
-    BOOL ReadFile(LPCSTR, CChannelList::FileFormat);
-
-
-    //Read/Write using the legacy "program.txt" file format
-    inline BOOL WriteASCII(LPCSTR szFilename)  const {return WriteFile(szFilename, CChannelList::FILE_FORMAT_ASCII);};
-
-    inline BOOL ReadASCII(LPCSTR szFilename) {return ReadFile(szFilename, CChannelList::FILE_FORMAT_ASCII);};
-
-    inline BOOL WriteXML(LPCSTR szFilename)  const {return WriteFile(szFilename, CChannelList::FILE_FORMAT_XML);};
-
-    inline BOOL ReadXML(LPCSTR szFilename) {return ReadFile(szFilename, CChannelList::FILE_FORMAT_XML);};
-
-
-    //Shortcuts..
-    inline LPCSTR GetChannelName(int index) const {return GetChannel(index)->GetName();};
-
-    inline LPCSTR GetChannelEPGName(int index) const {return GetChannel(index)->GetEPGName();};
-
-    inline BOOL GetChannelActive(int index) const {return GetChannel(index)->IsActive();};
-
-    inline void SetChannelActive(int index, BOOL bActive)
-    {
-        GetChannel(index)->SetActive(bActive);
-    }
-
-    inline int GetChannelNumber(int index) const {return GetChannel(index)->GetChannelNumber();};
-
-    inline DWORD GetChannelFrequency(int index) const {return GetChannel(index)->GetFrequency();};
-
-    inline eVideoFormat GetChannelFormat(int index) const {return GetChannel(index)->GetFormat();};
-
+    void SwapChannels(int, int );
 
 protected :
 
@@ -173,13 +99,8 @@ protected :
     //when a modification to the list is done (by adding/removing channels)
     virtual void UpdateFields();
 
-    virtual BOOL WriteASCIIImpl(FILE*)  const= 0;
-    virtual BOOL ReadASCIIImpl(FILE*) = 0;
-
-    virtual BOOL WriteXMLImpl(FILE*)  const= 0;
-    virtual BOOL ReadXMLImpl(FILE*) = 0;
-
 private:
+    typedef std::vector< SmartPtr<CChannel> > Channels;
 
     DWORD m_MinFrequency;
     DWORD m_MaxFrequency;
@@ -199,21 +120,19 @@ public:
 
     ~CUserChannels();
 
-protected :
+    //Read/Write using the legacy "program.txt" file format
+    BOOL WriteFile(LPCSTR szFilename) const;
+    BOOL ReadFile(LPCSTR szFilename);
 
+private :
     BOOL WriteASCIIImpl(FILE*) const;
     BOOL ReadASCIIImpl(FILE*);
-
-    BOOL WriteXMLImpl(FILE*) const;
-    BOOL ReadXMLImpl(FILE*);
-
 };
 
 class CCountryList;
 
 class CCountryChannels : public CChannelList
 {
-
     friend class CCountryList;
 
 public:
@@ -225,15 +144,9 @@ public:
     const LPCSTR GetCountryName() const;
     const eVideoFormat GetCountryFormat() const;
 
-protected :
-
-    BOOL WriteASCIIImpl(FILE*) const;
-    BOOL ReadASCIIImpl(FILE*);
-
-    BOOL WriteXMLImpl(FILE*) const;
-    BOOL ReadXMLImpl(FILE*);
-
 private:
+    virtual BOOL WriteASCIIImpl(FILE*) const;
+    virtual BOOL ReadASCIIImpl(FILE*);
     std::string m_szName;
     eVideoFormat m_Format;
 };
@@ -241,10 +154,6 @@ private:
 
 class CCountryList
 {
-private:
-    //could be a map too..would be better for lookups
-    typedef std::vector<CCountryChannels*> Countries;
-
 public :
     CCountryList();
     ~CCountryList();
@@ -265,27 +174,15 @@ public :
 
     inline DWORD GetHigherFrequency(int index) const {return GetChannels(index)->GetHigherFrequency();};
 
-    //Adds the content of the given channel list
-    //(makes a deep copy)
-    BOOL AddChannels(LPCSTR szName, CChannelList*);
-
-    //Makes a shallow copy only
-    BOOL AddChannels(CCountryChannels*);
-
-    BOOL RemoveChannels(int);
-
     void Clear();
 
-
-    BOOL ReadASCII(FILE*);
     BOOL ReadASCII(LPCSTR);
-
-    BOOL WriteXML(FILE*) const;
-    BOOL WriteXML(LPCSTR) const;
-
 private:
-    Countries m_Countries;
+    BOOL ReadASCIIImpl(FILE*);
 
+    //could be a map too..would be better for lookups
+    typedef std::vector<CCountryChannels*> Countries;
+    Countries m_Countries;
 };
 
 

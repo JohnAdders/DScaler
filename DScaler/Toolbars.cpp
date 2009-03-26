@@ -55,9 +55,6 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-
-//typedef vector<CChannel*> CHANNELLIST;
-
 extern CUserChannels MyChannels;
 extern long CurrentProgram;
 
@@ -189,7 +186,7 @@ void CToolbarChannels::UpdateControls(HWND hWnd, BOOL bInitDialog)
 
       for(Channel = 0; Channel < ChannelListSize; Channel++)
       {
-          nIndex = SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), CB_ADDSTRING, 0, (long)MyChannels.GetChannelName(Channel));
+          nIndex = SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), CB_ADDSTRING, 0, (long)MyChannels.GetChannel(Channel)->GetName());
           SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), CB_SETITEMDATA, nIndex, Channel);
 
           if (CurrentProgram == Channel)

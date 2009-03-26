@@ -112,7 +112,7 @@ static int InitialNbMenuItems = -1;
 //The implementation is now in Channels
 BOOL Load_Program_List_ASCII()
 {
-    return MyChannels.ReadASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
+    return MyChannels.ReadFile(SZ_DEFAULT_PROGRAMS_FILENAME);
 }
 
 void Channel_SetCurrent()
@@ -216,11 +216,11 @@ void SetFrequencyEditBox(HWND hDlg, long Frequency)
 }
 
 
-void UpdateDetails(HWND hDlg, const CChannel* const pChannel)
+void UpdateDetails(HWND hDlg, SmartPtr<CChannel> pChannel)
 {
     static char sbuf[256];
     MyInUpdate = TRUE;
-    if (NULL == pChannel)
+    if (!pChannel)
     {
         Edit_SetText(GetDlgItem(hDlg, IDC_NAME), "");
         Edit_SetText(GetDlgItem(hDlg, IDC_EPGNAME), "");
@@ -1229,7 +1229,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf, 255);
                 Edit_GetText(GetDlgItem(hDlg, IDC_EPGNAME), sbuf2, 255);
                 BOOL Active = (Button_GetCheck(GetDlgItem(hDlg, IDC_ACTIVE)) == BST_CHECKED);
-                MyChannels.AddChannel(sbuf, sbuf2, Freq, Channel, (eVideoFormat)Format, Active);
+                SmartPtr<CChannel> NewChannel(new CChannel(sbuf, sbuf2, Freq, Channel, (eVideoFormat)Format, Active));
+                MyChannels.AddChannel(NewChannel);
                 CurrentProgram = ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
                 ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
                 MyInUpdate = FALSE;
@@ -1337,7 +1338,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 TidyUp(hDlg);
                 // try to write out programs
-                if (!MyChannels.WriteASCII(SZ_DEFAULT_PROGRAMS_FILENAME))
+                if (!MyChannels.WriteFile(SZ_DEFAULT_PROGRAMS_FILENAME))
                 {
                     CString dummy("Unable to write to file \n\"");
                     dummy += SZ_DEFAULT_PROGRAMS_FILENAME;
@@ -1357,7 +1358,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 TidyUp(hDlg);
                 // revert to previously saved channel list
                 MyChannels.Clear();
-                MyChannels.ReadASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
+                MyChannels.ReadFile(SZ_DEFAULT_PROGRAMS_FILENAME);
                 // revert to previous settings
                 MyScanMode = OldScanMode;
                 CountryCode = OldCountryCode;
@@ -1469,7 +1470,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
     {
         if(NewChannel >= 0 && NewChannel < MyChannels.GetSize())
         {
-            if (MyChannels.GetChannelFrequency(NewChannel) != 0)
+            if (MyChannels.GetChannel(NewChannel)->GetFrequency() != 0)
             {
                 int OldChannel = CurrentProgram;
 
@@ -1495,7 +1496,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 CurrentProgram = NewChannel;
                 if(MyChannels.GetChannel(CurrentProgram)->GetFormat() != -1)
                 {
-                    VideoFormat = MyChannels.GetChannelFormat(CurrentProgram);
+                    VideoFormat = MyChannels.GetChannel(CurrentProgram)->GetFormat();
                 }
                 else
                 {
@@ -1517,7 +1518,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 for(int i = 0; i < 3; i++)
                 {
                     if(Providers_GetCurrentSource()->SetTunerFrequency(
-                                                     MyChannels.GetChannelFrequency(CurrentProgram),
+                                                     MyChannels.GetChannel(CurrentProgram)->GetFrequency(),
                                                      VideoFormat))
                     {
                         break;
@@ -1566,7 +1567,7 @@ void Channel_Increment()
         // look for next active channel
         ++CurrentProg;
         while(CurrentProg < MyChannels.GetSize() &&
-            !MyChannels.GetChannelActive(CurrentProg))
+            !MyChannels.GetChannel(CurrentProg)->IsActive())
         {
             ++CurrentProg;
         }
@@ -1576,7 +1577,7 @@ void Channel_Increment()
         {
             CurrentProg = 0;
             while(CurrentProg < MyChannels.GetSize() &&
-                !MyChannels.GetChannelActive(CurrentProg))
+                !MyChannels.GetChannel(CurrentProg)->IsActive())
             {
                 ++CurrentProg;
             }
@@ -1608,7 +1609,7 @@ void Channel_Decrement()
         // look for next active channel
         --CurrentProg;
         while(CurrentProg > -1 &&
-            !MyChannels.GetChannelActive(CurrentProg))
+            !MyChannels.GetChannel(CurrentProg)->IsActive())
         {
             --CurrentProg;
         }
@@ -1618,7 +1619,7 @@ void Channel_Decrement()
         {
             CurrentProg = MyChannels.GetSize() - 1;
             while(CurrentProg > -1  &&
-                !MyChannels.GetChannelActive(CurrentProg))
+                !MyChannels.GetChannel(CurrentProg)->IsActive())
             {
                 --CurrentProg;
             }
@@ -1643,7 +1644,7 @@ void Channel_Previous()
 {
     if(MyChannels.GetSize() > 0)
     {
-        if (MyChannels.GetChannelFrequency(PreviousProgram) != 0)
+        if (MyChannels.GetChannel(PreviousProgram)->GetFrequency() != 0)
         {
             Channel_Change(PreviousProgram);
         }
@@ -1665,7 +1666,7 @@ void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
         // Find the channel the user typed.
         for (int j = 0; j < MyChannels.GetSize(); ++j)
         {
-            if (MyChannels.GetChannelFrequency(j) != 0 && int(MyChannels.GetChannelNumber(j)) == ChannelNumber)
+            if (MyChannels.GetChannel(j)->GetFrequency() != 0 && int(MyChannels.GetChannel(j)->GetChannelNumber()) == ChannelNumber)
             {
                 found = TRUE;
                 ChannelNumber = j;
@@ -1713,18 +1714,18 @@ void Channels_UpdateMenu(HMENU hMenu)
     j = 0;
     for (int i = 0; (i < MyChannels.GetSize()) && (j < MAX_CHANNELS); i++)
     {
-        if ((MyChannels.GetChannelFrequency(i) != 0) && MyChannels.GetChannelActive(i))
+        if ((MyChannels.GetChannel(i)->GetFrequency() != 0) && MyChannels.GetChannel(i)->IsActive())
         {
             // Cut every 28 channels which is ok even when in 640x480
             // For the first column, take into account the first items (InitialNbMenuItems)
             // but reduce by 1 because of the two line separators
             if ((j+InitialNbMenuItems-1) % 28)
             {
-                AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED, IDM_CHANNEL_SELECT + j, MyChannels.GetChannelName(i));
+                AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED, IDM_CHANNEL_SELECT + j, MyChannels.GetChannel(i)->GetName());
             }
             else
             {
-                AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED | MF_MENUBARBREAK, IDM_CHANNEL_SELECT + j, MyChannels.GetChannelName(i));
+                AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED | MF_MENUBARBREAK, IDM_CHANNEL_SELECT + j, MyChannels.GetChannel(i)->GetName());
             }
             j++;
         }
@@ -1756,7 +1757,7 @@ void Channels_SetMenu(HMENU hMenu)
 
     for (int channelIndex = 0; channelIndex < MyChannels.GetSize() && (j < MAX_CHANNELS); channelIndex++)
     {
-        if ((MyChannels.GetChannelFrequency(channelIndex) != 0) && MyChannels.GetChannelActive(channelIndex))
+        if ((MyChannels.GetChannel(channelIndex)->GetFrequency() != 0) && MyChannels.GetChannel(channelIndex)->IsActive())
         {
             EnableMenuItem(hMenuChannels, IDM_CHANNEL_SELECT + j, bHasTuner ? MF_ENABLED : MF_GRAYED);
             CheckMenuItem(hMenuChannels, IDM_CHANNEL_SELECT + j, (CurrentProgram == channelIndex) ? MF_CHECKED : MF_UNCHECKED);
@@ -1791,7 +1792,7 @@ BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID)
         {
             for (int channelIndex = 0; channelIndex < MyChannels.GetSize() && (j < MAX_CHANNELS); channelIndex++)
             {
-                if ((MyChannels.GetChannelFrequency(channelIndex) != 0) && MyChannels.GetChannelActive(channelIndex))
+                if ((MyChannels.GetChannel(channelIndex)->GetFrequency() != 0) && MyChannels.GetChannel(channelIndex)->IsActive())
                 {
                     if ((wMenuID - IDM_CHANNEL_SELECT) == j)
                     {
@@ -1896,5 +1897,3 @@ SmartPtr<CTreeSettingsGeneric> AntiPlop_GetTreeSettingsPage()
     SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_ANTIPLOP_GETVALUE));
     return new CTreeSettingsGeneric("Anti Plop Settings", Holder);
 }
-
-

@@ -1297,11 +1297,11 @@ BOOL CEPG::IsValidChannelName(LPCSTR EPGName, LPCSTR *Name, int *Number)
     }
     for (int i=0; (i < MyChannels.GetSize()); i++)
     {
-        if (!_stricmp(EPGName, MyChannels.GetChannelEPGName(i)))
+        if (!_stricmp(EPGName, MyChannels.GetChannel(i)->GetEPGName()))
         {
             if (Name)
             {
-                *Name = MyChannels.GetChannelName(i);
+                *Name = MyChannels.GetChannel(i)->GetName();
             }
             if (Number)
             {

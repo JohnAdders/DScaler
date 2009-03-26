@@ -16,7 +16,7 @@
 //  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
- 
+
 /**
  * @file SettingsPerChannel.cpp Settings Per Channel Functions
  */
@@ -69,7 +69,7 @@ BOOL SettingsPerChannel_VideoFormatSpecific_Change(long NewValue)
 SETTING SettingsPerChannel_CommonSettings[SETTINGSPERCHANNEL_SETTING_LASTONE] =
 {
     {
-        "Settings per channel", ONOFF, 0, (long*)&bSpcChannelSpecific, 
+        "Settings per channel", ONOFF, 0, (long*)&bSpcChannelSpecific,
         0, 0, 1, 1, 1, NULL,
         "SettingsPerChannel", "SettingsPerChannelEnabled", SettingsPerChannel_ChannelSpecific_Change,
     },

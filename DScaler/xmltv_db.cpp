@@ -69,7 +69,7 @@
  *    Building the programme database:
  *
  *    The callback functions fill temporary structures with programme
- *    parameters and data (or timeslot data respectively for XMLTV DTD 0.6)  
+ *    parameters and data (or timeslot data respectively for XMLTV DTD 0.6)
  *    The structures are forwarded to a database when the tag is closed.
  *    Also a channel table is generated and forwarded to the database at
  *    the end of the file.
@@ -387,7 +387,7 @@ void Xmltv_LinkBlurbAddText( XML_STR_BUF * pBuf )
 // Add a new channel
 //
 void Xmltv_ChannelCreate( void )
-{ 
+{
    void * pTmp;
    uint size;
 

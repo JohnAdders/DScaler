@@ -68,7 +68,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             buf += pThis->IDString();
             SetWindowText(hDlg, buf.c_str());
             Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCxCancelButton);
-            
+
             SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
             for(i = 0; i < pThis->m_pCard->GetMaxCards(); i++)
             {
@@ -95,7 +95,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             {
                 i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
                 if (i == pThis->m_TunerType->GetValue() )
-                {          
+                {
                     SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
                 }
             }
@@ -106,13 +106,13 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
             sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
             SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
-            
+
             dwCardId = pCard->GetSubSystemId();
             if(dwCardId != 0 && dwCardId != 0xffffffff)
             {
                 sprintf(szCardId,"%8X", dwCardId);
             }
-            
+
             SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
 
             return TRUE;
@@ -140,12 +140,12 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             break;
         case IDC_CARDSSELECT:
             i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CARDSSELECT));
-            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);                        
+            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
             i = pThis->m_pCard->AutoDetectTuner((eCX2388xCardId)i);
             for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
-            {   
+            {
               if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex) == i)
-              {          
+              {
                  ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
               }
             }
@@ -154,7 +154,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             {
                 eCX2388xCardId CardId = pThis->m_pCard->AutoDetectCardType();
                 eTunerId TunerId = pThis->m_pCard->AutoDetectTuner(CardId);
-                
+
                 SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
                 for(i = 0; i < pThis->m_pCard->GetMaxCards(); i++)
                 {
@@ -166,7 +166,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                         SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
                     }
                 }
-                
+
                 SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
                 for(i = 0; i < TUNER_LASTONE; i++)
                 {
@@ -180,7 +180,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                 {
                     i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
                     if (i == TunerId)
-                    {          
+                    {
                         SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
                     }
                 }
@@ -216,13 +216,13 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
         MenuItemInfo.cch = Buffer.length();
         MenuItemInfo.dwTypeData = &Buffer[0];
         SetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
-        
+
         // enable the menu and check it appropriately
         //EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_ENABLED);
         EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_TunerType->GetValue() == TUNER_ABSENT && m_pCard->IsInputATuner(i)) ? MF_GRAYED : MF_ENABLED);
         CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
     }
-    
+
     while(i < CX_INPUTS_PER_CARD)
     {
         EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_GRAYED);
@@ -262,7 +262,7 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
     EnableMenuItemBool(m_hMenu, IDM_TYPEFORMAT_8, !IsInTunerMode());
 
     eVideoFormat videoFormat = (eVideoFormat)m_VideoFormat->GetValue();
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_0, (IsPALVideoFormat(videoFormat) 
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_0, (IsPALVideoFormat(videoFormat)
                                                     && videoFormat != VIDEOFORMAT_PAL_M
                                                     && videoFormat != VIDEOFORMAT_PAL_N
                                                     && videoFormat != VIDEOFORMAT_PAL_60
@@ -289,7 +289,7 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
         EnableMenuItem(m_hMenu, IDM_PROGRESSIVE, MF_GRAYED);
         EnableMenuItem(m_hMenu, IDM_FLI_FILMDETECT, MF_GRAYED);
     }
-    
+
     CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO,            (m_StereoType->GetValue() == STEREOTYPE_MONO  ));
     CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO,            (m_StereoType->GetValue() == STEREOTYPE_STEREO));
     CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1,        (m_StereoType->GetValue() == STEREOTYPE_ALT1  ));
@@ -356,7 +356,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 }
             }
             break;
-            
+
         // Video format (NTSC, PAL, etc)
         case IDM_TYPEFORMAT_0:
             m_VideoFormat->SetValue(VIDEOFORMAT_PAL_B);
@@ -394,7 +394,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_VideoFormat->SetValue(VIDEOFORMAT_PAL_N_COMBO);
             ShowText(hWnd, GetStatus());
             break;
-    
+
         case IDM_PROGRESSIVE:
             m_IsVideoProgressive->SetValue(!m_IsVideoProgressive->GetValue());
             if(m_IsVideoProgressive->GetValue())
@@ -470,23 +470,23 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SETTINGS_PIXELWIDTH_720:
             m_PixelWidth->SetValue(720);
             break;
-    
+
         case IDM_SETTINGS_PIXELWIDTH_640:
             m_PixelWidth->SetValue(640);
             break;
-    
+
         case IDM_SETTINGS_PIXELWIDTH_480:
             m_PixelWidth->SetValue(480);
             break;
-    
+
         case IDM_SETTINGS_PIXELWIDTH_384:
             m_PixelWidth->SetValue(384);
             break;
-    
+
         case IDM_SETTINGS_PIXELWIDTH_320:
             m_PixelWidth->SetValue(320);
             break;
-    
+
         case IDM_SETTINGS_PIXELWIDTH_CUSTOM:
             m_PixelWidth->SetValue(m_CustomPixelWidth->GetValue());
             break;
@@ -508,27 +508,27 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SOUNDCHANNEL_MONO:
             m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_MONO);
             break;
-        
+
         case IDM_SOUNDCHANNEL_STEREO:
             m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_STEREO);
             break;
-        
+
         case IDM_SOUNDCHANNEL_LANGUAGE1:
             m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_ALT1);
             break;
-        
+
         case IDM_SOUNDCHANNEL_LANGUAGE2:
             m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_ALT2);
             break;
-    
+
         case IDM_AUTOSTEREO:
             m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_AUTO);
             break;
-        
+
         case IDM_CX2388X_AUDIO_STD_AUTO:
             m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_AUTO);
             break;
-    
+
         case IDM_CX2388X_AUDIO_STD_A2:
             m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_A2);
             break;
@@ -536,7 +536,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_CX2388X_AUDIO_STD_BTSC:
             m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_BTSC);
             break;
-        
+
         case IDM_CX2388X_AUDIO_STD_BTSC_SAP:
             m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_BTSC_SAP);
             break;
@@ -544,7 +544,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_CX2388X_AUDIO_STD_EIAJ:
             m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_EIAJ);
             break;
-        
+
         case IDM_CX2388X_AUDIO_STD_FM:
             m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_FM);
             break;
@@ -552,7 +552,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_CX2388X_AUDIO_STD_NICAM:
             m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_NICAM);
             break;
-        
+
         default:
             return FALSE;
             break;

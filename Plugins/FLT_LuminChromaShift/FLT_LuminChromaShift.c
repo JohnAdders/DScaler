@@ -143,7 +143,7 @@ FILTER_METHOD LuminChromaShiftMethod =
     "Y/C Shift",
     FALSE,
     TRUE,
-    LuminChromaShift, 
+    LuminChromaShift,
     0,
     TRUE,
     LuminChromaShiftStart,

@@ -132,7 +132,7 @@
     for( ; ThisLine < BottomLine; ++ThisLine )
     {
 
-        _asm 
+        _asm
         {
             mov     ecx, Cycles
 
@@ -177,7 +177,7 @@ MAINLOOP_LABEL:
 #if defined( IS_SSE )
             pshufw  mm2, mm3, 0x00          // * mm2 = (wordwise) adjusted multiplier to move toward new
 #else   // IS_MMX or IS_3DNOW
-            pand    mm3, qwLowWord          // mm3 = same limited to low word 
+            pand    mm3, qwLowWord          // mm3 = same limited to low word
             movq    mm2, mm3                // mm2 = same
             psllq   mm3, 16                 // mm3 = moved to second word
             por     mm2, mm3                // mm2 = copied to first and second words
@@ -236,7 +236,7 @@ MAINLOOP_LABEL:
 #endif
             por     mm7, mm3                // mm7 = amount to add/subtract from old
             MAX_BYTES(mm7, mm6)             // mm7 = corrected to to deal with the motion and round up to 1
-            
+
             // Apply the calculated change
             movq    mm3, mm7                // mm3 = same
             pand    mm7, mm0                // mm7 = amount to subtract

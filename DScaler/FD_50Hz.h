@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file fd_50hz.h fd_50hz Header file
  */
- 
+
 #ifndef __FD_50HZ_H___
 #define __FD_50HZ_H___
 

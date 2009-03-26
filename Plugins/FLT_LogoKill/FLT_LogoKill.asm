@@ -91,7 +91,7 @@ void LimitToMaximum_MMX(LONG Maximum, BYTE* lpLogoRect, long Pitch, long Height,
     _asm
     {
             movq mm1, [MaxValue]
-            
+
             // set edi to top left
             mov edi, lpLogoRect
             mov ebx, Pitch
@@ -113,7 +113,7 @@ LOOP_MAX_INNER:
             dec eax
             jnz LOOP_MAX_OUTER
     }
-    
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ long FilterLogoKiller_3DNOW(TDeinterlaceInfo* pInfo)
 long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
-    BYTE* lpLogoRect = NULL; 
+    BYTE* lpLogoRect = NULL;
     long Pitch = pInfo->InputPitch;
 
     long Top    = Top_UI;
@@ -137,7 +137,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
     long Width  = Width_UI;
 
     // 8 byte aligned variables for use by MMX routines
-    BYTE* lpLogoRect8 = NULL; 
+    BYTE* lpLogoRect8 = NULL;
     long Left8, Width8;
 
     // Limit the logo rectangle to the boundaries of the screen
@@ -170,7 +170,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
     Left8 = Left & ~7;                          //align the left boundary to 8 bytes; round down
     Width8 = (Width + 7) & ~7;                  //align the right boundary to 8 bytes; round up
     lpLogoRect8 = pInfo->PictureHistory[0]->pData + Left8*2 + Top*Pitch;
-    
+
     switch(Mode)
     {
     case MODE_DYNAMIC_MAX:
@@ -239,12 +239,12 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
 
             pFirstLine = (TwoPixel*)lpLogoRect;
             pLastLine = (TwoPixel*)(lpLogoRect + Height*Pitch);
-            
+
             for(j = 1; j < Height; j++)
             {
                 pByte = lpLogoRect + j*Pitch;
                 pTwoPixel = (TwoPixel*)(lpLogoRect + j*Pitch);
-                
+
                 for(i = 1; i < Width/2; i++)
                 {
                     Hor.Lumi1    = (BYTE)((pTwoPixel[0].Lumi2*(Width-i*2) + pTwoPixel[Width/2].Lumi1*(i*2))/(Width));
@@ -289,7 +289,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
         }
         break;
     }
-    
+
     // Patch from Jochen Trener to add adjustable smoothing (Gaussian blur)
     // It is based ón the paper ' An efficient algorithm for Gaussian
     // blur using finite state machines' by F. Waltz and J. Miller
@@ -308,8 +308,8 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
         smoothing_runs = gSmoothingValue;
         lpLogoRect -= (2+Pitch);
 
-        for(n = 0; n < smoothing_runs;++n) 
-        {        
+        for(n = 0; n < smoothing_runs;++n)
+        {
             memset(LSC0, 0, 768*sizeof(int));
             memset(USC0, 0, 768*sizeof(int));
             memset(USC1, 0, 768*sizeof(int));
@@ -369,8 +369,8 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
                 }
             }
         }
-    }    
-    
+    }
+
     _asm
     {
         emms

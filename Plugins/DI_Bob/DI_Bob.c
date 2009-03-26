@@ -71,7 +71,7 @@ CopyLoop:
         je EndCopyLoop
 align 8
 CopyLoop2:
-        mov dl, byte ptr[esi] 
+        mov dl, byte ptr[esi]
         mov byte ptr[edi], dl
         mov byte ptr[ebx], dl
         inc esi
@@ -132,7 +132,7 @@ CopyLoop:
         je EndCopyLoop
 align 8
 CopyLoop2:
-        mov dl, byte ptr[esi] 
+        mov dl, byte ptr[esi]
         mov byte ptr[edi], dl
         mov byte ptr[ebx], dl
         inc esi
@@ -160,7 +160,7 @@ BOOL DeinterlaceBob(TDeinterlaceInfo* pInfo)
     {
         return FALSE;
     }
-    
+
     // If field is odd we will offset it down 1 line to avoid jitter  TRB 1/21/01
     if (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
@@ -190,7 +190,7 @@ BOOL DeinterlaceBob(TDeinterlaceInfo* pInfo)
             }
             pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // only 1 copy of last line
         }
-    }   
+    }
     else
     {
         if (pInfo->CpuFeatureFlags & FEATURE_SSE)
@@ -226,12 +226,12 @@ DEINTERLACE_METHOD BobMethod =
 {
     sizeof(DEINTERLACE_METHOD),
     DEINTERLACE_CURRENT_VERSION,
-    "Simple Bob", 
+    "Simple Bob",
     NULL,
-    FALSE, 
-    FALSE, 
-    DeinterlaceBob, 
-    50, 
+    FALSE,
+    FALSE,
+    DeinterlaceBob,
+    50,
     60,
     0,
     NULL,

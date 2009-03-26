@@ -107,19 +107,19 @@ void CTDA9875AudioControls::SetVolume(WORD nVolume)
 
     int nBalLeft = (m_nBalance <= 0) ? 127 : (127 - m_nBalance);
     int nBalRight = (m_nBalance >= 0) ? 127 : (127 + m_nBalance);
-    
+
     int nVolLeft = MulDiv(m_nVolume, nBalLeft, 127);
     int nVolRight = MulDiv(m_nVolume, nBalRight, 127);
 
     BYTE bVolumeTDA9875Left;
     BYTE bVolumeTDA9875Right;
 
-    bVolumeTDA9875Left  = 
-        (nVolLeft > 0) ? 
+    bVolumeTDA9875Left  =
+        (nVolLeft > 0) ?
             (BYTE)floor(33.21928*log10(1.66416*nVolLeft - 0.66416) - 82.5) : -84;
-    
-    bVolumeTDA9875Right = 
-        (nVolRight > 0) ? 
+
+    bVolumeTDA9875Right =
+        (nVolRight > 0) ?
             (BYTE)floor(33.21928*log10(1.66416*nVolRight - 0.66416) - 82.5) : -84;
 
     // main
@@ -144,7 +144,7 @@ BOOL CTDA9875AudioControls::HasBalance()
 void CTDA9875AudioControls::SetBalance(WORD nBalance)
 {
     m_nBalance = (short)nBalance;
-    
+
     // sanity check
     if (m_nBalance < -127)
         m_nBalance = -127;
@@ -196,7 +196,7 @@ BOOL CTDA9875AudioControls::HasTreble()
 void CTDA9875AudioControls::SetTreble(WORD nTreble)
 {
     m_nTreble = (short)nTreble;
-    
+
     // sanity check
     if (m_nTreble < -96)
         m_nTreble = -96;
@@ -207,7 +207,7 @@ void CTDA9875AudioControls::SetTreble(WORD nTreble)
 
     // main
     WriteToSubAddress(TDA9875_MTR, bTrebleTDA9875);
-    
+
     // aux
     WriteToSubAddress(TDA9875_ATR, bTrebleTDA9875);
 }
@@ -228,7 +228,7 @@ BOOL CTDA9875AudioControls::HasBassBoost()
 }
 
 void CTDA9875AudioControls::SetBassBoost(BOOL bBoost)
-{    
+{
     m_bBassBoost = bBoost;
     if (bBoost)
         WriteToSubAddress(TDA9875_BBO, 85);
@@ -250,7 +250,7 @@ BOOL CTDA9875AudioControls::HasLoudness()
 void CTDA9875AudioControls::SetLoudness(WORD nLevel)
 {
     m_nLoudness = (short)nLevel;
-    
+
     // sanity check
     if (m_nTreble < 0)
         m_nTreble = 0;
@@ -262,7 +262,7 @@ void CTDA9875AudioControls::SetLoudness(WORD nLevel)
     WriteToSubAddress(TDA9875_LOU, bLoudnessTDA9875);
 
 }
- 
+
 WORD CTDA9875AudioControls::GetLoudness()
 {
     return (WORD)m_nLoudness;

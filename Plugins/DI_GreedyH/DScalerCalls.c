@@ -23,7 +23,7 @@
 #include "windows.h"
 #include "DI_GreedyHM.h"
 
-void SetDScalerFrameInfo(BOOL IsOdd, int InPitch, int OutPitch, 
+void SetDScalerFrameInfo(BOOL IsOdd, int InPitch, int OutPitch,
      const BYTE* pSource, BYTE* pOverlay, int FrHeight, int LLength);
 extern BOOL UpdateFieldStore();
 
@@ -36,8 +36,8 @@ extern void InitDScaler(int AutoPulldown, int MedianFilter, int VerticalFilter,
 #include "DI_GreedyHM2.h"
 
     __int64 i;
-    
-    // AutoPulldown parm values 
+
+    // AutoPulldown parm values
     // 0 = none, force video, don't decimate
     // 1 = auto choose pulldown film or video, choose, don't decimate
     // 2 = pulldown on, force film, don't decimate
@@ -59,7 +59,7 @@ extern void InitDScaler(int AutoPulldown, int MedianFilter, int VerticalFilter,
             else
             {
                 GreedyBadPullDownLvl = 100000; // set silly huge max threshold
-        
+
             }
         }
         else   // Autopulldown = 1 or 4 = really auto
@@ -75,7 +75,7 @@ extern void InitDScaler(int AutoPulldown, int MedianFilter, int VerticalFilter,
         }
     }
 
-/* turn off median filter for now, it screws up frame dropping 
+/* turn off median filter for now, it screws up frame dropping
     if (MedianFilter)
     {
         GreedyUseMedianFilter = TRUE;
@@ -85,12 +85,12 @@ extern void InitDScaler(int AutoPulldown, int MedianFilter, int VerticalFilter,
         }
     }
 */
-    
+
     if (VerticalFilter)
     {
         GreedyUseVertFilter = TRUE;
     }
-    
+
     if (EdgeEnhance)
     {
         GreedyUseHSharpness = TRUE;
@@ -99,33 +99,33 @@ extern void InitDScaler(int AutoPulldown, int MedianFilter, int VerticalFilter,
             GreedyHSharpnessAmt = EdgeEnhance;
         }
     }
-    
+
     // Set up our two parms that are actually evaluated for each pixel
     i=GreedyMaxComb;
-    MaxComb = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;    
+    MaxComb = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;
 
     i = GreedyMotionThreshold;        // scale to range of 0-257
-    MotionThreshold = i << 48 | i << 32 | i << 16 | i | UVMask;    
+    MotionThreshold = i << 48 | i << 32 | i << 16 | i | UVMask;
 
     i = GreedyMotionSense ;        // scale to range of 0-257
-    MotionSense = i << 48 | i << 32 | i << 16 | i;    
-    
+    MotionSense = i << 48 | i << 32 | i << 16 | i;
+
     i = GreedyGoodPullDownLvl;                    // scale to range of 0-257
     EdgeThreshold = i << 48 | i << 32 | i << 16 | i | UVMask;
 
 /* dead code?
     i=GreedyBadPullDownLvl * 128 / 100;
-    EdgeSense =  i << 48 | i << 32  | i << 16  | i;    
+    EdgeSense =  i << 48 | i << 32  | i << 16  | i;
 */
-    
+
     i=GreedyMedianFilterAmt;
-    MedianFilterAmt =  i << 48 | i << 32 | i << 16 | i;    
+    MedianFilterAmt =  i << 48 | i << 32 | i << 16 | i;
 
     i=GreedyHSharpnessAmt* 257/100;
-    HSharpnessAmt =  i << 48 | i << 32 | i << 16 | i;    
+    HSharpnessAmt =  i << 48 | i << 32 | i << 16 | i;
 
     pLines = &pScanLines[0];                // table of ptrs to scan lines filled in later
-    }    
+    }
 
 BOOL CallGreedyHM(BOOL IsOdd, int InPitch, int OutPitch,
      const BYTE* pSource,  BYTE* pOverlay, int FrHeight, int LLength, BOOL WriteFrame)
@@ -146,7 +146,7 @@ BOOL CallGreedyHM(BOOL IsOdd, int InPitch, int OutPitch,
 void SetDScalerFrameInfo(BOOL IsOdd, int InPitch, int OutPitch,
      const BYTE* pSource,  BYTE* pOverlay, int FrHeight, int LLength)
 {
-    short* pLineW = (short *) pSource; 
+    short* pLineW = (short *) pSource;
     int i = 0;
 
     InfoIsOdd = IsOdd;
@@ -155,9 +155,9 @@ void SetDScalerFrameInfo(BOOL IsOdd, int InPitch, int OutPitch,
     FieldHeight = FrHeight / 2;
     FrameHeight = FrHeight;
     LineLength = LLength;
-    for ( i = 0; i < FieldHeight ; i++ ) 
+    for ( i = 0; i < FieldHeight ; i++ )
     {
         pScanLines[i] = pLineW;
         pLineW += InPitch;                      // note - bumps 2 input lines
-    }     
+    }
 }

@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file dvbtcard.h dvbtcard Header file
  */
- 
+
 #ifndef __DVBTCARD_H___
 #define __DVBTCARD_H___
 
@@ -28,7 +28,7 @@
 #include "TVFormats.h"
 #include "DVB_Defines.h"
 
-class CDVBTCard : public CPCICard, 
+class CDVBTCard : public CPCICard,
                    public CI2C
 {
 public:
@@ -37,7 +37,7 @@ public:
 
     BOOL FindCard(int CardIndex);
     void CloseCard();
-    
+
     void ResetHardware();
 
     LPCSTR GetChipType();

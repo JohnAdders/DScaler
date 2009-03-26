@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file events.h events Header file
  */
- 
+
 #ifndef __EVENTS_H___
 #define __EVENTS_H___
 
@@ -73,14 +73,14 @@ public:
 class CEventCollector
 {
 protected:
-    typedef struct 
+    typedef struct
     {
         eEventType *EventList;
         void *pThis;
         EVENTCALLBACK *pfnEventCallback;
         CEventObject *pEventObject;
     } TEventCallbackInfo;
-    
+
     std::vector<TEventCallbackInfo> m_EventObjects;
 
     typedef struct
@@ -97,11 +97,11 @@ protected:
     CRITICAL_SECTION  m_LastEventCriticalSection;
     long              m_ScheduleTimerID;
 
-    HANDLE              m_EventCollectorThread;        
+    HANDLE              m_EventCollectorThread;
     BOOL              m_bStopThread;
 
     std::vector<TEventInfo> m_LastEvents;
-    
+
 protected:
     eEventType *CEventCollector::CopyEventList(eEventType *EventList);
 
@@ -121,12 +121,12 @@ public:
 
     void ProcessEvents();
 
-    void RaiseEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp = NULL);    
+    void RaiseEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp = NULL);
 
     int LastEventValues(eEventType Event, CEventObject **pObject, long *OldValue, long *NewValue);
     int LastEventValues(CEventObject *pObject, eEventType Event, long *OldValue, long *NewValue);
     int NumEventsWaiting();
-    
+
 };
 
 //Defined, allocated & destroyed in Dscaler.cpp

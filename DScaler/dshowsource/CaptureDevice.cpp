@@ -47,7 +47,7 @@ CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,str
 :CDShowBaseSource(pGraph),m_bIsConnected(FALSE),m_pCrossbar(NULL),m_pTVTuner(NULL),m_pTVAudio(NULL),m_bConnectAudio(bConnectAudio)
 {
     USES_CONVERSION;
-    
+
     HRESULT hr=m_pBuilder.CoCreateInstance(CLSID_CaptureGraphBuilder2);
     if(FAILED(hr))
     {
@@ -102,10 +102,10 @@ CDShowCaptureDevice::~CDShowCaptureDevice()
 }
 
 void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
-{    
+{
     //this will connect the capture device and add all needed filters upstream like tuners and crossbars
-    
-    //the following code tries to connect the video port pin of the 
+
+    //the following code tries to connect the video port pin of the
     //caputure filter if it has one.
     //it looks like this code needs some tweaking since it doesnt work yet.
     //winxp has a special filter that other os:es dont have.
@@ -148,7 +148,7 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
             LOG(1,"Failed to connect VideoPort pin. ErrorCode: 0x%x ErrorText: '%s'",hr,(LPCTSTR)tmpstr);
         }
     }
-    
+
     //first try to render interleaved (dv source), if it fails try normal render
     hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,NULL,VideoFilter);
     if(FAILED(hr))
@@ -236,7 +236,7 @@ long CDShowCaptureDevice::GetNumDroppedFrames()
     {
         return 0;
     }
-    
+
     long dropped=0;
     HRESULT hr=m_pDroppedFrames->GetNumDropped(&dropped);
     if(FAILED(hr))
@@ -441,7 +441,7 @@ void CDShowCaptureDevice::getRange(long prop,long *pMin,long *pMax, long *pStepS
     long stepSize;
     long def;
     long flags;
-    
+
     HRESULT hr=m_pVideoProcAmp->GetRange(prop,&min,&max,&stepSize,&def,&flags);
     if(FAILED(hr))
     {

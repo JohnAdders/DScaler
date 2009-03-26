@@ -42,16 +42,16 @@ public:
     CDShowCaptureDeviceException(const char* msg,HRESULT hr = S_OK):CDShowException(msg,hr) {};
 };
 
- 
+
 /**
  * Class for managing a Direct Show capture device.
  */
-class CDShowCaptureDevice : public CDShowBaseSource  
+class CDShowCaptureDevice : public CDShowBaseSource
 {
 public:
     CDShowCaptureDevice(IGraphBuilder *pGraph, std::string device, std::string deviceName,BOOL bConnectAudio);
     virtual ~CDShowCaptureDevice();
-    
+
     eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_CAPTURE;}
 
     void Connect(CComPtr<IBaseFilter> VideoFilter);
@@ -67,7 +67,7 @@ public:
 
     // IAMTVTuner
     CDShowDirectTuner *GetTuner();
-    
+
     // IAMAnalogVideoDecoder
     BOOL hasVideoDec() {return m_pAVideoDec!=NULL;}
     long GetSupportedTVFormats();
@@ -80,7 +80,7 @@ public:
     void set(long prop,long value,long flags);
     void get(long prop,long *pValue,long *pFlags=NULL);
     void getRange(long prop,long *pMin,long *pMax, long *pStepSize=NULL,long *pDefault=NULL,long *pFlags=NULL);
-    
+
     /**
      * @return pointer to CDShowTVAudio class or NULL if there is no tvaudio
      */
@@ -92,7 +92,7 @@ public:
     ULONG getRemoteCode();*/
 
 private:
-    
+
     void findIAMDroppedFrames(CComPtr<IBaseFilter> filter);
     BOOL m_bIsConnected;
     BOOL m_bConnectAudio;

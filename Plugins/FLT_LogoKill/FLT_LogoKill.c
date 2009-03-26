@@ -100,25 +100,25 @@ long DispatchLogoKiller( TDeinterlaceInfo *pInfo );
 BOOL Top_OnChange(long NewValue)
 {
     Top_UI = NewValue;
-    return TRUE;   
+    return TRUE;
 }
 
 BOOL Left_OnChange(long NewValue)
 {
     Left_UI = NewValue;
-    return TRUE;   
+    return TRUE;
 }
 
 BOOL Width_OnChange(long NewValue)
 {
     Width_UI = NewValue;
-    return TRUE;   
+    return TRUE;
 }
 
 BOOL Height_OnChange(long NewValue)
 {
     Height_UI = NewValue;
-    return TRUE;   
+    return TRUE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -194,7 +194,7 @@ FILTER_METHOD LogoKillMethod =
     "&Logo Killer",
     FALSE,
     TRUE,
-    DispatchLogoKiller, 
+    DispatchLogoKiller,
     0,
     TRUE,
     NULL,

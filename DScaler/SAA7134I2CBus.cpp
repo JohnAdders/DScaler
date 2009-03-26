@@ -293,7 +293,7 @@ void CSAA7134I2CBus::InitializeSleep()
 {
     ULONGLONG frequency;
     QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
-    
+
     m_I2CSleepCycle = (unsigned long)(frequency / 50000);
 
     m_InitializedSleep = TRUE;

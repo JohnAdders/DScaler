@@ -31,7 +31,7 @@ typedef enum
    XML_ENC_UNKNOWN
 } XML_ENCODING;
 
-typedef enum   
+typedef enum
 {
    XMLTV_DTD_UNKNOWN,
    XMLTV_DTD_5,

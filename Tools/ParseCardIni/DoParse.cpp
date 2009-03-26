@@ -32,7 +32,7 @@ static char THIS_FILE[]=__FILE__;
 
 const char* CDoParse::m_TDAFormatNames[TDA9887_FORMAT_LASTONE] =
 {
-    "Pal(BG)",        // TDA9887_FORMAT_PAL_BG        
+    "Pal(BG)",        // TDA9887_FORMAT_PAL_BG
     "Pal(I)",        // TDA9887_FORMAT_PAL_I
     "Pal(DK)",        // TDA9887_FORMAT_PAL_DK
     "Pal(MN)",        // TDA9887_FORMAT_PAL_MN

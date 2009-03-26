@@ -49,10 +49,10 @@ bool CI2CBus::Read(    const BYTE *writeBuffer,
     if (writeBufferSize != 1)
     {
         ASSERT(writeBufferSize > 1);
-        
+
         EnterCriticalSection(&I2CCriticalSection);
         Start();
-        
+
         // send the address
         if (!Write(address & ~1))
         {
@@ -77,7 +77,7 @@ bool CI2CBus::Read(    const BYTE *writeBuffer,
         {
             Write(writeBuffer[writeBufferSize - 1]);
         }
-        
+
         LeaveCriticalSection(&I2CCriticalSection);
     }
 
@@ -91,7 +91,7 @@ bool CI2CBus::Read(    const BYTE *writeBuffer,
         LeaveCriticalSection(&I2CCriticalSection);
         return false;
     }
-    
+
     for (size_t i = 0; i < (readBufferSize - 1); i++)
     {
         readBuffer[i] = Read(false);
@@ -109,7 +109,7 @@ bool CI2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
     ASSERT(writeBuffer != 0);
     ASSERT(writeBufferSize >= 1);
     ASSERT((writeBuffer[0] & 1) == 0);
-    
+
     EnterCriticalSection(&I2CCriticalSection);
 
     Start();

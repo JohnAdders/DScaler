@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file fieldtiming.h fieldtiming Header file
  */
- 
+
 #ifndef __FIELDTIMING_H___
 #define __FIELDTIMING_H___
 

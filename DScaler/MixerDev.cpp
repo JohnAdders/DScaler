@@ -1971,7 +1971,7 @@ void MixerDev_UpdateSettings(CSource* pSource)
         MixerSettings = new CSettingsHolder(WM_MIXERDEV_GETVALUE);
         string MixerDev_Section(MakeString() << "MixerInput_" << pSource->IDString());
         g_bMixerDevInvalidSection = FALSE;
-        
+
         for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
         {
             MixerDevSettings[i].szIniSection = (char*)MixerDev_Section.c_str();

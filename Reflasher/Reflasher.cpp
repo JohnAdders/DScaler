@@ -60,7 +60,7 @@ CReflasherApp theApp;
 BOOL CReflasherApp::InitInstance()
 {
     // Standardinitialisierung
-    // Wenn Sie diese Funktionen nicht nutzen und die Größe Ihrer fertigen 
+    // Wenn Sie diese Funktionen nicht nutzen und die Größe Ihrer fertigen
     //  ausführbaren Datei reduzieren wollen, sollten Sie die nachfolgenden
     //  spezifischen Initialisierungsroutinen, die Sie nicht benötigen, entfernen.
 
@@ -69,7 +69,7 @@ BOOL CReflasherApp::InitInstance()
 #else
     Enable3dControlsStatic();    // Diese Funktion bei statischen MFC-Anbindungen aufrufen
 #endif
-    
+
     CHardwareDriver* m_pDriver = new CHardwareDriver();
     if(m_pDriver->LoadDriver() == FALSE)
     {
@@ -78,7 +78,7 @@ BOOL CReflasherApp::InitInstance()
         AfxMessageBox("Can't open driver", MB_OK);
         return -1;
     }
-      
+
     DWORD    dwSubSystemId    = NULL;
     int        iDeviceIndex    = NULL;
     if(m_pDriver->DoesThisPCICardExist(0x14F1, 0x8800, iDeviceIndex, dwSubSystemId) == FALSE)
@@ -106,7 +106,7 @@ BOOL CReflasherApp::InitInstance()
     CWizard wizard("Reflasher");
     wizard.m_psh.hInstance = ::GetModuleHandle(NULL);
     wizard.m_pCard = m_pCard;
-    
+
     m_pMainWnd = &wizard;
     wizard.DoModal();
 

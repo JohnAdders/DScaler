@@ -131,7 +131,7 @@ BOOL DeinterlaceAdaptive(TDeinterlaceInfo* pInfo)
     }
 
     // if we have very liitle motion update
-    // to static after StaticImageFieldCount consecutive 
+    // to static after StaticImageFieldCount consecutive
     // static fields
     // also check if its OK to go into low motion mode
     if(pInfo->FieldDiff < AdaptiveThres32Pulldown)
@@ -191,7 +191,7 @@ void __cdecl AdaptiveStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, D
 {
     int i;
     int j;
-    
+
     DeintMethods = OtherPlugins;
     NumVideoModes = NumPlugIns;
     pfnSetStatus = SetStatus;
@@ -263,12 +263,12 @@ DEINTERLACE_METHOD AdaptiveMethod =
 {
     sizeof(DEINTERLACE_METHOD),
     DEINTERLACE_CURRENT_VERSION,
-    "Adaptive", 
-    NULL, 
-    FALSE, 
-    FALSE, 
-    DeinterlaceAdaptive, 
-    50, 
+    "Adaptive",
+    NULL,
+    FALSE,
+    FALSE,
+    DeinterlaceAdaptive,
+    50,
     60,
     DI_ADAPTIVE_SETTING_LASTONE,
     DI_AdaptiveSettings,

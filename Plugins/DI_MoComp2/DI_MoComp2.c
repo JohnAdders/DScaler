@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 //
 //  (From Tom Barry)
-//  Also, this program is "Philanthropy-Ware".  That is, if you like it and 
+//  Also, this program is "Philanthropy-Ware".  That is, if you like it and
 //  feel the need to reward or inspire the author then please feel free (but
 //  not obligated) to consider joining or donating to the Electronic Frontier
-//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
+//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
 
@@ -47,12 +47,12 @@ DEINTERLACE_METHOD MoComp2Method =
 {
     sizeof(DEINTERLACE_METHOD),
     DEINTERLACE_CURRENT_VERSION,
-    "Video (MoComp2)", 
+    "Video (MoComp2)",
     "MoComp2",
-    FALSE, 
-    FALSE, 
-    DeinterlaceMoComp2_SSE, 
-    50, 
+    FALSE,
+    FALSE,
+    DeinterlaceMoComp2_SSE,
+    50,
     60,
     DI_MOCOMP2_SETTING_LASTONE,
     DI_MoComp2Settings,
@@ -77,7 +77,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
 {
     if (CpuFeatureFlags & FEATURE_SSE2)
     {
-        MoComp2Method.pfnAlgorithm = DeinterlaceMoComp2_SSE; 
+        MoComp2Method.pfnAlgorithm = DeinterlaceMoComp2_SSE;
     }
     else if (CpuFeatureFlags & FEATURE_SSE)
     {

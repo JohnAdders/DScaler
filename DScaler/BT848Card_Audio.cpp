@@ -92,7 +92,7 @@ void CBT848Card::InitAudio(BOOL UsePin1)
         if (0 != rev1 || 0 != rev2)
         {
             m_AudioControls = MSPControls;
-    
+
             // need to create two so that we can delete all objects properly
             SmartPtr<CMSP34x0AudioDecoder> MSPDecoder = new CMSP34x0AudioDecoder();
             MSPDecoder->SetUseInputPin1(UsePin1);
@@ -125,7 +125,7 @@ void CBT848Card::InitAudio(BOOL UsePin1)
         if (TDA9875Controls->IsDevicePresent(dic, rev))
         {
             m_AudioControls = TDA9875Controls;
-    
+
             SmartPtr<CTDA9875AudioDecoder> TDA9875Decoder = new CTDA9875AudioDecoder(TDA9875Controls);
             TDA9875Decoder->SetUseInputPin1(UsePin1);
             TDA9875Decoder->SetI2CBus(m_I2CBus);
@@ -146,10 +146,10 @@ void CBT848Card::InitAudio(BOOL UsePin1)
     if (!m_AudioDecoder&&
         (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
         || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9874))
-    {        
+    {
         SmartPtr<CTDA9874> TDADecoder = new CTDA9874();
         TDADecoder->SetI2CBus(m_I2CBus);
-        
+
         int dic, sic;
         BOOL isPresent = TDADecoder->IsDevicePresent(dic, sic);
 
@@ -158,8 +158,8 @@ void CBT848Card::InitAudio(BOOL UsePin1)
             SmartPtr<CTDA9874AudioDecoder> TDA9874Decoder = new CTDA9874AudioDecoder();
             TDA9874Decoder->SetI2CBus(m_I2CBus);
             TDA9874Decoder->Initialize();
-            m_AudioDecoder = TDA9874Decoder; //TDA9874Decoder;                    
-            m_AudioControls = new CAudioControls();            
+            m_AudioDecoder = TDA9874Decoder; //TDA9874Decoder;
+            m_AudioControls = new CAudioControls();
 
             // need to switch unmute from PIC one time only
             // used only for PV951 (Hercules SmartTV)
@@ -170,7 +170,7 @@ void CBT848Card::InitAudio(BOOL UsePin1)
 
             oss << "TDA9874" << ((dic==0x11) ? "A":"H");
             oss << " Rev. " << sic << (picAlive ? "" : " + Pic16c54");
-            m_AudioDecoderType = oss.str(); 
+            m_AudioDecoderType = oss.str();
         }
     }
 
@@ -280,7 +280,7 @@ void CBT848Card::SetAudioChannel(eSoundChannel soundChannel)
 
 eSoundChannel CBT848Card::IsAudioChannelDetected(eSoundChannel desiredSoundChannel)
 {
-    return m_AudioDecoder->IsAudioChannelDetected(desiredSoundChannel); 
+    return m_AudioDecoder->IsAudioChannelDetected(desiredSoundChannel);
 }
 
 long CBT848Card::GetAudioStandardFromVideoFormat(eVideoFormat videoFormat)
@@ -310,7 +310,7 @@ long CBT848Card::GetAudioDecoderValue(int What)
 }
 
 // Do not call this function before changing the video source, it is checking to see if a video
-// signal is present. Audio is muted if no video signal is detected. 
+// signal is present. Audio is muted if no video signal is detected.
 // This might not be the best place to do this check.
 void CBT848Card::SetAudioSource(eAudioInput nChannel)
 {
@@ -327,7 +327,7 @@ void CBT848Card::SetAudioSource(eAudioInput nChannel)
         break;
     default:
         // see if there is a video signal present
-        // if video not in H-lock, turn audio off 
+        // if video not in H-lock, turn audio off
         if (!(ReadByte(BT848_DSTATUS) & BT848_DSTATUS_PRES))
         {
             MuxSelect = GetCardSetup()->AudioMuxSelect[AUDIOINPUT_MUTE];
@@ -338,10 +338,10 @@ void CBT848Card::SetAudioSource(eAudioInput nChannel)
         }
         break;
     }
-    
-    // select direct input 
+
+    // select direct input
     //BT848_WriteWord(BT848_GPIO_REG_INP, 0x00); // MAE 14 Dec 2000 disabled
-    AndOrDataDword(BT848_GPIO_DATA, MuxSelect, ~GetCardSetup()->GPIOMask); 
+    AndOrDataDword(BT848_GPIO_DATA, MuxSelect, ~GetCardSetup()->GPIOMask);
 
     m_AudioDecoder->SetAudioInput(nChannel);
 }
@@ -369,7 +369,7 @@ void CBT848Card::SetAudioBassBoost(BOOL bBoost)
 
 void CBT848Card::SetAudioEqualizerLevel(WORD nIndex, WORD nLevel)
 {
-    if (!m_AudioControls->HasEqualizers() 
+    if (!m_AudioControls->HasEqualizers()
         && nIndex >= 0 && nIndex < m_AudioControls->GetEqualizerCount())
     {
         return;

@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file source.h source Header file
  */
- 
+
 #ifndef __SOURCE_H___
 #define __SOURCE_H___
 
@@ -104,7 +104,7 @@ public:
     /// returns NULL if there is no control over this value
     virtual CSliderSetting* GetVDelay() = 0;
     /// Get the tuner Id - this method may (and should) be overriden
-    virtual eTunerId GetTunerId() 
+    virtual eTunerId GetTunerId()
     {
         SmartPtr<ITuner> tuner = GetTuner();
         if (!tuner)
@@ -130,7 +130,7 @@ public:
     virtual void SetWidth(int w) = 0;
     /// Does this source have an anologue tuner
     //(kept for backward compatibility)
-    /*virtual*/ BOOL HasTuner();    
+    /*virtual*/ BOOL HasTuner();
 
     /// Update the content of the menu
     virtual void UpdateMenu() = 0;
@@ -164,7 +164,7 @@ public:
     virtual void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) = 0;
     virtual std::string IDString() = 0;
     char* GetComments();
-      
+
     virtual int  NumInputs(eSourceInputType InputType) = 0;
     virtual BOOL SetInput(eSourceInputType InputType, int Nr) = 0;
     virtual int  GetInput(eSourceInputType InputType) = 0;

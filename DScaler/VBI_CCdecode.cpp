@@ -37,7 +37,7 @@
 #include "Providers.h"
 
 //XDSdecode
-char          Info[8][25][256]; 
+char          Info[8][25][256];
 char          NewInfo[8][25][256];
 char*         pInfo = NewInfo[0][0];
 int           Mode;
@@ -75,7 +75,7 @@ void CC_Init_Data(double VBI_Frequency)
     }
 }
 
-int parityok(int n) // check parity for 2 bytes packed in n 
+int parityok(int n) // check parity for 2 bytes packed in n
 {
     int mask=0;
     int j, k;
@@ -122,7 +122,7 @@ int FindClock(unsigned char* vbiline, int ClockPixels)
     int MinCount = 0;
     DWORD MaxTotal = 0;
     int MaxCount = 0;
-    int LastPixel = (int)(ClockPixels * 6.5); 
+    int LastPixel = (int)(ClockPixels * 6.5);
     int Remainder;
 
     for(i = 0; i < LastPixel; i++)
@@ -141,7 +141,7 @@ int FindClock(unsigned char* vbiline, int ClockPixels)
     }
     if(MinCount == 0 || MaxCount == 0)
     {
-        return 0;   
+        return 0;
     }
     else
     {
@@ -156,7 +156,7 @@ int decode(unsigned char* vbiline)
     int ClockPos = -1;
     DWORD Threshold = 0;
     int ClockCur;
-    
+
     i=0;
 
     while (i < 120)
@@ -182,7 +182,7 @@ int decode(unsigned char* vbiline)
         Threshold += vbiline[tmp + i];
     }
     Threshold /= CC_Clock;
-    Threshold += ClockMax / 2; 
+    Threshold += ClockMax / 2;
     tmp = ClockPos + CC_Gap;
 
     if(!decodebit(&vbiline[tmp], Threshold, CC_Clock / 2))
@@ -198,20 +198,20 @@ int decode(unsigned char* vbiline)
             packedbits |= 1<<i;
         }
     }
-    
+
     return packedbits & parityok(packedbits);
-} // decode 
+} // decode
 
 int XDSdecode(int data)
 {
     int b1, b2, length;
     if (data == -1)
         return -1;
-    
+
     b1 = data & 0x7F;
     b2 = (data>>8) & 0x7F;
 
-    if (b1 < 15) // start packet 
+    if (b1 < 15) // start packet
     {
         Mode = b1;
         Type = b2;
@@ -320,16 +320,16 @@ void webtv_check(char* buf,int len)
     unsigned short  csum=0;
     char temp[9];
     int nbytes=0;
-    
+
     while (buf[0]!='<' && len > 6)  //search for the start
     {
         buf++; len--;
     }
-    
+
     if (len == 6) //failure to find start
         return;
-                
-    
+
+
     while (nbytes+6 <= len)
     {
         //look for end of object checksum, it's enclosed in []'s and there shouldn't be any [' after
@@ -340,7 +340,7 @@ void webtv_check(char* buf,int len)
     }
     if (nbytes+6>len) //failure to find end
         return;
-    
+
     nwords = nbytes >> 1; sum = 0;
 
     //add up all two byte words
@@ -388,7 +388,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
 
     if (data == -1) //invalid data.
     {
-        // if we get three in a row then reset the 
+        // if we get three in a row then reset the
         // display
         BadCount++;
         if(BadCount == 3)
@@ -421,19 +421,19 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = b1;
                     CursorPos++;
                 }
-                else 
+                else
                 {
                     // Not enough room - Shift characters over one row
                     for(x = 1; x < CC_CHARS_PER_LINE;x++)
                     {
-                        memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][x - 1], 
-                            &Screens[ScreenToWrite].ScreenData[CursorRow][x], 
+                        memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][x - 1],
+                            &Screens[ScreenToWrite].ScreenData[CursorRow][x],
                             sizeof(TCCChar));
                     }
                     memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
                     Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = b1;
                 };
-                
+
                 if(b2 > 31)
                 {
                     // copy second character
@@ -443,13 +443,13 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = b2;
                         CursorPos++;
                     }
-                    else 
+                    else
                     {
                         // Not enough room - Shift characters over one row
                         for(x = 1; x < CC_CHARS_PER_LINE;x++)
                         {
-                            memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][x - 1], 
-                                &Screens[ScreenToWrite].ScreenData[CursorRow][x], 
+                            memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][x - 1],
+                                &Screens[ScreenToWrite].ScreenData[CursorRow][x],
                                 sizeof(TCCChar));
                         }
                         memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
@@ -482,7 +482,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     {
                         CursorRow = RowData[((b1<<1)&0x0E)|((b2>>5)&0x01)];
                     }
-                    
+
                     CursorPos = 0;
 
                     // get underline flag
@@ -493,7 +493,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     {
                         //row contains indent flag
                         CurrentState.ForeColor = CC_WHITE;
-                        CursorPos = (b2&0x0E) << 1; 
+                        CursorPos = (b2&0x0E) << 1;
                         // there seems to be a problem with the pop on captions
                         // when you get the second or third line of data
 
@@ -515,7 +515,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                             CurrentState.ForeColor = (eCCColor)((b2&0x0E) >> 1);
                         }
                     }
-                }               
+                }
             }
             else
             {
@@ -717,7 +717,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                 bCaptureText = FALSE;
                             }
                             break;
-                            
+
                         case 0x2D: //carriage return
                             if(bCaptureText == TRUE)
                             {
@@ -741,7 +741,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                 }
                             }
                             break;
-                        
+
                         case 0x2F: //end caption + swap memory
                             if(CaptionMode)
                             {
@@ -765,11 +765,11 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x23:
                             Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].bIsActive = FALSE;
                             if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
-                            // FALL 
+                            // FALL
                         case 0x22:
                             Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].bIsActive = FALSE;
                             if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
-                            // FALL 
+                            // FALL
                         case 0x21:
                             Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].bIsActive = FALSE;
                             if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
@@ -777,7 +777,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
 
                         case 0x2F:
                             CurrentState.bUnderline = TRUE;
-                            // FALL 
+                            // FALL
                         case 0x2E:
                             CurrentState.ForeColor = CC_BLACK;
                             memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
@@ -888,18 +888,18 @@ void CC_PaintChars(HWND hWnd, TCCChar* Char, wchar_t* szLine, HDC hDC, RECT* Pai
 
     if (hDC != NULL)
     {
-        hOSDfont = CreateFont(nFontsize, 0, 0, 0, 
-                                (Char->bFlash)? FW_BOLD:0, 
-                                Char->bItalics, 
-                                Char->bUnderline, 
-                                0, 0, 0, 0, 
-                                NONANTIALIASED_QUALITY, 
-                                DEFAULT_PITCH | FF_DONTCARE, 
+        hOSDfont = CreateFont(nFontsize, 0, 0, 0,
+                                (Char->bFlash)? FW_BOLD:0,
+                                Char->bItalics,
+                                Char->bUnderline,
+                                0, 0, 0, 0,
+                                NONANTIALIASED_QUALITY,
+                                DEFAULT_PITCH | FF_DONTCARE,
                                 "Arial");
         if (!hOSDfont) return;
 
         hTmp = (HFONT)SelectObject(hDC, hOSDfont);
-        
+
         if(hTmp)
         {
             GetTextExtentPoint32W(hDC, szLine, wcslen(szLine), &sizeText);
@@ -911,7 +911,7 @@ void CC_PaintChars(HWND hWnd, TCCChar* Char, wchar_t* szLine, HDC hDC, RECT* Pai
             TextOutW(hDC, PaintRect->left + 2, PaintRect->top, szLine, wcslen(szLine));
             TextOutW(hDC, PaintRect->left, PaintRect->top - 2, szLine, wcslen(szLine));
             TextOutW(hDC, PaintRect->left, PaintRect->top + 2, szLine, wcslen(szLine));
-            
+
             SetTextColor(hDC, CC_GetColor(Char->ForeColor));
             TextOutW(hDC, PaintRect->left, PaintRect->top, szLine, wcslen(szLine));
 
@@ -943,7 +943,7 @@ void CC_PaintLine(HWND hWnd, TCCChar* Line, HDC hDC, RECT* PaintRect, int nFonts
                 bAnyText = TRUE;
                 PaintRect->left = PaintRect->left + LineWidth * (i + 2) / (CC_CHARS_PER_LINE + 4);
             }
-            
+
             if(LastChar != NULL &&
                 (LastChar->BackColor != Line[i].BackColor ||
                  LastChar->ForeColor != Line[i].ForeColor ||
@@ -955,7 +955,7 @@ void CC_PaintLine(HWND hWnd, TCCChar* Line, HDC hDC, RECT* PaintRect, int nFonts
                 CC_PaintChars(hWnd, LastChar, szString, hDC, PaintRect, nFontsize);
                 StrPos = 0;
             }
-            
+
             // cope with changes from straight ASCII
             switch(Line[i].Text)
             {
@@ -1021,7 +1021,7 @@ void CC_PaintScreen(HWND hWnd, TCCScreen* Screen, HDC hDC, RECT* PaintRect)
     int i;
     RECT LineRect;
     int nFontsize;
-    
+
     if (hDC != NULL)
     {
         nFontsize = (PaintRect->bottom - PaintRect->top) / 17;

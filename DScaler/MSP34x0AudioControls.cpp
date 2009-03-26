@@ -84,8 +84,8 @@ void CMSP34x0AudioControls::SetVolume(WORD nVolume)
     SetDSPRegister(DSP_WR_LDSPK_VOLUME, nVolume << 4);
     SetDSPRegister(DSP_WR_HEADPH_VOLUME, nVolume << 4);
 
-    SetDSPRegister(DSP_WR_SCART1_VOLUME, (nVolume!=0) ? 0x4000 : 0);    
-    SetDSPRegister(DSP_WR_SCART2_VOLUME, (nVolume!=0) ? 0x4000 : 0);        
+    SetDSPRegister(DSP_WR_SCART1_VOLUME, (nVolume!=0) ? 0x4000 : 0);
+    SetDSPRegister(DSP_WR_SCART2_VOLUME, (nVolume!=0) ? 0x4000 : 0);
 }
 
 WORD CMSP34x0AudioControls::GetVolume()
@@ -157,12 +157,12 @@ void CMSP34x0AudioControls::SetEqualizerLevel(WORD nIndex, WORD nLevel)
 {
     if ((nIndex < 0) || (nIndex>32767))
     {
-        //Enable/disable equalizer    
+        //Enable/disable equalizer
         //Disable means: bass & treble control is active
         SetDSPRegister(DSP_WR_MODE_TONE_CTL, nLevel ? 0xFF00 : 0x0000);
         return;
     }
-    
+
     if (!HasEqualizers() || nIndex > 4)
     {
         return;
@@ -171,7 +171,7 @@ void CMSP34x0AudioControls::SetEqualizerLevel(WORD nIndex, WORD nLevel)
     {
         return;
     }
-    
+
     SetDSPRegister((eDSPWriteRegister)(DSP_WR_LDSPK_EQ1 + nIndex), (nLevel & 0xFF) << 8);
 }
 
@@ -187,12 +187,12 @@ void CMSP34x0AudioControls::SetBassBoost(BOOL bBoost)
 
     ldspkr = GetDSPRegister(DSP_RD_LDSPK_LOUDNESS);
     headph = GetDSPRegister(DSP_RD_HEADPH_LOUDNESS);
-    if (bBoost) 
+    if (bBoost)
     {
         ldspkr |= 4;
         headph |= 4;
-    } 
-    else 
+    }
+    else
     {
         ldspkr &= 0xFFFB;
         headph &= 0xFFFB;
@@ -227,7 +227,7 @@ void CMSP34x0AudioControls::SetLoudness(WORD nLevel)
     SetDSPRegister(DSP_WR_LDSPK_LOUDNESS, ldspkr);
     SetDSPRegister(DSP_WR_HEADPH_LOUDNESS, headph);
 }
- 
+
 
 WORD CMSP34x0AudioControls::GetLoudness()
 {
@@ -241,7 +241,7 @@ void CMSP34x0AudioControls::SetAutoVolumeCorrection(long milliSeconds)
         SetDSPRegister(DSP_WR_AVC, 0x0000);
     }
     else
-    {          
+    {
         WORD Val = 0x08; //8 seconds
         if (milliSeconds <= 4000)
         {
@@ -255,7 +255,7 @@ void CMSP34x0AudioControls::SetAutoVolumeCorrection(long milliSeconds)
         {
             Val = 0x01;  //20 ms
         }
-        
+
         SetDSPRegister(DSP_WR_AVC, 0x8000 | ((Val&0x0F) << 8));
     }
 }
@@ -273,29 +273,29 @@ void CMSP34x0AudioControls::SetDolby(long Mode, long nNoise, long nSpatial, long
     switch (Mode)
     {
       case 1: //through
-         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0); 
+         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0);
          SetDSPRegister(DSP_WR_SURROUND_NOISE, 0);
          break;
       case 2: //prologic
-         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0x0100); 
+         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0x0100);
          SetDSPRegister(DSP_WR_SURROUND_NOISE, 0);
          break;
       case 3: //noise mode
-         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0); 
+         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0);
          SetDSPRegister(DSP_WR_SURROUND_NOISE, WORD(0x8000 | (nNoise&0xF0)));
          break;
     }
 
-    // Set Virtual surround Spatial effects        
+    // Set Virtual surround Spatial effects
     SetDSPRegister(DSP_WR_SURROUND_SPATIAL, WORD(int(nSpatial) << 8) );
 
-    // Set Panorama effect...        
+    // Set Panorama effect...
     SetDSPRegister(DSP_WR_SURROUND_PANORAMA, WORD(int(nPan)     << 8) );
 
     // Based on requested mode, set it.
     SetDSPRegister(DSP_WR_SURROUND_PANORAMA_MODE, ((Panorama==1) ? 0x50 :
             ((Panorama==2) ? 0x60 : 0)));
-        
+
 }
 
 void CMSP34x0AudioControls::SetSpatialEffect(int nLevel)
@@ -323,7 +323,7 @@ BOOL CMSP34x0AudioControls::HasSpatialEffect()
 
 int CMSP34x0AudioControls::GetSpatialEffect()
 {
-    WORD Result = GetDSPRegister(DSP_RD_LDSPK_SPATIALEFF);    
+    WORD Result = GetDSPRegister(DSP_RD_LDSPK_SPATIALEFF);
     int nLevel = ((Result >> 8) & 0xFF);
     if (nLevel>=128)
     {
@@ -351,7 +351,7 @@ long CMSP34x0AudioControls::GetAutoVolumeCorrection()
         else if (Result&0x0020)
         {
             return 2000;
-        } 
+        }
         else if (Result&0x0040)
         {
             return 4000;

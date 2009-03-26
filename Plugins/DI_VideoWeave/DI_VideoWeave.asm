@@ -115,7 +115,7 @@ BOOL DeinterlaceFieldWeave_MMX(TDeinterlaceInfo* pInfo)
             shr ecx, 3       // there are LineLength / 8 qwords
 
 align 8
-MAINLOOP_LABEL:         
+MAINLOOP_LABEL:
             movq mm0, qword ptr[eax]        // mm0 = E1
             movq mm1, qword ptr[ebx]        // mm1 = O
             movq mm2, qword ptr[edx]        // mm2 = E2

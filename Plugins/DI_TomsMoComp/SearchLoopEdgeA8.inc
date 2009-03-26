@@ -9,5 +9,5 @@
         MERGE4PIXavg(edi+ecx-8, esi+ecx+8) // left, right
         MERGE4PIXavg(edi+ecx+8, esi+ecx-8) // right, left
         MERGE4PIXavg(edi+2*ecx-8, esi+8)   // down left, up right
-        MERGE4PIXavg(edi+2*ecx+8, esi-8)   // down right, up left   
+        MERGE4PIXavg(edi+2*ecx+8, esi-8)   // down right, up left
         }

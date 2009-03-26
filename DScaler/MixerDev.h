@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file mixerdev.h mixerdev Header file
  */
- 
+
 #ifndef __MIXERDEV_H___
 #define __MIXERDEV_H___
 

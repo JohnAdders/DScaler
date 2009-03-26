@@ -29,12 +29,12 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE DISCARDABLE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
     "#include ""windows.h""\r\n"
@@ -42,7 +42,7 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE DISCARDABLE
 BEGIN
     "\r\n"
     "\0"
@@ -57,7 +57,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO DISCARDABLE
 BEGIN
     "REGISTEREDIT", DIALOG
     BEGIN
@@ -81,7 +81,7 @@ CAPTION "Change Registers by Hand"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "Exit",IDOK,7,153,50,14
-    COMBOBOX        IDC_REGISTERSELECT,14,49,164,13,CBS_DROPDOWN | CBS_SORT | 
+    COMBOBOX        IDC_REGISTERSELECT,14,49,164,13,CBS_DROPDOWN | CBS_SORT |
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Register to change",IDC_STATIC,15,38,106,10
     LTEXT           "Don't play about with these values unless you really know what you're doing, machine crashes are only a mouse click away!",

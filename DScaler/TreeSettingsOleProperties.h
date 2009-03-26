@@ -38,7 +38,7 @@
  * @todo IPropertyPage::TranslateAccelerator is never called
  * @todo handle help messages and show help for active page
  */
-class CTreeSettingsOleProperties : public CTreeSettingsPage  
+class CTreeSettingsOleProperties : public CTreeSettingsPage
 {
 // Construction
 public:
@@ -86,13 +86,13 @@ private:
         ULONG STDMETHODCALLTYPE AddRef();
         HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid,void ** ppvObject);
         ULONG STDMETHODCALLTYPE Release();
-        
+
         //IPropertyPageSite
         HRESULT STDMETHODCALLTYPE OnStatusChange(DWORD dwFlags);
         HRESULT STDMETHODCALLTYPE GetLocaleID(LCID *pLocaleID);
         HRESULT STDMETHODCALLTYPE GetPageContainer(IUnknown **ppUnk);
         HRESULT STDMETHODCALLTYPE TranslateAccelerator(MSG *pMsg);
-        
+
         DWORD GetStatus() {return m_dwStatus;};
 
     private:
@@ -103,7 +103,7 @@ private:
         ///locale id
         LCID m_lcid;
     };
-    
+
     class CPageInfo
     {
     public:

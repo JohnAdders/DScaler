@@ -30,9 +30,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Field 1 | Field 2 | Field 3 | Field 4 |
-//   T0    |         |    T1   |         | 
-//         |   M0    |         |    M1   | 
-//   B0    |         |    B1   |         | 
+//   T0    |         |    T1   |         |
+//         |   M0    |         |    M1   |
+//   B0    |         |    B1   |         |
 //
 
 
@@ -69,13 +69,13 @@ BOOL DeinterlaceGreedy2Frame_MMX(TDeinterlaceInfo* pInfo)
 
     __int64 qwGreedyTwoFrameThreshold;
     const __int64 Mask = 0x7f7f7f7f7f7f7f7f;
-    const __int64 DwordOne = 0x0000000100000001;    
-    const __int64 DwordTwo = 0x0000000200000002;    
+    const __int64 DwordOne = 0x0000000100000001;
+    const __int64 DwordTwo = 0x0000000200000002;
 
     qwGreedyTwoFrameThreshold = GreedyTwoFrameThreshold;
     qwGreedyTwoFrameThreshold += (GreedyTwoFrameThreshold2 << 8);
     qwGreedyTwoFrameThreshold += (qwGreedyTwoFrameThreshold << 48) +
-                                (qwGreedyTwoFrameThreshold << 32) + 
+                                (qwGreedyTwoFrameThreshold << 32) +
                                 (qwGreedyTwoFrameThreshold << 16);
 
 
@@ -122,10 +122,10 @@ BOOL DeinterlaceGreedy2Frame_MMX(TDeinterlaceInfo* pInfo)
             // See above for a description of the algorithm.
 
             mov ecx, LineLength
-            mov eax, dword ptr [T1]     
-            mov ebx, dword ptr [M1]     
-            mov edx, dword ptr [B1]     
-            mov esi, dword ptr [M0]     
+            mov eax, dword ptr [T1]
+            mov ebx, dword ptr [M1]
+            mov edx, dword ptr [B1]
+            mov esi, dword ptr [M0]
             mov esp, dword ptr [T0]
             shr ecx, 3                      // there are LineLength / 8 qwords
             movq    mm6, Mask
@@ -206,7 +206,7 @@ MAINLOOP_LABEL:
             // if |T1-T0| > Threshold we want dword worth of ones
             pcmpgtb mm5, qwGreedyTwoFrameThreshold
             pand    mm5, mm6                // get rid of any sign bit
-            pcmpgtd mm5, DwordOne           
+            pcmpgtd mm5, DwordOne
             pandn   mm5, DwordOne
             paddd mm4, mm5
 
@@ -247,9 +247,9 @@ MAINLOOP_LABEL:
 
             movq mm5, mm4
              // mm4 now is 1 where we want to weave and 0 where we want to bob
-            pand    mm4, mm0                
-            pandn   mm5, mm7                
-            por     mm4, mm5                
+            pand    mm4, mm0
+            pandn   mm5, mm7
+            por     mm4, mm5
 #ifdef IS_SSE
             movntq qword ptr[edi], mm4
 #else
@@ -288,9 +288,9 @@ MAINLOOP_LABEL:
     }
     else
     {
-        pInfo->pMemcpy(Dest, T1, pInfo->LineLength); 
+        pInfo->pMemcpy(Dest, T1, pInfo->LineLength);
     }
-    
+
     // clear out the MMX registers ready for doing floating point
     // again
     _asm

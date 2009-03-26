@@ -33,14 +33,14 @@
  * Class that uses IBasicAudio to change volume and balance.
  * @see CDShowAudioControls
  */
-class CDShowGenericAudioControls : public CDShowAudioControls  
+class CDShowGenericAudioControls : public CDShowAudioControls
 {
 public:
     CDShowGenericAudioControls(CComPtr<IBasicAudio> pAudio);
     virtual ~CDShowGenericAudioControls();
-    
+
     int GetAudioCaps();
-    
+
     /**
      * @return returns volume, zero is maximum volume and negative values is lower volume
      * @throws CDShowException this exception will be thrown if something goes wrong

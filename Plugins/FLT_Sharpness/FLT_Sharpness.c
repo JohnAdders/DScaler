@@ -94,7 +94,7 @@ FILTER_METHOD SharpnessMethod =
     "&Sharpness",
     FALSE,
     TRUE,
-    DispatchSharpness, 
+    DispatchSharpness,
     0,
     TRUE,
     NULL,

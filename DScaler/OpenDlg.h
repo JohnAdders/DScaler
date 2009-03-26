@@ -18,7 +18,7 @@
 
 
 /**
- * @file OpenDlg.h header file for COpenDlg 
+ * @file OpenDlg.h header file for COpenDlg
  */
 
 #if !defined(AFX_OPENDLG_H__FBCD6DFF_AB97_4632_A1FD_E93DE3A1FAE5__INCLUDED_)
@@ -38,7 +38,7 @@ class COpenDlg : public CDialog
 // Construction
 public:
     COpenDlg(CWnd* pParent = NULL);   // standard constructor
-    
+
     /**
      * Creates a open dialog and shows it.
      * @param hParent parent window
@@ -60,7 +60,7 @@ public:
     protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     //}}AFX_VIRTUAL
-    
+
 // Implementation
 protected:
 

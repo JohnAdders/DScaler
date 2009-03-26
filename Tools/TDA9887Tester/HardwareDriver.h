@@ -76,7 +76,7 @@ typedef struct
     DWORD  dwSlotNumber;
 } TPCICARDINFO;
 
-class CHardwareDriver  
+class CHardwareDriver
 {
 public:
     CHardwareDriver();
@@ -87,7 +87,7 @@ public:
     BOOL InstallNTDriver();
     void UnloadDriver();
     BOOL LoadDriver();
-   
+
     DWORD SendCommand(  DWORD dwIOCommand,
                         LPVOID pvInput,
                         DWORD dwInputLength,

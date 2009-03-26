@@ -353,7 +353,7 @@ int VBI_DecodeLine_WSS(BYTE* vbiline)
 {
     BOOL    bResuDecoding;
     TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
-    
+
     switch (TVFormat->wCropHeight)
     {
     // 625-line systems

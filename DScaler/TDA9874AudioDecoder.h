@@ -45,7 +45,7 @@ public:
 
     // Inputs
     void SetAudioInput(eAudioInput AudioInput);
-    
+
     // Standard
     void SetAudioStandard(long Standard, eVideoFormat VideoFormat);
     const char* GetAudioStandardName(long Standard);
@@ -54,12 +54,12 @@ public:
     long GetAudioStandardFromVideoFormat(eVideoFormat VideoFormat);
     void DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel);
     long GetAudioStandardMajorCarrier(long Standard);
-    long GetAudioStandardMinorCarrier(long Standard);    
+    long GetAudioStandardMinorCarrier(long Standard);
     int DetectThread();
 
-    
 
-private:    
+
+private:
     enum eStandard
     {
         TDA9874_STANDARD_NONE = 0x0000,
@@ -79,7 +79,7 @@ private:
         TDA9874_STANDARD_I_DIGITAL_FM_NICAM = 0x0031,
         TDA9874_STANDARD_DK_DIGITAL_FM_NICAM = 0x0032,
         TDA9874_STANDARD_L_DIGITAL_AM_NICAM = 0x0033,
-        
+
         //AUTODETECT
         TDA9874_STANDARD_AUTODETECTION_IN_PROGRESS  = 0x07ff
     };
@@ -100,8 +100,8 @@ private:
     int m_SIF;
     eAudioDecoderType GetAudioDecoderType();
 
-    static ANInfo m_TDA9874Standards[];    
-      
+    static ANInfo m_TDA9874Standards[];
+
     HANDLE m_TDA9874Thread;
     volatile BOOL m_StopThread;
     volatile BOOL m_ThreadWait;
@@ -109,8 +109,8 @@ private:
     volatile eSoundChannel m_TargetSoundChannel;
     volatile long m_DetectInterval10ms;
     volatile int m_AutoDetecting;
-    volatile eSupportedSoundChannels m_SupportedSoundChannels;        
-    
+    volatile eSupportedSoundChannels m_SupportedSoundChannels;
+
 
     void SetChipStandard(BOOL FastCheck);
     void SetChipMode(eSoundChannel channel);

@@ -46,12 +46,12 @@ CSettingGroup::~CSettingGroup()
     m_IsActive->WriteToIni(TRUE);
 }
 
-const string& CSettingGroup::GetName() 
+const string& CSettingGroup::GetName()
 {
     return m_Name;
 }
 
-BOOL CSettingGroup::IsGroupActive() 
+BOOL CSettingGroup::IsGroupActive()
 {
     return m_IsActive->GetValue();
 }

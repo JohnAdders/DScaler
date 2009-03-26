@@ -87,7 +87,7 @@ LOOP_LABEL:
             psubw mm1, mm7
             // should swap U and V round
             pshufw mm2, mm1, 0xb1
-            // at this point we have 
+            // at this point we have
             // mm0 = 00YY00YY00YY00YY
             // mm1 = 00VV00UU00VV00UU
             // mm2 = 00UU00VV00UU00VV
@@ -119,9 +119,9 @@ LOOP_LABEL:
             por mm0, mm1
 
             movq qword ptr[edx], mm0
-            
+
             sub eax, 32
-            
+
             add edx, 8
             loop LOOP_LABEL
         }
@@ -204,7 +204,7 @@ FILTER_METHOD ColorimetryMethod =
     "&Colorimetry",
     FALSE,
     TRUE,
-    FilterColorimetry, 
+    FilterColorimetry,
     0,
     TRUE,
     FilterStartColorimetry,

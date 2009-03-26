@@ -44,7 +44,7 @@ CDShowSeeking::CDShowSeeking(CComPtr<IGraphBuilder> &pGraph)
         m_pSeeking.Release();
         throw CDShowException("Failed to find IMediaSeeking",hr);
     }
-    
+
     //we can only work with TIME_FORMAT_MEDIA_TIME
     if(m_pSeeking->IsFormatSupported(&TIME_FORMAT_MEDIA_TIME)==S_OK)
     {

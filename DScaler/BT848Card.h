@@ -16,7 +16,7 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file bt848card.h  bt848card Header file
  */
 
@@ -43,10 +43,10 @@
 /** A Generic bt848 based capture card
     The card can cope with the standard inputs,
     a tuner and one of the supported sound chips.
-    Control is given over most of the supported chip 
+    Control is given over most of the supported chip
     functions.
 */
-class CBT848Card : public CPCICard, 
+class CBT848Card : public CPCICard,
                    public II2CLineInterface
 {
 private:
@@ -126,7 +126,7 @@ private:
         /// Bit Mask for audio GPIO operations
         DWORD GPIOMask;
         /** GPIO Flags for the various inputs
-            We seem to use 
+            We seem to use
             AUDIOINPUT_TUNER to be selected when tuner is selected and no MSP
             AUDIOINPUT_RADIO to be selected when tuner is selected and ther is a MSP
             AUDIOINPUT_EXTERNAL to be selected when anything but the tuner is required
@@ -142,7 +142,7 @@ private:
         eTVCardId CardId;
         char* szName;
     } TAutoDectect878;
-    
+
 public:
     BOOL Is878Family();
     void HandleTimerMessages(int TimerId);
@@ -151,7 +151,7 @@ public:
 
     void SetCardType(int CardType);
     eTVCardId GetCardType();
-    
+
     void SetVideoSource(int nInput);
 
     void ResetHardware(DWORD RiscBasePhysical);
@@ -222,15 +222,15 @@ public:
     BOOL HasAudioAutoVolumeCorrection();
     void SetAudioAutoVolumeCorrection(long milliSeconds);
 
-    // AudioDecoder facade    
+    // AudioDecoder facade
     CAudioDecoder::eAudioDecoderType GetAudioDecoderType();
     int SetAudioDecoderValue(int What, long Val);
-    long GetAudioDecoderValue(int What);   
+    long GetAudioDecoderValue(int What);
     void SetAudioSource(eAudioInput audioInput);
     void SetAudioChannel(eSoundChannel audioChannel);
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
     void SetAudioStandard(long Standard, eVideoFormat videoformat);
-    long GetAudioStandardCurrent();    
+    long GetAudioStandardCurrent();
     const char* GetAudioStandardName(long Standard);
     int GetNumAudioStandards();
     long GetAudioStandard(int nIndex);
@@ -258,7 +258,7 @@ public:
     void SetUseInputPin1(BOOL AValue);
 
     void SetPMSChannelGain(int ChannelNum, WORD Gain);
-    
+
     BOOL IsMyAudioDecoder(SmartPtr<CAudioDecoder> pAudioDecoder);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);

@@ -46,18 +46,18 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
 {
     MONITORINFO MonInfo;
     LPDIRECTDRAW lpDD;
-    
+
     if (NbMonitors == MAX_MONITORS)
         return DDENUMRET_CANCEL;
 
-    // DirectDrawEnumerateEx returns hMonitor = NULL on single monitor configuration 
+    // DirectDrawEnumerateEx returns hMonitor = NULL on single monitor configuration
     // and both NULL and non-NULL value for the primary monitor in multiple monitors context !
     // However MonitorFromWindow/Rect functions always return non-NULL HMONITOR handles
     // so we need to replace the NULL handle in single monitor context with the non-NULL value
     if (hMonitor == NULL)
     {
         hMonitor = OverlayOutputInstance.m_lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
-    }    
+    }
     LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
 
     // and therefore test if we found again the same monitor !
@@ -81,7 +81,7 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
             LOG(1, "Monitor %d (%d %d %d %d)", NbMonitors, MonInfo.rcMonitor.left, MonInfo.rcMonitor.right, MonInfo.rcMonitor.top, MonInfo.rcMonitor.bottom);
         }
     }
-    
+
     return DDENUMRET_OK; // Keep enumerating
 }
 
@@ -94,7 +94,7 @@ BOOL COverlayOutput::ListMonitors(HWND hWnd)
     // Retrieve the function from the DirectDraw DLL
     if (lpDDEnumEx)
     {
-        // If the function is there, call it to enumerate all display 
+        // If the function is there, call it to enumerate all display
         // devices attached to the desktop
         if(lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES) != DD_OK)
         {
@@ -334,7 +334,7 @@ BOOL COverlayOutput::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwF
         }
 
         ddrval = lpDDOverlay->UpdateOverlay(pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
-        
+
         // if another device has requested exclusive access then we
         // can get the no hardware error, just wait a bit and try again
         while(ddrval == DDERR_NOOVERLAYHW)
@@ -375,7 +375,7 @@ BOOL COverlayOutput::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwF
         // but check that we don't go into an infinite loop
         while(ddrval == DDERR_OUTOFCAPS && i < 5)
         {
-            ddrval = lpDDOverlay->Flip(NULL, 0); 
+            ddrval = lpDDOverlay->Flip(NULL, 0);
             ddrval = lpDDOverlay->UpdateOverlay(pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
             ++i;
         }
@@ -397,7 +397,7 @@ BOOL COverlayOutput::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwF
             LeaveCriticalSection(&hDDCritSect);
             return FALSE;
         }
-        
+
         // update the controls
         if(bUseOverlayControls)
         {
@@ -522,7 +522,7 @@ BOOL COverlayOutput::Overlay_Create()
 
     // 2000-10-31 Moved by Mark Rejhon
     // Attempt to create primary surface before overlay, in this module,
-    // because we may have destroyed the primary surface during a computer 
+    // because we may have destroyed the primary surface during a computer
     // resolution change.
     memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
     SurfaceDesc.dwSize = sizeof(SurfaceDesc);
@@ -643,7 +643,7 @@ BOOL COverlayOutput::Overlay_Create()
 
     if (FAILED(ddrval))
     {
-        switch (ddrval) 
+        switch (ddrval)
         {
         case DDERR_NOOVERLAYHW:
             RealErrorBox("Your video card doesn't appear to support\n"
@@ -653,7 +653,7 @@ BOOL COverlayOutput::Overlay_Create()
 
             // Any other interesting error codes?
         }
-        
+
         sprintf(msg, "Can't create overlay surface: %x", ddrval);
         RealErrorBox(msg);
         LeaveCriticalSection(&hDDCritSect);
@@ -772,7 +772,7 @@ BOOL COverlayOutput::Overlay_Create()
 
     // try to create a memory buffer
     // that we can use if any output filters are switched
-    // on.  This is required because reading and writing back to 
+    // on.  This is required because reading and writing back to
     // video memory is very slow
     lpExtraMemoryForFilters = (BYTE*)malloc(DSCALER_MAX_WIDTH * DSCALER_MAX_HEIGHT * 2 + 16);
     if(lpExtraMemoryForFilters == NULL)
@@ -792,7 +792,7 @@ BOOL COverlayOutput::Overlay_Create()
 // could be used by new JT code
 #ifdef _NOT_YET_USED
 
-    int i = 0; 
+    int i = 0;
     OutputTicksPerFrame = 0;
     while(i < 5)
     {
@@ -810,7 +810,7 @@ BOOL COverlayOutput::Overlay_Create()
         ULONG Ticks = (ticks2 - ticks1);
         // if we get the same answer to within 1% twice in a row
         // we're done, this should avoid problems with pre-emption
-        if(OutputTicksPerFrame * 99 < Ticks * 10 && 
+        if(OutputTicksPerFrame * 99 < Ticks * 10 &&
             OutputTicksPerFrame * 101 > Ticks * 10)
         {
             break;
@@ -894,7 +894,7 @@ DWORD COverlayOutput::Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
 // 2000-10-31 Added by Mark Rejhon
 // Provide a way to destroy the video overlay and primary, which should
 // be done right before a computer resolution change.
-// 
+//
 BOOL COverlayOutput::Overlay_Destroy()
 {
     EnterCriticalSection(&hDDCritSect);
@@ -915,7 +915,7 @@ BOOL COverlayOutput::Overlay_Destroy()
         free(lpExtraMemoryForFilters);
         lpExtraMemoryForFilters = NULL;
     }
-   
+
     // Now destroy the Back Overlay
     if (lpDDOverlayBack != NULL)
     {
@@ -932,7 +932,7 @@ BOOL COverlayOutput::Overlay_Destroy()
     }
 
     // Now destroy the primary surface
-    if (lpDDSurface != NULL) 
+    if (lpDDSurface != NULL)
     {
         lpDDSurface->Release();
         lpDDSurface = NULL;
@@ -971,7 +971,7 @@ BOOL COverlayOutput::Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
 // Add a function to Lock the overlay surface and update some Info from it.
 // We always lock and write to the back buffer.
 // Flipping takes care of the proper buffer addresses.
-// Some of this Info can change each time.  
+// Some of this Info can change each time.
 // We also check to see if we still need to Flip because the
 // non-waiting last flip failed.  If so, try it one more time,
 // then give up.  Tom Barry 10/26/00
@@ -996,7 +996,7 @@ BOOL COverlayOutput::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUse
 
     if (FlipResult == DDERR_WASSTILLDRAWING)             // prev flip was busy?
     {
-        ddrval = lpDDOverlay->Flip(NULL, DDFLIP_DONOTWAIT);  
+        ddrval = lpDDOverlay->Flip(NULL, DDFLIP_DONOTWAIT);
         if(ddrval == DDERR_SURFACELOST)
         {
             LOG(1, "Flip before lock failed");
@@ -1010,9 +1010,9 @@ BOOL COverlayOutput::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUse
     SurfaceDesc.dwSize = sizeof(SurfaceDesc);
     while(ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, dwFlags & !DDLOCK_WAIT, NULL) == DDERR_WASSTILLDRAWING)
     {
-        // RM 7-27-7: We are probably waiting for the vertical sync. 
+        // RM 7-27-7: We are probably waiting for the vertical sync.
         // To prevent spending useless cpu cycles waiting for the vsync we release control
-        // so other applications can do their thing. This not only reduces cpu usage but 
+        // so other applications can do their thing. This not only reduces cpu usage but
         // hopefully it reduces frame dropping as well since there is never such a large
         // amount of time to spare then at this moment.
         Sleep(1);
@@ -1066,7 +1066,7 @@ BOOL COverlayOutput::Overlay_Lock(TDeinterlaceInfo* pInfo)
 
     if (FlipResult == DDERR_WASSTILLDRAWING)             // prev flip was busy?
     {
-        ddrval = lpDDOverlay->Flip(NULL, DDFLIP_DONOTWAIT);  
+        ddrval = lpDDOverlay->Flip(NULL, DDFLIP_DONOTWAIT);
         if(ddrval == DDERR_SURFACELOST)
         {
             LOG(1, "Flip before lock failed");
@@ -1108,7 +1108,7 @@ BOOL COverlayOutput::Overlay_Lock(TDeinterlaceInfo* pInfo)
         return FALSE;
     }
 
-    
+
     // stay in critical section
     return TRUE;
 }
@@ -1237,24 +1237,24 @@ BOOL COverlayOutput::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lp
     }
 
 
-    
+
 
     EnterCriticalSection(&hDDCritSect);
 
     BOOL RetVal = TRUE;
-    FlipResult = lpDDOverlay->Flip(NULL, FlipFlag); 
+    FlipResult = lpDDOverlay->Flip(NULL, FlipFlag);
     if(FAILED(FlipResult))
     {
         // cope with card's that don't support waiting for the flip
         if(FlipFlag != DDFLIP_WAIT && FlipResult == DDERR_INVALIDPARAMS)
         {
-            FlipResult = lpDDOverlay->Flip(NULL, DDFLIP_WAIT); 
+            FlipResult = lpDDOverlay->Flip(NULL, DDFLIP_WAIT);
             if(SUCCEEDED(FlipResult))
             {
                 PostMessageToMainWindow(WM_OUTTHREADS_SETVALUE, WAITFORFLIP, 1);
             }
         }
-        if(FlipResult != DDERR_WASSTILLDRAWING && 
+        if(FlipResult != DDERR_WASSTILLDRAWING &&
             FlipResult != DDERR_SURFACELOST &&
             FlipResult != DDERR_NOTFLIPPABLE)
         {
@@ -1374,7 +1374,7 @@ void COverlayOutput::ExitDD(void)
     }
 }
 
-IOutput::OUTPUTTYPES COverlayOutput::Type() 
+IOutput::OUTPUTTYPES COverlayOutput::Type()
 {
     return OUT_OVERLAY;
 }
@@ -1391,7 +1391,7 @@ BOOL COverlayOutput::Overlay_ColorKey_OnChange(long NewValue)
 
 BOOL COverlayOutput::Overlay_Brightness_OnChange(long NewValue)
 {
-    OverlayOutputInstance.OverlayBrightness = NewValue;   
+    OverlayOutputInstance.OverlayBrightness = NewValue;
     if(GetActiveOutput()->Type() == OUT_OVERLAY)
     {
         GetActiveOutput()->Overlay_SetColorControls();
@@ -1401,50 +1401,50 @@ BOOL COverlayOutput::Overlay_Brightness_OnChange(long NewValue)
 
 BOOL COverlayOutput::Overlay_Contrast_OnChange(long NewValue)
 {
-    OverlayOutputInstance.OverlayContrast = NewValue;   
+    OverlayOutputInstance.OverlayContrast = NewValue;
     if(GetActiveOutput()->Type() == OUT_OVERLAY)
     {
-        GetActiveOutput()->Overlay_SetColorControls();   
+        GetActiveOutput()->Overlay_SetColorControls();
     }
     return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_Hue_OnChange(long NewValue)
 {
-    OverlayOutputInstance.OverlayHue = NewValue;   
+    OverlayOutputInstance.OverlayHue = NewValue;
     if(GetActiveOutput()->Type() == OUT_OVERLAY)
     {
-        GetActiveOutput()->Overlay_SetColorControls();      
+        GetActiveOutput()->Overlay_SetColorControls();
     }
     return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_Saturation_OnChange(long NewValue)
 {
-    OverlayOutputInstance.OverlaySaturation = NewValue;   
+    OverlayOutputInstance.OverlaySaturation = NewValue;
     if(GetActiveOutput()->Type() == OUT_OVERLAY)
     {
-        GetActiveOutput()->Overlay_SetColorControls();      
+        GetActiveOutput()->Overlay_SetColorControls();
     }
     return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_Gamma_OnChange(long NewValue)
 {
-    OverlayOutputInstance.OverlayGamma = NewValue;   
+    OverlayOutputInstance.OverlayGamma = NewValue;
     if(GetActiveOutput()->Type() == OUT_OVERLAY)
     {
-        GetActiveOutput()->Overlay_SetColorControls();      
+        GetActiveOutput()->Overlay_SetColorControls();
     }
     return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_Sharpness_OnChange(long NewValue)
 {
-    OverlayOutputInstance.OverlaySharpness = NewValue;   
+    OverlayOutputInstance.OverlaySharpness = NewValue;
     if(GetActiveOutput()->Type() == OUT_OVERLAY)
     {
-        GetActiveOutput()->Overlay_SetColorControls();      
+        GetActiveOutput()->Overlay_SetColorControls();
     }
     return FALSE;
 }
@@ -1498,7 +1498,7 @@ void COverlayOutput::WaitForVerticalBlank()
 
 
 void COverlayOutput::InitOtherSettings()
-{    
+{
     const SETTING LocalOtherSettings[OTHER_SETTING_LASTONE] =
     {
         {
@@ -1601,7 +1601,7 @@ COverlayOutput::COverlayOutput(void) :
     SrcSizeAlign=1;
     m_bSettingInitialized = FALSE;
     bIsRGB = FALSE;
-    
+
     InitializeCriticalSection(&hDDCritSect);
 }
 

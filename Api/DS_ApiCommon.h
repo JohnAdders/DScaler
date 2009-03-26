@@ -120,7 +120,7 @@ typedef struct
     // see PICTURE_ flags
     DWORD Flags;
     // is this the first picture in a new series
-    // use this flag to indicate changes to any of the 
+    // use this flag to indicate changes to any of the
     // paramters that are assumed to be fixed like
     // timings or pixel width
     BOOL IsFirstInSeries;
@@ -139,7 +139,7 @@ typedef struct
     */
     DWORD Version;
 
-    /** The most recent pictures 
+    /** The most recent pictures
         PictureHistory[0] is always the most recent.
         Pointers are NULL if the picture in question isn't valid, e.g. because
         the program just started or a picture was skipped.

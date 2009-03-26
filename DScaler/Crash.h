@@ -24,10 +24,10 @@
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file crash.h crash Header file
  */
- 
+
 #ifndef __CRASH_H__
 #define __CRASH_H__
 

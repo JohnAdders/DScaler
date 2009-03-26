@@ -97,7 +97,7 @@ CBT848Source::CBT848Source(SmartPtr<CBT848Card> pBT848Card, SmartPtr<CContigMemo
     }
     // loads up core settings like card and tuner type
     ReadFromIni();
-    
+
     SetupCard();
 
     // can't test for IsSPISource until settings are initialized
@@ -187,12 +187,12 @@ void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long Ol
     {
         CAudioDecoder* pAudioDecoder;
         pAudioDecoder = dynamic_cast<CAudioDecoder*>(pEventObject);
-        
+
         if ((pAudioDecoder!=NULL) && m_pBT848Card->IsMyAudioDecoder(pAudioDecoder))
         {
             if (Event == EVENT_AUDIOSTANDARD_DETECTED)
             {
-                AudioStandardDetected(NewValue);        
+                AudioStandardDetected(NewValue);
             }
             else if (Event == EVENT_AUDIOCHANNELSUPPORT_DETECTED)
             {
@@ -221,10 +221,10 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     CSettingGroup *pAudioControl = SettingsMaster->GetGroup("BT848 - Audio Control", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioOther  = SettingsMaster->GetGroup("BT848 - Audio Other", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioEqualizerGroup = SettingsMaster->GetGroup("BT848 - Audio Equalizer", SETTING_BY_CHANNEL);
-    
+
     CSettingGroup *pAdvancedGroup = SettingsMaster->GetGroup("BT848 - Advanced Flags", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT);
     CSettingGroup *pAdvancedTimingGroup = SettingsMaster->GetGroup("BT848 - Advanced Timing", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT);
-    
+
     m_Brightness = new CBrightnessSetting(this, "Brightness", DEFAULT_BRIGHTNESS_NTSC, -128, 127, IniSection, pVideoGroup);
     m_Settings.push_back(m_Brightness);
 
@@ -361,10 +361,10 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 
     // save per input removed
     m_Settings.push_back(NULL);
-    
+
     // save per format removed
     m_Settings.push_back(NULL);
-    
+
     m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
     m_Settings.push_back(m_AudioSource2);
 
@@ -415,7 +415,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 
     m_AudioStandardDetect = new CAudioStandardDetectSetting(this, "Audio Standard Detect", 0, 0, 4, IniSection, pAudioStandard);
     m_Settings.push_back(m_AudioStandardDetect);
-    
+
     m_AudioStandardDetectInterval = new CAudioStandardDetectIntervalSetting(this, "Audio Standard Detect Interval (ms)", 200, 0, 10000, IniSection, pAudioStandard);
     m_Settings.push_back(m_AudioStandardDetectInterval);
 
@@ -432,7 +432,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_Settings.push_back(m_AudioStandardInStatusBar);
 
     m_MSP34xxFlags = new CMSP34xxFlagsSetting(this, "MSP34xx Flags", 0, 0, 0x7ffffffL, IniSection, pAudioOther);
-    m_Settings.push_back(m_MSP34xxFlags);    
+    m_Settings.push_back(m_MSP34xxFlags);
 
     m_AutoStereoDetectInterval = new CAutoStereoDetectIntervalSetting(this, "Auto Stereo Detect Interval", 0, 0, 24*60*1000, IniSection, pAudioChannel);
     m_Settings.push_back(m_AutoStereoDetectInterval);
@@ -506,7 +506,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_AD9882CoastPol = new CAD9882CoastPolSetting(this, "AD9882 Active High Coast Polarity", TRUE, IniSection, pAtlasGroup);
     m_Settings.push_back(m_AD9882CoastPol);
 
-#ifdef _DEBUG    
+#ifdef _DEBUG
     if (BT848_SETTING_LASTONE != m_Settings.size())
     {
         LOGD("Number of settings in BT848 source is not equal to the number of settings in DS_Control.h");
@@ -536,17 +536,17 @@ void CBT848Source::Start()
 
     // Just before we start allow change messages again
     EnableOnChange();
-    
+
     // seems to be required
     // otherwise I get no sound on startup
     if(IsInTunerMode())
     {
-        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());    
+        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
         m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
 
         SetTimer(GetMainWnd(), TIMER_MSP, TIMER_MSP_MS, NULL);
     }
-    
+
 }
 
 void CBT848Source::Reset()
@@ -560,7 +560,7 @@ void CBT848Source::Reset()
     }
     else
     {
-        m_pBT848Card->SetBDelay(GetTVFormat(GetFormat())->bDelayB);  
+        m_pBT848Card->SetBDelay(GetTVFormat(GetFormat())->bDelayB);
     }
 
 
@@ -602,15 +602,15 @@ void CBT848Source::Reset()
 
     m_CurrentX = m_PixelWidth->GetValue();
     m_pBT848Card->SetGeoSize(
-                                m_VideoSource->GetValue(), 
-                                (eVideoFormat)m_VideoFormat->GetValue(), 
-                                m_CurrentX, 
-                                m_CurrentY, 
+                                m_VideoSource->GetValue(),
+                                (eVideoFormat)m_VideoFormat->GetValue(),
+                                m_CurrentX,
+                                m_CurrentY,
                                 m_CurrentVBILines,
-                                m_VDelay->GetValue(), 
+                                m_VDelay->GetValue(),
                                 m_HDelay->GetValue()
                             );
-    
+
     NotifySizeChange();
 
     // may have changed from interlaced to progressive or vice-versa
@@ -658,8 +658,8 @@ void CBT848Source::Reset()
     }
 
     m_MSP34xxFlags->SetValue(m_MSP34xxFlags->GetValue());
-        
-    InitAudio();    
+
+    InitAudio();
 }
 
 
@@ -1105,18 +1105,18 @@ void CBT848Source::BtHorFilterOnChange(BOOL NewValue, BOOL OldValue)
 // that has definitely finished.
 //
 // Added code here to use a user specified parameter for how long to sleep.  Note that
-// windows timer tick resolution is really MUCH worse than 1 millesecond.  Who knows 
+// windows timer tick resolution is really MUCH worse than 1 millesecond.  Who knows
 // what logic W98 really uses?
 //
 // Note also that sleep(0) just tells the operating system to dispatch some other
 // task now if one is ready, not to sleep for zero seconds.  Since I've taken most
-// of the unneeded waits out of other processing here Windows will eventually take 
+// of the unneeded waits out of other processing here Windows will eventually take
 // control away from us anyway, We might as well choose the best time to do it, without
-// waiting more than needed. 
+// waiting more than needed.
 //
 // Also added code to HurryWhenLate.  This checks if the new field is already here by
 // the time we arrive.  If so, assume we are not keeping up with the BT chip and skip
-// some later processing.  Skip displaying this field and use the CPU time gained to 
+// some later processing.  Skip displaying this field and use the CPU time gained to
 // get back here faster for the next one.  This should help us degrade gracefully on
 // slower or heavily loaded systems but use all available time for processing a good
 // picture when nothing else is running.  TRB 10/28/00
@@ -1129,7 +1129,7 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     int FieldDistance;
     int OldPos;
     DWORD StartOfWait = GetTickCount();
-    
+
     if(m_IsVideoProgressive->GetValue())
     {
         OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
@@ -1155,7 +1155,7 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         {
             PostMessageToMainWindow(WM_COMMAND, IDM_RESET, 0);
             //  after tell the card to reset just exit out and we will probably show garbage here
-            break;      
+            break;
         }
     }
     if (bLate)
@@ -1228,7 +1228,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     static int FieldCount(-1);
     int Counter(0);
     DWORD StartOfWait = GetTickCount();
-    
+
     if(m_IsVideoProgressive->GetValue())
     {
         OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
@@ -1251,7 +1251,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
             {
                 PostMessageToMainWindow(WM_COMMAND, IDM_RESET, 0);
                 //  after tell the card to reset just exit out and we will probably show garbage here
-                break;      
+                break;
             }
             Counter = 0;
         }
@@ -1308,7 +1308,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
         }
     }
-    
+
     // do input frequency on cleanish field changes only
     if (FieldCount != -1)
     {
@@ -1352,7 +1352,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
     int OldFormat = m_VideoFormat->GetValue();
-    
+
     // set up channel
     // this must happen after the VideoInput change is sent
     if(m_pBT848Card->IsInputATuner(NewValue))
@@ -1383,7 +1383,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 
     // reset here when we have all the settings
     Reset();
-    
+
     Audio_Unmute(PostSwitchMuteDelay);
     Start_Capture();
 }
@@ -1398,9 +1398,9 @@ void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
     // disabled so if anything that happens in those needs to be triggered
     // we have to manage that ourselves
 
-    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);   
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
-    
+
     // make sure the defaults are correct
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
@@ -1430,15 +1430,15 @@ void CBT848Source::PixelWidthOnChange(long NewValue, long OldValue)
     Stop_Capture();
     m_CurrentX = NewValue;
     m_pBT848Card->SetGeoSize(
-                                m_VideoSource->GetValue(), 
-                                (eVideoFormat)m_VideoFormat->GetValue(), 
-                                m_CurrentX, 
-                                m_CurrentY, 
+                                m_VideoSource->GetValue(),
+                                (eVideoFormat)m_VideoFormat->GetValue(),
+                                m_CurrentX,
+                                m_CurrentY,
                                 m_CurrentVBILines,
-                                m_VDelay->GetValue(), 
+                                m_VDelay->GetValue(),
                                 m_HDelay->GetValue()
                             );
-    
+
     NotifySizeChange();
 
     Start_Capture();
@@ -1447,12 +1447,12 @@ void CBT848Source::PixelWidthOnChange(long NewValue, long OldValue)
 void CBT848Source::HDelayOnChange(long NewValue, long OldValue)
 {
     m_pBT848Card->SetGeoSize(
-                                m_VideoSource->GetValue(), 
-                                (eVideoFormat)m_VideoFormat->GetValue(), 
-                                m_CurrentX, 
-                                m_CurrentY, 
+                                m_VideoSource->GetValue(),
+                                (eVideoFormat)m_VideoFormat->GetValue(),
+                                m_CurrentX,
+                                m_CurrentY,
                                 m_CurrentVBILines,
-                                m_VDelay->GetValue(), 
+                                m_VDelay->GetValue(),
                                 m_HDelay->GetValue()
                             );
 }
@@ -1460,12 +1460,12 @@ void CBT848Source::HDelayOnChange(long NewValue, long OldValue)
 void CBT848Source::VDelayOnChange(long NewValue, long OldValue)
 {
     m_pBT848Card->SetGeoSize(
-                                m_VideoSource->GetValue(), 
-                                (eVideoFormat)m_VideoFormat->GetValue(), 
-                                m_CurrentX, 
-                                m_CurrentY, 
+                                m_VideoSource->GetValue(),
+                                (eVideoFormat)m_VideoFormat->GetValue(),
+                                m_CurrentX,
+                                m_CurrentY,
                                 m_CurrentVBILines,
-                                m_VDelay->GetValue(), 
+                                m_VDelay->GetValue(),
                                 m_HDelay->GetValue()
                             );
 }
@@ -1500,11 +1500,11 @@ void CBT848Source::BDelayOnChange(long NewValue, long OldValue)
     // zero means use format's default value
     if(NewValue != 0)
     {
-        m_pBT848Card->SetBDelay((BYTE)NewValue);  
+        m_pBT848Card->SetBDelay((BYTE)NewValue);
     }
     else
     {
-        m_pBT848Card->SetBDelay(GetTVFormat(GetFormat())->bDelayB);  
+        m_pBT848Card->SetBDelay(GetTVFormat(GetFormat())->bDelayB);
     }
 }
 
@@ -1784,7 +1784,7 @@ void CBT848Source::SetupCard()
             m_AudioSource1->SetValue(AUDIOINPUT_EXTERNAL);
         }
     }
-    
+
     m_pBT848Card->SetCardType(m_CardType->GetValue());
     m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
 
@@ -1800,7 +1800,7 @@ void CBT848Source::SetupCard()
         // reset here, actaully change the values too
         ChangeDefaultsForSetup(SETUP_CHANGE_ANY, FALSE);
     }
-    
+
     InitAudio();
 
     // set up card specific menu
@@ -1880,7 +1880,7 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
     if(VideoFormat != m_VideoFormat->GetValue())
     {
         m_VideoFormat->SetValue(VideoFormat);
-    }    
+    }
     return m_pBT848Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 }
 
@@ -1919,18 +1919,18 @@ void CBT848Source::SetAspectRatioData()
 }
 
 void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
-{    
+{
     if ((PreChange) && m_AutoStereoSelect->GetValue())
     {
         m_AudioChannel->SetValue(SOUNDCHANNEL_MONO);
     }
-    
+
     if (!PreChange && (m_AudioStandardDetect->GetValue()==3))
     {
         m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
-    } 
+    }
     else if ((!PreChange) && m_AutoStereoSelect->GetValue())
-    {      
+    {
         m_KeepDetectingStereo = 0;
         m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2,
             (m_AutoStereoSelect->GetValue())?SOUNDCHANNEL_STEREO : (eSoundChannel)(m_AudioChannel->GetValue()));
@@ -1961,12 +1961,12 @@ int  CBT848Source::NumInputs(eSourceInputType InputType)
 {
     if (InputType == VIDEOINPUT)
     {
-        return m_pBT848Card->GetNumInputs();      
+        return m_pBT848Card->GetNumInputs();
     }
     /*
     else if (InputType == AUDIOINPUT)
     {
-        return m_pBT848Card->GetNumAudioInputs();      
+        return m_pBT848Card->GetNumAudioInputs();
     }
     */
   return 0;
@@ -1980,9 +1980,9 @@ BOOL CBT848Source::SetInput(eSourceInputType InputType, int Nr)
         return TRUE;
     }
     else if (InputType == AUDIOINPUT)
-    {      
-        m_pBT848Card->SetAudioSource((eAudioInput)Nr);          
-        return TRUE;      
+    {
+        m_pBT848Card->SetAudioSource((eAudioInput)Nr);
+        return TRUE;
     }
     return FALSE;
 }
@@ -1995,7 +1995,7 @@ int CBT848Source::GetInput(eSourceInputType InputType)
     }
     else if (InputType == AUDIOINPUT)
     {
-        return m_pBT848Card->GetAudioInput();    
+        return m_pBT848Card->GetAudioInput();
     }
     return -1;
 }
@@ -2008,9 +2008,9 @@ string CBT848Source::GetInputName(eSourceInputType InputType, int Nr)
         {
             return m_pBT848Card->GetInputName(Nr);
         }
-    } 
+    }
     else if (InputType == AUDIOINPUT)
-    {      
+    {
         return m_pBT848Card->GetAudioInputName((eAudioInput)Nr);
     }
     return "";
@@ -2033,7 +2033,7 @@ BOOL CBT848Source::InputHasTuner(eSourceInputType InputType, int Nr)
 }
 
 
-SmartPtr<ITuner> CBT848Source::GetTuner() 
+SmartPtr<ITuner> CBT848Source::GetTuner()
 {
     return m_pBT848Card->GetTuner();
 }

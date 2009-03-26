@@ -28,10 +28,10 @@
 // caller.
 //---------------------------------------------------------------------------
 NTSTATUS CIOAccessDevice::pciFindDevice(
-                                            DWORD vendorID, 
-                                            DWORD deviceID, 
+                                            DWORD vendorID,
+                                            DWORD deviceID,
                                             DWORD dwCardIndex,
-                                            DWORD* pdwBusNumber, 
+                                            DWORD* pdwBusNumber,
                                             DWORD* pdwSlotNumber
                                        )
 {
@@ -139,7 +139,7 @@ NTSTATUS CIOAccessDevice::pciGetDeviceInfo(TPCICARDINFO* pPCICardInfo)
 
     status = pciGetDeviceConfig(&PCIConfig, pPCICardInfo->dwBusNumber, pPCICardInfo->dwSlotNumber);
 
-    debugOut(dbTrace,"found address %lX, irq %lX", PCIConfig.u.type0.BaseAddresses[0], 
+    debugOut(dbTrace,"found address %lX, irq %lX", PCIConfig.u.type0.BaseAddresses[0],
                                                     PCIConfig.u.type0.InterruptLine);
 
     pPCICardInfo->dwMemoryAddress = PCIConfig.u.type0.BaseAddresses[0] & 0xFFFFFFF0;

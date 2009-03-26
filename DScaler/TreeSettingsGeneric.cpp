@@ -192,7 +192,7 @@ void CTreeSettingsGeneric::OnSelchangeList()
         m_TopGroupBox.SetWindowText("");
         m_SavePerInfoBox.SetWindowText(szName.c_str());
         m_SavePerInfoBox.ShowWindow(SW_HIDE);
-        
+
         UpdateControls(NULL);
     }
     else

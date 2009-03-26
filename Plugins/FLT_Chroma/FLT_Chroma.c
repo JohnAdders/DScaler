@@ -24,7 +24,7 @@
 // 2) Perform a simple low pass vertical to smooth out the chroma image
 //    to compensate for errors in 4:2:0 -> 4:2:2 convertion
 /////////////////////////////////////////////////////////////////////////////
-// in trying to work out what is going on below you will need to understand 
+// in trying to work out what is going on below you will need to understand
 // how the pixels are stored in an MMX register
 // each MMX register contains 4 pixels worth of luma in the low bytes of each word
 // we number these L1 L2 L3 L4 going from left to right
@@ -89,7 +89,7 @@ LOOP_LABEL_LPO:
             movq mm2, mm3
             movq mm3, [edx]
             // get just chroma value of top line
-            psrlw mm1, 8  
+            psrlw mm1, 8
             // save the luma values of the current line
             movq mm5, mm2
             pand mm5, mm0
@@ -171,8 +171,8 @@ LOOP_LABEL_UVS:
             movq mm3, [eax]
             sub eax, ebx
             pand mm1, mm0
-            psrlw mm2, 8  
-            psrlw mm3, 8  
+            psrlw mm2, 8
+            psrlw mm3, 8
             pmullw mm2, mm6
             pmullw mm3, mm7
             paddw mm2, mm3
@@ -245,8 +245,8 @@ LOOP_LABEL_DVS:
             add eax, ebx
             movq mm3, [eax]
             pand mm1, mm0
-            psrlw mm2, 8  
-            psrlw mm3, 8  
+            psrlw mm2, 8
+            psrlw mm3, 8
             pmullw mm2, mm6
             pmullw mm3, mm7
             paddw mm2, mm3
@@ -305,11 +305,11 @@ void DoLeftHorzShift(TDeinterlaceInfo* pInfo, int MyHorzShift)
                 movq mm7, qwHalfMask1
                 movq mm6, [edx]
 LOOP_LABEL_LHS1:
-                // mm1 = Store of "current" luma set 
+                // mm1 = Store of "current" luma set
                 // mm2 = 00 00 V1 U1
                 // mm3 = V3 U3 00 00
                 // mm4 = 00 00 V5 U5
-                // mm6 = Store of "next" pixel set 
+                // mm6 = Store of "next" pixel set
                 add edx, 8
                 movq mm1, mm6
                 movq mm2, mm6
@@ -335,7 +335,7 @@ LOOP_LABEL_LHS1:
                 psllq mm4, 32
                 pmullw mm4, qwWeight2
                 paddw mm2, mm4
-            
+
                 psrlw mm2, 4
                 psllw mm2, 8
 
@@ -365,12 +365,12 @@ LOOP_LABEL_LHS1:
                 movq mm7, qwHalfMask1
                 movq mm6, [edx]
     LOOP_LABEL_LPO:
-                // mm1 = Store of "current" luma set 
+                // mm1 = Store of "current" luma set
                 // mm2 = 00 00 V1 U1
                 // mm3 = V3 U3 00 00
                 // mm4 = 00 00 V5 U5
                 // mm5 = V7 U7 00 00
-                // mm6 = Store of "next" pixel set 
+                // mm6 = Store of "next" pixel set
                 add edx, 8
                 movq mm1, mm6
                 movq mm2, mm6
@@ -398,7 +398,7 @@ LOOP_LABEL_LHS1:
                 psllq mm5, 32
                 pmullw mm5, qwWeight2
                 paddw mm2, mm5
-            
+
                 psrlw mm2, 4
                 psllw mm2, 8
 
@@ -478,7 +478,7 @@ LOOP_LABEL_RHS1:
             psrlq mm5, 32
             pmullw mm5, qwWeight2
             paddw mm3, mm5
-        
+
             psrlw mm3, 4
             psllw mm3, 8
 
@@ -530,7 +530,7 @@ LOOP_LABEL_RHS2:
             psrlq mm4, 32
             pmullw mm4, qwWeight2
             paddw mm3, mm4
-        
+
             psrlw mm3, 4
             psllw mm3, 8
 
@@ -553,12 +553,12 @@ LOOP_LABEL_RHS2:
             movq mm7, qwHalfMask1
             movq mm6, [edx]
 LOOP_LABEL_LPO:
-            // mm1 = Store of "current" luma set 
+            // mm1 = Store of "current" luma set
             // mm2 = 00 00 V1 U1
             // mm3 = V3 U3 00 00
             // mm4 = 00 00 V5 U5
             // mm5 = V7 U7 00 00
-            // mm6 = Store of "next" pixel set 
+            // mm6 = Store of "next" pixel set
             sub edx, 8
             movq mm1, mm6
             movq mm2, mm6
@@ -590,7 +590,7 @@ LOOP_LABEL_LPO:
             psrlq mm4, 32
             pmullw mm4, qwWeight2
             paddw mm3, mm4
-            
+
             psrlw mm3, 4
             psllw mm3, 8
 
@@ -851,7 +851,7 @@ FILTER_METHOD ChromaMethod =
     "&Chroma",
     FALSE,
     FALSE,
-    FilterChroma, 
+    FilterChroma,
     0,
     TRUE,
     NULL,

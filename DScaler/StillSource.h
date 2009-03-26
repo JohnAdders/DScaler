@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file stillsource.h stillsource Header file
  */
- 
+
 #ifndef __STILLSOURCE_H___
 #define __STILLSOURCE_H___
 
@@ -217,7 +217,7 @@ private:
     DWORD       m_LastTickCount;
     DWORD        m_FrameDuration;
     BOOL        m_SlideShowActive;
-    
+
     eStillNewFileRequest    m_NewFileRequested;
     int                     m_NewFileReqPos;
 

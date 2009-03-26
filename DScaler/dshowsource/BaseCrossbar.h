@@ -43,7 +43,7 @@ public:
 
 /**
  * Base class for crossbars.
- * 
+ *
  */
 class CDShowBaseCrossbar : public CDShowObject
 {
@@ -57,25 +57,25 @@ public:
      * Get number of input and output pins.
      */
     virtual void GetPinCounts(long &cIn,long &cOut)=0;
-    
+
     /**
      * @return Type of specified input
      */
     virtual PhysicalConnectorType GetInputType(long Index)=0;
-    
+
     /**
      * @param Index input number
      * @return Name of input
      */
     virtual std::string GetInputName(long Index);
-    
+
     /**
      * Select input.
      * @param Index input index
      * @param bSetRelated a BOOL that specifies if the related pin is also to be selected, for example if you selecte a video input it will also set the corect audio input
      */
     virtual void SetInputIndex(long Index,BOOL bSetRelated)=0;
-    
+
     /**
      * Which input is connected to specified output.
      * This function returns the input index of the pin that is routed to specified output
@@ -83,7 +83,7 @@ public:
      * @return index for currently selected index
      */
     virtual long GetInputIndex(long OutIndex)=0;
-    
+
     /**
      * @param index input pin index.
      * @return TRUE if specified input is routed to an output.

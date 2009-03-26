@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file calibration.h calibration Header file
  */
- 
+
 #ifndef __CALIBRATION_H___
 #define __CALIBRATION_H___
 

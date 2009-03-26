@@ -37,9 +37,9 @@
 #include "MSP34x0.h"
 #include "AudioDecoder.h"
 
-class CMSP34x0AudioDecoder : 
-    public CMSP34x0, 
-    public CAudioDecoder  
+class CMSP34x0AudioDecoder :
+    public CMSP34x0,
+    public CAudioDecoder
 {
 public:
     CMSP34x0AudioDecoder();
@@ -50,7 +50,7 @@ public:
     BOOL GetUseInputPin1();
     void SetUseInputPin1(BOOL AValue);
 
-    // from CAudioDecoder the default Getters are used    
+    // from CAudioDecoder the default Getters are used
     void SetSoundChannel(eSoundChannel soundChannel);
     void SetAudioInput(eAudioInput audioInput);
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
@@ -127,7 +127,7 @@ private:
         FIR_SAT,
         FIR_FM_RADIO,
     };
-    
+
 #define MSP_CARRIER(freq) ((int)((float)(freq/18.432)*(1<<24)))
     enum eCarrier
     {
@@ -146,10 +146,10 @@ private:
         MSP34x0_CARRIER_7_02        = MSP_CARRIER(7.02),
         MSP34x0_CARRIER_7_20        = MSP_CARRIER(7.20),
         MSP34x0_CARRIER_7_38        = MSP_CARRIER(7.38),
-        MSP34x0_CARRIER_10_7        = MSP_CARRIER(10.7),        
+        MSP34x0_CARRIER_10_7        = MSP_CARRIER(10.7),
     };
 #undef MSP_CARRIER
-    
+
     typedef struct
     {
         char*           Name;
@@ -194,7 +194,7 @@ private:
         MSPVersionG,
     };
 
-    typedef struct 
+    typedef struct
     {
       eCarrier Major;
       eCarrier Minor[10];
@@ -207,7 +207,7 @@ public:
     int DetectThread();
 
 private:
-    int m_CarrierDetect_Phase;    
+    int m_CarrierDetect_Phase;
 
     void InitializeRevA();
     eStandard DetectStandardRevA();
@@ -215,7 +215,7 @@ private:
     void SetStandardRevA(eStandard standard, eVideoFormat videoformat, BOOL bCurrentCarriers, eSoundChannel soundChannel);
     void SetSoundChannelRevA(eSoundChannel soundChannel);
     void SetCarrierRevA(eCarrier MajorCarrier, eCarrier MinorCarrier);
-    
+
     void InitializeRevG();
     eStandard DetectStandardRevG();
     eSupportedSoundChannels DetectSoundChannelsRevG();

@@ -62,12 +62,12 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // COpenDlg message handlers
 
-BOOL COpenDlg::OnInitDialog() 
+BOOL COpenDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
-    
+
     SetupAutoComplete();
-    
+
     return TRUE;  // return TRUE unless you set the focus to a control
                   // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -94,7 +94,7 @@ void COpenDlg::OnOK()
 BOOL COpenDlg::ShowOpenDialog(HWND hParent,CString &FileName)
 {
     COpenDlg dlg(CWnd::FromHandle(hParent));
-    
+
     if(dlg.DoModal()==IDOK)
     {
         FileName=dlg.m_FileName;
@@ -106,7 +106,7 @@ BOOL COpenDlg::ShowOpenDialog(HWND hParent,CString &FileName)
     }
 }
 
-void COpenDlg::OnBrowse() 
+void COpenDlg::OnBrowse()
 {
     OPENFILENAME OpenFileInfo;
     char FilePath[MAX_PATH];

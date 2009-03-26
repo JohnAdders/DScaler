@@ -32,12 +32,12 @@
 /**
  * This source handles DirectShow files.
  */
-class CDSFileSource : public CDSSourceBase  
+class CDSFileSource : public CDSSourceBase
 {
 public:
     CDSFileSource();
     virtual ~CDSFileSource();
-    
+
     void CreateSettings(LPCSTR IniSection);
 
     BOOL IsAccessAllowed();
@@ -61,7 +61,7 @@ public:
     std::string GetStatus();
     void HandleTimerMessages(int TimerId);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
-    
+
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsInTunerMode();
 
@@ -76,7 +76,7 @@ public:
     int GetInput(eSourceInputType InputType) { return -1; };
     std::string GetInputName(eSourceInputType InputType, int Nr) { return ""; };
     BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
-    
+
     void UpdateMenu();
     void SetMenu(HMENU hMenu);
     std::string GetMenuLabel();

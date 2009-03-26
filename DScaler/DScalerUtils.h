@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file DScalerUtils.h
  */
- 
+
 #ifndef __DSCALER_UTILS_H___
 #define __DSCALER_UTILS_H___
 
@@ -70,23 +70,23 @@ namespace DScalerPrivate
         _StringBuffer(std::string &str, size_t nSize) :
                     m_str(str),
                     m_buffer(nSize + 1)
-        { 
-            get()[nSize] = 0; 
+        {
+            get()[nSize] = 0;
         }
 
         ~_StringBuffer()
-         { 
-             commit(); 
+         {
+             commit();
          }
 
          char* get()
-         { 
-             return &(m_buffer[0]); 
+         {
+             return &(m_buffer[0]);
          }
 
          operator char*()
-         { 
-             return get(); 
+         {
+             return get();
          }
 
         void commit()
@@ -100,9 +100,9 @@ namespace DScalerPrivate
         }
     };
 
-    struct NoCasePredicate : public std::binary_function<char, char, BOOL> 
+    struct NoCasePredicate : public std::binary_function<char, char, BOOL>
     {
-        BOOL operator()(char x, char y) const 
+        BOOL operator()(char x, char y) const
         {
             return toupper(x) < toupper(y);
         }
@@ -111,7 +111,7 @@ namespace DScalerPrivate
 
 inline DScalerPrivate::_StringBuffer StringBuffer(std::string &str, size_t nSize)
 {
-    return DScalerPrivate::_StringBuffer(str, nSize); 
+    return DScalerPrivate::_StringBuffer(str, nSize);
 }
 
 inline BOOL AreEqualInsensitive(const std::string& String1, const std::string& String2)

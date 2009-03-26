@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file fd_common.h fd_common Header file
  */
- 
+
 #ifndef __FD_COMMON_H___
 #define __FD_COMMON_H___
 

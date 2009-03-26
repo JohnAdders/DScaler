@@ -31,7 +31,7 @@
 // Deinterlaces a field with a tendency to bob rather than weave.  Best for
 // high-motion scenes like sports.
 //
-// The algorithm for this was taken from the 
+// The algorithm for this was taken from the
 // Deinterlace - area based Vitual Dub Plug-in by
 // Gunnar Thalin
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ BOOL DeinterlaceFieldBob_MMX(TDeinterlaceInfo* pInfo)
     BYTE* Dest = pInfo->Overlay;
     DWORD LineLength = pInfo->LineLength;
     DWORD Pitch = pInfo->InputPitch;
-    
+
     __int64 qwEdgeDetect;
     __int64 qwThreshold;
 #ifdef IS_MMX
@@ -72,7 +72,7 @@ BOOL DeinterlaceFieldBob_MMX(TDeinterlaceInfo* pInfo)
 
         pInfo->pMemcpy(Dest, pInfo->PictureHistory[1]->pData, pInfo->LineLength);
         Dest += pInfo->OverlayPitch;
-        
+
         pInfo->pMemcpy(Dest, YVal1, pInfo->LineLength);
         Dest += pInfo->OverlayPitch;
     }
@@ -106,9 +106,9 @@ BOOL DeinterlaceFieldBob_MMX(TDeinterlaceInfo* pInfo)
             shr ecx, 3       // there are LineLength / 8 qwords
 
 align 8
-MAINLOOP_LABEL:         
-            movq mm0, qword ptr[eax] 
-            movq mm1, qword ptr[ebx] 
+MAINLOOP_LABEL:
+            movq mm0, qword ptr[eax]
+            movq mm1, qword ptr[ebx]
             movq mm2, qword ptr[edx]
 
             // get intensities in mm3 - 4

@@ -19,7 +19,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
 * @file HierarchicalConfigParser.h HierarchicalConfigParser Implementation
 */
 
@@ -1177,7 +1177,7 @@ BOOL CHCParser::CloseTag(BOOL openNext)
     {
         m_parseStates.front().expect &= ~(EXPECT_CLOSE_COMMA|EXPECT_CLOSE_EOL|EXPECT_OPEN_L|EXPECT_EQUAL);
         m_parseStates.front().expect |= EXPECT_TAG;
-        
+
         if (!(m_parseStates.front().expect & EXPECT_CLOSE_L))
         {
             m_parseStates.front().expect |= EXPECT_SECTION;

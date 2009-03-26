@@ -28,7 +28,7 @@
 #include "stdafx.h"
 #include "TDA9875.h"
 #include "TDA9875AudioDecoder.h"
-#include "Crash.h" 
+#include "Crash.h"
 #include "DebugLog.h"
 #include "audio.h"
 
@@ -248,9 +248,9 @@ CTDA9875AudioDecoder::TCarrierDetect CTDA9875AudioDecoder::CarrierDetectTable[] 
         }
     },
     {
-        TDA9875_NOCARRIER,    
-        { 
-            TDA9875_NOCARRIER 
+        TDA9875_NOCARRIER,
+        {
+            TDA9875_NOCARRIER
         }
     }
 };
@@ -290,7 +290,7 @@ void CTDA9875AudioDecoder::SetUseInputPin1(BOOL AValue)
     // Sound Channels
 void CTDA9875AudioDecoder::SetSoundChannel(eSoundChannel soundChannel)
 {
-    
+
     CAudioDecoder::SetSoundChannel(soundChannel);
 
     EnterCriticalSection(&TDA9875CriticalSection);
@@ -344,7 +344,7 @@ eSoundChannel CTDA9875AudioDecoder::GetSoundChannel()
 }
 
 eSoundChannel CTDA9875AudioDecoder::IsAudioChannelDetected(eSoundChannel desiredAudioChannel)
-{ 
+{
     eSoundChannel SoundChannel = SOUNDCHANNEL_MONO;
     switch (desiredAudioChannel)
     {
@@ -415,7 +415,7 @@ void CTDA9875AudioDecoder::SetAudioStandard(long Standard, eVideoFormat videofor
     int nIndex = 0;
     TStandardDefinition StandardDefinition;
 
-    StandardDefinition.Standard = TDA9875_STANDARD_NONE; 
+    StandardDefinition.Standard = TDA9875_STANDARD_NONE;
 
     // Find default carrier frequencies
     m_AudioStandardMajorCarrier = 0;
@@ -483,14 +483,14 @@ void CTDA9875AudioDecoder::SetAudioStandard(long Standard, eVideoFormat videofor
     {
         WriteToSubAddress(TDA9875_MCS, 1);        //MAIN NICAM, L + R
         WriteToSubAddress(TDA9875_ACS, 1);        //AUX NICAM, L + R
-        WriteToSubAddress(TDA9875_DACOS, 1);    //DAC NICAM L + R 
+        WriteToSubAddress(TDA9875_DACOS, 1);    //DAC NICAM L + R
 
     }
     else
     {
         WriteToSubAddress(TDA9875_MCS, 0);        //MAIN FM, L + R
         WriteToSubAddress(TDA9875_ACS, 0);        //AUX FM, L + R
-        WriteToSubAddress(TDA9875_DACOS, 0);    //DAC FM L + R 
+        WriteToSubAddress(TDA9875_DACOS, 0);    //DAC FM L + R
     }
 
     SetAudioStandardCarriers(StandardDefinition.MajorCarrier, StandardDefinition.MinorCarrier);
@@ -691,13 +691,13 @@ void CTDA9875AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     CAudioDecoder::DetectAudioStandard(Interval, SupportedSoundChannels, TargetChannel);
 
     if (Interval > 0)
-    {                
+    {
         m_DetectInterval10ms = (Interval/10);
     }
     else
     {
         //Abort
-        StopThread();    
+        StopThread();
         return;
     }
 
@@ -706,8 +706,8 @@ void CTDA9875AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
         m_TargetSoundChannel = TargetChannel;
     }
 
-    EnterCriticalSection(&TDA9875CriticalSection);    
-    int AutoDetecting = m_AutoDetecting;       
+    EnterCriticalSection(&TDA9875CriticalSection);
+    int AutoDetecting = m_AutoDetecting;
     LeaveCriticalSection(&TDA9875CriticalSection);
 
     // Stop thread if detecting audio standard
@@ -716,32 +716,32 @@ void CTDA9875AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     {
         // Mute
         StopThread();
-        
+
     }
     else if (AutoDetecting == 2)
     {
-        EnterCriticalSection(&TDA9875CriticalSection);    
+        EnterCriticalSection(&TDA9875CriticalSection);
         m_ThreadWait = TRUE;
         LeaveCriticalSection(&TDA9875CriticalSection);
         Sleep(10);
-        
-        EnterCriticalSection(&TDA9875CriticalSection);    
+
+        EnterCriticalSection(&TDA9875CriticalSection);
         BOOL bSuspended = (m_AutoDetecting == 0);
         LeaveCriticalSection(&TDA9875CriticalSection);
 
         if (!bSuspended)
-        {            
+        {
             Sleep(50);
-            EnterCriticalSection(&TDA9875CriticalSection);    
+            EnterCriticalSection(&TDA9875CriticalSection);
             bSuspended = (m_AutoDetecting == 0);
             LeaveCriticalSection(&TDA9875CriticalSection);
-            
+
             if (!bSuspended)
             {
                 StopThread();
             }
         }
-        Sleep(1);   
+        Sleep(1);
     }
 
     if (SupportedSoundChannels == 1)
@@ -749,7 +749,7 @@ void CTDA9875AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
         SetAudioStandard(TDA9875_STANDARD_AUTO, m_VideoFormat);
     }
 
-    EnterCriticalSection(&TDA9875CriticalSection);        
+    EnterCriticalSection(&TDA9875CriticalSection);
     m_DetectCounter = 1;
     Sleep(10);
     if (SupportedSoundChannels == 2)
@@ -814,7 +814,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         //Left
         //25Khz left to the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Major - CARRIER_OFFSET_25KHZ, 
+            CarrierDetectTable[nMajorIndex].Major - CARRIER_OFFSET_25KHZ,
             CarrierDetectTable[nMajorIndex].Major - CARRIER_OFFSET_25KHZ
             );
 
@@ -832,7 +832,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
         //15Khz left to the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Major - CARRIER_OFFSET_15KHZ, 
+            CarrierDetectTable[nMajorIndex].Major - CARRIER_OFFSET_15KHZ,
             CarrierDetectTable[nMajorIndex].Major - CARRIER_OFFSET_15KHZ
             );
 
@@ -850,7 +850,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
         //5Khz left to the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Major - CARRIER_OFFSET_5KHZ, 
+            CarrierDetectTable[nMajorIndex].Major - CARRIER_OFFSET_5KHZ,
             CarrierDetectTable[nMajorIndex].Major - CARRIER_OFFSET_5KHZ
             );
 
@@ -868,7 +868,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
         //5Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Major + CARRIER_OFFSET_5KHZ, 
+            CarrierDetectTable[nMajorIndex].Major + CARRIER_OFFSET_5KHZ,
             CarrierDetectTable[nMajorIndex].Major + CARRIER_OFFSET_5KHZ
             );
 
@@ -886,7 +886,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
         //15Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Major + CARRIER_OFFSET_15KHZ, 
+            CarrierDetectTable[nMajorIndex].Major + CARRIER_OFFSET_15KHZ,
             CarrierDetectTable[nMajorIndex].Major + CARRIER_OFFSET_15KHZ
             );
 
@@ -904,7 +904,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
         //25Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Major + CARRIER_OFFSET_25KHZ, 
+            CarrierDetectTable[nMajorIndex].Major + CARRIER_OFFSET_25KHZ,
             CarrierDetectTable[nMajorIndex].Major + CARRIER_OFFSET_25KHZ
             );
 
@@ -919,14 +919,14 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         c += CARRIER_OFFSET_25KHZ*val;
         d += CARRIER_OFFSET_25KHZ*CARRIER_OFFSET_25KHZ;
         LOG(1,"TDA9875: Major carrier = %d Hz, 25KHz right = %d",CarrierDetectTable[nMajorIndex].Major,val);
-        
+
         k0 = a/6.0;
         k1 = ((double)c)/d;
         if (k1 != 0)
             u0 = - k0/k1;
         else
             u0 = CARRIER_OFFSET_25KHZ + 1; //out of range
-        
+
         condition1 = ((u0 > -CARRIER_OFFSET_25KHZ) && (u0 < CARRIER_OFFSET_25KHZ));
         condition2 = (k1 > 0.05);
 
@@ -935,7 +935,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
             //Setup
             LOG(1,"TDA9875: Found Major carrier = %d Hz",CarrierDetectTable[nMajorIndex].Major);
             m_CarrierDetect_Phase = 8; // Detect minor carrier
-            
+
             //Minor Carrier
             WriteToSubAddress(TDA9875_MSR, 16); // channel 2
         }
@@ -959,7 +959,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
             //Left
             //25Khz left to the carrier
             SetAudioStandardCarriersTDA9875(
-                CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] - CARRIER_OFFSET_25KHZ, 
+                CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] - CARRIER_OFFSET_25KHZ,
                 CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] - CARRIER_OFFSET_25KHZ
                 );
 
@@ -978,7 +978,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
         //15Khz left to the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] - CARRIER_OFFSET_15KHZ, 
+            CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] - CARRIER_OFFSET_15KHZ,
             CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] - CARRIER_OFFSET_15KHZ
             );
 
@@ -996,7 +996,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
         //5Khz left to the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] - CARRIER_OFFSET_5KHZ, 
+            CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] - CARRIER_OFFSET_5KHZ,
             CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] - CARRIER_OFFSET_5KHZ
             );
 
@@ -1015,7 +1015,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         //Right
         //5Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] + CARRIER_OFFSET_5KHZ, 
+            CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] + CARRIER_OFFSET_5KHZ,
             CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] + CARRIER_OFFSET_5KHZ
             );
         m_CarrierDetect_Phase = 12;
@@ -1032,7 +1032,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
         //15Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] + CARRIER_OFFSET_15KHZ, 
+            CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] + CARRIER_OFFSET_15KHZ,
             CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] + CARRIER_OFFSET_15KHZ
             );
 
@@ -1047,10 +1047,10 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         c += CARRIER_OFFSET_15KHZ*val;
         d += CARRIER_OFFSET_15KHZ*CARRIER_OFFSET_15KHZ;
         LOG(1,"TDA9875: Minor carrier = %d Hz, 15KHz right = %d",CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
-        
+
         //25Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
-            CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] + CARRIER_OFFSET_25KHZ, 
+            CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] + CARRIER_OFFSET_25KHZ,
             CarrierDetectTable[nMajorIndex].Minor[nMinorIndex] + CARRIER_OFFSET_25KHZ
             );
 
@@ -1072,7 +1072,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
             u0 = - k0/k1;
         else
             u0 = CARRIER_OFFSET_25KHZ + 1; //out of range
-        
+
         condition1 = ((u0 > -CARRIER_OFFSET_25KHZ) && (u0 < CARRIER_OFFSET_25KHZ));
         condition2 = (k1 > 0.05);
 
@@ -1132,7 +1132,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
         return Standard;
     }
-    
+
     return Standard;
 }
 
@@ -1212,20 +1212,20 @@ void CTDA9875AudioDecoder::StopThread()
     if (m_TDA9875Thread != NULL)
     {
         i = 10;
-        EnterCriticalSection(&TDA9875CriticalSection); 
+        EnterCriticalSection(&TDA9875CriticalSection);
         m_bStopThread = TRUE;
-        LeaveCriticalSection(&TDA9875CriticalSection); 
+        LeaveCriticalSection(&TDA9875CriticalSection);
         ResumeThread(m_TDA9875Thread);
         while(i-- > 0 && !Thread_Stopped)
         {
             if (GetExitCodeThread(m_TDA9875Thread, &ExitCode) == TRUE)
             {
                 if (ExitCode != STILL_ACTIVE)
-                {                    
+                {
                     Thread_Stopped = TRUE;
                 }
                 else
-                {                    
+                {
                     Sleep(50);
                 }
             }
@@ -1250,10 +1250,10 @@ int CTDA9875AudioDecoder::DetectThread()
     int AutoDetecting;
     BOOL bWait;
 
-    EnterCriticalSection(&TDA9875CriticalSection); 
+    EnterCriticalSection(&TDA9875CriticalSection);
     m_DetectCounter = 1;
     BOOL bStopThread = m_bStopThread;
-    LeaveCriticalSection(&TDA9875CriticalSection); 
+    LeaveCriticalSection(&TDA9875CriticalSection);
     while (!bStopThread)
     {
         EnterCriticalSection(&TDA9875CriticalSection);
@@ -1269,7 +1269,7 @@ int CTDA9875AudioDecoder::DetectThread()
         }
 
         EnterCriticalSection(&TDA9875CriticalSection);
-        AutoDetecting = m_AutoDetecting; 
+        AutoDetecting = m_AutoDetecting;
         long DetectCounter = m_DetectCounter;
         LeaveCriticalSection(&TDA9875CriticalSection);
 
@@ -1310,7 +1310,7 @@ int CTDA9875AudioDecoder::DetectThread()
                 }
             }
             EnterCriticalSection(&TDA9875CriticalSection);
-            DetectCounter = m_DetectCounter = 1;            
+            DetectCounter = m_DetectCounter = 1;
             LeaveCriticalSection(&TDA9875CriticalSection);
 
         }
@@ -1342,9 +1342,9 @@ int CTDA9875AudioDecoder::DetectThread()
 
                 if ((result[0] & 0x02) == 0x02)
                     iSupported |= SUPPORTEDSOUNDCHANNEL_STEREO;
-                if ((result[0] & 0x04) == 0x04) 
+                if ((result[0] & 0x04) == 0x04)
                     iSupported |= SUPPORTEDSOUNDCHANNEL_LANG1;
-                if ((result[0] & 0x06) == 0x06) 
+                if ((result[0] & 0x06) == 0x06)
                     iSupported |= SUPPORTEDSOUNDCHANNEL_LANG1 | SUPPORTEDSOUNDCHANNEL_LANG2;
 
                 Supported = (eSupportedSoundChannels)iSupported;
@@ -1365,13 +1365,13 @@ int CTDA9875AudioDecoder::DetectThread()
                     m_SoundChannel = IsAudioChannelDetected(m_TargetSoundChannel);
                     SetSoundChannel(m_SoundChannel);
                     LeaveCriticalSection(&TDA9875CriticalSection);
-                    
+
 
                     //Finished
                     if (DetectCounter >= 200)
                     {
                         EnterCriticalSection(&TDA9875CriticalSection);
-                        m_AutoDetecting = 0;                        
+                        m_AutoDetecting = 0;
                         m_ThreadWait = TRUE;
                         LeaveCriticalSection(&TDA9875CriticalSection);
                         AutoDetecting = 0;
@@ -1391,13 +1391,13 @@ int CTDA9875AudioDecoder::DetectThread()
         if (AutoDetecting != 0)
         {
             Sleep(10);
-            EnterCriticalSection(&TDA9875CriticalSection); 
+            EnterCriticalSection(&TDA9875CriticalSection);
             m_DetectCounter++;
-            LeaveCriticalSection(&TDA9875CriticalSection); 
-        } 
-        EnterCriticalSection(&TDA9875CriticalSection); 
+            LeaveCriticalSection(&TDA9875CriticalSection);
+        }
+        EnterCriticalSection(&TDA9875CriticalSection);
         bStopThread = m_bStopThread;
-        LeaveCriticalSection(&TDA9875CriticalSection); 
+        LeaveCriticalSection(&TDA9875CriticalSection);
     }
     return 0;
 }

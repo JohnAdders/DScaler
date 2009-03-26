@@ -156,7 +156,7 @@ const CParseTag    CSAA7134Card::k_parseAutoDetectID[]    =
 
 const CParseTag    CSAA7134Card::k_parseCard[]    =
 {
-    PT(    "Name",                PARSE_STRING,        1, 127,    NULL,                            ReadCardInfoProc            ), 
+    PT(    "Name",                PARSE_STRING,        1, 127,    NULL,                            ReadCardInfoProc            ),
     PT(    "DeviceID",            PARSE_NUMERIC,        1, 8,    NULL,                            ReadCardInfoProc            ),
     PT(    "DefaultTuner",        PARSE_NUM_OR_CONST,    0, 32,    k_parseTunerConstants,            ReadCardDefaultTunerProc    ),
     PT(    "AudioCrystal",        PARSE_CONSTANT,        0, 8,    k_parseAudioCrystalConstants,    ReadCardInfoProc            ),

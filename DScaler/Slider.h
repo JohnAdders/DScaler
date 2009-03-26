@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file slider.h slider Header file
  */
- 
+
 #ifndef __SLIDER_H___
 #define __SLIDER_H___
 

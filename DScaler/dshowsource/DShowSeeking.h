@@ -31,7 +31,7 @@
 /**
  *
  */
-class CDShowSeeking  
+class CDShowSeeking
 {
 public:
     CDShowSeeking(CComPtr<IGraphBuilder> &pGraph);

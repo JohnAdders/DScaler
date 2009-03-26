@@ -25,7 +25,7 @@ void RemoteRegister()
         RAWINPUTDEVICE Rid[1];
 
         Rid[0].usUsagePage = 0xFFBC;
-        Rid[0].usUsage = 0x88; 
+        Rid[0].usUsage = 0x88;
         Rid[0].dwFlags = 0;
         Rid[0].hwndTarget = NULL;
 
@@ -38,7 +38,7 @@ void RemoteRegister()
 
 
 #ifdef WM_APPCOMMAND
-// Cope with new media commands 
+// Cope with new media commands
 // MCE remote sends these for the basic keys
 LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam)
 {
@@ -92,13 +92,13 @@ LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
         lpGetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
         LPBYTE lpb = new BYTE[dwSize];
 
-        if (lpb != NULL) 
+        if (lpb != NULL)
         {
             if (lpGetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) == dwSize )
             {
                 RAWINPUT* raw = (RAWINPUT*)lpb;
 
-                if (raw->header.dwType == RIM_TYPEHID) 
+                if (raw->header.dwType == RIM_TYPEHID)
                 {
                     if(raw->data.hid.dwSizeHid == 2 && raw->data.hid.dwCount == 1)
                     {
@@ -143,12 +143,12 @@ LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
                             }
                         }
                     }
-                } 
+                }
             }
-            
-            delete[] lpb; 
+
+            delete[] lpb;
         }
-        
+
         if(bHandled)
         {
             return FALSE;

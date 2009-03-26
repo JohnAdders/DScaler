@@ -36,7 +36,7 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
     static long TGamma;
     static long TSharpness;
     static BOOL TUseOverlayControls;
-    
+
     switch (message)
     {
     case WM_INITDIALOG:
@@ -102,7 +102,7 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
             Setting_SetDefault(WM_OTHER_GETVALUE, OVERLAYSATURATION);
             Setting_SetDefault(WM_OTHER_GETVALUE, OVERLAYGAMMA);
             Setting_SetDefault(WM_OTHER_GETVALUE, OVERLAYSHARPNESS);
-            
+
             Setting_SetControlValue(WM_OTHER_GETVALUE, OVERLAYBRIGHTNESS, GetDlgItem(hDlg, IDC_SLIDER1));
             Setting_SetControlValue(WM_OTHER_GETVALUE, OVERLAYCONTRAST, GetDlgItem(hDlg, IDC_SLIDER2));
             Setting_SetControlValue(WM_OTHER_GETVALUE, OVERLAYHUE, GetDlgItem(hDlg, IDC_SLIDER3));
@@ -121,7 +121,7 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
         case IDC_OVERLAYSETTINGS_ENABLE:
             {
                 Setting_SetValue(WM_OTHER_GETVALUE, USEOVERLAYCONTROLS, Button_GetCheck(GetDlgItem(hDlg, IDC_OVERLAYSETTINGS_ENABLE)) == BST_CHECKED);
-                
+
                 BOOL bEnable = Setting_GetValue(WM_OTHER_GETVALUE, USEOVERLAYCONTROLS);
                 EnableWindow(GetDlgItem(hDlg, IDC_SLIDER1), bEnable);
                 EnableWindow(GetDlgItem(hDlg, IDC_SLIDER2), bEnable);

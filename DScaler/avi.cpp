@@ -33,7 +33,7 @@ const char *aviErrorLocations[AVI_MAX_ERROR] =
     "writing data to the buffer",
 
     /* AVI_ERROR_FILE */
-    "in the data writing thread", 
+    "in the data writing thread",
 
     /* AVI_ERROR_FIFO */
     "reading from the FIFO buffer",

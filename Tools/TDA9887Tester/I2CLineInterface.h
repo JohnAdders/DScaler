@@ -27,7 +27,7 @@
 /** Interface for an I2C bus where the SDA and SCL lines are
     controlled directly
 */
-class II2CLineInterface  
+class II2CLineInterface
 {
 public:
     virtual void SetSDA(bool value)=0;

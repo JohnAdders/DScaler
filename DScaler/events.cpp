@@ -38,12 +38,12 @@ static char THIS_FILE[]=__FILE__;
 
 /**
     The event collector has one global instance 'EventCollector'.
-    From everywhere in the code (also from threads), you can raise 
+    From everywhere in the code (also from threads), you can raise
     an event and all registered objects get notified through
     a timer in the main program thread.
     This eliminates some thread difficulties.
-    
-    To raise an event, use:    
+
+    To raise an event, use:
     EventCollector->RaiseEvent(...), with arguments:
         -Sender object.
          A class derived from CEventObject or NULL for a global event.
@@ -59,8 +59,8 @@ static char THIS_FILE[]=__FILE__;
     You can receive an event if you:
         1: Register the object to the event collector
            EventCollect->Register(this, EventList);
-           or EventCollect->Register(EventObject, EventList) for external object           
-        
+           or EventCollect->Register(EventObject, EventList) for external object
+
            Specify which events you want to receive in the
            EventList array. Conclude the list with 'EVENT_ENDOFLIST'
            E.g.:
@@ -68,13 +68,13 @@ static char THIS_FILE[]=__FILE__;
 
            To stop receiving events before the object's destruction,
            use EventCollector->Unregister(object).
-                      
+
         2: Override the virtual OnEvent(...) function of the CEventObject.
            The arguments are the same as RaiseEvent.
            Test which object raised the event.
            Watch out for C++ type casting. To compare to yourself use
            if (pEventObject == (CEventObject*)this)
-    
+
 */
 
 CEventObject::CEventObject()
@@ -91,7 +91,7 @@ CEventObject::~CEventObject()
 }
 
 CEventCollector::CEventCollector()
-{    
+{
     m_ScheduleTimerID = 0;
     m_EventCollectorThread = NULL;
     m_bStopThread = FALSE;
@@ -107,7 +107,7 @@ CEventCollector::~CEventCollector()
     {
         if (m_EventObjects[i].EventList != NULL)
         {
-            delete m_EventObjects[i].EventList;        
+            delete m_EventObjects[i].EventList;
         }
     }
     m_EventObjects.clear();
@@ -140,12 +140,12 @@ eEventType *CEventCollector::CopyEventList(eEventType *EventList)
 void CEventCollector::Register(EVENTCALLBACK *pfnCallback, void *pThis, eEventType *EventList)
 {
     Unregister(pfnCallback, pThis);
-    
-    TEventCallbackInfo eci;    
+
+    TEventCallbackInfo eci;
     eci.EventList = CopyEventList(EventList);
     eci.pThis = pThis;
     eci.pfnEventCallback = pfnCallback;
-    eci.pEventObject = NULL;    
+    eci.pEventObject = NULL;
     m_EventObjects.push_back(eci);
 }
 
@@ -170,8 +170,8 @@ void CEventCollector::Unregister(EVENTCALLBACK *pfnCallback, void *pThis)
 void CEventCollector::Register(CEventObject *pObject, eEventType *EventList)
 {
     Unregister(pObject);
-    
-    TEventCallbackInfo eci;    
+
+    TEventCallbackInfo eci;
     eci.EventList = CopyEventList(EventList);
     eci.pThis = NULL;
     eci.pfnEventCallback = NULL;
@@ -216,7 +216,7 @@ void CEventCollector::Unregister(CEventObject *pObject)
 }
 
 void CEventCollector::RaiseEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
-{    
+{
     ScheduleEvent(pEventObject, Event, OldValue, NewValue, ComingUp);
 }
 
@@ -231,16 +231,16 @@ void CEventCollector::RaiseScheduledEvent(CEventObject *pEventObject, eEventType
 
         if (pList!=NULL)
         {
-            int j = 0;            
+            int j = 0;
             while (*pList != 0)
-            {        
+            {
                 if (Event == *pList)
                 {
                     if (m_EventObjects[i].pEventObject != NULL)
                     {
                         m_EventObjects[i].pEventObject->OnEvent(pEventObject, Event, OldValue, NewValue, ComingUp);
-                    } 
-                    else if (m_EventObjects[i].pfnEventCallback != NULL) 
+                    }
+                    else if (m_EventObjects[i].pfnEventCallback != NULL)
                     {
                         m_EventObjects[i].pfnEventCallback(m_EventObjects[i].pThis, pEventObject, Event, OldValue, NewValue, ComingUp);
                     }
@@ -248,9 +248,9 @@ void CEventCollector::RaiseScheduledEvent(CEventObject *pEventObject, eEventType
                 }
                 pList++;
             }
-        }        
+        }
     }
-    
+
     EnterCriticalSection(&m_LastEventCriticalSection);
     for (i = 0; i < m_LastEvents.size(); i++)
     {
@@ -261,7 +261,7 @@ void CEventCollector::RaiseScheduledEvent(CEventObject *pEventObject, eEventType
             break;
         }
     }
-    
+
     if (i >= m_LastEvents.size()) //new
     {
         TEventInfo EventInfo;
@@ -269,8 +269,8 @@ void CEventCollector::RaiseScheduledEvent(CEventObject *pEventObject, eEventType
         EventInfo.Event = Event;
         EventInfo.OldValue = OldValue;
         EventInfo.NewValue = NewValue;
-        m_LastEvents.push_back(EventInfo);        
-    }        
+        m_LastEvents.push_back(EventInfo);
+    }
     LeaveCriticalSection(&m_LastEventCriticalSection);
 }
 
@@ -281,18 +281,18 @@ int CEventCollector::LastEventValues(eEventType Event, CEventObject **pEventObje
     for (int i = 0; i < m_LastEvents.size(); i++)
     {
         if (m_LastEvents[i].Event == Event)
-        {            
-            if (pEventObject!=NULL) 
-            { 
-                *pEventObject = m_LastEvents[i].pEventObject; 
+        {
+            if (pEventObject!=NULL)
+            {
+                *pEventObject = m_LastEvents[i].pEventObject;
             }
-            if (OldValue!=NULL) 
-            { 
-                *OldValue = m_LastEvents[i].OldValue; 
+            if (OldValue!=NULL)
+            {
+                *OldValue = m_LastEvents[i].OldValue;
             }
-            if (NewValue!=NULL) 
-            { 
-                *NewValue = m_LastEvents[i].NewValue; 
+            if (NewValue!=NULL)
+            {
+                *NewValue = m_LastEvents[i].NewValue;
             }
             LeaveCriticalSection(&m_LastEventCriticalSection);
             return 1;
@@ -308,14 +308,14 @@ int CEventCollector::LastEventValues(CEventObject *pEventObject, eEventType Even
     for (int i = 0; i < m_LastEvents.size(); i++)
     {
         if ((m_LastEvents[i].Event == Event) && (m_LastEvents[i].pEventObject == pEventObject))
-        {            
-            if (OldValue!=NULL) 
-            { 
-                *OldValue = m_LastEvents[i].OldValue; 
+        {
+            if (OldValue!=NULL)
+            {
+                *OldValue = m_LastEvents[i].OldValue;
             }
-            if (NewValue!=NULL) 
-            { 
-                *NewValue = m_LastEvents[i].NewValue; 
+            if (NewValue!=NULL)
+            {
+                *NewValue = m_LastEvents[i].NewValue;
             }
             LeaveCriticalSection(&m_LastEventCriticalSection);
             return 1;
@@ -329,7 +329,7 @@ int CEventCollector::NumEventsWaiting()
 {
     int Num;
     EnterCriticalSection(&m_EventCriticalSection);
-    Num = m_ScheduledEventList.size();    
+    Num = m_ScheduledEventList.size();
     LeaveCriticalSection(&m_EventCriticalSection);
     return Num;
 }
@@ -367,7 +367,7 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
     ei.OldValue = OldValue;
     ei.NewValue = NewValue;
     ei.ComingUp = CopyEventList(ComingUp);
-    m_ScheduledEventList.push_back(ei);    
+    m_ScheduledEventList.push_back(ei);
 
     // this is where we keep track of what the current status
     // so lets use here as a good place to maitain the settings holder
@@ -376,7 +376,7 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
     // as we need to be able to load and save settings synchronously
     switch (Event)
     {
-    case EVENT_SOURCE_CHANGE:    
+    case EVENT_SOURCE_CHANGE:
         SettingsMaster->SetSource((CSource*)NewValue);
         SettingsMaster->SetChannelName(-1);
         SettingsMaster->SetVideoInput(-1);
@@ -387,20 +387,20 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
     case EVENT_CHANNEL_CHANGE:
         SettingsMaster->SetChannelName(NewValue);
         break;
- 
+
     case EVENT_VIDEOINPUT_CHANGE:
         SettingsMaster->SetVideoInput(NewValue);
         SettingsMaster->SetChannelName(-1);
-        break;    
-    
+        break;
+
     case EVENT_AUDIOINPUT_CHANGE:
         SettingsMaster->SetAudioInput(NewValue);
         break;
-    
+
     case EVENT_VIDEOFORMAT_CHANGE:
         SettingsMaster->SetVideoFormat(NewValue);
         break;
-    }    
+    }
 
     LeaveCriticalSection(&m_EventCriticalSection);
 
@@ -412,14 +412,14 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
 
 
 void CEventCollector::ProcessEvents()
-{    
+{
     // JA 2/12/2002
     // attempt to get settings working properly
     // using messages rather than a thread
     // this should force all changes to come
     // from the main thread
     while(TRUE)
-    {            
+    {
         TEventInfo ei;
         ei.Event = EVENT_NONE;
 
@@ -430,20 +430,20 @@ void CEventCollector::ProcessEvents()
             m_ScheduledEventList.pop_front();
         }
         LeaveCriticalSection(&m_EventCriticalSection);
-        
+
         if (ei.Event != EVENT_NONE)
         {
             LOG(2,"Event: %d (%d,%d)",ei.Event,ei.OldValue,ei.NewValue);
-            RaiseScheduledEvent(ei.pEventObject, ei.Event, ei.OldValue, ei.NewValue, ei.ComingUp);    
+            RaiseScheduledEvent(ei.pEventObject, ei.Event, ei.OldValue, ei.NewValue, ei.ComingUp);
             if (ei.ComingUp != NULL)
-            { 
-                delete[] ei.ComingUp; 
+            {
+                delete[] ei.ComingUp;
             }
         }
         else
         {
             return;
         }
-    } 
+    }
 }
 

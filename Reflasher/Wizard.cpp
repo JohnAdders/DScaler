@@ -54,18 +54,18 @@ BEGIN_MESSAGE_MAP(CWizard, CPropertySheet)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// Behandlungsroutinen für Nachrichten CWizard 
+// Behandlungsroutinen für Nachrichten CWizard
 
 void CWizard::InitWizard()
 {
     m_pCard    = NULL;
     m_dwNewValue = 0;
-    
+
     AddPage(&m_Page1);
     AddPage(&m_Page2);
     AddPage(&m_Page3);
     AddPage(&m_Page4);
-    
+
     m_psh.dwFlags &= ~PSH_HASHELP;
     SetWizardMode();
 }

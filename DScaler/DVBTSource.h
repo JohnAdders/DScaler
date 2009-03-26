@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file dvbtsource.h dvbtsource Header file
  */
- 
+
 #ifndef __DVBTSOURCE_H___
 #define __DVBTSOURCE_H___
 
@@ -64,7 +64,7 @@ public:
     int GetWidth() {return 720;};
     int GetHeight() {return 576;};
     void SetWidth() {return;};
-   
+
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
     void HandleTimerMessages(int TimerId);

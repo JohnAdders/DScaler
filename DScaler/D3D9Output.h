@@ -30,15 +30,15 @@ private:
     CRITICAL_SECTION hDDCritSect;
     LPDIRECT3D9 g_pD3D;
     LPDIRECT3DSURFACE9 lpDDOverlay, lpDDFrontBuffer;
-    
+
     BYTE* lpExtraMemoryForFilters;
 
     SETTING OtherSettings[OTHER_SETTING_LASTONE];
     RECT srcrect;
-    RECT destrect;    
+    RECT destrect;
     HWND m_hWnd;
     LPDIRECT3DTEXTURE9 m_lpOsdTexture;
-    D3DPRESENT_PARAMETERS d3dpp; 
+    D3DPRESENT_PARAMETERS d3dpp;
     __int64 m_FramesPresented;
     int BUFFERWIDTH, BUFFERHEIGHT;
     HRESULT FlipResult;

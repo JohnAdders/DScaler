@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file hardwarememory.h hardwarememory Header file
  */
- 
+
 #ifndef __HARDWAREMEMORY_H___
 #define __HARDWAREMEMORY_H___
 

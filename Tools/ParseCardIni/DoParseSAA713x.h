@@ -33,7 +33,7 @@
 
 #include "DoParse.h"
 
-class CDoParseSAA713x : public CDoParse  
+class CDoParseSAA713x : public CDoParse
 {
 public:
     CDoParseSAA713x(const char* pszFileName, CListBox* pErrorList, CTreeCtrl* pTreeCtrl, BOOL bSort);
@@ -47,7 +47,7 @@ private:
 /////////////////////////////////////////////////////////////////////////////
 //                                                                         //
 // Parsing                                                                 //
-//                                                                         // 
+//                                                                         //
 /////////////////////////////////////////////////////////////////////////////
 
 private:
@@ -102,7 +102,7 @@ private:
     {
         SAA7134CARDID_UNKNOWN = 0,        // The rest are no longer used
     };
-    
+
     typedef    struct
     {
         char szName[128];

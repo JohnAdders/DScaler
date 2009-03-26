@@ -47,7 +47,7 @@ long FilterInversion(TDeinterlaceInfo* pInfo)
             Pixels++;
         }
     }
-    
+
 
     return 1000;
 }
@@ -74,7 +74,7 @@ FILTER_METHOD InversionMethod =
     "&Colour Inversion",
     FALSE,
     TRUE,
-    FilterInversion, 
+    FilterInversion,
     0,
     TRUE,
     NULL,

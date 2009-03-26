@@ -135,7 +135,7 @@ const CParseTag    CDoParseSAA713x::k_parseAutoDetectID[]    =
 
 const CParseTag    CDoParseSAA713x::k_parseCard[]    =
 {
-    PT(    "Name",                PARSE_STRING,        1, 127,    NULL,                            ReadCardInfoProc            ), 
+    PT(    "Name",                PARSE_STRING,        1, 127,    NULL,                            ReadCardInfoProc            ),
     PT(    "DeviceID",            PARSE_NUMERIC,        1, 8,    NULL,                            ReadCardInfoProc            ),
     PT(    "DefaultTuner",        PARSE_NUM_OR_CONST,    0, 32,    k_parseTunerConstants,            ReadCardDefaultTunerProc    ),
     PT(    "AudioCrystal",        PARSE_CONSTANT,        0, 8,    k_parseAudioCrystalConstants,    ReadCardInfoProc            ),
@@ -427,7 +427,7 @@ void CDoParseSAA713x::ParseIniFile()
 {
     m_Cards.resize(0);
     m_pErrorList->ResetContent();
-    
+
     CHCParser hcParser(k_parseCardList);
 
     TParseCardInfo parseInfo;
@@ -445,7 +445,7 @@ void CDoParseSAA713x::ParseIniFile()
         {
             break;
         }
-        
+
         if (iRetVal == IDABORT)
         {
             return;
@@ -466,13 +466,13 @@ void CDoParseSAA713x::DisplayCardsInTree()
 {
     m_pTreeCtrl->SetRedraw(FALSE);
     m_pTreeCtrl->DeleteAllItems();
-    
+
     CString strTemp;
 
     for(int i = 0; i < m_Cards.size(); i++)
     {
         CCardTypeEx* pCurrentCard = &m_Cards[i];
-        
+
         // Name
         HTREEITEM hCard = m_pTreeCtrl->InsertItem(pCurrentCard->szName, 0, 0);
         m_pTreeCtrl->SetItemState(hCard, TVIS_BOLD, TVIS_BOLD);
@@ -484,11 +484,11 @@ void CDoParseSAA713x::DisplayCardsInTree()
         // Default Tuner
         strTemp.Format("Default Tuner: %s", TunerNames[pCurrentCard->TunerId + 2]);
         m_pTreeCtrl->InsertItem(strTemp, 2, 2, hCard);
-        
+
         // Audio Crystal
         strTemp.Format("Audio Crystal: %s", g_SAA_AudioCrystalNames[pCurrentCard->AudioCrystal]);
         m_pTreeCtrl->InsertItem(strTemp, 2, 2, hCard);
-        
+
         // GPIO Mode
         strTemp.Format("GPIO Mode: 0x%08x", pCurrentCard->dwGPIOMode);
         m_pTreeCtrl->InsertItem(strTemp, 2, 2, hCard);
@@ -518,7 +518,7 @@ void CDoParseSAA713x::DisplayCardsInTree()
             TInputType* pInputType = &pCurrentCard->Inputs[k];
 
             strTemp = pInputType->szName;
-            
+
             if(strTemp.IsEmpty())
             {
                 continue;
@@ -530,15 +530,15 @@ void CDoParseSAA713x::DisplayCardsInTree()
             // Type
             strTemp.Format("Type: %s", g_SAA_InputTypeNames[pInputType->InputType]);
             m_pTreeCtrl->InsertItem(strTemp, 2, 2, hInputItem);
-            
+
             // Video Input Pin
             strTemp.Format("Video Input Pin: %s", g_SAA_VideoPinNames[pInputType->VideoInputPin]);
             m_pTreeCtrl->InsertItem(strTemp, 2, 2, hInputItem);
-        
+
             // Audio Line Select
             strTemp.Format("Audio Line Select: %s", g_SAA_AudioLineNames[pInputType->AudioLineSelect]);
             m_pTreeCtrl->InsertItem(strTemp, 2, 2, hInputItem);
-            
+
             // GPIO Status Mask
             strTemp.Format("GPIO Status Mask: 0x%08x", pInputType->dwGPIOStatusMask);
             m_pTreeCtrl->InsertItem(strTemp, 2, 2, hInputItem);
@@ -552,36 +552,36 @@ void CDoParseSAA713x::DisplayCardsInTree()
         if(pCurrentCard->bUseTDA9887)
         {
             HTREEITEM hTDA9887 = m_pTreeCtrl->InsertItem("Use TDA9887", 1, 1, hCard);
-            
+
             for(int m = 0; m < m_Cards[i].tda9887Modes.size(); m++)
             {
                 TTDA9887FormatModes* pModes = &m_Cards[i].tda9887Modes[m];
-                
+
                 if (pModes->mask != 0)
                 {
                     HTREEITEM hTDA9887Format = m_pTreeCtrl->InsertItem(m_TDAFormatNames[pModes->format], 1, 1, hTDA9887);
-                    
+
                     // Outport1
                     if(pModes->mask & TDA9887_SM_OUTPUTPORT1_INACTIVE)
                     {
                         strTemp.Format("OutPort1: %s", pModes->bits & TDA9887_SM_OUTPUTPORT1_INACTIVE ? "Inactive" : "Active");
                         m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
                     }
-                    
+
                     // Outport2
                     if(pModes->mask & TDA9887_SM_OUTPUTPORT2_INACTIVE)
                     {
                         strTemp.Format("OutPort2: %s", pModes->bits & TDA9887_SM_OUTPUTPORT2_INACTIVE ? "Inactive" : "Active");
                         m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
                     }
-                    
+
                     // Carrier
                     if(pModes->mask & TDA9887_SM_CARRIER_QSS)
                     {
                         strTemp.Format("Carrier: %s", pModes->bits & TDA9887_SM_CARRIER_QSS ? "QSS" : "Intercarrier" );
                         m_pTreeCtrl->InsertItem(strTemp, 2, 2, hTDA9887Format);
                     }
-                    
+
                     // Takeover Point
                     if(pModes->mask & TDA9887_SM_TAKEOVERPOINT_MASK)
                     {

@@ -16,7 +16,7 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file BitmapAsButton.h  BitmapAsButton Header file
  */
 
@@ -52,18 +52,18 @@ enum eBitmapAsButtonType
                3 = normal,      checked
                4 = mouse over,  checked
                5 = mouse down,  checked
-        
+
     slider bar:
         state: 0 = unselected bar
         state: 1 = unselected bar, mouse over
         state: 2 = unselected bar, mouse down
         state: 3 = selected bar
         state: 4 = selected bar, mouse over
-        state: 5 = selected bar, mouse down        
+        state: 5 = selected bar, mouse down
         state: 6 = slider
         state: 7 = slider, mouse over
-        state: 8 = slider, mouse down        
-  
+        state: 8 = slider, mouse down
+
     3state/4state:
         state: 0 = state 0
         state: 1 = state 0, mouse over
@@ -86,16 +86,16 @@ protected:
     BOOL bFailed;
 
     CBitmapHolder m_bhBmp;
-    
+
     int ButtonWidth;
     int ButtonHeight;
-    
+
     BUTTONPROC* pfnButtonProc;
     void *pfnButtonProc_pThis;
     void *pOriginalProc;
     int OriginalWidth;
     int OriginalHeight;
-    
+
     HCURSOR hCursorHand;
     //
     BOOL m_mouseldown;
@@ -103,7 +103,7 @@ protected:
     BOOL m_mouseover;
     BOOL m_trackmouse;
     // Checkbox/3state/4state specific
-    
+
     // Slider specific
     int SliderPos;
     int SliderRangeMin;
@@ -112,10 +112,10 @@ protected:
 
     void Draw(HDC hDC, LPRECT lpRect);
     void SetWindowRegion();
-    
+
     LRESULT ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
-    static LRESULT CALLBACK StaticButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
+    static LRESULT CALLBACK StaticButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 public:
     CBitmapAsButton(eBitmapAsButtonType ButtonType);
     ~CBitmapAsButton();
@@ -128,11 +128,11 @@ public:
     void AddBitmap(int State, SmartPtr<CBitmapState> BitmapState);
 
     HRGN SetRegion();
-    
-    void SetProcessMessage(void *pThis, BUTTONPROC* pfnButtonProc) 
-    { 
+
+    void SetProcessMessage(void *pThis, BUTTONPROC* pfnButtonProc)
+    {
         this->pfnButtonProc_pThis = pThis;
-        this->pfnButtonProc = pfnButtonProc; 
+        this->pfnButtonProc = pfnButtonProc;
     }
 
     BOOL Create(std::string sID, HWND hWndParent, int x, int y, HINSTANCE hInst);

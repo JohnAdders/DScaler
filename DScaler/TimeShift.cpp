@@ -22,24 +22,24 @@
  */
 
 ////////////////////////////////////////////////////////////////////////////////////////
-//Emu Changes 
+//Emu Changes
 //
 //28 March 04  Edited the main warning message
-//             put in another warning message 
-//             played m_waveFormat.nAvgBytesPerSec to sync 
+//             put in another warning message
+//             played m_waveFormat.nAvgBytesPerSec to sync
 //             the sound and vid.
 //             (Might have done some other stuff that I cant remember).
 //
-//30 March 04  Commented out: 
-//             if (m_setOptsVideo && m_optsVideo.lpParms && m_optsVideo.cbParms) 
-//             delete m_optsVideo.lpParms; 
-//             in 'BOOL CTimeShift::SetVideoOptions(AVICOMPRESSOPTIONS *opts)' 
+//30 March 04  Commented out:
+//             if (m_setOptsVideo && m_optsVideo.lpParms && m_optsVideo.cbParms)
+//             delete m_optsVideo.lpParms;
+//             in 'BOOL CTimeShift::SetVideoOptions(AVICOMPRESSOPTIONS *opts)'
 //             Codec setting / config saving / retreval now seems fine .....
-//             I tesed for an hour and could not make it fall over - whatever I tried  
-// 
+//             I tesed for an hour and could not make it fall over - whatever I tried
+//
 //02 April 04  Added disk space management:
 //             1. If less than 250MB - can't start recording.
-//             2. If 'set video file size' + 250MB (for system) is less than available 
+//             2. If 'set video file size' + 250MB (for system) is less than available
 //                space change 'set video file size' to available space - 250MB.
 //             3. If less than 300MB on a file split - dont start new file.
 //
@@ -49,9 +49,9 @@
 //             4. Added AV sync adjuster - stored in INI.
 //             5. #define BT848_ADC_CRUSH (0<<1) // set CRUSH default to off for BT848
 //
-//09 July 04   1. Fixed the TS_HALFHEIGHTEVEN option. This is the routine that creates   
-//                a single line for the video recording from the live ODD and EVEN lines. 
-//                The recorded line is the pixel average of the ODD and EVEN lines. This 
+//09 July 04   1. Fixed the TS_HALFHEIGHTEVEN option. This is the routine that creates
+//                a single line for the video recording from the live ODD and EVEN lines.
+//                The recorded line is the pixel average of the ODD and EVEN lines. This
 //                pixel averaging makes the recorded image less.
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -177,7 +177,7 @@ __inline tsFormat_t makeFormatValid(tsFormat_t format)
   | 1.0 -9.26427290271e-4 1.40168872043  |   | Y        | = | R |
   | 1.0 -0.34357761684   -0.713442079258 | x | U - 128. | = | G |
   | 1.0  1.77155318285   -0.002758130563 |   | V - 128. | = | B |
-  
+
   (
    Or, if we use Intel's formulas... (see next func)
 
@@ -212,11 +212,11 @@ static short          RvRuBvBu[4]  = { 29025, -45, -15,    22966 };
   If we go with these, we should recalculate the inverse for the other mmx func.
 
   Y = 0.299 R + 0.587 G + 0.114 B
-  U =-0.146 R - 0.288 G + 0.434 B           
+  U =-0.146 R - 0.288 G + 0.434 B
   V = 0.617 R - 0.517 G - 0.100 G
 
   Y = [(9798 R + 19235G + 3736 B) / 32768]
-  U = [(-4784 R - 9437 G + 4221 B) / 32768] + 128   
+  U = [(-4784 R - 9437 G + 4221 B) / 32768] + 128
   V = [(20218R - 16941G - 3277 B) / 32768] + 128
 
 */
@@ -677,7 +677,7 @@ LPBYTE C_RGBtoYUV(LPBYTE dest, LPBYTE src, DWORD w)
  *         lpszDrivePath in bytes.
  */
 
-ULONGLONG GetFreeDiskSpace(void) 
+ULONGLONG GetFreeDiskSpace(void)
 {
     ULONGLONG totalbytes = 0; /**< Free disk space in bytes */
 
@@ -903,7 +903,7 @@ BOOL TimeShiftInit(HWND hWnd)
     {
         timeShift = new TIME_SHIFT(hWnd);
 
-    } 
+    }
     else
     {
         BUG();
@@ -2106,7 +2106,7 @@ BOOL CTimeShift::OnRecord(void)
 
     //////////////////////////////////////////
     // Simple single event scheduler.  It just
-    // times down until time to record within 
+    // times down until time to record within
     // the next 24 hour period.
     //////////////////////////////////////////
 
@@ -2118,7 +2118,7 @@ BOOL CTimeShift::OnRecord(void)
     if (m_Start != 0) //has a schedule time been set (0 = not set)?
     {
         ScheduleF = TRUE; // set the flag to show it is a scheduled recording
-        /* 
+        /*
         Get local time and fill the structure.
         For reference: the structure of tm is:
         struct tm
@@ -2128,7 +2128,7 @@ BOOL CTimeShift::OnRecord(void)
             int tm_hour;  // hours since midnight (0-23)
             int tm_mday;  // day of the month (1-31)
             int tm_mon;   // months since January (0-11)
-            int tm_year;  // elapsed years since 1900 
+            int tm_year;  // elapsed years since 1900
             int tm_wday;  // days since Sunday (0-6)
             int tm_yday;  // days since January 1st (0-365)
             int tm_isdst; // 1 if daylight savings is on, zero if not, -1 if unknown
@@ -2138,29 +2138,29 @@ BOOL CTimeShift::OnRecord(void)
         struct tm * timeinfo;
         time ( &rawtime );
         timeinfo = localtime ( &rawtime );
-    
+
         int m_hours = (m_Start / 100); // Get the scheduled hours value
-        
-        sleeptime = 0; // Initialise sleeptime   
+
+        sleeptime = 0; // Initialise sleeptime
 
         // Calculate number of seconds to wait from the hours part
         if (m_hours > timeinfo->tm_hour)
         {
             sleeptime = ((m_hours - timeinfo->tm_hour) * 3600);
-        }   
+        }
         if (m_hours < timeinfo->tm_hour)
         {
             sleeptime = (((m_hours + 24) - timeinfo->tm_hour) * 3600);
         }
-        
+
         // Calculate number of seconds to wait from the minutes part
-        int m_minutes = (m_Start % 100); 
+        int m_minutes = (m_Start % 100);
 
         if (m_minutes > timeinfo->tm_min)
         {
             sleeptime = (sleeptime + (m_minutes - timeinfo->tm_min) * 60);
         }
-        
+
         if (m_minutes < timeinfo->tm_min)
         {
             if (m_hours == timeinfo->tm_hour)
@@ -2170,7 +2170,7 @@ BOOL CTimeShift::OnRecord(void)
             sleeptime = (sleeptime - (timeinfo->tm_min - m_minutes) * 60);
         }
 
-        m_Start = 0; //reset the schedule start time 
+        m_Start = 0; //reset the schedule start time
         WritePrivateProfileInt(
         "Schedule", "Start", m_Start, szIniFile); // reset INI
 
@@ -2190,7 +2190,7 @@ BOOL CTimeShift::OnRecord(void)
             return 0; // Quit
         }
     }
-        
+
     ////////////////////////////////////////
     // End of simple single event scheduler.
     ////////////////////////////////////////
@@ -2205,7 +2205,7 @@ BOOL CTimeShift::OnRecord(void)
     {
         RecordTimerCheckedF = TRUE; // set the checked flag
 
-        // Get the Timed Recordng value from INI file   
+        // Get the Timed Recordng value from INI file
         m_Time = 0; // Initialise
         m_Time = (GetPrivateProfileInt(
         "Schedule", "Time", m_Time, szIniFile));
@@ -2229,7 +2229,7 @@ BOOL CTimeShift::OnRecord(void)
         else
         {
             RecordTimerCheckedF = FALSE; // need to reset check flag
-            // in case it was just a manual recording - so we check 
+            // in case it was just a manual recording - so we check
             // next time there is a recording to see if timed
         }
     }
@@ -2254,10 +2254,10 @@ BOOL CTimeShift::OnRecord(void)
         // if nofreespace is TRUE it means a recording was in progress but running
         // low on space and the disk space check routine has decided another file
         // cannot be started (on a file split), and set the flag to get out of TimeShift
-        if (nofreespace) 
+        if (nofreespace)
         {
             // Message boxes for endless or timed recording
-            LeaveCriticalSection(&m_pTimeShift->m_lock); //unlock the stream 
+            LeaveCriticalSection(&m_pTimeShift->m_lock); //unlock the stream
             if (RecordTimerF)
             {
                 MessageBox(hWnd,
@@ -2284,21 +2284,21 @@ BOOL CTimeShift::OnRecord(void)
                     MB_ICONEXCLAMATION | MB_OK);
             }
             nofreespace = FALSE; // Reset the nofreespace flag
-            
+
             // Reset the flags for scheduled / timed recording
             RecordTimerCheckedF = FALSE; // We check again on new recording
             ScheduleF = FALSE; // Rest flag so to check again on new recording
-            TimedRecodingDone = FALSE; // Rest flag so to check again on new recording          
+            TimedRecodingDone = FALSE; // Rest flag so to check again on new recording
             RecordTimerF = FALSE; // Rest flag so to check again on new recording
             return result; // Exit TimeShift
         }
-    
+
         // Message and close down if timed recording is done
         if (TimedRecodingDone) // Has the timed recording finished?
         {
             LeaveCriticalSection(&m_pTimeShift->m_lock); //unlock the stream
-            
-            
+
+
             if (ScheduleF) // Was it a scheduled recording?
             {
                 MessageBox(hWnd,
@@ -2318,7 +2318,7 @@ BOOL CTimeShift::OnRecord(void)
             TimedRecodingDone = FALSE;
             RecordTimerCheckedF = FALSE;
             RecordTimerF = FALSE;
-            return result; //exit TimeShift         
+            return result; //exit TimeShift
         }
 
         // Only start recording if we're stopped.

@@ -61,11 +61,11 @@ Toolbar1MediaPlayer(NULL),
 Toolbar1Logo(NULL)
 {
     CreateSettings("Toolbars");
-    
+
     eEventType EventList[] = {EVENT_SOURCE_CHANGE, EVENT_VIDEOINPUT_CHANGE, EVENT_CHANNELLIST_CHANGE, EVENT_ENDOFLIST};
     EventCollector->Register(this, EventList);
 
-    
+
     BOOL bShowChannels = FALSE;
     BOOL bShowVolume = FALSE;
     BOOL bShowMediaPlayer = FALSE;
@@ -78,17 +78,17 @@ Toolbar1Logo(NULL)
         bShowVolume = !Providers_IsStillSource(Providers_GetCurrentSource());
         bShowMediaPlayer = Providers_GetCurrentSource()->HasMediaControl();
     }
-    
+
     //Set proper bit
     int Visible = HIWORD(m_Toolbar1Channels->GetValue());
     Visible = (Visible&1) | (bShowChannels?2:0);
-    m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), Visible) );                
+    m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), Visible) );
     Visible = HIWORD(m_Toolbar1Volume->GetValue());
     Visible = (Visible&1) | (bShowVolume?2:0);
-    m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), Visible) );                
+    m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), Visible) );
     Visible = HIWORD(m_Toolbar1MediaPlayer->GetValue());
     Visible = (Visible&1) | (bShowMediaPlayer?2:0);
-    m_Toolbar1MediaPlayer->SetValue( MAKELONG(LOWORD(m_Toolbar1MediaPlayer->GetValue()), Visible) );                
+    m_Toolbar1MediaPlayer->SetValue( MAKELONG(LOWORD(m_Toolbar1MediaPlayer->GetValue()), Visible) );
 
     MarginsDefault.l = 5;
     MarginsDefault.t = 5;
@@ -147,7 +147,7 @@ void CToolbarControl::Toolbar1MediaPlayerOnChange(long OldValue, long NewValue)
 
 
 void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceResize)
-{        
+{
     if (Toolbar1==NULL) //Initialize
     {
         if (!m_ShowToolbar1->GetValue())
@@ -155,22 +155,22 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
             //Don't make the toolbar if it's not necessary yet
             return;
         }
-        
+
         //Create main toolbar window
         Toolbar1 = new CToolbarWindow(hWnd, hDScalerInst, 1);
         Toolbar1->DefaultColor(GetSysColor(COLOR_BTNFACE));
         Toolbar1->Margins(MarginsDefault.l,MarginsDefault.t,MarginsDefault.r,MarginsDefault.b,MarginsDefault.child_lr,MarginsDefault.child_tb);
-        
+
         //Set default margin
         MarginsTop = MarginsDefault;
         MarginsBottom = MarginsDefault;
 
         //Create separator bar (maybe drag bar in future)
         int n = CreateToolbar1Bar();
-        
+
         //Create channel subbar from a dialog
-        Toolbar1Channels = new CToolbarChannels(Toolbar1);        
-        if (Toolbar1Channels->CreateFromDialog(MAKEINTRESOURCE(IDD_TOOLBAR_CHANNELS), hResourceInst)!=NULL)                
+        Toolbar1Channels = new CToolbarChannels(Toolbar1);
+        if (Toolbar1Channels->CreateFromDialog(MAKEINTRESOURCE(IDD_TOOLBAR_CHANNELS), hResourceInst)!=NULL)
         {
             //Add subbar to the main toolbar
             Toolbar1->Add(Toolbar1Channels,TOOLBARCHILD_ALIGN_LEFTCENTER,LOWORD(m_Toolbar1Channels->GetValue()),0);
@@ -178,7 +178,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
             {
                 Toolbar1->AttachBar(Toolbar1Channels, 0, Toolbar1Bars[n]);
             }
-        }                
+        }
         else
         {
             delete Toolbar1Channels;
@@ -194,19 +194,19 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
         //Create volume subbar from a dialog
         Toolbar1Volume = new CToolbarVolume(Toolbar1);
         if (Toolbar1Volume->CreateFromDialog(MAKEINTRESOURCE(IDD_TOOLBAR_VOLUME), hResourceInst)!=NULL)
-        {            
+        {
             Toolbar1->Add(Toolbar1Volume,TOOLBARCHILD_ALIGN_LEFTCENTER,LOWORD(m_Toolbar1Volume->GetValue()),0);
             if (n >= 0)
             {
                 Toolbar1->AttachBar(Toolbar1Volume, 0, Toolbar1Bars[n]);
             }
-        }                
+        }
         else
         {
             delete Toolbar1Volume;
             Toolbar1Volume = NULL;
         }
-        
+
         if (Toolbar1Channels != NULL)
         {
             //Another bar
@@ -216,39 +216,39 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
         //Create media player subbar from a dialog
         Toolbar1MediaPlayer = new CToolbarMediaPlayer(Toolbar1);
         if (Toolbar1MediaPlayer->CreateFromDialog(MAKEINTRESOURCE(IDD_TOOLBAR_MEDIAPLAYER), hResourceInst)!=NULL)
-        {            
+        {
             Toolbar1->Add(Toolbar1MediaPlayer,TOOLBARCHILD_ALIGN_LEFTCENTER,LOWORD(m_Toolbar1MediaPlayer->GetValue()),0);
             if (n >= 0)
             {
                 Toolbar1->AttachBar(Toolbar1MediaPlayer, 0, Toolbar1Bars[n]);
             }
-        }                
+        }
         else
         {
             delete Toolbar1MediaPlayer;
             Toolbar1MediaPlayer = NULL;
         }
-        
+
         //Create logo subbar from a dialog
         Toolbar1Logo = new CToolbarLogo(Toolbar1);
         if (Toolbar1Logo->CreateFromDialog(MAKEINTRESOURCE(IDD_TOOLBAR_LOGO), hResourceInst)!=NULL)
-        {            
+        {
             Toolbar1->Add(Toolbar1Logo,TOOLBARCHILD_ALIGN_RIGHTCENTER, 99 ,0);
-        }                
+        }
         else
         {
             delete Toolbar1Logo;
             Toolbar1Logo = NULL;
-        }   
+        }
     }
-    
+
     if ((SkinName != NULL) && (SkinName[0] == 0)) //Remove skin
-    {      
+    {
         //Remove skin from main toolbar window
         Toolbar1->ClearSkin();
         //Restore default margins
         Toolbar1->Margins(MarginsDefault.l,MarginsDefault.t,MarginsDefault.r,MarginsDefault.b,MarginsDefault.child_lr,MarginsDefault.child_tb);
-        
+
         //Remove skin from separator bars
         for (int i = 0; i < Toolbar1Bars.size(); i++)
         {
@@ -260,7 +260,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
                 InvalidateRect(Toolbar1Bars[i]->GethWnd(), NULL, FALSE);
             }
         }
-        
+
         //Remove skins from the controls in the subbar
         if (Toolbar1Channels!=NULL)
         {
@@ -291,14 +291,14 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
         }
 
         if (Toolbar1Logo != NULL)
-        {            
+        {
             Toolbar1Logo->RemoveSkinDlgItem(IDC_TOOLBAR_LOGO_LOGO);
             Toolbar1Logo->Reset();
             InvalidateRect(Toolbar1Logo->GethWnd(), NULL, FALSE);
         }
         InvalidateRect(Toolbar1->GethWnd(), NULL, FALSE);
     }
-    
+
     if ((SkinName != NULL) && (SkinName[0] != 0)) //Load skin
     {
         char szSkinIniFile[MAX_PATH*2];
@@ -320,7 +320,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
             if (szBuffer[0] != 0)
             {
                 TToolbar1Margins Margins;
-                Margins = MarginsDefault;                
+                Margins = MarginsDefault;
 
                 if (sscanf(szBuffer,"%d,%d,%d,%d,%d,%d",&Margins.l,&Margins.t,&Margins.r,&Margins.b,&Margins.child_lr,&Margins.child_tb)>=4)
                 {
@@ -329,9 +329,9 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
                         MarginsTop = Margins;
                     }
                     else
-                    {                    
+                    {
                         MarginsBottom = Margins;
-                    }                    
+                    }
                 }
             }
         }
@@ -344,7 +344,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
         {
             Toolbar1->Margins(MarginsBottom.l,MarginsBottom.t,MarginsBottom.r,MarginsBottom.b,MarginsBottom.child_lr,MarginsBottom.child_tb);
         }
-        
+
         //Load border skin for main toolbar
         vector<int>Results;
         Toolbar1->LoadSkin(szSkinIniFile,"Toolbar1",&Results);
@@ -357,7 +357,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
             {
                 char szID[40];
                 sprintf(szID,"Toolbar1Bar%d",i);
-                Toolbar1Bars[i]->SkinWindow(Toolbar1Bars[i]->GethWndPicture(), szID, "Bar", BITMAPASBUTTON_PUSH, "Toolbar1", szSkinIniFile);                
+                Toolbar1Bars[i]->SkinWindow(Toolbar1Bars[i]->GethWndPicture(), szID, "Bar", BITMAPASBUTTON_PUSH, "Toolbar1", szSkinIniFile);
                 InvalidateRect(Toolbar1Bars[i]->GethWnd(), NULL, FALSE);
             }
         }
@@ -379,8 +379,8 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
             Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_CHANNEL, "SoundChannel", BITMAPASBUTTON_4STATE, "VolumeBar", szSkinIniFile);
             Toolbar1Volume->Reset();
             InvalidateRect(Toolbar1Volume->GethWnd(), NULL, FALSE);
-        }      
-        
+        }
+
         if (Toolbar1MediaPlayer != NULL)
         {
             Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PLAY, "Play", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile);
@@ -389,19 +389,19 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
             Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER, "ElapsedTime", BITMAPASBUTTON_SLIDER, "MediaPlayerBar", szSkinIniFile);
             Toolbar1MediaPlayer->Reset();
             InvalidateRect(Toolbar1MediaPlayer->GethWnd(), NULL, FALSE);
-        }      
-        
+        }
+
         if (Toolbar1Logo != NULL)
         {
-            Toolbar1Logo->SkinDlgItem(IDC_TOOLBAR_LOGO_LOGO, "Logo", BITMAPASBUTTON_PUSH, "LogoBar", szSkinIniFile);            
+            Toolbar1Logo->SkinDlgItem(IDC_TOOLBAR_LOGO_LOGO, "Logo", BITMAPASBUTTON_PUSH, "LogoBar", szSkinIniFile);
             Toolbar1Logo->Reset();
             InvalidateRect(Toolbar1Logo->GethWnd(), NULL, FALSE);
         }
         InvalidateRect(Toolbar1->GethWnd(), NULL, FALSE);
     }
-    
+
     if (Toolbar1!=NULL) //Update visibility
-    {                
+    {
         //Set position & visibility of subbars
         if (Toolbar1Channels!=NULL)
         {
@@ -445,7 +445,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
         }
         if (Toolbar1Logo!=NULL)
         {
-            if (1) 
+            if (1)
             {
                 Toolbar1->ShowChild(Toolbar1Logo);
             }
@@ -469,10 +469,10 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
             {
                 Toolbar1->SetPosition(1);
             }
-            Toolbar1->Show();   
+            Toolbar1->Show();
         }
         else
-        {            
+        {
             Toolbar1->Hide();
             if (!m_ShowToolbar1->GetValue())
             {
@@ -481,9 +481,9 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
         }
     }
 
-    //if (ToolbarSideBar==NULL) 
+    //if (ToolbarSideBar==NULL)
     //{
-        //ToolbarSideBar = new CToolbarWindow(hWnd, hDScalerInst, 0);        
+        //ToolbarSideBar = new CToolbarWindow(hWnd, hDScalerInst, 0);
         //ToolbarSideBar->LoadBorders(szIniFile,"SideBarChannels",NULL);
         //ToolbarSideBar->SetPosition(-2);
     //}
@@ -493,19 +493,19 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceRe
     {
         SetFocus(Toolbar1->GethWndParent());
     }
-    
+
 }
 
 //Create a separator bar window
 int CToolbarControl::CreateToolbar1Bar()
 {
     CToolbar1Bar *Toolbar1Bar = new CToolbar1Bar(Toolbar1);
-        
-    if (Toolbar1Bar->Create("Toolbar1Bar", hResourceInst) != NULL)            
+
+    if (Toolbar1Bar->Create("Toolbar1Bar", hResourceInst) != NULL)
     {
         // Ok
         Toolbar1Bar->Margins(10,10);
-    }                
+    }
     else
     {
         delete Toolbar1Bar;
@@ -513,7 +513,7 @@ int CToolbarControl::CreateToolbar1Bar()
     }
 
     if (Toolbar1Bar != NULL)
-    {  
+    {
         int n = Toolbar1Bars.size();
         Toolbar1Bars.push_back(Toolbar1Bar);
         return n;
@@ -553,17 +553,17 @@ void CToolbarControl::OnEvent(CEventObject *pEventObject, eEventType Event, long
             BOOL bShowChannels = Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,VideoInput);
             BOOL bShowVolume = !Providers_IsStillSource(Providers_GetCurrentSource());
             BOOL bShowMediaPlayer = Providers_GetCurrentSource()->HasMediaControl();
-            
+
             //Set proper bit
             int Visible = HIWORD(m_Toolbar1Channels->GetValue());
             Visible = (Visible&1) | (bShowChannels?2:0);
-            m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), Visible) );                
+            m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), Visible) );
             Visible = HIWORD(m_Toolbar1Volume->GetValue());
             Visible = (Visible&1) | (bShowVolume?2:0);
-            m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), Visible) );                
+            m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), Visible) );
             Visible = HIWORD(m_Toolbar1MediaPlayer->GetValue());
             Visible = (Visible&1) | (bShowMediaPlayer?2:0);
-            m_Toolbar1MediaPlayer->SetValue( MAKELONG(LOWORD(m_Toolbar1MediaPlayer->GetValue()), Visible) );                
+            m_Toolbar1MediaPlayer->SetValue( MAKELONG(LOWORD(m_Toolbar1MediaPlayer->GetValue()), Visible) );
 
             if ((Toolbar1 != NULL) && Toolbar1->Visible())
             {
@@ -585,13 +585,13 @@ void CToolbarControl::OnEvent(CEventObject *pEventObject, eEventType Event, long
 BOOL CToolbarControl::PtInToolbar(POINT Pt)
 {
     if ((Toolbar1!=NULL) && Toolbar1->Visible())
-    {            
+    {
         RECT Rc;
         GetWindowRect(Toolbar1->GethWnd(), &Rc);
         if (PtInRect(&Rc, Pt))
         {
             return TRUE;
-        }    
+        }
     }
     return FALSE;
 }
@@ -623,14 +623,14 @@ BOOL CToolbarControl::AutomaticDisplay(POINT Pt)
 void CToolbarControl::Free()
 {
     if (Toolbar1 != NULL)
-    {                       
+    {
         Toolbar1->Remove(Toolbar1Channels);
         Toolbar1->Remove(Toolbar1Volume);
         Toolbar1->Remove(Toolbar1MediaPlayer);
-        Toolbar1->Remove(Toolbar1Logo);        
+        Toolbar1->Remove(Toolbar1Logo);
     }
     /*if (ToolbarSideBar != NULL)
-    {         
+    {
         delete ToolbarSideBar;
         ToolbarSideBar = NULL;
     }   */
@@ -668,7 +668,7 @@ void CToolbarControl::Free()
         delete Toolbar1;
         Toolbar1 = NULL;
     }
-}  
+}
 
 //Subtract toolbar from area
 void CToolbarControl::AdjustArea(LPRECT lpRect, int Crop)
@@ -676,7 +676,7 @@ void CToolbarControl::AdjustArea(LPRECT lpRect, int Crop)
     if ((Toolbar1!=NULL) && Toolbar1->Visible())
     {
         Toolbar1->AdjustArea(lpRect,Crop);
-    }            
+    }
 }
 
 void CToolbarControl::UpdateMenu(HMENU hMenu)
@@ -686,7 +686,7 @@ void CToolbarControl::UpdateMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_CHANNELS, ((HIWORD(m_Toolbar1Channels->GetValue())&1)!=0));
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_VOLUME, ((HIWORD(m_Toolbar1Volume->GetValue())&1)!=0));
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER, ((HIWORD(m_Toolbar1MediaPlayer->GetValue())&1)!=0));
-    
+
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_TOP, (m_ShowToolbar1->GetValue()!=0));
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_CHANNELS, (m_ShowToolbar1->GetValue()!=0));
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_VOLUME, (m_ShowToolbar1->GetValue()!=0));
@@ -699,12 +699,12 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
     extern BOOL bIsFullScreen;
     switch (uItem)
     {
-    case IDM_VIEW_TOOLBARS_MAINTOOLBAR: 
-        m_ShowToolbar1->SetValue(!m_ShowToolbar1->GetValue());        
+    case IDM_VIEW_TOOLBARS_MAINTOOLBAR:
+        m_ShowToolbar1->SetValue(!m_ShowToolbar1->GetValue());
         if ((Toolbar1 == NULL) && (m_ShowToolbar1->GetValue()))
         {
             extern SettingStringValue szSkinName;
-            CToolbarControl::Set(hWnd, szSkinName);    
+            CToolbarControl::Set(hWnd, szSkinName);
         }
         else
         {
@@ -715,11 +715,11 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
         break;
     case IDM_VIEW_MAINTOOLBAR_TOP:
         if (m_Toolbar1Position->GetValue() == 1)
-        {   
+        {
             m_Toolbar1Position->SetValue(0);
         }
-        else 
-        {   
+        else
+        {
             m_Toolbar1Position->SetValue(1);
         }
         if (m_Toolbar1Position->GetValue()==0)
@@ -739,7 +739,7 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
             int Visible = HIWORD(m_Toolbar1Channels->GetValue());
             Visible = (Visible&2) | ((Visible&1)?0:1);
             m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), Visible) );
-            CToolbarControl::Set(hWnd, NULL);        
+            CToolbarControl::Set(hWnd, NULL);
             WorkoutOverlaySize(TRUE);
             CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
         }

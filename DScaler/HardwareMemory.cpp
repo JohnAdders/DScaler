@@ -55,26 +55,26 @@ DWORD CHardwareMemory::TranslateToPhysical(void* pUser, DWORD dwSizeWanted, DWOR
     {
         TPageStruct* pPages = (TPageStruct*)(m_pMemStruct + 1);
         DWORD Offset;
-        DWORD i; 
+        DWORD i;
         DWORD sum;
         DWORD pRetVal = 0;
 
         Offset = (DWORD)pUser - (DWORD)m_pMemStruct->dwUser;
-        sum = 0; 
+        sum = 0;
         i = 0;
         while (i < m_pMemStruct->dwPages)
         {
             if (sum + pPages[i].dwSize > (unsigned)Offset)
             {
                 Offset -= sum;
-                pRetVal = pPages[i].dwPhysical + Offset;    
+                pRetVal = pPages[i].dwPhysical + Offset;
                 if ( pdwSizeAvailable != NULL )
                 {
                     *pdwSizeAvailable = pPages[i].dwSize - Offset;
                 }
                 break;
             }
-            sum += pPages[i].dwSize; 
+            sum += pPages[i].dwSize;
             i++;
         }
         if(pRetVal == 0)
@@ -89,7 +89,7 @@ DWORD CHardwareMemory::TranslateToPhysical(void* pUser, DWORD dwSizeWanted, DWOR
             }
         }
 
-        return pRetVal; 
+        return pRetVal;
     }
     else
     {
@@ -119,7 +119,7 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
     memset(m_AllocatedBlock, 0, Bytes + 0xFFF);
 
     nPages = Bytes / 0xFFF + 1;
-    
+
     DWORD dwOutParamLength = sizeof(TMemStruct) + nPages * sizeof(TPageStruct);
     m_pMemStruct = (TMemStruct*) malloc(dwOutParamLength);
     if(m_pMemStruct == NULL)
@@ -128,7 +128,7 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
         m_AllocatedBlock = NULL;
         throw std::runtime_error("Out of memory");
     }
-    
+
     memset(m_pMemStruct, 0, dwOutParamLength);
 
     paramIn.dwValue = Bytes;
@@ -182,7 +182,7 @@ CContigMemory::CContigMemory(CHardwareDriver* pDriver, size_t Bytes) :
     TDSDrvParam paramIn;
     DWORD dwReturnedLength;
     DWORD status;
-    
+
     DWORD dwOutParamLength = sizeof(TMemStruct) + sizeof(TPageStruct);
     m_pMemStruct = (TMemStruct*) malloc(dwOutParamLength);
     if(m_pMemStruct == NULL)
@@ -214,9 +214,9 @@ CContigMemory::~CContigMemory()
     {
         DWORD dwInParamLength = sizeof(TMemStruct) + sizeof(TPageStruct);
         Status = m_pDriver->SendCommand(
-                                          IOCTL_DSDRV_FREEMEMORY, 
-                                          m_pMemStruct, 
-                                          dwInParamLength                                       
+                                          IOCTL_DSDRV_FREEMEMORY,
+                                          m_pMemStruct,
+                                          dwInParamLength
                                        );
         free(m_pMemStruct);
     }

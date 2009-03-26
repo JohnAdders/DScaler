@@ -44,7 +44,7 @@ CParseCardIniDlg::CParseCardIniDlg(CWnd* pParent /*=NULL*/)
     //{{AFX_DATA_INIT(CParseCardIniDlg)
     m_bSortByName = FALSE;
     //}}AFX_DATA_INIT
-    
+
     m_LastIniFile.Empty();
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -86,20 +86,20 @@ BOOL CParseCardIniDlg::OnInitDialog()
     SetIcon(m_hIcon, FALSE);
 
     ModifyStyle(0, WS_CLIPCHILDREN);
-    
+
     CRect rec;
     GetWindowRect(&rec);
 
     m_MinMaxInfo.x = rec.Width();
     m_MinMaxInfo.y = rec.Height();
 
-    m_ImageList.Create(IDB_TREE_IMAGE_LIST, 16, 1, RGB(255, 255, 255));    
+    m_ImageList.Create(IDB_TREE_IMAGE_LIST, 16, 1, RGB(255, 255, 255));
     m_ctrlTreeCard.SetImageList(&m_ImageList, LVSIL_NORMAL);
 
     return TRUE;
 }
 
-void CParseCardIniDlg::OnPaint() 
+void CParseCardIniDlg::OnPaint()
 {
     CDialog::OnPaint();
 
@@ -113,7 +113,7 @@ void CParseCardIniDlg::OnPaint()
     dc.DrawFrameControl(rec, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
 }
 
-UINT CParseCardIniDlg::OnNcHitTest(CPoint point) 
+UINT CParseCardIniDlg::OnNcHitTest(CPoint point)
 {
     UINT ht = CDialog::OnNcHitTest(point);
     if(ht == HTCLIENT)
@@ -122,7 +122,7 @@ UINT CParseCardIniDlg::OnNcHitTest(CPoint point)
         GetWindowRect(rec);
         rec.left = rec.right  - GetSystemMetrics(SM_CXHSCROLL);
         rec.top  = rec.bottom - GetSystemMetrics(SM_CYVSCROLL);
-        
+
         if(rec.PtInRect(point))
         {
             ht = HTBOTTOMRIGHT;
@@ -132,7 +132,7 @@ UINT CParseCardIniDlg::OnNcHitTest(CPoint point)
     return ht;
 }
 
-void CParseCardIniDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI) 
+void CParseCardIniDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 {
     lpMMI->ptMinTrackSize = m_MinMaxInfo;
     CDialog::OnGetMinMaxInfo(lpMMI);
@@ -145,13 +145,13 @@ void CParseCardIniDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 #define BTN_OPENINI_OFFSET_TO_RIGHT        126
 #define BTN_OPENINI_OFFSET_TO_BOTTOM    12
 
-#define LIST_ERROR_OFFSET_TO_LEFT        9 
+#define LIST_ERROR_OFFSET_TO_LEFT        9
 #define LIST_ERROR_OFFSET_TO_RIGHT        9
 #define LIST_ERROR_OFFSET_TO_BOTTOM        44
 
 #define STATIC_ERROR_OFFSET_TO_BOTTOM    109
 
-#define TREE_OFFSET_TO_LEFT                9 
+#define TREE_OFFSET_TO_LEFT                9
 #define TREE_OFFSET_TO_RIGHT            9
 #define TREE_OFFSET_TO_TOP                26
 #define TREE_OFFSET_TO_BOTTOM            134
@@ -160,7 +160,7 @@ void CParseCardIniDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 
 
 
-void CParseCardIniDlg::OnSize(UINT nType, int cx, int cy) 
+void CParseCardIniDlg::OnSize(UINT nType, int cx, int cy)
 {
     CRect rectDialog;
     GetClientRect(&rectDialog);
@@ -203,7 +203,7 @@ void CParseCardIniDlg::OnSize(UINT nType, int cx, int cy)
         GetDlgItem(ID_OPEN_INI)->MoveWindow(&rectCtrl);
         GetDlgItem(ID_OPEN_INI)->Invalidate();
     }
-    
+
     // move the Error List Ctrl
     if(GetDlgItem(IDC_LIST_ERROR)->GetSafeHwnd())
     {
@@ -238,7 +238,7 @@ void CParseCardIniDlg::OnSize(UINT nType, int cx, int cy)
         GetDlgItem(IDC_STATIC_ERROR)->MoveWindow(&rectCtrl);
         GetDlgItem(IDC_STATIC_ERROR)->Invalidate();
     }
-    
+
     // move the Card Tree Ctrl
     if(GetDlgItem(IDC_TREE)->GetSafeHwnd())
     {
@@ -268,11 +268,11 @@ void CParseCardIniDlg::OnSize(UINT nType, int cx, int cy)
 
     // Redraw the Gripper
     InvalidateRect(m_GripperRect);
-    
+
     CDialog::OnSize(nType, cx, cy);
 }
 
-void CParseCardIniDlg::OnBtnOpenIni() 
+void CParseCardIniDlg::OnBtnOpenIni()
 {
     UpdateData(TRUE);
 
@@ -281,7 +281,7 @@ void CParseCardIniDlg::OnBtnOpenIni()
                               "DScaler Card ini Files|SAA713xCards.ini;CX2388xCards.ini|"
                               "All ini files (*.ini)|*.ini|"
                               "All files (*.*)|*.*||", this );
-     
+
     if(FileOpenDlg.DoModal() == IDOK)
     {
         m_LastIniFile = FileOpenDlg.GetPathName();
@@ -289,7 +289,7 @@ void CParseCardIniDlg::OnBtnOpenIni()
     }
 }
 
-void CParseCardIniDlg::OnChkSort() 
+void CParseCardIniDlg::OnChkSort()
 {
     if(!m_LastIniFile.IsEmpty())
     {
@@ -301,10 +301,10 @@ void CParseCardIniDlg::StartParseCardIni(BOOL bSort)
 {
     const char* pszCXCard  = "CX2388xCards.ini";
     const char* pszSAACard = "SAA713xCards.ini";
-    
+
     char szFileName[_MAX_FNAME];
     char szFileExt[_MAX_EXT];
-    
+
     // get filename and extension from path
     _splitpath(m_LastIniFile, NULL, NULL, szFileName, szFileExt);
 

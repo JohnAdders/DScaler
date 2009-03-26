@@ -33,7 +33,7 @@ CAPTION "TDA9887Tester"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     GROUPBOX        "Source Card",IDC_STATIC_SOURCE_CARD_FRAME,2,4,153,80
-    COMBOBOX        IDC_COMBO_SOURCES,9,16,138,96,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_COMBO_SOURCES,9,16,138,96,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Video Decoder:",IDC_STATIC,9,33,60,8
     LTEXT           "Vendor ID:",IDC_STATIC,9,43,60,8
@@ -47,24 +47,24 @@ BEGIN
     LTEXT           "n/a",IDC_TDA_I2C_ADRESS,76,72,70,8,SS_CENTERIMAGE
     GROUPBOX        "Load standard settings",IDC_STATIC_LOAD_STANDARD_FRAME,
                     2,87,153,31
-    COMBOBOX        IDC_COMBO_STANDARDS,7,98,70,117,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_COMBO_STANDARDS,7,98,70,117,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "TV Standard",IDC_STATIC_STANDARDS,80,100,41,8
     GROUPBOX        "Switching Byte (B0...B7)",IDC_STATIC_BYTE_B_FRAME,2,120,
                     153,88
-    CONTROL         "Out Port 2 Active",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Out Port 2 Active",IDC_CHECK1,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,7,131,70,10
-    CONTROL         "Out Port 1 Active",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Out Port 1 Active",IDC_CHECK2,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,7,141,70,10
-    CONTROL         "Forced Audio Mute",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Forced Audio Mute",IDC_CHECK3,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,7,151,76,10
     CONTROL         "QSS (unchecked: Intercarrier)",IDC_CHECK4,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,7,160,110,10
-    CONTROL         "Auto Mute FM",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Auto Mute FM",IDC_CHECK5,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,7,170,61,10
-    CONTROL         "Sound Trap Bypass",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Sound Trap Bypass",IDC_CHECK6,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,7,180,78,10
-    COMBOBOX        IDC_COMBO_TV_MOD,7,191,70,113,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_COMBO_TV_MOD,7,191,70,113,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "TV Modulation",IDC_STATIC_TV_MOD,80,194,47,8
     GROUPBOX        "Adjust Byte (C0...C7)",IDC_STATIC_BYTE_C_FRAME,2,212,
@@ -73,24 +73,24 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,7,223,119,10
     CONTROL         "Deemphasis 50 (unchecked: 75)",IDC_CHECK8,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,7,233,119,10
-    CONTROL         "Deemphasis on",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Deemphasis on",IDC_CHECK9,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,7,244,65,10
-    COMBOBOX        IDC_COMBO_TAKEOVER_POINT,7,255,70,120,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_COMBO_TAKEOVER_POINT,7,255,70,120,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Tuner takeover point",IDC_STATIC_TAKEOVER_POINT,80,258,
                     67,8
     GROUPBOX        "Data Byte (E0...E7)",IDC_STATIC_BYTE_E_FRAME,2,277,153,
                     76,WS_GROUP
-    CONTROL         "AGC feature",IDC_CHECK10,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "AGC feature",IDC_CHECK10,"Button",BS_AUTOCHECKBOX |
                     WS_GROUP | WS_TABSTOP,7,286,55,10
     CONTROL         "Secam(L) PLL gating 36% (unchecked: 0)",IDC_CHECK11,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,296,144,10
-    CONTROL         "min. Gain",IDC_CHECK12,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "min. Gain",IDC_CHECK12,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,7,306,45,10
-    COMBOBOX        IDC_COMBO_VIDEO_IF,7,318,85,147,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_COMBO_VIDEO_IF,7,318,85,147,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Video IF",IDC_STATIC_VIDEO_IF,95,321,27,8
-    COMBOBOX        IDC_COMBO_AUDIO_IF,7,334,85,131,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_COMBO_AUDIO_IF,7,334,85,131,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Audio IF",IDC_STATIC_AUDIO_IF,95,336,27,8
     GROUPBOX        "TDA Control Bytes",IDC_STATIC_CONTROL_BYTES_FRAME,1,356,
@@ -118,18 +118,18 @@ LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE DISCARDABLE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"

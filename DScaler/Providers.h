@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file providers.h providers Header file
  */
- 
+
 #ifndef __PROVIDERS_H___
 #define __PROVIDERS_H___
 

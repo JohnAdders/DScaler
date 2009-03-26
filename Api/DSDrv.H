@@ -25,13 +25,13 @@
 #define __DSDRVDEF_H
 
 
-#if !defined(_W64) 
-    
-    #if (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300 
-        #define _W64 __w64 
-    #else 
-        #define _W64 
-    #endif 
+#if !defined(_W64)
+
+    #if (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300
+        #define _W64 __w64
+    #else
+        #define _W64
+    #endif
 #endif
 
 #if defined(_WIN64)
@@ -39,20 +39,20 @@
     typedef unsigned __int64 UINT_PTR, *PUINT_PTR;
 
     typedef __int64 LONG_PTR, *PLONG_PTR;
-    typedef unsigned __int64 ULONG_PTR, *PULONG_PTR; 
+    typedef unsigned __int64 ULONG_PTR, *PULONG_PTR;
 #else
     typedef _W64 int INT_PTR, *PINT_PTR;
     typedef _W64 unsigned int UINT_PTR, *PUINT_PTR;
 
     typedef _W64 long LONG_PTR, *PLONG_PTR;
-    typedef _W64 unsigned long ULONG_PTR, *PULONG_PTR; 
+    typedef _W64 unsigned long ULONG_PTR, *PULONG_PTR;
 #endif
 
 typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
 
 
 // define version number to be compiled into both files
-// we use this to make sure that we are speaking the same language in both the 
+// we use this to make sure that we are speaking the same language in both the
 // drivers and the dll
 #define DSDRV_VERSION 0x4004
 

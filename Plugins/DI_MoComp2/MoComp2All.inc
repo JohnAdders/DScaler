@@ -56,10 +56,10 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
     rowsize = pInfo->LineLength;
     RowPixels = rowsize >> 1;
     FldHeight = pInfo->FieldHeight;
-       
+
     pCopySrc = pInfo->PictureHistory[1]->pData;
     pCopySrcP = pInfo->PictureHistory[3]->pData;
-    pWeaveSrc = pInfo->PictureHistory[0]->pData;  
+    pWeaveSrc = pInfo->PictureHistory[0]->pData;
     pWeaveSrcP = pInfo->PictureHistory[2]->pData;
     IsOdd =    pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD;
 
@@ -76,15 +76,15 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
         pWeaveDest = pInfo->Overlay;
 
     }
-    // copy 1st and last weave lines 
-    Fieldcopy(pWeaveDest, pCopySrc, rowsize,        
+    // copy 1st and last weave lines
+    Fieldcopy(pWeaveDest, pCopySrc, rowsize,
                 1, dst_pitch*2, src_pitch);
     Fieldcopy(pWeaveDest+(FldHeight-1)*dst_pitch*2,
-        pCopySrc+(FldHeight-1)*src_pitch, rowsize, 
+        pCopySrc+(FldHeight-1)*src_pitch, rowsize,
                 1, dst_pitch*2, src_pitch);
 
     // copy all of the copy field
-    Fieldcopy(pCopyDest, pCopySrc, rowsize, 
+    Fieldcopy(pCopyDest, pCopySrc, rowsize,
                 FldHeight, dst_pitch*2, src_pitch);
 
     // then go fill in the hard part, being variously lazy depending upon
@@ -96,13 +96,13 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
     return TRUE;
 }
 
-int Fieldcopy(void *dest, const void *src, size_t count, 
+int Fieldcopy(void *dest, const void *src, size_t count,
                 int rows, int dst_pitch, int src_pitch)
 {
 BYTE* pDest = (BYTE*) dest;
 BYTE* pSrc = (BYTE*) src;
 int i;
-    
+
     for (i=0; i < rows; i++)
     {
         MyMemCopy(pDest, pSrc, count);

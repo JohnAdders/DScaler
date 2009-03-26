@@ -148,8 +148,8 @@ void CDSSourceBase::StopAndSeekToBeginning()
         {
             //we must ensure that the output thread don't try to get any
             //more fields. if it does a deadlock can occure.
-            //the deadlock will only occure if the output thread is 
-            //blocked when it accesses the main threads gui, 
+            //the deadlock will only occure if the output thread is
+            //blocked when it accesses the main threads gui,
             //since this prevents IDSRendFilter::FreeFields from being called
             m_pDSGraph->stop();
 
@@ -159,7 +159,7 @@ void CDSSourceBase::StopAndSeekToBeginning()
             if(pSeeking!=NULL)
             {
                 //here is a sample on how to get the positions
-                //sometimes AM_SEEKING_CanGetCurrentPos is not set but 
+                //sometimes AM_SEEKING_CanGetCurrentPos is not set but
                 //IMediaSeeking::GetCurrentPosition still works.
                 if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
                 {
@@ -208,13 +208,13 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     //clear the picture history
     memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
     //ClearPictureHistory(pInfo);
-    
+
     //is the graph running? there is no point in continuing if it isnt
     /*if(m_pDSGraph->getState()!=State_Running)
     {
         return;
     }*/
-    
+
     long size=MAX_PICTURE_HISTORY;
     FieldBuffer fields[MAX_PICTURE_HISTORY];
     BufferInfo binfo;
@@ -236,7 +236,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         m_CurrentY=binfo.Height*2;
         NotifySizeChange();
     }
-    
+
     pInfo->FrameWidth=binfo.Width;
     pInfo->FrameHeight=binfo.Height*2;
     pInfo->LineLength=binfo.Width*2;
@@ -247,7 +247,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     pInfo->CurrentFrame=binfo.CurrentFrame;
 
     UpdateDroppedFields();
-    
+
     static BOOL FieldFlag=TRUE;
     for(int i=0;i<size;i++)
     {
@@ -262,7 +262,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
             m_PictureHistory[i].Flags= FieldFlag==TRUE ? PICTURE_INTERLACED_EVEN : PICTURE_INTERLACED_ODD;
             FieldFlag=!FieldFlag;
         }
-            
+
         pInfo->PictureHistory[i] = &m_PictureHistory[i];
     }
     Timing_IncrementUsedFields();
@@ -273,7 +273,7 @@ void CDSSourceBase::UpdateDroppedFields()
 {
     if(m_pDSGraph==NULL)
         return;
-    
+
     int dropped;
     try
     {
@@ -284,7 +284,7 @@ void CDSSourceBase::UpdateDroppedFields()
         LOG(1, "DShow Exception - %s", e.what());
         return;
     }
-    
+
     //is the m_lastNumDroppedFrames count valid?
     if(m_LastNumDroppedFrames!=-1)
     {
@@ -405,7 +405,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             int filterIndex=0;
             vector<CTreeSettingsPage*> pages;
             CTreeSettingsPage *pPage=NULL;
-            
+
             BOOL bHasSubPage=FALSE;
             while(m_pDSGraph->getFilterPropertyPage(filterIndex,&pPage,bHasSubPage))
             {
@@ -421,7 +421,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                         subIndex++;
                     }
                 }
-                
+
                 filterIndex++;
             }
             if(filterIndex!=0)
@@ -433,7 +433,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             {
                 AfxMessageBox(_T("There is no filters to show properties for"),MB_OK|MB_ICONINFORMATION);
             }
-            
+
             for(vector<CTreeSettingsPage*>::iterator it=pages.begin();it!=pages.end();it++)
             {
                 delete *it;
@@ -457,13 +457,13 @@ void CDSSourceBase::Mute()
         LOG(3,"Failed to get audio controlls, mute will not work");
         return;
     }
-    
+
     if(pControls->GetAudioCaps()|DSHOW_AUDIOCAPS_HAS_VOLUME)
     {
         long min=0;
         long max=0;
         pControls->GetVolumeMinMax(min,max);
-        
+
         try
         {
             pControls->SetVolume(min);
@@ -488,7 +488,7 @@ void CDSSourceBase::UnMute()
         LOG(3,"Failed to get audio controlls, mute will not work");
         return;
     }
-    
+
     if(pControls->GetAudioCaps()|DSHOW_AUDIOCAPS_HAS_VOLUME)
     {
         long volume=m_Volume->GetValue();
@@ -518,7 +518,7 @@ CSliderSetting* CDSSourceBase::GetVolume()
     }
 
     if(pControls->GetAudioCaps()|DSHOW_AUDIOCAPS_HAS_VOLUME)
-    {    
+    {
         long min=0;
         long max=0;
         pControls->GetVolumeMinMax(min,max);
@@ -545,7 +545,7 @@ CSliderSetting* CDSSourceBase::GetBalance()
         LOG(3,"Failed to get audio controlls, balance will not work");
         return NULL;
     }
-    
+
     if(pControls->GetAudioCaps()|DSHOW_AUDIOCAPS_HAS_BALANCE)
     {
         long min=0;

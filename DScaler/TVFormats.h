@@ -17,10 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-/** 
+/**
  * @file tvformats.h tvformats Header file
  */
- 
+
 #ifndef __TVFORMATS_H___
 #define __TVFORMATS_H___
 

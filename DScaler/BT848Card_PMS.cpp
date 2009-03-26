@@ -61,7 +61,7 @@ enum ePMSInputs
     PMS_COMPOSITE_SV_4, // Composite over S-Video
 
     PMS_RGBS,
-    
+
     PMS_SDI // not yet
 
 };
@@ -97,7 +97,7 @@ void CBT848Card::InitPMSDeluxe()
     m_SAA7118->SetRegister(0x05,0x90); //not on datasheet
     m_SAA7118->SetRegister(0x06,0xeb);
     m_SAA7118->SetRegister(0x07,0xe0);
-    m_SAA7118->SetRegister(0x08,0xe8);  //enforce even/odd toggle even if non-interlaced detected //0x98); 
+    m_SAA7118->SetRegister(0x08,0xe8);  //enforce even/odd toggle even if non-interlaced detected //0x98);
 
     /* Decoder Brightness(Lumin), Contrast(Lumin), Saturation(Chromin) & Hue(Chromin) */
     m_SAA7118->SetRegister(0x0a,dBrightness);
@@ -127,7 +127,7 @@ void CBT848Card::InitPMSDeluxe()
     m_SAA7118->SetRegister(0x2d,0x00);
     m_SAA7118->SetRegister(0x2e,0x00);
     m_SAA7118->SetRegister(0x2f,0x00);
-    
+
     //0x30-0x3A = default
     m_SAA7118->SetRegister(0x40,0x22);
     for (i=0x41; i<=0x57; i++)
@@ -200,44 +200,44 @@ void CBT848Card::InitPMSDeluxe()
 void CBT848Card::PMSDeluxeInputSelect(int nInput)
 {
     //hcho, enforce to use those nInput with type INPUTTYPE_CCIR
-    StandardBT848InputSelect(nInput); 
+    StandardBT848InputSelect(nInput);
 
     m_CurrentInput = nInput;
 
     switch(nInput)
     {
     case PMS_COMPONENT:
-        m_SAA7118->SetRegister(0x02, 0xe0); 
+        m_SAA7118->SetRegister(0x02, 0xe0);
         break;
     case PMS_SVIDEO:
-        m_SAA7118->SetRegister(0x02, 0xcc); 
+        m_SAA7118->SetRegister(0x02, 0xcc);
         break;
     case PMS_SVIDEO2:
-        m_SAA7118->SetRegister(0x02, 0xcd); 
+        m_SAA7118->SetRegister(0x02, 0xcd);
         break;
     case PMS_COMPOSITE1:
-        m_SAA7118->SetRegister(0x02, 0xd2); 
+        m_SAA7118->SetRegister(0x02, 0xd2);
         break;
     case PMS_COMPOSITE2:
-        m_SAA7118->SetRegister(0x02, 0xc2); 
+        m_SAA7118->SetRegister(0x02, 0xc2);
         break;
     case PMS_COMPOSITE3:
-        m_SAA7118->SetRegister(0x02, 0xd0); 
+        m_SAA7118->SetRegister(0x02, 0xd0);
         break;
     case PMS_COMPOSITE_SV_1:
-        m_SAA7118->SetRegister(0x02, 0xce); 
+        m_SAA7118->SetRegister(0x02, 0xce);
         break;
     case PMS_COMPOSITE_SV_2:
-        m_SAA7118->SetRegister(0x02, 0xc4); 
+        m_SAA7118->SetRegister(0x02, 0xc4);
         break;
     case PMS_COMPOSITE_SV_3:
-        m_SAA7118->SetRegister(0x02, 0xcf); 
+        m_SAA7118->SetRegister(0x02, 0xcf);
         break;
     case PMS_COMPOSITE_SV_4:
-        m_SAA7118->SetRegister(0x02, 0xc5); 
+        m_SAA7118->SetRegister(0x02, 0xc5);
         break;
     case PMS_RGBS:
-        m_SAA7118->SetRegister(0x02, 0xf0); 
+        m_SAA7118->SetRegister(0x02, 0xf0);
         break;
     default:
     case PMS_SDI:

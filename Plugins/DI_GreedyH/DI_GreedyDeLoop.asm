@@ -33,12 +33,12 @@
 // which may be needed for the vertical filter.
     _asm
     {
-        movq    mm0, qword ptr[esi+16+FSOFFS]  // L2 - the other one 
+        movq    mm0, qword ptr[esi+16+FSOFFS]  // L2 - the other one
         movq    mm1, qword ptr[esi+eax+FSOFFS]    // L1
-        movq    mm2, qword ptr[esi+FSOFFS]        // L2 
+        movq    mm2, qword ptr[esi+FSOFFS]        // L2
         movq    mm3, qword ptr[esi+ebx+FSOFFS] // L3
 
-// calc simple interp value in case we need it            
+// calc simple interp value in case we need it
         movq    mm6, mm1                // L1 - get simple single pixel interp
         pavgb   mm6, mm3
 
@@ -54,7 +54,7 @@
         movq    mm7, mm6                // copy of simple bob pixel
         psllq   mm7, 16                 // left justify 3 pixels
         por     mm4, mm7                // and combine
-        
+
         movq    mm5, qword ptr[esi+eax+FSCOLSIZE+FSOFFS] // next horiz qword from L1
         pavgb   mm5, qword ptr[esi+ebx+FSCOLSIZE+FSOFFS] // next horiz qword from L3
         psllq    mm5, 48                    // left just 1 pixel
@@ -107,7 +107,7 @@
 // mm1 = L1
 // mm2 = LP2
 // mm3 = L3
-// mm4 = the best of L2,LP2 weave pixel, based upon comb 
+// mm4 = the best of L2,LP2 weave pixel, based upon comb
 // mm6 = the avg interpolated value, if we need to use it
 
 // Let's measure movement, as how much the weave pixel has changed
@@ -135,7 +135,7 @@
 
 #ifdef USE_BOB_BLEND                    // always use but can turn off for test
 // the ratio of bob/weave will be dependend upon apparent damage we expect
-// from seeing large motion. 
+// from seeing large motion.
         psubusb mm0, MotionThresholdW  // test motion Threshold, clear chroma
         pmullw  mm0, MotionSenseW // mul by user factor, keep low 16 bits
         movq    mm7, QW256
@@ -146,11 +146,11 @@
         pand    mm6, YMaskW                // keep only luma from interp bob DJR value
         pmullw  mm6, mm0                // use more bob for large motion
         paddusw mm4, mm6                // combine
-        psrlw   mm4, 8                    // div by 256 to get weighted avg    
+        psrlw   mm4, 8                    // div by 256 to get weighted avg
 #endif                                        // end of motion sensitive bob blend
 
 // chroma comes from our clipped weave value - gives more chroma res & lower chroma jitter
         pand    mm2, UVMask             // get only chroma
         por        mm4, mm2                // and combine
-        
+
         }

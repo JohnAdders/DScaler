@@ -32,7 +32,7 @@ CIOAccessDevice::CIOAccessDevice(void) :
 {
     memset(&memoryList, 0, sizeof(memoryList));
     memset(&mappingList, 0, sizeof(mappingList));
-    
+
 #ifndef _WIN64
     // only on win32
     m_PAEEnabled = ExIsProcessorFeaturePresent(PF_PAE_ENABLED) == TRUE;
@@ -61,11 +61,11 @@ CIOAccessDevice::~CIOAccessDevice()
             freeMemory (node);
         }
     }
-    
+
     //
     // Remove mappings
     //
-    
+
     for (Index = 0; Index < MAX_FREE_MAPPING_NODES; Index++)
     {
         if ( mappingList[Index].pUser )
@@ -92,7 +92,7 @@ NTSTATUS CIOAccessDevice::deviceIOControl(PIRP irp)
 #ifdef _WIN64
     is32 = IoIs32bitProcess( irp ) == TRUE;
 #endif
-    
+
     RtlZeroMemory( &ioDrvParam, sizeof(TDSDrvParam) );
     //
     // Get a pointer to the current location in the Irp. This is where
@@ -147,7 +147,7 @@ NTSTATUS CIOAccessDevice::deviceIOControl(PIRP irp)
         outputBufferLength = irpStack->Parameters.DeviceIoControl.OutputBufferLength;
         break;
     }
-    
+
     if ( ioControlCode == IOCTL_DSDRV_FREEMEMORY )
         // inputBuffer points to a PMemStruct
         ntStatus = deviceControl(ioControlCode,
@@ -173,7 +173,7 @@ NTSTATUS CIOAccessDevice::deviceIOControl(PIRP irp)
             if ( inputBufferLength > 0 )
                 RtlCopyMemory( &ioDrvParam, inputBuffer,
                     inputBufferLength > sizeof(TDSDrvParam) ? sizeof(TDSDrvParam) : inputBufferLength );
-                
+
         ntStatus = deviceControl(ioControlCode,
                                 &ioDrvParam,
                                 (DWORD*) outputBuffer, outputBufferLength,
@@ -374,7 +374,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
                     pMem32->dwUser = PtrToUint(pMem->dwUser);
                     // copy page structs
                     RtlCopyMemory(pMem32+1, pMem+1, sizeof(TPageStruct) * pMem32->dwPages);
-                    
+
                     *pBytesWritten = sizeof(TMemStruct_32) + pMem32->dwPages * sizeof(TPageStruct);
                 }
                 delete[] outBuf;
@@ -385,7 +385,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
                 Status = allocMemory((ULONG)ioParam->dwValue, ioParam->dwFlags, (PVOID)ioParam->dwAddress, (PMemStruct)outputBuffer, false);
                 *pBytesWritten = sizeof(TMemStruct) + ((PMemStruct)outputBuffer)->dwPages * sizeof(TPageStruct);
             }
-            
+
         }
         break;
 
@@ -422,7 +422,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
                     pMem32->dwUser = PtrToUint(pMem->dwUser);
                     // copy page structs
                     RtlCopyMemory(pMem32+1, pMem+1, sizeof(TPageStruct64) * pMem32->dwPages);
-                    
+
                     *pBytesWritten = sizeof(TMemStruct_32) + pMem32->dwPages * sizeof(TPageStruct64);
                 }
                 delete[] outBuf;
@@ -433,7 +433,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
                 Status = allocMemory((ULONG)ioParam->dwValue, ioParam->dwFlags, (PVOID)ioParam->dwAddress, (PMemStruct)outputBuffer, true);
                 *pBytesWritten = sizeof(TMemStruct) + ((PMemStruct)outputBuffer)->dwPages * sizeof(TPageStruct64);
             }
-            
+
         }
         break;
 
@@ -729,7 +729,7 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
     pMemStruct->dwUser = pUserAddress;
 
     // don't return memory above 4GB unless the app wants it.
-    // it seems the only way to ensure that is via MmAllocateContiguousMemory().    
+    // it seems the only way to ensure that is via MmAllocateContiguousMemory().
     // FIXME: determine highest physical address and use for decision
 #ifdef _WIN64
     if (!above4G)
@@ -847,19 +847,19 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
                 IoFreeMdl(node->pMdl);
                 debugOut(dbError, "MmMapLockedPages caused an exception (user=0x%IX)", node->pUserAddress);
                 node->pSystemAddress = NULL;
-                return STATUS_INSUFFICIENT_RESOURCES;       
+                return STATUS_INSUFFICIENT_RESOURCES;
             }
         }
         else
         {
             node->pUserAddress = pUserAddress;
         }
-        
+
         if ( above4G )
             ntStatus = buildPageStruct64(pMemStruct, node);
         else
             ntStatus = buildPageStruct32(pMemStruct, node);
-        
+
         if (ntStatus != STATUS_SUCCESS)
         {
             debugOut(dbError, "allocMemory: something went wrong, aborting!");
@@ -880,7 +880,7 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
 NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode node)
 {
     PPageStruct pPages = (PPageStruct)(pMemStruct + 1);
-    
+
     if (node->dwFlags & ALLOC_MEMORY_CONTIG)
     {
         pMemStruct->dwPages = 1;
@@ -891,7 +891,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
             // Too bad, not in address space range
             debugOut(dbError, "allocMemory() returned 64-bit address: 0x%I64X. User address was 0x%IX", phys, node->pUserAddress);
             return STATUS_CONFLICTING_ADDRESSES;
-        }        
+        }
         pPages[0].dwPhysical = (DWORD)phys;
         pPages[0].dwSize = pMemStruct->dwTotalSize;
     }
@@ -906,9 +906,9 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
             // Too bad, not in address space range
             debugOut(dbError, "allocMemory() returned 64-bit address: 0x%I64X. User address was 0x%IX", phys, node->pUserAddress);
             return STATUS_CONFLICTING_ADDRESSES;
-        }        
+        }
         node->pSystemAddress = (PVOID)phys;
-        pPages[0].dwPhysical = (DWORD)phys; 
+        pPages[0].dwPhysical = (DWORD)phys;
         for(i = (DWORD_PTR)node->pUserAddress; i < (DWORD_PTR)node->pUserAddress + pMemStruct->dwTotalSize; i++)
         {
             if(i % 4096 == 0)
@@ -919,7 +919,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
                     // Too bad, not in address space range
                     debugOut(dbError, "allocMemory() returned 64-bit address: 0x%I64X. User address was 0x%IX", phys, i);
                     return STATUS_CONFLICTING_ADDRESSES;
-                }        
+                }
                 pPages[Pages].dwPhysical = (DWORD)phys;
                 pPages[Pages - 1].dwSize = (DWORD)(i - LastUserAddr);
                 Pages++;
@@ -938,7 +938,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
 NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode node)
 {
     PPageStruct64 pPages = (PPageStruct64)(pMemStruct + 1);
-    
+
     if (node->dwFlags & ALLOC_MEMORY_CONTIG)
     {
         pMemStruct->dwPages = 1;
@@ -951,7 +951,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode n
         DWORD_PTR i = 0;
         int Pages = 1;
         DWORD_PTR LastUserAddr = (DWORD_PTR)node->pUserAddress;
-        pPages[0].llPhysical = GetPhysAddr(node->pUserAddress).QuadPart; 
+        pPages[0].llPhysical = GetPhysAddr(node->pUserAddress).QuadPart;
         node->pSystemAddress = (PVOID)pPages[0].llPhysical;
         for(i = (DWORD_PTR)node->pUserAddress; i < (DWORD_PTR)node->pUserAddress + pMemStruct->dwTotalSize; i++)
         {
@@ -1054,7 +1054,7 @@ NTSTATUS CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD_PTR dwPhysicalAddre
     for ( DWORD i = 0; i < MAX_FREE_MAPPING_NODES; i++ )
         if ( mappingList[i].pUser == NULL )
         {
-            node = &mappingList[i];       
+            node = &mappingList[i];
             break;
         }
 
@@ -1093,7 +1093,7 @@ NTSTATUS CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD_PTR dwPhysicalAddre
     node->ulLength = ulLength;
 
     //KeLowerIrql(irql);
-    
+
     //
     // user space
     //
@@ -1104,7 +1104,7 @@ NTSTATUS CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD_PTR dwPhysicalAddre
         debugOut(dbError, "IoAllocateMdl failed");
         return STATUS_INSUFFICIENT_RESOURCES;
     }
-    
+
     MmBuildMdlForNonPagedPool(node->pMdl);
     __try {
         node->pUser = MmMapLockedPagesSpecifyCache(node->pMdl, UserMode, MmNonCached, NULL, FALSE, NormalPagePriority);
@@ -1113,18 +1113,18 @@ NTSTATUS CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD_PTR dwPhysicalAddre
         IoFreeMdl(node->pMdl);
         MmUnmapIoSpace(pMemoryBase, ulLength);
         debugOut(dbError, "MmMapLockedPages caused an exception");
-        return STATUS_INSUFFICIENT_RESOURCES;       
+        return STATUS_INSUFFICIENT_RESOURCES;
     }
     if (!(node->pUser))
     {
         IoFreeMdl(node->pMdl);
         MmUnmapIoSpace(pMemoryBase, ulLength);
         debugOut(dbError, "MmMapLockedPages faild for 0x%IX", pMemoryBase);
-        return STATUS_INSUFFICIENT_RESOURCES;       
+        return STATUS_INSUFFICIENT_RESOURCES;
     }
-    
+
     debugOut(dbTrace, "MmMapLockedPages to user address 0x%IX", node->pUser);
-    
+
     *pUserMapping = node->pUser;
     return STATUS_SUCCESS;
 }
@@ -1142,22 +1142,22 @@ CIOAccessDevice::unmapMemory(PVOID pMemoryBase, ULONG ulMappedMemoryLength)
             if (mappingList[i].pUser == pMemoryBase)
             {
                 //KIRQL irql;
-                
+
                 if ( mappingList[i].ulLength != ulMappedMemoryLength )
                     debugOut(dbWarning, "unmapMemory: length argument invalid, using driver value");
-                
+
                 // free user mapping
                 MmUnmapLockedPages(mappingList[i].pUser, mappingList[i].pMdl);
                 IoFreeMdl(mappingList[i].pMdl);
-                
+
                 // TODO: what's the reason for this??
                 //KeRaiseIrql(PASSIVE_LEVEL, &irql);
-        
+
                 debugOut(dbTrace,"MMUnmapIoSpace() %IX, length %d", mappingList[i].pSystem, mappingList[i].ulLength);
                 MmUnmapIoSpace(mappingList[i].pSystem, mappingList[i].ulLength);
-        
+
                 //KeLowerIrql(irql);
-                
+
                 mappingList[i].pUser = NULL;
             }
     }

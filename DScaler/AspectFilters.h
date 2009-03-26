@@ -16,7 +16,7 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file aspectfilters.h aspectfilters Header file
  */
 
@@ -29,7 +29,7 @@
     which are applyed in order to adjust the aspect ratio of the video image.
 
     The filters are stored in a linked list and applied in order.  A filter can have
-    child filters to allow it to take advantage of values from before and after 
+    child filters to allow it to take advantage of values from before and after
     the child filters were applied.  This is currently used by the uncrop filter which
     needs the original destination rectangle.
 */
@@ -45,14 +45,14 @@ public:
     CPeriodBouncer(time_t period, double amplitude, double offset);
     CPeriodBouncer(time_t startTime, time_t period, double amplitude, double offset);
     double position();
-protected: 
+protected:
     time_t m_StartTime;
     time_t m_Period;
     double m_Amplitude;
     double m_Offset;
 };
 
-/** Class containing all the rectangles a filter might want 
+/** Class containing all the rectangles a filter might want
     Dest rectanges refer to the image rectangle on the screen
     Src rectangles refer to the rectangle of the source image being used
 
@@ -87,7 +87,7 @@ public:
     virtual ~CAspectFilter();
     virtual const char* getFilterName() = 0;
 
-    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun) = 0; 
+    virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun) = 0;
 
     virtual void DebugDump();
     void SetChild(SmartPtr<CAspectFilter> Child);
@@ -177,8 +177,8 @@ protected:
     double m_YPos;
 };
 
-/// Crops the source and destination rectangles to the requested aspect ratio.  
-class CCropAspectFilter : public CAspectFilter 
+/// Crops the source and destination rectangles to the requested aspect ratio.
+class CCropAspectFilter : public CAspectFilter
 {
 public:
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
@@ -196,8 +196,8 @@ public:
 };
 
 /** Zooms in on the source image
-    x/m_YZoom is the amount to zoom - 1 = full size, 2 = double size, 4 = quad size 
-        both zoom factors should normally be equal - any other values will wreck the 
+    x/m_YZoom is the amount to zoom - 1 = full size, 2 = double size, 4 = quad size
+        both zoom factors should normally be equal - any other values will wreck the
         aspect ratio of the image (that would be a shame after spending all this code to keep it correct <grin>
     x/m_YPos is the position to zoom in on - 0 = left/top of frame, .5 = middle, 1 = right/bottom of frame
     Normally this filter will be applied just before the CScreenSanityAspectFilter

@@ -15,10 +15,10 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 //
-//  Also, this program is "Philanthropy-Ware".  That is, if you like it and 
+//  Also, this program is "Philanthropy-Ware".  That is, if you like it and
 //  feel the need to reward or inspire the author then please feel free (but
 //  not obligated) to consider joining or donating to the Electronic Frontier
-//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
+//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
 
@@ -129,7 +129,7 @@ BOOL FUNCT_NAME(int SearchEffort, int _src_pitch, int _dst_pitch,
         Search_Effort_21();
     }
 
-    else 
+    else
     {
         Search_Effort_Max();
     }
@@ -143,7 +143,7 @@ int Do_Dbl_Resize()        // smart double the height with WierdBob
 {
 #define DBL_RESIZE
 #define SKIP_SEARCH
-#include "SearchLoopTop.inc"    
+#include "SearchLoopTop.inc"
 #include "SearchLoopBottom.inc"
 #undef SKIP_SEARCH
 #undef DBL_RESIZE

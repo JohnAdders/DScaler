@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file dvbtprovider.h dvbtprovider Header file
  */
- 
+
 #ifndef __DVBTPROVIDER_H___
 #define __DVBTPROVIDER_H___
 

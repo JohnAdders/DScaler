@@ -35,7 +35,7 @@
     This class abstracts the I2C bus used to control extra chips on cards.
     The bus used a serial interface using two lines.
 */
-class CI2CBus  
+class CI2CBus
 {
 public:
     CI2CBus();
@@ -50,7 +50,7 @@ public:
                         BYTE *readBuffer,
                         size_t readBufferSize
                      );
-    
+
     /**
     @return TRUE if sucessful
     */
@@ -77,7 +77,7 @@ protected:
     virtual void Lock()=0;
     /// Unlock device
     virtual void Unlock()=0;
-  
+
 };
 
 #endif // !defined(__I2CBUS_H__)

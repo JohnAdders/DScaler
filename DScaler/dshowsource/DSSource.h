@@ -41,7 +41,7 @@ class CDSCaptureSource : public CDSSourceBase
 public:
     CDSCaptureSource(std::string device, std::string deviceName);
     virtual ~CDSCaptureSource();
-    
+
     //from CSettingsHolder
     void CreateSettings(LPCSTR IniSection);
 
@@ -68,7 +68,7 @@ public:
 
     eVideoFormat GetFormat();
     BOOL IsInTunerMode();
-    
+
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
 
@@ -85,17 +85,17 @@ public:
     std::string GetMenuLabel();
 
     void SetAspectRatioData();
-    
+
     BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList);
     void DecodeVBI(TDeinterlaceInfo* pInfo){};
-    
+
     ///@todo this probably have to be changed
     BOOL HasSquarePixels() {return FALSE;};
 
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 
     static void ChannelChange(void *pThis,int PreChange,int OldChannel,int NewChannel);
-    
+
     void Start();
     void Stop();
 
@@ -127,7 +127,7 @@ private:
 
     ///coverts from dscaler eVideoFormat to directshow AnalogVideoStandard
     AnalogVideoStandard ConvertVideoStd(eVideoFormat fmt);
-    
+
     ///coverts from directshow AnalogVideoStandard to dscaler eVideoFormat
     eVideoFormat ConvertVideoStd(AnalogVideoStandard fmt);
 
@@ -136,7 +136,7 @@ private:
 
     std::string m_Device;
     std::string m_DeviceName;
-    
+
     std::vector<CDShowGraph::CVideoFormat> m_VideoFmt;
 
     BOOL m_HaveInputList;

@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // Aspect ratio control was started by Michael Samblanet <mike@cardobe.com>
-// Moved into separate module by Mark D Rejhon.  
+// Moved into separate module by Mark D Rejhon.
 // AspectRatio.c was separated into 3 files by Michael Samblanet 13 March 2001
 //
 // The purpose of this module is all the calculations and handling necessary
@@ -70,7 +70,7 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItem(hMenu, IDM_SASPECT_200, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_235, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_166A, MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SASPECT_178A, MF_UNCHECKED); 
+    CheckMenuItem(hMenu, IDM_SASPECT_178A, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_185A, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_200A, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_235A, MF_UNCHECKED);
@@ -121,7 +121,7 @@ void AspectRatio_SetMenu(HMENU hMenu)
         }
         else if (AspectSettings.AspectMode == 2)
         {
-            CheckMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_CHECKED); 
+            CheckMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_CHECKED);
         }
     }
     else if(AspectSettings.AutoDetectAspect == 2)
@@ -133,7 +133,7 @@ void AspectRatio_SetMenu(HMENU hMenu)
         }
         else if (AspectSettings.AspectMode == 2)
         {
-            CheckMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_CHECKED); 
+            CheckMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_CHECKED);
         }
     }
     else if (AspectSettings.AspectMode == 1)
@@ -176,8 +176,8 @@ void AspectRatio_SetMenu(HMENU hMenu)
             CheckMenuItem(hMenu, IDM_SASPECT_166A, MF_CHECKED);
             break;
         case 1778:
-            CheckMenuItem(hMenu, IDM_SASPECT_178A, MF_CHECKED); 
-            CheckMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_CHECKED); 
+            CheckMenuItem(hMenu, IDM_SASPECT_178A, MF_CHECKED);
+            CheckMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_CHECKED);
             break;
         case 1850:
             CheckMenuItem(hMenu, IDM_SASPECT_185A, MF_CHECKED);
@@ -308,7 +308,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     case IDM_WINPOS_VERT_CENTRE:
     case IDM_WINPOS_VERT_TOP:
     case IDM_WINPOS_VERT_BOTTOM:
-        AspectSettings.VerticalPos = (eVertPos)(wMenuID - IDM_WINPOS_VERT_BOTTOM); 
+        AspectSettings.VerticalPos = (eVertPos)(wMenuID - IDM_WINPOS_VERT_BOTTOM);
         WorkoutOverlaySize(TRUE);
         break;
 
@@ -557,7 +557,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         else
         {
             AspectSettings.ZoomFactorY = 1;
-        }        
+        }
         if (AspectSettings.ZoomFactorY > 1000)
         {
             AspectSettings.ZoomFactorY = 1000;
@@ -650,14 +650,14 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 
     //------------------------------------------------------------------
     default:
-        // At this point, we want to reset the automatic aspect 
+        // At this point, we want to reset the automatic aspect
         // because the end user selected an "Advanced Source Aspect Ratio"
         // In this case, turn off automatic aspect ratio detect.
         // Then restart the 'switch' statement.
 
         //--------------------------------------------------------------
         // Advanced Source Aspect Ratios
-        switch (wMenuID) 
+        switch (wMenuID)
         {
         case IDM_SASPECT_0:
             AspectSettings.AutoDetectAspect = 0;
@@ -798,11 +798,11 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
         AspectSettings.DestinationRect.top = AspectSettings.DestinationRect.bottom;
         AspectSettings.DestinationRect.bottom = t;
     }
-    
+
     // Draw black in the 4 borders
     //GetClientRect(hWnd,&winRect);
     GetDisplayAreaRect(hWnd,&winRect, TRUE);
-    
+
     // Top
     r2.left = winRect.left;
     r2.top = winRect.top;
@@ -836,7 +836,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
     FillRect(hDC, &r, Background);
 
     if (AspectSettings.OverlayNeedsSetting)
-    { 
+    {
         // MRS 2-22-01
         // Intended to prevent purple flashing by setting overlay
         // after drawing black but before drawing purple.
@@ -947,10 +947,10 @@ BOOL Bounce_OnChange(long NewValue)
     return FALSE;
 }
 
-BOOL Orbit_OnChange(long NewValue) 
+BOOL Orbit_OnChange(long NewValue)
 {
     AspectSettings.OrbitEnabled = NewValue != 0;
-    if (!AspectSettings.OrbitEnabled) 
+    if (!AspectSettings.OrbitEnabled)
     {
         KillTimer(GetMainWnd(), TIMER_ORBIT);
     }
@@ -970,42 +970,42 @@ BOOL Clipping_OnChange(long NewValue)
 
 BOOL XZoom_Factor_OnChange(long NewValue)
 {
-    AspectSettings.ZoomFactorX = NewValue;  
+    AspectSettings.ZoomFactorX = NewValue;
     WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL YZoom_Factor_OnChange(long NewValue)
 {
-    AspectSettings.ZoomFactorY = NewValue;  
+    AspectSettings.ZoomFactorY = NewValue;
     WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL XZoom_Center_OnChange(long NewValue)
 {
-    AspectSettings.ZoomCenterX = NewValue;  
+    AspectSettings.ZoomCenterX = NewValue;
     WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL YZoom_Center_OnChange(long NewValue)
 {
-    AspectSettings.ZoomCenterY = NewValue;  
+    AspectSettings.ZoomCenterY = NewValue;
     WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL ChromaRange_OnChange(long NewValue)
 {
-    AspectSettings.ChromaRange = NewValue;  
+    AspectSettings.ChromaRange = NewValue;
     WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL MaskGreyShade_OnChange(long NewValue)
 {
-    AspectSettings.MaskGreyShade = NewValue;  
+    AspectSettings.MaskGreyShade = NewValue;
     InvalidateRect(GetMainWnd(), NULL, FALSE);
     return FALSE;
 }
@@ -1267,10 +1267,10 @@ SmartPtr<CSettingsHolder> Aspect_GetSettingsHolder()
     AspectSettingsHolder->AddSetting(&AspectGUISettings[TARGET_ASPECT], pRatioGroup);
     AspectSettingsHolder->AddSetting(&AspectGUISettings[CUSTOM_TARGET_ASPECT], pRatioGroup);
     AspectSettingsHolder->AddSetting(&AspectGUISettings[ASPECT_MODE], pRatioGroup);
-    
+
     AspectSettingsHolder->AddSetting(&AspectGUISettings[VERTICALPOS], pImagePositionGroup);
     AspectSettingsHolder->AddSetting(&AspectGUISettings[HORIZONTALPOS], pImagePositionGroup);
-    
+
     AspectSettingsHolder->AddSetting(&AspectGUISettings[BOUNCE], pBounceGroup);
     AspectSettingsHolder->AddSetting(&AspectGUISettings[BOUNCEPERIOD], pBounceGroup);
     AspectSettingsHolder->AddSetting(&AspectGUISettings[BOUNCETIMERPERIOD], pBounceGroup);

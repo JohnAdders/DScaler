@@ -61,7 +61,7 @@ BOOL CHardwareDriver::LoadDriver()
     if (!m_bWindows95)
     {
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
-        
+
         if(hSCManager == NULL)
         {
             bError = TRUE;
@@ -104,7 +104,7 @@ BOOL CHardwareDriver::LoadDriver()
             if(StartService(m_hService, 0, NULL) == FALSE)
             {
                 DWORD Err = GetLastError();
-                
+
                 if(Err == ERROR_PATH_NOT_FOUND || Err == ERROR_FILE_NOT_FOUND)
                 {
                     UnInstallNTDriver();
@@ -122,7 +122,7 @@ BOOL CHardwareDriver::LoadDriver()
                 }
 
             }
-            
+
             if(!bError)
             {
                 m_hFile = CreateFile("\\\\.\\DSDrv4", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, INVALID_HANDLE_VALUE);
@@ -134,7 +134,7 @@ BOOL CHardwareDriver::LoadDriver()
     {
         m_hFile = CreateFile("\\\\.\\DSDrv4.VXD", 0, 0, NULL, 0, FILE_FLAG_OVERLAPPED|FILE_FLAG_DELETE_ON_CLOSE, NULL);
     }
-    
+
     if(!bError)
     {
         if(m_hFile != INVALID_HANDLE_VALUE)
@@ -150,7 +150,7 @@ BOOL CHardwareDriver::LoadDriver()
                 UnInstallNTDriver();
             }
         }
-        
+
         else
         {
             bError = TRUE;
@@ -162,7 +162,7 @@ BOOL CHardwareDriver::LoadDriver()
         UnloadDriver();
         return FALSE;
     }
-    
+
     else
     {
         return TRUE;
@@ -222,7 +222,7 @@ BOOL CHardwareDriver::InstallNTDriver()
         szDriverPath[0] = '\0';
         bError = TRUE;
     }
-    
+
     if(!bError)
     {
         pszName = szDriverPath + strlen(szDriverPath);
@@ -240,15 +240,15 @@ BOOL CHardwareDriver::InstallNTDriver()
     if(!bError)
     {
         strcat(szDriverPath, NTDriverName);
-        strcat(szDriverPath, ".sys");       
-        
+        strcat(szDriverPath, ".sys");
+
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
         if(hSCManager == NULL)
         {
             bError = TRUE;
         }
     }
-    
+
     if(!bError)
     {
         GetShortPathName(szDriverPath, szDriverPath, MAX_PATH);
@@ -266,11 +266,11 @@ BOOL CHardwareDriver::InstallNTDriver()
                                     NULL,                  // no dependencies
                                     NULL,                  // LocalSystem account
                                     NULL);                 // no password
-        
+
         if(m_hService == NULL)
         {
             if(GetLastError() == ERROR_SERVICE_EXISTS)
-            {              
+            {
                 m_hService = OpenService(hSCManager, NTDriverName, SERVICE_ALL_ACCESS);
                 if(DeleteService(m_hService) == FALSE)
                 {
@@ -298,21 +298,21 @@ BOOL CHardwareDriver::InstallNTDriver()
                                                 NULL,                  // no dependencies
                                                 NULL,                  // LocalSystem account
                                                 NULL);                 // no password
-                    
+
                     if(m_hService == NULL)
                     {
                         bError = TRUE;
                     }
                 }
             }
-           
+
             else
             {
                 bError = TRUE;
             }
         }
     }
-    
+
     if(!bError)
     {
         if(!AdjustAccessRights())
@@ -320,23 +320,23 @@ BOOL CHardwareDriver::InstallNTDriver()
             bError = TRUE;
         }
     }
-    
+
     if(hSCManager != NULL)
     {
         if(!CloseServiceHandle(hSCManager))
         {
             bError = TRUE;
         }
-        
+
         hSCManager = NULL;
     }
-    
+
     if(bError)
     {
         UnloadDriver();
         return FALSE;
     }
-    
+
     else
     {
         return TRUE;
@@ -353,7 +353,7 @@ BOOL CHardwareDriver::UnInstallNTDriver()
     {
         TRACE("(NT driver) Uninstall not needed with win9x/ME.\n");
     }
-   
+
     else
     {
         UnloadDriver();
@@ -376,7 +376,7 @@ BOOL CHardwareDriver::UnInstallNTDriver()
                     m_hService = NULL;
                     return TRUE;
                 }
-                
+
                 else
                 {
                     bError = TRUE;
@@ -435,7 +435,7 @@ DWORD CHardwareDriver::SendCommand(DWORD dwIOCommand, LPVOID pvInput, DWORD dwIn
     {
         return 0;
     }
-    
+
     else
     {
         return GetLastError();
@@ -445,12 +445,12 @@ DWORD CHardwareDriver::SendCommand(DWORD dwIOCommand, LPVOID pvInput, DWORD dwIn
 DWORD CHardwareDriver::SendCommand(DWORD dwIOCommand, LPVOID pvInput, DWORD dwInputLength)
 {
     DWORD dwDummy;
-    
+
     if(DeviceIoControl(m_hFile, dwIOCommand, pvInput, dwInputLength, NULL, 0, &dwDummy, NULL))
     {
         return 0;
     }
-   
+
     else
     {
         return GetLastError();
@@ -481,7 +481,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
     }
 
     psd = (PSECURITY_DESCRIPTOR)&psd;
-    
+
     if(!QueryServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, psd, 0, &dwSize))
     {
         if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
@@ -492,19 +492,19 @@ BOOL CHardwareDriver::AdjustAccessRights()
                 bError = TRUE;
             }
         }
-        
+
         else
         {
             bError = TRUE;
         }
     }
-    
+
     // Get the current security descriptor.
     if(!bError)
     {
         if(!QueryServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, psd,dwSize, &dwSize))
         {
-            bError = TRUE;                       
+            bError = TRUE;
         }
     }
 
@@ -539,7 +539,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
             ea.Trustee.TrusteeForm                = TRUSTEE_IS_SID;
             ea.Trustee.TrusteeType                = TRUSTEE_IS_GROUP;
             ea.Trustee.ptstrName                = (char *)pSIDEveryone;
-    
+
             dwError = SetEntriesInAcl(1, &ea, pacl, &pNewAcl);
             if(dwError != ERROR_SUCCESS)
             {
@@ -549,7 +549,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
 
         FreeSid(pSIDEveryone);
     }
-    
+
     // Initialize a new Security Descriptor.
     if(!bError)
     {
@@ -558,7 +558,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
             bError = TRUE;
         }
     }
-    
+
     // Set the new DACL in the Security Descriptor.
     if(!bError)
     {
@@ -567,7 +567,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
             bError = TRUE;
         }
     }
-    
+
     // Set the new DACL for the service object.
     if(!bError)
     {
@@ -576,11 +576,11 @@ BOOL CHardwareDriver::AdjustAccessRights()
             bError = TRUE;
         }
     }
-    
+
     // Free buffers.
     LocalFree((HLOCAL)pNewAcl);
     HeapFree(GetProcessHeap(), 0, (LPVOID)psd);
-    
+
     return !bError;
 }
 
@@ -589,7 +589,7 @@ BOOL CHardwareDriver::DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int Dev
     TDSDrvParam hwParam;
     DWORD dwStatus;
     DWORD dwLength;
-    
+
     TPCICARDINFO PCICardInfo;
     hwParam.dwAddress    = VendorID;
     hwParam.dwValue        = DeviceID;
@@ -607,7 +607,7 @@ BOOL CHardwareDriver::DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int Dev
         SubSystemId = PCICardInfo.dwSubSystemId;
         return TRUE;
     }
-    
+
     else
     {
         SubSystemId = 0;

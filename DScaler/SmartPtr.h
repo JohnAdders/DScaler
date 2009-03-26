@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // DScaler changes:
-// * changed static casts to dynamic to allow 
+// * changed static casts to dynamic to allow
 //   more natural syntax with downcasting checks
 // * Renamed from yasper::ptr to SmartPtr in line with coding style
 //
@@ -11,10 +11,10 @@
 
 
 /*
- * yasper - A non-intrusive reference counted pointer. 
+ * yasper - A non-intrusive reference counted pointer.
  *	    Version: 1.04
- *			  
- *  Many ideas borrowed from Yonat Sharon and 
+ *			
+ *  Many ideas borrowed from Yonat Sharon and
  *  Andrei Alexandrescu.
  *
  * (zlib license)
@@ -38,7 +38,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  * -----------------------------------------------------------------------------------
- * 
+ *
  * Send all questions, comments and bug reports to:
  * Alex Rubinsteyn (alex.rubinsteyn {at-nospam} gmail {dot} com)
  */
@@ -54,38 +54,38 @@ struct NullPointerException : public std::exception
     NullPointerException(): std::exception("[SmartPtr Exception] Attempted to use NULL pointer") {}
 };
 
-struct Counter 
+struct Counter
 {
 	Counter(unsigned c = 1) : count(c) {}
-	unsigned count; 
+	unsigned count;
 };
 
-template <typename X> 
+template <typename X>
 class SmartPtr
 {
 
 public:
     typedef X element_type;
 
-	/* 
+	/*
 		SmartPtr needs to be its own friend so SmartPtr< X > and SmartPtr< Y > can access
-		each other's private data members 
-	*/ 
-	template <class Y> friend class SmartPtr; 
-	/* 
+		each other's private data members
+	*/
+	template <class Y> friend class SmartPtr;
+	/*
 		default constructor
 			- don't create Counter
 	*/
 	SmartPtr() : rawPtr(0), counter(0) { }
 	
 	/*
-		Construct from a raw pointer 
+		Construct from a raw pointer
 	*/
 	SmartPtr(X* raw, Counter* c = 0) : rawPtr(0), counter(0)
 	{
 		if (raw)
 		{
-			rawPtr = raw; 
+			rawPtr = raw;
 			if (c) acquire(c);
 			else counter = new Counter;
 		}
@@ -98,13 +98,13 @@ public:
 		{
 			rawPtr = dynamic_cast<X*>( raw );
 			if (c) acquire(c);
-			else counter = new Counter; 
+			else counter = new Counter;
 		}
 	}
 	
 	
 	/*
-		Copy constructor 
+		Copy constructor
 	*/
 	SmartPtr(const SmartPtr< X >& otherPtr)
 	{
@@ -120,16 +120,16 @@ public:
 	}
 	
 
-	/* 
-		Destructor 
-	*/ 
+	/*
+		Destructor
+	*/
 	~SmartPtr()
 	{
 		release();
 	}
 
 /*
-	Assignment to another SmartPtr 
+	Assignment to another SmartPtr
 */
 
 SmartPtr& operator=(const SmartPtr< X >& otherPtr)
@@ -137,10 +137,10 @@ SmartPtr& operator=(const SmartPtr< X >& otherPtr)
 	if (this != &otherPtr)
 	{
 		release();
-		acquire(otherPtr.counter); 
-		rawPtr = otherPtr.rawPtr; 
+		acquire(otherPtr.counter);
+		rawPtr = otherPtr.rawPtr;
 	}
-	return *this; 
+	return *this;
 }
 
 template <typename Y>
@@ -167,9 +167,9 @@ SmartPtr& operator=(X* raw)
 
 	if (raw)
 	{
-		release(); 
-		counter = new Counter; 
-		rawPtr = raw; 
+		release();
+		counter = new Counter;
+		rawPtr = raw;
 	}
 	return *this;
 }
@@ -180,51 +180,51 @@ SmartPtr& operator=(Y* raw)
 	if (raw)
 	{
 		release();
-		counter = new Counter; 
+		counter = new Counter;
 		rawPtr = dynamic_cast<X*>(raw);
 	}
 	return *this;
 }
 
-/* 
-	assignment to long to allow SmartPtr< X > = NULL, 
-	also allows raw pointer assignment by conversion. 
+/*
+	assignment to long to allow SmartPtr< X > = NULL,
+	also allows raw pointer assignment by conversion.
 	Raw pointer assignment is really dangerous!
-	If the raw pointer is being used elsewhere, 
-	it will get deleted prematurely. 
-*/ 
+	If the raw pointer is being used elsewhere,
+	it will get deleted prematurely.
+*/
 	SmartPtr& operator=(long num)
 	{
 		if (num == 0)  //pointer set to null
 		{
-			release(); 
+			release();
 		}
 
 		else //assign raw pointer by conversion
 		{
 			release();
-			counter = new Counter; 
+			counter = new Counter;
 			rawPtr = reinterpret_cast<X*>(num);
 		}	
 
-		return *this; 
-	} 
+		return *this;
+	}
 
 /*
 	Member Access
 */
-	X* operator->() const 
+	X* operator->() const
 	{
-		return GetRawPointer(); 
+		return GetRawPointer();
 	}
 
 
 /*
 	Dereference the pointer
 */
-	X& operator* () const 
+	X& operator* () const
 	{
-		return *GetRawPointer(); 
+		return *GetRawPointer();
 	}
 
 
@@ -241,13 +241,13 @@ SmartPtr& operator=(Y* raw)
 	
 	/*
 	   implicit casts to base types of the
-	   the pointer we're storing 
+	   the pointer we're storing
 	*/
 	
 	template <typename Y>
 	operator Y*() const
 	{
-		return dynamic_cast<Y*>(rawPtr);  
+		return dynamic_cast<Y*>(rawPtr);
 	}
 
 	template <typename Y>
@@ -259,36 +259,36 @@ SmartPtr& operator=(Y* raw)
 	template <typename Y>
 	operator SmartPtr<Y>()
 	{
-		//new SmartPtr must also take our counter or else the reference counts 
+		//new SmartPtr must also take our counter or else the reference counts
 		//will go out of sync
 		return SmartPtr<Y>(rawPtr, counter);
 	}
 
 
 /*
-	Provide access to the raw pointer 
+	Provide access to the raw pointer
 */
 
-	X* GetRawPointer() const         
+	X* GetRawPointer() const
 	{
 		if (rawPtr == 0) throw new NullPointerException;
 		return rawPtr;
 	}
 
 	
-/* 
+/*
 	Is there only one reference on the counter?
 */
 	BOOL IsUnique() const
 	{
-		if (counter && counter->count == 1) return TRUE; 
-		return FALSE; 
+		if (counter && counter->count == 1) return TRUE;
+		return FALSE;
 	}
 	
 	BOOL IsValid() const
 	{
 		if (counter && rawPtr) return TRUE;
-		return FALSE; 
+		return FALSE;
 	}
 
 	unsigned GetCount() const
@@ -303,8 +303,8 @@ private:
 	Counter* counter;
 
 	// increment the count
-	void acquire(Counter* c) 
-	{ 
+	void acquire(Counter* c)
+	{
  		counter = c;
 		if (c)
 		{
@@ -314,34 +314,34 @@ private:
 
 	// decrement the count, delete if it is 0
 	void release()
-	{ 
-        if (counter) 
+	{
+        if (counter)
 		{			
 			(counter->count)--; 	
 
-			if (counter->count == 0) 
+			if (counter->count == 0)
 			{
 				delete counter;			
 				delete rawPtr;
 			}
 		}
 		counter = 0;
-		rawPtr = 0; 
+		rawPtr = 0;
 
 	}
 };
 
 
 template <typename X, typename Y>
-BOOL operator==(const SmartPtr< X >& lptr, const SmartPtr< Y >& rptr) 
+BOOL operator==(const SmartPtr< X >& lptr, const SmartPtr< Y >& rptr)
 {
-	return lptr.GetRawPointer() == rptr.GetRawPointer(); 
+	return lptr.GetRawPointer() == rptr.GetRawPointer();
 }
 
 template <typename X, typename Y>
-BOOL operator==(const SmartPtr< X >& lptr, Y* raw) 
+BOOL operator==(const SmartPtr< X >& lptr, Y* raw)
 {
-	return lptr.GetRawPointer() == raw ; 
+	return lptr.GetRawPointer() == raw ;
 }
 
 template <typename X>
@@ -349,24 +349,24 @@ BOOL operator==(const SmartPtr< X >& lptr, long num)
 {
 	if (num == 0 && !lptr.IsValid())  //both pointer and address are null
 	{
-		return TRUE; 
+		return TRUE;
 	}
 
 	else //convert num to a pointer, compare addresses
 	{
 		return lptr == reinterpret_cast<X*>(num);
 	}
-	 
-} 
+	
+}
 
 template <typename X, typename Y>
-BOOL operator!=(const SmartPtr< X >& lptr, const SmartPtr< Y >& rptr) 
+BOOL operator!=(const SmartPtr< X >& lptr, const SmartPtr< Y >& rptr)
 {
 	return ( !operator==(lptr, rptr) );
 }
 
 template <typename X, typename Y>
-BOOL operator!=(const SmartPtr< X >& lptr, Y* raw) 
+BOOL operator!=(const SmartPtr< X >& lptr, Y* raw)
 {
 	return ( !operator==(lptr, raw) );
 }
@@ -374,7 +374,7 @@ BOOL operator!=(const SmartPtr< X >& lptr, Y* raw)
 template <typename X>
 BOOL operator!=(const SmartPtr< X >& lptr, long num)
 {
-	return (!operator==(lptr, num) ); 
+	return (!operator==(lptr, num) );
 }
 
 template <typename X>

@@ -158,7 +158,7 @@ void CVTDrawer::DrawPage(HDC hDC, LPRECT lpRect, TVTPage* pPage, WORD uFlags,
 
     HGDIOBJ hSaveFont = SelectObject(hDC, hSelectedFont);
     HGDIOBJ hSaveBrush = SelectObject(hDC, GetColourBrush(VTCOLOR_BLACK));
-    
+
     SetBkMode(hDC, TRANSPARENT);
 
     ParsePageElements(pPage, &wParsePageFlags,

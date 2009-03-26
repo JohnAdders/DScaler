@@ -324,7 +324,7 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
     {
         LuminaceControl |= 0x80;
     }
-    
+
     m_SAA7118->SetRegister(0x09, LuminaceControl);
     m_SAA7118->SetRegister(0x0E, ChrominanceControl);
     m_SAA7118->SetRegister(0x0F, ChrominanceGainControl);
@@ -361,7 +361,7 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
     {
         fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
     }
-    
+
     fclose(hFile);
 
 }

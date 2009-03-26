@@ -32,7 +32,7 @@
 
 #include "stdafx.h"
 #include "TDA9873AudioDecoder.h"
-#include "Crash.h" 
+#include "Crash.h"
 #include "DebugLog.h"
 
 CTDA9873AudioDecoder::TStandardDefinition CTDA9873AudioDecoder::m_TDA9873Standards[] =
@@ -340,7 +340,7 @@ void CTDA9873AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     else
     {
         //Abort
-        StopThread();   
+        StopThread();
         return;
     }
 
@@ -355,9 +355,9 @@ void CTDA9873AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
         LOGD("Abort1 TDA9873 detect loop");
         m_ThreadWait = TRUE;
         Sleep(10);
-        
+
         if (m_AutoDetecting)
-        {            
+        {
             LOGD("Abort2 TDA9873 detect loop");
             Sleep(50);
 
@@ -486,7 +486,7 @@ int CTDA9873AudioDecoder::DetectThread()
                 m_ThreadWait = TRUE;    //Finished
             }
 
-            DetectCounter = 1;            
+            DetectCounter = 1;
         }
 
         if (m_AutoDetecting==2)         //Detect mono/stereo/lang1/lang2
@@ -535,7 +535,7 @@ int CTDA9873AudioDecoder::DetectThread()
         {
             Sleep(10);
             ++DetectCounter;
-        } 
+        }
     }
 
     return 0;

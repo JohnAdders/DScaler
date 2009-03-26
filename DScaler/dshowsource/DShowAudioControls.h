@@ -40,7 +40,7 @@ class CDShowAudioControls
 public:
     CDShowAudioControls();
     virtual ~CDShowAudioControls();
-    
+
     /**
      * Determines which audio controls is available.
      * @return one or more of DSHOW_AUDIOCAPS_
@@ -64,18 +64,18 @@ public:
      * @param max reference to a variable that gets the maximum volume
      */
     virtual void GetVolumeMinMax(long &min,long &max)=0;
-    
+
     /**
      * @return current balance
      */
     virtual long GetBalance()=0;
-    
+
     /**
      * Changes balance.
      * @param balance new balance
      */
     virtual void SetBalance(long balance)=0;
-    
+
     /**
      * Retrieves the minumum and maximum allowable balance
      * @param min reference to a variable that gets the minumum balance

@@ -30,7 +30,7 @@
 /**
  * Class for managing IAMTVAudio
  */
-class CDShowTVAudio  
+class CDShowTVAudio
 {
 public:
     CDShowTVAudio(CComPtr<IAMTVAudio> pTVAudio);

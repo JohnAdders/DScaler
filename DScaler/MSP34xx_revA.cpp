@@ -56,10 +56,10 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
     static int m_MinorIndex;
 
     if (m_CarrierDetect_Phase == 0) //Setup
-    {                
+    {
         if (m_ForceAMSound && IsSECAMVideoFormat(m_VideoFormat))
         {
-           // autodetect doesn't work well with AM ...           
+           // autodetect doesn't work well with AM ...
            return MSP34x0_STANDARD_L_NICAM_AM;
         }
 
@@ -87,7 +87,7 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
         }
 
         LOG(2,"MSP3400: Detecting standard. Major carrier = %g Mhz, val=%d",MSP_UNCARRIER(CarrierDetectTable[m_MajorIndex].Major),val);
-        
+
         m_MajorIndex++;
         if (CarrierDetectTable[m_MajorIndex].Major != MSP34x0_NOCARRIER)
         {
@@ -95,21 +95,21 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
             return MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS;
         }
         else
-        {                          
+        {
             LOG(2,"MSP3400: Detecting standard. Found Major carrier = %g Mhz. Setup Minor.",MSP_UNCARRIER(CarrierDetectTable[m_IndexMax1].Major));
-            
+
             // Found Major carrier.
             m_MajorIndex = m_IndexMax1;
 
-            // Now setup the detection for the minor carrier                        
+            // Now setup the detection for the minor carrier
             m_MinorIndex = 0;
-            if (CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex] == 
+            if (CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex] ==
                   CarrierDetectTable[m_MajorIndex].Major)
             {
                //Did that already
                m_MinorIndex++;
             }
-            
+
             if (CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex] == MSP34x0_NOCARRIER)
             {
                 m_CarrierDetect_Phase = 3;  //Finished
@@ -118,7 +118,7 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
             {
                 SetCarrierRevA(CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex], CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex]);
                 m_CarrierDetect_Phase = 2;
-                
+
                 int n = 0;
                 while (CarrierDetectTable[m_MajorIndex].Minor[n] != MSP34x0_NOCARRIER)
                 {
@@ -134,7 +134,7 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
                 }
                 return MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS;
             }
-        }        
+        }
     }
 
     if (m_CarrierDetect_Phase == 2) //Detect minor
@@ -147,11 +147,11 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
             m_IndexVal2 = val;
             m_IndexMax2 = m_MinorIndex;
         }
-        
+
         LOG(2,"MSP3400: Detecting standard. Minor carrier = %g Mhz, val=%d",MSP_UNCARRIER(CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex]),val);
 
         m_MinorIndex++;
-        if (CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex] == 
+        if (CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex] ==
                   CarrierDetectTable[m_MajorIndex].Major)
         {
             //Did that already
@@ -165,7 +165,7 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
         }
         else
         {
-            m_CarrierDetect_Phase = 3;        
+            m_CarrierDetect_Phase = 3;
         }
     }
     if (m_CarrierDetect_Phase == 3) //Found carriers, determine standard
@@ -187,7 +187,7 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
                    && (m_MSPStandards[n].MinorCarrier == MinorCarrier)
                  )
               {
-                  Standard = m_MSPStandards[n].Standard;                  
+                  Standard = m_MSPStandards[n].Standard;
                   break;
               }
               n++;
@@ -205,19 +205,19 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
               else
               {
                   Standard = MSP34x0_STANDARD_M_BTSC;
-              }        
-                
+              }
+
               LOG(2,"MSP3400: Standard can be BTSC or Japan Stereo.");
               LOG(2,"MSP3400: Chose %s based on video format (%d)",(Standard==MSP34x0_STANDARD_M_BTSC)?"BTSC":"Japan Stereo",m_VideoFormat);
-          }            
-          else 
+          }
+          else
           if ((MajorCarrier == MSP34x0_CARRIER_6_5) && (MinorCarrier == MSP34x0_CARRIER_5_85))
           {
              Standard = MSP34x0_STANDARD_DK_NICAM_FM;
              if (IsSECAMVideoFormat(m_VideoFormat))
              {
                 Standard = MSP34x0_STANDARD_L_NICAM_AM;
-             }             
+             }
              LOG(2,"MSP3400: Standard can be NICAM AM or FM.");
              LOG(2,"MSP3400: Chose NICAM %s based on video format (%d) (%sSECAM)",(Standard==MSP34x0_STANDARD_L_NICAM_AM)?"AM":"FM",m_VideoFormat,IsSECAMVideoFormat(m_VideoFormat)?"":"No ");
           }
@@ -233,11 +233,11 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
           m_AudioStandardMajorCarrier = MSP_UNCARRIER_HZ(MajorCarrier);
           m_AudioStandardMinorCarrier = MSP_UNCARRIER_HZ(MinorCarrier);
           if (Standard != MSP34x0_STANDARD_NONE)
-          {                            
-              LOG(2,"MSP3400: Detected standard: %d with carriers at %g/%g Mhz",Standard,(double)m_AudioStandardMajorCarrier/1000000.0, (double)m_AudioStandardMinorCarrier/1000000.0);              
+          {
+              LOG(2,"MSP3400: Detected standard: %d with carriers at %g/%g Mhz",Standard,(double)m_AudioStandardMajorCarrier/1000000.0, (double)m_AudioStandardMinorCarrier/1000000.0);
           }
           else
-          {              
+          {
               //Just try...
               if (IsSECAMVideoFormat(m_VideoFormat))
               {
@@ -245,14 +245,14 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
               }
               else
               {
-                    Standard = MSP34x0_STANDARD_M_DUAL_FM;              
+                    Standard = MSP34x0_STANDARD_M_DUAL_FM;
               }
-              LOG(2,"MSP3400: Detected standard: Unknown. Set to %d with carriers at %g/%g Mhz",Standard,(double)m_AudioStandardMajorCarrier/1000000.0, (double)m_AudioStandardMinorCarrier/1000000.0);                            
+              LOG(2,"MSP3400: Detected standard: Unknown. Set to %d with carriers at %g/%g Mhz",Standard,(double)m_AudioStandardMajorCarrier/1000000.0, (double)m_AudioStandardMinorCarrier/1000000.0);
           }
           return Standard;
     }
 
-    return MSP34x0_STANDARD_NONE;    
+    return MSP34x0_STANDARD_NONE;
 }
 
 eSupportedSoundChannels CMSP34x0AudioDecoder::DetectSoundChannelsRevA()
@@ -266,7 +266,7 @@ eSupportedSoundChannels CMSP34x0AudioDecoder::DetectSoundChannelsRevA()
     case MSP34x0_STANDARD_DK2_DUAL_FM:
     case MSP34x0_STANDARD_DK_FM_MONO:
     case MSP34x0_STANDARD_DK3_DUAL_FM:
-    case MSP34x0_STANDARD_M_EIA_J:        
+    case MSP34x0_STANDARD_M_EIA_J:
         {
             int val = GetDSPRegister(DSP_RD_A2_STEREO_DETECT);
             if (val > 32767) { val -= 65536; }
@@ -292,9 +292,9 @@ eSupportedSoundChannels CMSP34x0AudioDecoder::DetectSoundChannelsRevA()
             int val = GetDEMRegister(DEM_RD_C_AD_BITS);
             LOG(2,"MSP3400: Stereo detect: Nicam sync = %d, val = %d",val&1,(val&0x1e)>>1);
             if (val&1)
-            {                
+            {
                 // nicam synced
-                switch ((val & 0x1e) >> 1)  
+                switch ((val & 0x1e) >> 1)
                 {
                 case 0:
                 case 8:
@@ -341,7 +341,7 @@ eSupportedSoundChannels CMSP34x0AudioDecoder::DetectSoundChannelsRevA()
 }
 
 void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
-{       
+{
     WORD nicam = 0;  // channel source: FM/AM or nicam
     WORD source = 0;
 
@@ -350,7 +350,7 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
         nicam = 0x0200;
     }
     else
-    {    
+    {
         // switch demodulator
         switch (m_AudioStandard)
         {
@@ -362,7 +362,7 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
             else
             {
                 SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3000);
-            }                 
+            }
             break;
         case MSP34x0_STANDARD_M_DUAL_FM:
             if (SoundChannel == SOUNDCHANNEL_STEREO)
@@ -372,27 +372,27 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
             else
             {
                 SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3000);
-            }                 
+            }
             break;
         case MSP34x0_STANDARD_DK1_DUAL_FM:
         case MSP34x0_STANDARD_DK2_DUAL_FM:
         case MSP34x0_STANDARD_DK_FM_MONO:
         case MSP34x0_STANDARD_DK3_DUAL_FM:
-        case MSP34x0_STANDARD_M_EIA_J:        
+        case MSP34x0_STANDARD_M_EIA_J:
             break;
-        case MSP34x0_STANDARD_SAT_MONO:          
-        case MSP34x0_STANDARD_SAT:        
+        case MSP34x0_STANDARD_SAT_MONO:
+        case MSP34x0_STANDARD_SAT:
             if ( (SoundChannel == SOUNDCHANNEL_LANGUAGE1) || (SoundChannel == SOUNDCHANNEL_LANGUAGE2) )
             {
                 SetCarrierRevA(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_38);
-            } 
+            }
             else if (SoundChannel == SOUNDCHANNEL_STEREO)
-            {            
-                SetCarrierRevA(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_20);
-            } 
-            else 
             {
-                SetCarrierRevA(MSP34x0_CARRIER_6_5, MSP34x0_CARRIER_6_5);              
+                SetCarrierRevA(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_20);
+            }
+            else
+            {
+                SetCarrierRevA(MSP34x0_CARRIER_6_5, MSP34x0_CARRIER_6_5);
             }
             break;
         case MSP34x0_STANDARD_SAT_ADR:
@@ -415,7 +415,7 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
             break;
         case MSP34x0_STANDARD_FM_RADIO:
             //SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_2);
-            //SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);                 
+            //SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
             nicam = 0x0200;
             break;
         default:
@@ -423,43 +423,43 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
         }
   }
 
-    
-    if (SoundChannel == SOUNDCHANNEL_LANGUAGE1) 
+
+    if (SoundChannel == SOUNDCHANNEL_LANGUAGE1)
     {
           source = 0x0000 | nicam;
-    } 
-    else if (SoundChannel == SOUNDCHANNEL_LANGUAGE2) 
+    }
+    else if (SoundChannel == SOUNDCHANNEL_LANGUAGE2)
     {
-          source = 0x0010 | nicam;        
-    } 
-    else if (SoundChannel == SOUNDCHANNEL_STEREO) 
+          source = 0x0010 | nicam;
+    }
+    else if (SoundChannel == SOUNDCHANNEL_STEREO)
     {
           source = 0x0020 | nicam;
-    } 
-    else 
+    }
+    else
     {
-        // Mono        
+        // Mono
         source = 0x0000 | nicam;
 
         if (m_AudioStandard == MSP34x0_STANDARD_L_NICAM_AM)
         {
             source = 0x200;
             /// AM mono decoding is handled by tuner, not MSP chip
-            SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_MONO);            
+            SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_MONO);
             SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
          }
     }
-    
+
     SetDSPRegister(DSP_WR_LDSPK_SOURCE, source);
     SetDSPRegister(DSP_WR_HEADPH_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART2_SOURCE, source);
-    SetDSPRegister(DSP_WR_I2S_SOURCE, source);        
+    SetDSPRegister(DSP_WR_I2S_SOURCE, source);
 }
 
 
 void CMSP34x0AudioDecoder::InitializeRevA()
-{   
+{
     //Everything is set up in SetStandard3400 and SetSoundChannel3400
 }
 
@@ -483,10 +483,10 @@ void CMSP34x0AudioDecoder::SetStandardRevA(eStandard standard, eVideoFormat vide
         SetDSPRegister(DSP_WR_SCART2_VOLUME, 0x0000);
     }
     else
-    {        
+    {
         StandardDefinition.Standard = MSP34x0_STANDARD_NONE;
 
-        int standardIndex = 0;        
+        int standardIndex = 0;
         while (m_MSPStandards[standardIndex].Name != NULL)
         {
             if (m_MSPStandards[standardIndex].Standard == standard)
@@ -518,7 +518,7 @@ void CMSP34x0AudioDecoder::SetStandardRevA(eStandard standard, eVideoFormat vide
         // and bits 6..1  010100 for SAT ADR
         SetDEMRegister(DEM_WR_AD_CV, 0xA8);
     }
-    else if(StandardDefinition.StereoType == STEREO_NICAM && 
+    else if(StandardDefinition.StereoType == STEREO_NICAM &&
                 StandardDefinition.MonoType == MONO_AM)
     {
         // set up for AGC bit 7
@@ -532,7 +532,7 @@ void CMSP34x0AudioDecoder::SetStandardRevA(eStandard standard, eVideoFormat vide
         // or Dual FM
         SetDEMRegister(DEM_WR_AD_CV, 0xD0);
     }
-    
+
     // I have no idea what this is supposed to do.
     /// Step 1: AUDIO_PLL
     // FIXME what should this be may need to be 0 for NICAM
@@ -543,14 +543,14 @@ void CMSP34x0AudioDecoder::SetStandardRevA(eStandard standard, eVideoFormat vide
     {
         SetDEMRegister(DEM_WR_FAWCT_SOLL, 12);
     }
-    
+
     /// Step 3: FAW_ER_TOL
     if(StandardDefinition.StereoType == STEREO_NICAM)
     {
         SetDEMRegister(DEM_WR_FAW_ER_TOL, 2);
     }
 
-    
+
     // FIR data
 
     int FIRType = StandardDefinition.FIRType;
@@ -563,7 +563,7 @@ void CMSP34x0AudioDecoder::SetStandardRevA(eStandard standard, eVideoFormat vide
     SetDEMRegister(DEM_WR_FIR2, 0x0004);
     SetDEMRegister(DEM_WR_FIR2, 0x0040);
     SetDEMRegister(DEM_WR_FIR2, 0x0000);
-    
+
     for (i = 5; i >= 0; i--)
     {
         SetDEMRegister(DEM_WR_FIR2, m_FIRTypes[FIRType].FIR2[i]);
@@ -623,7 +623,7 @@ void CMSP34x0AudioDecoder::SetStandardRevA(eStandard standard, eVideoFormat vide
 
     SetDEMRegister(DEM_WR_MODE_REG, ModeReg);
 
-    
+
     // Set Carrier
     if (bCurrentCarriers && (m_AudioStandardMajorCarrier!=0) && (m_AudioStandardMinorCarrier!=0) )
     {
@@ -639,13 +639,13 @@ void CMSP34x0AudioDecoder::SetStandardRevA(eStandard standard, eVideoFormat vide
     {
         SetDEMRegister(DEM_WR_SEARCH_NICAM, 0);
     }
-    
+
     // FM and NICAM prescale
     WORD fmprescale = 0x3000;
     switch(standard)
     {
     case MSP34x0_STANDARD_BG_DUAL_FM:
-        fmprescale |= 1;    //B/G stereo 
+        fmprescale |= 1;    //B/G stereo
         break;
     case MSP34x0_STANDARD_M_DUAL_FM:
         fmprescale |= 2;    //M stereo (Korean)
@@ -657,43 +657,43 @@ void CMSP34x0AudioDecoder::SetStandardRevA(eStandard standard, eVideoFormat vide
     default:
         break;
     }
-    
+
     SetDSPRegister(DSP_WR_FMAM_PRESCALE, fmprescale);
     SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
 
     // Source
     SetSoundChannelRevA(soundChannel);
-    
-    
+
+
     // reset the ident filter
-    SetDSPRegister(DSP_WR_IDENT_MODE, 0x3f);   
-    Sleep(1);        
+    SetDSPRegister(DSP_WR_IDENT_MODE, 0x3f);
+    Sleep(1);
     if (standard == MSP34x0_STANDARD_M_DUAL_FM)
-    {       
-        SetDSPRegister(DSP_WR_IDENT_MODE, 0x01);   
+    {
+        SetDSPRegister(DSP_WR_IDENT_MODE, 0x01);
     }
     else if (standard == MSP34x0_STANDARD_BG_DUAL_FM)
     {
         SetDSPRegister(DSP_WR_IDENT_MODE, 0x00);
     }
-    
+
     /*SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
     SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);
 
     SetDSPRegister(DSP_WR_SCART1_VOLUME, 0x4000);
     SetDSPRegister(DSP_WR_SCART2_VOLUME, 0x4000);
-    */    
+    */
 }
 
 void CMSP34x0AudioDecoder::SetCarrierRevA(eCarrier MajorCarrier, eCarrier MinorCarrier)
 {
-   /// Step 7, 8, 9 and 10: DCO1_LO, DCO1_HI, DCO2_LO and DCO2_HI    
+   /// Step 7, 8, 9 and 10: DCO1_LO, DCO1_HI, DCO2_LO and DCO2_HI
     SetDEMRegister(DEM_WR_DCO1_LO, MinorCarrier & 0xfff);
     SetDEMRegister(DEM_WR_DCO1_HI, MinorCarrier >> 12);
     SetDEMRegister(DEM_WR_DCO2_LO, MajorCarrier & 0xfff);
     SetDEMRegister(DEM_WR_DCO2_HI, MajorCarrier >> 12);
 
-    SetDEMRegister(DEM_WR_LOAD_REG_12, 0); 
+    SetDEMRegister(DEM_WR_LOAD_REG_12, 0);
 }
 
 #endif // WANT_BT8X8_SUPPORT

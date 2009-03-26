@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 //
 //  (From Tom Barry)
-//  Also, this program is "Philanthropy-Ware".  That is, if you like it and 
+//  Also, this program is "Philanthropy-Ware".  That is, if you like it and
 //  feel the need to reward or inspire the author then please feel free (but
 //  not obligated) to consider joining or donating to the Electronic Frontier
-//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
+//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ int     Last8 = (rowsize-8);            // ofs to last 8 bytes in row
 int        SaveMotion = 0;
 int        dst_pitchw = dst_pitch; // local stor so asm can ref
     pSrc  = pWeaveSrc;            // points 1 weave line above
-    pSrcP = pWeaveSrcP;            // " 
+    pSrcP = pWeaveSrcP;            // "
     pDest = pWeaveDest + dst_pitch2;
 
     if (TopFirst)
@@ -53,7 +53,7 @@ int        dst_pitchw = dst_pitch; // local stor so asm can ref
         pBobP =  pCopySrcP;
     }
 
-    for (y=1; y < FldHeight-1; y++)    
+    for (y=1; y < FldHeight-1; y++)
     {
 
         // pretend it's indented -->>
@@ -61,7 +61,7 @@ int        dst_pitchw = dst_pitch; // local stor so asm can ref
         {
         // Loop general reg usage
         //
-        // eax - pBobP, then pDest 
+        // eax - pBobP, then pDest
         // ebx - pBob
         // ecx - src_pitch2
         // edx - current offset
@@ -94,10 +94,10 @@ int        dst_pitchw = dst_pitch; // local stor so asm can ref
         mov        edi, pSrcP
         mov        edx, 8                // curr offset into all lines
 
-LoopQ:    
+LoopQ:
         mov        eax, pBobP
-        add        edi, 8        
-        add        esi, 8        
+        add        edi, 8
+        add        esi, 8
         add        ebx, 8
         add        eax, edx
         }

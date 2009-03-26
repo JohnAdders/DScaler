@@ -21,12 +21,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file saa7134i2cbus.h saa7134i2cbus Header file
  */
 
 #ifdef WANT_SAA713X_SUPPORT
- 
+
 #ifndef __SAA7134I2CBUS_H__
 #define __SAA7134I2CBUS_H__
 
@@ -60,7 +60,7 @@ public:
                         BYTE *readBuffer,
                         size_t readBufferSize
                      );
-    
+
     /**
     @return TRUE if sucessful
     */

@@ -31,7 +31,7 @@
 #include "DScaler.h"
 #include "DebugLog.h"
 
-const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] = 
+const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 {
     // Card Number 0 - Unknown Card
     {
@@ -3774,90 +3774,90 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         0x1F800,
         {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
-    // Card Number 92 - Sensoray 311                                                                   
-    {                                                                                                  
-        "Sensoray 311",                                                                                  
-    5,                                                                                               
-        {                                                                                                
-            {                                                                                              
-                "Composite 1",                                                                               
-                INPUTTYPE_COMPOSITE,                                                                         
-                2,                                                                                           
-            },                                                                                             
-            {                                                                                              
-                "Composite 2",                                                                               
-                INPUTTYPE_COMPOSITE,                                                                         
-                3,                                                                                           
-            },                                                                                             
-            {                                                                                              
-                "Composite 3",                                                                               
-                INPUTTYPE_COMPOSITE,                                                                         
-                1,                                                                                           
-            },                                                                                             
-            {                                                                                              
-                "S-Video",                                                                                   
-                INPUTTYPE_SVIDEO,                                                                            
-                0,                                                                                           
-            },                                                                                             
-       {                                                                                              
-                "Composite over S-Video",                                                                    
-                INPUTTYPE_COMPOSITE,                                                                         
-                0,                                                                                           
-            },                                                                                             
-        },                                                                                               
-        PLL_NONE,                                                                                        
-        TUNER_ABSENT,                                                                                    
-        SOUNDCHIP_NONE,                                                                                  
-        NULL,                                                                                            
-        &StandardBT848InputSelect,                                                                        
+    // Card Number 92 - Sensoray 311
+    {
+        "Sensoray 311",
+    5,
+        {
+            {
+                "Composite 1",
+                INPUTTYPE_COMPOSITE,
+                2,
+            },
+            {
+                "Composite 2",
+                INPUTTYPE_COMPOSITE,
+                3,
+            },
+            {
+                "Composite 3",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                0,
+            },
+       {
+                "Composite over S-Video",
+                INPUTTYPE_COMPOSITE,
+                0,
+            },
+        },
+        PLL_NONE,
+        TUNER_ABSENT,
+        SOUNDCHIP_NONE,
+        NULL,
+        &StandardBT848InputSelect,
         &SetAnalogContrastBrightness,
         &SetAnalogSaturationU,
         &SetAnalogSaturationV,
         &SetAnalogHue,
         &StandardSetFormat,
-        CAudioDecoder::AUDIODECODERTYPE_DETECT,                                                                                            
-        0,                                                                                               
-        { 0, 0, 0, 0, 0, 0}                                                                              
-    },                                                                                                 
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
+        0,
+        { 0, 0, 0, 0, 0, 0}
+    },
   // Card Number 91 - Canopus WinDVR PCI (COMPAQ Presario 3524JP, 5112JP)
-    {                                                                                                  
-        "Canopus WinDVR PCI (COMPAQ Presario 3524JP, 5112JP)",                                           
-     4,                                                                                               
-        {                                                                                                
-            {                                                                                              
-                "Tuner",                                                                                     
-                INPUTTYPE_TUNER,                                                                             
-                2,                                                                                           
-            },                                                                                             
-            {                                                                                              
-                "Composite",                                                                                 
-                INPUTTYPE_COMPOSITE,                                                                         
-                3,                                                                                           
-            },                                                                                                 
-            {                                                                                              
-                "S-Video",                                                                                   
-                INPUTTYPE_SVIDEO,                                                                            
-                1,                                                                                           
-            },                                                                                             
-       {                                                                                              
-                "Composite over S-Video",                                                                    
-                INPUTTYPE_COMPOSITE,                                                                         
-                1,                                                                                           
-            },                                                                                             
-        },                                                                                               
-        PLL_NONE,                                                                                        
-        TUNER_PHILIPS_NTSC,                                                                              
-        SOUNDCHIP_NONE,                                                                                  
-        NULL,                                                                                            
-        &StandardBT848InputSelect,                                                                        
+    {
+        "Canopus WinDVR PCI (COMPAQ Presario 3524JP, 5112JP)",
+     4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                2,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                3,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                1,
+            },
+       {
+                "Composite over S-Video",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+        },
+        PLL_NONE,
+        TUNER_PHILIPS_NTSC,
+        SOUNDCHIP_NONE,
+        NULL,
+        &StandardBT848InputSelect,
         &SetAnalogContrastBrightness,
         &SetAnalogSaturationU,
         &SetAnalogSaturationV,
         &SetAnalogHue,
         &StandardSetFormat,
-        CAudioDecoder::AUDIODECODERTYPE_WINDVR,                                                                                  
-        0x140007,                                                                                        
-        { 0, 1, 2, 3, 4, 0 }                                                                             
+        CAudioDecoder::AUDIODECODERTYPE_WINDVR,
+        0x140007,
+        { 0, 1, 2, 3, 4, 0 }
     },
     {
         /* szName */ "AVerMedia TVPhone (old)",
@@ -3900,7 +3900,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         /* TUNER   RADIO     EXTERNAL  INTERNAL  MUTE      STEREO */
         {0x00600e, 0x006006, 0x00600a, 0x00600a, 0x006002, 0, }
     },
-    // Patch thanks to Kevin Radke 
+    // Patch thanks to Kevin Radke
     {
         "KWorld MPEGTV RF Pro",
         4,
@@ -4116,7 +4116,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
                 INPUTTYPE_COMPOSITE,
                 2,
             },
-        }, 
+        },
         PLL_28,
         TUNER_ABSENT,
         SOUNDCHIP_NONE,
@@ -4246,7 +4246,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         &SetAnalogHue,
         &StandardSetFormat,
         CAudioDecoder::AUDIODECODERTYPE_TDA9874,
-        0, 
+        0,
         /* not applicable for tda9874 because pic16c54 controls mute/unmute*/
         {0, 0, 0, 0, 0, 0, }
     },
@@ -4362,7 +4362,7 @@ const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
     { 0x5018153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
     { 0x03116000, TVCARD_SENSORAY311,   "Sensoray 311" },
     { 0x00790e11, TVCARD_WINDVR,        "Canopus WinDVR PCI" },
-    { 0xa0fca1a0, TVCARD_ZOLTRIX,       "Face to Face Tvmax" },    
+    { 0xa0fca1a0, TVCARD_ZOLTRIX,       "Face to Face Tvmax" },
     { 0x31323334, TVCARD_GRANDTEC,      "GrandTec XCapture" },
     { 0x109e306e, TVCARD_KWORLD_MPEGTV, "KWorld MPEGTV RF Pro" },
     { 0xae40ccec, TVCARD_CWCEC_ATLAS,   "Curtiss-Wright Controls Atlas" },
@@ -4370,96 +4370,96 @@ const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
 };
 
 
-const eTunerId CBT848Card::m_Tuners_miro[] = 
+const eTunerId CBT848Card::m_Tuners_miro[] =
 {
-  TUNER_TEMIC_4002FH5_PAL,    
+  TUNER_TEMIC_4002FH5_PAL,
   TUNER_TEMIC_4032FY5_NTSC,
-  TUNER_PHILIPS_NTSC,         
-  TUNER_PHILIPS_SECAM,   
-    TUNER_ABSENT,               
-    TUNER_PHILIPS_PAL,
-    TUNER_TEMIC_4032FY5_NTSC,   
-    TUNER_TEMIC_4002FH5_PAL,  
-    TUNER_PHILIPS_SECAM,        
-    TUNER_TEMIC_4002FH5_PAL,
-    TUNER_ABSENT,                 
-    TUNER_PHILIPS_PAL,  
-    TUNER_PHILIPS_PAL,            
-    TUNER_PHILIPS_NTSC,
-    TUNER_TEMIC_4016FY5_PAL,    
-    TUNER_PHILIPS_PAL_I,
-                
-    TUNER_TEMIC_4006FH5_PAL,    
-    TUNER_PHILIPS_NTSC,
-    TUNER_PHILIPS_MK2_NTSC,     
-    TUNER_PHILIPS_PAL_I, 
-    TUNER_ABSENT,               
-    TUNER_PHILIPS_PAL_I,
-    TUNER_ABSENT,               
-    TUNER_PHILIPS_SECAM,  
-    TUNER_PHILIPS_PAL_I,        
-    TUNER_PHILIPS_NTSC,
-    TUNER_TEMIC_4016FY5_PAL,    
-    TUNER_PHILIPS_PAL_I, 
-    TUNER_ABSENT,               
+  TUNER_PHILIPS_NTSC,
+  TUNER_PHILIPS_SECAM,
     TUNER_ABSENT,
-    TUNER_ABSENT,               
-    TUNER_ABSENT  
-};
-
-const BOOL CBT848Card::m_Tuners_miro_fm[] = 
-{ 
-    FALSE   ,FALSE  ,FALSE  ,FALSE  ,   
-    FALSE   ,FALSE  ,FALSE  ,FALSE  ,  
-    FALSE   ,FALSE  ,FALSE  ,FALSE  ,  
-    FALSE   ,FALSE  ,FALSE  ,TRUE   ,
-    TRUE    ,TRUE     ,TRUE   ,TRUE ,   
-    TRUE    ,TRUE     ,TRUE   ,FALSE    ,  
-    FALSE   ,FALSE  ,FALSE  ,FALSE  ,  
-    FALSE   ,FALSE   ,FALSE  ,FALSE 
-};
-
-const eTunerId CBT848Card::m_Tuners_avermedia_0[] = 
-{
-    TUNER_PHILIPS_NTSC,  
     TUNER_PHILIPS_PAL,
-    TUNER_PHILIPS_PAL,   
-    TUNER_PHILIPS_PAL,
-    TUNER_PHILIPS_PAL,   
-    TUNER_PHILIPS_PAL,
-    TUNER_PHILIPS_SECAM, 
+    TUNER_TEMIC_4032FY5_NTSC,
+    TUNER_TEMIC_4002FH5_PAL,
     TUNER_PHILIPS_SECAM,
-    TUNER_PHILIPS_SECAM, 
+    TUNER_TEMIC_4002FH5_PAL,
+    TUNER_ABSENT,
+    TUNER_PHILIPS_PAL,
+    TUNER_PHILIPS_PAL,
+    TUNER_PHILIPS_NTSC,
+    TUNER_TEMIC_4016FY5_PAL,
+    TUNER_PHILIPS_PAL_I,
+
+    TUNER_TEMIC_4006FH5_PAL,
+    TUNER_PHILIPS_NTSC,
+    TUNER_PHILIPS_MK2_NTSC,
+    TUNER_PHILIPS_PAL_I,
+    TUNER_ABSENT,
+    TUNER_PHILIPS_PAL_I,
+    TUNER_ABSENT,
+    TUNER_PHILIPS_SECAM,
+    TUNER_PHILIPS_PAL_I,
+    TUNER_PHILIPS_NTSC,
+    TUNER_TEMIC_4016FY5_PAL,
+    TUNER_PHILIPS_PAL_I,
+    TUNER_ABSENT,
+    TUNER_ABSENT,
+    TUNER_ABSENT,
+    TUNER_ABSENT
+};
+
+const BOOL CBT848Card::m_Tuners_miro_fm[] =
+{
+    FALSE   ,FALSE  ,FALSE  ,FALSE  ,
+    FALSE   ,FALSE  ,FALSE  ,FALSE  ,
+    FALSE   ,FALSE  ,FALSE  ,FALSE  ,
+    FALSE   ,FALSE  ,FALSE  ,TRUE   ,
+    TRUE    ,TRUE     ,TRUE   ,TRUE ,
+    TRUE    ,TRUE     ,TRUE   ,FALSE    ,
+    FALSE   ,FALSE  ,FALSE  ,FALSE  ,
+    FALSE   ,FALSE   ,FALSE  ,FALSE
+};
+
+const eTunerId CBT848Card::m_Tuners_avermedia_0[] =
+{
+    TUNER_PHILIPS_NTSC,
+    TUNER_PHILIPS_PAL,
+    TUNER_PHILIPS_PAL,
+    TUNER_PHILIPS_PAL,
+    TUNER_PHILIPS_PAL,
+    TUNER_PHILIPS_PAL,
+    TUNER_PHILIPS_SECAM,
+    TUNER_PHILIPS_SECAM,
+    TUNER_PHILIPS_SECAM,
     TUNER_PHILIPS_PAL
 };
 
 /*
-const eTunerId CBT848Card::m_Tuners_avermedia_0_fm[] = 
+const eTunerId CBT848Card::m_Tuners_avermedia_0_fm[] =
 {
-    PHILIPS_FR1236_NTSC,  
+    PHILIPS_FR1236_NTSC,
     PHILIPS_FR1216_PAL,
-    PHILIPS_FR1216_PAL,   
     PHILIPS_FR1216_PAL,
-    PHILIPS_FR1216_PAL,   
     PHILIPS_FR1216_PAL,
-    PHILIPS_FR1236_SECAM, 
+    PHILIPS_FR1216_PAL,
+    PHILIPS_FR1216_PAL,
     PHILIPS_FR1236_SECAM,
-    PHILIPS_FR1236_SECAM, 
+    PHILIPS_FR1236_SECAM,
+    PHILIPS_FR1236_SECAM,
     PHILIPS_FR1216_PAL
 };
 */
 
-const eTunerId CBT848Card::m_Tuners_avermedia_1[] = 
+const eTunerId CBT848Card::m_Tuners_avermedia_1[] =
 {
-    TUNER_TEMIC_4032FY5_NTSC,  
-    TUNER_TEMIC_4002FH5_PAL,    
-    TUNER_TEMIC_4002FH5_PAL,   
+    TUNER_TEMIC_4032FY5_NTSC,
     TUNER_TEMIC_4002FH5_PAL,
-    TUNER_TEMIC_4002FH5_PAL,   
     TUNER_TEMIC_4002FH5_PAL,
-    TUNER_TEMIC_4012FY5, 
+    TUNER_TEMIC_4002FH5_PAL,
+    TUNER_TEMIC_4002FH5_PAL,
+    TUNER_TEMIC_4002FH5_PAL,
+    TUNER_TEMIC_4012FY5,
     TUNER_TEMIC_4012FY5, //TUNER_TEMIC_SECAM
-    TUNER_TEMIC_4012FY5, 
+    TUNER_TEMIC_4012FY5,
     TUNER_TEMIC_4002FH5_PAL
 };
 
@@ -4467,7 +4467,7 @@ const eTunerId CBT848Card::m_Tuners_avermedia_1[] =
 eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
 {
    eTunerId TunerId=TUNER_ABSENT;
-  
+
     // Maybe for future use
     BOOL TVTunerDoesFM=FALSE;
     BOOL HasRemoteControl=FALSE;
@@ -4490,41 +4490,41 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
             - Hauppauge:      (full)            Wintv-Go
             - Avermedia:      (full)            no
             - VHX:            (only properties) no
-            - Magic TView:    (only properties) no 
+            - Magic TView:    (only properties) no
 
-            Properties (FM, Remote control) are useless as of now.            
-        */   
+            Properties (FM, Remote control) are useless as of now.
+        */
         switch(CardId)
         {
           case TVCARD_LIFETEC:
-            {                
-                    DWORD id;                   
+            {
+                    DWORD id;
                     WriteDword(BT848_GPIO_OUT_EN,( 0x18e0 )&0x00FFFFFFL);
                 id = ReadDword(BT848_GPIO_DATA);
                 LOG(2, "AutoDetectTuner: Lifetec card. ID: %08x",id);
-                    if (id & 0x4000) 
+                    if (id & 0x4000)
                     {
-                        TVTunerDoesFM = TRUE;                  
-                    } 
+                        TVTunerDoesFM = TRUE;
+                    }
             }
             break;
           case TVCARD_MIRO:
           case TVCARD_MIROPRO:
           case TVCARD_PINNACLERAVE:
-          case TVCARD_PINNACLEPRO:            
+          case TVCARD_PINNACLEPRO:
             {
-                //Tuner = (eTunerId)(((ReadWord(BT848_GPIO_DATA)>>10)-1)&7);                            
+                //Tuner = (eTunerId)(((ReadWord(BT848_GPIO_DATA)>>10)-1)&7);
                 DWORD Id;
                 DWORD Val;
-                
-                // Read ID                
+
+                // Read ID
                 WriteDword(BT848_GPIO_OUT_EN,( 0x0000 )&0x00FFFFFFL);
                 Id = ReadDword(BT848_GPIO_DATA);
-                //Id = ((Id >> 10) & 31) - 1;            
+                //Id = ((Id >> 10) & 31) - 1;
                 Id = ((Id >> 10) & 63) - 1;
-                
+
                 LOG(2, "AutoDetectTuner: Miro/Pinnacle card. ID: 0x%08X",Id);
-                
+
                 if (Id < 32)
                 {
                     // Get tuner from list
@@ -4532,13 +4532,13 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
 
                     // Get additional data
                     Val = ReadDword(BT848_GPIO_DATA);
-                    
+
                     LOG(2, "AutoDetectTuner: Miro/Pinnacle card. Val: 0x%08X",Val);
-                    
-                    if (Val & 0x20) 
+
+                    if (Val & 0x20)
                     {
                         TVTunerDoesFM = TRUE;
-                        if (m_Tuners_miro_fm[Id]) 
+                        if (m_Tuners_miro_fm[Id])
                         {
                             HasTEA5757 = TRUE;
                             TVTunerDoesFM = FALSE;
@@ -4571,58 +4571,58 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                          break;
                      default:
                          //unknown, try mt2032
-                         Tuner = TUNER_MT2032;                         
+                         Tuner = TUNER_MT2032;
                          break;
                      }
                  }
             }
-            break;          
+            break;
           case TVCARD_FLYVIDEO_98:
               case TVCARD_TYPHOON_TVIEW:
               case TVCARD_CHRONOS_VS2:
             case TVCARD_FLYVIDEO_98FM:
-              case TVCARD_FLYVIDEO2000:           
-            case TVCARD_FLYVIDEO98EZ:       
-            {            
+              case TVCARD_FLYVIDEO2000:
+            case TVCARD_FLYVIDEO98EZ:
+            {
                 DWORD Out;
                 DWORD Gpio;
                 DWORD TType;
 
-                Out = ReadDword(BT848_GPIO_OUT_EN)&0x00FFFFFFL;            
-                // Set to inputs the appropiate lines 
-                WriteDword(BT848_GPIO_OUT_EN,( 0x0000 )&0x00FFFFFFL);                                               
-                 // without this we would see the 0x1800 mask               
+                Out = ReadDword(BT848_GPIO_OUT_EN)&0x00FFFFFFL;
+                // Set to inputs the appropiate lines
+                WriteDword(BT848_GPIO_OUT_EN,( 0x0000 )&0x00FFFFFFL);
+                 // without this we would see the 0x1800 mask
                 ::Sleep(8);
-                    Gpio = ReadDword(BT848_GPIO_DATA);              
-                WriteDword(BT848_GPIO_OUT_EN,( Out )&0x00FFFFFFL);            
+                    Gpio = ReadDword(BT848_GPIO_DATA);
+                WriteDword(BT848_GPIO_OUT_EN,( Out )&0x00FFFFFFL);
                     // all cards provide GPIO info, some have an additional eeprom
 
                 LOG(2, "AutoDetectTuner: Flyvideo type card. Id: 0x%08X",Gpio);
 
                 // lowest 3 bytes are remote control codes (no handshake needed)
                     TType = (Gpio & 0x0f0000)>>16;
-                switch (TType) 
+                switch (TType)
                 {
-                  case 0x0: 
-                    Tuner = TUNER_ABSENT; 
+                  case 0x0:
+                    Tuner = TUNER_ABSENT;
                     break;
-                  case 0x4: 
-                    Tuner = TUNER_PHILIPS_PAL; 
+                  case 0x4:
+                    Tuner = TUNER_PHILIPS_PAL;
                     break;
-                  case 0x6: 
-                    Tuner = TUNER_LG_TAPCH701P_NTSC; 
+                  case 0x6:
+                    Tuner = TUNER_LG_TAPCH701P_NTSC;
                     break;
-                  case 0xC: 
-                    Tuner = TUNER_PHILIPS_SECAM; 
+                  case 0xC:
+                    Tuner = TUNER_PHILIPS_SECAM;
                     break;
-                  default:  
+                  default:
                     // Unknown
-                    Tuner = TUNER_ABSENT; 
+                    Tuner = TUNER_ABSENT;
                     break;
                 }
                 TVTunerDoesFM = (Gpio&0x400000) != 0;
                     HasRemoteControl = (Gpio&0x800000) != 0;
-            }  
+            }
             break;
           case TVCARD_HAUPPAUGE:
           case TVCARD_HAUPPAUGE878:
@@ -4633,44 +4633,44 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                 Eeprom[0] = 0;
                 m_I2CBus->Read(Out,2,Eeprom,256);
 
-                if (Eeprom[0] != 0x84 || Eeprom[2] != 0) 
+                if (Eeprom[0] != 0x84 || Eeprom[2] != 0)
                 {
                         //Hauppage EEPROM invalid
                         LOG(2, "AutoDetectTuner: Hauppage card. EEPROM error");
                     break;
                 }
-                
+
                 LOG(2, "AutoDetectTuner: Hauppage card. Id: 0x%02X",Eeprom[9]);
-                
-                if (Eeprom[9] < sizeof(m_TunerHauppaugeAnalog)/sizeof(m_TunerHauppaugeAnalog[0])) 
+
+                if (Eeprom[9] < sizeof(m_TunerHauppaugeAnalog)/sizeof(m_TunerHauppaugeAnalog[0]))
                 {
                   Tuner = m_TunerHauppaugeAnalog[Eeprom[9]];
                 }
-                
+
                 LOG(2, "AutoDetectTuner: Hauppage card. Block 2: 0x%02X at %d+3",Eeprom[ Eeprom[1]+3 ],Eeprom[1]);
-                
+
                 /* Block 2 starts after len+3 bytes header */
                 int blk2 = Eeprom[1] + 3;
                 int radio = Eeprom[blk2-1] & 0x01;
                     int infrared = Eeprom[blk2-1] & 0x04;
                     TVTunerDoesFM = FALSE;
-                    if (radio) 
+                    if (radio)
                     {
                         TVTunerDoesFM = TRUE;
                     }
                     HasRemoteControl = FALSE;
-                    if (infrared) 
+                    if (infrared)
                     {
                         HasRemoteControl = TRUE;
                     }
             }
-            break;                                  
+            break;
           case TVCARD_AVERMEDIA98:
           case TVCARD_AVPHONE98:
           case TVCARD_AVERMEDIA:
             {
                 BYTE Eeprom[256];
-                BYTE Out[] = { 0xA0 , 0 };                
+                BYTE Out[] = { 0xA0 , 0 };
                 m_I2CBus->Read(Out,2,Eeprom,256);
 
                 BYTE tuner_make;
@@ -4681,28 +4681,28 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                     tuner_make   = (Eeprom[0x41] & 0x7);
                   tuner_tv_fm  = (Eeprom[0x41] & 0x18) >> 3;
                     tuner_format = (Eeprom[0x42] & 0xf0) >> 4;
-                    
+
                     LOG(2, "AutoDetectTuner: Avermedia card. Id: 0x%02X 0x%02X",Eeprom[0x41],Eeprom[0x42]);
 
-                if (tuner_make == 0 || tuner_make == 2) 
+                if (tuner_make == 0 || tuner_make == 2)
                 {
-                        if (tuner_format <=9) 
+                        if (tuner_format <=9)
                         {
                           Tuner = m_Tuners_avermedia_0[tuner_format];
-                        }  
+                        }
                 }
-                if (tuner_make == 1) 
+                if (tuner_make == 1)
                 {
-                        if (tuner_format <= 9) 
+                        if (tuner_format <= 9)
                         {
                           Tuner = m_Tuners_avermedia_1[tuner_format];
-                        }   
+                        }
                 }
                 // We assume we have a remote control
                     HasRemoteControl = TRUE;
             }
             break;
-                  case TVCARD_VHX:            
+                  case TVCARD_VHX:
             {
                 TVTunerDoesFM = FALSE;
                     HasTEA5757 = TRUE;
@@ -4717,11 +4717,11 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                 UINT Id = (UINT(Eeprom[252]) << 24) |
                                 (UINT(Eeprom[253]) << 16) |
                                 (UINT(Eeprom[254]) << 8)  |
-                                (UINT(Eeprom[255]));                
+                                (UINT(Eeprom[255]));
 
                 LOG(2, "AutoDetectTuner: Magic TView card. Id: 0x%08X",Id);
-                
-                if (Id == 0x4002144f) 
+
+                if (Id == 0x4002144f)
                 {
                          TVTunerDoesFM = TRUE;
                 }
@@ -4736,12 +4736,12 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
           default:
             break;
         }
-        
-        if (HasTEA5757) 
+
+        if (HasTEA5757)
         {
            //not supported yet
            return TUNER_ABSENT;
-        }   
+        }
         return Tuner;
     }
     else
@@ -4779,10 +4779,10 @@ eTVCardId CBT848Card::AutoDetectCardType()
 {
     /*  This is the way btwincap gets the card ID.
         Maybe for future use.
-  
+
         BYTE Eeprom[256];
         BYTE Out[] = { 0xA0 , 0 };
-        if (m_I2CBus->Read(Out,2,Eeprom,256)) 
+        if (m_I2CBus->Read(Out,2,Eeprom,256))
         {
             DWORD Id = (DWORD(Eeprom[252]) << 24) |
                            (DWORD(Eeprom[253]) << 16) |
@@ -4805,7 +4805,7 @@ eTVCardId CBT848Card::AutoDetectCardType()
                 eTVCardId CardID = m_AutoDectect878[i].CardId;
                 switch (CardID)
                 {
-                case TVCARD_MIRO:                
+                case TVCARD_MIRO:
                     if (AutoDetectMSP3400())
                     {
                          CardID = TVCARD_MIROPRO;
@@ -4817,33 +4817,33 @@ eTVCardId CBT848Card::AutoDetectCardType()
                          CardID = TVCARD_PINNACLEPRO;
                     }
                     break;
-                case TVCARD_FLYVIDEO2000:                            
+                case TVCARD_FLYVIDEO2000:
                     //if (TDA9874)
                     //{
                     //     CardID = TVCARD_FLYVIDEO2000S;
                     //}
                     break;
                 }
-                
+
                 return CardID;
             }
         }
     }
     }
-    
+
     //if(I2C_AddDevice(I2C_STBEE))
     //{
         //return TVCARD_STB;
     //}
 
-    // STB cards have a eeprom @ 0xae (old bt848) 
+    // STB cards have a eeprom @ 0xae (old bt848)
     BYTE Out[] = { 0xAE , 0 };
     BYTE Val = 0;
-        if (m_I2CBus->Read(Out,2,&Val,1)) 
+        if (m_I2CBus->Read(Out,2,&Val,1))
         {
             return TVCARD_STB;
         }
-    
+
     return TVCARD_UNKNOWN;
 }
 
@@ -4853,7 +4853,7 @@ BOOL CBT848Card::AutoDetectMSP3400()
 {
     BYTE writebf[4];
     BYTE readbf[3];
-    
+
     BOOL HasMSP34xx = FALSE;
 
     writebf[0] = I2C_MSP3400C_0; //address
@@ -4867,12 +4867,12 @@ BOOL CBT848Card::AutoDetectMSP3400()
         static BYTE reset_on[4]  = { I2C_MSP3400C_0, 0x00, 0x00, 0x00 };
 
         m_I2CBus->Write(reset_off, 4);
-        if (m_I2CBus->Write(reset_on, 4)) 
+        if (m_I2CBus->Write(reset_on, 4))
         {
             // If Reset went ok, Get revision
             writebf[1] = 0x12 + 1;       //DFP
             writebf[2] = 0x1e >> 8;
-            writebf[3] = 0x1e & 0xff;            
+            writebf[3] = 0x1e & 0xff;
             if (m_I2CBus->Read(writebf, 4, readbf, 2))
             {
                 WORD rev1;
@@ -4884,7 +4884,7 @@ BOOL CBT848Card::AutoDetectMSP3400()
                 if (m_I2CBus->Read(writebf, 4, readbf, 2))
                 {
                     rev2 = ( WORD(readbf[0]) << 8) | readbf[1] ;
-                    if ( (rev1 != rev2) || (rev1 != 0 && rev1 != 0xFFFF) ) 
+                    if ( (rev1 != rev2) || (rev1 != 0 && rev1 != 0xFFFF) )
                     {
                         // Revision seems to be OK! ... Accept!
                         HasMSP34xx = TRUE;
@@ -4897,7 +4897,7 @@ BOOL CBT848Card::AutoDetectMSP3400()
 }
 
 #undef I2C_MSP3400C_0
-        
+
 void CBT848Card::RSBTCardInputSelect(int nInput)
 {
     StandardBT848InputSelect(nInput);
@@ -4941,7 +4941,7 @@ void CBT848Card::StandardBT848InputSelect(int nInput)
         LOG(1, "Input Select Called for invalid input");
         nInput = 0;
     }
-    
+
     AndDataByte(BT848_IFORM, (BYTE)~BT848_IFORM_MUXSEL);
 
     // set the comp bit for svideo
@@ -4986,7 +4986,7 @@ void CBT848Card::Sasem4ChannelInputSelect(int nInput)
         OrDataByte(BT848_O_CONTROL, BT848_CONTROL_COMP);
         // Set the Philips TDA8540 4x4 switch matrix for s-video input
         // 0xD2 SW1 choose OUT3=IN3; OUT2=IN1; OUT1=IN0; OUT0=IN2
-        // 0x07 GCO choose (0000) gain; (01) clamp; (11) aux    
+        // 0x07 GCO choose (0000) gain; (01) clamp; (11) aux
         // 0x03 OEN choose OUT0 and OUT1 high (s-video)
         CtrlTDA8540(0x90, 0x00, 0xD2, 0x07, 0x03);
     }
@@ -4996,7 +4996,7 @@ void CBT848Card::Sasem4ChannelInputSelect(int nInput)
         AndDataByte(BT848_O_CONTROL, ~BT848_CONTROL_COMP);
         // Set the Philips TDA8540 4x4 switch matrix for composite switch 1 input
         // 0x00 SW1 choose the MuxSelect setting
-        // 0x87 GCO choose (1000) gain; (01) clamp; (11) aux    
+        // 0x87 GCO choose (1000) gain; (01) clamp; (11) aux
         // 0x01 OEN choose OUT0 high
         BYTE OutputSelect = m_TVCards[m_CardType].Inputs[nInput].MuxSelect;
         CtrlTDA8540(0x90, 0x00, OutputSelect, 0x87, 0x01);
@@ -5044,13 +5044,13 @@ void CBT848Card::InitSasem()
 {
     // Initialize and set the Philips TDA8540 4x4 switch matrix
     // 0xD2 SW1 choose OUT3=IN3; OUT2=IN1; OUT1=IN0; OUT0=IN2
-    // 0x07 GCO choose (0000) gain; (01) clamp; (11) aux    
+    // 0x07 GCO choose (0000) gain; (01) clamp; (11) aux
     // 0x03 OEN choose OUT0 and OUT1 high (i.e., s-video)
     CtrlTDA8540(0x90, 0x00, 0xD2, 0x07, 0x03);
 }
 
-// reset/enable the MSP on some Hauppauge cards 
-// Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
+// reset/enable the MSP on some Hauppauge cards
+// Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)!
 void CBT848Card::BootMSP34xx(int pin)
 {
     int mask = 1 << pin;
@@ -5061,11 +5061,11 @@ void CBT848Card::BootMSP34xx(int pin)
 }
 
 
-// ----------------------------------------------------------------------- 
-//  Imagenation L-Model PXC200 Framegrabber 
+// -----------------------------------------------------------------------
+//  Imagenation L-Model PXC200 Framegrabber
 //  This is basically the same procedure as
 //  used by Alessandro Rubini in his pxc200
-//  driver, but using BTTV functions 
+//  driver, but using BTTV functions
 
 void CBT848Card::InitPXC200()
 {
@@ -5073,29 +5073,29 @@ void CBT848Card::InitPXC200()
     //I2C_Write(0x5E, 0, 0x80, 1);
     const BYTE InitDac[] =
     {
-        0x5E, 0, 
+        0x5E, 0,
         0x80, 1,
     };
 
     const BYTE InitPic[] =
     {
         0x1E, 0,
-        0x08, 0x09, 
-        0x0a, 0x0b, 
+        0x08, 0x09,
+        0x0a, 0x0b,
         0x0d, 0x0d,
-        0x01, 0x02, 
-        0x03, 0x04, 
+        0x01, 0x02,
+        0x03, 0x04,
         0x05, 0x06,
         0x00
     };
 
-    // Initialise GPIO-connevted stuff 
-    WriteWord(BT848_GPIO_OUT_EN, 1<<13); // Reset pin only 
+    // Initialise GPIO-connevted stuff
+    WriteWord(BT848_GPIO_OUT_EN, 1<<13); // Reset pin only
     WriteWord(BT848_GPIO_DATA, 0);
     ::Sleep(30);
     WriteWord(BT848_GPIO_DATA, 1<<13);
     // GPIO inputs are pulled up, so no need to drive
-    // reset pin any longer 
+    // reset pin any longer
     WriteWord(BT848_GPIO_OUT_EN, 0);
 
     //  we could/should try and reset/control the AD pots? but
@@ -5104,20 +5104,20 @@ void CBT848Card::InitPXC200()
     //  remember the EN is reverse logic -->
     //  setting BT848_ADC_AGC_EN disable the AGC
     //  tboult@eecs.lehigh.edu
-    
+
     WriteByte(BT848_ADC, BT848_ADC_RESERVED | BT848_ADC_AGC_EN);
 
-    //  Initialise MAX517 DAC 
+    //  Initialise MAX517 DAC
     m_I2CBus->Write(InitDac, sizeof(InitDac));
 
-    //  Initialise 12C508 PIC 
+    //  Initialise 12C508 PIC
     //  The I2CWrite and I2CRead commmands are actually to the
     //  same chips - but the R/W bit is included in the address
-    //  argument so the numbers are different 
+    //  argument so the numbers are different
     m_I2CBus->Write(InitPic, sizeof(InitPic));
 }
 
-// ----------------------------------------------------------------------- 
+// -----------------------------------------------------------------------
 // TDA8540 Control Code
 // Philips composite/s-video 4x4 switch IC
 // 19 Jul 2001 Dan Schmelzer
@@ -5162,10 +5162,10 @@ void CBT848Card::CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN)
     m_I2CBus->Write(Buffer, 5);
 }
 
-// ----------------------------------------------------------------------- 
+// -----------------------------------------------------------------------
 // SDI Silk SDI Input Switch
 // 21 May 2002 Dan Schmelzer
-// 
+//
 // Slave addres (SLV) = 0xB0 for the Silk 200; write only
 // Input enable (IEN) = from 0 to x
 //

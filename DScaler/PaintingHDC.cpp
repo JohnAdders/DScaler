@@ -49,7 +49,7 @@ CPaintingHDC::~CPaintingHDC()
 
 }
 
-void CPaintingHDC::ReleaseD3DBuffer() 
+void CPaintingHDC::ReleaseD3DBuffer()
 {
     if(m_ddsurface!=NULL)
     {
@@ -65,11 +65,11 @@ void CPaintingHDC::ReleaseD3DBuffer()
 
 void CPaintingHDC::CreateD3DBuffer()
 {
-    if(m_ddsurface==NULL && GetActiveOutput()->Type() == IOutput::OUT_D3D && ((CD3D9Output *)GetActiveOutput())->pDevice != NULL) 
+    if(m_ddsurface==NULL && GetActiveOutput()->Type() == IOutput::OUT_D3D && ((CD3D9Output *)GetActiveOutput())->pDevice != NULL)
     {
         RECT src=((CD3D9Output *)GetActiveOutput())->Overlay_GetCurrentSrcRect();
         ((CD3D9Output *)GetActiveOutput())->pDevice->CreateOffscreenPlainSurface(src.right,src.bottom,
-                 D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &m_ddsurface, NULL);                    
+                 D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &m_ddsurface, NULL);
         ((CD3D9Output *)GetActiveOutput())->pDevice->CreateOffscreenPlainSurface(src.right,src.bottom,
                  D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &m_alphasurface, NULL);
     }
@@ -85,12 +85,12 @@ HDC CPaintingHDC::BeginPaint(HDC hDC, LPRECT pRect)
 
 void CPaintingHDC::EndPaint()
 {
-    if(GetActiveOutput()->Type() == IOutput::OUT_OVERLAY) 
+    if(GetActiveOutput()->Type() == IOutput::OUT_OVERLAY)
     {
         BitBltRects(&m_PaintRect, 1);
         m_hOriginalDC = NULL;
-    } 
-    else 
+    }
+    else
     {
         BitBltRectsD3D(&m_PaintRect, 1, ((CD3D9Output *)GetActiveOutput())->lpDDOSD);
     }
@@ -117,7 +117,7 @@ BOOL CPaintingHDC::UpdateGeometry(HDC hDC, LPRECT pRect, BOOL bBufferTrim)
             DeleteDC(m_hBufferDC);
             m_hBufferDC = NULL;
 
-            ReleaseD3DBuffer();                
+            ReleaseD3DBuffer();
         }
     }
 
@@ -170,7 +170,7 @@ BOOL CPaintingHDC::UpdateGeometry(HDC hDC, LPRECT pRect, BOOL bBufferTrim)
 
 
 void CPaintingHDC::BitBltRects(LPRECT pRectList, LONG nRectCount, HDC hDstDC)
-{    
+{
     if (m_hBufferDC == NULL)
     {
         return;
@@ -204,7 +204,7 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
         return;
     }
 
-    if(m_ddsurface==NULL || m_alphasurface==NULL) 
+    if(m_ddsurface==NULL || m_alphasurface==NULL)
     {
         CreateD3DBuffer();
         if(m_ddsurface==NULL || m_alphasurface==NULL)
@@ -230,13 +230,13 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
     // VT_BLACK gets painted directly
     RECT r;
     for (int i = 0; i < nRectCount; i++)
-    {                    
+    {
         if(VT_GetState()!=VT_BLACK && IntersectRect(&r, &pRectList[i], &outRect))
         {
 
             HDC outDC;
             // GetDC doesn't work for ARGB surfaces prior to Vista so the m_alphasurface is necessary :( -> slow as hell
-            if(SUCCEEDED(m_ddsurface->GetDC(&outDC))) 
+            if(SUCCEEDED(m_ddsurface->GetDC(&outDC)))
             {
                 // further processing necessary
                 // first do the things around output
@@ -249,7 +249,7 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
                     r.bottom=pRectList[i].bottom;
                     BitBlt(hDstDC, r.left, r.top,
                         r.right - r.left,
-                        r.bottom - r.top, 
+                        r.bottom - r.top,
                         m_hBufferDC, r.left, r.top, SRCCOPY);
                 }
                 if(pRectList[i].right>outRect.right)
@@ -297,7 +297,7 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
                 // some scaling around to get proper coordinates for stretchblt
 
                 if(pRectList[i].top<outRect.top) pRectList[i].top=outRect.top;
-                if(pRectList[i].bottom>outRect.bottom) pRectList[i].bottom=outRect.bottom;                
+                if(pRectList[i].bottom>outRect.bottom) pRectList[i].bottom=outRect.bottom;
                 if(pRectList[i].left<outRect.left) pRectList[i].left=outRect.left;
                 if(pRectList[i].right>outRect.right) pRectList[i].right=outRect.right;
 
@@ -310,25 +310,25 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
                 or.bottom=(LONG)min(src.bottom, scaleY*(pRectList[i].bottom-outRect.top)+src.top);
                 or.right=(LONG)min(src.right, scaleX*(pRectList[i].right-outRect.left)+src.left);
 
-                StretchBlt(outDC, or.left, or.top,or.right-or.left, or.bottom-or.top, 
+                StretchBlt(outDC, or.left, or.top,or.right-or.left, or.bottom-or.top,
                     m_hBufferDC, pRectList[i].left, pRectList[i].top,
                     pRectList[i].right-pRectList[i].left,
                     pRectList[i].bottom-pRectList[i].top, SRCCOPY);
 
-                
+
 
                 m_ddsurface->ReleaseDC(outDC);
 
 
                 // Set alpha channel according to color key - we can't use Direct3D here, at least i found no way
                 // read memory access seems to be slow .. so asm isn't much faster here
-                
+
                 D3DLOCKED_RECT lr, ddlr;
                 if(SUCCEEDED(m_ddsurface->LockRect(&ddlr, &or, D3DLOCK_READONLY )))
                 {
                     if(SUCCEEDED(m_alphasurface->LockRect(&lr, &or, 0)))
-                    {        
-                        COLORREF colorkey=GetActiveOutput()->Overlay_GetColor();                        
+                    {
+                        COLORREF colorkey=GetActiveOutput()->Overlay_GetColor();
                         colorkey=((colorkey&0xFF)<<16)|(colorkey&0xFF00)|((colorkey&0xFF0000)>>16);
 
                         for (int nLine = 0; nLine < or.bottom-or.top; nLine++)
@@ -337,24 +337,24 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
                             DWORD *ddPixel = (DWORD*)((BYTE*)ddlr.pBits + nLine * ddlr.Pitch );
                             for (int nPixel = 0; nPixel < or.right-or.left; ++nPixel)
                             {
-                                if(*ddPixel==colorkey) 
+                                if(*ddPixel==colorkey)
                                     *pPixel=0;
                                 else
                                     *pPixel=0xFF000000|*ddPixel;
                                 pPixel++;
                                 ddPixel++;
                             }
-                        }                          
+                        }
 
                         m_alphasurface->UnlockRect();
                     }
                     m_ddsurface->UnlockRect();
-                }                
+                }
 
             }
 
         }
-        else 
+        else
         {
             // outside or black vt output, just blit
             BitBlt(hDstDC, pRectList[i].left, pRectList[i].top,
@@ -367,7 +367,7 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
 
     if(VT_GetState()!=VT_BLACK)
     {
-        ((CD3D9Output *)GetActiveOutput())->pDevice->UpdateSurface(m_alphasurface, NULL, target, NULL);                
+        ((CD3D9Output *)GetActiveOutput())->pDevice->UpdateSurface(m_alphasurface, NULL, target, NULL);
     }
 }
 

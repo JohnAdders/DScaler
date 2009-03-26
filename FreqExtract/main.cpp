@@ -422,13 +422,13 @@ int main(int argc, char* argv[])
 {
     long *FreqTable=NULL;
     int Index=0;
-    
+
     if(argc<2)
     {
         usage(argv[0]);
         return 1;
     }
-    
+
     sprintf(szRCDATA,"#%d",RT_RCDATA);
     TRCCountryList *RcCountryList = (TRCCountryList*)GetRcData("kstvtune.ax","#9999",szRCDATA, hDSTunerModule);
 

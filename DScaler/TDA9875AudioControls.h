@@ -43,7 +43,7 @@ public:
     BOOL m_bKeepItMuted;
 
     CTDA9875AudioControls();
-    virtual ~CTDA9875AudioControls() {};    
+    virtual ~CTDA9875AudioControls() {};
 
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
@@ -51,7 +51,7 @@ public:
     BOOL HasMute();
     void SetMute(BOOL mute = TRUE);
     BOOL IsMuted();
-    
+
     BOOL HasVolume();
     void SetVolume(WORD nVolume);
     WORD GetVolume();
@@ -59,7 +59,7 @@ public:
     BOOL HasBalance();
     void SetBalance(WORD nBalance);
     WORD GetBalance();
-    
+
     BOOL HasBass();
     void SetBass(WORD nLevel);
     WORD GetBass();
@@ -67,7 +67,7 @@ public:
     BOOL HasTreble();
     void SetTreble(WORD nLevel);
     WORD GetTreble();
-    
+
     BOOL HasEqualizers();
 
     BOOL HasBassBoost();
@@ -77,7 +77,7 @@ public:
     BOOL HasLoudness();
     void SetLoudness(WORD nLevel);
     WORD GetLoudness();
-   
+
     BOOL HasDolby();
 
     BOOL HasAutoVolumeCorrection();

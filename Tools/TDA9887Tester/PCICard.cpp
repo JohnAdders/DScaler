@@ -72,7 +72,7 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
         {
             hwParam.dwFlags = 0x400000;
         }
-        
+
         else
         {
             hwParam.dwFlags = m_MemoryLength;
@@ -131,7 +131,7 @@ DWORD CPCICard::ReadDword(DWORD Offset)
 {
     TDSDrvParam hwParam;
     hwParam.dwAddress = m_MemoryBase + Offset;
-    
+
     DWORD dwReturnedLength;
     DWORD dwValue(0);
 

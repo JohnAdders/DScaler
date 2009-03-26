@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file sourceprovider.h sourceprovider Header file
  */
- 
+
 #ifndef __SOURCEPROVIDER_H___
 #define __SOURCEPROVIDER_H___
 

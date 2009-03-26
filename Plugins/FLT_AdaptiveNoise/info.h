@@ -482,7 +482,7 @@ unsigned short font[][20] = {
         0x3000,0x3000,0x3f00,0x0000,
         0x0000,0x0000,0x0000,0x0000,
     },
-    //STARTCHAR 
+    //STARTCHAR
     {
         0x0000,0x0000,0x0000,0x3000,
         0x3000,0x1800,0x1800,0x0c00,
@@ -1546,7 +1546,7 @@ typedef unsigned long Pixel32;
 
 #endif
 
-void DrawDigit(unsigned char* dst, int pitch, int x, int y, int num) 
+void DrawDigit(unsigned char* dst, int pitch, int x, int y, int num)
 {
     const Pixel32   backColor = 0x000000;
     const Pixel32   textColor = 0x00FF00;
@@ -1586,7 +1586,7 @@ void DrawDigit(unsigned char* dst, int pitch, int x, int y, int num)
 }
 
 
-void DrawString(unsigned char* dst, int pitch, int x, int y, const char *s) 
+void DrawString(unsigned char* dst, int pitch, int x, int y, const char *s)
 {
     int xx = 0;
     for (xx = 0; *s; ++s, ++xx) {

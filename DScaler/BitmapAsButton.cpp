@@ -60,7 +60,7 @@ hCursorHand(NULL)
 
     hWndButton = NULL;
     hWndParent = NULL;
-     
+
     ButtonWidth = 10;
     ButtonHeight = 10;
 
@@ -74,11 +74,11 @@ CBitmapAsButton::~CBitmapAsButton()
 {
     pfnButtonProc = NULL;
     if (hWndButton != NULL)
-    {        
-        DestroyWindow(hWndButton);        
+    {
+        DestroyWindow(hWndButton);
         hWndButton = NULL;
     }
-}    
+}
 
 // Create window
 BOOL CBitmapAsButton::Create(string sID, HWND hWndParent, int x, int y, HINSTANCE hInst)
@@ -98,18 +98,18 @@ BOOL CBitmapAsButton::Create(string sID, HWND hWndParent, int x, int y, HINSTANC
         wc.lpfnWndProc = StaticButtonProc;
         wc.cbClsExtra = 0;
         wc.cbWndExtra = 0;
-        wc.hInstance = hInst; 
+        wc.hInstance = hInst;
         wc.hIcon = NULL;
         wc.hCursor = hCursorHand;
         wc.hbrBackground = HBRUSH(NULL); //CreateSolidBrush(0);
         wc.lpszMenuName = NULL;
         wc.lpszClassName = sID.c_str();
         //wc.hIconSm = NULL;
-        
+
         if (!RegisterClass(&wc))
         {
             return FALSE;
-        }        
+        }
     }
 
     MDICREATESTRUCT mdic;
@@ -123,28 +123,28 @@ BOOL CBitmapAsButton::Create(string sID, HWND hWndParent, int x, int y, HINSTANC
       sID.c_str(),   // class name
       sID.c_str(),   // title
       WS_VISIBLE | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-      x,         // starting x position 
-      y,         // starting y position 
-      ButtonWidth,        // button width 
-      ButtonHeight,        // button height 
-      hWndParent,       // parent window 
-      NULL,       // No menu 
+      x,         // starting x position
+      y,         // starting y position
+      ButtonWidth,        // button width
+      ButtonHeight,        // button height
+      hWndParent,       // parent window
+      NULL,       // No menu
       hInst,
-      &mdic);      // pointer not needed 
-    
+      &mdic);      // pointer not needed
+
     if (hWndButton != NULL)
     {
         bFailed = FALSE;
-        
+
         if (m_bhBmp.GetBitmap(0)!=NULL)
         {
             ButtonWidth=m_bhBmp.Width(0);
             ButtonHeight=m_bhBmp.Height(0);
-            SetWindowPos(hWndButton, NULL, 0,0, ButtonWidth, ButtonHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);            
+            SetWindowPos(hWndButton, NULL, 0,0, ButtonWidth, ButtonHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);
             SetRegion();
-        }        
+        }
     }
-    
+
     return !bFailed;
 }
 
@@ -165,7 +165,7 @@ BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, string sID, HWND hWndParent )
             hCursorHand = ::LoadCursor(NULL, IDC_ARROW);
         }
     }
-     
+
     SetWindowLong(hTakeOver, GWL_USERDATA, (LONG)this);
 
     this->sID = sID;
@@ -174,12 +174,12 @@ BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, string sID, HWND hWndParent )
 
     void *pOrg = (void*)SetWindowLong(hTakeOver, GWL_WNDPROC, (LONG)StaticButtonProc);
     if (pOrg == NULL)
-    {        
+    {
         //Failed
         hWndButton = NULL;
         return FALSE;
-    }    
-    
+    }
+
     if (m_bhBmp.GetBitmap(0)!=NULL)
     {
         ButtonWidth=m_bhBmp.Width(0);
@@ -194,13 +194,13 @@ BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, string sID, HWND hWndParent )
                 this->OriginalHeight = rc.bottom-rc.top;
             }
         }
-        SetWindowPos(hWndButton, NULL, 0,0, ButtonWidth, ButtonHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);            
-        SetRegion();    
-    }        
+        SetWindowPos(hWndButton, NULL, 0,0, ButtonWidth, ButtonHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);
+        SetRegion();
+    }
     if (this->pOriginalProc == NULL)
     {
         this->pOriginalProc = pOrg;
-    }    
+    }
 
     bFailed = FALSE;
 
@@ -216,16 +216,16 @@ BOOL CBitmapAsButton::RestoreBack(HWND hWnd)
     if ((pOriginalProc != NULL) && (hWnd != NULL) && (hWnd==hWndButton))
     {
         SetWindowRgn(hWnd, NULL, FALSE);
-        SetWindowLong(hWnd, GWL_WNDPROC, (LONG)pOriginalProc);    
+        SetWindowLong(hWnd, GWL_WNDPROC, (LONG)pOriginalProc);
         pOriginalProc = NULL;
         if ((OriginalWidth>0) && (OriginalHeight>0))
         {
-            SetWindowPos(hWnd, NULL, 0,0, OriginalWidth, OriginalHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE); 
+            SetWindowPos(hWnd, NULL, 0,0, OriginalWidth, OriginalHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);
         }
         OriginalWidth = -1;
         OriginalHeight = -1;
         InvalidateRect(hWnd, NULL, FALSE);
-        hWndButton = NULL;        
+        hWndButton = NULL;
         return TRUE;
     }
     return FALSE;
@@ -235,7 +235,7 @@ HRGN CBitmapAsButton::SetRegion()
 {
     if (hWndButton != NULL)
     {
-        HRGN hRgn = m_bhBmp.GetWindowRegion();        
+        HRGN hRgn = m_bhBmp.GetWindowRegion();
         SetWindowRgn(hWndButton, hRgn, TRUE);
         return hRgn;
     }
@@ -245,7 +245,7 @@ HRGN CBitmapAsButton::SetRegion()
 // Add bitmaps
 void CBitmapAsButton::AddBitmap(int State, SmartPtr<CBitmapState> BitmapState)
 {
-    m_bhBmp.Add(BitmapState, State);    
+    m_bhBmp.Add(BitmapState, State);
     if (State == 0)
     {
         int NewWidth = m_bhBmp.Width(State);
@@ -263,7 +263,7 @@ void CBitmapAsButton::AddBitmap(int State, SmartPtr<CBitmapState> BitmapState)
                     this->OriginalHeight = rc.bottom-rc.top;
                 }
             }
-            SetWindowPos(hWndButton, NULL, 0,0, ButtonWidth, ButtonHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);            
+            SetWindowPos(hWndButton, NULL, 0,0, ButtonWidth, ButtonHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);
         }
         SetRegion();
     }
@@ -272,19 +272,19 @@ void CBitmapAsButton::AddBitmap(int State, SmartPtr<CBitmapState> BitmapState)
 
 // Draw
 void CBitmapAsButton::Draw(HDC hDC, LPRECT lpRect)
-{    
+{
     int State = 0;
     if (m_mouseldown||m_mouserdown)
     {
         State = 2;
-    } 
+    }
     else if (m_mouseover)
     {
         State = 1;
     }
 
     if (ButtonType == BITMAPASBUTTON_PUSH)
-    {        
+    {
         if (m_bhBmp.GetBitmap(State) == NULL) { State = 0; }
 
         POINT P1;
@@ -295,24 +295,24 @@ void CBitmapAsButton::Draw(HDC hDC, LPRECT lpRect)
             pPBmpStart->x = lpRect->left;
             pPBmpStart->y = lpRect->top;
         }
-        
+
         m_bhBmp.Draw(hDC,pPBmpStart,lpRect,State);
     }
     else if ((ButtonType == BITMAPASBUTTON_CHECKBOX)
             || (ButtonType == BITMAPASBUTTON_3STATE) || (ButtonType == BITMAPASBUTTON_4STATE))
     {
-        State += 3*ButtonState;        
+        State += 3*ButtonState;
 
-        if (m_bhBmp.GetBitmap(State) == NULL) 
-        { 
-            if (State>(3*ButtonState)) 
-            { 
-                State=3*ButtonState; 
+        if (m_bhBmp.GetBitmap(State) == NULL)
+        {
+            if (State>(3*ButtonState))
+            {
+                State=3*ButtonState;
             }
         }
-        if (m_bhBmp.GetBitmap(State) == NULL) 
-        { 
-            State = 0; 
+        if (m_bhBmp.GetBitmap(State) == NULL)
+        {
+            State = 0;
         }
 
         POINT P1;
@@ -323,7 +323,7 @@ void CBitmapAsButton::Draw(HDC hDC, LPRECT lpRect)
             pPBmpStart->x = lpRect->left;
             pPBmpStart->y = lpRect->top;
         }
-        
+
         m_bhBmp.Draw(hDC,pPBmpStart,lpRect,State);
     }
     else if (ButtonType == BITMAPASBUTTON_SLIDER)
@@ -333,21 +333,21 @@ void CBitmapAsButton::Draw(HDC hDC, LPRECT lpRect)
         RECT rcRight;
         RECT rc;
         POINT P1;
-        
+
         int State3 = State+3;
 
         ::SetRect(&rcLeft, 0, 0, SliderX, ButtonHeight);
         ::SetRect(&rcRight, SliderX, 0, ButtonWidth, ButtonHeight);
 
-        if (m_bhBmp.GetBitmap(State) == NULL) 
+        if (m_bhBmp.GetBitmap(State) == NULL)
         {
             State = 0;
         }
-        if (m_bhBmp.GetBitmap(State3) == NULL) 
+        if (m_bhBmp.GetBitmap(State3) == NULL)
         {
             State3 = 3;
         }
-        
+
         if (lpRect == NULL)
         {
             m_bhBmp.Draw(hDC,NULL,&rcLeft,State3);
@@ -383,7 +383,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         return FALSE;
     }
     switch(message)
-    {        
+    {
     case WM_NCHITTEST:
         {
             LONG Result;
@@ -410,28 +410,28 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
     ///// Mouse ///////////////////////////////////////////////
 
-    case WM_RBUTTONDOWN:            
+    case WM_RBUTTONDOWN:
         m_mouserdown = TRUE;
         ::InvalidateRect( hDlg, NULL, FALSE );
         break;
     case WM_RBUTTONUP:
         m_mouserdown = FALSE;
-        ::InvalidateRect( hDlg, NULL, FALSE );            
+        ::InvalidateRect( hDlg, NULL, FALSE );
         break;
 
-    case WM_LBUTTONDOWN:            
-        m_mouseldown = TRUE;        
+    case WM_LBUTTONDOWN:
+        m_mouseldown = TRUE;
 
         if (ButtonType == BITMAPASBUTTON_SLIDER)
         {
-            int xPos = GET_X_LPARAM(lParam); 
-            int yPos = GET_Y_LPARAM(lParam); 
+            int xPos = GET_X_LPARAM(lParam);
+            int yPos = GET_Y_LPARAM(lParam);
             int NewPos = SliderRangeMin + xPos*(SliderRangeMax-SliderRangeMin)/(ButtonWidth-1);
             if (NewPos != SliderPos)
-            {                
-                BOOL bRight = (NewPos>SliderPos);                                
-                SliderPos = NewPos;                
-                SendMessage(hWndParent, WM_HSCROLL, bRight?SB_RIGHT:SB_LEFT, (LPARAM)hWndButton);                
+            {
+                BOOL bRight = (NewPos>SliderPos);
+                SliderPos = NewPos;
+                SendMessage(hWndParent, WM_HSCROLL, bRight?SB_RIGHT:SB_LEFT, (LPARAM)hWndButton);
             }
         }
         ::InvalidateRect( hDlg, NULL, FALSE );
@@ -458,13 +458,13 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 ButtonState=0;
             }*/
         }
-        ::InvalidateRect( hDlg, NULL, FALSE );            
+        ::InvalidateRect( hDlg, NULL, FALSE );
         break;
-    
+
     case WM_MOUSEMOVE:
         {
             if(!m_trackmouse)
-            {   
+            {
                 TRACKMOUSEEVENT lpEventTrack;
 
                 lpEventTrack.cbSize      = sizeof( TRACKMOUSEEVENT );
@@ -479,30 +479,30 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
             }
 
             if (wParam != MK_LBUTTON )
-            {    
-                m_mouseldown = FALSE;                    
+            {
+                m_mouseldown = FALSE;
             }
             if (wParam != MK_RBUTTON )
             {
-                m_mouserdown = FALSE; 
+                m_mouserdown = FALSE;
             }
 
             if (m_mouseldown)
             {
                 if (ButtonType == BITMAPASBUTTON_SLIDER)
                 {
-                    int xPos = GET_X_LPARAM(lParam); 
-                    int yPos = GET_Y_LPARAM(lParam);                     
+                    int xPos = GET_X_LPARAM(lParam);
+                    int yPos = GET_Y_LPARAM(lParam);
                     int NewPos = SliderRangeMin + xPos*(SliderRangeMax-SliderRangeMin)/(ButtonWidth-1);
                     if (NewPos != SliderPos)
-                    {                
+                    {
                         BOOL bRight = (NewPos>SliderPos);
                         SliderPos = NewPos;
                         PAINTSTRUCT ps;
                         ::BeginPaint(hDlg,&ps);
                         Draw(ps.hdc,NULL);
                         ::EndPaint(hDlg,&ps);
-                        SendMessage(hWndParent, WM_HSCROLL, bRight?SB_RIGHT:SB_LEFT, (LPARAM)hWndButton);                
+                        SendMessage(hWndParent, WM_HSCROLL, bRight?SB_RIGHT:SB_LEFT, (LPARAM)hWndButton);
                     }
                 }
             }
@@ -510,18 +510,18 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
             if (!m_mouseldown && !m_mouserdown)
             {
                 m_mouseover = TRUE;
-                ::InvalidateRect( hDlg, NULL, FALSE );                  
-            }                
+                ::InvalidateRect( hDlg, NULL, FALSE );
+            }
         }
         break;
-    case WM_MOUSELEAVE:            
+    case WM_MOUSELEAVE:
         m_mouseover = FALSE;
         m_mouseldown = FALSE;
         m_mouserdown = FALSE;
         ::InvalidateRect( hDlg, NULL, FALSE );
         m_trackmouse = FALSE;
-        break;        
-    
+        break;
+
     case WM_SETCURSOR:
         if (GetCursor() != hCursorHand)
         {
@@ -530,12 +530,12 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         break;
     ///////////////////////////////////////////////////////////
 
-    case WM_PAINT:    
-        {                
+    case WM_PAINT:
+        {
             PAINTSTRUCT ps;
             ::BeginPaint(hDlg,&ps);
             //LOG(2,"BitmapButton: 0x%08x: [%s] wm_paint: %d %d,%d,%d,%d",hDlg,sID.c_str(),ps.fErase,ps.rcPaint.left,ps.rcPaint.top,ps.rcPaint.right,ps.rcPaint.bottom);
-            if (ps.fErase) 
+            if (ps.fErase)
             {
                 Draw(ps.hdc,NULL);
             }
@@ -555,7 +555,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
     case BM_GETCHECK:
         if (ButtonType == BITMAPASBUTTON_CHECKBOX)
         {
-            return (ButtonState)?BST_CHECKED:BST_UNCHECKED;            
+            return (ButtonState)?BST_CHECKED:BST_UNCHECKED;
         }
         if ((ButtonType == BITMAPASBUTTON_3STATE)||(ButtonType == BITMAPASBUTTON_4STATE))
         {
@@ -575,16 +575,16 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
             InvalidateRect(hDlg, NULL, FALSE);
         }
         break;
-    
+
     ////////////////////////// Slider //////////////////////////////
     case TBM_SETRANGE:
         if (ButtonType == BITMAPASBUTTON_SLIDER)
         {
             SliderRangeMin = LOWORD(lParam);
-            SliderRangeMax = HIWORD(lParam);            
+            SliderRangeMax = HIWORD(lParam);
             if (wParam)
             {
-                ::InvalidateRect( hDlg, NULL, FALSE );   
+                ::InvalidateRect( hDlg, NULL, FALSE );
             }
         }
         break;
@@ -603,10 +603,10 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
             {
                 SliderPos = lParam;
             }
-            
+
             if (wParam)
             {
-                ::InvalidateRect( hDlg, NULL, FALSE );   
+                ::InvalidateRect( hDlg, NULL, FALSE );
             }
         }
         break;
@@ -633,7 +633,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         {
             MouseFlags |= MK_RBUTTON;
         }
-        Result = pfnButtonProc(sID,pfnButtonProc_pThis,hWndParent, MouseFlags, hDlg,message,wParam,lParam);        
+        Result = pfnButtonProc(sID,pfnButtonProc_pThis,hWndParent, MouseFlags, hDlg,message,wParam,lParam);
         switch (message)
         {
         case WM_CLOSE:
@@ -660,12 +660,12 @@ LRESULT CALLBACK CBitmapAsButton::StaticButtonProc(HWND hWnd, UINT message, UINT
         }
         MDICREATESTRUCT * pMDIC = (MDICREATESTRUCT *)((LPCREATESTRUCT) lParam)->lpCreateParams;
         CBitmapAsButton *pThis = (CBitmapAsButton*) (pMDIC->lParam);
-        ::SetWindowLong(hWnd, GWL_USERDATA, (LONG)pThis);        
+        ::SetWindowLong(hWnd, GWL_USERDATA, (LONG)pThis);
         return TRUE;
     }
-    
-    pThis = (CBitmapAsButton*)::GetWindowLong(hWnd, GWL_USERDATA);    
-    
+
+    pThis = (CBitmapAsButton*)::GetWindowLong(hWnd, GWL_USERDATA);
+
     if (pThis != NULL)
     {
         return pThis->ButtonProc(hWnd, message, wParam, lParam);

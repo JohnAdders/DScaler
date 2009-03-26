@@ -67,7 +67,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CTSCompressionDlg message handlers
 
-BOOL CTSCompressionDlg::OnInitDialog() 
+BOOL CTSCompressionDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -77,17 +77,17 @@ BOOL CTSCompressionDlg::OnInitDialog()
                   // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CTSCompressionDlg::OnConfigVideo() 
+void CTSCompressionDlg::OnConfigVideo()
 {
     TimeShiftVideoCompressionOptions(m_hWnd, options->recHeight,
                                      options->format, &m_fcc);
 }
 
-void CTSCompressionDlg::OnConfigAudio() 
+void CTSCompressionDlg::OnConfigAudio()
 {
 }
 
-void CTSCompressionDlg::OnOK() 
+void CTSCompressionDlg::OnOK()
 {
     /* Update the options */
     options->fcc = m_fcc;

@@ -36,7 +36,7 @@ typedef struct
     char* szName;
 } TBT848Chip;
 
-TBT848Chip BT848Chips[4] = 
+TBT848Chip BT848Chips[4] =
 {
     {
         0x109e,
@@ -71,10 +71,10 @@ CBT848Provider::CBT848Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
     {
         int CardsFound(0);
 
-        while(pHardwareDriver->DoesThisPCICardExist( 
-                                                        BT848Chips[i].VendorId, 
-                                                        BT848Chips[i].DeviceId, 
-                                                        CardsFound, 
+        while(pHardwareDriver->DoesThisPCICardExist(
+                                                        BT848Chips[i].VendorId,
+                                                        BT848Chips[i].DeviceId,
+                                                        CardsFound,
                                                         SubSystemId
                                                    ) == TRUE)
         {
@@ -91,10 +91,10 @@ CBT848Provider::CBT848Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
             sprintf_s(szSection, 12, "%s%d", BT848Chips[i].szName, CardsFound + 1);
             SmartPtr<CBT848Source> pNewSource = CreateCorrectSource(
                                                                 pHardwareDriver,
-                                                                szSection, 
-                                                                BT848Chips[i].VendorId, 
-                                                                BT848Chips[i].DeviceId, 
-                                                                CardsFound, 
+                                                                szSection,
+                                                                BT848Chips[i].VendorId,
+                                                                BT848Chips[i].DeviceId,
+                                                                CardsFound,
                                                                 SubSystemId,
                                                                 BT848Chips[i].szName
                                                           );

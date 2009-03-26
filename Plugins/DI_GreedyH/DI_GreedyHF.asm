@@ -49,7 +49,7 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
 
     // copy first even line no matter what, and the first odd line if we're
     // processing an EVEN field. (note diff from other deint rtns.)
-    
+
 /* >>>    pMemcpy(lpCurOverlay, pEvenLines[0], LineLength);    // DL0
     if (!InfoIsOdd)
         pMemcpy(lpCurOverlay + OverlayPitch, pOddLines[0], LineLength);  // DL1
@@ -59,17 +59,17 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
                                                     // but do 1 less, adj at end of loop
         if (InfoIsOdd)
         {
-            L1 = pEvenLines[Line];        
-            L2 = pOddLines[Line];    
-            L3 = pEvenLines[Line + 1];    
+            L1 = pEvenLines[Line];
+            L2 = pOddLines[Line];
+            L3 = pEvenLines[Line + 1];
             L2P = pPrevLines[Line];            // prev Odd lines
             Dest = lpCurOverlay + (Line * 2 + 1) * OverlayPitch;    // DL1
         }
         else
         {
-            L1 = pOddLines[Line] ;        
-            L2 = pEvenLines[Line + 1];        
-            L3 = pOddLines[Line + 1];   
+            L1 = pOddLines[Line] ;
+            L2 = pEvenLines[Line + 1];
+            L3 = pOddLines[Line + 1];
             L2P = pPrevLines[Line + 1];            // prev even lines
             Dest = lpCurOverlay + (Line * 2 + 2) * OverlayPitch;    // DL2
         }
@@ -80,8 +80,8 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
     if(InfoIsOdd)
     {
         L1 = pInfo->PictureHistory[1]->pData;
-        L2 = pInfo->PictureHistory[0]->pData;  
-        L3 = L1 + Pitch;   
+        L2 = pInfo->PictureHistory[0]->pData;
+        L3 = L1 + Pitch;
         L2P = pInfo->PictureHistory[2]->pData;
 
         // copy first even line
@@ -91,8 +91,8 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
     else
     {
         L1 = pInfo->PictureHistory[1]->pData;
-        L2 = pInfo->PictureHistory[0]->pData + Pitch;  
-        L3 = L1 + Pitch;   
+        L2 = pInfo->PictureHistory[0]->pData + Pitch;
+        L3 = L1 + Pitch;
         L2P = pInfo->PictureHistory[2]->pData + Pitch;
 
         // copy first even line
@@ -116,24 +116,24 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
         _asm
         {
             mov word ptr [LastAvg+6], 0       // init easy way
-            mov eax, dword ptr [L1]        
+            mov eax, dword ptr [L1]
             lea ebx, [eax+8]                // next qword needed by DJR
-            mov ecx, dword ptr [L3]        
+            mov ecx, dword ptr [L3]
             sub ecx, eax                    // carry L3 addr as an offset
-            mov edx, dword ptr [L2P]        
-            mov esi, dword ptr [L2]        
-            mov edi, dword ptr [Dest]       // DL1 if Odd or DL2 if Even     
+            mov edx, dword ptr [L2P]
+            mov esi, dword ptr [L2]
+            mov edi, dword ptr [Dest]       // DL1 if Odd or DL2 if Even
 
 align 8
-DoNext8Bytes:            
+DoNext8Bytes:
 
-            movq    mm0, qword ptr[esi]        // L2 - the newest weave pixel value 
+            movq    mm0, qword ptr[esi]        // L2 - the newest weave pixel value
             movq    mm1, qword ptr[eax]        // L1 - the top pixel
-            movq    mm2, qword ptr[edx]        // L2P - the prev weave pixel 
+            movq    mm2, qword ptr[edx]        // L2P - the prev weave pixel
             movq    mm3, qword ptr[eax+ecx] // L3, next odd row
             movq    mm6, mm1                // L1 - get simple single pixel interp
 //            pavgb   mm6, mm3                // use macro below
-            V_PAVGB (mm6, mm3, mm4, ShiftMask) 
+            V_PAVGB (mm6, mm3, mm4, ShiftMask)
 
 // DJR - Diagonal Jaggie Reduction
 // In the event that we are going to use an average (Bob) pixel we do not want a jagged
@@ -146,10 +146,10 @@ DoNext8Bytes:
             movq    mm7, mm6                // copy of simple bob pixel
             psllq   mm7, 16                 // left justify 3 pixels
             por     mm4, mm7                // and combine
-            
+
             movq    mm5, qword ptr[ebx] // next horiz qword from L1
 //            pavgb   mm5, qword ptr[ebx+ecx] // next horiz qword from L3, use macro below
-            V_PAVGB (mm5, qword ptr[ebx+ecx], mm7, ShiftMask) 
+            V_PAVGB (mm5, qword ptr[ebx+ecx], mm7, ShiftMask)
             psllq    mm5, 48                    // left just 1 pixel
             movq    mm7, mm6                // another copy of simple bob pixel
             psrlq   mm7, 16                    // right just 3 pixels
@@ -157,14 +157,14 @@ DoNext8Bytes:
 //            pavgb    mm4, mm5                // avg of forward and prev by 1 pixel, use macro
             V_PAVGB (mm4, mm5, mm5, ShiftMask)   // mm5 gets modified if MMX
 //            pavgb    mm6, mm4                // avg of center and surround interp vals, use macro
-            V_PAVGB (mm6, mm4, mm7, ShiftMask)  
+            V_PAVGB (mm6, mm4, mm7, ShiftMask)
 
 // Don't do any more averaging than needed for mmx. It hurts performance and causes rounding errors.
 #ifndef IS_MMX
 //          pavgb    mm4, mm6                // 1/4 center, 3/4 adjacent
-            V_PAVGB (mm4, mm6, mm7, ShiftMask)  
+            V_PAVGB (mm4, mm6, mm7, ShiftMask)
 //            pavgb    mm6, mm4                // 3/8 center, 5/8 adjacent
-            V_PAVGB (mm6, mm4, mm7, ShiftMask)  
+            V_PAVGB (mm6, mm4, mm7, ShiftMask)
 #endif
 
 // get abs value of possible L2 comb
@@ -197,7 +197,7 @@ DoNext8Bytes:
 // mm1 = L1
 // mm2 = L2 (or L2P)
 // mm3 = L3
-// mm4 = the best of L2,L2P weave pixel, base upon comb 
+// mm4 = the best of L2,L2P weave pixel, base upon comb
 // mm6 = the avg interpolated value, if we need to use it
 
 // Let's measure movement, as how much the weave pixel has changed
@@ -224,12 +224,12 @@ DoNext8Bytes:
 //            pminub    mm4, mm2                 // now = Min( Max(best, Min(L1,L3), L2 )=L2 clipped
             V_PMINUB (mm4, mm2, mm7)
 
-// Blend weave pixel with bob pixel, depending on motion val in mm0            
+// Blend weave pixel with bob pixel, depending on motion val in mm0
             psubusb mm0, MotionThresholdW   // test Threshold, clear chroma change >>>??
             pmullw  mm0, MotionSenseW  // mul by user factor, keep low 16 bits
             movq    mm7, QW256
 #ifdef IS_SSE
-            pminsw  mm0, mm7                // max = 256  
+            pminsw  mm0, mm7                // max = 256
 #else
             paddusw mm0, QW256B              // add, may sat at fff..
             psubusw mm0, QW256B              // now = Min(L1,256)
@@ -241,7 +241,7 @@ DoNext8Bytes:
             pand    mm6, YMask                // keep only luma from calc'd value
             pmullw  mm6, mm0                // use more bob for large motion
             paddusw mm4, mm6                // combine
-            psrlw   mm4, 8                    // div by 256 to get weighted avg    
+            psrlw   mm4, 8                    // div by 256 to get weighted avg
 
 // chroma comes from weave pixel
             pand    mm2, UVMask             // keep chroma
@@ -250,10 +250,10 @@ DoNext8Bytes:
             V_MOVNTQ (qword ptr[edi], mm2)  // move in our clipped best, use macro
 
 // bump ptrs and loop
-            lea        eax,[eax+8]                
-            lea        ebx,[ebx+8]                
+            lea        eax,[eax+8]
+            lea        ebx,[ebx+8]
             lea        edx,[edx+8]
-            lea        edi,[edi+8]            
+            lea        edi,[edi+8]
             lea        esi,[esi+8]
             dec        LoopCtr
             jg        DoNext8Bytes            // loop if not to last line
@@ -269,8 +269,8 @@ DoNext8Bytes:
         Dest += pInfo->OverlayPitch;
 
         L1 += Pitch;
-        L2 += Pitch;  
-        L3 += Pitch;   
+        L2 += Pitch;
+        L3 += Pitch;
         L2P += Pitch;
 
     }

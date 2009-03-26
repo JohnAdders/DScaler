@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file vbi_videotext.h vbi_videotext Header file
  */
- 
+
 #ifndef __VBI_VIDEOTEXT_H___
 #define __VBI_VIDEOTEXT_H___
 

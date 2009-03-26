@@ -26,12 +26,12 @@
 // Explanation of the MMX version: 1 is added to the source pixel if it is odd (and != 255)
 // Then half the (adjusted) source pixel (rounding down -- which is effectively the same as
 // rounding the unadjusted pixel up unless source == 255) is added to half the destination
-// pixel (also rounding down). This gives the same result as the much faster and less 
+// pixel (also rounding down). This gives the same result as the much faster and less
 // complicated versions for other processors
 //.Yes, shiftMask and noLowBitsMask could be the same, but this is a little easier to
 // follow.
 
-// tempMM is changed 
+// tempMM is changed
 
 #undef AVERAGE
 #if defined(IS_SSE)
@@ -138,7 +138,7 @@ long OldGameFilter_MMX(TDeinterlaceInfo* pInfo)
 
         for (LineTarget = 0; LineTarget < (DWORD)pInfo->FieldHeight; ++LineTarget)
         {
-            _asm 
+            _asm
             {
                 mov esi, pDestination           // Pointers are incremented at the bottom of the loop
                 mov ecx, Cycles

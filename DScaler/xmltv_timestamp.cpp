@@ -435,7 +435,7 @@ time_t parse_xmltv_date_v5( const char *date, unsigned int full_len )
      * thus:
      * example *date = "20031022220000 +0200"
      * type:            YYYYMMDDhhmmss ZZzzz"
-     * position:        0         1         2          
+     * position:        0         1         2
      *                  012345678901234567890
      *
      * note: since part of the time specification can be omitted, we cannot

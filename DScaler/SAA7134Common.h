@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file saa7134common.h saa7134common Header file
  */
- 
+
 #ifdef WANT_SAA713X_SUPPORT
 
 #ifndef __SAA7134COMMON_H___

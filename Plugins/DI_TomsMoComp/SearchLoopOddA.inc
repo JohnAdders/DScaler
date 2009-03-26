@@ -6,6 +6,6 @@
         MERGE4PIXavg(edi-2, esi+2*ecx+2)  // up left, down right
         MERGE4PIXavg(edi+2, esi+2*ecx-2)  // up right, down left
         MERGE4PIXavg(edi+2*ecx-2, esi+2)   // down left, up right
-        MERGE4PIXavg(edi+2*ecx+2, esi-2)   // down right, up left   
+        MERGE4PIXavg(edi+2*ecx+2, esi-2)   // down right, up left
         }
 #include "SearchLoopOddA2.inc"

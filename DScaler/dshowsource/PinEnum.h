@@ -39,23 +39,23 @@ public:
     /**
      * Constructor that dont set the enumerator. init must be called before use.
      */
-    CDShowGenericEnum() : 
+    CDShowGenericEnum() :
       m_pEnum(NULL)
     {
-    
+
     }
 
     /**
      * Constructor that sets the enumerator.
      */
-    CDShowGenericEnum(EnumInterface *pEnum) : 
+    CDShowGenericEnum(EnumInterface *pEnum) :
       m_pEnum(pEnum)
     {
-    
+
     }
     virtual ~CDShowGenericEnum()
     {
-    
+
     }
 
     /**
@@ -70,7 +70,7 @@ public:
         }
         m_pEnum=pEnum;
     }
-    
+
     HRESULT next(T** ppItem)
     {
         if(m_pEnum==NULL ||ppItem==NULL)
@@ -80,7 +80,7 @@ public:
 
     /**
      * Skips specified amount of items.
-     * 
+     *
      * @param c number of items to skip
      * @return HRESULT describing success or failiure
      */
@@ -111,10 +111,10 @@ public:
     {
         if(m_pEnum==NULL || ppEnum==NULL)
             return E_POINTER;
-        
+
         return m_pEnum->Clone(ppEnum);
     }
-    
+
     /**
      * Index operator.
      *
@@ -124,7 +124,7 @@ public:
     T* operator[](int index)
     {
         T* item=NULL;
-    
+
         HRESULT hr=reset();
         if(FAILED(hr))
             throw CDShowException("reset failed",hr);
@@ -179,7 +179,7 @@ public:
      * @param pinDir direction
      */
     CDShowPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir);    //endast viss riktning
-    
+
     /**
      * Constructs a CPinEnum object that enumerates all pins.
      *
@@ -187,7 +187,7 @@ public:
      * @param filter filter whos pins is to be enumerated
      */
     CDShowPinEnum(CComPtr<IBaseFilter> filter);
-    
+
     /**
      * Destructor
      */
@@ -203,7 +203,7 @@ public:
 
 private:
     ///direction
-    PIN_DIRECTION m_pinDir;    
+    PIN_DIRECTION m_pinDir;
     ///any direction or only specified?
     BOOL m_anydir;
 };

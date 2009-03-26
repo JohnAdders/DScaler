@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file Toolbars.h Toolbars Header file
  */
- 
+
 #ifndef _TOOLBARS_H_
 #define _TOOLBARS_H_
 
@@ -30,7 +30,7 @@
 #include "SoundChannel.h"
 
 
-class CToolbarChannels : public CToolbarChild, public CEventObject 
+class CToolbarChannels : public CToolbarChild, public CEventObject
 {
 public:
     CToolbarChannels(CToolbarWindow *pToolbar);
@@ -38,7 +38,7 @@ public:
 
     HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
     void Reset();
-        
+
     void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
     void UpdateWindow() { UpdateControls(NULL, FALSE); }
 
@@ -51,8 +51,8 @@ private:
     HICON m_hIconChannelPrevious;
 
     void UpdateControls(HWND hWnd,BOOL bInitDialog);
-    LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
-    
+    LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
     static LRESULT CALLBACK MyComboProcWrap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
@@ -65,7 +65,7 @@ public:
     ~CToolbarVolume();
 
     LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    
+
     void Reset();
 
     void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
@@ -85,8 +85,8 @@ private:
     HICON m_hIconStereo;
     HICON m_hIconLang1;
     HICON m_hIconLang2;
-        
-    void UpdateControls(HWND hWnd, BOOL bInitDialog);    
+
+    void UpdateControls(HWND hWnd, BOOL bInitDialog);
 };
 
 
@@ -97,7 +97,7 @@ public:
     ~CToolbarMediaPlayer();
 
     LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    
+
     void Reset();
 
     void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
@@ -109,25 +109,25 @@ private:
     HICON m_hIconPlay;
     HICON m_hIconPause;
     HICON m_hIconStop;
-        
-    void UpdateControls(HWND hWnd, BOOL bInitDialog);    
+
+    void UpdateControls(HWND hWnd, BOOL bInitDialog);
 };
 
 
-class CToolbarLogo : public CToolbarChild, public CEventObject 
+class CToolbarLogo : public CToolbarChild, public CEventObject
 {
 private:
     int OriginalLogoWidth;
     int OriginalLogoHeight;
 public:
-    CToolbarLogo(CToolbarWindow *pToolbar);    
+    CToolbarLogo(CToolbarWindow *pToolbar);
     HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
-    LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);        
-    void Reset();    
+    LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    void Reset();
 };
 
 
-class CToolbar1Bar : public CToolbarChild, public CEventObject 
+class CToolbar1Bar : public CToolbarChild, public CEventObject
 {
 private:
     int OriginalWidth;
@@ -135,12 +135,12 @@ private:
     int LeftMargin;
     int RightMargin;
     HWND hWndPicture;
-    HBITMAP hBmp;    
+    HBITMAP hBmp;
 public:
-    CToolbar1Bar(CToolbarWindow *pToolbar);    
+    CToolbar1Bar(CToolbarWindow *pToolbar);
     ~CToolbar1Bar();
     HWND Create(LPCSTR lpClassName, HINSTANCE hResourceInst);
-    LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
+    LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     BOOL LoadSkin(const char *szSkinIniFile, const char *szSection, std::vector<int> *Results);
     void ClearSkin();
     void Reset();

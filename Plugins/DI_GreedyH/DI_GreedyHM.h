@@ -25,7 +25,7 @@
 // I'll add a bigger block of comments here from material I'll post on the list. Basically this
 // was made from ideas used in the Blended Clip & Greedy (Low Motion) plug-in's.
 //
-// Then Edge Enhancement, Median Filtering, Vertical Filtering, Diagonal Jaggie Reduction (DJR ;-) ), 
+// Then Edge Enhancement, Median Filtering, Vertical Filtering, Diagonal Jaggie Reduction (DJR ;-) ),
 // n:n pulldown matching, and In-Between Frames were built on that.
 //
 // !!!  THIS REQUIRES A FAST SSE BOX (Celeron, Athlon, P-III, or P4. !!!
@@ -58,21 +58,21 @@ extern long GreedyMaxComb;                // max comb we allow past clip
 extern long GreedyMotionThreshold;        // ignore changes < this
 extern long GreedyMotionSense;            // how rapidly to bob when > threshold
 extern long GreedyGoodPullDownLvl;        // Best comb avg / comb avg must be < this for PD
-extern long GreedyBadPullDownLvl;        // don't pulldown this field if comb / best avg comb > this 
-extern long GreedyHSharpnessAmt;        // % Horizontal sharpness to add or filter                
-extern long GreedyVSharpnessAmt;        // % Vertical sharpness to add or filter                
+extern long GreedyBadPullDownLvl;        // don't pulldown this field if comb / best avg comb > this
+extern long GreedyHSharpnessAmt;        // % Horizontal sharpness to add or filter
+extern long GreedyVSharpnessAmt;        // % Vertical sharpness to add or filter
 extern long GreedyMedianFilterAmt;        // Don't filter if > this
 extern long GreedyLowMotionPdLvl;        // Do pulldown for low motion frames < this
 
-extern BOOL GreedyUsePulldown;            
+extern BOOL GreedyUsePulldown;
 extern BOOL GreedyUseInBetween;
 extern BOOL GreedyUseMedianFilter;
 extern BOOL GreedyUseVSharpness;
 extern BOOL GreedyUseHSharpness;
-extern BOOL GreedySSEBox;           
+extern BOOL GreedySSEBox;
 extern UINT GreedyFeatureFlags;         // Save feature flags on setup
 
-typedef struct 
+typedef struct
 {
     int Comb;                    // combs
     int CombChoice;                // val chosen by Greedy Choice
@@ -113,8 +113,8 @@ extern short **pPrevLines;
 extern int    FieldHeight;
 extern int    FrameHeight;
 extern int LineLength;
-extern int OverlayPitch;    
-extern int InpPitch;    
+extern int OverlayPitch;
+extern int InpPitch;
 
 extern BOOL InfoIsOdd;
 extern BYTE *lpCurOverlay;
@@ -146,7 +146,7 @@ BOOL DI_GreedyHM_NV();                                    // full deint with no 
 BOOL DI_GreedyHM_V();                                    // full deint with Vertical Filter
 
 #define PDAVGLEN 10                                    // len of pulldown average, < len of queue
-int UpdatePulldown(int Comb, int Kontrast, int Motion);                        
+int UpdatePulldown(int Comb, int Kontrast, int Motion);
 BOOL CanDoPulldown();                                    // check if we should do pulldown, doit
 BOOL GetHistData(GR_PULLDOWN_INFO * OHist, int ct);
 
@@ -174,12 +174,12 @@ BOOL GetHistData(GR_PULLDOWN_INFO * OHist, int ct);
 
 #define V_PAVGB_SSE(mmr1,mmr2,mmrw,smask) {pavgb mmr1,mmr2 }
 #define V_PAVGB_3DNOW(mmr1,mmr2,mmrw,smask) {pavgusb mmr1,mmr2 }
-#define V_PAVGB(mmr1,mmr2,mmrw,smask) V_PAVGB2(mmr1,mmr2,mmrw,smask,SSE_TYPE) 
-#define V_PAVGB2(mmr1,mmr2,mmrw,smask,ssetyp) V_PAVGB3(mmr1,mmr2,mmrw,smask,ssetyp) 
-#define V_PAVGB3(mmr1,mmr2,mmrw,smask,ssetyp) V_PAVGB_##ssetyp##(mmr1,mmr2,mmrw,smask) 
+#define V_PAVGB(mmr1,mmr2,mmrw,smask) V_PAVGB2(mmr1,mmr2,mmrw,smask,SSE_TYPE)
+#define V_PAVGB2(mmr1,mmr2,mmrw,smask,ssetyp) V_PAVGB3(mmr1,mmr2,mmrw,smask,ssetyp)
+#define V_PAVGB3(mmr1,mmr2,mmrw,smask,ssetyp) V_PAVGB_##ssetyp##(mmr1,mmr2,mmrw,smask)
 
 // some macros for pmaxub instruction
-//      V_PMAXUB(mmr1, mmr2)    
+//      V_PMAXUB(mmr1, mmr2)
 #define V_PMAXUB_MMX(mmr1,mmr2)     __asm \
     { \
     __asm psubusb mmr1,mmr2 \
@@ -188,9 +188,9 @@ BOOL GetHistData(GR_PULLDOWN_INFO * OHist, int ct);
 
 #define V_PMAXUB_SSE(mmr1,mmr2) {pmaxub mmr1,mmr2 }
 #define V_PMAXUB_3DNOW(mmr1,mmr2) V_PMAXUB_MMX(mmr1,mmr2)  // use MMX version
-#define V_PMAXUB(mmr1,mmr2) V_PMAXUB2(mmr1,mmr2,SSE_TYPE) 
-#define V_PMAXUB2(mmr1,mmr2,ssetyp) V_PMAXUB3(mmr1,mmr2,ssetyp) 
-#define V_PMAXUB3(mmr1,mmr2,ssetyp) V_PMAXUB_##ssetyp##(mmr1,mmr2) 
+#define V_PMAXUB(mmr1,mmr2) V_PMAXUB2(mmr1,mmr2,SSE_TYPE)
+#define V_PMAXUB2(mmr1,mmr2,ssetyp) V_PMAXUB3(mmr1,mmr2,ssetyp)
+#define V_PMAXUB3(mmr1,mmr2,ssetyp) V_PMAXUB_##ssetyp##(mmr1,mmr2)
 
 // some macros for pminub instruction
 //      V_PMINUB(mmr1, mmr2, mmr work register)     mmr2 may NOT = mmrw
@@ -204,17 +204,17 @@ BOOL GetHistData(GR_PULLDOWN_INFO * OHist, int ct);
 
 #define V_PMINUB_SSE(mmr1,mmr2,mmrw) {pminub mmr1,mmr2}
 #define V_PMINUB_3DNOW(mmr1,mmr2,mmrw) V_PMINUB_MMX(mmr1,mmr2,mmrw)  // use MMX version
-#define V_PMINUB(mmr1,mmr2,mmrw) V_PMINUB2(mmr1,mmr2,mmrw,SSE_TYPE) 
-#define V_PMINUB2(mmr1,mmr2,mmrw,ssetyp) V_PMINUB3(mmr1,mmr2,mmrw,ssetyp) 
-#define V_PMINUB3(mmr1,mmr2,mmrw,ssetyp) V_PMINUB_##ssetyp##(mmr1,mmr2,mmrw) 
+#define V_PMINUB(mmr1,mmr2,mmrw) V_PMINUB2(mmr1,mmr2,mmrw,SSE_TYPE)
+#define V_PMINUB2(mmr1,mmr2,mmrw,ssetyp) V_PMINUB3(mmr1,mmr2,mmrw,ssetyp)
+#define V_PMINUB3(mmr1,mmr2,mmrw,ssetyp) V_PMINUB_##ssetyp##(mmr1,mmr2,mmrw)
 
 // some macros for movntq instruction
-//      V_MOVNTQ(mmr1, mmr2) 
+//      V_MOVNTQ(mmr1, mmr2)
 #define V_MOVNTQ_MMX(mmr1,mmr2) {movq mmr1,mmr2}
 #define V_MOVNTQ_3DNOW(mmr1,mmr2) {movq mmr1,mmr2 }
 #define V_MOVNTQ_SSE(mmr1,mmr2) {movntq mmr1,mmr2 }
-#define V_MOVNTQ(mmr1,mmr2) V_MOVNTQ2(mmr1,mmr2,SSE_TYPE) 
-#define V_MOVNTQ2(mmr1,mmr2,ssetyp) V_MOVNTQ3(mmr1,mmr2,ssetyp) 
+#define V_MOVNTQ(mmr1,mmr2) V_MOVNTQ2(mmr1,mmr2,SSE_TYPE)
+#define V_MOVNTQ2(mmr1,mmr2,ssetyp) V_MOVNTQ3(mmr1,mmr2,ssetyp)
 #define V_MOVNTQ3(mmr1,mmr2,ssetyp) V_MOVNTQ_##ssetyp##(mmr1,mmr2)
 
 // end of macros

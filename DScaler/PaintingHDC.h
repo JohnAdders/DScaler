@@ -14,10 +14,10 @@
 // GNU Library General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file paintinghdc.h paintinghdc Header file
  */
- 
+
 #ifndef __PAINTINGHDC_H__
 #define __PAINTINGHDC_H__
 
@@ -41,15 +41,15 @@ public:
     void BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DSURFACE9 target, HDC hDestDC = NULL);
     void ReleaseD3DBuffer();
 private:
-    
+
     HDC m_hBufferDC;
     HDC m_hOriginalDC;
     RECT m_Rect;
     RECT m_PaintRect;
-    LPDIRECT3DSURFACE9 m_ddsurface;    
-    LPDIRECT3DSURFACE9 m_alphasurface;    
+    LPDIRECT3DSURFACE9 m_ddsurface;
+    LPDIRECT3DSURFACE9 m_alphasurface;
     HGDIOBJ m_hSaveBmp;
-    HBITMAP m_hBmp;    
+    HBITMAP m_hBmp;
     void CreateD3DBuffer();
 };
 

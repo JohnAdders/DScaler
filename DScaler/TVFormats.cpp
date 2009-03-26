@@ -30,35 +30,35 @@
 static TTVFormat TVFormats[VIDEOFORMAT_LASTONE] =
 {
     // PAL-B
-    { 
+    {
         576, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_BDGHI|BT848_IFORM_XT1),
         186, 922, 0x24, 0, TRUE, 511, 19,
         4.43361875, (4.43361875 * 8), TRUE, 15,
         16,
     },
     // PAL-D
-    { 
+    {
         576, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_BDGHI|BT848_IFORM_XT1),
         186, 922, 0x24, 0, TRUE, 511, 19,
         4.43361875, (4.43361875 * 8), TRUE, 15,
         16,
     },
     // PAL-G
-    { 
+    {
         576, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_BDGHI|BT848_IFORM_XT1),
         186, 922, 0x24, 0, TRUE, 511, 19,
         4.43361875, (4.43361875 * 8), TRUE, 15,
         16,
     },
     // PAL-H
-    { 
+    {
         576, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_BDGHI|BT848_IFORM_XT1),
         186, 922, 0x24, 0, TRUE, 511, 19,
         4.43361875, (4.43361875 * 8), TRUE, 15,
         16,
     },
     // PAL-I
-    { 
+    {
         576, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_BDGHI|BT848_IFORM_XT1),
         186, 922, 0x24, 0, TRUE, 511, 19,
         4.43361875, (4.43361875 * 8), TRUE, 15,
@@ -83,15 +83,15 @@ static TTVFormat TVFormats[VIDEOFORMAT_LASTONE] =
         480, 1127, 0x7f, 0x72, (BT848_IFORM_PAL_BDGHI|BT848_IFORM_XT1),
         169, 934, 0x1a, 0, FALSE, 400, 16,
         4.43361875, (4.43361875 * 8), TRUE, 11,
-        10    
+        10
     },
     // PAL-NC thanks to Eduardo José Tagle
-    { 
-        576, 916, 0x68, 0x5c, (BT848_IFORM_PAL_NC|BT848_IFORM_XT0), 
-        149, 745, 0x20, 0, TRUE, 511, 19, 
-        3.58205625, 28.636363, FALSE, 15, 
-        16, 
-    }, 
+    {
+        576, 916, 0x68, 0x5c, (BT848_IFORM_PAL_NC|BT848_IFORM_XT0),
+        149, 745, 0x20, 0, TRUE, 511, 19,
+        3.58205625, 28.636363, FALSE, 15,
+        16,
+    },
     // SECAM B
     {
         576, 1135, 0x7f, 0xb0, (BT848_IFORM_SECAM|BT848_IFORM_XT1),
@@ -152,22 +152,22 @@ static TTVFormat TVFormats[VIDEOFORMAT_LASTONE] =
     {
         480, 910, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         137, 754, 0x1a, 0, FALSE, 400, 13,
-        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11,
         10,
     },
     // NTSC M Japan
     {
         480,  910, 0x70, 0x5c, (BT848_IFORM_NTSC_JAP|BT848_IFORM_XT0),
         135, 754, 0x1a, 0, FALSE, 400, 13,
-        ((4.5 * 455.0) / (286.0 * 2.0)), 28.636363, FALSE, 11, 
+        ((4.5 * 455.0) / (286.0 * 2.0)), 28.636363, FALSE, 11,
         10,
     },
     // NTSC-50
-    {       
+    {
         576, 910, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         137, 754, 0x24, 0, TRUE, 511, 19,
-        ((4.5 * 455.0) / (286 * 2)), 28.636363, FALSE, 15,      
-        16, 
+        ((4.5 * 455.0) / (286 * 2)), 28.636363, FALSE, 15,
+        16,
     },
     // RGB formats for Atlas. The only values used are wCropHeight, wTotalWidth,
     // wHDelayx1, wHActivex1 and wCropOffset (which we reuse to be the
@@ -176,47 +176,47 @@ static TTVFormat TVFormats[VIDEOFORMAT_LASTONE] =
     {
         480, 800, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         110, 640, 13, 20, FALSE, 400, 13,
-        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11,
         10,
     },
     // RGB 800x600@60Hz
     {
         600, 1024, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         178, 800, 21, 24, FALSE, 400, 13,
-        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11,
         10,
     },
     // RGB 1024x768@60Hz
     {
         768, 1344, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         236, 1024, 26, 30, FALSE, 400, 13,
-        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11,
         10,
     },
     // RGB 640x480@75Hz
     {
         480, 816, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         110, 640, 13, 24, FALSE, 400, 13,
-        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11,
         10,
     },
     // RGB 800x600@75Hz
     {
         600, 1040, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         178, 800, 21, 29, FALSE, 400, 13,
-        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11,
         10,
     },
     // RGB 1024x768@75Hz
     {
         768, 1376, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         236, 1024, 26, 37, FALSE, 400, 13,
-        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11,
         10,
     },
 };
 
-const char *VideoFormatNames[VIDEOFORMAT_LASTONE] = 
+const char *VideoFormatNames[VIDEOFORMAT_LASTONE] =
 {
     "PAL-B",
     "PAL-D",
@@ -249,7 +249,7 @@ const char *VideoFormatNames[VIDEOFORMAT_LASTONE] =
     "RGB-1024x768@75",
 };
 
-const char *VideoFormatSaveNames[VIDEOFORMAT_LASTONE] = 
+const char *VideoFormatSaveNames[VIDEOFORMAT_LASTONE] =
 {
     "PAL-B",
     "PAL-B",

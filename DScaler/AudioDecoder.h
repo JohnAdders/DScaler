@@ -21,7 +21,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file AudioDecoder.h AudioDecoder Header file
  */
 
@@ -43,7 +43,7 @@ enum eAudioInput
     AUDIOINPUT_EXTERNAL,
     AUDIOINPUT_INTERNAL,
     AUDIOINPUT_MUTE,
-    AUDIOINPUT_STEREO 
+    AUDIOINPUT_STEREO
 };
 
 enum eSupportedSoundChannels
@@ -69,12 +69,12 @@ public:
 
     // Inputs
     virtual void SetAudioInput(eAudioInput audioInput);
-    virtual eAudioInput GetAudioInput();    
+    virtual eAudioInput GetAudioInput();
     virtual const char* GetAudioInputName(eAudioInput audioInput);
 
     // Standard
     virtual void SetAudioStandard(long Standard, eVideoFormat videoformat);
-    virtual long GetAudioStandardCurrent();    
+    virtual long GetAudioStandardCurrent();
     virtual const char* GetAudioStandardName(long Standard);
     virtual int GetNumAudioStandards();
     virtual long GetAudioStandard(int nIndex);

@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file outreso.h outreso Header file
  */
- 
+
 #ifndef __OUTRESO_H___
 #define __OUTRESO_H___
 

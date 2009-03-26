@@ -16,10 +16,10 @@
 //  GNU Library General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file vttoptext.h vttoptext Header file
  */
- 
+
 #ifndef __VTTOPTEXT_H__
 #define __VTTOPTEXT_H__
 
@@ -70,7 +70,7 @@ private:
         TOPWAIT_MPT,
         TOPWAIT_LASTONE
     };
-    
+
     typedef struct
     {
         BYTE    uType;

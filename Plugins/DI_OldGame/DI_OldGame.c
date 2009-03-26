@@ -119,12 +119,12 @@ static DEINTERLACE_METHOD OldGameMethod =
 {
     sizeof(DEINTERLACE_METHOD),
     DEINTERLACE_CURRENT_VERSION,
-    "Old Game", 
+    "Old Game",
     NULL,     // It could make sense to use this with a resolution sensing adaptive filter
-    TRUE, 
-    FALSE, 
-    NULL, 
-    50, 
+    TRUE,
+    FALSE,
+    NULL,
+    50,
     60,
     DI_OLDGAME_SETTING_LASTONE,
     DI_OldGameSettings,

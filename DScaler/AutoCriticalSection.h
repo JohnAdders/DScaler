@@ -32,7 +32,7 @@
  * This is a simple class that locks the critical section in the constructor
  * and unlocks it in the destructor.
  */
-class CAutoCriticalSection  
+class CAutoCriticalSection
 {
 public:
     CAutoCriticalSection(CRITICAL_SECTION &pCriticalSection);

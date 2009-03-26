@@ -82,7 +82,7 @@
     #endif
 #endif
 {
-    BYTE* NewLine; 
+    BYTE* NewLine;
     BYTE* OldLine;
     int y;
     int Cycles;
@@ -92,7 +92,7 @@
     const __int64 qwLowBitsSet      = 0x0101010101010101;
     const __int64 qwChromaMask      = 0xFF00FF00FF00FF00;
     const __int64 qwLumiMask        = 0x00FF00FF00FF00FF;
-    
+
     if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
     {
         // if we have an interlaced source then we just want to
@@ -130,7 +130,7 @@
 
     for (y = 0; y < pInfo->FieldHeight; y++)
     {
-        _asm 
+        _asm
         {
             mov     ecx, Cycles
             mov     eax, NewLine
@@ -169,7 +169,7 @@ MAINLOOP_LABEL:
             movq    mm4, mm1                    // mm4 = OldPixel
             psubusb mm4, mm0                    // mm4 = max(OldPixel - NewPixel, 0)
             por     mm3, mm4                    // mm3 = abs(NewPixel - OldPixel)
-            
+
             // Filter out pixels whose differences are less than the threshold.
             psubusb mm3, mm5                    // mm3 = max(0, abs(NewPixel - OldPixel) - threshold)
 
@@ -186,7 +186,7 @@ MAINLOOP_LABEL:
             // that both the lumi and chroma values are replaced with the new value
             movq    mm4, mm3                    // mm4 = 0xFF where abs(NewPixel - OldPixel) > threshold
             psrlw   mm3, 8                      // copy the chroma into luma
-            por     mm3, mm4                    // OR with original 
+            por     mm3, mm4                    // OR with original
             psllw   mm4, 8                      // copy the lumi into chroma
             por     mm3, mm4                    // mm3 = 0xFFFF where abs(NewPixel - OldPixel) > threshold
 

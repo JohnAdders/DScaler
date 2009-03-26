@@ -56,14 +56,14 @@ BOOL CTDA9874::IsDevicePresent(int& dic, int& sic)
     }
 
     dic = result[0];
-    
+
     if(ReadFromSubAddress(TDA9874A_SIC, 0, 0, result, sizeof(result)) == FALSE)
     {
         return FALSE;
     }
 
     sic = result[0];
-    
+
     if (dic == 0x11 || dic == 0x07)
     {
         LOG(1, "TDA9874%s audio decoder found: dic=0x%x, sic=0x%x", (dic == 0x11) ? "a":"h", dic, sic);
@@ -71,5 +71,5 @@ BOOL CTDA9874::IsDevicePresent(int& dic, int& sic)
         return TRUE;
     }
 
-    return FALSE; 
+    return FALSE;
 }

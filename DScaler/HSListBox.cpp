@@ -71,7 +71,7 @@ int CHSListBox::AddString(LPCTSTR lpszItem)
 int CHSListBox::InsertString(int nIndex, LPCTSTR lpszItem)
 {
     int nRet=CListBox::InsertString(nIndex,lpszItem);
-    
+
     if(nRet!=LB_ERR && nRet!=LB_ERRSPACE)
     {
         m_nMaxWidth = max(m_nMaxWidth, GetTextSize(lpszItem).cx);

@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file vtdecoder.h vtdecoder Header file
  */
- 
+
 #ifndef __VTDECODER_H___
 #define __VTDECODER_H___
 

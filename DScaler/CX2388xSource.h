@@ -21,7 +21,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file cx2388xsource.h  cx2388xsource Header file
  */
 
@@ -80,7 +80,7 @@ public:
     void SetWidth(int w);
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
-  
+
     CTreeSettingsPage* GetTreeSettingsPage();
 
     void HandleTimerMessages(int TimerId);
@@ -120,7 +120,7 @@ private:
     virtual void CreateSettings(LPCSTR IniSection);
 
     void CreateRiscCode(BOOL bCaptureVBI);
-    
+
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
@@ -151,8 +151,8 @@ private:
     SmartPtr<CUserMemory> m_VBIDMAMem[5];
     BYTE*        m_pDisplay[5];
     BYTE*        m_pVBILines[5];
-    DWORD        m_RiscBasePhysical; 
-    DWORD        m_RiscBasePhysicalVBI; 
+    DWORD        m_RiscBasePhysical;
+    DWORD        m_RiscBasePhysicalVBI;
     DWORD*       m_RiscBaseLinear;
     long         m_BytesPerRISCField;
     TPicture     m_EvenFields[5];

@@ -48,7 +48,7 @@ CTSOptionsDlg::CTSOptionsDlg(CWnd* pParent /*=NULL*/)
     //}}AFX_DATA_INIT
 }
 
-int CTSOptionsDlg::OnCreate(LPCREATESTRUCT lpCreateStruct) 
+int CTSOptionsDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
     if (CDialog::OnCreate(lpCreateStruct)==-1)
        return -1;
@@ -59,7 +59,7 @@ int CTSOptionsDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
     return 0;
 }
 
-void CTSOptionsDlg::OnDestroy() 
+void CTSOptionsDlg::OnDestroy()
 {
     CDialog::OnDestroy();
     CoUninitialize();
@@ -186,7 +186,7 @@ void CTSOptionsDlg::SetChecked(int id, BOOL checked)
 /////////////////////////////////////////////////////////////////////////////
 // CTSOptionsDlg message handlers
 
-void CTSOptionsDlg::OnButtonCompression() 
+void CTSOptionsDlg::OnButtonCompression()
 {
     if (UpdateData(TRUE))
     {
@@ -226,7 +226,7 @@ void CTSOptionsDlg::OnOK()
     }
 }
 
-BOOL CTSOptionsDlg::OnInitDialog() 
+BOOL CTSOptionsDlg::OnInitDialog()
 {
     char       *waveDevice;
     UINT       numDevs;
@@ -249,7 +249,7 @@ BOOL CTSOptionsDlg::OnInitDialog()
     numDevs = waveInGetNumDevs();
     index   = 0;
     for (i = 0; i < numDevs; i++)
-    {        
+    {
         WAVEINCAPS caps;
 
         memset(&caps, 0, sizeof(caps));
@@ -270,7 +270,7 @@ BOOL CTSOptionsDlg::OnInitDialog()
     numDevs = waveOutGetNumDevs();
     index   = 0;
     for (i = 0; i < numDevs; i++)
-    {        
+    {
         WAVEOUTCAPS caps;
 
         memset(&caps, 0, sizeof(caps));
@@ -339,7 +339,7 @@ int CALLBACK browseCallback(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 }
 
 /** Path select button pressed */
-void CTSOptionsDlg::OnTSPathSelect() 
+void CTSOptionsDlg::OnTSPathSelect()
 {
     BROWSEINFO   info;
     LPITEMIDLIST list;
@@ -394,7 +394,7 @@ void CTSOptionsDlg::OnTSPathSelect()
     }
 }
 
-void CTSOptionsDlg::OnCompressionhelp() 
+void CTSOptionsDlg::OnCompressionhelp()
 {
     MessageBox("Configure the audio and video compression settings. "
                "The default is uncompressed frames, which should be "
@@ -404,7 +404,7 @@ void CTSOptionsDlg::OnCompressionhelp()
                MB_OK);
 }
 
-void CTSOptionsDlg::OnWavehelp() 
+void CTSOptionsDlg::OnWavehelp()
 {
     MessageBox("WaveIn: Choose the device to which your tuner card is "
                "directly attached.",
@@ -412,7 +412,7 @@ void CTSOptionsDlg::OnWavehelp()
                MB_OK);
 }
 
-void CTSOptionsDlg::OnHeighthelp() 
+void CTSOptionsDlg::OnHeighthelp()
 {
     MessageBox("Using full height will record every interlaced frame assuming "
                "none are lost. It's recommended that you use a fast, "
@@ -424,7 +424,7 @@ void CTSOptionsDlg::OnHeighthelp()
                MB_OK);
 }
 
-void CTSOptionsDlg::OnUpdateTSSize() 
+void CTSOptionsDlg::OnUpdateTSSize()
 {
     DWORD   value;
     CString text;
@@ -448,7 +448,7 @@ void CTSOptionsDlg::OnUpdateTSSize()
     m_SizeGiB.SetWindowText(text);
 }
 
-void CTSOptionsDlg::OnKillfocusTSSize() 
+void CTSOptionsDlg::OnKillfocusTSSize()
 {
     DWORD value;
 
@@ -475,7 +475,7 @@ void CTSOptionsDlg::OnKillfocusTSSize()
        }
 }
 
-void CTSOptionsDlg::OnTSSizeNoLimit() 
+void CTSOptionsDlg::OnTSSizeNoLimit()
 {
     if (m_SizeCheckBox.GetCheck()==BST_CHECKED)
        SetDlgItemInt(IDC_TS_SIZE, 0, FALSE);

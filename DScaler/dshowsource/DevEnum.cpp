@@ -85,7 +85,7 @@ BOOL CDShowDevEnum::getNext()
     CComPtr<IMoniker> pMoniker;
     ULONG cFetched;
 
-    
+
     if(m_pEnumCat->Next(1, &pMoniker, &cFetched) == S_OK)
     {
         m_pPropBag.Release();
@@ -143,7 +143,7 @@ void CDShowDevEnum::createDevice(string displayName,REFIID interf, void *device)
     if(SUCCEEDED(hr))
     {
         DWORD dwEaten;
-        hr = MkParseDisplayName(pBC, name, &dwEaten, &pmDev);    
+        hr = MkParseDisplayName(pBC, name, &dwEaten, &pmDev);
 
         if(FAILED(hr))
         {
@@ -157,9 +157,9 @@ void CDShowDevEnum::createDevice(string displayName,REFIID interf, void *device)
         delete [] name;
         throw CDShowDevEnumException("createDevice: BindToObject failed",hr);
     }
-    
+
     delete [] name;
-    
+
 }
 
 string CDShowDevEnum::getProperty(string szName)

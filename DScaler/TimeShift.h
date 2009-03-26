@@ -17,10 +17,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file timeshift.h timeshift Header file
  */
- 
+
 #ifndef __TIMESHIFT_H___
 #define __TIMESHIFT_H___
 

@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file perf.h perf Header file
  */
- 
+
 #ifndef __PERF_H___
 #define __PERF_H___
 

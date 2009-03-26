@@ -21,7 +21,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file cx2388xprovider.h  cx2388xprovider Header file
  */
 
@@ -45,11 +45,11 @@ public:
 private:
     ///  uses the subsystem id to determin the correct source to create
     SmartPtr<CCX2388xSource> CreateCorrectSource(
-                                        CHardwareDriver* pHardwareDriver, 
-                                        LPCSTR szSection, 
-                                        WORD VendorID, 
-                                        WORD DeviceID, 
-                                        int DeviceIndex, 
+                                        CHardwareDriver* pHardwareDriver,
+                                        LPCSTR szSection,
+                                        WORD VendorID,
+                                        WORD DeviceID,
+                                        int DeviceIndex,
                                         DWORD SubSystemId);
     /// creates the system accesable memory to be used by all cards
     BOOL MemoryInit(CHardwareDriver* pHardwareDriver);

@@ -85,11 +85,11 @@ BEGIN_MESSAGE_MAP(CDSVideoFormatPage, CTreeSettingsPage)
 END_MESSAGE_MAP()
 
 
-BOOL CDSVideoFormatPage::OnInitDialog() 
+BOOL CDSVideoFormatPage::OnInitDialog()
 {
     TRACE(_T("%s(%d) : CDSVideoFormatPage::OnInitDialog\n"),__FILE__,__LINE__);
     CTreeSettingsPage::OnInitDialog();
-    
+
     for(vector<CDShowGraph::CVideoFormat>::size_type index=0;index<m_VideoFmt.size();index++)
     {
         int pos=m_ListBox.AddString(m_VideoFmt[index].m_Name.c_str());
@@ -102,14 +102,14 @@ BOOL CDSVideoFormatPage::OnInitDialog()
             }
         }
     }
-    
+
     /*int cbindex=m_SampleFormat.AddString(_T("Auto"));
     m_SampleFormat.SetItemData(cbindex,DSREND_FIELD_FORMAT_AUTO);
     cbindex=m_SampleFormat.AddString(_T("Frame"));
     m_SampleFormat.SetItemData(cbindex,DSREND_FIELD_FORMAT_FRAME);
     cbindex=m_SampleFormat.AddString(_T("Field"));
     m_SampleFormat.SetItemData(cbindex,DSREND_FIELD_FORMAT_FIELD);*/
-    
+
     //select first entry
     m_ListBox.SetCurSel(0);
     UpdateControlls();
@@ -120,7 +120,7 @@ BOOL CDSVideoFormatPage::OnInitDialog()
 void CDSVideoFormatPage::OnOK()
 {
     TRACE(_T("%s(%d) : CDSVideoFormatPage::OnOK\n"),__FILE__,__LINE__);
-    
+
     //update the resoltion setting so it points to the right entry in the new vector
     long OldResolution=m_pResolutionSetting->GetValue();
     long NewResolution=-1;
@@ -172,7 +172,7 @@ void CDSVideoFormatPage::UpdateControlls()
     {
         return;
     }
-    
+
     m_bInUpdateControlls=TRUE;
     int CurSel=m_ListBox.GetCurSel();
     if(CurSel!=LB_ERR)
@@ -184,7 +184,7 @@ void CDSVideoFormatPage::UpdateControlls()
         ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_HEIGHT),TRUE);
         ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_FIELDFMT),TRUE);
         ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_YUY2),TRUE);
-        
+
         DWORD pos=m_ListBox.GetItemData(CurSel);
         SetDlgItemText(IDC_DSHOW_VIDEOFMTS_NAME,m_VideoFmt[pos].m_Name.c_str());
         SetDlgItemInt(IDC_DSHOW_VIDEOFMTS_WIDTH,m_VideoFmt[pos].m_Width);
@@ -227,12 +227,12 @@ void CDSVideoFormatPage::GenerateName(int pos)
         {
             name+="YUY2";
         }
-        
+
         if(m_VideoFmt[pos].m_bForceYUY2 && m_VideoFmt[pos].m_FieldFmt!=DSREND_FIELD_FORMAT_AUTO)
         {
             name+=",";
         }
-        
+
         if(m_VideoFmt[pos].m_FieldFmt==DSREND_FIELD_FORMAT_FRAME)
         {
             name+="Frame";
@@ -241,18 +241,18 @@ void CDSVideoFormatPage::GenerateName(int pos)
         {
             name+="Field";
         }
-        
+
         name+=")";
     }
 
     SetDlgItemText(IDC_DSHOW_VIDEOFMTS_NAME,name);
 }
 
-void CDSVideoFormatPage::OnDeltaPosWidth(NMHDR* pNMHDR, LRESULT* pResult) 
+void CDSVideoFormatPage::OnDeltaPosWidth(NMHDR* pNMHDR, LRESULT* pResult)
 {
     TRACE(_T("%s(%d) : CDSVideoFormatPage::OnDeltaPosWidth\n"),__FILE__,__LINE__);
     NM_UPDOWN* pNMUpDown = (NM_UPDOWN*)pNMHDR;
-    
+
     //spin to nearest multiple of 16
     if(pNMUpDown->iDelta>0)
     {
@@ -268,11 +268,11 @@ void CDSVideoFormatPage::OnDeltaPosWidth(NMHDR* pNMHDR, LRESULT* pResult)
     *pResult = 0;
 }
 
-void CDSVideoFormatPage::OnDeltaPosHeight(NMHDR* pNMHDR, LRESULT* pResult) 
+void CDSVideoFormatPage::OnDeltaPosHeight(NMHDR* pNMHDR, LRESULT* pResult)
 {
     TRACE(_T("%s(%d) : CDSVideoFormatPage::OnDeltaPosHeight\n"),__FILE__,__LINE__);
     NM_UPDOWN* pNMUpDown = (NM_UPDOWN*)pNMHDR;
-    
+
     //spin to nearest multiple of 2
     if(pNMUpDown->iDelta>0)
     {
@@ -294,7 +294,7 @@ void CDSVideoFormatPage::OnChangeWidth()
     {
         return;
     }
-    
+
     TRACE(_T("%s(%d) : CDSVideoFormatPage::OnChangeWidth\n"),__FILE__,__LINE__);
     if(m_hWnd!=NULL && m_ListBox.m_hWnd!=NULL)
     {
@@ -306,7 +306,7 @@ void CDSVideoFormatPage::OnChangeWidth()
         {
             DWORD pos=m_ListBox.GetItemData(CurSel);
             m_VideoFmt[pos].m_Width=width;
-            
+
             GenerateName(pos);
         }
     }
@@ -318,7 +318,7 @@ void CDSVideoFormatPage::OnChangeHeight()
     {
         return;
     }
-    
+
     TRACE(_T("%s(%d) : CDSVideoFormatPage::OnChangeHeight\n"),__FILE__,__LINE__);
     if(m_hWnd!=NULL && m_ListBox.m_hWnd!=NULL)
     {
@@ -330,7 +330,7 @@ void CDSVideoFormatPage::OnChangeHeight()
         {
             DWORD pos=m_ListBox.GetItemData(CurSel);
             m_VideoFmt[pos].m_Height=height;
-            
+
             GenerateName(pos);
         }
     }
@@ -350,7 +350,7 @@ void CDSVideoFormatPage::OnChangeName()
         DWORD pos=m_ListBox.GetItemData(CurSel);
         CString name;
         GetDlgItemText(IDC_DSHOW_VIDEOFMTS_NAME,name);
-        
+
         //make sure control characters can't be used
         if(name.Replace("&","")!=0 || name.Replace("#","")!=0)
         {
@@ -358,7 +358,7 @@ void CDSVideoFormatPage::OnChangeName()
         }
 
         m_VideoFmt[pos].m_Name=name;
-        
+
         //replace item in the listbox with the new name
         m_ListBox.DeleteString(CurSel);
         CurSel=m_ListBox.InsertString(CurSel,name);
@@ -399,7 +399,7 @@ void CDSVideoFormatPage::OnSelEndOkFieldFmt()
     }
 }*/
 
-void CDSVideoFormatPage::OnContextMenu(CWnd* pWnd, CPoint point) 
+void CDSVideoFormatPage::OnContextMenu(CWnd* pWnd, CPoint point)
 {
     TRACE(_T("%s(%d) : CDSVideoFormatPage::OnContextMenu\n"),__FILE__,__LINE__);
     CPoint p;
@@ -435,12 +435,12 @@ void CDSVideoFormatPage::OnContextMenu(CWnd* pWnd, CPoint point)
 void CDSVideoFormatPage::OnClickedDelete()
 {
     TRACE(_T("%s(%d) : CDSVideoFormatPage::OnClickedDelete\n"),__FILE__,__LINE__);
-    
+
     int CurSel=m_ListBox.GetCurSel();
     if(CurSel!=LB_ERR)
     {
         DWORD pos=m_ListBox.GetItemData(CurSel);
-        
+
         //delete item from listbox and select a new item
         m_ListBox.DeleteString(CurSel);
         if(CurSel>=m_ListBox.GetCount())

@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file videosettings.h videosettings Header file
  */
- 
+
 #ifndef __VIDEOSETTINGS_H___
 #define __VIDEOSETTINGS_H___
 

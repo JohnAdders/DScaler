@@ -36,7 +36,7 @@
 
 /**  Used when tuner is not present to stub out functions and avoid crashes
 */
-class CNoTuner : public II2CTuner  
+class CNoTuner : public II2CTuner
 {
 public:
     CNoTuner()
@@ -62,7 +62,7 @@ public:
     {
         return TRUE;
     }
-    long GetFrequency() 
+    long GetFrequency()
     {
         return 0;
     }

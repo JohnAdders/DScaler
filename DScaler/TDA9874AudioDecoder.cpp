@@ -20,7 +20,7 @@
 
 #include "stdafx.h"
 #include "TDA9874AudioDecoder.h"
-#include "Crash.h" 
+#include "Crash.h"
 #include "DebugLog.h"
 //#include "I2C.h"
 #include "SoundChannel.h"
@@ -48,7 +48,7 @@ CTDA9874AudioDecoder::ANInfo CTDA9874AudioDecoder::m_TDA9874Standards[] =
 
 CTDA9874AudioDecoder::CTDA9874AudioDecoder()
 {
-    m_AudioStandard = 1;        
+    m_AudioStandard = 1;
     m_SIF=0;
     m_AutoDetecting = 0;
     m_TDA9874Thread = NULL;
@@ -60,10 +60,10 @@ CTDA9874AudioDecoder::~CTDA9874AudioDecoder()
     StopThread();
 }
 
-BOOL CTDA9874AudioDecoder::Initialize() 
+BOOL CTDA9874AudioDecoder::Initialize()
 {
     WriteToSubAddress(TDA9874A_GCONR, 0x10);    // Reset
-    WriteToSubAddress(TDA9874A_AGCGR, 0x00);    // 0 dB 
+    WriteToSubAddress(TDA9874A_AGCGR, 0x00);    // 0 dB
 
     // Muting
     WriteToSubAddress(TDA9874A_AMCONR, 0xF9);    // mute enable ALL outs
@@ -85,7 +85,7 @@ BOOL CTDA9874AudioDecoder::Initialize()
     //SetAudioConnector(AudioConTuner);
     SetChipStandard(FALSE);
     // Reinit autodetection
-    return TRUE;    
+    return TRUE;
 }
 
 // Function to set Chip Standard
@@ -101,19 +101,19 @@ void CTDA9874AudioDecoder::SetChipStandard(BOOL FastCheck)
     Buffer[1] = BYTE((m_TDA9874Standards[m_AudioStandard].c1 >> 8 ) & 0xFF);
     Buffer[2] = BYTE((m_TDA9874Standards[m_AudioStandard].c1      ) & 0xFF);
     CI2CDevice::WriteToSubAddress(TDA9874A_C1FRA, Buffer, sizeof(Buffer));
-    
+
     Buffer[0] = BYTE((m_TDA9874Standards[m_AudioStandard].c2 >> 16) & 0xFF);
     Buffer[1] = BYTE((m_TDA9874Standards[m_AudioStandard].c2 >> 8 ) & 0xFF);
     Buffer[2] = BYTE((m_TDA9874Standards[m_AudioStandard].c2      ) & 0xFF);
     CI2CDevice::WriteToSubAddress(TDA9874A_C2FRA, Buffer, sizeof(Buffer));
 
     WriteToSubAddress(TDA9874A_DCR,
-        m_TDA9874Standards[m_AudioStandard].DCR | ((FastCheck) ? 0x80 : 0x00) ); // Fast Detect if asked to    
+        m_TDA9874Standards[m_AudioStandard].DCR | ((FastCheck) ? 0x80 : 0x00) ); // Fast Detect if asked to
 
     // FM Settings
     WriteToSubAddress(TDA9874A_FMER, m_TDA9874Standards[m_AudioStandard].FMER);
-    
-    // Set the signal source... 
+
+    // Set the signal source...
     WriteToSubAddress(TDA9874A_SDACOSR,    (m_TDA9874Standards[m_AudioStandard].Nicam) ? 0x01:0x00); /* Signal source */
 }
 
@@ -123,17 +123,17 @@ void CTDA9874AudioDecoder::SetChipMode(eSoundChannel audio)
     LOG(1, "SetChipMode audio=%d", (int)audio);
 
     // FM settings
-    WriteToSubAddress(TDA9874A_FMMR, 
-        (  audio == SOUNDCHANNEL_STEREO ) ? 0x00 : 
-        (( audio == SOUNDCHANNEL_LANGUAGE1 || audio == SOUNDCHANNEL_LANGUAGE2) ? 0x02 : 
-        m_TDA9874Standards[m_AudioStandard].FMMR) ); 
+    WriteToSubAddress(TDA9874A_FMMR,
+        (  audio == SOUNDCHANNEL_STEREO ) ? 0x00 :
+        (( audio == SOUNDCHANNEL_LANGUAGE1 || audio == SOUNDCHANNEL_LANGUAGE2) ? 0x02 :
+        m_TDA9874Standards[m_AudioStandard].FMMR) );
 
     // Select the proper outs.
-    WriteToSubAddress(TDA9874A_AOSR, 
+    WriteToSubAddress(TDA9874A_AOSR,
         (  audio == SOUNDCHANNEL_MONO) ? ((m_AudioStandard==8)?0x43:0x40) :
         (( audio == SOUNDCHANNEL_STEREO ) ? 0x00 :
         (( audio == SOUNDCHANNEL_LANGUAGE1 ) ? 0x10 :
-        (( audio == SOUNDCHANNEL_LANGUAGE2 ) ? 0x20 : 0x00 ))) ); 
+        (( audio == SOUNDCHANNEL_LANGUAGE2 ) ? 0x20 : 0x00 ))) );
 
     // Fix Me
     // Si mode mono => On passe en AM/FM
@@ -152,21 +152,21 @@ void CTDA9874AudioDecoder::SetSoundChannel(eSoundChannel SoundChannel)
     LOG(1, "TDA9874: SetSoundChannel:%d", SoundChannel);
 
     // FM settings
-    WriteToSubAddress(TDA9874A_FMMR, 
-        (  audio == SOUNDCHANNEL_MONO ) ? 0x00 : 
-        (( audio == SOUNDCHANNEL_LANGUAGE1 || audio == SOUNDCHANNEL_LANGUAGE2 ) ? 0x02 : 
-        m_TDA9874Standards[m_AudioStandard].FMMR) ); 
+    WriteToSubAddress(TDA9874A_FMMR,
+        (  audio == SOUNDCHANNEL_MONO ) ? 0x00 :
+        (( audio == SOUNDCHANNEL_LANGUAGE1 || audio == SOUNDCHANNEL_LANGUAGE2 ) ? 0x02 :
+        m_TDA9874Standards[m_AudioStandard].FMMR) );
 
     // Select the proper outs.
-    WriteToSubAddress(TDA9874A_AOSR, 
+    WriteToSubAddress(TDA9874A_AOSR,
         (  audio == SOUNDCHANNEL_MONO )        ? 0x40 :
         (( audio == SOUNDCHANNEL_STEREO  )    ? 0x00 :
         (( audio == SOUNDCHANNEL_LANGUAGE1  ) ? 0x10 :
-        (( audio == SOUNDCHANNEL_LANGUAGE2  ) ? 0x20 : 0x00 ))) ); 
+        (( audio == SOUNDCHANNEL_LANGUAGE2  ) ? 0x20 : 0x00 ))) );
 }
 
 eSoundChannel CTDA9874AudioDecoder::IsAudioChannelDetected(eSoundChannel DesiredAudioChannel)
-{    
+{
     LOG(1,"TDA9874: IsAudioChannelDetected:%d",DesiredAudioChannel);
     eSoundChannel SoundChannel = SOUNDCHANNEL_MONO;
     switch (DesiredAudioChannel)
@@ -191,14 +191,14 @@ void CTDA9874AudioDecoder::SetAudioInput(eAudioInput AudioInput)
 {
     CAudioDecoder::SetAudioInput(AudioInput);
     LOG(1, "TDA9874: SetAudioInput:%d", AudioInput);
- 
+
     switch(AudioInput)
     {
     case AUDIOINPUT_RADIO:
     case AUDIOINPUT_STEREO:
     case AUDIOINPUT_INTERNAL:
     case AUDIOINPUT_EXTERNAL:
-    case AUDIOINPUT_MUTE:                
+    case AUDIOINPUT_MUTE:
         WriteToSubAddress(TDA9874A_AMCONR, 0xFF); // mute enable ALL outs
         break;
     default:
@@ -248,8 +248,8 @@ void CTDA9874AudioDecoder::SetAudioStandard(long Standard, eVideoFormat VideoFor
 
     m_AudioStandard = index;
 
-    // Set the signal source... 
-    WriteToSubAddress(TDA9874A_SDACOSR, 
+    // Set the signal source...
+    WriteToSubAddress(TDA9874A_SDACOSR,
         (m_TDA9874Standards[m_AudioStandard].Nicam) ? 0x01:0x00); // Signal source
 
     WriteToSubAddress( TDA9874A_AMCONR, 0x00 ); // unmute
@@ -258,12 +258,12 @@ void CTDA9874AudioDecoder::SetAudioStandard(long Standard, eVideoFormat VideoFor
     BYTE Buffer[3];
     Buffer[0] = BYTE((m_TDA9874Standards[index].c1 >> 16) & 0xFF);
     Buffer[1] = BYTE((m_TDA9874Standards[index].c1 >> 8 ) & 0xFF);
-    Buffer[2] = BYTE((m_TDA9874Standards[index].c1      ) & 0xFF);    
-    CI2CDevice::WriteToSubAddress(TDA9874A_C1FRA, Buffer, sizeof(Buffer));    
-    
+    Buffer[2] = BYTE((m_TDA9874Standards[index].c1      ) & 0xFF);
+    CI2CDevice::WriteToSubAddress(TDA9874A_C1FRA, Buffer, sizeof(Buffer));
+
     Buffer[0] = BYTE((m_TDA9874Standards[index].c2 >> 16) & 0xFF);
     Buffer[1] = BYTE((m_TDA9874Standards[index].c2 >> 8 ) & 0xFF);
-    Buffer[2] = BYTE((m_TDA9874Standards[index].c2      ) & 0xFF);    
+    Buffer[2] = BYTE((m_TDA9874Standards[index].c2      ) & 0xFF);
     CI2CDevice::WriteToSubAddress(TDA9874A_C2FRA, Buffer, sizeof(Buffer));
 }
 
@@ -280,8 +280,8 @@ const char* CTDA9874AudioDecoder::GetAudioStandardName(long Standard)
 }
 
 int CTDA9874AudioDecoder::GetNumAudioStandards()
-{   
-    return sizeof(m_TDA9874Standards) / sizeof(m_TDA9874Standards[0]);    
+{
+    return sizeof(m_TDA9874Standards) / sizeof(m_TDA9874Standards[0]);
 }
 
 long CTDA9874AudioDecoder::GetAudioStandard(int nIndex)
@@ -374,7 +374,7 @@ void CTDA9874AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     else
     {
         //Abort
-        StopThread();   
+        StopThread();
         return;
     }
 
@@ -389,9 +389,9 @@ void CTDA9874AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
         LOGD("Abort1 TDA9874 detect loop");
         m_ThreadWait = TRUE;
         Sleep(10);
-        
+
         if (m_AutoDetecting)
-        {            
+        {
             LOGD("Abort2 TDA9874 detect loop");
             Sleep(50);
 
@@ -521,7 +521,7 @@ int CTDA9874AudioDecoder::DetectThread()
                 m_ThreadWait = TRUE;    //Finished
             }
 
-            DetectCounter = 1;            
+            DetectCounter = 1;
         }
 
         if (m_AutoDetecting==2)         //Detect mono/stereo/lang1/lang2
@@ -532,7 +532,7 @@ int CTDA9874AudioDecoder::DetectThread()
                 int iSupported = (int)Supported;
 
                 // Fix Me
-                
+
                 /*
                 BYTE status = ReadStatus();
 
@@ -574,7 +574,7 @@ int CTDA9874AudioDecoder::DetectThread()
         {
             Sleep(10);
             ++DetectCounter;
-        } 
+        }
     }
 
     return 0;

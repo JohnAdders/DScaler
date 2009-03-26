@@ -64,13 +64,13 @@ void Timing_Setup()
 
     TIMECAPS tc;
 
-    if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR) 
+    if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR)
     {
         ErrorBox("Failed to get Timer Resolution");
     }
 
     wTimerRes = min(max(tc.wPeriodMin, TARGET_RESOLUTION), tc.wPeriodMax);
-    timeBeginPeriod(wTimerRes); 
+    timeBeginPeriod(wTimerRes);
 
     bIsPAL = GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps;
 
@@ -104,7 +104,7 @@ void Timing_CleanUp()
     }
 
     // reset the timer resolution
-    timeEndPeriod(wTimerRes); 
+    timeEndPeriod(wTimerRes);
 }
 
 
@@ -129,7 +129,7 @@ void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo, int NumFields)
                 // update the average
                 // we're doing this weighted average because
                 // it has lots of nice properties
-                // especially that we don't need to keep a 
+                // especially that we don't need to keep a
                 // data history
                 RunningAverageCounterTicks = Weight * RecentTicks + (1.0 - Weight) * RunningAverageCounterTicks;
                 LOG(2, " Last %f", RecentTicks);
@@ -190,7 +190,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
         {
             return;
         }
-        
+
         if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
         {
             Counted += ((pInfo->CurrentFrame * 2 - LastFrame * 2 + NumFields) % NumFields);
@@ -203,7 +203,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
         {
             return;
         }
-        
+
         LastFrame = pInfo->CurrentFrame;
 
         if(Counted >= NumFields)
@@ -325,7 +325,7 @@ void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* Curre
                     if(wTimerID != NULL)
                     {
                         // if this succeeded then wait for our event to be fired
-                        // but allow for the timer to not work and fall out after 
+                        // but allow for the timer to not work and fall out after
                         // 1/5 of a second.
                         // note we don't really care if this works or not
                         // as the downside is using all the CPU

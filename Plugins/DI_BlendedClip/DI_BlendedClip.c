@@ -29,8 +29,8 @@ HINSTANCE hInst = NULL;
 // As written, Blended Clipping Deinterlace method is really designed as a testing
 // laboratory.  It uses a huge confusing control panel and it has way too many
 // controls to be user friendly as a final product.  It does, however, allow
-// us to easily experiment with what might work best.  It may be able to provide an 
-// example of some of the things that might be possible if we find a few sets of 
+// us to easily experiment with what might work best.  It may be able to provide an
+// example of some of the things that might be possible if we find a few sets of
 // parms that work well for various situations.  It can create both some decent results
 // and also some very bad results depending upon both the input video and the
 // parameter settings.
@@ -44,11 +44,11 @@ HINSTANCE hInst = NULL;
 // Deinterlace algorithms face a choice between using the most recently received
 // information which is accurate in time and using older field information which
 // may be more accurate in space.  Adaptive algorithms make this choice on the fly
-// for each field and/or pixel. Blended algorithms try to smoothly blend two or more  
+// for each field and/or pixel. Blended algorithms try to smoothly blend two or more
 // choices together, avoiding rapidly blinking pixels and some other artifacts. The
 // Blended Clipping algorithm attempts to do all of the above.
 //
-// Assume we are processing an odd field.  Like most other simpler deinterlacing 
+// Assume we are processing an odd field.  Like most other simpler deinterlacing
 // methods, the Blended Clipping method will just use the current field pInfo unchanged
 // for the odd lines.  Odd lines are just copied to the video buffer for now though
 // this too might be improved in the future.
@@ -58,7 +58,7 @@ HINSTANCE hInst = NULL;
 //
 // The Clipped Weave is just the weave pixel unless it's luma (and optionally chroma) is
 // outside the high/low range of its vertically adjacent pixels.  If so, the luma (chroma)
-// values are clipped to the nearest adjacent value.  This is intended to be a 
+// values are clipped to the nearest adjacent value.  This is intended to be a
 // replacement for the various Interpolated BOB implementatons that usually represent
 // the current time estimated value for the even lines.  To see the pure value of a
 // Clipped Weave, without any other blending, just max out the "Minimum Clip" slider
@@ -73,7 +73,7 @@ HINSTANCE hInst = NULL;
 // in the range of 0..100. The INI file parm names will be in the [deinterace] section
 // will be the same as the global definitions.
 
-// The slider names and descriptions follow.  The INI file/global names follow 
+// The slider names and descriptions follow.  The INI file/global names follow
 // each description:
 
 // "Minimum Clip" slider: This can be uses to increase the amount of Clip vs Weave
@@ -85,7 +85,7 @@ long        BlcMinimumClip = -15;               // currently -100 .. 100
 
 // "Pixel Motion Sensitivity" slider:  This determines how sensitive we are to motion.
 // Motion is calculated as the maximum absolute change in luma from the previous field
-// in either of the two vertically adjacent pixels.  I was going to use the change in 
+// in either of the two vertically adjacent pixels.  I was going to use the change in
 // luma of the Weave pixel but that is not current enough to prevent the "flash attacks"
 // of venetiaon blinds that can occur with sudden scene changes.  This value is
 // calculated separately for each pixel.
@@ -97,16 +97,16 @@ long    BlcPixelMotionSense = 17;
 // is in turn an arithmetic average of how much each pixel's luma has changed from the
 // previous field.  These values are self obtained and maintained.  While this method
 // does not attempt to do 3:2 pulldown I believe the motion values could be of assistance
-// in the routines that do.  
+// in the routines that do.
 
-long        BlcRecentMotionSense = 0;       // current -100 .. 100)     
+long        BlcRecentMotionSense = 0;       // current -100 .. 100)
 
 // "Motion Average Period" slider:  This sets the period of the moving average for Recent
-// Motion Sensitivity.  
+// Motion Sensitivity.
 
 // For those of you not recently programming for the stock market:
 
-//      An Exponential Moving Average is a way to keep and update an average without 
+//      An Exponential Moving Average is a way to keep and update an average without
 //      keeping around a history of all the recent events.  In the stock market,
 //      an n Period Exponential Moving Average of variable X is usually defined as:
 
@@ -120,7 +120,7 @@ long    BlcMotionAvgPeriod = 20;        // currently 1..200
 // This value is calculated separately for each pixel.  This value along with the Pixel
 // Motion Sense seem to be the two main things to play with to get good results.  Generally,
 // increase one of these if you get Weave artifacts and decrease one if you get BOB artifacts.
-  
+
 long    BlcPixelCombSense = 27;
 
 // "Recent Comb Senseitivity" slider:  Operates like the Recent Motion slider but operates
@@ -136,7 +136,7 @@ long    BlcCombAvgPeriod = 20;          // currently 1.200
 // "Skip High Comb Frames" slider:  I added this one in the hopes that it could help to
 // skip a frame in the event of a sudden flash attack on a rapid scene change or maybe
 // help to handle some very poorly mastered anime using ?:? pulldown.  I have not had
-// a chance to experiment with it yet.  It will give very ugly results if you set it 
+// a chance to experiment with it yet.  It will give very ugly results if you set it
 // too high.
 
 long    BlcHighCombSkip = 10;           // larger values skip more
@@ -161,7 +161,7 @@ long    BlcVerticalSmoothing = 0;
 BOOL    BlcUseInterpBob = FALSE;
 
 // "Blend Chroma Value" check box:  Usually the chroma value for the Clipped Weave is
-// just taken from the pixel above it.  Checking this box causes the chroma values to 
+// just taken from the pixel above it.  Checking this box causes the chroma values to
 // also use the clip algoritm.
 
 // Checking this box seems to get richer color detail and a more theater like picture
@@ -202,7 +202,7 @@ BOOL DeinterlaceBlendedClip(TDeinterlaceInfo* pInfo)
     const __int64 YMask     = 0x00ff00ff00ff00ff;   // to keep only luma
     const __int64 UVMask    = 0xff00ff00ff00ff00;   // to keep only chroma
     const __int64 ShiftMask = 0xfefffefffefffeff;   // to avoid shifting chroma to luma
-    const __int64 SomeOnes  = 0x0001000100010001;   
+    const __int64 SomeOnes  = 0x0001000100010001;
     __int64 i;
     __int64 MinClip;
     __int64 MinClipMinus;
@@ -215,10 +215,10 @@ BOOL DeinterlaceBlendedClip(TDeinterlaceInfo* pInfo)
     __int64 CombAvgL;               // "
     __int64 MotionAvg;              // total sum/avg
     __int64 CombAvg;                // "
-    
-    union 
+
+    union
     {
-        __int64 Wqword;         
+        __int64 Wqword;
         __int32 Wlong[2];
     } W;
 
@@ -229,7 +229,7 @@ BOOL DeinterlaceBlendedClip(TDeinterlaceInfo* pInfo)
 
     if (BlcBlendChroma)
     {
-        if (BlcUseInterpBob)        // use Luma, chroma from interp bob 
+        if (BlcUseInterpBob)        // use Luma, chroma from interp bob
         {
             L1Mask = 0;
             LCMask = 0;
@@ -264,7 +264,7 @@ BOOL DeinterlaceBlendedClip(TDeinterlaceInfo* pInfo)
 // calculations on these for every pixel.  Only the greater of recent motion or comb is used.
 
 // A certain amount of fudging is needed for these values in the next few lines since it
-// is desirable the effects center about realistic actual values of avg motion & comb.  
+// is desirable the effects center about realistic actual values of avg motion & comb.
 // A random sampling of the values in both avg motion and avg comb show values usually
 // in the 1000-4000 range, with occasional jumps to much higher values.  Since the user
 // parms are 0-100 and we want output values 0-65535 we will assume a max usual value for each
@@ -275,12 +275,12 @@ BOOL DeinterlaceBlendedClip(TDeinterlaceInfo* pInfo)
 // Both BlcMinimumClip and BlcRecentMotionSense may now have negative values but since
 // we are using saturated arithmatic those are set in a separate field.
     X = __max(BlcRecentMotionSense,0);
-    X = (X * BlcTotalAverageMotion / 7) 
+    X = (X * BlcTotalAverageMotion / 7)
                 + (BlcRecentCombSense * BlcTotalAverageComb) / 5;
     i = __max((BlcMinimumClip * 65535 / 100), 0);
     i = __min( (X + i), 65535);             // scale to range of 0-65535
     MinClip = i << 48 | i << 32 | i << 16 | i;
-    
+
     X = __max( (-BlcRecentMotionSense * BlcTotalAverageMotion / 10), 0)
         + __max( (-BlcMinimumClip), 0);
     i = __min(X, 255);
@@ -289,21 +289,21 @@ BOOL DeinterlaceBlendedClip(TDeinterlaceInfo* pInfo)
 // Set up our two parms that are actually evaluated for each pixel
     i = BlcPixelMotionSense * 257/100;      // scale to range of 0-257
     PixelMotionSense = i << 48 | i << 32 | i << 16 | i;    // only 32 bits?>>>>
-    
+
     i = BlcPixelCombSense * 257/100;        // scale to range of 0-257
     PixelCombSense = i << 48 | i << 32 | i << 16 | i;    // only 32 bits?>>>>
-    
+
     OddPtr = (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) ? 1 : 0;
-    
+
 // copy first even line no matter what, and the first odd line if we're
 // processing an odd field.
     if(OddPtr)
     {
         L1 = pInfo->PictureHistory[0]->pData;
-        L2 = pInfo->PictureHistory[1]->pData + Pitch;  
-        L3 = L1 + Pitch;   
+        L2 = pInfo->PictureHistory[1]->pData + Pitch;
+        L3 = L1 + Pitch;
         LP1 = pInfo->PictureHistory[2]->pData;         // prev Odd lines
-        LP3 = LP1 + Pitch;       
+        LP3 = LP1 + Pitch;
 
         // copy first even line
         pInfo->pMemcpy(Dest, pInfo->PictureHistory[1]->pData, pInfo->LineLength);
@@ -317,10 +317,10 @@ BOOL DeinterlaceBlendedClip(TDeinterlaceInfo* pInfo)
     else
     {
         L1 = pInfo->PictureHistory[0]->pData;
-        L2 = pInfo->PictureHistory[1]->pData;  
-        L3 = L1 + Pitch;   
+        L2 = pInfo->PictureHistory[1]->pData;
+        L3 = L1 + Pitch;
         LP1 = pInfo->PictureHistory[2]->pData;         // prev Odd lines
-        LP3 = LP1 + Pitch;       
+        LP3 = LP1 + Pitch;
 
         // copy first line
         pInfo->pMemcpy(Dest, L1, pInfo->LineLength);
@@ -343,16 +343,16 @@ BOOL DeinterlaceBlendedClip(TDeinterlaceInfo* pInfo)
 
         _asm
         {
-            mov eax, dword ptr [L1]     
-            mov ebx, dword ptr [L2]     
-            mov edx, dword ptr [L3]     
-            mov esi, dword ptr [LP1]        
-            mov ecx, dword ptr [LP3]   
-            mov edi, dword ptr [Dest]       // DL2 if Odd or DL1 if Even 
-            movq mm7,YMask                  // useful constant within loop 
-            
+            mov eax, dword ptr [L1]
+            mov ebx, dword ptr [L2]
+            mov edx, dword ptr [L3]
+            mov esi, dword ptr [LP1]
+            mov ecx, dword ptr [LP3]
+            mov edi, dword ptr [Dest]       // DL2 if Odd or DL1 if Even
+            movq mm7,YMask                  // useful constant within loop
+
             align 8
-DoNext8Bytes:           
+DoNext8Bytes:
             movq mm0, qword ptr[eax]        // L1
             movq mm1, qword ptr[ebx]        // L2
             movq mm2, qword ptr[edx]        // L3
@@ -367,22 +367,22 @@ DoNext8Bytes:
             paddusb mm4, mm2                // now = Max(L1,L3)
 
             pcmpeqb mm3, mm3                    // all ffffffff
-            psubusb mm3, mm0                // - L1 
+            psubusb mm3, mm0                // - L1
             paddusb mm6, mm3                // add may sat at fff..
             psubusb mm6, mm3                // now = Min(L1,L3)
-            
+
             movq mm5,mm1                    // work copy of L2,the weave value
             psubusb mm5, mm6                // L2 - Min
             paddusb mm5, mm6                // now = Max(L2,Min(L1,L3)
 
             pcmpeqb mm3, mm3                // all ffffffff
-            psubusb mm3, mm5                // - Max(L2,Min(L1,L3) 
+            psubusb mm3, mm5                // - Max(L2,Min(L1,L3)
             paddusb mm4, mm3                // add may sat at FFF..
             psubusb mm4, mm3                // now = Min( Max(L2, Min(L1,L3), L2 )=L2 clipped
 
 // We have created the clipped value but we may not want to use it, depending on user
 // parm BlcUseInterpBoB.  Make the bob value too.
-            
+
             movq    mm5, mm0                // L1
             pand    mm5, ShiftMask          // "
             psrlw   mm5, 1
@@ -435,7 +435,7 @@ DoNext8Bytes:
             paddusw mm6, mm6                // again
             paddusw mm6, mm6                // again
 
-// Let's see how much L1 or L3 have changed since the last frame.  If L1 or L3 has  
+// Let's see how much L1 or L3 have changed since the last frame.  If L1 or L3 has
 // changed a lot (we take the greater) then L2 (the weave pixel) probably has also.
 // Note that just measuring the change in L2 directly would not be current enough
 // in time to avoid the 'flash attack' of weaves during quick scene changes.
@@ -464,7 +464,7 @@ DoNext8Bytes:
             paddusb mm2, mm5                // max of abs(L1-LP1) and abs(L3-LP3)
             psubusb mm2, MinClipMinus       // but maybe ignore some small changes
 
-            pmullw  mm2, PixelMotionSense   // mul by user factor, keep only low 16 bits        
+            pmullw  mm2, PixelMotionSense   // mul by user factor, keep only low 16 bits
             paddusw mm2, mm6                // combine with our pixel comb
             paddusw mm2, mm2                // let's dbl them both for greater sensitivity
 
@@ -475,7 +475,7 @@ DoNext8Bytes:
             psubusw mm3,mm2                 // get (more or less) 64k-mm2
             paddusw mm2, SomeOnes           // adjust so they total 64K?
             psrlw   mm2,8                   // clip factor
-            psrlw   mm3,8                   // weave factor, both sum to +-256 
+            psrlw   mm3,8                   // weave factor, both sum to +-256
 
 // We still have the clipped (or bob) value in mm4.  Let's call it LC below.
 // mm2 and mm3 should now have factors for how much clip & weave respecively, sum=256
@@ -484,7 +484,7 @@ DoNext8Bytes:
             pmullw  mm4,mm2                 // clip fact * Clip luma
             pand    mm1,mm7                 // Ymask, keep luma from weave val, L2
             pmullw  mm1,mm3                 // weave fact * weave luma
-            paddusw mm4,mm1                 
+            paddusw mm4,mm1
             psrlw   mm4,8                   // back to 8 bit luma
 
 // combine luma results with chroma and store 4 pixels
@@ -495,11 +495,11 @@ DoNext8Bytes:
             movq qword ptr[edi], mm4        // and that is our final answer
 
 // bump ptrs and loop
-            lea     eax,[eax+8]             
+            lea     eax,[eax+8]
             lea     ebx,[ebx+8]
             lea     ecx,[ecx+8]
             lea     edx,[edx+8]
-            lea     edi,[edi+8]         
+            lea     edi,[edi+8]
             lea     esi,[esi+8]
             dec     LoopCtr
             jnz     DoNext8Bytes
@@ -509,7 +509,7 @@ DoNext8Bytes:
             pmaddwd mm0, SomeOnes
             paddd   mm0, CombAvg
             movq    CombAvg, mm0
-            
+
             movq    mm0, MotionAvgL
             pmaddwd mm0, SomeOnes
             paddd   mm0, MotionAvg
@@ -520,10 +520,10 @@ DoNext8Bytes:
         Dest += pInfo->OverlayPitch;
 
         L1 += Pitch;
-        L2 += Pitch;  
-        L3 += Pitch;   
+        L2 += Pitch;
+        L3 += Pitch;
         LP1 += Pitch;
-        LP3 += Pitch;       
+        LP3 += Pitch;
     }
 
     // Copy last odd line if we're processing an even field.
@@ -532,7 +532,7 @@ DoNext8Bytes:
         pInfo->pMemcpy(Dest,
                   L2,
                   pInfo->LineLength);
-        
+
     }
 
     // need to clear up MMX registers
@@ -541,21 +541,21 @@ DoNext8Bytes:
         emms
     }
 
-    // We will keep moving averages of the Motion and Comb factors.  For extra precision the 
+    // We will keep moving averages of the Motion and Comb factors.  For extra precision the
     // values will be kept scaled up by 256.  See comments on rtn header about averages.
 
-    BlcWantsToFlip = TRUE;          // assume we do 
+    BlcWantsToFlip = TRUE;          // assume we do
 
     W.Wqword = MotionAvg;
     X = 256 * (W.Wlong[0] + W.Wlong[1]) / ( (pInfo->FieldHeight - 1) * pInfo->FrameWidth );
 
     // Do we want to skip the frame because motion is too small? Check before updating avg.
-    if (BlcTotalAverageMotion > 0  
+    if (BlcTotalAverageMotion > 0
             && (100 * X / BlcTotalAverageMotion) < BlcLowMotionSkip)
     {
         BlcWantsToFlip = FALSE;
     }
-    
+
     BlcTotalAverageMotion = (BlcTotalAverageMotion * (BlcMotionAvgPeriod - 1) + 2 * X)
             / (BlcMotionAvgPeriod + 1);
 
@@ -567,7 +567,7 @@ DoNext8Bytes:
     {
         BlcWantsToFlip = FALSE;
     }
-    
+
     BlcTotalAverageComb = (BlcTotalAverageComb * (BlcCombAvgPeriod - 1) + 2 * X)
             / (BlcCombAvgPeriod + 1);
 
@@ -599,31 +599,31 @@ void SetBlcDisplayControls(HWND hDlg)
 
     SetDlgItemInt(hDlg, IDC_PIXEL_MOV_V, BlcPixelMotionSense, FALSE);
     SetHorSliderInt(GetDlgItem(hDlg, IDC_PIXEL_MOV),  85, BlcPixelMotionSense,  0, 100);
-    
+
     SetDlgItemInt(hDlg, IDC_AVG_MOV_V, BlcRecentMotionSense, TRUE);
     SetHorSliderInt(GetDlgItem(hDlg, IDC_AVG_MOV),  135, BlcRecentMotionSense,  -100, 100);
-    
+
     SetDlgItemInt(hDlg, IDC_MOV_PERIOD_V, BlcMotionAvgPeriod, FALSE);
     SetHorSliderInt(GetDlgItem(hDlg, IDC_MOV_PERIOD),  185,  BlcMotionAvgPeriod,  1, 200);
-    
+
     SetDlgItemInt(hDlg, IDC_PIXEL_COMB_V, BlcPixelCombSense, FALSE);
     SetHorSliderInt(GetDlgItem(hDlg, IDC_PIXEL_COMB),  235, BlcPixelCombSense,  0, 100);
-    
+
     SetDlgItemInt(hDlg, IDC_AVG_COMB_V, BlcRecentCombSense, FALSE);
     SetHorSliderInt(GetDlgItem(hDlg, IDC_AVG_COMB),  285, BlcRecentCombSense,  0, 100);
-    
+
     SetDlgItemInt(hDlg, IDC_COMB_PERIOD_V, BlcCombAvgPeriod, FALSE);
     SetHorSliderInt(GetDlgItem(hDlg, IDC_COMB_PERIOD),  335, BlcCombAvgPeriod,  1, 200);
-    
+
     SetDlgItemInt(hDlg, IDC_COMB_SKIP_V, BlcHighCombSkip, FALSE);
     SetHorSliderInt(GetDlgItem(hDlg, IDC_COMB_SKIP),  385, BlcHighCombSkip,  0, 100);
-    
+
     SetDlgItemInt(hDlg, IDC_MOTION_SKIP_V, BlcLowMotionSkip, FALSE);
     SetHorSliderInt(GetDlgItem(hDlg, IDC_MOTION_SKIP),  435, BlcLowMotionSkip,  0, 100);
-    
+
     CheckDlgButton(hDlg, IDC_BLEND_CHROMA, BlcBlendChroma);
     CheckDlgButton(hDlg, IDC_USE_INTERP_BOB, BlcUseInterpBob);
-    
+
 
 }
 // dialog code for new Blended Clipping Deinterlace control panel - TRB 11/00
@@ -673,7 +673,7 @@ BOOL APIENTRY BlendedClipProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 y = HIWORD(lParam);
                 x = LOWORD(lParam);
-                
+
                 if ((x >= 5) && (x <= 166))
                 {
                     if ((y >= 35) && (y <= 55))     // Is Minimum clip slider?
@@ -743,7 +743,7 @@ BOOL APIENTRY BlendedClipProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             return TRUE;
             break;
 
-        case IDCANCEL:                      
+        case IDCANCEL:
             BlcMinimumClip = TMinimumClip;
             BlcPixelMotionSense = TPixelMotionSense;
             BlcRecentMotionSense = TRecentMotionSense;
@@ -762,12 +762,12 @@ BOOL APIENTRY BlendedClipProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDC_BLEND_CHROMA:              // Blend chroma from mult pixels
             BlcBlendChroma = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_BLEND_CHROMA));
             return TRUE;
-            break;  
+            break;
 
         case IDC_USE_INTERP_BOB:                // Blend chroma from mult pixels
             BlcUseInterpBob = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_USE_INTERP_BOB));
             return TRUE;
-            break;  
+            break;
 
 
         case IDC_DEFAULT:
@@ -786,7 +786,7 @@ BOOL APIENTRY BlendedClipProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             SetBlcDisplayControls(hDlg);
             return TRUE;
             break;
-        
+
         default:
             break;
 
@@ -904,12 +904,12 @@ DEINTERLACE_METHOD BlendedClipMethod =
 {
     sizeof(DEINTERLACE_METHOD),
     DEINTERLACE_CURRENT_VERSION,
-    "Blended Clip", 
+    "Blended Clip",
     NULL,
-    FALSE, 
-    FALSE, 
-    DeinterlaceBlendedClip, 
-    50, 
+    FALSE,
+    FALSE,
+    DeinterlaceBlendedClip,
+    50,
     60,
     DI_BLENDEDCLIP_SETTING_LASTONE,
     DI_BlendedClipSettings,

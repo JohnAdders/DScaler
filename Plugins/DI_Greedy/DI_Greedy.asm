@@ -34,7 +34,7 @@
 // upon which give the smaller comb factor, and then clip to avoid large damage
 // when wrong.
 //
-// I'd intended this to be part of a larger more elaborate method added to 
+// I'd intended this to be part of a larger more elaborate method added to
 // Blended Clip but this give too good results for the CPU to ignore here.
 
 #if defined(IS_SSE)
@@ -61,16 +61,16 @@ BOOL DeinterlaceGreedy_MMX(TDeinterlaceInfo* pInfo)
     __int64 i;
 
     i = GreedyMaxComb;          // How badly do we let it weave? 0-255
-    MaxComb = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;    
-    
+    MaxComb = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;
+
     // copy first even line no matter what, and the first odd line if we're
     // processing an EVEN field. (note diff from other deint rtns.)
 
     if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
         L1 = pInfo->PictureHistory[1]->pData;
-        L2 = pInfo->PictureHistory[0]->pData;  
-        L3 = L1 + Pitch;   
+        L2 = pInfo->PictureHistory[0]->pData;
+        L3 = L1 + Pitch;
         LP2 = pInfo->PictureHistory[2]->pData;
 
         // copy first even line
@@ -80,8 +80,8 @@ BOOL DeinterlaceGreedy_MMX(TDeinterlaceInfo* pInfo)
     else
     {
         L1 = pInfo->PictureHistory[1]->pData;
-        L2 = pInfo->PictureHistory[0]->pData + Pitch;  
-        L3 = L1 + Pitch;   
+        L2 = pInfo->PictureHistory[0]->pData + Pitch;
+        L3 = L1 + Pitch;
         LP2 = pInfo->PictureHistory[2]->pData + Pitch;
 
         // copy first even line
@@ -101,14 +101,14 @@ BOOL DeinterlaceGreedy_MMX(TDeinterlaceInfo* pInfo)
 
         _asm
         {
-            mov eax, dword ptr [L1]     
-            mov ebx, dword ptr [L2]     
-            mov edx, dword ptr [L3]     
-            mov esi, dword ptr [LP2]        
-            mov edi, dword ptr [Dest]       // DL1 if Odd or DL2 if Even 
-            
+            mov eax, dword ptr [L1]
+            mov ebx, dword ptr [L2]
+            mov edx, dword ptr [L3]
+            mov esi, dword ptr [LP2]
+            mov edi, dword ptr [Dest]       // DL1 if Odd or DL2 if Even
+
 align 8
-MAINLOOP_LABEL:         
+MAINLOOP_LABEL:
             movq    mm1, qword ptr[eax]     // L1
             movq    mm2, qword ptr[ebx]     // L2
             movq    mm3, qword ptr[edx]     // L3
@@ -164,7 +164,7 @@ MAINLOOP_LABEL:
             paddusb mm2, mm3                // now = Max(L1,L3)
 
             pcmpeqb mm7, mm7                // all ffffffff
-            psubusb mm7, mm1                // - L1 
+            psubusb mm7, mm1                // - L1
             paddusb mm3, mm7                // add, may sat at fff..
             psubusb mm3, mm7                // now = Min(L1,L3)
 
@@ -176,7 +176,7 @@ MAINLOOP_LABEL:
             paddusb mm4, mm3                // now = Max(best,Min(L1,L3)
 
             pcmpeqb mm7, mm7                // all ffffffff
-            psubusb mm7, mm4                // - Max(best,Min(best,L3) 
+            psubusb mm7, mm4                // - Max(best,Min(best,L3)
             paddusb mm2, mm7                // add may sat at FFF..
             psubusb mm2, mm7                // now = Min( Max(best, Min(L1,L3), L2 )=L2 clipped
 
@@ -187,10 +187,10 @@ MAINLOOP_LABEL:
 #endif
 
 // bump ptrs and loop
-            lea     eax,[eax+8]             
+            lea     eax,[eax+8]
             lea     ebx,[ebx+8]
             lea     edx,[edx+8]
-            lea     edi,[edi+8]         
+            lea     edi,[edi+8]
             lea     esi,[esi+8]
             dec     LoopCtr
             jnz     MAINLOOP_LABEL
@@ -201,8 +201,8 @@ MAINLOOP_LABEL:
         Dest += pInfo->OverlayPitch;
 
         L1 += Pitch;
-        L2 += Pitch;  
-        L3 += Pitch;   
+        L2 += Pitch;
+        L3 += Pitch;
         LP2 += Pitch;
     }
 

@@ -129,7 +129,7 @@ void Audio_Unmute(DWORD PreUnmuteDelay)
                 if(Mixer_IsEnabled())
                 {
                     Mixer_UnMute();
-                }    
+                }
 
                 EventCollector->RaiseEvent(NULL, EVENT_MUTE, 1, 0);
             }
@@ -191,7 +191,7 @@ SETTING AudioSettings[AUDIO_SETTING_LASTONE] =
 {
     {
         "System in Mute", ONOFF, 0, (long*)&bUserMute,
-        FALSE, 0, 1, 1, 1, 
+        FALSE, 0, 1, 1, 1,
         NULL,
         "Audio", "Mute", UserMute_OnChange,
     },

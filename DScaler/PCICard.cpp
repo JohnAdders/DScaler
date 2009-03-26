@@ -139,7 +139,7 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
         {
             LOG(1, "MapMemory failed 0x%x", dwStatus);
         }
-   
+
     }
     else
     {
@@ -662,7 +662,7 @@ void CPCICard::SaveState()
     }
 
     m_hStateFile = CreateFile(
-                                TempFileName, 
+                                TempFileName,
                                 GENERIC_READ | GENERIC_WRITE,
                                 0,
                                 NULL,
@@ -670,7 +670,7 @@ void CPCICard::SaveState()
                                 FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE,
                                 NULL
                              );
-    
+
     if(m_hStateFile == INVALID_HANDLE_VALUE)
     {
         LOG(0, "Can't create Temp file for saving state");
@@ -797,7 +797,7 @@ int CPCICard::GetACPIStatus()
     {
         return 0;
     }
-    
+
     BYTE ACPIStatus = 0;
     if(GetPCIConfigOffset(&ACPIStatus, 0x50, m_BusNumber, m_SlotNumber))
     {

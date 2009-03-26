@@ -239,7 +239,7 @@ void OutReso_UpdateMenu(HMENU hMenu)
             lastWidth = resSettings[i].intResWidth;
             lastHeight = resSettings[i].intResHeight;
             lastDepth = resSettings[i].intResDepth;
-            
+
             resSettings[i].intMenuPixelPos = pixel - 1;
             resSettings[i].intMenuDepthPos = depth - 1;
 
@@ -331,11 +331,11 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
 
         // Get the actual PStrip timing string
         ATOM pActualPStripTimingString = (ATOM)SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0);
-        LPSTR lActualPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];    
+        LPSTR lActualPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];
         GlobalGetAtomName(pActualPStripTimingString, lActualPStripTimingString, PSTRIP_TIMING_STRING_SIZE);
         GlobalDeleteAtom(pActualPStripTimingString);
 
-        ATOM aPStripTimingATOM = NULL;        
+        ATOM aPStripTimingATOM = NULL;
         if((lTimingString != NULL) && (bApplyPStripTimingString))
         {
             if(lTimingString != lActualPStripTimingString)
@@ -353,7 +353,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
             if((videoFormat == VIDEOFORMAT_PAL_B) || (videoFormat == VIDEOFORMAT_PAL_D) || (videoFormat == VIDEOFORMAT_PAL_G) || (videoFormat == VIDEOFORMAT_PAL_H)
                 || (videoFormat == VIDEOFORMAT_PAL_I) || (videoFormat == VIDEOFORMAT_PAL_M) || (videoFormat == VIDEOFORMAT_PAL_N)
                 || (videoFormat == VIDEOFORMAT_PAL_60) || (videoFormat == VIDEOFORMAT_PAL_N_COMBO))
-            {    
+            {
                 if(PStrip576i && _stricmp(PStrip576i, lActualPStripTimingString) != 0)
                 {
                     aPStripTimingATOM = GlobalAddAtom(PStrip576i);
@@ -362,15 +362,15 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
             }
             // 480i_50Hz and 480i_60Hz
             else if((videoFormat == VIDEOFORMAT_NTSC_M) || (videoFormat == VIDEOFORMAT_NTSC_M_Japan) || (videoFormat == VIDEOFORMAT_NTSC_50))
-            {    
+            {
                 if(PStrip480i && _stricmp(PStrip480i, lActualPStripTimingString) != 0)
                 {
                     aPStripTimingATOM = GlobalAddAtom(PStrip480i);
                     changeRes = TRUE;
-                }                
-            }                                    
+                }
+            }
         }
-        
+
         if(changeRes == TRUE)
         {
             BOOL bOverlay = GetActiveOutput()->OverlayActive();

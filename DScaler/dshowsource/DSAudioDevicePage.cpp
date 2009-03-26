@@ -77,7 +77,7 @@ BEGIN_MESSAGE_MAP(CDSAudioDevicePage, CTreeSettingsPage)
 END_MESSAGE_MAP()
 
 
-BOOL CDSAudioDevicePage::OnInitDialog() 
+BOOL CDSAudioDevicePage::OnInitDialog()
 {
     CTreeSettingsPage::OnInitDialog();
 
@@ -102,18 +102,18 @@ BOOL CDSAudioDevicePage::OnInitDialog()
     catch(CDShowDevEnumException&)
     {
     }
-    
+
     if(m_AudioDeviceSetting.size()==0)
     {
         m_UseDefault.SetCheck(BST_CHECKED);
         OnClickedUseDefault();
     }
-    
+
     if(m_AudioDevice.GetCurSel()==CB_ERR && m_DeviceList.size()>0)
     {
         m_AudioDevice.SetCurSel(0);
     }
-    
+
     if(m_bConnectAudio!=NULL)
     {
         m_ConnectAudio.SetCheck(*m_bConnectAudio?BST_UNCHECKED:BST_CHECKED);
@@ -124,7 +124,7 @@ BOOL CDSAudioDevicePage::OnInitDialog()
         m_ConnectAudio.ShowWindow(SW_HIDE);
         ::ShowWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_TEXT2),SW_HIDE);
     }
-    
+
     return TRUE;
 }
 
@@ -148,7 +148,7 @@ void CDSAudioDevicePage::OnOK()
 
 void CDSAudioDevicePage::OnSelEndOkAudioDevice()
 {
-    
+
 }
 
 void CDSAudioDevicePage::OnClickedUseDefault()

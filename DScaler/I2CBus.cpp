@@ -58,9 +58,9 @@ BOOL CI2CBus::Read(const BYTE *writeBuffer,
     if (writeBufferSize != 1)
     {
         ASSERT(writeBufferSize > 1);
-        
+
         Start();
-        
+
         // send the address
         if (!Write(address & ~1))
         {
@@ -97,7 +97,7 @@ BOOL CI2CBus::Read(const BYTE *writeBuffer,
         Unlock();
         return FALSE;
     }
-    
+
     size_t i;
 
     for (i = 0; i < (readBufferSize - 1); i++)
@@ -115,7 +115,7 @@ BOOL CI2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
     ASSERT(writeBufferSize >= 1);
     ASSERT((writeBuffer[0] & 1) == 0);
 
-    
+
     Lock();
 
     Start();

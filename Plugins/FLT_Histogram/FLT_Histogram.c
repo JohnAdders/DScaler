@@ -40,7 +40,7 @@ Probably the most confusing bit is the "comb filter" option.  By default,
 the average of two vertical values are used instead of the values from the
 original image.  This causes inaccuracy near vertical boundaries, but it
 also removes color crosstalk artifacts.  Color crosstalk will otherwise
-artifactually increase the range of the distribution. 
+artifactually increase the range of the distribution.
 
 */
 
@@ -214,7 +214,7 @@ FILTER_METHOD HistogramMethod =
     "Histogram",
     FALSE,
     TRUE,
-    DispatchHistogram, 
+    DispatchHistogram,
     0,
     TRUE,
     NULL,
@@ -271,7 +271,7 @@ LONG __cdecl DispatchHistogram( TDeinterlaceInfo* pInfo )
 {
     DWORD       Index = 0;
     LONG        FilterResult = 0;
-    
+
 
     if( pInfo->PictureHistory[0] == NULL )
     {
@@ -345,7 +345,7 @@ void ShowHistogram( DWORD* pHistogram, TDeinterlaceInfo* pInfo, DWORD Color, DWO
         DOUBLE          ScaledValue = 0.0;
         DWORD           DWordScaledValue = 0;
         const DWORD     BottomLine = pInfo->FieldHeight - MARGIN;
-        
+
         ScaledValue = HISTOGRAM_SCALE*log(1.0 + pHistogram[Index]);
         DWordScaledValue = (DWORD) (ScaledValue + 1.00001);
         if( (Index < LowValue) || (Index > HighValue) )

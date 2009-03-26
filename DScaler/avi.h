@@ -233,7 +233,7 @@ typedef struct
     } timer;
 
     /** Video stream */
-    struct VIDEO_STREAM 
+    struct VIDEO_STREAM
     {
         /** Video timing data */
         struct AVI_FILE_VIDEO_TIMER

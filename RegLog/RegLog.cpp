@@ -132,9 +132,9 @@ void __cdecl CX2388xRegLog(CGenericCard* pCard, LPCSTR Filename)
     DumpDWRegister(CX2388X_VIDEO_INPUT);
     DumpDWRegister(CX2388X_TEMPORAL_DEC);
     DumpDWRegister(CX2388X_AGC_BURST_DELAY);
-    DumpDWRegister(CX2388X_BRIGHT_CONTRAST); 
-    DumpDWRegister(CX2388X_UVSATURATION);    
-    DumpDWRegister(CX2388X_HUE);             
+    DumpDWRegister(CX2388X_BRIGHT_CONTRAST);
+    DumpDWRegister(CX2388X_UVSATURATION);
+    DumpDWRegister(CX2388X_HUE);
     DumpDWRegister(CX2388X_WHITE_CRUSH);
     DumpDWRegister(CX2388X_PIXEL_CNT_NOTCH);
     DumpDWRegister(CX2388X_HORZ_DELAY_EVEN);
@@ -145,22 +145,22 @@ void __cdecl CX2388xRegLog(CGenericCard* pCard, LPCSTR Filename)
     DumpDWRegister(CX2388X_VDELAYCCIR_ODD);
     DumpDWRegister(CX2388X_HACTIVE_EVEN);
     DumpDWRegister(CX2388X_HACTIVE_ODD);
-    DumpDWRegister(CX2388X_VACTIVE_EVEN);    
-    DumpDWRegister(CX2388X_VACTIVE_ODD);     
-    DumpDWRegister(CX2388X_HSCALE_EVEN);     
-    DumpDWRegister(CX2388X_HSCALE_ODD);      
-    DumpDWRegister(CX2388X_VSCALE_EVEN);     
-    DumpDWRegister(CX2388X_VSCALE_ODD);      
-    DumpDWRegister(CX2388X_FILTER_EVEN);     
-    DumpDWRegister(CX2388X_FILTER_ODD);      
+    DumpDWRegister(CX2388X_VACTIVE_EVEN);
+    DumpDWRegister(CX2388X_VACTIVE_ODD);
+    DumpDWRegister(CX2388X_HSCALE_EVEN);
+    DumpDWRegister(CX2388X_HSCALE_ODD);
+    DumpDWRegister(CX2388X_VSCALE_EVEN);
+    DumpDWRegister(CX2388X_VSCALE_ODD);
+    DumpDWRegister(CX2388X_FILTER_EVEN);
+    DumpDWRegister(CX2388X_FILTER_ODD);
     DumpDWRegister(CX2388X_FORMAT_2HCOMB);
     DumpDWRegister(CX2388X_PLL);
     DumpDWRegister(CX2388X_PLL_ADJUST);
-    DumpDWRegister(CX2388X_SAMPLERATECONV);  
-    DumpDWRegister(CX2388X_SAMPLERATEFIFO);  
-    DumpDWRegister(CX2388X_SUBCARRIERSTEP);  
+    DumpDWRegister(CX2388X_SAMPLERATECONV);
+    DumpDWRegister(CX2388X_SAMPLERATEFIFO);
+    DumpDWRegister(CX2388X_SUBCARRIERSTEP);
     DumpDWRegister(CX2388X_SUBCARRIERSTEPDR);
-    DumpDWRegister(CX2388X_CAPTURECONTROL);  
+    DumpDWRegister(CX2388X_CAPTURECONTROL);
     DumpDWRegister(CX2388X_VIDEO_COLOR_FORMAT);
     DumpDWRegister(CX2388X_VBI_SIZE);
     DumpDWRegister(CX2388X_FIELD_CAP_CNT);
@@ -171,7 +171,7 @@ void __cdecl CX2388xRegLog(CGenericCard* pCard, LPCSTR Filename)
     DumpDWRegister(CX2388X_VBOS);
 
     DumpDWRegister(MO_GP0_IO);
-    DumpDWRegister(MO_GP1_IO);   
+    DumpDWRegister(MO_GP1_IO);
     DumpDWRegister(MO_GP2_IO);
     DumpDWRegister(MO_GP3_IO);
     DumpDWRegister(MO_GPIO);
@@ -303,7 +303,7 @@ typedef struct
     REGLOGFUNC* DumpFunction;
 } TChip;
 
-TChip Chips[] = 
+TChip Chips[] =
 {
     {
         0x109e,
@@ -330,8 +330,8 @@ TChip Chips[] =
         BT848RegLog,
     },
     {
-        0x14F1, 
-        0x8800, 
+        0x14F1,
+        0x8800,
         "CX2388x%d.txt",
         CX2388xRegLog,
     },
@@ -354,10 +354,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
             int CardsFound(0);
             DWORD SubSystemId;
 
-            while(pHardwareDriver->DoesThisPCICardExist( 
-                                                            Chips[i].VendorId, 
-                                                            Chips[i].DeviceId, 
-                                                            CardsFound, 
+            while(pHardwareDriver->DoesThisPCICardExist(
+                                                            Chips[i].VendorId,
+                                                            Chips[i].DeviceId,
+                                                            CardsFound,
                                                             SubSystemId
                                                        ) == TRUE)
             {

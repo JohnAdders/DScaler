@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file ToolbarControl.h ToolbarControl Header file
  */
- 
+
 #ifndef _TOOLBARCONTROL_H_
 #define _TOOLBARCONTROL_H_
 
@@ -37,7 +37,7 @@ protected:
     CToolbarChannels *Toolbar1Channels;;      //Childs of the toolbar
     CToolbarVolume *Toolbar1Volume;
     CToolbarMediaPlayer *Toolbar1MediaPlayer;
-    CToolbarLogo *Toolbar1Logo;    
+    CToolbarLogo *Toolbar1Logo;
 
     typedef struct
     {

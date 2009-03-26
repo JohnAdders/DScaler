@@ -16,7 +16,7 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file aspectrect.h aspectrect Header file
  */
 
@@ -31,29 +31,29 @@ class CAspectRect : public RECT
 {
 public:
     CAspectRect()
-    { 
-        left = right = top = bottom = 0; 
-        m_OutputAdjustment = 1; 
+    {
+        left = right = top = bottom = 0;
+        m_OutputAdjustment = 1;
     }
     CAspectRect(RECT const &src)
-    { 
-        left = src.left; 
-        right = src.right; 
-        top = src.top; 
-        bottom = src.bottom; 
-        m_OutputAdjustment = 1; 
+    {
+        left = src.left;
+        right = src.right;
+        top = src.top;
+        bottom = src.bottom;
+        m_OutputAdjustment = 1;
     }
     CAspectRect(CAspectRect const &src)
-    { 
+    {
         operator=(src);
     }
     CAspectRect& operator=(CAspectRect const &src)
     {
         if (&src != this)
         {
-            left = src.left; 
-            right = src.right; 
-            top = src.top; 
+            left = src.left;
+            right = src.right;
+            top = src.top;
             bottom = src.bottom;
             m_OutputAdjustment = src.m_OutputAdjustment;
         }
@@ -81,7 +81,7 @@ public:
         return right - left;
     }
     int height()
-    { 
+    {
         return bottom - top;
     }
     double sourceAspect()
@@ -89,16 +89,16 @@ public:
         return RoundTo3dp((double)width()/(double)height());
     }
     double targetAspect()
-    { 
+    {
         return sourceAspect() * m_OutputAdjustment;
     }
     void setTargetAspect(double target)
-    { 
-        m_OutputAdjustment = target / sourceAspect(); 
+    {
+        m_OutputAdjustment = target / sourceAspect();
     }
     void setAspectAdjust(double source, double target)
     {
-        m_OutputAdjustment = target/RoundTo3dp(source); 
+        m_OutputAdjustment = target/RoundTo3dp(source);
     }
     double RoundTo3dp(double InputNumber)
     {
@@ -123,17 +123,17 @@ public:
     // Aligns the rectangle to be on a Nth pixel boundary
     // by Shrinking the rectangle.
     void align(int n = 4)
-    { 
-        align(n,n,n,n); 
+    {
+        align(n,n,n,n);
     }
     void align(int x, int y)
-    { 
-        align(x,x,y,y); 
+    {
+        align(x,x,y,y);
     }
     void align(int l, int r, int t, int b)
     {
         normalizeRect(); // Need a normalized rectangle
-        int i = left % l; 
+        int i = left % l;
         if (i > 0)
         {
             left += l-i;
@@ -151,12 +151,12 @@ public:
     // Shrinks the rectangle by x pixels
     // by Shrinking the rectangle.
     void shrink(int n = 4)
-    { 
-        shrink(n,n,n,n); 
+    {
+        shrink(n,n,n,n);
     }
     void shrink(int x, int y)
-    { 
-        shrink(x,x,y,y); 
+    {
+        shrink(x,x,y,y);
     }
     void shrink(int l, int r, int t, int b)
     {
@@ -167,10 +167,10 @@ public:
 
     // Ensure the rectangle is at least n pixels in size...
     void enforceMinSize(int n = 4)
-    { 
-        enforceMinSize(n,n); 
+    {
+        enforceMinSize(n,n);
     }
-    void enforceMinSize(int x, int y) 
+    void enforceMinSize(int x, int y)
     {
         normalizeRect(); // Need a normalized rectangle
         if (width() < x)
@@ -186,9 +186,9 @@ public:
     // Shift the rectangle n pixels
     void shift(int dx, int dy)
     {
-        left += dx; 
+        left += dx;
         right += dx;
-        top += dy; 
+        top += dy;
         bottom += dy;
     }
 
@@ -197,7 +197,7 @@ public:
     void crop(RECT cropToRect, CAspectRect* r2)
     {
         if (width() > 0)
-        {       
+        {
             if (left < cropToRect.left)
             {
                 if (r2)
@@ -235,7 +235,7 @@ public:
             }
         }
     }
-    
+
     // Ensure the rectangle is located in another rectangle
     // Crop will just cut off excess
     // Shift will attempt to shift the rectangle to fit.  Will crop Right/bottom if needed.
@@ -269,7 +269,7 @@ public:
         {
             right = r.right;
         }
-        if (top < r.top) 
+        if (top < r.top)
         {
             top = r.top;
         }
@@ -285,7 +285,7 @@ public:
         {
             dx = r.left-left;
         }
-        else if (right > r.right) 
+        else if (right > r.right)
         {
             dx = r.right-right;
         }
@@ -316,8 +316,8 @@ public:
 
     // Aspect adjustment functions...
     void adjustTargetAspectByHeight(double ar)
-    { 
-        adjustSourceAspectByHeight(ar/m_OutputAdjustment); 
+    {
+        adjustSourceAspectByHeight(ar/m_OutputAdjustment);
     }
     void adjustSourceAspectByHeight(double ar)
     {
@@ -326,18 +326,18 @@ public:
         bottom = top + newHeight;
     }
     void adjustTargetAspectByWidth(double ar)
-    { 
-        adjustSourceAspectByWidth(ar/m_OutputAdjustment); 
+    {
+        adjustSourceAspectByWidth(ar/m_OutputAdjustment);
     }
-    void adjustSourceAspectByWidth(double ar) 
+    void adjustSourceAspectByWidth(double ar)
     {
         int newWidth = (int)(ar*height()+.5);
         left += ((width()-newWidth)/2);
         right = left + newWidth;
     }
     void adjustTargetAspectByGrowth(double ar)
-    { 
-        adjustSourceAspectByGrowth(ar/m_OutputAdjustment); 
+    {
+        adjustSourceAspectByGrowth(ar/m_OutputAdjustment);
     }
     void adjustSourceAspectByGrowth(double ar)
     {
@@ -345,22 +345,22 @@ public:
         {
             adjustSourceAspectByHeight(ar);
         }
-        else 
+        else
         {
             adjustSourceAspectByWidth(ar);
         }
     }
     void adjustTargetAspectByShrink(double ar)
-    { 
+    {
         adjustSourceAspectByShrink(ar/m_OutputAdjustment);
     }
-    void adjustSourceAspectByShrink(double ar) 
+    void adjustSourceAspectByShrink(double ar)
     {
         if (ar > sourceAspect())
         {
             adjustSourceAspectByHeight(ar);
         }
-        else 
+        else
         {
             adjustSourceAspectByWidth(ar);
         }
@@ -369,15 +369,15 @@ public:
     // unless doing so causes the rectangle to go outside of r
     // Note: r must be in source space for both functions...
     void adjustTargetAspectSmart(double ar, RECT &boundRect, BOOL preserveWidth = TRUE)
-    { 
-        adjustSourceAspectSmart(ar/m_OutputAdjustment,boundRect,preserveWidth); 
+    {
+        adjustSourceAspectSmart(ar/m_OutputAdjustment,boundRect,preserveWidth);
     }
-    void adjustSourceAspectSmart(double ar, RECT &boundRect, BOOL preserveWidth = TRUE) 
+    void adjustSourceAspectSmart(double ar, RECT &boundRect, BOOL preserveWidth = TRUE)
     {
         RECT r = {left,top,right,bottom};
-        if (preserveWidth) 
+        if (preserveWidth)
         {
-            adjustSourceAspectByHeight(ar); 
+            adjustSourceAspectByHeight(ar);
         }
         else
         {
@@ -385,15 +385,15 @@ public:
         }
         if (top < boundRect.top || bottom > boundRect.bottom)
         {
-            left=r.left; 
-            right=r.right; 
-            top=r.top; 
+            left=r.left;
+            right=r.right;
+            top=r.top;
             bottom=r.bottom;
             if (preserveWidth)
             {
-                adjustSourceAspectByWidth(ar); 
+                adjustSourceAspectByWidth(ar);
             }
-            else 
+            else
             {
                 adjustSourceAspectByHeight(ar);
             }
@@ -403,7 +403,7 @@ public:
     void setToClient(HWND hWnd, BOOL useScreenCoords)
     {
         GetClientRect(hWnd, this);
-        if (useScreenCoords) 
+        if (useScreenCoords)
         {
             ClientToScreen(hWnd, (POINT*) &left);
             ClientToScreen(hWnd, (POINT*) &right);

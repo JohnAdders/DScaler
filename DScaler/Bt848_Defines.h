@@ -21,7 +21,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  *@file bt848_defines.h bt848 defines
  */
 
@@ -61,7 +61,7 @@
 #define BT848_IFORM_AUTO       0
 #define BT848_IFORM_NORM       7
 
-// always include the code above since the video formats are used by code other than the BT8x8 code 
+// always include the code above since the video formats are used by code other than the BT8x8 code
 #ifdef WANT_BT8X8_SUPPORT
 
 #define BT848_FCNTR            0x0E8
@@ -116,7 +116,7 @@
 #define BT848_SAT_V_LO         0x038
 #define BT848_HUE              0x03C
 
-#define BT848_E_SCLOOP         0x040 
+#define BT848_E_SCLOOP         0x040
 #define BT848_O_SCLOOP         0x0C0
 #define BT848_SCLOOP_LUMA_PEAK  (1<<7)
 #define BT848_SCLOOP_CAGC       (1<<6)
@@ -299,9 +299,9 @@
 #define BT848_GPIO_DATA_HIBYTE 0x202
 
 
-// Bt848 RISC commands 
+// Bt848 RISC commands
 
-// only for the SYNC RISC command 
+// only for the SYNC RISC command
 #define BT848_FIFO_STATUS_FM1  0x06
 #define BT848_FIFO_STATUS_FM3  0x0e
 #define BT848_FIFO_STATUS_SOL  0x02
@@ -315,19 +315,19 @@
 
 #define BT848_RISC_RESYNC      (1<<15)
 
-// WRITE and SKIP 
-// disable which bytes of each DWORD 
+// WRITE and SKIP
+// disable which bytes of each DWORD
 #define BT848_RISC_BYTE0       (1<<12)
 #define BT848_RISC_BYTE1       (1<<13)
 #define BT848_RISC_BYTE2       (1<<14)
 #define BT848_RISC_BYTE3       (1<<15)
 #define BT848_RISC_BYTE_ALL    (0x0f<<12)
 #define BT848_RISC_BYTE_NONE   0
-// cause RISCI 
+// cause RISCI
 #define BT848_RISC_IRQ         (1<<24)
-// RISC command is last one in this line 
+// RISC command is last one in this line
 #define BT848_RISC_EOL         (1<<26)
-// RISC command is first one in this line 
+// RISC command is first one in this line
 #define BT848_RISC_SOL         (1<<27)
 
 #define BT848_RISC_WRITE       (0x01<<28)
@@ -372,51 +372,51 @@ enum eTVCardId
     TVCARD_UNKNOWN = 0,
     TVCARD_MIRO,
     TVCARD_HAUPPAUGE,
-    TVCARD_STB,           
-    TVCARD_INTEL,         
-    TVCARD_DIAMOND,        
-    TVCARD_AVERMEDIA,      
+    TVCARD_STB,
+    TVCARD_INTEL,
+    TVCARD_DIAMOND,
+    TVCARD_AVERMEDIA,
     TVCARD_MATRIX_VISION,
-    TVCARD_FLYVIDEO,      
-    TVCARD_TURBOTV,       
-    TVCARD_HAUPPAUGE878,  
-    TVCARD_MIROPRO,       
-    TVCARD_ADSTECH_TV,    
-    TVCARD_AVERMEDIA98,   
-    TVCARD_VHX,           
-    TVCARD_ZOLTRIX,       
-    TVCARD_PIXVIEWPLAYTV, 
-    TVCARD_WINVIEW_601,   
-    TVCARD_AVEC_INTERCAP, 
-    TVCARD_LIFE_FLYKIT,   
-    TVCARD_CEI_RAFFLES,   
-    TVCARD_CONFERENCETV,  
-    TVCARD_PHOEBE_TVMAS,  
-    TVCARD_MODTEC_205,    
-    TVCARD_MAGICTVIEW061, 
-    TVCARD_VOBIS_BOOSTAR, 
-    TVCARD_HAUPPAUG_WCAM, 
-    TVCARD_MAXI,          
-    TVCARD_TERRATV,       
-    TVCARD_PXC200,        
-    TVCARD_FLYVIDEO_98,   
-    TVCARD_IPROTV,        
-    TVCARD_INTEL_C_S_PCI, 
-    TVCARD_TERRATVALUE,   
-    TVCARD_WINFAST2000,   
-    TVCARD_CHRONOS_VS2,   
-    TVCARD_TYPHOON_TVIEW, 
-    TVCARD_PXELVWPLTVPRO, 
-    TVCARD_MAGICTVIEW063, 
-    TVCARD_PINNACLERAVE,  
-    TVCARD_STB2,          
-    TVCARD_AVPHONE98,     
-    TVCARD_PV951,         
-    TVCARD_ONAIR_TV,      
-    TVCARD_SIGMA_TVII_FM, 
+    TVCARD_FLYVIDEO,
+    TVCARD_TURBOTV,
+    TVCARD_HAUPPAUGE878,
+    TVCARD_MIROPRO,
+    TVCARD_ADSTECH_TV,
+    TVCARD_AVERMEDIA98,
+    TVCARD_VHX,
+    TVCARD_ZOLTRIX,
+    TVCARD_PIXVIEWPLAYTV,
+    TVCARD_WINVIEW_601,
+    TVCARD_AVEC_INTERCAP,
+    TVCARD_LIFE_FLYKIT,
+    TVCARD_CEI_RAFFLES,
+    TVCARD_CONFERENCETV,
+    TVCARD_PHOEBE_TVMAS,
+    TVCARD_MODTEC_205,
+    TVCARD_MAGICTVIEW061,
+    TVCARD_VOBIS_BOOSTAR,
+    TVCARD_HAUPPAUG_WCAM,
+    TVCARD_MAXI,
+    TVCARD_TERRATV,
+    TVCARD_PXC200,
+    TVCARD_FLYVIDEO_98,
+    TVCARD_IPROTV,
+    TVCARD_INTEL_C_S_PCI,
+    TVCARD_TERRATVALUE,
+    TVCARD_WINFAST2000,
+    TVCARD_CHRONOS_VS2,
+    TVCARD_TYPHOON_TVIEW,
+    TVCARD_PXELVWPLTVPRO,
+    TVCARD_MAGICTVIEW063,
+    TVCARD_PINNACLERAVE,
+    TVCARD_STB2,
+    TVCARD_AVPHONE98,
+    TVCARD_PV951,
+    TVCARD_ONAIR_TV,
+    TVCARD_SIGMA_TVII_FM,
     TVCARD_MATRIX_VISION2d,
-    TVCARD_ZOLTRIX_GENIE, 
-    TVCARD_TERRATVRADIO, 
+    TVCARD_ZOLTRIX_GENIE,
+    TVCARD_TERRATVRADIO,
     TVCARD_DYNALINK,
     // MAE 20 Nov 2000 Start of change
     TVCARD_CONEXANTNTSCXEVK,
@@ -448,7 +448,7 @@ enum eTVCardId
     TVCARD_BESTBUY_NEW,
     TVCARD_SASEM4CHNLSVID_S,
     TVCARD_PINNACLESAT,
-    TVCARD_VHXOLD,           
+    TVCARD_VHXOLD,
     TVCARD_VOODOOTV_200,
     TVCARD_VOODOOTV_FM,
     TVCARD_STANDARD_BT878_NO_INIT_MSP,

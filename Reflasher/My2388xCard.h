@@ -25,7 +25,7 @@
 
 #include "HardwareDriver.h"
 
-class CMy2388xCard  
+class CMy2388xCard
 {
 public:
     void WriteByte(DWORD Offset, BYTE Data);
@@ -37,7 +37,7 @@ public:
 
 protected:
     void ClosePCICard();
-    
+
     DWORD   m_SubSystemId;
     WORD    m_DeviceId;
     WORD    m_VendorId;

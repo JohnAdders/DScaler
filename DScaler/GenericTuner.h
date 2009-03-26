@@ -40,7 +40,7 @@ class CGenericTuner : public II2CTuner
 {
 public:
     CGenericTuner(eTunerId tunerId);
-    
+
     // from ITuner
     eTunerId GetTunerId();
     eVideoFormat GetDefaultVideoFormat();
@@ -59,11 +59,11 @@ private:
     eTunerId m_TunerId;
     eVideoFormat m_VideoFormat;
     WORD m_Thresh1;
-    WORD m_Thresh2;  
+    WORD m_Thresh2;
     BYTE m_VHF_L;
     BYTE m_VHF_H;
     BYTE m_UHF;
-    BYTE m_Config; 
+    BYTE m_Config;
     WORD m_IFPCoff;
     long m_Frequency;
 };

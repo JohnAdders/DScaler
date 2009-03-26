@@ -20,7 +20,7 @@
 #include "ioutput.h"
 #include "DynamicFunction.h"
 
-typedef struct 
+typedef struct
 {
     HMONITOR hMon;
     LPDIRECTDRAW lpDD;
@@ -70,7 +70,7 @@ public:
     // on ALL paths
     virtual BOOL Overlay_Lock(TDeinterlaceInfo* pInfo);
     virtual BOOL Overlay_Unlock();
-    
+
     void Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo);
     void Overlay_Copy_Extra(TDeinterlaceInfo* pInfo);
     BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo);
@@ -81,7 +81,7 @@ public:
     BOOL Overlay_GetRGB();
 
     void InitOtherSettings();
-    
+
     OUTPUTTYPES Type();
 
 private:
@@ -99,7 +99,7 @@ private:
     LPDIRECTDRAWSURFACE     lpDDOverlayBack;
     BYTE*                   lpExtraMemoryForFilters;
     BOOL bCanColorKey;
-    
+
     COLORREF g_OverlayColor;
     long BackBuffers;     // Make new user parm, TRB 10/28/00
     BOOL bAllowBobMode;
@@ -120,8 +120,8 @@ private:
     HRESULT FlipResult;             // Need to try again for flip?
     BOOL bIsRGB;
 
-    
-    
+
+
     static BOOL WINAPI DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR pszDriverName,
                              VOID* pContext, HMONITOR hMonitor );
     static BOOL ListMonitors(HWND hWnd);
@@ -138,9 +138,9 @@ private:
     static BOOL Overlay_UseControls_OnChange(long NewValue);
     static BOOL Overlay_BackBuffers_OnChange(long NewValue);
     static BOOL Overlay_AllowBobMode_OnChange(long NewValue);
-    
-    LPDIRECTDRAW lpDD; 
-    // we've got to load these functions dynamically 
+
+    LPDIRECTDRAW lpDD;
+    // we've got to load these functions dynamically
     // so that we continue to run on NT 4
     DynamicFunctionS2<HMONITOR, HWND, DWORD> m_lpMonitorFromWindow;
     DynamicFunctionS2<BOOL, HMONITOR, LPMONITORINFO> m_lpGetMonitorInfoA;

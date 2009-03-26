@@ -148,23 +148,23 @@ vector<RECT>& CBitmapHolder::GetRegionList()
     {
         throw std::logic_error("Unexpectedly empty vector");
     }
-    
-    if (m_States[0]->m_RegionList.size()==0) 
-    { 
+
+    if (m_States[0]->m_RegionList.size()==0)
+    {
         if (m_States[0]->m_hBmpMask != NULL)
         {
             BitmapToRegionList(m_States[0]->m_hBmpMask, m_States[0]->m_RegionList);
-        }    
-    } 
+        }
+    }
     return m_States[0]->m_RegionList;
 }
 
-HRGN CBitmapHolder::GetWindowRegion() 
-{ 
+HRGN CBitmapHolder::GetWindowRegion()
+{
     vector<RECT>& RegionList = GetRegionList();
 
-    if (m_States[0]->m_hRegion == NULL) 
-    { 
+    if (m_States[0]->m_hRegion == NULL)
+    {
         RECT rc;
         rc.left = 0;
         rc.top = 0;
@@ -192,11 +192,11 @@ BOOL CBitmapHolder::BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, vector<REC
         for (int x = 0; x < bm.bmWidth; x++)
         {
             // Search for a continuous range of "non transparent pixels"
-            int x0 = x;                            
+            int x0 = x;
             while (x < bm.bmWidth)
             {
-                if (GetPixel(hDC,x,y) == 0x00FFFFFF) 
-                    break;                                                
+                if (GetPixel(hDC,x,y) == 0x00FFFFFF)
+                    break;
                 x++;
             }
 
@@ -204,7 +204,7 @@ BOOL CBitmapHolder::BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, vector<REC
             {
                 // Add the pixels (x0, y) to (x, y+1) as a new rectangle in the region
                 RECT Rect;
-                Rect.left=x0; 
+                Rect.left=x0;
                 Rect.top=y;
                 Rect.right=x;
                 Rect.bottom=y+1;
@@ -212,7 +212,7 @@ BOOL CBitmapHolder::BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, vector<REC
             }
         }
 
-        // Go to next row (remember, the bitmap is inverted vertically)                        
+        // Go to next row (remember, the bitmap is inverted vertically)
     }
 
     ::SelectObject(hDC, h);
@@ -225,7 +225,7 @@ BOOL CBitmapHolder::BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, vector<REC
 HRGN CBitmapHolder::CreateWindowRegion(RECT& rcBound, vector<RECT>& RegionList, POINT *pPosition)
 {
     HRGN hRgn = NULL;
-    
+
     int NumRects = RegionList.size();
     int Num;
 
@@ -260,9 +260,9 @@ HRGN CBitmapHolder::CreateWindowRegion(RECT& rcBound, vector<RECT>& RegionList, 
         }
 
         HRGN h = ::ExtCreateRegion(NULL, sizeof(RGNDATAHEADER) + (sizeof(RECT) * Num), pData);
-        
+
         if (hRgn != NULL)
-        {      
+        {
             ::CombineRgn(hRgn, hRgn, h, RGN_OR);
             ::DeleteObject(h);
         }
@@ -275,7 +275,7 @@ HRGN CBitmapHolder::CreateWindowRegion(RECT& rcBound, vector<RECT>& RegionList, 
 
         NumRects -= Num;
     } while (NumRects>0);
-    
+
     return hRgn;
 }
 
@@ -288,7 +288,7 @@ void CBitmapHolder::BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *b
     ::SelectObject(memdc,hbmp);
     int startbmx = 0;
     int startbmy = 0;
-    int startx;  
+    int startx;
     int w = r->right - r->left;
     int    h = r->bottom - r->top;
     int x,y,z;
@@ -302,23 +302,23 @@ void CBitmapHolder::BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *b
     if (bmstart!=NULL)
     {
         startbmx = bmstart->x;
-        startbmy = bmstart->y;   
+        startbmy = bmstart->y;
         while (startbmx>=bx) { startbmx-=bx; }
-        while (startbmy>=by) { startbmy-=by; }                
+        while (startbmy>=by) { startbmy-=by; }
         drawy = by-startbmy;
     }
-    
+
     for (y = 0; y < h ; y += drawy){
-        if ((y+drawy)>h) drawy=h-y;                
+        if ((y+drawy)>h) drawy=h-y;
         startx=startbmx;
         z=bx-startx;
-        for (x = 0 ; x < w ; x += z){ 
+        for (x = 0 ; x < w ; x += z){
             if ((x+z)>w) {
-                z=w-x;      
-                BitBlt(hDC, r->left + x, r->top + y, z, drawy, memdc, startx, startbmy, SRCCOPY); 
+                z=w-x;
+                BitBlt(hDC, r->left + x, r->top + y, z, drawy, memdc, startx, startbmy, SRCCOPY);
                 //LOG(2,"DrawBM: (%d,%d,%dx%d) (bm: %d,%d)",r->left+x,r->top+y,z,by,startx,startbmy);
             } else {
-                BitBlt(hDC, r->left + x, r->top + y, z, drawy, memdc, startx, startbmy, SRCCOPY);      
+                BitBlt(hDC, r->left + x, r->top + y, z, drawy, memdc, startx, startbmy, SRCCOPY);
                 //LOG(2,"DrawBM: (%d,%d,%dx%d) (bm: %d,%d)",r->left+x,r->top+y,z,by,startx,startbmy);
             }
             startx = 0;
@@ -329,11 +329,11 @@ void CBitmapHolder::BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *b
             drawy = by;
             startbmy = 0;
 
-        }        
+        }
     }
     ::DeleteDC(memdc);
 }
-  
+
 void CBitmapHolder::BitmapDraw(HDC hDC, SmartHandle<HBITMAP> hbmp, SmartHandle<HBITMAP> hmask, POINT * bmstart, LPRECT r, int DrawMode)
 {
     //LOG(2,"DrawBM: to (%d,%d,%dx%d) mode %d",r->left,r->top,r->right-r->left,r->bottom-r->top,DrawMode);
@@ -351,7 +351,7 @@ void CBitmapHolder::BitmapDraw(HDC hDC, SmartHandle<HBITMAP> hbmp, SmartHandle<H
     if (bmstart!=NULL)
     {
         startbmx = bmstart->x;
-        startbmy = bmstart->y;      
+        startbmy = bmstart->y;
     }
 
     int cx=r->right  - r->left;
@@ -367,7 +367,7 @@ void CBitmapHolder::BitmapDraw(HDC hDC, SmartHandle<HBITMAP> hbmp, SmartHandle<H
         HDC hdcMem;
         hdcMem = ::CreateCompatibleDC(hDC);
         HBITMAP hBitmap;
-        
+
         hBitmap = ::CreateCompatibleBitmap(hDC,cx,cy);
         ::SelectObject(hdcMem, hBitmap);
 
@@ -375,7 +375,7 @@ void CBitmapHolder::BitmapDraw(HDC hDC, SmartHandle<HBITMAP> hbmp, SmartHandle<H
         if(!DrawMode){
             BitBlt(hdcMem,r->left,r->top,cx,cy,dcBmp,startbmx,startbmy,SRCINVERT);
             BitBlt(hdcMem,r->left,r->top,cx,cy,dcMask,startbmx,startbmy,SRCAND);
-            BitBlt(hdcMem,r->left,r->top,cx,cy,dcBmp,startbmx,startbmy,SRCINVERT);      
+            BitBlt(hdcMem,r->left,r->top,cx,cy,dcBmp,startbmx,startbmy,SRCINVERT);
         } else {
             BITMAP bm;
             ::GetObject (hbmp, sizeof (bm), & bm);
@@ -416,13 +416,13 @@ SmartHandle<HBITMAP> CBitmapHolder::BitmapCopyPieceRGB(HDC hdestDC, HDC hsrcDC, 
         sizeof(BITMAPINFOHEADER),
         lpRect->right-lpRect->left,
         lpRect->bottom-lpRect->top,
-        1, 32, BI_RGB, 0,0,0,0, 0};                    
+        1, 32, BI_RGB, 0,0,0,0, 0};
     void *pvBits;
 
     SmartHandle<HBITMAP> hNewBmp(::CreateDIBSection(hdestDC,(BITMAPINFO *)&bmi,DIB_RGB_COLORS,&pvBits,NULL,0));
 
-    ::SelectObject(hdestDC, hNewBmp);                        
-    ::BitBlt(hdestDC, 0,0, lpRect->right-lpRect->left, lpRect->bottom-lpRect->top, hsrcDC, lpRect->left, lpRect->top, SRCCOPY);    
+    ::SelectObject(hdestDC, hNewBmp);
+    ::BitBlt(hdestDC, 0,0, lpRect->right-lpRect->left, lpRect->bottom-lpRect->top, hsrcDC, lpRect->left, lpRect->top, SRCCOPY);
 
     return hNewBmp;
 }
@@ -441,7 +441,7 @@ SmartHandle<HBITMAP> CBitmapHolder::BitmapLoadFromFile(const char *szFile)
 
     // get file size
     DWORD dwFileSize = GetFileSize(hFile, NULL);
-    if (-1 != dwFileSize) 
+    if (-1 != dwFileSize)
     {
         LPVOID pvData = NULL;
         // alloc memory based on file size
@@ -513,7 +513,7 @@ SmartHandle<HBITMAP> CBitmapCache::Read(LPCSTR szFileName)
         return m_CacheList[szFileName];
     }
 }
-    
+
 CBitmapIniInfo::CBitmapIniInfo(string sName) :
     m_sName(sName),
     m_Result(1)
@@ -560,18 +560,18 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
     SmartHandle<HBITMAP> hMainBmpMask;
 
     // Load main bitmap
-    GetPrivateProfileString(sSection.c_str(),sBitmapName.c_str(),"",szBitmapName,100-1,sIniFile.c_str());    
+    GetPrivateProfileString(sSection.c_str(),sBitmapName.c_str(),"",szBitmapName,100-1,sIniFile.c_str());
     GetPrivateProfileString(sSection.c_str(),sBitmapMaskName.c_str(),"",szBitmapMaskName,100-1,sIniFile.c_str());
 
     if (szBitmapName[0] == 0)
-    {            
+    {
         //Not found
         return -1;
     }
-        
+
     string sFileName;
     string sPath;
-        
+
     char szPath[MAX_PATH+1];
     char *s = NULL;
     int len = GetFullPathName(sIniFile.c_str(), MAX_PATH, szPath, &s);
@@ -580,19 +580,19 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
         *s = 0;
         sPath = szPath;
     }
-    sFileName = sPath + szBitmapName;        
+    sFileName = sPath + szBitmapName;
 
     hMainBmp = m_pBitmapCache->Read(sFileName.c_str());
-    
+
     if (!hMainBmp)
     {
         //Can't open
         return -2;
     }
-        
+
     if (szBitmapMaskName[0]!=0)
-    {            
-        sFileName = sPath + szBitmapMaskName;                    
+    {
+        sFileName = sPath + szBitmapMaskName;
         hMainBmpMask = m_pBitmapCache->Read(sFileName.c_str());
 
         if (!hMainBmpMask)
@@ -600,8 +600,8 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
             //Can't open
             return -3;
         }
-        BITMAP bm1;    
-        BITMAP bm2;    
+        BITMAP bm1;
+        BITMAP bm2;
         if(::GetObject (hMainBmp, sizeof (bm1), & bm1) == 0)
         {
             return -5;
@@ -619,32 +619,32 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
     else
     {
         hMainBmpMask = 0L;
-    }        
-    
+    }
+
 
     int Result = -1;
     // Extract bitmaps
 
     char szVal[200];
-    char szVal2[200];    
+    char szVal2[200];
     char szExtra[200];
     int left,top,right,bottom, x,y;
 
     HDC hsrcDC =  ::CreateCompatibleDC(NULL);
-    HDC hdestDC = ::CreateCompatibleDC(NULL);    
+    HDC hdestDC = ::CreateCompatibleDC(NULL);
 
-    BITMAP bm;    
+    BITMAP bm;
     ::GetObject (hMainBmp, sizeof (bm), & bm);
 
     for (StateMap::iterator it = m_StateMap.begin(); it != m_StateMap.end(); ++it)
     {
-        GetPrivateProfileString(sSection.c_str(), it->first.c_str(),"",szVal,200-1,sIniFile.c_str());    
+        GetPrivateProfileString(sSection.c_str(), it->first.c_str(),"",szVal,200-1,sIniFile.c_str());
         char *pSrc = szVal;
         char *pDst = szVal2;
         while (*pSrc!=0) { if ((*pSrc == ' ') || (*pSrc=='\t')) { pSrc++; } else { *pDst++=*pSrc++; } }
         *pDst = 0;
         if (szVal2[0]!=0)  //Analyze string
-        {            
+        {
             SmartHandle<HBITMAP> hBmp;
             SmartHandle<HBITMAP> hBmpMask;
 
@@ -675,7 +675,7 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
                 {
                     //Invalid coordinates
                     Result = -3;
-                }   
+                }
             }
             else
             {
@@ -684,9 +684,9 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
                 Result = -2;
             }
         }
-    }   
+    }
 
-    ::DeleteDC(hsrcDC);     
+    ::DeleteDC(hsrcDC);
     ::DeleteDC(hdestDC);
 
     return Result;

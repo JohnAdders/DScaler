@@ -10,10 +10,10 @@
 
 
 /*
- * yasper - A non-intrusive reference counted pointer. 
+ * yasper - A non-intrusive reference counted pointer.
  *	    Version: 1.04
- *			  
- *  Many ideas borrowed from Yonat Sharon and 
+ *			
+ *  Many ideas borrowed from Yonat Sharon and
  *  Andrei Alexandrescu.
  *
  * (zlib license)
@@ -37,7 +37,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  * -----------------------------------------------------------------------------------
- * 
+ *
  * Send all questions, comments and bug reports to:
  * Alex Rubinsteyn (alex.rubinsteyn {at-nospam} gmail {dot} com)
  */
@@ -53,34 +53,34 @@ struct EmptyHandleException : public std::exception
     EmptyHandleException() : std::exception("[SmartHandle Exception] Attempted to use empty handle") {}
 };
 
-template <typename X> 
+template <typename X>
 class SmartHandle
 {
 
 public:
     typedef X element_type;
 
-	/* 
+	/*
 		default constructor
 			- don't create Counter
 	*/
 	SmartHandle() : rawHandle(0), counter(0) { }
 	
 	/*
-		Construct from a raw handle 
+		Construct from a raw handle
 	*/
 	SmartHandle(X raw, Counter* c = 0) : rawHandle(0), counter(0)
 	{
 		if (raw)
 		{
-			rawHandle = raw; 
+			rawHandle = raw;
 			if (c) acquire(c);
 			else counter = new Counter;
 		}
 	}
 	
 	/*
-		Copy constructor 
+		Copy constructor
 	*/
 	SmartHandle(const SmartHandle< X >& otherPtr)
 	{
@@ -88,16 +88,16 @@ public:
 		rawHandle = otherPtr.rawHandle;
 	}
 	
-	/* 
-		Destructor 
-	*/ 
+	/*
+		Destructor
+	*/
 	~SmartHandle()
 	{
         release();
 	}
 
 /*
-	Assignment to another SmartHandle 
+	Assignment to another SmartHandle
 */
 
 SmartHandle& operator=(const SmartHandle< X >& otherPtr)
@@ -105,10 +105,10 @@ SmartHandle& operator=(const SmartHandle< X >& otherPtr)
 	if (this != &otherPtr)
 	{
 		release();
-		acquire(otherPtr.counter); 
-		rawHandle = otherPtr.rawHandle; 
+		acquire(otherPtr.counter);
+		rawHandle = otherPtr.rawHandle;
 	}
-	return *this; 
+	return *this;
 }
 
 /*
@@ -123,9 +123,9 @@ SmartHandle& operator=(X raw)
 
 	if (raw)
 	{
-		release(); 
-		counter = new Counter; 
-		rawHandle = raw; 
+		release();
+		counter = new Counter;
+		rawHandle = raw;
 	}
 	return *this;
 }
@@ -146,12 +146,12 @@ SmartHandle& operator=(X raw)
 	
 	/*
 	   implicit casts to base types of the
-	   the pointer we're storing 
+	   the pointer we're storing
 	*/
 	
 	operator X() const
 	{
-		return rawHandle;  
+		return rawHandle;
 	}
 
 
@@ -159,26 +159,26 @@ SmartHandle& operator=(X raw)
 	Provide access to the raw handle
 */
 
-	X GetRawHandle() const         
+	X GetRawHandle() const
 	{
 		if (rawHandle == 0) throw new EmptyHandleException;
 		return rawHandle;
 	}
 
 	
-/* 
+/*
 	Is there only one reference on the counter?
 */
 	BOOL IsUnique() const
 	{
-		if (counter && counter->count == 1) return TRUE; 
-		return FALSE; 
+		if (counter && counter->count == 1) return TRUE;
+		return FALSE;
 	}
 	
 	BOOL IsValid() const
 	{
 		if (counter && rawHandle) return TRUE;
-		return FALSE; 
+		return FALSE;
 	}
 
 	unsigned GetCount() const
@@ -193,8 +193,8 @@ private:
 	Counter* counter;
 
 	// increment the count
-	void acquire(Counter* c) 
-	{ 
+	void acquire(Counter* c)
+	{
  		counter = c;
 		if (c)
 		{
@@ -204,44 +204,44 @@ private:
 
 	// decrement the count, delete if it is 0
 	void release()
-	{ 
-        if (counter) 
+	{
+        if (counter)
 		{			
 			(counter->count)--; 	
 
-			if (counter->count == 0) 
+			if (counter->count == 0)
 			{
 				delete counter;			
 				::DeleteObject(rawHandle);
 			}
 		}
 		counter = 0;
-		rawHandle = 0; 
+		rawHandle = 0;
 
 	}
 };
 
 
 template <typename X>
-BOOL operator==(const SmartHandle< X >& lptr, const SmartHandle< X >& rptr) 
+BOOL operator==(const SmartHandle< X >& lptr, const SmartHandle< X >& rptr)
 {
-	return lptr.GetRawHandle() == rptr.GetRawHandle(); 
+	return lptr.GetRawHandle() == rptr.GetRawHandle();
 }
 
 template <typename X>
-BOOL operator==(const SmartHandle< X >& lptr, X raw) 
+BOOL operator==(const SmartHandle< X >& lptr, X raw)
 {
-	return lptr.GetRawHandle() == raw ; 
+	return lptr.GetRawHandle() == raw ;
 }
 
 template <typename X>
-BOOL operator!=(const SmartHandle< X >& lptr, const SmartHandle< X >& rptr) 
+BOOL operator!=(const SmartHandle< X >& lptr, const SmartHandle< X >& rptr)
 {
 	return ( !operator==(lptr, rptr) );
 }
 
 template <typename X>
-BOOL operator!=(const SmartHandle< X >& lptr, X raw) 
+BOOL operator!=(const SmartHandle< X >& lptr, X raw)
 {
 	return ( !operator==(lptr, raw) );
 }

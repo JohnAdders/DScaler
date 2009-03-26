@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // Aspect ratio control was started by Michael Samblanet <mike@cardobe.com>
-// Moved into separate module by Mark D Rejhon.  
+// Moved into separate module by Mark D Rejhon.
 // AspectRatio.c was separated into 3 files by Michael Samblanet 13 March 2001
 //
 // The purpose of this module is all the calculations and handling necessary
@@ -281,11 +281,11 @@ BlackLoop:
 
     //
     // Log the offending pixels
-    if (counts > 0) 
+    if (counts > 0)
     {
         LOG(3, "Count %d min %d max %d lumthresh %d", counts, chromaMin, chromaMax, threshold);
     }
-    
+
 
     return counts;
 }
@@ -417,7 +417,7 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
         return;
     }
 
-    /** ADDED by Mark Rejhon: Eliminates the "tiny slit" problem in starry 
+    /** ADDED by Mark Rejhon: Eliminates the "tiny slit" problem in starry
         scenes such as those in Star Wars or start of Toy Story 2,
         at least during full screen Mode.
         \todo Would be nice to access 'AdjustedWindowAspect' in WorkoutOverlaySize()

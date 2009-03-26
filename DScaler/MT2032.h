@@ -43,7 +43,7 @@ public:
     CMT2032(eVideoFormat DefaultVideoFormat);
     WORD GetVersion();
     WORD GetVendor();
-    
+
     // from ITuner
     eTunerId GetTunerId();
     eVideoFormat GetDefaultVideoFormat();

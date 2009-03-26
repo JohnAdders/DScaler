@@ -76,7 +76,7 @@ protected:
     NTSTATUS freeMemory(PMemStruct pMemStruct);
     void freeMemory(PMemoryNode node);
     MemoryNode memoryList[MAX_FREE_MEMORY_NODES];
-    
+
     NTSTATUS mapMemory(DWORD dwBusNumber, DWORD_PTR dwBaseAddress, ULONG ulLength, PVOID *pUserMapping);
     void unmapMemory(PVOID dwMemoryBase, ULONG ulMappedMemoryLength);
     MappingNode mappingList[MAX_FREE_MAPPING_NODES];

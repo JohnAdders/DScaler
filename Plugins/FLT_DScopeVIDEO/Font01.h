@@ -184,7 +184,7 @@ static unsigned short font[][20] = {
     },
     //STARTCHAR 6
         {           // looks like 10 pixels width by 20 lines height
-                    //  
+                    //
         0x0000,     // 0000,0000,00 00,0000
         0x0000,     // 0000,0000,00 00,0000
         0x1e00,     // 0001,1110,00 00,0000
@@ -512,7 +512,7 @@ static unsigned short font[][20] = {
         0x3000,0x3000,0x3f00,0x0000,
         0x0000,0x0000,0x0000,0x0000,
     },
-    //STARTCHAR 
+    //STARTCHAR
     {
         0x0000,0x0000,0x0000,0x3000,
         0x3000,0x1800,0x1800,0x0c00,

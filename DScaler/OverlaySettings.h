@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file overlaysettings.h overlaysettings Header file
  */
- 
+
 #ifndef __OVERLAYSETTINGS_H___
 #define __OVERLAYSETTINGS_H___
 

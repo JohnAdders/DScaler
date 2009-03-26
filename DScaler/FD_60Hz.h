@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file fd_60hz.h fd_60hz Header file
  */
- 
+
 #ifndef __FD_60HZ_H___
 #define __FD_60HZ_H___
 

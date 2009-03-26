@@ -49,14 +49,14 @@ void CBt8x8GPIOAudioDecoder::SetSoundChannel(eSoundChannel soundChannel)
 {
     DWORD con;
 
-    if (soundChannel == SOUNDCHANNEL_LANGUAGE1) 
+    if (soundChannel == SOUNDCHANNEL_LANGUAGE1)
     {
         con = m_GPDATA_Lang1;
-    } 
-    else if (soundChannel == SOUNDCHANNEL_STEREO) 
+    }
+    else if (soundChannel == SOUNDCHANNEL_STEREO)
     {
         con = m_GPDATA_Stereo;
-    } else 
+    } else
     {
         con = m_GPDATA_Mono;
     }

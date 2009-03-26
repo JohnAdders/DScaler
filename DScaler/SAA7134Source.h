@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file saa7134source.h saa7134source Header file
  */
- 
+
 #ifdef WANT_SAA713X_SUPPORT
 
 #ifndef __SAA7134SOURCE_H___
@@ -123,9 +123,9 @@ public:
     BOOL HasSquarePixels() {return FALSE;};
 
     CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage();
-    
+
     void SetSourceAsCurrent();
-   
+
     void Pause() {return;};
     void UnPause() {return;};
 
@@ -148,7 +148,7 @@ private:
 
     void SetupDMAMemory();
     DWORD CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWanted, LPDWORD pPageTable);
-    
+
     TPicture* GetFieldBuffer(TFieldID FieldID);
     void GetFrameIndex(TFieldID FieldID, BYTE* pFrameIndex, BOOL* pIsFieldOdd);
 

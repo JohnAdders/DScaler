@@ -74,8 +74,8 @@
         cmp     edx, Last8          // done with line?
         jb      LoopQ               // y
 #endif
-        
-        }   
+
+        }
 
         // adjust for next line
         pSrc  += src_pitch2;
@@ -84,5 +84,5 @@
         pBob += src_pitch2;
         pBobP += src_pitch2;
     }
-    
+
     return 0;

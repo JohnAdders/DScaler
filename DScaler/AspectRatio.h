@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // Aspect ratio contrl was started by Michael Samblanet <mike@cardobe.com>
-// Moved into separate module by Mark D Rejhon.  
+// Moved into separate module by Mark D Rejhon.
 //
 // The purpose of this module is all the calculations and handling necessary
 // to map the source image onto the destination display, even if they are
@@ -25,11 +25,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file AspectRatio.h AspectRatio Header file
  */
 
-#ifndef __ASPECTRATIO_H___ 
+#ifndef __ASPECTRATIO_H___
 #define __ASPECTRATIO_H___
 
 #include "settings.h"
@@ -84,7 +84,7 @@ int     UpdateSquarePixelsMode(BOOL set);
     \todo Cleanup this struct, possibly split into 2 or 3 structures
     based on function of the various settings.
 */
-typedef struct 
+typedef struct
 {
     /** Added variable in dTV.c to track which aspect Mode we are currently in
         Use aspect * 1000 (1.66 = 1660, 2.35 = 2350, etc)
@@ -165,9 +165,9 @@ typedef struct
 
     RECT DestinationRect;
     RECT SourceRect;
-    RECT DestinationRectWindow; // MRS 2-22-01 
+    RECT DestinationRectWindow; // MRS 2-22-01
     /// Wait until middle of WM_PAINT to set overlay (between drawing of black bars and drawing of overlay color)
-    BOOL DeferedSetOverlay; 
+    BOOL DeferedSetOverlay;
     BOOL OverlayNeedsSetting; // MRS 2-22-01
 
     int InitialTopOverscan;
@@ -187,7 +187,7 @@ typedef struct
         to ensure the bouncing takes place.
     */
     BOOL BounceEnabled;
-    
+
     /** Time to consider bouncing as started - once set it is not reset
         until dTV is restarted.
     */
@@ -195,9 +195,9 @@ typedef struct
     /// Number of minutes for a complete cycle of bounce to occur (default is half hour)
     time_t BouncePeriod;
     /// # of miliseconds between aspect updates
-    long TimerBounceMS; 
+    long TimerBounceMS;
     /// percentage of window over which the overlay bounces
-    long BounceAmplitude; 
+    long BounceAmplitude;
 
     /** Orbit - shifts the source image around on a regular basis
         Shares the BounceStartTime for calculations
@@ -205,15 +205,15 @@ typedef struct
     */
     BOOL OrbitEnabled;
     /// # of pixels of variation (both X and Y axis)
-    int OrbitSize; 
+    int OrbitSize;
     /// Time to move across the entire orbit area on X axis (seconds)
-    time_t OrbitPeriodX; 
+    time_t OrbitPeriodX;
     /// Time to move across the entire orbit area on Y axis (seconds)
-    time_t OrbitPeriodY; 
+    time_t OrbitPeriodY;
     /// # of miliseconds between aspect updates for orbiting (miliseconds)
-    long TimerOrbitMS; 
+    long TimerOrbitMS;
     /// If TRUE, resize non-fullscreen window to fit image exactly
-    BOOL AutoResizeWindow; 
+    BOOL AutoResizeWindow;
 
     /// True if we want to use whatever ratio is present on the next frame.
     BOOL DetectAspectNow;

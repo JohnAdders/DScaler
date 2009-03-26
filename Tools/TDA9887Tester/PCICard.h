@@ -26,7 +26,7 @@
 
 #include "HardwareDriver.h"
 
-class CPCICard  
+class CPCICard
 {
 public:
     virtual bool WriteToI2C(const BYTE *writeBuffer, size_t writeBufferSize) = false;

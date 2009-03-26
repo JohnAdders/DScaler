@@ -159,7 +159,7 @@ void CSAA7134Source::SetSourceAsCurrent()
         // We read what is the video format saved for this video input
         SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
     }
-    
+
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
     {
@@ -352,7 +352,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_CardName = new CStringSetting("Card Name", "", IniSection, "CardName");
     m_Settings.push_back(m_CardName);
 
-#ifdef _DEBUG    
+#ifdef _DEBUG
     if (SAA7134_SETTING_LASTONE != m_Settings.size())
     {
         LOGD("Number of settings in SAA7134 source is not equal to the number of settings in DS_Control.h");
@@ -461,7 +461,7 @@ void CSAA7134Source::Stop()
     // disable OnChange messages while video is stopped
     DisableOnChange();
     // stop capture
-    m_pSAA7134Card->StopCapture();    
+    m_pSAA7134Card->StopCapture();
     KillTimer(GetMainWnd(), TIMER_MSP);
 }
 
@@ -879,7 +879,7 @@ BOOL CSAA7134Source::PollForNextField(TFieldID* pNextFieldID, int* pFieldDistanc
     {
         FieldDistance += kMAX_FIELDBUFFERS;
     }
-    
+
     // Updated the processing field ID
     m_ProcessingFieldID = ProcessingFieldID;
 
@@ -1380,7 +1380,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
     // reset here when we have all the settings
     Reset();
-    
+
     Audio_Unmute(PostSwitchMuteDelay);
     Start_Capture();
 }
@@ -1400,7 +1400,7 @@ void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
-    
+
     // make sure the defaults are correct
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);

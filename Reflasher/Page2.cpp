@@ -28,7 +28,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// Eigenschaftenseite CPage2 
+// Eigenschaftenseite CPage2
 
 IMPLEMENT_DYNCREATE(CPage2, CPropertyPage)
 
@@ -37,7 +37,7 @@ CPage2::CPage2() : CPropertyPage(CPage2::IDD)
     //{{AFX_DATA_INIT(CPage2)
     m_iPalNtsc = -1;
     //}}AFX_DATA_INIT
-    m_psp.dwFlags &= ~PSP_HASHELP; 
+    m_psp.dwFlags &= ~PSP_HASHELP;
 }
 
 CPage2::~CPage2()
@@ -60,11 +60,11 @@ BEGIN_MESSAGE_MAP(CPage2, CPropertyPage)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// Behandlungsroutinen für Nachrichten CPage2 
+// Behandlungsroutinen für Nachrichten CPage2
 
 #define F0_REVID_CLASS_MM 0x002f0008
 
-BOOL CPage2::OnSetActive() 
+BOOL CPage2::OnSetActive()
 {
     // try to autodetect the chip type
     if(m_iPalNtsc == -1)
@@ -78,7 +78,7 @@ BOOL CPage2::OnSetActive()
             m_iPalNtsc = 1;
             break;
 
-        
+
         case 0x04000003:    // CX23881-27
             m_iPalNtsc = 0;
             break;
@@ -86,33 +86,33 @@ BOOL CPage2::OnSetActive()
 
         UpdateData(FALSE);
     }
-    
-    EnableButtons();    
+
+    EnableButtons();
     return CPropertyPage::OnSetActive();
 }
 
-void CPage2::OnRadioNtsc() 
+void CPage2::OnRadioNtsc()
 {
     UpdateData(TRUE);
-    EnableButtons();    
+    EnableButtons();
 }
 
-void CPage2::OnRadioPal() 
+void CPage2::OnRadioPal()
 {
     UpdateData(TRUE);
-    EnableButtons();    
+    EnableButtons();
 }
 
 void CPage2::EnableButtons()
 {
     CPropertySheet* parent = (CPropertySheet*)GetParent();
-    
+
     m_iPalNtsc == -1 ?
         parent->SetWizardButtons(PSWIZB_BACK) :
         parent->SetWizardButtons(PSWIZB_BACK|PSWIZB_NEXT);
 }
 
-LRESULT CPage2::OnWizardNext() 
+LRESULT CPage2::OnWizardNext()
 {
     CWizard* parent = (CWizard*)GetParent();
 
@@ -127,6 +127,6 @@ LRESULT CPage2::OnWizardNext()
         // for NTSC
         parent->m_dwNewValue = 0x004d5349;
     }
-    
+
     return CPropertyPage::OnWizardNext();
 }

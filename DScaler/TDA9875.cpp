@@ -44,10 +44,10 @@ void CTDA9875::Reset()
 
     WriteToSubAddress(TDA9875_CFG, 0xd0); /* reg de config 0 (reset)*/
     WriteToSubAddress(TDA9875_CH1V, 22 );  /* Channel volume 1 -10db */
-    WriteToSubAddress(TDA9875_CH2V, 22 );  /* Channel volume 2 -10db */ 
-    WriteToSubAddress(TDA9875_NCHV, 22 );  /* NICAM volume -10db */ 
+    WriteToSubAddress(TDA9875_CH2V, 22 );  /* Channel volume 2 -10db */
+    WriteToSubAddress(TDA9875_NCHV, 22 );  /* NICAM volume -10db */
     WriteToSubAddress(TDA9875_MUT, TDA9875_MUTE_ON);   /* General mute  */
-        
+
 }
 
 BOOL CTDA9875::IsDevicePresent(int& dic, int& rev)
@@ -70,5 +70,5 @@ BOOL CTDA9875::IsDevicePresent(int& dic, int& rev)
     if(dic==0 || dic==2) // tda9875 and tda9875A
         return TRUE;
 
-    return FALSE; 
+    return FALSE;
 }

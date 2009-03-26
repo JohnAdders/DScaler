@@ -397,13 +397,13 @@ void __cdecl SAA7134RegSpy(TRegister** hRegisterListTail)
     AddDWRegister(SAA7134_VIDEO_PORT_CTRL0);    // CCIR656 video out
     AddDWRegister(SAA7134_VIDEO_PORT_CTRL4);    // CCIR656 video out
     AddBRegister(SAA7134_VIDEO_PORT_CTRL8);     // CCIR656 video out
-    
+
     // != 0 means card may have i2s Audio
     AddBRegister(SAA7134_I2S_OUTPUT_SELECT);    // i2s Audio
     AddBRegister(SAA7134_I2S_OUTPUT_FORMAT);    // i2s Audio
     AddBRegister(SAA7134_I2S_OUTPUT_LEVEL);     // i2s Audio
     AddBRegister(SAA7134_I2S_AUDIO_OUTPUT);     // i2s Audio
-    
+
     // != 0 means card may have DTV/DVB TS
     AddBRegister(SAA7134_TS_PARALLEL);          // Transport stream
     AddBRegister(SAA7134_TS_PARALLEL_SERIAL);   // Transport stream
@@ -428,13 +428,13 @@ void __cdecl SAA7130RegSpy(TRegister** hRegisterListTail)
     AddDWRegister(SAA7134_VIDEO_PORT_CTRL0);    // CCIR656 video out
     AddDWRegister(SAA7134_VIDEO_PORT_CTRL4);    // CCIR656 video out
     AddBRegister(SAA7134_VIDEO_PORT_CTRL8);     // CCIR656 video out
-    
+
     // != 0 means card may have i2s Audio
     AddBRegister(SAA7134_I2S_OUTPUT_SELECT);    // i2s Audio
     AddBRegister(SAA7134_I2S_OUTPUT_FORMAT);    // i2s Audio
     AddBRegister(SAA7134_I2S_OUTPUT_LEVEL);     // i2s Audio
     AddBRegister(SAA7134_I2S_AUDIO_OUTPUT);     // i2s Audio
-    
+
     // != 0 means card may have DTV/DVB TS
     AddBRegister(SAA7134_TS_PARALLEL);          // Transport stream
     AddBRegister(SAA7134_TS_PARALLEL_SERIAL);   // Transport stream
@@ -482,13 +482,13 @@ void __cdecl SAA7133RegSpy(TRegister** hRegisterListTail)
     AddDWRegister(SAA7134_VIDEO_PORT_CTRL0);    // CCIR656 video out
     AddDWRegister(SAA7134_VIDEO_PORT_CTRL4);    // CCIR656 video out
     AddBRegister(SAA7134_VIDEO_PORT_CTRL8);     // CCIR656 video out
-    
+
     // != 0 means card may have i2s Audio
     AddBRegister(SAA7134_I2S_OUTPUT_SELECT);    // i2s Audio
     AddBRegister(SAA7134_I2S_OUTPUT_FORMAT);    // i2s Audio
     AddBRegister(SAA7134_I2S_OUTPUT_LEVEL);     // i2s Audio
     AddBRegister(SAA7134_I2S_AUDIO_OUTPUT);     // i2s Audio
-    
+
     // != 0 means card may have DTV/DVB TS
     AddBRegister(SAA7134_TS_PARALLEL);          // Transport stream
     AddBRegister(SAA7134_TS_PARALLEL_SERIAL);   // Transport stream

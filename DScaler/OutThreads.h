@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file outthreads.h outthreads Header file
  */
- 
+
 #ifndef __OUTTHREADS_H___
 #define __OUTTHREADS_H___
 

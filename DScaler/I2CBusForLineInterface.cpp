@@ -66,12 +66,12 @@ void CI2CBusForLineInterface::SetSCLHi()
 {
     m_LineInterface->SetSCL(TRUE);
     Sleep();
-    while (!m_LineInterface->GetSCL()) 
-    {    
+    while (!m_LineInterface->GetSCL())
+    {
         /* the hw knows how to read the clock line,
          * so we wait until it actually gets high.
          * This is safer as some chips may hold it low
-         * while they are processing data internally. 
+         * while they are processing data internally.
          */
         m_LineInterface->SetSCL(TRUE);
         /// \todo FIXME yield here/timeout
@@ -86,8 +86,8 @@ void CI2CBusForLineInterface::Start()
     LOG(4, "I2C BusForLine Start");
     // I2C start: SDA 1 -> 0 with SCL = 1
     // SDA   ^^^\___
-    // SCL ___/^^^\_____       
-    //        
+    // SCL ___/^^^\_____
+    //
     SetSCLLo();
     SetSDAHi();
     SetSCLHi();
@@ -113,7 +113,7 @@ void CI2CBusForLineInterface::Stop()
 BOOL CI2CBusForLineInterface::GetAcknowledge()
 {
     ASSERT(m_LineInterface != 0);
-    
+
     SetSCLLo();
     SetSDAHi();
     // SDA = 0 means the slave ACK'd
@@ -129,18 +129,18 @@ BOOL CI2CBusForLineInterface::Write(BYTE byte)
     ASSERT(m_LineInterface != 0);
 
     LOG(4, "I2C BusForLine NAK Write %02X", byte);
-    for(BYTE mask = 0x80; mask > 0; mask /= 2) 
+    for(BYTE mask = 0x80; mask > 0; mask /= 2)
     {
         SetSCLLo();
         if ((byte & mask) != 0)
         {
             SetSDAHi();
         }
-        else 
+        else
         {
             SetSDALo();
         }
-        SetSCLHi();  
+        SetSCLHi();
     }
     return GetAcknowledge();
 }

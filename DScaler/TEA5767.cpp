@@ -38,7 +38,7 @@ BOOL IsTEA5767PresentAtC0(IN CI2CBus* i2cBus)
     // Sub addresses are not supported so read all five bytes.
     if (!i2cBus->Read(&addr, sizeof(addr), buffer, sizeof(buffer)))
     {
-        LOG(2, "TEA5767: No I2C device at 0xC0."); 
+        LOG(2, "TEA5767: No I2C device at 0xC0.");
         return FALSE;
     }
 
@@ -71,7 +71,7 @@ BOOL IsTEA5767PresentAtC0(IN CI2CBus* i2cBus)
 
     LOG(1, "TEA5767: Found. 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
         buffer[0], buffer[1], buffer[2], buffer[3], buffer[4]);
-    
+
     return TRUE;
 }
 

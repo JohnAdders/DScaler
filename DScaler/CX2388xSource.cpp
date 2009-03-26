@@ -124,7 +124,7 @@ CCX2388xSource::CCX2388xSource(SmartPtr<CCX2388xCard> pCard, SmartPtr<CContigMem
 
     eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_ENDOFLIST};
     EventCollector->Register(this, EventList);
-   
+
 
     m_RiscBaseLinear = (DWORD*)RiscDMAMem->GetUserPointer();
     m_RiscBasePhysical = RiscDMAMem->TranslateToPhysical(m_RiscBaseLinear, 83968, NULL);
@@ -138,7 +138,7 @@ CCX2388xSource::CCX2388xSource(SmartPtr<CCX2388xCard> pCard, SmartPtr<CContigMem
 
     // loads up core settings like card and tuner type
     ReadFromIni();
-    
+
     SetupCard();
 
     InitializeUI();
@@ -279,7 +279,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 
     // save per input removed
     m_Settings.push_back(NULL);
-    
+
     // save per format removed
     m_Settings.push_back(NULL);
 
@@ -302,7 +302,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 
     m_EatLinesAtTop = new CEatLinesAtTopSetting(this, "Eat Lines At Top", 12, 0, 100, IniSection, pH3DGroup);
     m_Settings.push_back(m_EatLinesAtTop);
-    
+
     m_Sharpness = new CSharpnessSetting(this, "Sharpness", 0, -8, 7, IniSection, pH3DGroup);
     m_Settings.push_back(m_Sharpness);
 
@@ -405,7 +405,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_CardName = new CStringSetting("Card Name", "", IniSection, "CardName");
     m_Settings.push_back(m_CardName);
 
-#ifdef _DEBUG    
+#ifdef _DEBUG
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
         LOGD("Number of settings in CX2388X source is not equal to the number of settings in DS_Control.h");
@@ -420,10 +420,10 @@ void CCX2388xSource::Start()
     CreateRiscCode(bCaptureVBI && (m_CurrentVBILines > 0));
     // only capture VBI if we are expecting them
     m_pCard->StartCapture(bCaptureVBI && (m_CurrentVBILines > 0));
-    
+
     // This timer is used to update audiostatus & automute
     StartUpdateAudioStatus();
-    
+
     Timing_Reset();
     NotifySizeChange();
     NotifySquarePixelsCheck();
@@ -452,33 +452,33 @@ void CCX2388xSource::Reset()
 
     m_CurrentX = m_PixelWidth->GetValue();
     m_pCard->SetGeoSize(
-                            m_VideoSource->GetValue(), 
-                            (eVideoFormat)m_VideoFormat->GetValue(), 
-                            m_CurrentX, 
-                            m_CurrentY, 
+                            m_VideoSource->GetValue(),
+                            (eVideoFormat)m_VideoFormat->GetValue(),
+                            m_CurrentX,
+                            m_CurrentY,
                             m_CurrentVBILines,
                             m_IsVideoProgressive->GetValue()
                         );
-    
+
     m_pCard->SetHDelay(
-                            m_VideoSource->GetValue(), 
-                            (eVideoFormat)m_VideoFormat->GetValue(), 
-                            m_CurrentX, 
+                            m_VideoSource->GetValue(),
+                            (eVideoFormat)m_VideoFormat->GetValue(),
+                            m_CurrentX,
                             m_HDelay->GetValue()
                       );
-    
+
     m_pCard->SetVDelay(
-                            m_VideoSource->GetValue(), 
-                            (eVideoFormat)m_VideoFormat->GetValue(), 
-                            m_CurrentX, 
-                            m_VDelay->GetValue() 
+                            m_VideoSource->GetValue(),
+                            (eVideoFormat)m_VideoFormat->GetValue(),
+                            m_CurrentX,
+                            m_VDelay->GetValue()
                       );
 
     if(IsInTunerMode())
     {
         m_pCard->AudioInit(
-                            m_VideoSource->GetValue(), 
-                            (eVideoFormat)m_VideoFormat->GetValue(), 
+                            m_VideoSource->GetValue(),
+                            (eVideoFormat)m_VideoFormat->GetValue(),
                             (eCX2388xAudioStandard)m_AudioStandard->GetValue(),
                             (eCX2388xStereoType)m_StereoType->GetValue()
                           );
@@ -493,7 +493,7 @@ void CCX2388xSource::Reset()
         m_pCard->SetFLIFilmDetect(m_FLIFilmDetect->GetValue());
         m_pCard->SetSharpness((char)m_Sharpness->GetValue());
     }
-    
+
     else
     {
         m_pCard->SetLumaAGC(m_LumaAGC->GetValue());
@@ -605,7 +605,7 @@ void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
         BytesPerLine = m_CurrentX * 2;
 
         // if it's the holo3d and we're on the sdi input
-        // in non progressive mode then we need to adjust 
+        // in non progressive mode then we need to adjust
         // for the image shift that seems to happen
         if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
         {
@@ -653,7 +653,7 @@ void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
 
     *(pRiscCode++) = RISC_JUMP;
 
-    *(pRiscCode++) = m_RiscBasePhysical; 
+    *(pRiscCode++) = m_RiscBasePhysical;
 
     m_pCard->SetRISCStartAddress(m_RiscBasePhysical);
 
@@ -711,7 +711,7 @@ void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
 
         // jump back to start
         *(pRiscCode++) = RISC_JUMP;
-        *(pRiscCode++) = m_RiscBasePhysicalVBI; 
+        *(pRiscCode++) = m_RiscBasePhysicalVBI;
 
         m_pCard->SetRISCStartAddressVBI(m_RiscBasePhysicalVBI);
     }
@@ -936,18 +936,18 @@ CSliderSetting* CCX2388xSource::GetVDelay()
 // that has definitely finished.
 //
 // Added code here to use a user specified parameter for how long to sleep.  Note that
-// windows timer tick resolution is really MUCH worse than 1 millesecond.  Who knows 
+// windows timer tick resolution is really MUCH worse than 1 millesecond.  Who knows
 // what logic W98 really uses?
 //
 // Note also that sleep(0) just tells the operating system to dispatch some other
 // task now if one is ready, not to sleep for zero seconds.  Since I've taken most
-// of the unneeded waits out of other processing here Windows will eventually take 
+// of the unneeded waits out of other processing here Windows will eventually take
 // control away from us anyway, We might as well choose the best time to do it, without
-// waiting more than needed. 
+// waiting more than needed.
 //
 // Also added code to HurryWhenLate.  This checks if the new field is already here by
 // the time we arrive.  If so, assume we are not keeping up with the BT chip and skip
-// some later processing.  Skip displaying this field and use the CPU time gained to 
+// some later processing.  Skip displaying this field and use the CPU time gained to
 // get back here faster for the next one.  This should help us degrade gracefully on
 // slower or heavily loaded systems but use all available time for processing a good
 // picture when nothing else is running.  TRB 10/28/00
@@ -1035,18 +1035,18 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 // that has definitely finished.
 //
 // Added code here to use a user specified parameter for how long to sleep.  Note that
-// windows timer tick resolution is really MUCH worse than 1 millesecond.  Who knows 
+// windows timer tick resolution is really MUCH worse than 1 millesecond.  Who knows
 // what logic W98 really uses?
 //
 // Note also that sleep(0) just tells the operating system to dispatch some other
 // task now if one is ready, not to sleep for zero seconds.  Since I've taken most
-// of the unneeded waits out of other processing here Windows will eventually take 
+// of the unneeded waits out of other processing here Windows will eventually take
 // control away from us anyway, We might as well choose the best time to do it, without
-// waiting more than needed. 
+// waiting more than needed.
 //
 // Also added code to HurryWhenLate.  This checks if the new field is already here by
 // the time we arrive.  If so, assume we are not keeping up with the BT chip and skip
-// some later processing.  Skip displaying this field and use the CPU time gained to 
+// some later processing.  Skip displaying this field and use the CPU time gained to
 // get back here faster for the next one.  This should help us degrade gracefully on
 // slower or heavily loaded systems but use all available time for processing a good
 // picture when nothing else is running.  TRB 10/28/00
@@ -1124,7 +1124,7 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
     static int FieldCount(-1);
     DWORD StartTime = GetTickCount();
-    
+
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
@@ -1180,7 +1180,7 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     case 8: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 3; break;
     case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
     }
-    
+
     // do input frequency on cleanish field changes only
     if (FieldCount != -1)
     {
@@ -1215,7 +1215,7 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
     int OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
     static int FieldCount(-1);
     DWORD StartTime = GetTickCount();
-    
+
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
@@ -1259,7 +1259,7 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
     }
 
     pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
-    
+
     // do input frequency on cleanish field changes only
     if (FieldCount != -1)
     {
@@ -1303,7 +1303,7 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
     int OldFormat = m_VideoFormat->GetValue();
-    
+
     // set up channel
     // this must happen after the VideoInput change is sent
     if(m_pCard->IsInputATuner(NewValue))
@@ -1334,7 +1334,7 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 
     // reset here when we have all the settings
     Reset();
-    
+
     Audio_Unmute(PostSwitchMuteDelay);
     Start_Capture();
 }
@@ -1349,9 +1349,9 @@ void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
     // disabled so if anything that happens in those needs to be triggered
     // we have to manage that ourselves
 
-    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);   
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
-    
+
     // make sure the defaults are correct
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
@@ -1585,19 +1585,19 @@ BOOL CCX2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
     {
         m_VideoFormat->SetValue(VideoFormat);
     }
-    
+
     StopUpdateAudioStatus();
-    
+
     BOOL bReturn = m_pCard->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
     if(bReturn == TRUE)
     {
-        // when switching from channel to channel the sound often hangs, 
+        // when switching from channel to channel the sound often hangs,
         // so let's make an reset when AudioStandard is A2 or Nicam
-        m_pCard->AudioInit(    m_VideoSource->GetValue(), 
-            (eVideoFormat)m_VideoFormat->GetValue(), 
+        m_pCard->AudioInit(    m_VideoSource->GetValue(),
+            (eVideoFormat)m_VideoFormat->GetValue(),
             (eCX2388xAudioStandard)m_AudioStandard->GetValue(),
             (eCX2388xStereoType)m_StereoType->GetValue() );
-            
+
         StartUpdateAudioStatus();
     }
 
@@ -1760,9 +1760,9 @@ void CCX2388xSource::FLIFilmDetectOnChange(BOOL NewValue, BOOL OldValue)
 void CCX2388xSource::HDelayOnChange(long NewValue, long OldValue)
 {
     m_pCard->SetHDelay(
-                            m_VideoSource->GetValue(), 
-                            (eVideoFormat)m_VideoFormat->GetValue(), 
-                            m_CurrentX, 
+                            m_VideoSource->GetValue(),
+                            (eVideoFormat)m_VideoFormat->GetValue(),
+                            m_CurrentX,
                             NewValue
                       );
 }
@@ -1770,9 +1770,9 @@ void CCX2388xSource::HDelayOnChange(long NewValue, long OldValue)
 void CCX2388xSource::VDelayOnChange(long NewValue, long OldValue)
 {
     m_pCard->SetVDelay(
-                            m_VideoSource->GetValue(), 
-                            (eVideoFormat)m_VideoFormat->GetValue(), 
-                            m_CurrentX, 
+                            m_VideoSource->GetValue(),
+                            (eVideoFormat)m_VideoFormat->GetValue(),
+                            m_CurrentX,
                             NewValue
                       );
 }
@@ -1803,7 +1803,7 @@ void CCX2388xSource::PixelWidthOnChange(long NewValue, long OldValue)
     Stop_Capture();
 
     Reset();
-    
+
     NotifySizeChange();
 
     Start_Capture();
@@ -1814,7 +1814,7 @@ int  CCX2388xSource::NumInputs(eSourceInputType InputType)
 {
   if (InputType == VIDEOINPUT)
   {
-      return m_pCard->GetNumInputs();      
+      return m_pCard->GetNumInputs();
   }
   return 0;
 }
@@ -1846,7 +1846,7 @@ string CCX2388xSource::GetInputName(eSourceInputType InputType, int Nr)
         {
             return m_pCard->GetInputName(Nr);
         }
-    } 
+    }
     return NULL;
 }
 
@@ -1899,14 +1899,14 @@ void CCX2388xSource::VerticalSyncDetectionOnChange(BOOL NewValue,BOOL OldValue)
 ///////////////////////////////////////////////////////////////////////
 BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 {
-    
+
     LOG(1, "CX2388x: WDM-Driver start search ...");
-    
+
     // all CX2388x-Cards are having
     // VendorID = 0x14F1
     // DeviceID = 0x8800 (first sub-device)
     const char* pszCX2388X_HW_ID = "PCI\\VEN_14F1&DEV_88";
-    
+
     // scan only Media-Classes
     HDEVINFO hDevInfo = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_MEDIA, NULL, NULL, DIGCF_PRESENT);
     if (hDevInfo == INVALID_HANDLE_VALUE)
@@ -1914,7 +1914,7 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
         LOG(0, "CX2388x: WDM-Driver search error - Media Class not found.");
         return FALSE;
     }
-    
+
     SP_DEVINFO_DATA DeviceInfoData = {sizeof(SP_DEVINFO_DATA)};
     DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
@@ -1924,7 +1924,7 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
         DWORD    DataT        = NULL;
         LPTSTR    buffer        = NULL;
         DWORD    buffersize    = NULL;
-        
+
         // see DDK src/setup/enable
         while (!SetupDiGetDeviceRegistryProperty(hDevInfo, &DeviceInfoData,    SPDRP_HARDWAREID,
                                                 &DataT,    (PBYTE)buffer, buffersize, &buffersize))
@@ -1950,15 +1950,15 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
         if(strncmp(buffer, pszCX2388X_HW_ID, strlen(pszCX2388X_HW_ID)) == 0)
         {
             LOG(1,"CX2388x: WDM-Driver found.");
-            
+
             // see DDK src/setup/devcon
             SP_PROPCHANGE_PARAMS PropChangeParams = {sizeof(SP_CLASSINSTALL_HEADER)};
             PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
             PropChangeParams.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
             PropChangeParams.Scope = DICS_FLAG_GLOBAL;
-            PropChangeParams.StateChange = NewState; 
+            PropChangeParams.StateChange = NewState;
             PropChangeParams.HwProfile = 0;
-    
+
             if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
                 (SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams)))
             {
@@ -1969,7 +1969,7 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
             PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
             PropChangeParams.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
             PropChangeParams.Scope = DICS_FLAG_CONFIGSPECIFIC;
-            PropChangeParams.StateChange = NewState; 
+            PropChangeParams.StateChange = NewState;
             PropChangeParams.HwProfile = 0;
 
             if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
@@ -1979,11 +1979,11 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
                 LOG(0,"CX2388x: WDM-Driver unable to %s in DICS_FLAG_CONFIGSPECIFIC.", NewState == DICS_DISABLE ? "Stop" : "Start");
                 return FALSE;
             }
-            
+
             LOG(1,"CX2388x: WDM-Driver %s.", NewState == DICS_DISABLE ? "Stop" : "Start");
             bFound = TRUE;
         }
-        
+
         if(buffer)
         {
             LocalFree(buffer);
@@ -1996,7 +1996,7 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
     }
 
     SetupDiDestroyDeviceInfoList(hDevInfo);
-    
+
     return bFound;
 }
 

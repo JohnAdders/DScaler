@@ -64,7 +64,7 @@ BOOL StatusBar_Adjust(HWND hWnd)
     int Height = StatusBar_Height();
 
     GetClientRect(hWnd, &RectWnd);
-        
+
     int Widths[STATUS_LASTONE] = {200, 400, 450, -1,};
     if(RectWnd.right - RectWnd.left > 550)
     {
@@ -84,7 +84,7 @@ void StatusBar_ShowWindow(BOOL bShow)
 
 void StatusBar_Destroy(void)
 {
-    DestroyWindow(hwndStatusBar);   
+    DestroyWindow(hwndStatusBar);
     hwndStatusBar = NULL;
 }
 

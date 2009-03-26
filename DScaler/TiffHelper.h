@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file tiffhelper.h tiffhelper Header file
  */
- 
+
 #ifndef __TIFFHELPER_H___
 #define __TIFFHELPER_H___
 

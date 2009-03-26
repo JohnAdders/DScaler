@@ -51,18 +51,18 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
         return;
     }
 
-    // if the diff is above the high threshold then 
+    // if the diff is above the high threshold then
     // we are seeing a diff, so see if we were expecting on or not
     if(pInfo->FieldDiff > ThresholdMotion)
     {
         if(IsFilmMode())
-        {   
+        {
             if(!ProgExpectChange(pInfo, GetProgMode()))
             {
                 // Go back to video
                 SetVideoDeinterlaceMode(0);
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Gone back to video"); 
+                LOG(2, "Gone back to video");
             }
         }
         else
@@ -92,7 +92,7 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
                 {
                     PatternSpots = 0;
                     FilmModeBeingDetected = GuessMode;
-                    LOG(2, "StartDetecting %d", GuessMode); 
+                    LOG(2, "StartDetecting %d", GuessMode);
                 }
                 else
                 {
@@ -100,11 +100,11 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
                     if(PatternSpots >= RepeatCount)
                     {
                         SetFilmDeinterlaceMode((eFilmPulldownMode)FilmModeBeingDetected);
-                        LOG(2, "Gone to film %d", FilmModeBeingDetected); 
+                        LOG(2, "Gone to film %d", FilmModeBeingDetected);
                     }
                     else
                     {
-                        LOG(2, "Found again %d", GuessMode); 
+                        LOG(2, "Found again %d", GuessMode);
                     }
                 }
             }
@@ -112,24 +112,24 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
             {
                 PatternSpots = 0;
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Reset bad pattern", GuessMode); 
+                LOG(2, "Reset bad pattern", GuessMode);
             }
-        }   
+        }
         ConsecutiveStills = 0;
     }
-    // if the diff is below the low threshold then 
+    // if the diff is below the low threshold then
     // we are seeing a static image
     // see if we were expecting the same image to lock onto a film mode
     else if(pInfo->FieldDiff < ThresholdStill)
     {
         if(!IsFilmMode())
-        {   
+        {
             ++ConsecutiveStills;
             if(ProgExpectChange(pInfo, FilmModeBeingDetected))
             {
                 PatternSpots = 0;
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Reset found still when expecting change"); 
+                LOG(2, "Reset found still when expecting change");
             }
         }
     }
@@ -138,11 +138,11 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
     else
     {
         if(!IsFilmMode())
-        {   
+        {
             ConsecutiveStills = 0;
             PatternSpots = 0;
             FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-            LOG(2, "Reset neither change nor still"); 
+            LOG(2, "Reset neither change nor still");
         }
     }
 }
@@ -161,18 +161,18 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
         return;
     }
 
-    // if the diff is above the high threshold then 
+    // if the diff is above the high threshold then
     // we are seeing a diff, so see if we were expecting on or not
     if(pInfo->FieldDiff > ThresholdMotion)
     {
         if(IsFilmMode())
-        {   
+        {
             if(!ProgExpectChange(pInfo, GetProgMode()))
             {
                 // Go back to video
                 SetVideoDeinterlaceMode(0);
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Gone back to video"); 
+                LOG(2, "Gone back to video");
             }
         }
         else
@@ -226,7 +226,7 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
                 {
                     PatternSpots = 0;
                     FilmModeBeingDetected = GuessMode;
-                    LOG(2, "StartDetecting %d", GuessMode); 
+                    LOG(2, "StartDetecting %d", GuessMode);
                 }
                 else
                 {
@@ -234,11 +234,11 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
                     if(PatternSpots >= RepeatCount && (ConsecutiveStills == 2))
                     {
                         SetFilmDeinterlaceMode((eFilmPulldownMode)FilmModeBeingDetected);
-                        LOG(2, "Gone to film %d", FilmModeBeingDetected); 
+                        LOG(2, "Gone to film %d", FilmModeBeingDetected);
                     }
                     else
                     {
-                        LOG(2, "Found again %d", GuessMode); 
+                        LOG(2, "Found again %d", GuessMode);
                     }
                 }
             }
@@ -246,24 +246,24 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
             {
                 PatternSpots = 0;
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Reset bad pattern", GuessMode); 
+                LOG(2, "Reset bad pattern", GuessMode);
             }
-        }   
+        }
         ConsecutiveStills = 0;
     }
-    // if the diff is below the low threshold then 
+    // if the diff is below the low threshold then
     // we are seeing a static image
     // see if we were expecting the same image to lock onto a film mode
     else if(pInfo->FieldDiff < ThresholdStill)
     {
         if(!IsFilmMode())
-        {   
+        {
             ++ConsecutiveStills;
             if(ProgExpectChange(pInfo, FilmModeBeingDetected))
             {
                 PatternSpots = 0;
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Reset found still when expecting change"); 
+                LOG(2, "Reset found still when expecting change");
             }
         }
     }
@@ -272,11 +272,11 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
     else
     {
         if(!IsFilmMode())
-        {   
+        {
             ConsecutiveStills = 0;
             PatternSpots = 0;
             FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-            LOG(2, "Reset neither change nor still"); 
+            LOG(2, "Reset neither change nor still");
         }
     }
 }

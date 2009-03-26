@@ -25,8 +25,8 @@
 IOutput *ActiveOutput=NULL;
 extern COverlayOutput OverlayOutputInstance;
 extern CD3D9Output D3D9OutputInstance;
-   
-    
+
+
 
 IOutput::IOutput(void)
 {
@@ -61,9 +61,9 @@ void IOutput::GetMonitorRect(HWND hWnd, RECT* rect)
 }
 
 SETTING* IOutput::GetOtherSettings()
-{   
+{
     if(!m_bSettingInitialized)
-    {        
+    {
         InitOtherSettings();
         m_bSettingInitialized=TRUE;
     }

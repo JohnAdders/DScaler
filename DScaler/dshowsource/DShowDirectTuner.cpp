@@ -141,8 +141,8 @@ long CDShowDirectTuner::GetFrequency()
 void CDShowDirectTuner::SetFrequency(long Freq,AMTunerModeType Mode,AnalogVideoStandard Format)
 {
     SetTunerMode(Mode);
-    
-    //CDSCaptureSource::ConvertVideoFmt uses AnalogVideo_None when it can't 
+
+    //CDSCaptureSource::ConvertVideoFmt uses AnalogVideo_None when it can't
     //convert from eVideoFormat
     if(GetAvailableTVFormats()|Format && Format!=AnalogVideo_None)
     {
@@ -160,14 +160,14 @@ void CDShowDirectTuner::SetFrequency(long Freq,AMTunerModeType Mode,AnalogVideoS
     {
         LOG(1,"CDShowDirectTuner::SetFrequency: Specified video format is not supported (format: %d)",Format);
     }
-    
+
     KSPROPERTY_TUNER_MODE_CAPS_S ModeCaps;
     KSPROPERTY_TUNER_FREQUENCY_S Frequency;
     memset(&ModeCaps,0,sizeof(KSPROPERTY_TUNER_MODE_CAPS_S));
     memset(&Frequency,0,sizeof(KSPROPERTY_TUNER_FREQUENCY_S));
     ModeCaps.Mode=Mode;
     GetKSData(m_pKSProp,KSPROPERTY_TUNER_MODE_CAPS,ModeCaps);
-    
+
     Frequency.Frequency=Freq;
     if(ModeCaps.Strategy==KS_TUNER_STRATEGY_DRIVER_TUNES)
     {

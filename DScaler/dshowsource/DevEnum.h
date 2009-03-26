@@ -43,7 +43,7 @@ public:
  * Class for enumerating dshow devices.
  * It is a class built around the direct show "System device enumerator"
  */
-class CDShowDevEnum  
+class CDShowDevEnum
 {
 public:
 
@@ -52,7 +52,7 @@ public:
      * @throws CDevEnumException
      */
     void initEnum(REFCLSID devClass);
-    
+
     /**
      * Gets next device if any.
      * @throws CDevEnumException
@@ -62,7 +62,7 @@ public:
 
     /**
      * This function is used to read a property from the current device or filter.
-     * 
+     *
      * @param szName Name of property to get, for example "FriendlyName" for devicename or "CLSID"
      * @return value of property
      */
@@ -83,7 +83,7 @@ public:
      * @param device pointer to device
      */
     static void createDevice(std::string displayName,REFIID interf, void *device);
-    
+
     /**
      * Default constructor.
      * You must call initEnum memeber befor using the object

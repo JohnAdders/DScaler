@@ -1104,7 +1104,7 @@ static void XmltvTags_SetLanguage( XML_STR_BUF * pBuf )
 
 // ----------------------------------------------------------------------------
 // Query the language of the current element's content
-// 
+//
 XML_LANG_CODE XmltvTags_GetLanguage( void )
 {
    return xps.lang[xps.stackIdx];
@@ -1112,7 +1112,7 @@ XML_LANG_CODE XmltvTags_GetLanguage( void )
 
 // ----------------------------------------------------------------------------
 // Push new tag on parser stack
-// 
+//
 void XmltvTags_Open( const char * pTagName )
 {
    const XMLTV_TAG  * pChild;

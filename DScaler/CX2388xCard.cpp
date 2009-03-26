@@ -73,13 +73,13 @@ void CCX2388xCard::StartCapture(BOOL bCaptureVBI)
 {
     DWORD value1;
     DWORD value2;
-   
+
     // RISC Controller Enable
     WriteDword(CX2388X_DEV_CNTRL2, 1<<5 );
 
     // Clear Interrupt Status bits
     WriteDword(CX2388X_VID_INTSTAT, 0x0000000);
-   
+
     value1 = ReadDword(CX2388X_VID_DMA_CNTRL) & 0xFFFFFF00;
     value2 = (ReadDword(CX2388X_CAPTURECONTROL) & 0xFFFFFF00);
     if(bCaptureVBI == TRUE)
@@ -565,7 +565,7 @@ void CCX2388xCard::SetHDelay(int nInput, eVideoFormat TVFormat, long CurrentX, i
             HorzDelay = ((CurrentX * GetTVFormat(TVFormat)->wHDelayx1) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
         }
     }
-    
+
     HorzDelay += HDelayAdj;
 
     WriteDword(CX2388X_HORZ_DELAY_EVEN, HorzDelay);
@@ -625,7 +625,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
     CurrentY = GetTVFormat(TVFormat)->wCropHeight;
 
-    // start with default values 
+    // start with default values
     // the only bit switched on is CFILT
     m_FilterDefault = (1 << 19);
     m_2HCombDefault = 0x181f0008;
@@ -831,7 +831,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         WriteDword(CX2388X_AGC_BURST_DELAY, RegValue);
         HorzScale = 0x00;
     }
-    // if not using 720 or a CCIR source then 
+    // if not using 720 or a CCIR source then
     // use 8*Fsc capture
     else
     {
@@ -1097,7 +1097,7 @@ void CCX2388xCard::ResetChip()
 
     // try and switch on the card using the PCI Command value
     // this is to try and solve problems when a driver hasn't been
-    // loaded for the card, which may be necessary when you have 
+    // loaded for the card, which may be necessary when you have
     // multiple cards
     if(GetPCIConfigOffset(&Command, 0x04, m_BusNumber, m_SlotNumber))
     {
@@ -1135,7 +1135,7 @@ void CCX2388xCard::ResetChip()
     WriteDword(MO_GPHST_DMACNTRL, 0x00000000);
 
     // secondly stop any interupts from happening
-    // if we change something and let an 
+    // if we change something and let an
     // interupt happen than the driver might try and
     // do something bad
     WriteDword( CX2388X_PCI_INTMSK, 0x00000000 );
@@ -1159,7 +1159,7 @@ void CCX2388xCard::ResetHardware()
     // for all 12 devices
     int i;
     for (i = 1; i<=12; ++i)
-    {   
+    {
         DWORD dwaddr = 0x180000+i*0x40;
         for (int j(0); j<5; ++j)
         {
@@ -1185,15 +1185,15 @@ void CCX2388xCard::ResetHardware()
     /////////////////////////////////////////////////////////////////
     // Setup for video channel 21
     /////////////////////////////////////////////////////////////////
-        
+
     // Instruction Queue Base
     WriteDword(SRAM_CMDS_21 + 0x0c, SRAM_INSTRUCTION_QUEUE_VIDEO);
-    
+
     // Instruction Queue Size is in DWORDs
     WriteDword(SRAM_CMDS_21 + 0x10, (SRAM_INSTRUCTION_QUEUE_SIZE / 4));
-    
-    // Cluster table base 
-    WriteDword(SRAM_CMDS_21 + 0x04, SRAM_CLUSTER_TABLE_VIDEO); 
+
+    // Cluster table base
+    WriteDword(SRAM_CMDS_21 + 0x04, SRAM_CLUSTER_TABLE_VIDEO);
 
     // Cluster table size is in QWORDS
     WriteDword(SRAM_CMDS_21 + 0x08, SRAM_CLUSTER_TABLE_VIDEO_SIZE / 8);
@@ -1202,34 +1202,34 @@ void CCX2388xCard::ResetHardware()
     for(i = 0; i < SRAM_VIDEO_BUFFERS; ++i)
     {
         WriteDword(
-                    SRAM_CLUSTER_TABLE_VIDEO + (i * 0x10), 
+                    SRAM_CLUSTER_TABLE_VIDEO + (i * 0x10),
                     SRAM_FIFO_VIDEO_BUFFERS + (i * SRAM_FIFO_VIDEO_BUFFER_SIZE)
                   );
     }
-    
-    // Copy the cluster buffer info to the DMAC 
-    
+
+    // Copy the cluster buffer info to the DMAC
+
     // Set the DMA Cluster Table Address
     WriteDword( MO_DMA21_PTR2, SRAM_CLUSTER_TABLE_VIDEO);
-    
+
     // Set the DMA buffer limit size in qwords
     WriteDword( MO_DMA21_CNT1, SRAM_FIFO_VIDEO_BUFFER_SIZE / 8);
-    
+
     // Set the DMA Cluster Table Size in qwords
     WriteDword( MO_DMA21_CNT2, SRAM_CLUSTER_TABLE_VIDEO_SIZE / 8);
 
     /////////////////////////////////////////////////////////////////
     // Setup for VBI channel 24
     /////////////////////////////////////////////////////////////////
-        
+
     // Instruction Queue Base
     WriteDword(SRAM_CMDS_24 + 0x0c, SRAM_INSTRUCTION_QUEUE_VBI);
-    
+
     // Instruction Queue Size is in DWORDs
     WriteDword(SRAM_CMDS_24 + 0x10, (SRAM_INSTRUCTION_QUEUE_SIZE / 4));
-    
-    // Cluster table base 
-    WriteDword(SRAM_CMDS_24 + 0x04, SRAM_CLUSTER_TABLE_VBI); 
+
+    // Cluster table base
+    WriteDword(SRAM_CMDS_24 + 0x04, SRAM_CLUSTER_TABLE_VBI);
 
     // Cluster table size is in QWORDS
     WriteDword(SRAM_CMDS_24 + 0x08, (SRAM_CLUSTER_TABLE_VBI_SIZE / 8));
@@ -1238,19 +1238,19 @@ void CCX2388xCard::ResetHardware()
     for(i = 0; i < SRAM_VBI_BUFFERS; ++i)
     {
         WriteDword(
-                    SRAM_CLUSTER_TABLE_VBI + (i * 0x10), 
+                    SRAM_CLUSTER_TABLE_VBI + (i * 0x10),
                     SRAM_FIFO_VBI_BUFFERS + (i * SRAM_FIFO_VBI_BUFFER_SIZE)
                   );
     }
-    
-    // Copy the cluster buffer info to the DMAC 
-    
+
+    // Copy the cluster buffer info to the DMAC
+
     // Set the DMA Cluster Table Address
     WriteDword( MO_DMA24_PTR2, SRAM_CLUSTER_TABLE_VBI);
-    
+
     // Set the DMA buffer limit size in qwords
     WriteDword( MO_DMA24_CNT1, SRAM_FIFO_VBI_BUFFER_SIZE / 8);
-    
+
     // Set the DMA Cluster Table Size in qwords
     WriteDword( MO_DMA24_CNT2, (SRAM_CLUSTER_TABLE_VBI_SIZE / 8));
 
@@ -1263,9 +1263,9 @@ void CCX2388xCard::ResetHardware()
     // If capture of audio is required I'd guess that this
     // will need to be changed and some RISC code will be required.
     /////////////////////////////////////////////////////////////////
-        
-    // Cluster table base 
-    WriteDword(SRAM_CMDS_25 + 0x04, SRAM_CLUSTER_TABLE_AUDIO); 
+
+    // Cluster table base
+    WriteDword(SRAM_CMDS_25 + 0x04, SRAM_CLUSTER_TABLE_AUDIO);
 
     // Cluster table size is in QWORDS
     WriteDword(SRAM_CMDS_25 + 0x08, (SRAM_CLUSTER_TABLE_AUDIO_SIZE / 8));
@@ -1274,42 +1274,42 @@ void CCX2388xCard::ResetHardware()
     for(i = 0; i < SRAM_AUDIO_BUFFERS; ++i)
     {
         WriteDword(
-                    SRAM_CLUSTER_TABLE_AUDIO + (i * 0x10), 
+                    SRAM_CLUSTER_TABLE_AUDIO + (i * 0x10),
                     SRAM_FIFO_AUDIO_BUFFERS + (i * SRAM_FIFO_AUDIO_BUFFER_SIZE)
                   );
     }
-    
-    // Copy the cluster buffer info to the DMAC 
-    
+
+    // Copy the cluster buffer info to the DMAC
+
     // Set the DMA Cluster Table Address
     WriteDword( MO_DMA25_PTR2, SRAM_CLUSTER_TABLE_AUDIO);
-    
+
     // Set the DMA buffer limit size in qwords
     WriteDword( MO_DMA25_CNT1, SRAM_FIFO_AUDIO_BUFFER_SIZE / 8);
-    
+
     // Set the DMA Cluster Table Size in qwords
     WriteDword( MO_DMA25_CNT2, (SRAM_CLUSTER_TABLE_AUDIO_SIZE / 8));
 
     /////////////////////////////////////////////////////////////////
     // Setup for Audio Output
     /////////////////////////////////////////////////////////////////
-        
-    // Cluster table base 
-    WriteDword(SRAM_CMDS_26 + 0x04, SRAM_CLUSTER_TABLE_AUDIO); 
+
+    // Cluster table base
+    WriteDword(SRAM_CMDS_26 + 0x04, SRAM_CLUSTER_TABLE_AUDIO);
 
     // Cluster table size is in QWORDS
     WriteDword(SRAM_CMDS_26 + 0x08, (SRAM_CLUSTER_TABLE_AUDIO_SIZE / 8));
 
     // cluster buffer entries already filled as shared with audio input
 
-    // Copy the cluster buffer info to the DMAC 
-    
+    // Copy the cluster buffer info to the DMAC
+
     // Set the DMA Cluster Table Address
     WriteDword( MO_DMA26_PTR2, SRAM_CLUSTER_TABLE_AUDIO);
-    
+
     // Set the DMA buffer limit size in qwords
     WriteDword( MO_DMA26_CNT1, SRAM_FIFO_AUDIO_BUFFER_SIZE / 8);
-    
+
     // Set the DMA Cluster Table Size in qwords
     WriteDword( MO_DMA26_CNT2, (SRAM_CLUSTER_TABLE_AUDIO_SIZE / 8));
 
@@ -1331,14 +1331,14 @@ void CCX2388xCard::ResetHardware()
     //
     // Fixes for flashing suggested by Ben Felts
     //
-    // 1.  Set bits 16:9 of register 0xE4310208 to 0x00.  
+    // 1.  Set bits 16:9 of register 0xE4310208 to 0x00.
     //     The default value is 0x03803C0F, which becomes 0x0380000F with this change.
-    WriteDword( CX2388X_AGC_SYNC_TIP1, 0x0380000F ); 
+    WriteDword( CX2388X_AGC_SYNC_TIP1, 0x0380000F );
 
     //2.  Set bits 27:26 of register 0xE4310200 to 0x0.  The default value is
     //    0x0CE00555, which becomes 0x00E00555 with this change.
-    WriteDword( CX2388X_AGC_BACK_VBI, 0x00E00555 ); 
-}    
+    WriteDword( CX2388X_AGC_BACK_VBI, 0x00E00555 );
+}
 
 BOOL APIENTRY CCX2388xCard::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -1351,7 +1351,7 @@ BOOL APIENTRY CCX2388xCard::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
     switch (message)
     {
     case WM_INITDIALOG:
-        pThis = (CCX2388xCard*)lParam; 
+        pThis = (CCX2388xCard*)lParam;
         SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, "CX2388x");
         sprintf(szVendorId,"%04X", pThis->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
@@ -1401,9 +1401,9 @@ void CCX2388xCard::InitializeI2C()
 
     ULONGLONG frequency;
     QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
-    
+
     m_I2CSleepCycle = (unsigned long)(frequency / 50000);
-    
+
     m_I2CInitialized = TRUE;
 }
 
@@ -1533,11 +1533,11 @@ double CCX2388xCard::SetPLL(double PLLFreq)
         LOG(0, "Invalid PLL value %f MHz", PLLFreq);
         return 0.0;
     }
-    
+
     // Set register int and fraction values
     RegValue |= PLLInt << 20;
     RegValue |= PLLFraction & 0xFFFFF;
-    
+
     WriteDword(CX2388X_PLL , RegValue );
 
     return (28.63636 / (8.0 * (double)Prescaler)) * ((double)PLLInt + (double)PLLFraction / (double)(1 << 20));
@@ -1555,7 +1555,7 @@ void CCX2388xCard::SetRISCStartAddress(DWORD RiscBasePhysical)
     WriteDword( SRAM_CMDS_21, RiscBasePhysical); // RISC STARTING ADDRESS
 
     // Set as PCI address
-    AndDataDword( SRAM_CMDS_21 + 0x10, 0x7fffffff); 
+    AndDataDword( SRAM_CMDS_21 + 0x10, 0x7fffffff);
 }
 
 void CCX2388xCard::SetRISCStartAddressVBI(DWORD RiscBasePhysical)
@@ -1563,7 +1563,7 @@ void CCX2388xCard::SetRISCStartAddressVBI(DWORD RiscBasePhysical)
     WriteDword( SRAM_CMDS_24, RiscBasePhysical); // RISC STARTING ADDRESS
 
     // Set as PCI address
-    AndDataDword( SRAM_CMDS_24 + 0x10, 0x7fffffff); 
+    AndDataDword( SRAM_CMDS_24 + 0x10, 0x7fffffff);
 }
 
 #define DumpRegister(Reg) fprintf(hFile, #Reg "\t%08x\n", ReadDword(Reg))
@@ -1588,9 +1588,9 @@ void CCX2388xCard::DumpChipStatus(const char* CardName)
     DumpRegister(CX2388X_VIDEO_INPUT);
     DumpRegister(CX2388X_TEMPORAL_DEC);
     DumpRegister(CX2388X_AGC_BURST_DELAY);
-    DumpRegister(CX2388X_BRIGHT_CONTRAST); 
-    DumpRegister(CX2388X_UVSATURATION);    
-    DumpRegister(CX2388X_HUE);             
+    DumpRegister(CX2388X_BRIGHT_CONTRAST);
+    DumpRegister(CX2388X_UVSATURATION);
+    DumpRegister(CX2388X_HUE);
     DumpRegister(CX2388X_WHITE_CRUSH);
     DumpRegister(CX2388X_PIXEL_CNT_NOTCH);
     DumpRegister(CX2388X_HORZ_DELAY_EVEN);
@@ -1601,22 +1601,22 @@ void CCX2388xCard::DumpChipStatus(const char* CardName)
     DumpRegister(CX2388X_VDELAYCCIR_ODD);
     DumpRegister(CX2388X_HACTIVE_EVEN);
     DumpRegister(CX2388X_HACTIVE_ODD);
-    DumpRegister(CX2388X_VACTIVE_EVEN);    
-    DumpRegister(CX2388X_VACTIVE_ODD);     
-    DumpRegister(CX2388X_HSCALE_EVEN);     
-    DumpRegister(CX2388X_HSCALE_ODD);      
-    DumpRegister(CX2388X_VSCALE_EVEN);     
-    DumpRegister(CX2388X_VSCALE_ODD);      
-    DumpRegister(CX2388X_FILTER_EVEN);     
-    DumpRegister(CX2388X_FILTER_ODD);      
+    DumpRegister(CX2388X_VACTIVE_EVEN);
+    DumpRegister(CX2388X_VACTIVE_ODD);
+    DumpRegister(CX2388X_HSCALE_EVEN);
+    DumpRegister(CX2388X_HSCALE_ODD);
+    DumpRegister(CX2388X_VSCALE_EVEN);
+    DumpRegister(CX2388X_VSCALE_ODD);
+    DumpRegister(CX2388X_FILTER_EVEN);
+    DumpRegister(CX2388X_FILTER_ODD);
     DumpRegister(CX2388X_FORMAT_2HCOMB);
     DumpRegister(CX2388X_PLL);
     DumpRegister(CX2388X_PLL_ADJUST);
-    DumpRegister(CX2388X_SAMPLERATECONV);  
-    DumpRegister(CX2388X_SAMPLERATEFIFO);  
-    DumpRegister(CX2388X_SUBCARRIERSTEP);  
+    DumpRegister(CX2388X_SAMPLERATECONV);
+    DumpRegister(CX2388X_SAMPLERATEFIFO);
+    DumpRegister(CX2388X_SUBCARRIERSTEP);
     DumpRegister(CX2388X_SUBCARRIERSTEPDR);
-    DumpRegister(CX2388X_CAPTURECONTROL);  
+    DumpRegister(CX2388X_CAPTURECONTROL);
     DumpRegister(CX2388X_VIDEO_COLOR_FORMAT);
     DumpRegister(CX2388X_VBI_SIZE);
     DumpRegister(CX2388X_FIELD_CAP_CNT);
@@ -1627,7 +1627,7 @@ void CCX2388xCard::DumpChipStatus(const char* CardName)
     DumpRegister(CX2388X_VBOS);
 
     DumpRegister(MO_GP0_IO);
-    DumpRegister(MO_GP1_IO);   
+    DumpRegister(MO_GP1_IO);
     DumpRegister(MO_GP2_IO);
     DumpRegister(MO_GP3_IO);
     DumpRegister(MO_GPIO);
@@ -1768,14 +1768,14 @@ BOOL APIENTRY CCX2388xCard::RegisterEditProc(HWND hDlg, UINT message, UINT wPara
     case WM_INITDIALOG:
         pThis = (CCX2388xCard*)lParam;
         SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_RESETCONTENT, 0, 0);
-        
+
         AddRegister(CX2388X_DEVICE_STATUS);
         AddRegister(CX2388X_VIDEO_INPUT);
         AddRegister(CX2388X_TEMPORAL_DEC);
         AddRegister(CX2388X_AGC_BURST_DELAY);
-        AddRegister(CX2388X_BRIGHT_CONTRAST); 
-        AddRegister(CX2388X_UVSATURATION);    
-        AddRegister(CX2388X_HUE);             
+        AddRegister(CX2388X_BRIGHT_CONTRAST);
+        AddRegister(CX2388X_UVSATURATION);
+        AddRegister(CX2388X_HUE);
         AddRegister(CX2388X_WHITE_CRUSH);
         AddRegister(CX2388X_PIXEL_CNT_NOTCH);
         AddRegister(CX2388X_HORZ_DELAY_EVEN);
@@ -1786,22 +1786,22 @@ BOOL APIENTRY CCX2388xCard::RegisterEditProc(HWND hDlg, UINT message, UINT wPara
         AddRegister(CX2388X_VDELAYCCIR_ODD);
         AddRegister(CX2388X_HACTIVE_EVEN);
         AddRegister(CX2388X_HACTIVE_ODD);
-        AddRegister(CX2388X_VACTIVE_EVEN);    
-        AddRegister(CX2388X_VACTIVE_ODD);     
-        AddRegister(CX2388X_HSCALE_EVEN);     
-        AddRegister(CX2388X_HSCALE_ODD);      
-        AddRegister(CX2388X_VSCALE_EVEN);     
-        AddRegister(CX2388X_VSCALE_ODD);      
-        AddRegister(CX2388X_FILTER_EVEN);     
-        AddRegister(CX2388X_FILTER_ODD);      
+        AddRegister(CX2388X_VACTIVE_EVEN);
+        AddRegister(CX2388X_VACTIVE_ODD);
+        AddRegister(CX2388X_HSCALE_EVEN);
+        AddRegister(CX2388X_HSCALE_ODD);
+        AddRegister(CX2388X_VSCALE_EVEN);
+        AddRegister(CX2388X_VSCALE_ODD);
+        AddRegister(CX2388X_FILTER_EVEN);
+        AddRegister(CX2388X_FILTER_ODD);
         AddRegister(CX2388X_FORMAT_2HCOMB);
         AddRegister(CX2388X_PLL);
         AddRegister(CX2388X_PLL_ADJUST);
-        AddRegister(CX2388X_SAMPLERATECONV);  
-        AddRegister(CX2388X_SAMPLERATEFIFO);  
-        AddRegister(CX2388X_SUBCARRIERSTEP);  
+        AddRegister(CX2388X_SAMPLERATECONV);
+        AddRegister(CX2388X_SAMPLERATEFIFO);
+        AddRegister(CX2388X_SUBCARRIERSTEP);
         AddRegister(CX2388X_SUBCARRIERSTEPDR);
-        AddRegister(CX2388X_CAPTURECONTROL);  
+        AddRegister(CX2388X_CAPTURECONTROL);
         AddRegister(CX2388X_VIDEO_COLOR_FORMAT);
         AddRegister(CX2388X_VBI_SIZE);
         AddRegister(CX2388X_FIELD_CAP_CNT);
@@ -1890,7 +1890,7 @@ BOOL APIENTRY CCX2388xCard::RegisterEditProc(HWND hDlg, UINT message, UINT wPara
             break;
         }
         break;
-    
+
     default:
         break;
     }

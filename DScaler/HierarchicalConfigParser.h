@@ -19,7 +19,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
 * @file HierarchicalConfigParser.h HierarchicalConfigParser header file
 */
 
@@ -216,7 +216,7 @@ typedef void (ParseReadProc)(int report, const CParseTag* tag, unsigned char typ
 
 // This PASS_TO_PARENT value can be specified as the 'readProc' value of
 // CParseTag to have to parent tag's callback function called.
-ParseReadProc PASS_TO_PARENT; 
+ParseReadProc PASS_TO_PARENT;
 
 // Constants definition for CParseTag
 class CParseConstant

@@ -28,7 +28,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// Eigenschaftenseite CPage3 
+// Eigenschaftenseite CPage3
 
 IMPLEMENT_DYNCREATE(CPage3, CPropertyPage)
 
@@ -37,7 +37,7 @@ CPage3::CPage3() : CPropertyPage(CPage3::IDD)
     //{{AFX_DATA_INIT(CPage3)
         // HINWEIS: Der Klassen-Assistent fügt hier Elementinitialisierung ein
     //}}AFX_DATA_INIT
-    m_psp.dwFlags &= ~PSP_HASHELP; 
+    m_psp.dwFlags &= ~PSP_HASHELP;
 }
 
 CPage3::~CPage3()
@@ -59,23 +59,23 @@ BEGIN_MESSAGE_MAP(CPage3, CPropertyPage)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// Behandlungsroutinen für Nachrichten CPage3 
+// Behandlungsroutinen für Nachrichten CPage3
 
-BOOL CPage3::OnSetActive() 
+BOOL CPage3::OnSetActive()
 {
-    GetDlgItem(IDC_EDIT_YES)->SetWindowText("");    
-    
+    GetDlgItem(IDC_EDIT_YES)->SetWindowText("");
+
     CPropertySheet* parent = (CPropertySheet*)GetParent();
     parent->SetWizardButtons(PSWIZB_BACK);
-    
+
     return CPropertyPage::OnSetActive();
 }
 
-void CPage3::OnChangeEditYes() 
+void CPage3::OnChangeEditYes()
 {
     CString strTemp;
     GetDlgItem(IDC_EDIT_YES)->GetWindowText(strTemp);
-    
+
     CPropertySheet* parent = (CPropertySheet*)GetParent();
 
     strTemp.Compare("YES") == 0 ?
@@ -83,7 +83,7 @@ void CPage3::OnChangeEditYes()
         parent->SetWizardButtons(PSWIZB_BACK);
 }
 
-LRESULT CPage3::OnWizardNext() 
+LRESULT CPage3::OnWizardNext()
 {
     CWizard* parent = (CWizard*)GetParent();
 

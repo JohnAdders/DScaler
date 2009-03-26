@@ -43,21 +43,21 @@ NTSTATUS DSDrvDispatch( IN PDEVICE_OBJECT deviceObject, IN PIRP irp)
     irp->IoStatus.Status = STATUS_SUCCESS;
     irp->IoStatus.Information = 0;
     irpStack = IoGetCurrentIrpStackLocation (irp);
-    
+
     ioDevice = (CIOAccessDevice *) irpStack->FileObject->FsContext;
 
     switch (irpStack->MajorFunction)
     {
     case IRP_MJ_CREATE:
         debugOut(dbTrace,"IRP_MJ_CREATE");
-        
+
         //create a CIOAccessDevice and assosiate it with this filehandle
         irpStack->FileObject->FsContext=new CIOAccessDevice();
 
         break;
     case IRP_MJ_CLOSE:
         debugOut(dbTrace,"IRP_MJ_CLOSE");
-        
+
         //remove CIOAccessDevice
         //if thers any memory currently alloocated CIOAccessDevice's destructor
         //unlocks the memory and frees it

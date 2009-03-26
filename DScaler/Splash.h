@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file splash.h splash Header file
  */
- 
+
 #ifndef __SPLASH_H___
 #define __SPLASH_H___
 

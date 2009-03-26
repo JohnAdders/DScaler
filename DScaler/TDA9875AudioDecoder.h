@@ -35,8 +35,8 @@
 #include "AudioDecoder.h"
 #include "TDA9875AudioControls.h"
 
-class CTDA9875AudioDecoder : 
-    public CTDA9875, 
+class CTDA9875AudioDecoder :
+    public CTDA9875,
         public CAudioDecoder
 {
 private:
@@ -146,7 +146,7 @@ private:
         eDe_emphasis    De_emphasis;
     } TStandardDefinition;
 
-    typedef struct 
+    typedef struct
     {
       eCarrier Major;
       eCarrier Minor[10];
@@ -176,7 +176,7 @@ public:
 
     // Inputs
     virtual void SetAudioInput(eAudioInput audioInput);
-    virtual eAudioInput GetAudioInput();    
+    virtual eAudioInput GetAudioInput();
     virtual const char* GetAudioInputName(eAudioInput audioInput);
 
     BOOL GetUseInputPin1();
@@ -185,7 +185,7 @@ public:
 
     // Standard
     virtual void SetAudioStandard(long Standard, eVideoFormat videoformat);
-    virtual long GetAudioStandardCurrent();    
+    virtual long GetAudioStandardCurrent();
     virtual const char* GetAudioStandardName(long Standard);
     virtual int GetNumAudioStandards();
     virtual long GetAudioStandard(int nIndex);

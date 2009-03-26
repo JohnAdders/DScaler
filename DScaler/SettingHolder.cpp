@@ -35,7 +35,7 @@ using namespace std;
 CSettingsHolder::CSettingsHolder(long SetMessage, UINT HelpID) :
     m_SetMessage(SetMessage),
     m_HelpID(HelpID)
-{    
+{
     m_SettingFlagsSection = "SettingFlags";
 }
 
@@ -48,13 +48,13 @@ CSettingsHolder::~CSettingsHolder()
     Makes sure there are no duplicates.
 */
 void CSettingsHolder::AddSetting(SmartPtr<CSimpleSetting> pSetting)
-{    
+{
     for (int i = 0; i < m_Settings.size(); i++)
     {
         if (m_Settings[i] == pSetting)
         {
             //Already in list
-            return; 
+            return;
         }
     }
     //Add to list
@@ -71,9 +71,9 @@ void CSettingsHolder::AddSetting(SETTING* pSetting, CSettingGroup* pGroup)
 
 /**
     Reads alls settings of the list from the .ini file.
-*/    
+*/
 void CSettingsHolder::ReadFromIni()
-{    
+{
     for(SettingsArray::iterator it = m_Settings.begin(); it != m_Settings.end(); ++it)
     {
         (*it)->ReadFromIni();
@@ -81,10 +81,10 @@ void CSettingsHolder::ReadFromIni()
 }
 
 /**
-    Writes all settings of the list to the .ini file.    
-*/    
+    Writes all settings of the list to the .ini file.
+*/
 void CSettingsHolder::WriteToIni(BOOL bOptimizeFileAccess)
-{    
+{
     for(SettingsArray::iterator it = m_Settings.begin(); it != m_Settings.end(); ++it)
     {
         (*it)->WriteToIni(bOptimizeFileAccess);
@@ -92,8 +92,8 @@ void CSettingsHolder::WriteToIni(BOOL bOptimizeFileAccess)
 }
 
 /**
-    Number of settings in the list.    
-*/    
+    Number of settings in the list.
+*/
 long CSettingsHolder::GetNumSettings()
 {
     return m_Settings.size();
@@ -101,8 +101,8 @@ long CSettingsHolder::GetNumSettings()
 
 
 /**
-    Get setting at index SettingsIndex.    
-*/    
+    Get setting at index SettingsIndex.
+*/
 SmartPtr<CSimpleSetting> CSettingsHolder::GetSetting(long SettingIndex)
 {
     if(SettingIndex >= 0 && SettingIndex < m_Settings.size())
@@ -119,14 +119,14 @@ SmartPtr<CSimpleSetting> CSettingsHolder::GetSetting(long SettingIndex)
     Handles WM_xx_SETVALUE/WM_xx_GETVALUE/WM_xx_CHANGEVALUE
     window messages.
     Only if the message offset specified at initialization is not 0.
-*/    
+*/
 LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled)
 {
     LONG RetVal = 0;
 
     if (m_SetMessage == 0)
-    { 
-        return 0; 
+    {
+        return 0;
     }
 
     if(wParam >= 0 && wParam < m_Settings.size())
@@ -153,7 +153,7 @@ LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam
 
 /**
     Adds an array of SETTING structures to the SettingHolder.
-    Optionally specify a default SettingGroup    
+    Optionally specify a default SettingGroup
 */
 void CSettingsHolder::AddSettings(SETTING* pSetting, int Num, CSettingGroup* pGroup)
 {
@@ -163,7 +163,7 @@ void CSettingsHolder::AddSettings(SETTING* pSetting, int Num, CSettingGroup* pGr
         {
             AddSetting(&pSetting[i], pGroup);
         }
-    }    
+    }
 }
 
 /**
@@ -178,7 +178,7 @@ void CSettingsHolder::EnableOnChange()
 }
 
 /**
-    Disable all OnChange calls if a value of a setting is changed.   
+    Disable all OnChange calls if a value of a setting is changed.
 */
 void CSettingsHolder::DisableOnChange()
 {

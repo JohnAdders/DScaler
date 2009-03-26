@@ -82,7 +82,7 @@ LPTSTR CleanUpLine(LPTSTR lpString)
 {
     int i = 0;
     char *string = lpString;
-    
+
     if(string == NULL || string[0] == '\0')
     {
         return lpString;
@@ -157,7 +157,7 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
     if(TempFile == NULL)
     {
         LOG(1, "BeautifyIniFile: Error opening temp file for writing.");
-        return;        
+        return;
     }
     else
     {
@@ -317,7 +317,7 @@ void Setting_Down(long GetValueMsg, long SettingIndex)
 
 //---------------------------------------------------------------------------
 // This function allows for accelerated slider adjustments
-// For example, adjusting Contrast or Brightness faster the longer 
+// For example, adjusting Contrast or Brightness faster the longer
 // you hold down the adjustment key.
 int GetCurrentAdjustmentStepCount(void* pSetting)
 {
@@ -365,7 +365,7 @@ int GetCurrentAdjustmentStepCount(void* pSetting)
     {
         // This occurs if the end-user is tapping a button repeatedly
         // such as on a handheld remote control, when a universal remote
-        // is programmed with a keypress.  Most remotes cannot repeat 
+        // is programmed with a keypress.  Most remotes cannot repeat
         // a keypress automatically, so the end user must tap the key.
         // The longer the time has elapsed since the first button press,
         // the bigger the adjustment steps become, up to a maximum.
@@ -377,7 +377,7 @@ int GetCurrentAdjustmentStepCount(void* pSetting)
     }
     else
     {
-        // The keypress or button press is no longer consecutive, 
+        // The keypress or button press is no longer consecutive,
         // so reset adjustment step.
         dwFirstTick = dwTick;
         nStepCount = 1;

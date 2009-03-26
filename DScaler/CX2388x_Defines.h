@@ -21,13 +21,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file cx2388x_defines.h  cx2388x_defines Header file
  */
 
 #ifdef WANT_CX2388X_SUPPORT
 
-#ifndef __CX2388X_DEFINES_H___ 
+#ifndef __CX2388X_DEFINES_H___
 #define __CX2388X_DEFINES_H___
 
 #define MO_PDMA_STHRSH      0x200000 // Source threshold
@@ -450,11 +450,11 @@
 
 // AUD_INIT
 
-#define SEL_BTSC     0x01 
-#define SEL_EIAJ     0x02 
-#define SEL_A2       0x04 
+#define SEL_BTSC     0x01
+#define SEL_EIAJ     0x02
+#define SEL_A2       0x04
 #define SEL_SAP      0x08
-#define SEL_NICAM    0x10 
+#define SEL_NICAM    0x10
 #define SEL_FMRADIO  0x20
 
 // AUD_CTL
@@ -506,7 +506,7 @@
 #define EN_DAC_MUTE_EN            0x00000100
 
 
-// Video 
+// Video
 #define VID_CAPTURE_CONTROL        0x310180
 
 #define CX23880_CAP_CTL_CAPTURE_VBI_ODD  (1<<3)
@@ -549,7 +549,7 @@
 #define CX2388X_DEV_CNTRL2           0x00200034
 
 #define CX2388X_I2C                  0x00368000
-#define CX2388X_I2C_SDA              (1<<0)     
+#define CX2388X_I2C_SDA              (1<<0)
 #define CX2388X_I2C_SCL              (1<<1)
 
 #define CX2388X_PINMUX_IO            0x0035C044
@@ -627,20 +627,20 @@
 #define CX2388X_VID_INTSTAT     0x00200054
 #define CX2388X_PCI_INTMSK      0x00200040
 #define CX2388X_PCI_INTSTAT     0x00200044
-#define CX2388X_AUD_INTMSK      0x00200060 
-#define CX2388X_AUD_INTSTAT     0x00200064 
-#define CX2388X_TS_INTMSK       0x00200070 
-#define CX2388X_TS_INTSTAT      0x00200074 
-#define CX2388X_VIP_INTMSK      0x00200080 
-#define CX2388X_VIP_INTSTAT     0x00200084 
-#define CX2388X_GPHST_INTMSK    0x00200090 
-#define CX2388X_GPHST_INTSTAT   0x00200094 
+#define CX2388X_AUD_INTMSK      0x00200060
+#define CX2388X_AUD_INTSTAT     0x00200064
+#define CX2388X_TS_INTMSK       0x00200070
+#define CX2388X_TS_INTSTAT      0x00200074
+#define CX2388X_VIP_INTMSK      0x00200080
+#define CX2388X_VIP_INTSTAT     0x00200084
+#define CX2388X_GPHST_INTMSK    0x00200090
+#define CX2388X_GPHST_INTSTAT   0x00200094
 
 
-#define VideoInputTuner         0x0 
-#define VideoInputComposite     0x1 
+#define VideoInputTuner         0x0
+#define VideoInputComposite     0x1
 #define VideoInputSVideo     0x2
-#define VideoInputOther         0x3 
+#define VideoInputOther         0x3
 
 #define Xtal0         0x1
 #define Xtal1         0x2
@@ -651,12 +651,12 @@
 #define VideoFormatNTSCJapan 0x2
 #define VideoFormatNTSC443     0x3
 #define VideoFormatPAL         0x4
-#define VideoFormatPALB         0x4 
-#define VideoFormatPALD         0x4 
-#define VideoFormatPALG         0x4 
-#define VideoFormatPALH         0x4 
-#define VideoFormatPALI         0x4 
-#define VideoFormatPALBDGHI     0x4 
+#define VideoFormatPALB         0x4
+#define VideoFormatPALD         0x4
+#define VideoFormatPALG         0x4
+#define VideoFormatPALH         0x4
+#define VideoFormatPALI         0x4
+#define VideoFormatPALBDGHI     0x4
 #define VideoFormatPALM         0x5
 #define VideoFormatPALN         0x6
 #define VideoFormatPALNC     0x7
@@ -668,12 +668,12 @@
 #define VideoFormatNTSCJapan27MHz     0x12
 #define VideoFormatNTSC44327MHz         0x13
 #define VideoFormatPAL27MHz             0x14
-#define VideoFormatPALB27MHz         0x14 
-#define VideoFormatPALD27MHz         0x14 
-#define VideoFormatPALG27MHz         0x14 
-#define VideoFormatPALH27MHz         0x14 
-#define VideoFormatPALI27MHz         0x14 
-#define VideoFormatPALBDGHI27MHz     0x14 
+#define VideoFormatPALB27MHz         0x14
+#define VideoFormatPALD27MHz         0x14
+#define VideoFormatPALG27MHz         0x14
+#define VideoFormatPALH27MHz         0x14
+#define VideoFormatPALI27MHz         0x14
+#define VideoFormatPALBDGHI27MHz     0x14
 #define VideoFormatPALM27MHz         0x15
 #define VideoFormatPALN27MHz         0x16
 #define VideoFormatPALNC27MHz         0x17
@@ -747,8 +747,8 @@
 #define CHANNEL_VIP_UP         0xA
 #define CHANNEL_HOST_DN         0xB
 #define CHANNEL_HOST_UP         0xC
-#define CHANNEL_FIRST         0x1 
-#define CHANNEL_LAST         0xC 
+#define CHANNEL_FIRST         0x1
+#define CHANNEL_LAST         0xC
 
 #define GP_COUNT_CONTROL_NONE         0x0
 #define GP_COUNT_CONTROL_INC         0x1
@@ -788,10 +788,10 @@ enum eCX2388xAudioStandard
 enum eCX2388xStereoType
 {
     STEREOTYPE_AUTO = 0,
-    STEREOTYPE_STEREO, 
-    STEREOTYPE_MONO, 
-    STEREOTYPE_ALT1, 
-    STEREOTYPE_ALT2, 
+    STEREOTYPE_STEREO,
+    STEREOTYPE_MONO,
+    STEREOTYPE_ALT1,
+    STEREOTYPE_ALT2,
 };
 
 // planar video (Used for YUY2)
@@ -827,7 +827,7 @@ enum eCX2388xStereoType
 
 // Instruction Queue for video
 #define SRAM_INSTRUCTION_QUEUE_VIDEO     0x180340
-#define SRAM_INSTRUCTION_QUEUE_SIZE      0xC0      
+#define SRAM_INSTRUCTION_QUEUE_SIZE      0xC0
 
 // Cluster table for video
 #define SRAM_CLUSTER_TABLE_VIDEO         (SRAM_INSTRUCTION_QUEUE_VIDEO + SRAM_INSTRUCTION_QUEUE_SIZE)

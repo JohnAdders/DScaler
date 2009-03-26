@@ -31,10 +31,10 @@
 
 /**
  * DirectShow tuner class.
- * This class uses IKsPropertySet to bypas IAMTVTuner interface, this makes 
+ * This class uses IKsPropertySet to bypas IAMTVTuner interface, this makes
  * it posibel to tune directly to a frequency.
  */
-class CDShowDirectTuner : public CDShowObject  
+class CDShowDirectTuner : public CDShowObject
 {
 public:
     ///enum used by GetSignalStrength
@@ -44,18 +44,18 @@ public:
         SIGNALTYPE_PLL,
         SIGNALTYPE_SIGNALSTRENGTH,
     };
-    
+
     CDShowDirectTuner(CComPtr<IAMTVTuner> pTVTuner, IGraphBuilder *pGraph);
     virtual ~CDShowDirectTuner();
     eDSObjectType getObjectType() { return DSHOW_TYPE_TUNER;};
-    
+
     ///@return current tuner mode
     AMTunerModeType GetTunerMode();
     ///change tuner mode (tv, fm/am radio)
     void SetTunerMode(AMTunerModeType Mode);
     ///@return a combination of AMTunerModeType
     long GetAvailableModes();
-    
+
     ///@return current frequency in hz
     long GetFrequency();
     /**
@@ -72,12 +72,12 @@ public:
      * @param Mode Tuner mode
      */
     void GetMinMaxFrequency(long &min,long &max,AMTunerModeType Mode=AMTUNER_MODE_TV);
-    
+
     /**
      * Gets current signal strength.
-     * The type of signal depends on the tuning strategy that the device 
+     * The type of signal depends on the tuning strategy that the device
      * driver uses.
-     * If strategy is KS_TUNER_STRATEGY_DRIVER_TUNES then there is no way of 
+     * If strategy is KS_TUNER_STRATEGY_DRIVER_TUNES then there is no way of
      * geting the signal status in that case IAMAnalogVideoDecoder::get_HorizontalLocked
      * coud be used insted.
      *
@@ -85,14 +85,14 @@ public:
      * @return current signal, meaning of this value depends on the type parameter
      */
     long GetSignalStrength(eSignalType &type);
-    
+
     ///@return currently selected tuner input
     long GetInput();
     ///@param Input new tuner input to use
     void SetInput(long Input);
     ///@return number of Tuner inputs
     long GetNumInputs();
-    
+
     ///@return current tvformat
     AnalogVideoStandard GetTVFormat();
     ///@param Format new tvformat

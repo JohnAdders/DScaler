@@ -93,7 +93,7 @@ BOOL TrackModeSwitches()
         {
             NumSwitches++;
         }
-    
+
         if (PulldownSwitchMax > 1 && PulldownSwitchInterval > 0 &&  // if the user wants to track switches
             PulldownSwitchMax <= NumSwitches &&
             ModeSwitchTimestamps[PulldownSwitchMax - 1] > 0)        // and there have been enough of them
@@ -113,11 +113,11 @@ BOOL TrackModeSwitches()
 // This gem is where our software competes with the big boys - you know
 // the expensive settop scaler boxes that detect 3:2 pulldown Mode!
 //
-// Original Programmer: JohnAd 
+// Original Programmer: JohnAd
 // Other maintainers: Mark Rejhon and Steve Grimm
 //
 // His attempt to implement Mark Rejhon's 3:2 pulldown code.
-// This is an advanced descendant of Mark Rejhon's 3:2 algorithm designed 
+// This is an advanced descendant of Mark Rejhon's 3:2 algorithm designed
 // completely from scratch on paper in May 1999 at the following URL:
 // http://www.avsforum.com/ubb/Forum12/HTML/000071.html
 //
@@ -127,9 +127,9 @@ BOOL TrackModeSwitches()
 //
 // The algorithm and comments below are taken from Mark's post to the AVSCIENCE
 // Home Theater Computer Forum reproduced in the file 32Spec.htm that should be
-// with this source.  The key to getting this to work will be choosing the right 
-// Value for the Threshold32Pulldown variable and others.  This should probably 
-// vary depending on the input source, higher for video lower for TV and cable 
+// with this source.  The key to getting this to work will be choosing the right
+// Value for the Threshold32Pulldown variable and others.  This should probably
+// vary depending on the input source, higher for video lower for TV and cable
 // and very low for laserdisk or DVD.
 //
 // In addition, we have a sanity check for poorly-transfered material.  If a
@@ -168,7 +168,7 @@ void UpdateNTSCPulldownMode(TDeinterlaceInfo* pInfo)
     // the current field is very different from the field two fields ago.
     // Threshold32Pulldown probably should be changed to be automatically
     // compensating depending on the material.
-    
+
     //CompareFields(pInfo);
     if(pInfo->FieldDiff > Threshold32Pulldown)
     {
@@ -184,7 +184,7 @@ void UpdateNTSCPulldownMode(TDeinterlaceInfo* pInfo)
                 // that we do not have an oversensitive hair-trigger
                 // in switching to video source everytime there is
                 // video noise or a single spurious field added/dropped
-                // during a movie causing mis-synchronization problems. 
+                // during a movie causing mis-synchronization problems.
                 LOG(2, "Back to Video, No field pairs");
                 SetVideoDeinterlaceIndex(NTSCFilmFallbackIndex);
                 MOVIE_VERIFY_CYCLE = 0;
@@ -252,7 +252,7 @@ void UpdateNTSCPulldownMode(TDeinterlaceInfo* pInfo)
             // If NextPulldownRepeatCount is nonzero, it's a temporary
             // repeat Count setting attempting to compensate for some kind
             // of anomaly in the sequence of fields, so use it instead.
-            if(NewFilmMode == LastFilmMode || 
+            if(NewFilmMode == LastFilmMode ||
                 (IsFilmMode() && LastFilmMode == FILM_32_PULLDOWN_COMB) ||
                 LastFilmMode == FILMPULLDOWNMODES_LAST_ONE)
             {
@@ -272,13 +272,13 @@ void UpdateNTSCPulldownMode(TDeinterlaceInfo* pInfo)
 
                     if (OldPulldownMethod != GetCurrentDeintMethod())
                     {
-                        LOG(2, "Gone to film Mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
+                        LOG(2, "Gone to film Mode %d", NewFilmMode - FILM_32_PULLDOWN_0);
                         // A Mode switch.  If we've done a lot of them recently,
                         // force video Mode since it means we're having trouble
-                        // locking onto a reliable film Mode.   
-                        // 
+                        // locking onto a reliable film Mode.
+                        //
                         // This stuff happens during these situations
-                        // - Time compressed movies, which ruins 3:2 sequence 
+                        // - Time compressed movies, which ruins 3:2 sequence
                         // - Poorly telecined movies
                         // - Erratic framerates during transfers of old movies
                         // - TV commercials that vary framerates
@@ -303,18 +303,18 @@ void UpdateNTSCPulldownMode(TDeinterlaceInfo* pInfo)
                                 MOVIE_VERIFY_CYCLE = 0;
                                 MOVIE_FIELD_CYCLE = 0;
                                 LOG(2, "Too much film Mode cycling, switching to video");
-                                
+
                                 /** Require pulldown Mode to be consistent for the
                                     rapid-Mode-switch interval before we'll lock onto
                                     film Mode again.  This is probably too long in most
                                     cases, but making it shorter than the interval would
                                     run the risk of switching back to film Mode just in
                                     time to hit a rapid sequence of Mode changes.
-                                
+
                                     83 is (5 fields/cycle) / (60 fields/sec) * (1000 ms/sec).
-                                
+
                                     \todo Eliminate hardcoded values
-                                
+
                                     NextPulldownRepeatCount = PulldownSwitchInterval / 83;
                                 */
                                 NextPulldownRepeatCount = PulldownRepeatCount * 2;
@@ -365,7 +365,7 @@ void UpdateNTSCPulldownMode(TDeinterlaceInfo* pInfo)
                 else
                 {
                     SetFilmDeinterlaceMode(NewFilmMode);
-                    LOG(2, "Gone to film Mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
+                    LOG(2, "Gone to film Mode %d", NewFilmMode - FILM_32_PULLDOWN_0);
                     if(TrackModeSwitches())
                     {
                         SetVideoDeinterlaceIndex(NTSCFilmFallbackIndex);
@@ -546,7 +546,7 @@ BOOL FilmModeNTSCComb(TDeinterlaceInfo* pInfo)
 {
     static long NumCalls = 0;
     DEINTERLACE_METHOD* DeintMethod;
-    
+
     if(pInfo == NULL)
     {
         NumCalls = 0;

@@ -251,7 +251,7 @@ eTDA8290Standard CTDA8290::GetTDA8290Standard(eVideoFormat videoFormat)
         standard = TDA8290_STANDARD_B;
         break;
     case VIDEOFORMAT_PAL_G:
-    case VIDEOFORMAT_PAL_H:        
+    case VIDEOFORMAT_PAL_H:
     case VIDEOFORMAT_PAL_N:
     case VIDEOFORMAT_SECAM_G:
     case VIDEOFORMAT_SECAM_H:
@@ -261,7 +261,7 @@ eTDA8290Standard CTDA8290::GetTDA8290Standard(eVideoFormat videoFormat)
         standard = TDA8290_STANDARD_I;
         break;
     case VIDEOFORMAT_PAL_D:
-    case VIDEOFORMAT_SECAM_D:    
+    case VIDEOFORMAT_SECAM_D:
     case VIDEOFORMAT_SECAM_K:
     case VIDEOFORMAT_SECAM_K1:
         standard = TDA8290_STANDARD_DK;
@@ -270,7 +270,7 @@ eTDA8290Standard CTDA8290::GetTDA8290Standard(eVideoFormat videoFormat)
     case VIDEOFORMAT_SECAM_L1:
         standard = TDA8290_STANDARD_L;
         break;
-    case VIDEOFORMAT_PAL_60:    
+    case VIDEOFORMAT_PAL_60:
         // Unsupported
         break;
     case VIDEOFORMAT_PAL_M:

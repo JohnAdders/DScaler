@@ -83,7 +83,7 @@ BOOL LuminanceThreshold_OnChange(long NewValue)
     {
         TemporalChromaThreshold = NewValue;
     }
-    return TRUE;   
+    return TRUE;
 }
 
 BOOL ChromaThreshold_OnChange(long NewValue)
@@ -93,7 +93,7 @@ BOOL ChromaThreshold_OnChange(long NewValue)
     {
         TemporalLuminanceThreshold = NewValue;
     }
-    return TRUE;   
+    return TRUE;
 }
 
 SETTING FLT_TNoiseSettings[FLT_TNOISE_SETTING_LASTONE] =
@@ -139,7 +139,7 @@ FILTER_METHOD TemporalNoiseMethod =
     "Noise Reduction (Temporal)\tN",
     FALSE,
     TRUE,
-    DispatchTemporalNoise, 
+    DispatchTemporalNoise,
     // IDM_NOISE_FILTER so that accelerator works
     768,
     FALSE,

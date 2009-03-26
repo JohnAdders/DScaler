@@ -70,7 +70,7 @@
 // the filter is initialized.
 
 #define   INITIAL_RELIABILITY                   0.001
-#define   INITIAL_BASELINE                      75.0 
+#define   INITIAL_BASELINE                      75.0
 #define   INITIAL_PEAK_MEAN                     100.0
 #define   INITIAL_PEAK_SQUARED_MEAN             10000.0
 
@@ -596,7 +596,7 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
         {
             Highest = ThisTry;
         }
-        else 
+        else
         {
             Lowest = ThisTry;
         }
@@ -648,7 +648,7 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
         DWORD       Baseline = 0;
         DWORD       DeltaPeak = 0;
         LONG        FalsePeak = 0;
-        
+
         // Find the part of the histogram after which the false peak (due to decay from the MaxNoise threshold)
         // will be found.
 
@@ -660,7 +660,7 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
 
         // Find baseline (  = LineLength / 16 accumulated value )
         // Note that this isn't a real quantile.  But it is robust to poor peak estimates.
-        
+
         for( Index = 0; Index <= FalsePeak; ++Index )
         {
 
@@ -774,7 +774,7 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
         // Detect whether the lock dot should be shown
 
         if( ProbSameSignal > 0.001 )
-        {   
+        {
             *pDoShowDot = TRUE;
         }
         else

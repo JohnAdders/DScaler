@@ -34,16 +34,16 @@
 CMT2050::CMT2050(eVideoFormat DefaultVideoFormat) :
     m_Initialized(FALSE),
     m_Frequency (0),
-    m_Locked(FALSE)      
+    m_Locked(FALSE)
 {
-    m_DefaultVideoFormat = DefaultVideoFormat;    
+    m_DefaultVideoFormat = DefaultVideoFormat;
 }
 
 BYTE CMT2050::GetDefaultAddress() const
 {
     return 0xC2>>1;
 }
-    
+
 eTunerId CMT2050::GetTunerId()
 {
     return TUNER_MT2050;
@@ -97,8 +97,8 @@ void CMT2050::Initialize()
 
     // Get chip info
     BYTE rdbuf[22];
-    BYTE wrbuf[] = { (BYTE)(m_DeviceAddress << 1), 0 };    
-    
+    BYTE wrbuf[] = { (BYTE)(m_DeviceAddress << 1), 0 };
+
     if (m_I2CBus->Read(wrbuf,2,rdbuf,21))
     {
         LOG(1,"MT2050: Companycode=%02x%02x Part=%02x Revision=%02x",
@@ -127,7 +127,7 @@ void CMT2050::Initialize()
     {
         m_ExternalIFDemodulator->Init(FALSE, m_DefaultVideoFormat);
     }
-    
+
     m_Initialized = TRUE;
 }
 

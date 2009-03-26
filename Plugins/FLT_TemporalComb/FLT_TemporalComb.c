@@ -266,11 +266,11 @@ static FILTER_METHOD    TemporalCombMethod =
     sizeof(FILTER_METHOD),
     FILTER_CURRENT_VERSION,
     DEINTERLACE_INFO_CURRENT_VERSION,
-    "Temporal Comb Filter",                 // Displayed name                          
+    "Temporal Comb Filter",                 // Displayed name
     "Temporal Comb",                        // Name in menu
     FALSE,                                  // Not initially active
     TRUE,                                   // Call on input so pulldown can benefit from it
-    DispatchTemporalComb,                   // Algorithm to use (really decided by GetFilterPluginInfo) 
+    DispatchTemporalComb,                   // Algorithm to use (really decided by GetFilterPluginInfo)
     0,                                      // Menu: assign automatically
     FALSE,                                  // Does not run if we're out of time
     StartTemporalComb,                      // Initialization procedure
@@ -638,7 +638,7 @@ removed from the assembly version for speed reasons.  It's also a bit easier to 
             unsigned long       lastY, lastUV;
             unsigned long       lastLastY, lastLastUV;
             int                 inPhaseDelta, outPhaseDelta;
-            
+
             thisY = (*srcPtr) & 0x00FF;
             lastY = (*lastPtr) & 0x00FF;
             lastLastY = (*lastLastPtr) & 0x00FF;
@@ -695,9 +695,9 @@ removed from the assembly version for speed reasons.  It's also a bit easier to 
                     *srcUpPtr = ((*srcUpPtr & 0xFEFE) >> 1) + ((*lastUpPtr & 0xFEFE) >> 1);
                 }
             }
-            
+
             *(mapPtr - info->OverlayPitch) = ((*(mapPtr - info->OverlayPitch)) * gDecayNumerator) >> 9;
-                        
+
 
             ++srcPtr;
             ++srcUpPtr;

@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file settings.h settings Header file
  */
- 
+
 #ifndef __SETTINGS_H___
 #define __SETTINGS_H___
 

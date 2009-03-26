@@ -17,10 +17,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file saa7118.h saa7118 Header file
  */
- 
+
 #ifndef __SAA7118_H___
 #define __SAA7118_H___
 
@@ -29,7 +29,7 @@
 
 /** Implemenation of a simple tuner connected via I2C
 */
-class CSAA7118 : public CI2CDevice  
+class CSAA7118 : public CI2CDevice
 {
 public:
     CSAA7118();

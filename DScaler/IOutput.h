@@ -28,10 +28,10 @@
 class IOutput
 {
 public:
-    enum OUTPUTTYPES 
-    { 
-        OUT_OVERLAY, 
-        OUT_D3D 
+    enum OUTPUTTYPES
+    {
+        OUT_OVERLAY,
+        OUT_D3D
     };
 
     IOutput(void);
@@ -88,7 +88,7 @@ public:
 
 protected:
     BOOL m_bSettingInitialized;
-    SETTING OtherSettings[OTHER_SETTING_LASTONE];   
+    SETTING OtherSettings[OTHER_SETTING_LASTONE];
     DWORD DestSizeAlign;
     DWORD SrcSizeAlign;
 };

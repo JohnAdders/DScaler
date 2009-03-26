@@ -23,7 +23,7 @@
 #define DSCALERVERSION_MINOR 1
 #define DSCALERVERSION_REVISION 17
 
-// need to have an extra macro for stingify otherwise we get the 
+// need to have an extra macro for stingify otherwise we get the
 // name of the definition not the value
 #define MAKESTRING(Stuff)     #Stuff
 #define MAKEVERSTRING(Maj, Min, Rev)     MAKESTRING(Maj) "." MAKESTRING(Min) "." MAKESTRING(Rev)

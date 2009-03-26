@@ -47,7 +47,7 @@ CPeriodBouncer::CPeriodBouncer(time_t period, double amplitude, double offset) :
     m_Period(period),
     m_Amplitude(amplitude),
     m_Offset(offset)
-{ 
+{
     time(&m_StartTime);
 }
 
@@ -71,14 +71,14 @@ double CPeriodBouncer::position()
     return val + m_Offset;
 }
 
-// Class containing all the rectangles a filter might want 
+// Class containing all the rectangles a filter might want
 // Dest rectanges refer to the image rectangle on the screen
 // Src rectangles refer to the rectangle of the source image being used
-// 
+//
 // Prev rectangles refer to the values from before this current filter run
 // Original rectangles refer to the initial values of "Current" passed into the filter chain
 // Current rectangles are the Value being used and adjusted.
-// 
+//
 // ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
 
 void CAspectRectangles::DebugDump()
@@ -88,11 +88,11 @@ void CAspectRectangles::DebugDump()
 }
 
 CAspectFilter::CAspectFilter()
-{ 
+{
 }
 
 CAspectFilter::~CAspectFilter()
-{ 
+{
 }
 
 void CAspectFilter::DebugDump()
@@ -124,7 +124,7 @@ const char* COverscanAspectFilter::getFilterName()
 }
 
 void COverscanAspectFilter::DebugDump()
-{ 
+{
     LOG(2,"Overscans (Top,Bottom,Left,Right) = (%d,%d,%d,%d)",m_TopOverscan, m_BottomOverscan, m_LeftOverscan, m_RightOverscan);
 }
 
@@ -147,7 +147,7 @@ CAnalogueBlankingFilter::CAnalogueBlankingFilter(int SourceWidth, int SourceHeig
     else
     {
         // do nothing to image if we're not an expected height
-        // since we are probably in a still or some other source 
+        // since we are probably in a still or some other source
         // were analogue blanking doesn't apply
         m_TopShift = 0;
         m_BottomShift = 0;
@@ -167,7 +167,7 @@ const char* CAnalogueBlankingFilter::getFilterName()
 }
 
 void CAnalogueBlankingFilter::DebugDump()
-{ 
+{
     LOG(2,"AnalogueBlanking %d %d %d %d", m_TopShift, m_BottomShift, m_LeftShift, m_RightShift);
 }
 
@@ -228,7 +228,7 @@ void CBounceDestinationAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& R
 
 const char* CBounceDestinationAspectFilter::getFilterName()
 {
-    return "CBounceDestinationAspectFilter"; 
+    return "CBounceDestinationAspectFilter";
 }
 
 void CBounceDestinationAspectFilter::DebugDump()
@@ -264,14 +264,14 @@ void CPositionDestinationAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL&
     #endif
 }
 
-const char* CPositionDestinationAspectFilter::getFilterName() 
-{ 
-    return "CPositionDestinationAspectFilter"; 
+const char* CPositionDestinationAspectFilter::getFilterName()
+{
+    return "CPositionDestinationAspectFilter";
 }
 
 void CPositionDestinationAspectFilter::DebugDump()
 {
-    LOG(2,"m_XPos = %lf, m_YPos = %lf",m_XPos,m_YPos); 
+    LOG(2,"m_XPos = %lf, m_YPos = %lf",m_XPos,m_YPos);
 }
 
 void CCropAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
@@ -282,7 +282,7 @@ void CCropAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
     #endif
 
     double MaterialAspect = AspectSettings.SourceAspect ? (AspectSettings.SourceAspect/1000.0) : ar.m_CurrentOverlayDestRect.targetAspect();
-    
+
     if(AspectSettings.SourceAspectAdjust != 1000)
     {
         MaterialAspect *= (double)AspectSettings.SourceAspectAdjust / 1000.0;
@@ -309,7 +309,7 @@ void CCropAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 }
 
 const char* CCropAspectFilter::getFilterName()
-{ 
+{
     return "CCropAspectFilter";
 }
 
@@ -344,7 +344,7 @@ void CUnCropAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun
     if (ar.m_CurrentOverlaySrcRect.right > rOriginalSrc.right) ar.m_CurrentOverlaySrcRect.right = rOriginalSrc.right;
     if (ar.m_CurrentOverlaySrcRect.top < rOriginalSrc.top) ar.m_CurrentOverlaySrcRect.top = rOriginalSrc.top;
     if (ar.m_CurrentOverlaySrcRect.bottom > rOriginalSrc.bottom) ar.m_CurrentOverlaySrcRect.bottom = rOriginalSrc.bottom;
-    
+
     // Now scale the destination to the source remaining
     ar.m_CurrentOverlayDestRect.left += (int)floor((ar.m_CurrentOverlaySrcRect.left-lastSrc.left)*hScale);
     ar.m_CurrentOverlayDestRect.right -= (int)floor((lastSrc.right-ar.m_CurrentOverlaySrcRect.right)*hScale);
@@ -353,21 +353,21 @@ void CUnCropAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun
 }
 
 const char* CUnCropAspectFilter::getFilterName()
-{ 
-    return "CUnCropAspectFilter"; 
+{
+    return "CUnCropAspectFilter";
 }
 
 // Zooms in on the source image
-// x/m_YZoom is the amount to zoom - 1 = full size, 2 = double size, 4 = quad size 
-//    both zoom factors should normally be equal - any other values will wreck the 
+// x/m_YZoom is the amount to zoom - 1 = full size, 2 = double size, 4 = quad size
+//    both zoom factors should normally be equal - any other values will wreck the
 //    aspect ratio of the image (that would be a shame after spending all this code to keep it correct <grin>
 // x/m_YPos is the position to zoom in on - 0 = left/top of frame, .5 = middle, 1 = right/bottom of frame
 // Normally this filter will be applied just before the CScreenSanityAspectFilter
 CPanAndZoomAspectFilter::CPanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom)
 {
-    m_XPos = (double)_xPos / 100.0; 
+    m_XPos = (double)_xPos / 100.0;
     m_YPos = (double)_yPos / 100.0;
-    m_XZoom = (double)_xZoom / 100.0; 
+    m_XZoom = (double)_xZoom / 100.0;
     m_YZoom = (double)_yZoom / 100.0;
 }
 
@@ -500,7 +500,7 @@ const char* CPanAndZoomAspectFilter::getFilterName()
     return "CPanAndZoomAspectFilter";
 }
 void CPanAndZoomAspectFilter::DebugDump()
-{ 
+{
     LOG(2,"m_XPos = %lf, m_YPos = %lf, m_XZoom = %lf, m_YZoom = %lf",m_XPos,m_YPos,m_XZoom,m_YZoom);
 }
 
@@ -514,10 +514,10 @@ CScreenSanityAspectFilter::CScreenSanityAspectFilter(int SrcWidth, int SrcHeight
 // Should occur at the end of the aspect processing chain (but before the ResizeWindow filter)
 void CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
-    // crop the Destination rect so that the overlay destination region is 
+    // crop the Destination rect so that the overlay destination region is
     // always on the screen we will also update the source area to reflect this
     // so that we see the appropriate portion on the screen
-    // (this should make us compatable with YXY)        
+    // (this should make us compatable with YXY)
     RECT screenRect;
     if (GetSystemMetrics(SM_CXVIRTUALSCREEN) == 0 || GetSystemMetrics(SM_CYVIRTUALSCREEN) == 0)
     {
@@ -559,7 +559,7 @@ void CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
 }
 
 const char* CScreenSanityAspectFilter::getFilterName()
-{ 
+{
     return "CScreenSanityAspectFilter";
 }
 
@@ -571,7 +571,7 @@ void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
     // See if we need to resize the window
     CAspectRect currentClientRect;
     CAspectRect newRect = ar.m_CurrentOverlayDestRect;
-        
+
     /*currentClientRect.setToClient(hWnd,TRUE);
     if (IsStatusBarVisible())
     {
@@ -599,19 +599,19 @@ void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
         //GetMonitorRect(hWnd, &screenRect);
 
         currentClientRect.adjustSourceAspectSmart(newRect.sourceAspect(),screenRect);
-        
+
         #ifdef __ASPECTFILTER_DEBUG__
             currentClientRect.DebugDump("New Client Rect");
         #endif
-                    
+
         // Add the status bar back in...
         /*if (IsStatusBarVisible())
         {
-            currentClientRect.bottom += StatusBar_Height();     
+            currentClientRect.bottom += StatusBar_Height();
         }*/
-                    
+
         currentClientRect.enforceMinSize(8);
-        
+
         // Convert client rect to window rect...
         AddDisplayAreaRect(GetMainWnd(), &currentClientRect);
 
@@ -628,7 +628,7 @@ void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
             SendMessage(GetMainWnd(), WM_NCCALCSIZE, FALSE, (LPARAM)(LPRECT)&TempRect);
             currentClientRect.top -= TempRect.top - OrigClientTop;
         }
-        
+
         #ifdef __ASPECTFILTER_DEBUG__
             currentClientRect.DebugDump("New Window Pos");
         #endif
@@ -636,7 +636,7 @@ void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
         // Set the window...
         SetWindowPos(GetMainWnd(), NULL,currentClientRect.left,currentClientRect.top,currentClientRect.width(),currentClientRect.height(),
                      SWP_NOZORDER);
-        
+
         #ifdef __ASPECTFILTER_DEBUG__
             currentClientRect.setToClient(hWnd,TRUE);
             if (IsStatusBarVisible())
@@ -659,12 +659,12 @@ const char* CResizeWindowAspectFilter::getFilterName()
 CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
 {
     if (AspectSettings.bAnalogueBlanking)
-    { 
-        m_FilterChain.push_back(new CAnalogueBlankingFilter(SrcWidth, SrcHeight)); 
+    {
+        m_FilterChain.push_back(new CAnalogueBlankingFilter(SrcWidth, SrcHeight));
     }
 
     if (AspectSettings.OrbitEnabled)
-    { 
+    {
         // TO BE CHANGED (LG) : don't know what to put in m_Overscan
         // and why m_Overscan is not used after ?
         int m_Overscan = AspectSettings.InitialTopOverscan;
@@ -673,14 +673,14 @@ CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
             m_Overscan = (AspectSettings.OrbitSize+1)/2;
         }
         m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialTopOverscan, AspectSettings.InitialBottomOverscan, AspectSettings.InitialLeftOverscan, AspectSettings.InitialRightOverscan));
-        m_FilterChain.push_back(new COrbitAspectFilter(AspectSettings.OrbitPeriodX, AspectSettings.OrbitPeriodY, AspectSettings.OrbitSize)); 
+        m_FilterChain.push_back(new COrbitAspectFilter(AspectSettings.OrbitPeriodX, AspectSettings.OrbitPeriodY, AspectSettings.OrbitSize));
     }
-    else 
+    else
     {
         m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialTopOverscan, AspectSettings.InitialBottomOverscan, AspectSettings.InitialLeftOverscan, AspectSettings.InitialRightOverscan));
     }
     if (AspectSettings.AspectMode)
-    { 
+    {
         SmartPtr<CAspectFilter> PosFilter;
         if (AspectSettings.BounceEnabled)
         {
@@ -692,41 +692,41 @@ CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
             switch (AspectSettings.HorizontalPos)
             {
             case HORZ_POS_LEFT:
-                m_XPos = -1; 
+                m_XPos = -1;
                 break;
             case HORZ_POS_RIGHT:
-                m_XPos = 1; 
+                m_XPos = 1;
                 break;
-            default: 
-                m_XPos = 0; 
+            default:
+                m_XPos = 0;
                 break;
             }
             switch (AspectSettings.VerticalPos)
             {
-            case VERT_POS_TOP: 
+            case VERT_POS_TOP:
                 m_YPos = -1;
                 break;
-            case VERT_POS_BOTTOM: 
-                m_YPos = 1; 
+            case VERT_POS_BOTTOM:
+                m_YPos = 1;
                 break;
             default:
-                m_YPos = 0; 
+                m_YPos = 0;
                 break;
             }
             PosFilter = new CPositionDestinationAspectFilter(m_XPos,m_YPos);
         }
-        
+
         PosFilter->SetChild(new CCropAspectFilter());
 
         if (!AspectSettings.AspectImageClipped || AspectSettings.SquarePixels)
         {
             SmartPtr<CAspectFilter> UnCropFilter = new CUnCropAspectFilter();
             UnCropFilter->SetChild(PosFilter);
-            m_FilterChain.push_back(UnCropFilter); 
+            m_FilterChain.push_back(UnCropFilter);
         }
         else
         {
-            m_FilterChain.push_back(PosFilter); 
+            m_FilterChain.push_back(PosFilter);
         }
     }
 
@@ -741,7 +741,7 @@ CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
                                                AspectSettings.ZoomFactorX,
                                                AspectSettings.ZoomFactorY));
     }
-    
+
     // only put resize filter in if main window is not full screen
     if (AspectSettings.AutoResizeWindow && !bIsFullScreen)
     {

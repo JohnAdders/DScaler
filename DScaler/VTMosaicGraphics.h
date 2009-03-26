@@ -17,10 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-/** 
+/**
  * @file vtmosaicgraphics.h vtmosaicgraphics Header file
  */
- 
+
 #ifndef __VTMOSAICGRAPHICS_H___
 #define __VTMOSAICGRAPHICS_H___
 
@@ -41,6 +41,6 @@ private:
     static BYTE m_xmgraf[2][2];
     static BYTE m_ymgraf[3][3];
 };
-  
-   
+
+
 #endif

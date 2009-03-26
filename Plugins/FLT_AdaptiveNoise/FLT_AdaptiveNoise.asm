@@ -226,7 +226,7 @@
     {
         CurveWidth = (sCumDifferencePeak - 1.0)/2.0;
     }
-        
+
     if (CurveWidth < 5.0)
     {
         CurveWidth = 5.0;
@@ -245,11 +245,11 @@
         sprintf(tempString, "%6.3f", (sCumDifferencePeak*(100.0-gDecayCoeff)*VarianceReduction)/(4.0*100.0));
         DrawString(pInfo->PictureHistory[0]->pData, pInfo->InputPitch, 1, 1, tempString);
     }
-    
 
 
 
-    // Figure out the thresholds and multipliers for noise reduction.  The "...Move" terms represent the 
+
+    // Figure out the thresholds and multipliers for noise reduction.  The "...Move" terms represent the
     // increase or decrease of the threshold due to motion
 
     // This (and many of the other settings) are something of a fudge when the baseline is < 0.  It would be
@@ -426,13 +426,13 @@
     #define MAINLOOP_LABEL DoNext8Bytes
     #endif  // Assembly jump target
 #endif
-        _asm 
+        _asm
         {
             mov     ecx, Cycles
 
             mov     OldSI, esi                      // Preserve si register
             mov     OldSP, esp                      // Preserve sp register
-            
+
             // Load pointers into normal registers
             mov     eax, dword ptr[pMap]
             mov     edx, LocalInputPitch            // edx = bytes between lines in the map
@@ -509,7 +509,7 @@ MAINLOOP_LABEL:
             movq    mm5, qwPinkLowThreshold
             pcmpgtd mm5, mm6                        // mm5 (low dword) on if difference < second test threshold
             pcmpgtd mm6, qwPinkThreshold            // mm6 (low dword) on if difference > test threshold
-            pand    mm6, mm5 
+            pand    mm6, mm5
             movq    qwPinkHolder, mm6
 */
 #endif  // Cumulative difference range indicator
@@ -637,7 +637,7 @@ MAINLOOP_LABEL:
             pmulhuw mm3, mm2                        // mm3 = amount of luma to add/subtract from old
             por     mm7, mm3                        // mm7 = amount to add/subtract from old
             pmaxub  mm7, mm6                        // mm7 = corrected to to deal with the motion and round up to 1
-            
+
             // Apply the calculated change
             movq    mm3, mm7                        // mm3 = same
             pand    mm7, mm0                        // mm7 = amount to subtract

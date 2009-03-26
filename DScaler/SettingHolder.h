@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file SettingHolder.h SettingHolder Header file
  */
- 
+
 #ifndef _SETTINGHOLDER_H_
 #define _SETTINGHOLDER_H_
 
@@ -28,7 +28,7 @@
 class CSource;
 
 /** Base class for any class that needs acesss to a list of CSimpleSetting settings.
-    The function CreateSettings should be overriden and then called in the 
+    The function CreateSettings should be overriden and then called in the
     constructor of the derived class.
 */
 class CSettingsHolder
@@ -37,7 +37,7 @@ public:
     CSettingsHolder(long SetMessage = 0, UINT HelpID = 0);
     virtual ~CSettingsHolder();
     long GetNumSettings();
-    void ReadFromIni();    
+    void ReadFromIni();
     void WriteToIni(BOOL bOptimizeFileAccess);
     long GetMessageID() { return m_SetMessage; }
 

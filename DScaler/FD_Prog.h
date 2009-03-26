@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file fd_prog.h fd_prog Header file
  */
- 
+
 #ifndef __FD_PROG_H___
 #define __FD_PROG_H___
 

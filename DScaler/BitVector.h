@@ -55,12 +55,12 @@ public:
     // Returns a bit block that is an offset adjusted subset mask.
     virtual CBitBlock subset(unsigned long offset, unsigned long mask) const;
 
-    // Returns the value shifted into a 32-bit space. 
+    // Returns the value shifted into a 32-bit space.
     virtual unsigned long pack(unsigned long value) const;
     // Returns the value of just the content of the block from the vector.
     virtual unsigned long unpack(unsigned long bitVector) const;
 
-    // Returns the value, of the block described, shifted into a 32-bit space. 
+    // Returns the value, of the block described, shifted into a 32-bit space.
     static unsigned long pack(unsigned long offset, unsigned long mask, unsigned long value);
     // Returns the value of just the content of the block from the vector.
     static unsigned long unpack(unsigned long offset, unsigned long mask, unsigned long bitVector);

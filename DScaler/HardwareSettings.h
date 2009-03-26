@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file hardwaresettings.h hardwaresettings Header file
  */
- 
+
 #ifndef __HARDWARESETTINGS_H___
 #define __HARDWARESETTINGS_H___
 

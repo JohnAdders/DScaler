@@ -15,7 +15,7 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU Library General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//  
+//
 //  This file was based on, and supercedes the functionality of,
 //  VTConvTables.cpp.
 //  Those portions are Copyright (c) 2002 Mike Temperton

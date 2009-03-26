@@ -41,10 +41,10 @@ CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
     DWORD SubSystemId;
     int CardsFound(0);
 
-    while(pHardwareDriver->DoesThisPCICardExist( 
-                                                    0x14F1, 
-                                                    0x8800, 
-                                                    CardsFound, 
+    while(pHardwareDriver->DoesThisPCICardExist(
+                                                    0x14F1,
+                                                    0x8800,
+                                                    CardsFound,
                                                     SubSystemId
                                                ) == TRUE)
     {
@@ -61,10 +61,10 @@ CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
         sprintf(szSection, "%s%d", "CX23880", CardsFound + 1);
         SmartPtr<CCX2388xSource> pNewSource = CreateCorrectSource(
                                                             pHardwareDriver,
-                                                            szSection, 
-                                                            0x14F1, 
-                                                            0x8800, 
-                                                            CardsFound, 
+                                                            szSection,
+                                                            0x14F1,
+                                                            0x8800,
+                                                            CardsFound,
                                                             SubSystemId
                                                                       );
         if(pNewSource)
@@ -119,7 +119,7 @@ BOOL CCX2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
         m_RiscDMAMem = new CContigMemory(pHardwareDriver, 83968);
     }
     catch(...)
-    { 
+    {
         ErrorBox("Can't create RISC Memory");
         return FALSE;
     }

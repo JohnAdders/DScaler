@@ -46,7 +46,7 @@ using namespace std;
 
 #define TIMER_SLIDESHOW 50
 
-int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOffsets, 
+int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOffsets,
         unsigned int* vWeights, int OldWidth, int OldHeight, int NewWidth, int NewHeight);
 
 static eStillFormat FormatSaving = STILL_TIFF_RGB;
@@ -64,7 +64,7 @@ static int PreviewNbCols = 4;
 static int PreviewNbRows = 4;
 static int MaxMemForStills = 64;
 
-static const char *StillFormatNames[STILL_FORMAT_LASTONE] = 
+static const char *StillFormatNames[STILL_FORMAT_LASTONE] =
 {
     "TIFF RGB",
     "TIFF YCbCr",
@@ -223,7 +223,7 @@ CStillSource::CStillSource(const string& IniSection) :
     m_pMemcpy = NULL;
     m_SquarePixels = TRUE;
     m_NavigOnly = FALSE;
-    m_LinePitch = 0;    
+    m_LinePitch = 0;
 }
 
 CStillSource::~CStillSource()
@@ -360,7 +360,7 @@ BOOL CStillSource::OpenPictureFile(const string& FileName)
             NewWidth = NewWidth * DSCALER_MAX_HEIGHT / NewHeight;
             NewHeight = DSCALER_MAX_HEIGHT;
         }
-        NewWidth = NewWidth & 0xfffffffe;       // even wid 
+        NewWidth = NewWidth & 0xfffffffe;       // even wid
 
         // Allocate memory for the new YUYV buffer
         NewPitch = (NewWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
@@ -446,7 +446,7 @@ BOOL CStillSource::OpenMediaFile(const string& FileName, BOOL NewPlayList)
 
     i = m_Position;
 
-    // test for the correct extension and work out the 
+    // test for the correct extension and work out the
     // correct helper for the file type
     string Extension(GetExtension(FileName));
 
@@ -943,7 +943,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     BOOL bLate = TRUE;
     DWORD CurrentTickCount;
     int FieldDistance;
-    
+
     m_pMemcpy = pInfo->pMemcpy;
 
     if(!ReadNextFrameInFile())
@@ -1494,8 +1494,8 @@ void CStillSource::FreeOriginalFrameBuffer()
         return;
     }
 
-    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
-        it != m_PlayList.end(); 
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin();
+        it != m_PlayList.end();
         ++it)
     {
         if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, Context)
@@ -1524,8 +1524,8 @@ void CStillSource::ClearPlayList()
     BOOL SquarePixels;
     string Context;
 
-    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
-        it != m_PlayList.end(); 
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin();
+        it != m_PlayList.end();
         ++it)
     {
         if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, Context)
@@ -1544,8 +1544,8 @@ BOOL CStillSource::SavePlayList(const string& FileName)
     if (Playlist == NULL)
         return FALSE;
 
-    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
-        it != m_PlayList.end(); 
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin();
+        it != m_PlayList.end();
         ++it)
     {
         if (!(*it)->IsInMemory())
@@ -1569,8 +1569,8 @@ int CStillSource::CountMemoryUsage()
     string Context;
     int Count = 0;
 
-    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
-        it != m_PlayList.end(); 
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin();
+        it != m_PlayList.end();
         ++it)
     {
         if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, Context))
@@ -1607,10 +1607,10 @@ void CStillSource::UpdateMenu()
         --j;
         RemoveMenu(hMenuFiles, j, MF_BYPOSITION);
     }
-    
+
     j = 0;
-    for (vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
-         (it != m_PlayList.end()) && (j < MAX_PLAYLIST_SIZE); 
+    for (vector<CPlayListItem*>::iterator it = m_PlayList.begin();
+         (it != m_PlayList.end()) && (j < MAX_PLAYLIST_SIZE);
          ++it, ++j)
     {
         string FileName(StripPath((*it)->GetFileName()));
@@ -1740,8 +1740,8 @@ BOOL CStillSource::IsAccessAllowed()
     if ((m_Position == -1) || (m_PlayList.size() == 0))
         return FALSE;
 
-    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
-        it != m_PlayList.end(); 
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin();
+        it != m_PlayList.end();
         ++it)
     {
         if ((*it)->IsSupported())
@@ -1947,11 +1947,11 @@ BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* 
     dstp = NewBuf;
 
     // SimpleResize Init code
-    hControl = (unsigned int*) malloc(NewWidth*12+128);  
-    vOffsets = (unsigned int*) malloc(NewHeight*4);  
-    vWeights = (unsigned int*) malloc(NewHeight*4);  
-    vWorkY =   (unsigned int*) malloc(2*OldWidth+128);   
-    vWorkUV =  (unsigned int*) malloc(OldWidth+128);   
+    hControl = (unsigned int*) malloc(NewWidth*12+128);
+    vOffsets = (unsigned int*) malloc(NewHeight*4);
+    vWeights = (unsigned int*) malloc(NewHeight*4);
+    vWorkY =   (unsigned int*) malloc(2*OldWidth+128);
+    vWorkUV =  (unsigned int*) malloc(OldWidth+128);
 
     SimpleResize_InitTables(hControl, vOffsets, vWeights,
         OldWidth, OldHeight, NewWidth, NewHeight);
@@ -1964,22 +1964,22 @@ BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* 
     {
         return FALSE;
     }
-    
+
     for (int y = 0; y < NewHeight; y++)
     {
 
-        vWeight1[0] = vWeight1[1] = vWeight1[2] = vWeight1[3] = 
+        vWeight1[0] = vWeight1[1] = vWeight1[2] = vWeight1[3] =
             (256-vWeights[y]) << 16 | (256-vWeights[y]);
-        vWeight2[0] = vWeight2[1] = vWeight2[2] = vWeight2[3] = 
+        vWeight2[0] = vWeight2[1] = vWeight2[2] = vWeight2[3] =
             vWeights[y] << 16 | vWeights[y];
 
         srcp1 = OldBuf + vOffsets[y] * OldPitch;
-        
+
         srcp2 = (y < NewHeight-1)
             ? srcp1 + OldPitch
             : srcp1;
 
-        _asm        
+        _asm
         {
             push    ecx                        // have to save this?
             mov        ecx, OldWidth
@@ -1997,19 +1997,19 @@ BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* 
             movq    mm6, vWeight2
             movq    mm0, FPround1            // useful rounding constant
             align    16
-    vLoopMMX:    
+    vLoopMMX:
             movq    mm1, qword ptr[esi+eax*2] // top of 2 lines to interpolate
             movq    mm2, qword ptr[edx+eax*2] // 2nd of 2 lines
 
             movq    mm3, mm1                // copy top bytes
-            pand    mm1, mm7                // keep only luma    
+            pand    mm1, mm7                // keep only luma
             pxor    mm3, mm1                // keep only chroma
             psrlw    mm3, 8                    // right just chroma
             pmullw    mm1, mm5                // mult by weighting factor
             pmullw    mm3, mm5                // mult by weighting factor
 
             movq    mm4, mm2                // copy 2nd bytes
-            pand    mm2, mm7                // keep only luma    
+            pand    mm2, mm7                // keep only luma
             pxor    mm4, mm2                // keep only chroma
             psrlw    mm4, 8                    // right just chroma
             pmullw    mm2, mm6                // mult by weighting factor
@@ -2028,31 +2028,31 @@ BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* 
 
             lea     eax, [eax+4]
             loop    vLoopMMX
-    
+
 
 // We've taken care of the vertical scaling, now do horizontal
             movq    mm7, YMask            // useful 0U0U..  mask constant
             movq    mm6, FPround2            // useful rounding constant, dwords
-            mov        esi, hControl        // @ horiz control bytes            
+            mov        esi, hControl        // @ horiz control bytes
             mov        ecx, NewWidth
             shr        ecx, 1                // 4 bytes a time, 2 pixels
             mov     edx, vWorkY            // our luma data, as 0Y0Y 0Y0Y..
             mov        edi, dstp            // the destination line
             mov        ebx, vWorkUV        // chroma data, as UVUV UVUV...
             align 16
-    hLoopMMX:   
+    hLoopMMX:
             mov        eax, [esi+16]        // get data offset in pixels, 1st pixel pair
             movd mm0, [edx+eax*2]        // copy luma pair
             shr        eax, 1                // div offset by 2
             movd    mm1, [ebx+eax*2]    // copy UV pair VUVU
-            psllw   mm1, 8                // shift out V, keep 0000U0U0    
+            psllw   mm1, 8                // shift out V, keep 0000U0U0
 
             mov        eax, [esi+20]        // get data offset in pixels, 2nd pixel pair
             punpckldq mm0, [edx+eax*2]        // copy luma pair
             shr        eax, 1                // div offset by 2
             punpckldq mm1, [ebx+eax*2]    // copy UV pair VUVU
-            psrlw   mm1, 8                // shift out U0, keep 0V0V 0U0U    
-        
+            psrlw   mm1, 8                // shift out U0, keep 0V0V 0U0U
+
             pmaddwd mm0, [esi]            // mult and sum lumas by ctl weights
             paddusw    mm0, mm6            // round
             psrlw    mm0, 8                // right just 2 luma pixel value 000Y,000Y
@@ -2089,7 +2089,7 @@ BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* 
 
 // This function accepts a position from 0 to 1 and warps it, to 0 through 1 based
 // upon the wFact var. The warp equations are designed to:
-// 
+//
 // * Always be rising but yield results from 0 to 1
 //
 // * Have a first derivative that doesn't go to 0 or infinity, at least close
@@ -2109,7 +2109,7 @@ BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* 
 // contain YU YV YU YV YU YV...
 // Horizontal weights are scaled 0-128, Vertical weights are scaled 0-256.
 
-int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOffsets, 
+int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOffsets,
         unsigned int* vWeights, int OldWidth, int OldHeight, int NewWidth, int NewHeight)
 {
     int i;
@@ -2134,7 +2134,7 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
         wUV1 = 256 - wUV2;
 
 // the right hand edge luma will be off by one pixel currently to handle edge conditions.
-// I should figure a better way aound this without a performance hit. But I can't see 
+// I should figure a better way aound this without a performance hit. But I can't see
 // the difference so it is lower prority.
         if (k > OldWidthW - 3)
         {
@@ -2177,13 +2177,13 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
     hControl[NewWidth*3+5] =  2 * (OldWidthW-1);        // "
 
     // Next set up vertical table. The offsets are measured in lines and will be mult
-    // by the source pitch later 
+    // by the source pitch later
     for(i=0; i< NewHeight; ++i)
     {
         j = i * 256 * (OldHeight-1) / (NewHeight-1);
         k = j >> 8;
         vOffsets[i] = k;
-        wY2 = j - (k << 8); 
+        wY2 = j - (k << 8);
         vWeights[i] = wY2;                // weight to give to 2nd line
     }
 
@@ -2194,8 +2194,8 @@ BOOL CStillSource::IsItemInList(const string& FileName)
 {
     BOOL found = FALSE;
 
-    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
-        it != m_PlayList.end(); 
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin();
+        it != m_PlayList.end();
         ++it)
     {
         if ((*it)->GetFileName() == FileName)
@@ -2213,8 +2213,8 @@ BOOL CStillSource::IsOneItemInMemory()
 
     if (!m_NavigOnly && (m_PlayList.size() > 0))
     {
-        for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
-            it != m_PlayList.end(); 
+        for(vector<CPlayListItem*>::iterator it = m_PlayList.begin();
+            it != m_PlayList.end();
             ++it)
         {
             if ((*it)->IsInMemory())

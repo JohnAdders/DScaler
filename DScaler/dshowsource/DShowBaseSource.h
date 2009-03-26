@@ -32,12 +32,12 @@
 /**
  * Baseclass for direct show sources.
  */
-class CDShowBaseSource : public CDShowObject  
+class CDShowBaseSource : public CDShowObject
 {
 public:
     CDShowBaseSource(IGraphBuilder *pGraph);
     virtual ~CDShowBaseSource();
-    
+
     /**
      * Used to connect this source to a downstream filter (renderer)
      * @param VideoFilter video renderer filter to connect to

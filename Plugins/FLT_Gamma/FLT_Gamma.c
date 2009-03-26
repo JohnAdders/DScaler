@@ -23,7 +23,7 @@
 
 unsigned char GammaTable[256] = {0,};
 
-FILTER_METHOD GammaMethod; 
+FILTER_METHOD GammaMethod;
 
 long Gamma = 1300;
 BOOL bUseStoredTable = FALSE;
@@ -60,11 +60,11 @@ LOOP_LABEL:
             mov al,byte ptr[edx]
             xlatb
             mov byte ptr[edx], al
-            add edx, 2          
+            add edx, 2
             mov al,byte ptr[edx]
             xlatb
             mov byte ptr[edx], al
-            add edx, 2          
+            add edx, 2
             loop LOOP_LABEL
         }
         Pixels += pInfo->InputPitch;
@@ -208,7 +208,7 @@ FILTER_METHOD GammaMethod =
     "&Gamma",
     FALSE,
     TRUE,
-    FilterGamma, 
+    FilterGamma,
     0,
     TRUE,
     FilterStartGamma,

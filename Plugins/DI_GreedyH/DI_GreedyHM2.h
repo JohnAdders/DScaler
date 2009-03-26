@@ -25,7 +25,7 @@ const __int64 EdgeSenseMax = 0x00aa00aa00aa00aa; // 4 170's, 170/256 = 2/3
 const __int64 QW256        = 0x0100010001000100;   // 4 256's
 
 __int64    MaxCombW = MaxComb;
-__int64 EdgeThresholdW = EdgeThreshold;    
+__int64 EdgeThresholdW = EdgeThreshold;
 __int64 YMaskW = YMask;
 __int64 EdgeSenseW = EdgeSense;
 __int64 EdgeSenseMaxW = EdgeSenseMax;

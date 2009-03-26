@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file errorbox.h errorbox Header file
  */
- 
+
 #ifndef __ERRORBOX_H___
 #define __ERRORBOX_H___
 

@@ -118,7 +118,7 @@ private:
         char*        szName;
         BYTE        byte;
     } TRegList;
-    
+
     typedef struct
     {
         char* szName;

@@ -65,8 +65,8 @@ CCalSetting::CCalSetting(CSliderSetting* pSetting)
     {
         mask_nb++;
     }
-    mask_input = (unsigned int*) malloc(mask_nb * sizeof(unsigned int)), 
-    mask_output = (unsigned int*) malloc(mask_nb * sizeof(unsigned int)), 
+    mask_input = (unsigned int*) malloc(mask_nb * sizeof(unsigned int)),
+    mask_output = (unsigned int*) malloc(mask_nb * sizeof(unsigned int)),
     current_value = pSetting->GetValue();
     SetFullRange();
     InitResult();
@@ -557,7 +557,7 @@ void CCalibration::LoadTestPatterns()
     string PaternPath(GetInstallationPath() + "\\patterns\\");
     string FullPath;
     CColorBar* color_bar;
-    
+
     FullPath = PaternPath + "card_calibr.d3u";
     File = fopen(FullPath.c_str(), "r");
     if(File != NULL)
@@ -623,8 +623,8 @@ void CCalibration::LoadTestPatterns()
 void CCalibration::UnloadTestPatterns()
 {
     // Destroy all test patterns
-    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin(); 
-        it != m_TestPatterns.end(); 
+    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin();
+        it != m_TestPatterns.end();
         ++it)
     {
         delete *it;
@@ -639,8 +639,8 @@ void CCalibration::UnloadTestPatterns()
 BOOL CCalibration::ProcessSelection(HWND hWnd, WORD wMenuId)
 {
     int i = 0;
-    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin(); 
-        it != m_TestPatterns.end(); 
+    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin();
+        it != m_TestPatterns.end();
         ++it, ++i)
     {
         if (wMenuId == IDM_PATTERN_SELECT + i + 1)
@@ -664,8 +664,8 @@ void CCalibration::UpdateMenu(HMENU hMenu)
     if (hMenuPatterns == NULL) return;
 
     i = 0;
-    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin(); 
-        it != m_TestPatterns.end(); 
+    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin();
+        it != m_TestPatterns.end();
         ++it, ++i)
     {
         name = (*it)->GetName();
@@ -724,14 +724,14 @@ void CCalibration::SetMenu(HMENU hMenu)
     if (hMenuPatterns == NULL) return;
 
     i = 0;
-    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin(); 
-        it != m_TestPatterns.end(); 
+    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin();
+        it != m_TestPatterns.end();
         ++it, ++i)
     {
         EnableMenuItem(hMenuPatterns, i, (m_IsRunning || ((*it)->GetHeight() != SourceHeight)) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
         CheckMenuItem(hMenuPatterns, i, (m_CurTestPat == (*it)) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
     }
-    
+
     EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
     EnableMenuItem(hMenu, IDM_START_YUV_RANGE, m_IsRunning ? MF_GRAYED : MF_ENABLED);
     if (OkBK && OkC && OkH)
@@ -1027,7 +1027,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
 
     switch (current_step)
     {
-    case -1:    // Automatic calibration finished 
+    case -1:    // Automatic calibration finished
         Stop();
         break;
 

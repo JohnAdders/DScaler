@@ -39,12 +39,12 @@
  * @bug sometimes accessing the menu while the filter graph is building
  * causes problems, probably fixed.
  */
-class CDSSourceBase : public CSource  
+class CDSSourceBase : public CSource
 {
 public:
     CDSSourceBase(long SetMessage, long MenuId);
     virtual ~CDSSourceBase();
-    
+
     int GetInitialWidth() {return GetWidth();};
     int GetInitialHeight() {return GetHeight() / 2;};
     int GetWidth();
@@ -59,12 +59,12 @@ public:
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
     void SetFormat(eVideoFormat NewFormat) {};
-    
+
     void Mute();
     void UnMute();
     CSliderSetting* GetVolume();
     CSliderSetting* GetBalance();
-    
+
     std::string IDString();
 
     //from CSettingsHolder
@@ -72,11 +72,11 @@ public:
     void ChannelChange(int PreChange, int OldChannel, int NewChannel) {};
 
     SmartPtr<ITuner> GetTuner() {return NULL;}
-    
+
     CTreeSettingsPage* GetTreeSettingsPage() {return NULL;}
 
     void SetSourceAsCurrent();
-    
+
     void Pause() {return;};
     void UnPause() {return;};
 
@@ -95,7 +95,7 @@ protected:
     CDShowGraph *m_pDSGraph;
     long m_CurrentX;
     long m_CurrentY;
-    
+
     ///Array for picture history.
     TPicture m_PictureHistory[MAX_PICTURE_HISTORY];
 
@@ -108,7 +108,7 @@ protected:
     DWORD m_dwRendStartTime;
 
     std::string m_IDString;
-    
+
     std::string m_AudioDevice;
 
 private:

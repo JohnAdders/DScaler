@@ -54,7 +54,7 @@ CDShowFileSource::CDShowFileSource(IGraphBuilder *pGraph,string filename)
     {
         throw CDShowException("SetFiltergraph failed on capture graph builder",hr);
     }
-    
+
     CString tmp;
     tmp=m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4)).c_str();
     if(_tcsicmp(tmp.GetBuffer(0),_T(".grf"))!=0)
@@ -76,7 +76,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
 {
     USES_CONVERSION;
     HRESULT hr;
-    
+
     //is this a grf file? grf files needs special handling
     CString tmp;
     tmp=m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4)).c_str();
@@ -130,7 +130,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
         BOOL bAudioRendered=FALSE;
         int AudioStreamCount=0;
         /*
-        Connect all audio streams, not sure if this is a good idea, but it 
+        Connect all audio streams, not sure if this is a good idea, but it
         looks like IGraphBuilder::RenderFile also tries to connect all audio
         streams.
         This will always add one extra unconnected audio renderer when using
@@ -164,7 +164,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
         {
             throw CDShowException("Failed to get filter enumerator!!!",hr);
         }
-        
+
         BOOL bFound=FALSE;
         CComPtr<IDSRendFilter> pDSRend;
         CComPtr<IBaseFilter> pFilter;
@@ -181,7 +181,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
             {
                 bFound=TRUE;
                 //replace the dsrend filter in the grf file with our renderer.
-                //this might need to be changed to allow settings on the 
+                //this might need to be changed to allow settings on the
                 //dsrend filter from the grf file to be preserved
                 //(not implemented yet on the filter)
 
@@ -204,7 +204,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
                         throw CDShowException("Failed to find filter that is connected to dscaler renderer",hr);
                     }
                 }
-                
+
                 //preserve the mediatype on the connection
                 AM_MEDIA_TYPE mt;
                 memset(&mt,0,sizeof(AM_MEDIA_TYPE));
@@ -224,14 +224,14 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
                 {
                     throw CDShowException("Coud not find IPersistStream on new dsrend (bug)",hr);
                 }
-                
+
                 ULARGE_INTEGER ulSize;
                 hr=pPStrmOld->GetSizeMax(&ulSize);
                 if(FAILED(hr))
                 {
                     throw CDShowException("IPersistStream::GetSizeMax failed (bug)",hr);
                 }
-                
+
                 //make sure that the new and old renderer filters is of the same type
                 GUID OldGUID;
                 GUID NewGUID;
@@ -242,7 +242,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
                 else
                 {
                     if(IsEqualGUID(OldGUID,NewGUID))
-                    {    
+                    {
                         CComPtr<IStream> pStream;
                         HGLOBAL hg=GlobalAlloc(GMEM_MOVEABLE,(SIZE_T)ulSize.QuadPart);
                         if(hg!=NULL)
@@ -268,7 +268,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
 
 
                 hr=m_pGraph->RemoveFilter(pFilter);
-                
+
                 //connect to the right dsrend filter
                 CDShowPinEnum InPins2(VideoFilter,PINDIR_INPUT);
                 CComPtr<IPin> pInPin2=InPins2.next();
@@ -297,7 +297,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
             throw CDShowException("This filter graph file does not contain a dscaler renderer filter");
         }
     }
-    
+
     m_bIsConnected=TRUE;
 }
 

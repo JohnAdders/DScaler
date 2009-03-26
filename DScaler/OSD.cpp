@@ -96,7 +96,7 @@ typedef struct
 
 
 // Used to define OSD screens
-typedef struct 
+typedef struct
 {
     char    name[24];       // Name of the screen
     BOOL    managed_by_app; // TRUE if only app can display the screen
@@ -175,7 +175,7 @@ static TActiveScreen ActiveScreens[] =
 
 
 // OSD background names
-static const char* OSD_szBackgroundNames[OSDB_LASTONE] = 
+static const char* OSD_szBackgroundNames[OSDB_LASTONE] =
 {
     "Transparent",
     "Block",
@@ -334,7 +334,7 @@ void OSD_ShowInfosScreen(INT IdxScreen, DOUBLE dSize)
 void OSD_ShowNextInfosScreen(DOUBLE dSize)
 {
     if (OSD_bOverride)
-    {    
+    {
         return;
     }
 
@@ -688,12 +688,12 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
                 SetBkMode(hDC, TRANSPARENT);
                 SetBkColor(hDC, OSD_Text[i].BackgroundColor);
                 break;
-        
+
             case OSDB_BLOCK:
                 SetBkMode(hDC, OPAQUE);
                 SetBkColor(hDC, OSD_Text[i].BackgroundColor);
                 break;
-        
+
             case OSDB_SHADED:
                 {
                     WORD bBrushBits[8] = { 0xAAAA, 0x5555, 0xAAAA, 0x5555,
@@ -703,7 +703,7 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
                     SetTextColor(hDC, OSD_Text[i].BackgroundColor);
                     SetBkColor(hDC, GetActiveOutput()->Overlay_GetCorrectedColor(hDC));
 
-                    HBITMAP hBM = CreateBitmap(8, 8, 1, 1, (LPBYTE)bBrushBits); 
+                    HBITMAP hBM = CreateBitmap(8, 8, 1, 1, (LPBYTE)bBrushBits);
                     HBRUSH hBrush = CreatePatternBrush(hBM);
                     HBRUSH hSaveBrush = (HBRUSH)SelectObject(hDC, hBrush);
 
@@ -747,7 +747,7 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
                 SetBkColor(hDC, OSD_Text[i].BackgroundColor);
                 TextOut(hDC, lpRect->left+nXpos, lpRect->top+ nYpos, OSD_Text[i].szText, strlen(OSD_Text[i].szText));
 
-                // MRS 2-23-01 Calculate rectnagle for the entire OSD 
+                // MRS 2-23-01 Calculate rectnagle for the entire OSD
                 // so we do not invalidate the entire window to remove it.
                 SIZE sz;
                 GetTextExtentExPoint(hDC, OSD_Text[i].szText, strlen(OSD_Text[i].szText),
@@ -772,7 +772,7 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
             SelectObject(hDC, hSaveFont);
             DeleteObject(hOSDFont);
             DeleteObject(hOSDFontOutline);
-        }           
+        }
     }
 }
 
@@ -789,7 +789,7 @@ LONG OSD_GetPaintedRects(RECT* pRectBuffer, LONG nBufferSize)
     int i;
     for (i = 0 ; i < nBufferSize && i < OSD_nTextCount ; i++)
     {
-        CopyRect(&pRectBuffer[i], &OSD_Text[i].CurrentRect);        
+        CopyRect(&pRectBuffer[i], &OSD_Text[i].CurrentRect);
     }
 
     return i;
@@ -963,7 +963,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     {
         sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(WM_ASPECT_GETVALUE, SOURCE_ASPECT) / 1000.0);
         if ( (Setting_GetValue(WM_ASPECT_GETVALUE, ASPECT_MODE)) == 1
-          && (Setting_GetValue(WM_ASPECT_GETVALUE, SOURCE_ASPECT)) != 1333) 
+          && (Setting_GetValue(WM_ASPECT_GETVALUE, SOURCE_ASPECT)) != 1333)
         {
             strcat(szInfo, " Letterbox");
         }
@@ -1425,13 +1425,13 @@ static void OSD_RefreshWSSScreen(double Size)
                 strcpy (szInfo, "Aspect ratio : undefined");
             }
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Mode : %s", WSS_Data.FilmMode ? "film Mode" : "camera Mode");     
+            sprintf (szInfo, "Mode : %s", WSS_Data.FilmMode ? "film Mode" : "camera Mode");
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Helper signals : %s", WSS_Data.HelperSignals ? "yes" : "no");     
+            sprintf (szInfo, "Helper signals : %s", WSS_Data.HelperSignals ? "yes" : "no");
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             sprintf (szInfo, "Color encoding : %s", WSS_Data.ColorPlus ? "ColorPlus" : "normal");
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Teletext subtitles : %s", WSS_Data.TeletextSubtitle ? "yes" : "no");      
+            sprintf (szInfo, "Teletext subtitles : %s", WSS_Data.TeletextSubtitle ? "yes" : "no");
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             switch (WSS_Data.OpenSubtitles)
             {
@@ -1449,11 +1449,11 @@ static void OSD_RefreshWSSScreen(double Size)
                 break;
             }
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Surround sound : %s", WSS_Data.SurroundSound ? "yes" : "no");     
+            sprintf (szInfo, "Surround sound : %s", WSS_Data.SurroundSound ? "yes" : "no");
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Copyright asserted : %s", WSS_Data.CopyrightAsserted ? "yes" : "no");     
+            sprintf (szInfo, "Copyright asserted : %s", WSS_Data.CopyrightAsserted ? "yes" : "no");
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Copy protection : %s", WSS_Data.CopyProtection ? "yes" : "no");       
+            sprintf (szInfo, "Copy protection : %s", WSS_Data.CopyProtection ? "yes" : "no");
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         }
     }
@@ -1821,8 +1821,8 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSubPattern = pCalibration->GetCurrentSubPattern();
             if (pSubPattern != NULL)
             {
-                for(vector<CColorBar*>::iterator it = pSubPattern->m_ColorBars.begin(); 
-                    it != pSubPattern->m_ColorBars.end(); 
+                for(vector<CColorBar*>::iterator it = pSubPattern->m_ColorBars.begin();
+                    it != pSubPattern->m_ColorBars.end();
                     ++it)
                 {
                     if (pCalibration->GetType() == CAL_CHECK_YUV_RANGE)
@@ -1971,7 +1971,7 @@ static void OSD_RefreshDeveloperScreen(double Size)
     Cycles = pPerf->GetNbCycles(1);
     sprintf(szInfo, "%d:%02d", Cycles/60, Cycles % 60);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
-    
+
 }
 
 
@@ -2092,7 +2092,7 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
         {
             pos1 += LineHeight;
             nb++;
-        } 
+        }
 
         // Cut the description test on several lines and
         // determine the number of necessary lines
@@ -2218,7 +2218,7 @@ static void OSD_RefreshProgrammesScreen(double Size)
         date_tm = localtime(&EndTime);
         sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 
-        if (   (Channel.length() > 0) 
+        if (   (Channel.length() > 0)
             && !_stricmp(ChannelName.c_str(), Channel.c_str())
             && (TimeNow >= StartTime)
             && (TimeNow < EndTime) )
@@ -2265,8 +2265,8 @@ static void OSD_RefreshProgrammesScreen(double Size)
 
 //---------------------------------------------------------------------------
 // Internal: Add a new single line of text to the list of texts for OSD
-void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, 
-                           eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, 
+void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor,
+                           eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos,
                            double YPos)
 {
     if ( (strlen(szText) == 0) || (OSD_nTextCount >= OSD_MAX_TEXT) )
@@ -2334,7 +2334,7 @@ void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long 
 //---------------------------------------------------------------------------
 // Internal: Add a new line of text to the list of texts for OSD.
 // Internal: "\n" and "\r\n" are supported for starting a new line.
-void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, 
+void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor,
                  eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos)
 {
     char      SingleLine[512];

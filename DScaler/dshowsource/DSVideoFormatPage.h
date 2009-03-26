@@ -85,14 +85,14 @@ protected:
     afx_msg void OnClickedClear();
     //}}AFX_MSG
     DECLARE_MESSAGE_MAP()
-    
+
     void OnOK();
 
 private:
     void UpdateControlls();
     void GenerateName(int pos);
     std::vector<CDShowGraph::CVideoFormat> m_VideoFmt;
-    
+
     /**
      * Reference to the real video format vector that is used by dscaler,
      * this is the one we save the changes to when closing dialog by clicking on ok

@@ -160,7 +160,7 @@ DWORD CVTTopText::DecodePageRow(DWORD dwPageCode, BYTE nRow, BYTE* pData)
         {
             return m_LastPageCode;
         }
-        break; 
+        break;
 
     case TOPTYPE_AIT:
         if (DecodeAITPageRow(nRow, pData))
@@ -231,7 +231,7 @@ BOOL CVTTopText::DecodeBTTPageRow(BYTE nRow, BYTE* pData)
                 continue;
             }
 
-            // These units are MSB first 
+            // These units are MSB first
             wPageHex = UnhamTwo84_MSBF(&pData[n*8 + 1], &bError);
 
             s1 = Unham84(pData[n*8 + 3], &bError);
@@ -288,7 +288,7 @@ BOOL CVTTopText::DecodeMPTPageRow(BYTE nRow, BYTE* pData)
             }
 
             m_MPTable[Page] = uPages;
-            
+
             if (IsWaitingMPTPage(Page))
             {
                 ResetWaitingPages();

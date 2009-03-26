@@ -498,9 +498,9 @@ void CSAA7134Card::SetGainControl(WORD GainControl)
 void CSAA7134Card::SetGammaControl(BOOL bGammaControl)
 {
     // bit 0: ??? (this one is not explained in the documentation. Set to bypass RGB to YUV matrix?)
-    // bit 1: set to bypass YUV to RGB matrix 
+    // bit 1: set to bypass YUV to RGB matrix
     // bit 2: set to enable transformation via LUT curve
-    
+
     if(bGammaControl)
     {
         AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), ~3);

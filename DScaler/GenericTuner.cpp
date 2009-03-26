@@ -40,11 +40,11 @@
 
 /* tv standard selection for Temic 4046 FM5
    this value takes the low bits of control byte 2
-   from datasheet Rev.01, Feb.00 
+   from datasheet Rev.01, Feb.00
      standard     BG      I       L       L2      D
      picture IF   38.9    38.9    38.9    33.95   38.9
      sound 1      33.4    32.9    32.4    40.45   32.4
-     sound 2      33.16   
+     sound 2      33.16
      NICAM        33.05   32.348  33.05           33.05
  */
 
@@ -67,7 +67,7 @@
 #define PHILIPS_SET_PAL_I        0x01 /* Bit 2 always zero !*/
 #define PHILIPS_SET_PAL_BGDK    0x09
 #define PHILIPS_SET_PAL_L2        0x0a
-#define PHILIPS_SET_PAL_L        0x0b    
+#define PHILIPS_SET_PAL_L        0x0b
 
 /* system switching for Philips FI1216MF MK2
    from datasheet "1996 Jul 09",
@@ -102,98 +102,98 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
             break;
         }
     case TUNER_PHILIPS_PAL_I:
-        { 
-            TUNERDEF(TUNER_PHILIPS_PAL_I, VIDEOFORMAT_PAL_I, 
+        {
+            TUNERDEF(TUNER_PHILIPS_PAL_I, VIDEOFORMAT_PAL_I,
                 16*140.25, 16*463.25, 0xa0, 0x90, 0x30, 0x8e, 623);
             break;
         }
     case TUNER_PHILIPS_NTSC:
-        { 
-            TUNERDEF(TUNER_PHILIPS_NTSC, VIDEOFORMAT_NTSC_M, 
+        {
+            TUNERDEF(TUNER_PHILIPS_NTSC, VIDEOFORMAT_NTSC_M,
                 16*157.25, 16*451.25, 0xA0, 0x90, 0x30, 0x8e, 732);
             break;
         }
     case TUNER_PHILIPS_SECAM:
-        { 
-            TUNERDEF(TUNER_PHILIPS_SECAM, VIDEOFORMAT_SECAM_D, 
+        {
+            TUNERDEF(TUNER_PHILIPS_SECAM, VIDEOFORMAT_SECAM_D,
                 16*168.25, 16*447.25, 0xA7, 0x97, 0x37, 0x8e, 623);
             break;
         }
     case TUNER_PHILIPS_PAL:
-        { 
-            TUNERDEF(TUNER_PHILIPS_PAL, VIDEOFORMAT_PAL_B, 
+        {
+            TUNERDEF(TUNER_PHILIPS_PAL, VIDEOFORMAT_PAL_B,
                 16*168.25, 16*447.25, 0xA0, 0x90, 0x30, 0x8e, 623);
             break;
         }
     case TUNER_TEMIC_4002FH5_PAL:
-        { 
+        {
             TUNERDEF(TUNER_TEMIC_4002FH5_PAL, VIDEOFORMAT_PAL_B,
                 16*140.25, 16*463.25, 0x02, 0x04, 0x01, 0x8e, 623);
             break;
         }
     case TUNER_TEMIC_4032FY5_NTSC:
         {
-            TUNERDEF(TUNER_TEMIC_4032FY5_NTSC, VIDEOFORMAT_NTSC_M, 
+            TUNERDEF(TUNER_TEMIC_4032FY5_NTSC, VIDEOFORMAT_NTSC_M,
                 16*157.25, 16*463.25, 0x02, 0x04, 0x01, 0x8e, 732);
             break;
         }
     case TUNER_TEMIC_4062FY5_PAL_I:
         {
-            TUNERDEF(TUNER_TEMIC_4062FY5_PAL_I, VIDEOFORMAT_PAL_I, 
+            TUNERDEF(TUNER_TEMIC_4062FY5_PAL_I, VIDEOFORMAT_PAL_I,
                 16*170.00, 16*450.00, 0x02, 0x04, 0x01, 0x8e, 623);
             break;
         }
     case TUNER_TEMIC_4036FY5_NTSC:
         {
-            TUNERDEF(TUNER_TEMIC_4036FY5_NTSC, VIDEOFORMAT_NTSC_M, 
+            TUNERDEF(TUNER_TEMIC_4036FY5_NTSC, VIDEOFORMAT_NTSC_M,
                 16*157.25, 16*463.25, 0xa0, 0x90, 0x30, 0x8e, 732);
             break;
         }
     case TUNER_ALPS_TSBH1_NTSC:
         {
-            TUNERDEF(TUNER_ALPS_TSBH1_NTSC, VIDEOFORMAT_NTSC_M, 
+            TUNERDEF(TUNER_ALPS_TSBH1_NTSC, VIDEOFORMAT_NTSC_M,
                 16*137.25, 16*385.25, 0x01, 0x02, 0x08, 0x8e, 732);
             break;
         }
     case TUNER_ALPS_TSBE1_PAL:
         {
-            TUNERDEF(TUNER_ALPS_TSBE1_PAL, VIDEOFORMAT_PAL_B, 
+            TUNERDEF(TUNER_ALPS_TSBE1_PAL, VIDEOFORMAT_PAL_B,
                 16*137.25, 16*385.25, 0x01, 0x02, 0x08, 0x8e, 732);
             break;
         }
     case TUNER_ALPS_TSBB5_PAL_I:
         {
-            TUNERDEF(TUNER_ALPS_TSBB5_PAL_I, VIDEOFORMAT_PAL_I, 
+            TUNERDEF(TUNER_ALPS_TSBB5_PAL_I, VIDEOFORMAT_PAL_I,
                 16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 632);
             break;
         }
     case TUNER_ALPS_TSBE5_PAL:
         {
-            TUNERDEF(TUNER_ALPS_TSBE5_PAL, VIDEOFORMAT_PAL_B, 
+            TUNERDEF(TUNER_ALPS_TSBE5_PAL, VIDEOFORMAT_PAL_B,
                 16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 622);
             break;
         }
     case TUNER_ALPS_TSBC5_PAL:
         {
-            TUNERDEF(TUNER_ALPS_TSBC5_PAL, VIDEOFORMAT_PAL_B, 
+            TUNERDEF(TUNER_ALPS_TSBC5_PAL, VIDEOFORMAT_PAL_B,
                 16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 608);
             break;
         }
     case TUNER_TEMIC_4006FH5_PAL:
         {
-            TUNERDEF(TUNER_TEMIC_4006FH5_PAL, VIDEOFORMAT_PAL_B, 
+            TUNERDEF(TUNER_TEMIC_4006FH5_PAL, VIDEOFORMAT_PAL_B,
                 16*170.00,16*450.00, 0xa0, 0x90, 0x30, 0x8e, 623);
             break;
         }
     case TUNER_PHILIPS_1236D_NTSC_INPUT1:
         {
-            TUNERDEF(TUNER_PHILIPS_1236D_NTSC_INPUT1, VIDEOFORMAT_NTSC_M, 
+            TUNERDEF(TUNER_PHILIPS_1236D_NTSC_INPUT1, VIDEOFORMAT_NTSC_M,
                 2516, 7220, 0xA3, 0x93, 0x33, 0xCE, 732);
             break;
         }
     case TUNER_PHILIPS_1236D_NTSC_INPUT2:
         {
-            TUNERDEF(TUNER_PHILIPS_1236D_NTSC_INPUT2, VIDEOFORMAT_NTSC_M, 
+            TUNERDEF(TUNER_PHILIPS_1236D_NTSC_INPUT2, VIDEOFORMAT_NTSC_M,
                 2516, 7220, 0xA2, 0x92, 0x32, 0xCE, 732);
             break;
         }
@@ -228,7 +228,7 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
             break;
         }
     case TUNER_TEMIC_4009FR5_PAL:
-        { 
+        {
             TUNERDEF(TUNER_TEMIC_4009FR5_PAL, VIDEOFORMAT_PAL_B,
                 16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623);
             break;
@@ -240,55 +240,55 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
             break;
         }
     case TUNER_TEMIC_4046FM5_MULTI:
-        { 
+        {
             TUNERDEF(TUNER_TEMIC_4046FM5_MULTI, VIDEOFORMAT_PAL_B,
                 16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623);
             break;
         }
     case TUNER_PHILIPS_PAL_DK:
-        { 
+        {
             TUNERDEF(TUNER_PHILIPS_PAL_DK, VIDEOFORMAT_PAL_D,
                 16*170.00, 16*450.00, 0xa0, 0x90, 0x30, 0x8e, 623);
             break;
         }
     case TUNER_PHILIPS_MULTI:
-        { 
+        {
             TUNERDEF(TUNER_PHILIPS_MULTI, VIDEOFORMAT_PAL_B,
                 16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623);
             break;
         }
     case TUNER_LG_I001D_PAL_I:
-        { 
+        {
             TUNERDEF(TUNER_LG_I001D_PAL_I, VIDEOFORMAT_PAL_I,
                 16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623);
             break;
         }
     case TUNER_LG_I701D_PAL_I:
-        { 
+        {
             TUNERDEF(TUNER_LG_I701D_PAL_I, VIDEOFORMAT_PAL_I,
                 16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623);
             break;
         }
     case TUNER_LG_R01F_NTSC:
-        { 
+        {
             TUNERDEF(TUNER_LG_R01F_NTSC, VIDEOFORMAT_NTSC_M,
                 16*210.00,16*497.00,0xa0,0x90,0x30,0x8e,732);
             break;
         }
     case TUNER_LG_B01D_PAL:
-        { 
+        {
             TUNERDEF(TUNER_LG_B01D_PAL, VIDEOFORMAT_PAL_B,
                 16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623);
             break;
         }
     case TUNER_LG_B11D_PAL:
-        { 
+        {
             TUNERDEF(TUNER_LG_B11D_PAL, VIDEOFORMAT_PAL_B,
                 16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623);
             break;
         }
     case TUNER_TEMIC_4009FN5_PAL:
-        { 
+        {
             TUNERDEF(TUNER_TEMIC_4009FN5_PAL, VIDEOFORMAT_PAL_B,
                 16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623);
             break;
@@ -301,7 +301,7 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
         }
     case TUNER_LG_TAPCH701P_NTSC:
         {
-            TUNERDEF(TUNER_LG_TAPCH701P_NTSC, VIDEOFORMAT_NTSC_M, 
+            TUNERDEF(TUNER_LG_TAPCH701P_NTSC, VIDEOFORMAT_NTSC_M,
                 16*165.00, 16*450.00, 0x01, 0x02, 0x08, 0x8e, 732);
             break;
         }
@@ -472,9 +472,9 @@ BOOL CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
     {
         config = m_UHF;
     }
-    
+
     div = (WORD)nFrequency + m_IFPCoff;
-    
+
     // handle Mode on Philips SECAM tuners
     // they can also recive PAL if the Mode is set properly
     if (m_TunerId == TUNER_PHILIPS_SECAM)
@@ -531,10 +531,10 @@ BOOL CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
     //if (FastTune) {
         //    config |= 0x40;
       //}
-    
+
     div &= 0x7fff;
 
-    
+
 
     BYTE buffer[] = {(BYTE) m_DeviceAddress << 1, (BYTE) ((div >> 8) & 0x7f), (BYTE) (div & 0xff), m_Config, config};
 
@@ -565,7 +565,7 @@ BOOL CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
         {
             m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
         }
-        
+
         return result;
     }
     else

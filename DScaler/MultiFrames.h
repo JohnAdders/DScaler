@@ -17,10 +17,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file multiframes.h multiframes Header file
  */
- 
+
 #ifndef __MULTIFRAMES_H___
 #define __MULTIFRAMES_H___
 

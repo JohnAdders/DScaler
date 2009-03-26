@@ -45,7 +45,7 @@ the psadbw SSE instruction.
 
 This difference measure is used to determine the kind of averaging which will be
 conducted.  If it's more than the "noise reduction" parameter, motion is
-inferred.  In that case, we just use the new pixel values.  If it's less than the 
+inferred.  In that case, we just use the new pixel values.  If it's less than the
 noise reduction, we use the ratio of (difference/noise reduction) to determine the
 weighting of the old and new values.
 
@@ -60,7 +60,7 @@ Somewhat more formally:
 
 
 Rounding has a very significant effect on the algorithm.  In general, for
-computational reasons, values are rounded down.  An important exception 
+computational reasons, values are rounded down.  An important exception
 occurs when
     M > 0 and oldPixel != newPixel
 but
@@ -112,7 +112,7 @@ affected so:
 - Posterization:
   This is significantly improved.  In areas of low contrast motion, there's no
   threshold value at which averaging stops, so there the artifactual borders are
-  less obvious.  There are still some borders, though, due to rounding and loss of 
+  less obvious.  There are still some borders, though, due to rounding and loss of
   color depth.
 
 With that stuff in mind, the goal was to make the filter as fast as possible.  As
@@ -243,7 +243,7 @@ FILTER_METHOD GradualNoiseMethod =
     NULL,                                   // No initialization procedure
     NULL,                                   // No deallocation
     NULL,                                   // Menu handle (for DScaler)
-    FLT_GNOISE_SETTING_LASTONE,             // Number of settings            
+    FLT_GNOISE_SETTING_LASTONE,             // Number of settings
     FLT_GradualNoiseSettings,
     WM_FLT_GNOISE_GETVALUE - WM_APP,        // Settings offset
     TRUE,                                   // Can handle interlaced material

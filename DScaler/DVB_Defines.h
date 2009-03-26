@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file dvb_defines.h dvb_defines Header file
  */
- 
+
 #ifndef __DVB_DEFINES_H___
 #define __DVB_DEFINES_H___
 

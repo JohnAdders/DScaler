@@ -28,12 +28,12 @@
 // Explanation of the MMX version: 1 is added to the source pixel if it is odd (and != 255)
 // Then half the (adjusted) source pixel (rounding down -- which is effectively the same as
 // rounding the unadjusted pixel up unless source == 255) is added to half the destination
-// pixel (also rounding down). This gives the same result as the much faster and less 
+// pixel (also rounding down). This gives the same result as the much faster and less
 // complicated versions for other processors
 //.Yes, shiftMask and noLowBitsMask could be the same, but this is a little easier to
 // follow.
 
-// tempMM is changed 
+// tempMM is changed
 
 #undef AVERAGE
 #if defined(IS_SSE)
@@ -108,7 +108,7 @@
 
     // Need to have the current field to do the filtering.
     // and if we have nothing to do just return
-    if (Pixels == NULL || 
+    if (Pixels == NULL ||
         Sharpness == 0)
     {
         return 1000;
@@ -134,7 +134,7 @@ LOOP_LABEL:
             movq    mm1, mm2
             movq    mm2, [eax + 8]
 
-            // do edge enhancement. 
+            // do edge enhancement.
             movq    mm7, mm1                // work copy of curr pixel val
             psrlq   mm0, 48                 // right justify 1 pixel from qword to left
             psllq   mm7, 16                 // left justify 3 pixels
@@ -179,7 +179,7 @@ LOOP_LABEL:
         }
         Pixels += pInfo->InputPitch;
     }
-    _asm 
+    _asm
     {
         emms
     }

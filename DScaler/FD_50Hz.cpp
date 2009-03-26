@@ -87,12 +87,12 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
     }
 
     BOOL IsOdd = ((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
-    
+
     if(pInfo->CombFactor < 0 || pInfo->FieldDiff < 0)
     {
         return;
     }
-    
+
     if(FieldsSinceLastChange < 0x7FFF)
     {
         ++FieldsSinceLastChange;
@@ -116,7 +116,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
 
     if(!IsFilmMode() || GetFilmMode() == FILM_22_PULLDOWN_COMB)
     {
-        if(PercentDecrease < PulldownThresholdLow && 
+        if(PercentDecrease < PulldownThresholdLow &&
             LastDiff > PulldownThresholdLow &&
             pInfo->FieldDiff > MovementThreshold &&
             LastCombFactor > CombThreshold)
@@ -139,7 +139,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                         else
                         {
                             LOG(2, "Reset RepeatCount - Gap %d Too long", (GetTickCount() - StartFilmTicks));
-                            RepeatCount = 1;                    
+                            RepeatCount = 1;
                         }
                     }
                 }
@@ -304,7 +304,7 @@ BOOL FilmModePALComb(TDeinterlaceInfo* pInfo)
 {
     static long NumCalls = 0;
     DEINTERLACE_METHOD* DeintMethod;
-    
+
     if(pInfo == NULL)
     {
         NumCalls = 0;

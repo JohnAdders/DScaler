@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file SettingsMaster.h SettingsMaster Header file
  */
- 
+
 #ifndef _SETTINGSMASTER_H_
 #define _SETTINGSMASTER_H_
 
@@ -48,11 +48,11 @@ class CSettingsMaster
 public:
     CSettingsMaster(LPCSTR szIniFile);
     ~CSettingsMaster();
-    
+
     void Initialize();
 
     void Register(SmartPtr<CSettingsHolder> pHolder);
-    void Unregister(SmartPtr<CSettingsHolder> pHolder);        
+    void Unregister(SmartPtr<CSettingsHolder> pHolder);
 
     void SetSource(CSource* pSource);
     void SetChannelName(long NewValue);
@@ -76,7 +76,7 @@ public:
 
     SmartPtr<CSettingsHolder> FindMsgHolder(long Message);
 
-private:        
+private:
     typedef SETTING* (__cdecl *GENERICGETSETTING)(long SettingIndex);
     void AddSettings(long MessageIdRoot, GENERICGETSETTING GetSettingFunction);
 
@@ -90,7 +90,7 @@ private:
 
     /// Name of the ini file
     std::string m_sIniFile;
-    
+
     /// Names of the current source, inputs, video format and channel
     std::string m_SourceName;
     std::string m_VideoInputName;

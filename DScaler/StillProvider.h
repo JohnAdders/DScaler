@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file stillprovider.h stillprovider Header file
  */
- 
+
 #ifndef __STILLPROVIDER_H___
 #define __STILLPROVIDER_H___
 

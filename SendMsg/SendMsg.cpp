@@ -79,21 +79,21 @@ SendMsg /m This is a message.\\nSecond line.\
                 {
                     HANDLE hMapFile = NULL;
                     char* lpMsg = NULL;
-                    
+
                     hMapFile = CreateFileMapping(INVALID_HANDLE_VALUE,  // Use the system page file
-                        NULL, PAGE_READWRITE, 0, 1024, "DScalerSendMessageFileMappingObject");                        
-                    
-                    if(hMapFile == NULL) 
-                    { 
+                        NULL, PAGE_READWRITE, 0, 1024, "DScalerSendMessageFileMappingObject");
+
+                    if(hMapFile == NULL)
+                    {
                         // send error message to running copy of DScaler
                         SendMessage(hPrevWindow, MsgOSDShow, GetLastError(), 1);
-                    } 
+                    }
                     else
                     {
-                        lpMsg = (char*)MapViewOfFile(hMapFile, FILE_MAP_WRITE, 0, 0, 1024);              
-                        
-                        if (lpMsg == NULL) 
-                        { 
+                        lpMsg = (char*)MapViewOfFile(hMapFile, FILE_MAP_WRITE, 0, 0, 1024);
+
+                        if (lpMsg == NULL)
+                        {
                             // send error message to running copy of DScaler
                             SendMessage(hPrevWindow, MsgOSDShow, GetLastError(), 2);
                         }

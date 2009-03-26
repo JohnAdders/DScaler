@@ -37,10 +37,10 @@
 // We can find some PCI information for WINDOWS 9x in the registry
 //---------------------------------------------------------------------------
 NTSTATUS CIOAccessDevice::pciFindDevice(
-                                            DWORD  vendorID, 
-                                            DWORD  deviceID, 
+                                            DWORD  vendorID,
+                                            DWORD  deviceID,
                                             DWORD dwCardIndex,
-                                            DWORD* pdwBusNumber, 
+                                            DWORD* pdwBusNumber,
                                             DWORD* pdwSlotNumber
                                        )
 {
@@ -77,7 +77,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
         debugOut(dbError,"! cannot open HKL\\ENUM\\PCI error %X",status);
         return status;
     }
-    
+
     bFound = FALSE;
 
     for(iIndex = 0; !bFound && (status == STATUS_SUCCESS); iIndex++)

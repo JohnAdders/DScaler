@@ -101,7 +101,7 @@ NTSTATUS CIOAccessDevice::deviceIOControl(PIRP irp)
 //---------------------------------------------------------------------------
 NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam, DWORD* outputBuffer, DWORD* pBytesWritten)
 {
-// 2000-09-11 Added by Mark Rejhon 
+// 2000-09-11 Added by Mark Rejhon
 // Eliminates compiler warnings about data type conversion
 #define PORTADDRTYPE  USHORT
 
@@ -245,7 +245,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
             *pBytesWritten = sizeof(TMemStruct) + pMem->dwPages * sizeof(TPageStruct64);
         }
         break;
-        
+
     case IOCTL_DEPRICATED_FREEMEMORY:
         if(m_AllowDepricatedIOCTLs == false)
         {
@@ -532,7 +532,7 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
     {
         DWORD nPages = (dwLength + 4093) >> 12;
         DWORD PhysAddress = NULL;
-        node->dwSystemAddress =(DWORD)_PageAllocate(nPages, 
+        node->dwSystemAddress =(DWORD)_PageAllocate(nPages,
                                                     PG_SYS,
                                                     0,
                                                     0,
@@ -545,11 +545,11 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
             debugOut(dbTrace,"! cannot alloc contig pages");
             return  STATUS_INSUFFICIENT_RESOURCES;
         }
-        
+
         node->dwUserAddress = node->dwSystemAddress;
         node->dwFlags = dwFlags;
         node->dwPages = nPages;
-        
+
         pMemStruct->dwTotalSize = dwLength;
         pMemStruct->dwHandle = (DWORD)node;
         pMemStruct->dwPages = 1;
@@ -558,7 +558,7 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
         if (is64)
             ntStatus = buildPageStruct64(pMemStruct, node, PhysAddress);
         else
-            ntStatus = buildPageStruct32(pMemStruct, node, PhysAddress);        
+            ntStatus = buildPageStruct32(pMemStruct, node, PhysAddress);
     }
     else
     {
@@ -582,7 +582,7 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
         pMemStruct->dwTotalSize = dwLength;
         pMemStruct->dwHandle = (DWORD)node;
         pMemStruct->dwPages = nPages;
-        
+
         if (is64)
             ntStatus = buildPageStruct64(pMemStruct, node, 0);
         else
@@ -598,7 +598,7 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
 NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode node, DWORD phys)
 {
     PPageStruct pPages = (PPageStruct)(pMemStruct + 1);
-    
+
     if (node->dwFlags & ALLOC_MEMORY_CONTIG)
     {
         pPages[0].dwSize = pMemStruct->dwTotalSize;
@@ -610,7 +610,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
         // input buffer
         DWORD LinOffset = node->dwUserAddress & 0xfff; // page offset of memory to map
         DWORD SizeUsed = 0;
-        pPages[0].dwPhysical = GetPhysAddr(node->dwUserAddress); 
+        pPages[0].dwPhysical = GetPhysAddr(node->dwUserAddress);
         if(pPages[0].dwPhysical == 0xFFFFFFFF)
         {
             debugOut(dbTrace,"! cannot get Physical Address");
@@ -618,7 +618,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
             node->dwSystemAddress = 0;
             return  STATUS_INSUFFICIENT_RESOURCES;
         }
-        pPages[0].dwSize = 4096 - LinOffset; 
+        pPages[0].dwSize = 4096 - LinOffset;
         SizeUsed = pPages[0].dwSize;
         for(DWORD i = 1; i < node->dwPages; i++)
         {
@@ -651,7 +651,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
 NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode node, DWORD phys)
 {
     PPageStruct64 pPages = (PPageStruct64)(pMemStruct + 1);
-    
+
     if (node->dwFlags & ALLOC_MEMORY_CONTIG)
     {
         pPages[0].dwSize = pMemStruct->dwTotalSize;
@@ -663,7 +663,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode n
         // input buffer
         DWORD LinOffset = node->dwUserAddress & 0xfff; // page offset of memory to map
         DWORD SizeUsed = 0;
-        pPages[0].llPhysical = GetPhysAddr(node->dwUserAddress); 
+        pPages[0].llPhysical = GetPhysAddr(node->dwUserAddress);
         if(pPages[0].llPhysical == 0xFFFFFFFFU)
         {
             debugOut(dbTrace,"! cannot get Physical Address");
@@ -671,7 +671,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode n
             node->dwSystemAddress = 0;
             return  STATUS_INSUFFICIENT_RESOURCES;
         }
-        pPages[0].dwSize = 4096 - LinOffset; 
+        pPages[0].dwSize = 4096 - LinOffset;
         SizeUsed = pPages[0].dwSize;
         for(DWORD i = 1; i < node->dwPages; i++)
         {

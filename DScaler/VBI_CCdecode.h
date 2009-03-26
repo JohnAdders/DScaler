@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file VBI_ccdecode.h ccdecode Header file
  */
- 
+
 #ifndef __CCDECODE_H___
 #define __CCDECODE_H___
 

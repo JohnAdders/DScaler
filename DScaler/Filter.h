@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file filter.h filter Header file
  */
- 
+
 #ifndef __FILTER_H___
 #define __FILTER_H___
 

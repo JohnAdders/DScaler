@@ -39,8 +39,8 @@ From the Readme_GreedyHMA.txt file:
         return clip.GreedyHMA(1,0,4,0,0,0,0,0)
 
         It specifies the file spec (change yours) and asks for TopFirst and AutoPulldown to be
-        turned on, with decimation (frame dropping) to 24 fps.  I've so far tested it only 
-        with Avisynth/VirtualDub. 
+        turned on, with decimation (frame dropping) to 24 fps.  I've so far tested it only
+        with Avisynth/VirtualDub.
 
         I'm not sure, but there may be a bug in my code that requires the TopFirst option turned
         on. Maybe it's a quirk of my Matrox G400 MJPEG capture but I do get slightly better results
@@ -56,8 +56,8 @@ From the Readme_GreedyHMA.txt file:
                                  GoodPullDownLvl, BadPullDownLvl)
 
         All the values are integer, 0=no, 1=yes:
-        
-          TopFirst - assume the top field, lines 0,2,4,... should be displayed first. 
+
+          TopFirst - assume the top field, lines 0,2,4,... should be displayed first.
             The default is the supposedly more common BottomFirst (not for me).
 
           SwapFields - for busted capture drivers that put lines 1,3,5.. over
@@ -71,7 +71,7 @@ From the Readme_GreedyHMA.txt file:
                 (pentimate?). Use if you have (and want) 30 fps video source or
                 maybe 25 FPS PAL video.
 
-            1 - Auto Pulldown. Automatically decide which frames should be IVTC'd 
+            1 - Auto Pulldown. Automatically decide which frames should be IVTC'd
                 or deinterlaced, depending upon the settings of the Good and Bad
                 Pulldown Lvls (see below). Don't decimate. This is best if you
                 have mixed film and video and wan't 30 fps output. Also better
@@ -94,7 +94,7 @@ From the Readme_GreedyHMA.txt file:
 
             5 - Pulldown only (Force Film) with frame dropping. This will give the best
                 results if you have 100% properly mastered NTSC film source with no
-                video sections and not too many edits. It can adjust for most scene 
+                video sections and not too many edits. It can adjust for most scene
                 changes and changes in pulldown cadence, but not mixed up fields.
 
             I haven't tried to see what's best with all this yet. Pulldown stuff's still
@@ -104,10 +104,10 @@ From the Readme_GreedyHMA.txt file:
 
 
    ***** NOTE!  THE MEDIAN FILTER IS DISABLE FOR THIS RELEASE. *****
-            
-          MedianFilter (temporal) - Helps get rid of noise if needed but causes a 
+
+          MedianFilter (temporal) - Helps get rid of noise if needed but causes a
             2 field video delay. (Otherwise there's a 1 field delay) Specifying 1
-            turns it on using the current default of 3 (may change) but you can also 
+            turns it on using the current default of 3 (may change) but you can also
             specify 2-255 to override this. But values over about 3-5 can cause motion
             artifacts in fast motion video.
 
@@ -121,7 +121,7 @@ From the Readme_GreedyHMA.txt file:
             artifacts since it's done last, after deinterlace. Useful if you are going
             to down scale. Use only values 0,1 for parm.
 
-          EdgeEnhance (horizontal) - Add a little sharpness to full res video. This 
+          EdgeEnhance (horizontal) - Add a little sharpness to full res video. This
               one can also use parm values of 2-100. The default is currently 50 if
             1 is specified.  I may also support negative values in the future, making it a
             horizontal filter to help set up for downscaling.
@@ -138,10 +138,10 @@ From the Readme_GreedyHMA.txt file:
             Auto Pulldown is also turned on. The default is subject to change but is
             currently set at 85. But you will get the default value just by specifying
             0, which is recommended for most cases. This is really just a measure of
-            how bad a frame's comb/weave factors would be increased if we did pure 
+            how bad a frame's comb/weave factors would be increased if we did pure
             field matching.
 
-          
+
         For now, all 8 parms must be present, there is no error checking, and no more doc except
         about Greedy/HM at www.dscaler.org
 
@@ -157,27 +157,27 @@ From the Readme_GreedyHMA.txt file:
 
         2)     Currently no error checking or messages. I haven't figured out how to issue messages
             in Avisynth yet, and there is a bunch of stuff I should check that I'm not.
-            
+
         3)     Assumes YUV (YUY2) Frame Based input. Use an AVIsynth function to convert first if
             needed.
-            
+
         4)    Currently limited to a frame resolution of 999x576 pixels. FIXED ...
             (Now adjusted to a limit of 1928x1081 when building for Avisynth, to support HDTV)
 
-        5)    If you have pure well behaved film source, with no edits or pulldown quirks, and no 
+        5)    If you have pure well behaved film source, with no edits or pulldown quirks, and no
             video source, then you are still maybe better off in both performance and quality using
             the other functions of VirtualDub for Inverse Telecine, and not bothering with GreedyHMA.
             GreedyHMA is designed for high motion sports or mixed up video and film
             sequences. It may also do well on anime.
-            
+
         6)    There is a strange bug that I don't understand at all. If you add a new or changed
             GreedyHMA.dll to your machine, the first time you run VirtualDub/Avisynth/GreedyHMA
-            then VirtualDub may stop responding. If you then use the Task Manager to cancel 
+            then VirtualDub may stop responding. If you then use the Task Manager to cancel
             VirtualDub it will run after that.  A work-around seems to be to first open any
             other AVI file in VirtualDub the first time you bring it up after installing GreedyHMA,
             before opening any Avisynth scripts.  Later notes: it doesn't depend upon GreedyHMA at
             all, it happens without it on my machine, but I still don't understand it.
-            
+
         7)  Currently works properly only if fed a screen width in pixels that is a multiple of 16.
             Otherwise it may produce garbage at the right of the screen that you may have to crop.
 
@@ -190,16 +190,16 @@ From the Readme_GreedyHMA.txt file:
 
         For now, see www.trbarry.com/GreedyHMA.zip
 
-        The source is, or will soon be, in the DScaler open source project. www.dscaler.org 
+        The source is, or will soon be, in the DScaler open source project. www.dscaler.org
 
-    
+
       *********************************************************************************************
         Finally, the following is a slightly abridged copy of the Greedy (High Motion) summary from
         the DScaler Help page:
 
         GREEDY (HIGH MOTION) DEINTERLACE METHOD
 
-        WHAT IT DOES: (Basic) 
+        WHAT IT DOES: (Basic)
 
         The plugin works at two different levels. By default, at the Basic Level, it is a normal
         DScaler deinterlace method, with the following features:
@@ -213,7 +213,7 @@ From the Readme_GreedyHMA.txt file:
         - Lookahead motion detection
 
         - Diagonal Jaggie Reduction (DJR ;-) ) to smooth out the stair step effect in moving
-        diagonal lines. This is accomplish by horizontally smoothing only the rapidly moving 
+        diagonal lines. This is accomplish by horizontally smoothing only the rapidly moving
         pixels, leaving the stationary ones alone. If a diagonal edge is not moving then it
         won't be jagged anyway under Greedy (High Motion). I've previously somewhere here
         posted a couple snaps of some hard to handle Video Essentials scenes off my test
@@ -234,7 +234,7 @@ From the Readme_GreedyHMA.txt file:
 
         When using the Advanced Features Greedy (HM) maintains its own internal history of the last
         4 video input fields. This means it must be able to examine every field and you can't use
-        it at the same time as DScaler's regular Auto_Pulldown option. 
+        it at the same time as DScaler's regular Auto_Pulldown option.
 
         The new check box enabled features are:
 
@@ -268,12 +268,12 @@ From the Readme_GreedyHMA.txt file:
 
 #include "avisynth.h"
 #include "DI_GreedyHM.h"
-extern "C" void InitDScaler(int AutoPulldown, int MedianFilter, int VerticalFilter, 
+extern "C" void InitDScaler(int AutoPulldown, int MedianFilter, int VerticalFilter,
                             int EdgeEnhance, int GoodPullDownLvl, int BadPullDownLvl);
 
-extern  "C" void SetDScalerFrameInfo(BOOL IsOdd, int InPitch, int OutPitch, 
+extern  "C" void SetDScalerFrameInfo(BOOL IsOdd, int InPitch, int OutPitch,
      const BYTE* pSource, BYTE* pOverlay, int FrHeight, int LLength);
-extern  "C" BOOL CallGreedyHM(BOOL IsOdd, int InPitch, int OutPitch, 
+extern  "C" BOOL CallGreedyHM(BOOL IsOdd, int InPitch, int OutPitch,
      const BYTE* pSource, BYTE* pOverlay, int FrHeight, int LLength, BOOL WriteFrame);
 extern "C" BOOL UpdateFieldStore();
 
@@ -309,7 +309,7 @@ public:
     int __stdcall ProcessFrame(int _useFrame, PVideoFrame dst, unsigned char* dstp, BOOL WriteFrame, IScriptEnvironment* env);
     int __stdcall WhatDoWeSkip(int useFrame, IScriptEnvironment* env);
 };
-PVideoFrame __stdcall GreedyHMA::GetFrame(int inFrame, IScriptEnvironment* env) 
+PVideoFrame __stdcall GreedyHMA::GetFrame(int inFrame, IScriptEnvironment* env)
 {
 int i;
 int useFrame = PulldownType > 2
@@ -329,14 +329,14 @@ int useFrame = PulldownType > 2
         {
             dropFrame = WhatDoWeSkip((useFrame/5)*5, env); // pretend it wasn't
         }
-            
+
         if  (useFrame >= dropFrame)
         {
             if  (useFrame == dropFrame)
             {
                 i = ProcessFrame(useFrame, dst, dstp, false, env);// table, don't write buffer
                 PrevFrame = useFrame;
-            }    
+            }
             useFrame++;
         }
     }
@@ -344,16 +344,16 @@ int useFrame = PulldownType > 2
     if (useFrame-1 != PrevFrame)            // out of sequence, reinit
     {
         i = ProcessFrame(useFrame-1, dst, dstp, false, env);    // but just table don't write buffer
-    }    
-        
+    }
+
     i = ProcessFrame(useFrame, dst, dstp, true, env);       // table and then write the frame
     PrevFrame = useFrame;
     PrevInFrame = inFrame;
     return dst;
 }
 
-int __stdcall GreedyHMA::ProcessFrame(int _useFrame, PVideoFrame dst, unsigned char* dstp, 
-                                      BOOL WriteFrame, IScriptEnvironment* env) 
+int __stdcall GreedyHMA::ProcessFrame(int _useFrame, PVideoFrame dst, unsigned char* dstp,
+                                      BOOL WriteFrame, IScriptEnvironment* env)
 {
     int useFrame = _useFrame < 0    // we always want a prev frame so maybe
                     ? 0             // use frame 0 twice at beginning, better
@@ -374,10 +374,10 @@ int __stdcall GreedyHMA::ProcessFrame(int _useFrame, PVideoFrame dst, unsigned c
     if (TopFirst)
     {
         if (SwapFields)
-        {                               
+        {
             // First do Top lines (0,2,4..) but take from Bottom (1,3,5..)
             SetDScalerFrameInfo(false, src_pitch, dst_pitch,
-                srcp + src_pitch, dstp, height, row_size);  
+                srcp + src_pitch, dstp, height, row_size);
             UpdateFieldStore();
             // Then do Bottom (1,3,5) lines, but take from Top (0,2,4..)
             retc = CallGreedyHM(true, src_pitch, dst_pitch,
@@ -387,7 +387,7 @@ int __stdcall GreedyHMA::ProcessFrame(int _useFrame, PVideoFrame dst, unsigned c
         {
             // First do Top lines (0,2,4..) take from Top
             SetDScalerFrameInfo(false, src_pitch, dst_pitch,
-                srcp, dstp, height, row_size);  
+                srcp, dstp, height, row_size);
             UpdateFieldStore();
             // Then do Bottom lines (1,3,5..), take from bottom
             retc = CallGreedyHM(true, src_pitch, dst_pitch,
@@ -399,7 +399,7 @@ int __stdcall GreedyHMA::ProcessFrame(int _useFrame, PVideoFrame dst, unsigned c
         {
             // First do Bottom lines (1,3,5..), but take from Top (0,2,4..)
             SetDScalerFrameInfo(true, src_pitch, dst_pitch,
-                srcp, dstp, height, row_size);  
+                srcp, dstp, height, row_size);
             UpdateFieldStore();
             // Then do Top lines (0,2,4..), take from Bottom (1,3,5..)
             retc = CallGreedyHM(false, src_pitch, dst_pitch,
@@ -409,7 +409,7 @@ int __stdcall GreedyHMA::ProcessFrame(int _useFrame, PVideoFrame dst, unsigned c
         {                   // neither Top First or Swap fields
             // First do Bottom lines (1,3,5..), take from bottom
             SetDScalerFrameInfo(true, src_pitch, dst_pitch,
-                srcp + src_pitch, dstp, height, row_size);  
+                srcp + src_pitch, dstp, height, row_size);
             UpdateFieldStore();
             // Then do Even (top) lines, assuming they come second (unless TopFirst)
             retc = CallGreedyHM(false, src_pitch, dst_pitch,
@@ -445,7 +445,7 @@ int src_pitch2;
 
 int row_size;
 int height;
-    
+
     for (i=useFrame; i <= useFrame+4; i++)
     {
         skipvalw = 0;
@@ -469,13 +469,13 @@ int height;
                     srcp1 += src_pitch1;    // point at 2nd line
                     srcp2 += src_pitch2;    // "
                 }
-            
+
                 src_pitch1 += src_pitch1;               // will do every other line
                 src_pitch2 += src_pitch2;               // will do every other line
-            
+
                 for (j=1; j <= height/2; j++)
                 {
-                    _asm        
+                    _asm
                     {
                     mov     esi, srcp1          // ptr to prev frame data
                     mov     edi, srcp2          // ptr to curr frame data
@@ -483,15 +483,15 @@ int height;
                     movd    mm7, skipvalw       // will accum total differences
 
                     align 8
-            CompLoop:   
+            CompLoop:
                     movq    mm0, qword ptr[esi]
                     movq    mm1, qword ptr[esi+8]
                     movq    mm2, qword ptr[esi+16]
                     movq    mm3, qword ptr[esi+64]
-                    psadbw  mm0, qword ptr[edi]        // sum of abs differences 
-                    psadbw  mm1, qword ptr[edi+8]    
-                    psadbw  mm2, qword ptr[edi+16]    
-                    psadbw  mm3, qword ptr[edi+24]    
+                    psadbw  mm0, qword ptr[edi]        // sum of abs differences
+                    psadbw  mm1, qword ptr[edi+8]
+                    psadbw  mm2, qword ptr[edi+16]
+                    psadbw  mm3, qword ptr[edi+24]
                     paddd   mm7, mm0                // accum totals
                     paddd   mm7, mm1
                     paddd   mm7, mm2
@@ -499,7 +499,7 @@ int height;
 
                     lea     esi, [esi+32]           // bump ptrs & loop
                     lea     edi, [edi+32]
-                    dec    edx 
+                    dec    edx
                     jnz     CompLoop
                     movd    skipvalw, mm7
                     emms
@@ -523,7 +523,7 @@ int height;
 
 
 AVSValue __cdecl Create_GreedyHMA(AVSValue args, void* user_data,
-IScriptEnvironment* env) 
+IScriptEnvironment* env)
 {
     int i;
     i = args[3].AsInt();
@@ -531,8 +531,8 @@ IScriptEnvironment* env)
     i = args[5].AsInt();
     i = args[6].AsInt();
 
-    InitDScaler(args[3].AsInt(), args[4].AsInt(), args[5].AsInt(), 
-        args[6].AsInt(), args[7].AsInt(), args[8].AsInt()); 
+    InitDScaler(args[3].AsInt(), args[4].AsInt(), args[5].AsInt(),
+        args[6].AsInt(), args[7].AsInt(), args[8].AsInt());
     return new GreedyHMA(args[0].AsClip(), args[1].AsInt(), args[2].AsInt(), args[3].AsInt());
 }
 

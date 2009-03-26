@@ -56,7 +56,7 @@ void CBT848Source::UnMute()
 
 void CBT848Source::VolumeOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioVolume((WORD)NewValue);    
+    m_pBT848Card->SetAudioVolume((WORD)NewValue);
     EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, NewValue);
 }
 
@@ -126,7 +126,7 @@ void CBT848Source::AudioSource6OnChange(long NewValue, long OldValue)
 
 void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)
 {
-   m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue);   
+   m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue);
     EventCollector->RaiseEvent(this, EVENT_SOUNDCHANNEL, OldValue, NewValue);
 }
 
@@ -154,7 +154,7 @@ void CBT848Source::UseEqualizerOnChange(BOOL NewValue, BOOL OldValue)
     if(m_pBT848Card->HasAudioEqualizers())
     {
         if (NewValue)
-        {            
+        {
             m_pBT848Card->SetAudioBass(0);
             m_pBT848Card->SetAudioTreble(0);
 
@@ -242,13 +242,13 @@ void CBT848Source::AudioAutoVolumeCorrectionOnChange(long NewValue, long OldValu
 }
 
 void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
-{        
+{
     switch (NewValue)
     {
     case 0: //Find standard based on video format
     case 1: //Standard from video format with fallback on auto detect
         {
-            if (m_DetectingAudioStandard) 
+            if (m_DetectingAudioStandard)
             {
                 //Abort detection
                 m_KeepDetectingStereo = 0;
@@ -258,12 +258,12 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
             long Standard = m_pBT848Card->GetAudioStandardFromVideoFormat((eVideoFormat)m_VideoFormat->GetValue());
             if ((NewValue == 0) || (Standard != 0))
             {
-                m_pBT848Card->SetAudioStandard(Standard, (eVideoFormat)m_VideoFormat->GetValue());                
+                m_pBT848Card->SetAudioStandard(Standard, (eVideoFormat)m_VideoFormat->GetValue());
 
                 m_AudioStandardManual->SetValue(Standard, TRUE);
                 m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), TRUE);
                 m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), TRUE);
-              
+
                 if (m_AutoStereoSelect->GetValue())
                 {
                     // Find stereo modes
@@ -272,9 +272,9 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
                 }
                 else
                 {
-                    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());                               
+                    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
                 }
-                //Set controls                
+                //Set controls
                 if (m_InitAudioControls)
                 {
                     m_InitAudioControls = FALSE;
@@ -282,7 +282,7 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
                 }
                 m_pBT848Card->SetAudioVolume((WORD)m_Volume->GetValue());
                 break;
-            } 
+            }
             else
             {
                 // Auto detect (no break)
@@ -298,24 +298,24 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
         }
         break;
     case 4: //Manual
-        {        
-            if (m_DetectingAudioStandard) 
+        {
+            if (m_DetectingAudioStandard)
             {
                 //Abort detection
                 m_KeepDetectingStereo = 0;
                 m_pBT848Card->DetectAudioStandard(-1,0,(eSoundChannel)0);
                 m_DetectingAudioStandard = 0;
             }
-            m_pBT848Card->SetAudioStandard(m_AudioStandardManual->GetValue(), (eVideoFormat)m_VideoFormat->GetValue());            
+            m_pBT848Card->SetAudioStandard(m_AudioStandardManual->GetValue(), (eVideoFormat)m_VideoFormat->GetValue());
             if ((m_AudioStandardMajorCarrier->GetValue() != 0) && (m_AudioStandardMinorCarrier->GetValue() != 0))
             {
-                m_pBT848Card->SetAudioStandardCarriers(m_AudioStandardMajorCarrier->GetValue(),m_AudioStandardMinorCarrier->GetValue());    
+                m_pBT848Card->SetAudioStandardCarriers(m_AudioStandardMajorCarrier->GetValue(),m_AudioStandardMinorCarrier->GetValue());
             }
             else
             {
                 m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), TRUE);
                 m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), TRUE);
-            }            
+            }
             // Find stereo modes
             if (m_AutoStereoSelect->GetValue())
             {
@@ -324,9 +324,9 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
             }
             else
             {
-                m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());                
+                m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
             }
-            //Set controls            
+            //Set controls
             if (m_InitAudioControls)
             {
                 m_InitAudioControls = FALSE;
@@ -335,7 +335,7 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
             m_pBT848Card->SetAudioVolume((WORD)m_Volume->GetValue());
         }
         break;
-    }        
+    }
 }
 
 void CBT848Source::AudioStandardDetectIntervalOnChange(long NewValue, long OldValue)
@@ -344,29 +344,29 @@ void CBT848Source::AudioStandardDetectIntervalOnChange(long NewValue, long OldVa
 }
 
 void CBT848Source::SupportedSoundChannelsDetected(eSupportedSoundChannels supported)
-{    
+{
     if (m_AutoStereoSelect->GetValue())
     {
         if (m_pBT848Card->IsAudioChannelDetected((eSoundChannel)2) == 2)
         {
             m_AudioChannel->SetValue(2); //Set to stereo
-        }        
+        }
         else
         {
             //Set value to compatible channel (probably mono)
             m_AudioChannel->SetValue(m_pBT848Card->IsAudioChannelDetected((eSoundChannel)m_AudioChannel->GetValue()), TRUE);
         }
         m_KeepDetectingStereo = 1;
-    }    
+    }
 }
 
 
 void CBT848Source::AudioStandardDetected(long Standard)
-{    
+{
     m_AudioStandardManual->SetValue(Standard, TRUE);
     m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), TRUE);
     m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), TRUE);
-        
+
     if (m_InitAudioControls)
     {
         m_InitAudioControls = FALSE;
@@ -409,15 +409,15 @@ void CBT848Source::AudioStandardInStatusBarOnChange(BOOL NewValue, BOOL OldValue
 }
 
 void CBT848Source::MSP34xxFlagsOnChange(long NewValue, long OldValue)
-{   
+{
     // \todo: change this
-    m_pBT848Card->SetAudioDecoderValue(0, NewValue); 
+    m_pBT848Card->SetAudioDecoderValue(0, NewValue);
 }
 
 void CBT848Source::HandleTimerMessages(int TimerId)
 {
     if (TimerId == TIMER_MSP)
-    {        
+    {
         string Text;
         string szAudioStandard(".[");
 
@@ -431,25 +431,25 @@ void CBT848Source::HandleTimerMessages(int TimerId)
                m_KeepDetectingStereo = 0;
                m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, SOUNDCHANNEL_STEREO);m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, SOUNDCHANNEL_STEREO);
             }
-        }         
-        
+        }
+
         if (m_AudioStandardInStatusBar->GetValue())
         {
             if (m_DetectingAudioStandard)
             {
                 szAudioStandard += "Detecting...]";
             }
-            else 
+            else
             {
                 char *s = (char*)m_pBT848Card->GetAudioStandardName(m_AudioStandardManual->GetValue());
                 if (s != NULL)
-                {           
+                {
                     szAudioStandard += s;
                     szAudioStandard += "]";;
                 }
             }
         }
-        
+
         switch(m_AudioChannel->GetValue())
         {
         case SOUNDCHANNEL_MONO:
@@ -473,7 +473,7 @@ void CBT848Source::HandleTimerMessages(int TimerId)
                 break;
             }
         }
-        
+
         StatusBar_ShowText(STATUS_AUDIO, Text);
     }
 }
@@ -504,13 +504,13 @@ void CBT848Source::InitAudio()
     m_pBT848Card->InitAudio((m_UseInputPin1->GetValue() != 0));
 
     m_InitAudioControls = TRUE; //done in audiostandarddetectonchange
-    
+
     m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
     m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
 }
 
 void CBT848Source::InitAudioControls()
-{    
+{
     m_Balance->SetValue(m_Balance->GetValue());
 
     m_UseEqualizer->SetValue(m_UseEqualizer->GetValue());
@@ -531,7 +531,7 @@ void CBT848Source::InitAudioControls()
     m_AudioLoudness->SetValue(m_AudioLoudness->GetValue());
     m_AudioSuperbass->SetValue(m_AudioSuperbass->GetValue());
     m_AudioSpatialEffect->SetValue(m_AudioSpatialEffect->GetValue());
-    m_AudioAutoVolumeCorrection->SetValue(m_AudioAutoVolumeCorrection->GetValue()); 
+    m_AudioAutoVolumeCorrection->SetValue(m_AudioAutoVolumeCorrection->GetValue());
 }
 
 #endif // WANT_BT8X8_SUPPORT

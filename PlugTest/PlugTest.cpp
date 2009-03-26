@@ -59,7 +59,7 @@ CopyLoop:
         je EndCopyLoop
 align 8
 CopyLoop2:
-        mov dl, byte ptr[esi] 
+        mov dl, byte ptr[esi]
         mov byte ptr[edi], dl
         inc esi
         inc edi
@@ -86,14 +86,14 @@ BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
     if(NumRead < sizeof(TDeinterlaceInfo))
     {
         printf("Error reading file %s\n", SnapshotFile);
-        fclose(file);      
+        fclose(file);
         return FALSE;
     }
 
     if(pInfo->Version != DEINTERLACE_INFO_CURRENT_VERSION)
     {
         printf("Incorrect version od dtv file\n");
-        fclose(file);      
+        fclose(file);
         return FALSE;
     }
 
@@ -111,7 +111,7 @@ BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
             if(NumRead < sizeof(TPicture))
             {
                 printf("Error reading file %s\n", SnapshotFile);
-                fclose(file);      
+                fclose(file);
                 return FALSE;
             }
             pInfo->PictureHistory[i]->pData = (BYTE*)malloc(pInfo->FieldHeight * pInfo->LineLength);
@@ -119,7 +119,7 @@ BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
             if(NumRead < pInfo->FieldHeight * pInfo->LineLength)
             {
                 printf("Error reading file %s\n", SnapshotFile);
-                fclose(file);      
+                fclose(file);
                 return FALSE;
             }
         }
@@ -133,7 +133,7 @@ BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
     pInfo->Overlay = (BYTE*)malloc(pInfo->OverlayPitch * pInfo->FrameHeight);
     pInfo->CpuFeatureFlags = CpuFeatureFlags;
     pInfo->pMemcpy = memcpyMMX;
-    fclose(file);      
+    fclose(file);
     return TRUE;
 }
 
@@ -344,7 +344,7 @@ static void FillTiffHeader(struct TiffHeader *head, char *description, char *mak
     head->model.type = 2;
     head->model.count = strlen(model) + 1;
     head->model.value = STRUCT_OFFSET(head, modelText);
-    
+
     head->bitsPerSample.tag = 258;
     head->bitsPerSample.type = Short;
     head->bitsPerSample.count = 3;

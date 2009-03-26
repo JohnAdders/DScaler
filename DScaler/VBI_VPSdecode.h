@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file vbi_vpsdecode.h vbi_vpsdecode Header file
  */
- 
+
 #ifndef __VBI_VPSDECODE_H___
 #define __VBI_VPSDECODE_H___
 
@@ -37,7 +37,7 @@ enum eVPSAudio
 };
 
 // VPS data
-typedef struct 
+typedef struct
 {
     BOOL Valid;
     WORD CNI;

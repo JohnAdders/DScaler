@@ -52,50 +52,50 @@ DEINTERLACE_METHOD ProgressiveMethods[PROGPULLDOWNMODES_LAST_ONE] =
     // PROG_22_PULLDOWN_ODD
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "2:2 Pulldown Flip on Odd", "2:2 Odd", FALSE, TRUE, ProgMode, 25, 30, 
-        0, NULL, 0, NULL, NULL, NULL, NULL, 1, 0, 0, -1, NULL, 0, FALSE, FALSE, 
+        "2:2 Pulldown Flip on Odd", "2:2 Odd", FALSE, TRUE, ProgMode, 25, 30,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 1, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // PROG_22_PULLDOWN_EVEN
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "2:2 Pulldown Flip on Even", "2:2 Even", FALSE, TRUE, ProgMode, 25, 30, 
+        "2:2 Pulldown Flip on Even", "2:2 Even", FALSE, TRUE, ProgMode, 25, 30,
         0, NULL, 0, NULL, NULL, NULL, NULL, 1, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_0
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Skip 1st Full Frame", "3:2 1st", FALSE, TRUE, ProgMode, 1000, 24, 
+        "3:2 Pulldown Skip 1st Full Frame", "3:2 1st", FALSE, TRUE, ProgMode, 1000, 24,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_1
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Skip 2nd Full Frame", "3:2 2nd", FALSE, TRUE, ProgMode, 1000, 24, 
+        "3:2 Pulldown Skip 2nd Full Frame", "3:2 2nd", FALSE, TRUE, ProgMode, 1000, 24,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_2
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Skip 3rd Full Frame", "3:2 3rd", FALSE, TRUE, ProgMode, 1000, 24, 
+        "3:2 Pulldown Skip 3rd Full Frame", "3:2 3rd", FALSE, TRUE, ProgMode, 1000, 24,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_3
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Skip 4th Full Frame", "3:2 4th", FALSE, TRUE, ProgMode, 1000, 24, 
+        "3:2 Pulldown Skip 4th Full Frame", "3:2 4th", FALSE, TRUE, ProgMode, 1000, 24,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_4
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Skip 5th Full Frame", "3:2 5th", FALSE, TRUE, ProgMode, 1000, 24, 
+        "3:2 Pulldown Skip 5th Full Frame", "3:2 5th", FALSE, TRUE, ProgMode, 1000, 24,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // NORMAL_PROGRESSIVE
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "Progressive Scan", NULL, FALSE, FALSE, ProgMode, 50, 60, 
-        0, NULL, 0, NULL, NULL, NULL, NULL, 1, 0, 0, -1, NULL, 0, FALSE, FALSE, 
+        "Progressive Scan", NULL, FALSE, FALSE, ProgMode, 50, 60,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 1, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
 };
 
@@ -104,55 +104,55 @@ DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
     // FILM_22_PULLDOWN_ODD
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "2:2 Pulldown Flip on Odd", "2:2 Odd", FALSE, TRUE, FilmModePALOdd, 25, 30, 
-        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE, 
+        "2:2 Pulldown Flip on Odd", "2:2 Odd", FALSE, TRUE, FilmModePALOdd, 25, 30,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_22_PULLDOWN_EVEN
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "2:2 Pulldown Flip on Even", "2:2 Even", FALSE, TRUE, FilmModePALEven, 25, 30, 
+        "2:2 Pulldown Flip on Even", "2:2 Even", FALSE, TRUE, FilmModePALEven, 25, 30,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_0
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Skip 1st Full Frame", "3:2 1st", FALSE, TRUE, FilmModeNTSC1st, 1000, 24, 
+        "3:2 Pulldown Skip 1st Full Frame", "3:2 1st", FALSE, TRUE, FilmModeNTSC1st, 1000, 24,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_1
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Skip 2nd Full Frame", "3:2 2nd", FALSE, TRUE, FilmModeNTSC2nd, 1000, 24, 
+        "3:2 Pulldown Skip 2nd Full Frame", "3:2 2nd", FALSE, TRUE, FilmModeNTSC2nd, 1000, 24,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_2
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Skip 3rd Full Frame", "3:2 3rd", FALSE, TRUE, FilmModeNTSC3rd, 1000, 24, 
+        "3:2 Pulldown Skip 3rd Full Frame", "3:2 3rd", FALSE, TRUE, FilmModeNTSC3rd, 1000, 24,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_3
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Skip 4th Full Frame", "3:2 4th", FALSE, TRUE, FilmModeNTSC4th, 1000, 24, 
+        "3:2 Pulldown Skip 4th Full Frame", "3:2 4th", FALSE, TRUE, FilmModeNTSC4th, 1000, 24,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_4
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Skip 5th Full Frame", "3:2 5th", FALSE, TRUE, FilmModeNTSC5th, 1000, 24, 
+        "3:2 Pulldown Skip 5th Full Frame", "3:2 5th", FALSE, TRUE, FilmModeNTSC5th, 1000, 24,
         0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_COMB
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "3:2 Pulldown Use Comb Info", "3:2 Comb", FALSE, TRUE, FilmModeNTSCComb, 1000, 60, 
+        "3:2 Pulldown Use Comb Info", "3:2 Comb", FALSE, TRUE, FilmModeNTSCComb, 1000, 60,
         0, NULL, 0, NULL, NULL, NULL, NULL, 3, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_22_PULLDOWN_COMB
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "2:2 Pulldown Use Comb Info", "2:2 Comb", FALSE, TRUE, FilmModePALComb, 1000, 60, 
+        "2:2 Pulldown Use Comb Info", "2:2 Comb", FALSE, TRUE, FilmModePALComb, 1000, 60,
         0, NULL, 0, NULL, NULL, NULL, NULL, 3, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
 };
@@ -386,7 +386,7 @@ BOOL UnsetProgressiveMode()
         {
             WorkoutOverlaySize(TRUE);
         }
-        
+
         return TRUE;
     }
     return FALSE;
@@ -722,7 +722,7 @@ void LoadDeintPlugin(LPCSTR szFileName)
             pMethod->DeinterlaceStructureVersion >= DEINTERLACE_VERSION_3)
         {
             VideoDeintMethods[NumVideoModes] = pMethod;
-            
+
             SmartPtr<CSettingsHolder> Holder(new CSettingsHolder(WM_APP + pMethod->nSettingsOffset, pMethod->HelpID));
             Holder->AddSettings(pMethod->pSettings, pMethod->nSettings);
             Holder->ReadFromIni();
@@ -809,7 +809,7 @@ BOOL LoadDeinterlacePlugins()
                     LoadDeintPlugin(FindFileData.cFileName);
                 }
                 catch(...)
-                { 
+                {
                     LOG(1, "Crash Loading %s", FindFileData.cFileName);
                 }
             }
@@ -842,8 +842,8 @@ BOOL LoadDeinterlacePlugins()
                 VideoDeintMethods[i]->pfnPluginStart(NumVideoModes, VideoDeintMethods, Deinterlace_SetStatus);
             }
             AddUIForDeintPlugin(hMenu, VideoDeintMethods[i]);
-            
-            // update the names list which will be used in the generic settings 
+
+            // update the names list which will be used in the generic settings
             // dialog box
             DeinterlaceNames[VideoDeintMethods[i]->nMethodIndex] = VideoDeintMethods[i]->szName;
         }

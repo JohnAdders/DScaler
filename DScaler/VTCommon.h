@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file vtcommon.h vtcommon Header file
  */
- 
+
 #ifndef __VTCOMMON_H___
 #define __VTCOMMON_H___
 
@@ -144,7 +144,7 @@ enum
      */
 
     VTPAGE_ERROR                = 0x000,
-    
+
     VTPAGE_FLOFRED              = 0x010,
     VTPAGE_FLOFGREEN            = 0x011,
     VTPAGE_FLOFYELLOW           = 0x012,

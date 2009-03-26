@@ -41,7 +41,7 @@ public:
     void SetGradientColor(COLORREF clLeft,COLORREF clRight);
     void SetTextColor(COLORREF cl);
     void SetSpacing(int iNoOfPixels);
-    
+
 // Attributes
 public:
 
@@ -55,7 +55,7 @@ public:
 
 // Implementation
 public:
-    
+
 
     // Generated message map functions
 protected:
@@ -69,7 +69,7 @@ protected:
 private:
     void PaintRect(CDC& dc, int x, int y, int w, int h, COLORREF color);
     int m_iSpacing;
-    
+
     long m_clLeft;
     long m_clRight;
     long m_clText;

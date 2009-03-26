@@ -49,7 +49,7 @@ long BlackWhite(TDeinterlaceInfo* pInfo)
             movq    mm1, qwLumiMask
             movq    mm2, qwChromaHalfMask
 
-LOOP_LABEL:            
+LOOP_LABEL:
             movq    mm0, [eax]
 
             pand    mm0, mm1
@@ -59,11 +59,11 @@ LOOP_LABEL:
 
             add     eax, 8
             dec     ecx
-            jne     LOOP_LABEL          
+            jne     LOOP_LABEL
         }
         Pixels += pInfo->InputPitch;
     }
-    _asm 
+    _asm
     {
         emms
     }
@@ -93,7 +93,7 @@ FILTER_METHOD BlackWhiteMethod =
     "&Black and White",
     FALSE,
     TRUE,
-    BlackWhite, 
+    BlackWhite,
     0,
     TRUE,
     NULL,

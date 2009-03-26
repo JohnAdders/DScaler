@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file ToolbarWindow.h ToolbarWindow Header file
  */
- 
+
 #ifndef _TOOLBARWINDOW_H_
 #define _TOOLBARWINDOW_H_
 
@@ -28,11 +28,11 @@
 
 enum eToolbarRowAlign
 {
-    TOOLBARCHILD_ALIGN_LEFTTOP = 0,    
+    TOOLBARCHILD_ALIGN_LEFTTOP = 0,
     TOOLBARCHILD_ALIGN_LEFTCENTER,
     TOOLBARCHILD_ALIGN_LEFTBOTTOM,
-    
-    TOOLBARCHILD_ALIGN_RIGHTTOP,    
+
+    TOOLBARCHILD_ALIGN_RIGHTTOP,
     TOOLBARCHILD_ALIGN_RIGHTCENTER,
     TOOLBARCHILD_ALIGN_RIGHTBOTTOM,
 };
@@ -55,7 +55,7 @@ class CToolbarChild;
 
 class CToolbarWindow : public CWindowBorder
 {
-protected: 
+protected:
     HWND hWndToolbar;
     HWND hWndParent;
 
@@ -90,15 +90,15 @@ protected:
     int m_lastWindowPos_y;
     int m_lastWindowPos_w;
     int m_lastWindowPos_h;
-    
+
     BOOL SetPos(int x, int y, int w, int h);
     BOOL GetPos(LPRECT rc);
 public:
-    int  Width();  
+    int  Width();
     int  Height();
 
-    HWND GethWnd() { return hWndToolbar; };  
-    HWND GethWndParent() { return hWndParent; };  
+    HWND GethWnd() { return hWndToolbar; };
+    HWND GethWndParent() { return hWndParent; };
 
     BOOL AttachBar(CToolbarChild *pChild, int Left, CToolbarChild *pBar);
     BOOL DetachBar(CToolbarChild *pChild, int Left);
@@ -106,7 +106,7 @@ public:
     void Remove(CToolbarChild *pChild);
     CToolbarWindow(HWND hWndParent, HINSTANCE hInst, int Child);
     ~CToolbarWindow();
-    
+
     BOOL Visible() { return IsToolbarVisible; }
     void AdjustArea(RECT *ar, int Crop);
 
@@ -115,10 +115,10 @@ public:
 
     void ShowChild(CToolbarChild *pChild);
     void HideChild(CToolbarChild *pChild);
-    
-    void SetChildPosition(CToolbarChild *pChild, int Order, int Row);    
+
+    void SetChildPosition(CToolbarChild *pChild, int Order, int Row);
     void SetChildRow(CToolbarChild *pChild, int Row);
-    
+
     void SetPosition(int Pos);
     int GetPosition();
 
@@ -141,9 +141,9 @@ protected:
     HWND hWnd;
     HINSTANCE hResourceInst;
     CToolbarWindow *m_pToolbar;
-    std::vector<CBitmapAsButton*> Buttons;    
+    std::vector<CBitmapAsButton*> Buttons;
     CBitmapsFromIniSection BitmapsFromIniSection;
-    
+
     virtual LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) = 0;
 
     int m_PosX;
@@ -162,13 +162,13 @@ public:
     BOOL Show();
     BOOL Hide();
 
-    int  Width();  
+    int  Width();
     int  Height();
 
     BOOL SetPos(int x,int y,int w, int h, BOOL bUpdate);
     BOOL GetPos(LPRECT lpRect);
 
-    HWND GethWnd() { return hWnd; };  
+    HWND GethWnd() { return hWnd; };
     HWND GethWndParent() { return m_pToolbar->GethWnd(); }
     HWND GethWndParentOfToolbar() { return m_pToolbar->GethWndParent(); }
 
@@ -176,9 +176,9 @@ public:
 
     virtual void UpdateWindow() {;};
 
-    CToolbarChild(CToolbarWindow *pToolbar);    
+    CToolbarChild(CToolbarWindow *pToolbar);
     ~CToolbarChild();
-    
+
     virtual HWND Create(LPCTSTR szClassName, HINSTANCE hResourceInst);
     virtual HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
 
@@ -188,10 +188,10 @@ public:
     virtual BOOL SkinDlgItem(UINT uItemID, std::string sIniEntry, eBitmapAsButtonType ButtonType, std::string sSection, std::string sIniFile);
     virtual BOOL RemoveSkinDlgItem(UINT uItemID);
 
-    virtual LRESULT ButtonChildProc(std::string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
-    
+    virtual LRESULT ButtonChildProc(std::string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
     static LRESULT CALLBACK StaticToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    static LRESULT CALLBACK StaticToolbarChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
+    static LRESULT CALLBACK StaticToolbarChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     static LRESULT StaticToolbarChildButtonProc(std::string sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 

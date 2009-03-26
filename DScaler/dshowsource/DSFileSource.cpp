@@ -56,7 +56,7 @@ CDSFileSource::~CDSFileSource()
 void CDSFileSource::CreateSettings(LPCSTR IniSection)
 {
     CDSSourceBase::CreateSettings(IniSection);
-    
+
 }
 
 BOOL CDSFileSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)

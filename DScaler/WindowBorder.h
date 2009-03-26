@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file WindowBorder.h WindowBorder Header file
  */
- 
+
 #ifndef _WINDOWBORDER_H_
 #define _WINDOWBORDER_H_
 
@@ -50,14 +50,14 @@ enum eWindowBorderPosition
 //
 //
 //    0   1    -2-    3   5
-//    
+//
 //   15                   4
 //
 //
 //   |                    |
 //   14                   6
 //   |                    |
-//    
+//
 //
 //   13                   7
 //
@@ -79,7 +79,7 @@ protected:
     int SolidBottomSize;
     int SolidLeftSize;
 
-    
+
     typedef struct {
       std::string sID;
       SmartPtr<CBitmapAsButton> Button;
@@ -93,7 +93,7 @@ protected:
     } TButtonInfo;
 
     std::vector<TButtonInfo> Buttons;
-    
+
     int TopSize;
     int RightSize;
     int BottomSize;
@@ -112,14 +112,14 @@ protected:
     HRGN hLastRegion;
 
     void MergeLineRegion(int y,POINT *RowList,int RowListSize,int TotalWidth,std::vector<RECT>& AllRegions);
-    void MergeBorderRegions(std::vector<RECT>& AllRegions, LPRECT lpRcExtra);    
+    void MergeBorderRegions(std::vector<RECT>& AllRegions, LPRECT lpRcExtra);
     BOOL FindBorderSizes();
     BOOL FindLocations();
 
     void UpdateButtonLocations();
 
     BOOL (*CustomGetClientRect)(HWND hWnd, LPRECT lpRect);
-    
+
     int BmpWidth(int Position);
     int BmpHeight(int Position);
     int BorderWidth(int Position);
@@ -129,21 +129,21 @@ protected:
 public:
     CWindowBorder(HWND hWnd, HINSTANCE hInst, BOOL (*CustomGetClientRect)(HWND hWnd, LPRECT lpRect) = NULL);
     ~CWindowBorder();
-    
+
     void AdjustArea(RECT *ar, int Crop);
-    
+
 
     void DefaultColor(COLORREF Color);
     void SolidBorder(int left,int top, int right, int bottom, COLORREF Color);
     HRGN MakeRegion(LPRECT lpRcExtra);
-    
+
     BOOL SetBorderBitmap(eWindowBorderPosition Position, int State, SmartPtr<CBitmapState> BitmapState, int DrawMode);
     BOOL SetButtonBitmap(std::string sID, int WhichBitmap, eWindowBorderPosition RelPos, int x, int y, SmartPtr<CBitmapState> BitmapState);
-    
+
     BOOL RegisterButton(std::string sID, eBitmapAsButtonType ButtonType, std::string sIniEntryDefault, std::string sIniEntryMouseOver, std::string sIniEntryClick, BUTTONPROC *pfnButtonProc);
-    
+
     void Paint(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPShift = NULL);
-    
+
     BOOL Visible() { return (IsBorderVisible>0); };
     BOOL Show() { IsBorderVisible=1; UpdateButtonLocations(); return TRUE; }
     BOOL Hide() { IsBorderVisible=0; UpdateButtonLocations(); return TRUE; }

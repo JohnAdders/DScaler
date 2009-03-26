@@ -55,11 +55,11 @@ BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             hSplashBm = (HBITMAP)LoadImage(hDScalerInst, MAKEINTRESOURCE(IDB_STARTUP), IMAGE_BITMAP, 0, 0, LR_VGACOLOR);
             GetObject(hSplashBm, sizeof(BITMAP), (LPSTR) &bm);
 
-            SetWindowPos(hDlg, HWND_TOPMOST, 
-                ScreenRect.left + (Width - bm.bmWidth) / 2, 
-                ScreenRect.top + (Height - bm.bmHeight) / 2, 
-                bm.bmWidth, 
-                bm.bmHeight, 
+            SetWindowPos(hDlg, HWND_TOPMOST,
+                ScreenRect.left + (Width - bm.bmWidth) / 2,
+                ScreenRect.top + (Height - bm.bmHeight) / 2,
+                bm.bmWidth,
+                bm.bmHeight,
                 SWP_SHOWWINDOW);
             SetTimer(hDlg, 2, 5000, NULL);
             InvalidateRect(hDlg, NULL, TRUE);
@@ -78,7 +78,7 @@ BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         EndPaint(hDlg, &wps);
         return TRUE;
         break;
-    
+
     case WM_TIMER:
         if (wParam == 2)
         {

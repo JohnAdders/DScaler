@@ -41,7 +41,7 @@ BOOL DeinterlaceWeave(TDeinterlaceInfo* pInfo)
         CurrentOddLine = pInfo->PictureHistory[1]->pData;
         CurrentEvenLine = pInfo->PictureHistory[0]->pData;
     }
-    
+
     for (i = 0; i < pInfo->FieldHeight; i++)
     {
         pInfo->pMemcpy(lpOverlay, CurrentEvenLine, pInfo->LineLength);
@@ -63,12 +63,12 @@ DEINTERLACE_METHOD WeaveMethod =
 {
     sizeof(DEINTERLACE_METHOD),
     DEINTERLACE_CURRENT_VERSION,
-    "Simple Weave", 
+    "Simple Weave",
     "Weave",
-    FALSE, 
-    FALSE, 
-    DeinterlaceWeave, 
-    50, 
+    FALSE,
+    FALSE,
+    DeinterlaceWeave,
+    50,
     60,
     0,
     NULL,

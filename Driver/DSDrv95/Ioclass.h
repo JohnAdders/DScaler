@@ -38,7 +38,7 @@ typedef DWORD CONFIGRET;
 typedef DWORD ENUMFUNC;
 typedef DWORD HKEY, * PHKEY;
 
-extern "C" 
+extern "C"
 {
 
 int  __cdecl _inp(unsigned short);

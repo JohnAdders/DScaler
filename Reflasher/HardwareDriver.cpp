@@ -62,7 +62,7 @@ BOOL CHardwareDriver::LoadDriver()
     if (!m_bWindows95)
     {
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
-        
+
         if(hSCManager == NULL)
             bError = TRUE;
 
@@ -94,7 +94,7 @@ BOOL CHardwareDriver::LoadDriver()
             if(StartService(m_hService, 0, NULL) == FALSE)
             {
                 DWORD Err = GetLastError();
-                
+
                 if(Err == ERROR_PATH_NOT_FOUND || Err == ERROR_FILE_NOT_FOUND)
                 {
                     UnInstallNTDriver();
@@ -108,7 +108,7 @@ BOOL CHardwareDriver::LoadDriver()
                     bError = TRUE;
 
             }
-            
+
             if(!bError)
                 m_hFile = CreateFile("\\\\.\\DSDrv4", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, INVALID_HANDLE_VALUE);
         }
@@ -132,7 +132,7 @@ BOOL CHardwareDriver::LoadDriver()
                 UnInstallNTDriver();
             }
         }
-        
+
         else
             bError = TRUE;
     }
@@ -142,7 +142,7 @@ BOOL CHardwareDriver::LoadDriver()
         UnloadDriver();
         return FALSE;
     }
-    
+
     else
         return TRUE;
 }
@@ -197,7 +197,7 @@ BOOL CHardwareDriver::InstallNTDriver()
         szDriverPath[0] = '\0';
         bError = TRUE;
     }
-    
+
     if(!bError)
     {
         pszName = szDriverPath + strlen(szDriverPath);
@@ -213,13 +213,13 @@ BOOL CHardwareDriver::InstallNTDriver()
     if(!bError)
     {
         strcat(szDriverPath, NTDriverName);
-        strcat(szDriverPath, ".sys");       
-        
+        strcat(szDriverPath, ".sys");
+
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
         if(hSCManager == NULL)
             bError = TRUE;
     }
-    
+
     if(!bError)
     {
         GetShortPathName(szDriverPath, szDriverPath, MAX_PATH);
@@ -237,11 +237,11 @@ BOOL CHardwareDriver::InstallNTDriver()
                                     NULL,                  // no dependencies
                                     NULL,                  // LocalSystem account
                                     NULL);                 // no password
-        
+
         if(m_hService == NULL)
         {
             if(GetLastError() == ERROR_SERVICE_EXISTS)
-            {              
+            {
                 m_hService = OpenService(hSCManager, NTDriverName, SERVICE_ALL_ACCESS);
                 if(DeleteService(m_hService) == FALSE)
                     bError = TRUE;
@@ -267,35 +267,35 @@ BOOL CHardwareDriver::InstallNTDriver()
                                                 NULL,                  // no dependencies
                                                 NULL,                  // LocalSystem account
                                                 NULL);                 // no password
-                    
+
                     if(m_hService == NULL)
                         bError = TRUE;
                 }
             }
-           
+
             else
                 bError = TRUE;
         }
     }
-    
+
     if(!bError)
         if(!AdjustAccessRights())
             bError = TRUE;
-    
+
     if(hSCManager != NULL)
     {
         if(!CloseServiceHandle(hSCManager))
             bError = TRUE;
-        
+
         hSCManager = NULL;
     }
-    
+
     if(bError)
     {
         UnloadDriver();
         return FALSE;
     }
-    
+
     else
         return TRUE;
 
@@ -308,7 +308,7 @@ BOOL CHardwareDriver::UnInstallNTDriver()
 
     if (m_bWindows95)
         TRACE("(NT driver) Uninstall not needed with win9x/ME.\n");
-   
+
     else
     {
         UnloadDriver();
@@ -329,7 +329,7 @@ BOOL CHardwareDriver::UnInstallNTDriver()
                     m_hService = NULL;
                     return TRUE;
                 }
-                
+
                 else
                     bError = TRUE;
             }
@@ -376,7 +376,7 @@ DWORD CHardwareDriver::SendCommand(DWORD dwIOCommand, LPVOID pvInput, DWORD dwIn
 {
     if(DeviceIoControl(m_hFile, dwIOCommand, pvInput, dwInputLength, pvOutput, dwOutputLength, pdwReturnedLength, NULL))
         return 0;
-    
+
     else
         return GetLastError();
 }
@@ -384,10 +384,10 @@ DWORD CHardwareDriver::SendCommand(DWORD dwIOCommand, LPVOID pvInput, DWORD dwIn
 DWORD CHardwareDriver::SendCommand(DWORD dwIOCommand, LPVOID pvInput, DWORD dwInputLength)
 {
     DWORD dwDummy;
-    
+
     if(DeviceIoControl(m_hFile, dwIOCommand, pvInput, dwInputLength, NULL, 0, &dwDummy, NULL))
         return 0;
-   
+
     else
         return GetLastError();
 }
@@ -412,7 +412,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
         return FALSE;
 
     psd = (PSECURITY_DESCRIPTOR)&psd;
-    
+
     if(!QueryServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, psd, 0, &dwSize))
     {
         if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
@@ -421,21 +421,21 @@ BOOL CHardwareDriver::AdjustAccessRights()
             if(psd == NULL)
                 bError = TRUE;
         }
-        
+
         else
             bError = TRUE;
     }
-    
+
     // Get the current security descriptor.
     if(!bError)
         if(!QueryServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, psd,dwSize, &dwSize))
-            bError = TRUE;                       
-    
+            bError = TRUE;
+
     // Get the DACL.
     if(!bError)
         if(!GetSecurityDescriptorDacl(psd, &bDaclPresent, &pacl, &bDaclDefaulted))
             bError = TRUE;
-    
+
     // Build the ACE.
     if(!bError)
     {
@@ -456,34 +456,34 @@ BOOL CHardwareDriver::AdjustAccessRights()
             ea.Trustee.TrusteeForm                = TRUSTEE_IS_SID;
             ea.Trustee.TrusteeType                = TRUSTEE_IS_GROUP;
             ea.Trustee.ptstrName                = (char *)pSIDEveryone;
-    
+
             dwError = SetEntriesInAcl(1, &ea, pacl, &pNewAcl);
             if(dwError != ERROR_SUCCESS)
                 bError = TRUE;
         }
-        
+
         FreeSid(pSIDEveryone);
     }
-    
+
     // Initialize a new Security Descriptor.
     if(!bError)
         if(!InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION))
             bError = TRUE;
-    
+
     // Set the new DACL in the Security Descriptor.
     if(!bError)
         if(!SetSecurityDescriptorDacl(&sd, TRUE, pNewAcl, FALSE))
             bError = TRUE;
-    
+
     // Set the new DACL for the service object.
     if(!bError)
         if (!SetServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, &sd))
             bError = TRUE;
-    
+
     // Free buffers.
     LocalFree((HLOCAL)pNewAcl);
     HeapFree(GetProcessHeap(), 0, (LPVOID)psd);
-    
+
     return !bError;
 }
 
@@ -492,7 +492,7 @@ BOOL CHardwareDriver::DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int Dev
     TDSDrvParam hwParam;
     DWORD dwStatus;
     DWORD dwLength;
-    
+
     TPCICARDINFO PCICardInfo;
     hwParam.dwAddress    = VendorID;
     hwParam.dwValue        = DeviceID;
@@ -510,7 +510,7 @@ BOOL CHardwareDriver::DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int Dev
         SubSystemId = PCICardInfo.dwSubSystemId;
         return TRUE;
     }
-    
+
     else
     {
         SubSystemId = 0;
@@ -526,26 +526,26 @@ DWORD CHardwareDriver::StopService( SC_HANDLE hSCM, SC_HANDLE hService, BOOL fSt
 
     if ( !QueryServiceStatus( hService, &ss ) )
         return GetLastError();
-    
-    if ( ss.dwCurrentState == SERVICE_STOPPED ) 
+
+    if ( ss.dwCurrentState == SERVICE_STOPPED )
         return ERROR_SUCCESS;   // If a stop is pending, just wait for it
 
     while ( ss.dwCurrentState == SERVICE_STOP_PENDING )
     {
         Sleep( ss.dwWaitHint );
-        
+
         if ( !QueryServiceStatus( hService, &ss ) )
             return GetLastError();
-        
+
         if ( ss.dwCurrentState == SERVICE_STOPPED )
             return ERROR_SUCCESS;
-        
+
         if ( GetTickCount() - dwStartTime > dwTimeout )
             return ERROR_TIMEOUT;
     }   // If the service is running, dependencies must be stopped first
 
    if ( fStopDependencies )
-   { 
+   {
         DWORD i;
         DWORD dwBytesNeeded;
         DWORD dwCount;
@@ -555,93 +555,93 @@ DWORD CHardwareDriver::StopService( SC_HANDLE hSCM, SC_HANDLE hService, BOOL fSt
         SC_HANDLE               hDepService;      // Pass a zero-length buffer to get the required buffer size
 
         if ( EnumDependentServices( hService, SERVICE_ACTIVE, lpDependencies, 0, &dwBytesNeeded, &dwCount ) )
-        { 
+        {
             // If the Enum call succeeds, then there are no dependent
             // services so do nothing
         }
-        
+
         else
         {
-         
+
          if ( GetLastError() != ERROR_MORE_DATA )
             return GetLastError(); // Unexpected error
-         
+
          // Allocate a buffer for the dependencies
          lpDependencies = (LPENUM_SERVICE_STATUS) HeapAlloc( GetProcessHeap(), HEAP_ZERO_MEMORY, dwBytesNeeded );         if ( !lpDependencies )
             return GetLastError();
-         
+
          __try
-         
-         { 
+
+         {
              // Enumerate the dependencies
-            
+
         if ( !EnumDependentServices( hService, SERVICE_ACTIVE, lpDependencies, dwBytesNeeded, &dwBytesNeeded, &dwCount ) )
             return GetLastError();
-        
+
         for ( i = 0; i < dwCount; i++ )
-        { 
+        {
             ess = *(lpDependencies + i);               // Open the service
             hDepService = OpenService( hSCM, ess.lpServiceName, SERVICE_STOP | SERVICE_QUERY_STATUS );
-               
+
             if ( !hDepService )
                   return GetLastError();
-            
+
             __try
-            {     
+            {
                     // Send a stop code
                   if ( !ControlService( hDepService, SERVICE_CONTROL_STOP, &ss ) )
-                     return GetLastError(); 
-                  
+                     return GetLastError();
+
                   // Wait for the service to stop
                   while ( ss.dwCurrentState != SERVICE_STOPPED )
                   {
                       Sleep( ss.dwWaitHint );
                      if ( !QueryServiceStatus( hDepService, &ss ) )
                         return GetLastError();
-                     
+
                      if ( ss.dwCurrentState == SERVICE_STOPPED )
                         break;
-                     
+
                      if ( GetTickCount() - dwStartTime > dwTimeout )
                         return ERROR_TIMEOUT;
 
                   }
             }
-            
+
             __finally
             {
                 // Always release the service handle
                 CloseServiceHandle( hDepService );
             }
-        } 
-         
+        }
+
          } __finally
-         
+
          {
              // Always free the enumeration buffer
             HeapFree( GetProcessHeap(), 0, lpDependencies );
          }
-      } 
+      }
    }
-   
+
    // Send a stop code to the main service
    if ( !ControlService( hService, SERVICE_CONTROL_STOP, &ss ) )
       return GetLastError();
-   
+
    // Wait for the service to stop
    while ( ss.dwCurrentState != SERVICE_STOPPED )
    {
        Sleep( ss.dwWaitHint );
       if ( !QueryServiceStatus( hService, &ss ) )
          return GetLastError();
-      
+
       if ( ss.dwCurrentState == SERVICE_STOPPED )
          break;
-      
+
       if ( GetTickCount() - dwStartTime > dwTimeout )
          return ERROR_TIMEOUT;
-   } 
-   
+   }
+
    // Return success
    return ERROR_SUCCESS;
 }

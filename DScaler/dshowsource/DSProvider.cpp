@@ -49,7 +49,7 @@ CDSProvider::CDSProvider()
         ErrorBox(msg.c_str());
         return;
     }
-    
+
     try
     {
         try

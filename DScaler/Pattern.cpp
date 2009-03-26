@@ -49,10 +49,10 @@ long RightCropping = 16;
 // Class CColorBar
 
 CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eTypeDraw type_draw, int param1_draw, int param2_draw, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V, unsigned char R_Y_2, unsigned char G_U_2, unsigned char B_V_2)
-{ 
-    m_LeftBorder = left; 
-    m_RightBorder = right; 
-    m_TopBorder = top; 
+{
+    m_LeftBorder = left;
+    m_RightBorder = right;
+    m_TopBorder = top;
     m_BottomBorder = bottom;
     m_TypeDraw = type_draw;
     m_Param1Draw = param1_draw;
@@ -103,9 +103,9 @@ CColorBar::CColorBar(CColorBar* pColorBar)
     unsigned short int left, right, top, bottom;
 
     pColorBar->GetPosition(&left, &right, &top, &bottom);
-    m_LeftBorder = left; 
-    m_RightBorder = right; 
-    m_TopBorder = top; 
+    m_LeftBorder = left;
+    m_RightBorder = right;
+    m_TopBorder = top;
     m_BottomBorder = bottom;
 
     m_TypeDraw = pColorBar->GetTypeDraw(&m_Param1Draw, &m_Param1Draw);
@@ -163,7 +163,7 @@ eTypeDraw CColorBar::GetTypeDraw(int* pParam1Draw, int* pParam2Draw)
 // This methode returns the reference color
 // If parameter YUV is TRUE, it returns YUV values else RGB values
 void CColorBar::GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
-{ 
+{
     if (YUV)
     {
         *pR_Y = ref_Y_val;
@@ -181,7 +181,7 @@ void CColorBar::GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, 
 // This methode returns the second reference color
 // If parameter YUV is TRUE, it returns YUV values else RGB values
 void CColorBar::GetRefColor2(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
-{ 
+{
     if (YUV)
     {
         *pR_Y = ref_Y_val2;
@@ -199,7 +199,7 @@ void CColorBar::GetRefColor2(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U,
 // This methode returns the calculated average color
 // If parameter YUV is TRUE, it returns YUV values else RGB values
 BOOL CColorBar::GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
-{ 
+{
     if (YUV && !YUV_val_available && RGB_val_available)
     {
         RGB2YUV(R_val, G_val, B_val, &Y_val, &U_val, &V_val);
@@ -274,7 +274,7 @@ BOOL CColorBar::GetDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pT
 // This method analyzed the overlay buffer to calculate average color
 // in the zone defined by the color bar
 BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo)
-{ 
+{
     int left, right, top, bottom, i, j, k;
     unsigned char *pComponentVal[3];
     unsigned int nb_val[3];
@@ -717,8 +717,8 @@ BOOL CSubPattern::CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed
     BOOL result_avail;
 
     // Do the job for each defined color bar
-    for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
-        it != m_ColorBars.end(); 
+    for(vector<CColorBar*>::iterator it = m_ColorBars.begin();
+        it != m_ColorBars.end();
         ++it)
     {
         result_avail = (*it)->CalcAvgColor(reinit, nb_calc_needed, pInfo);
@@ -741,8 +741,8 @@ void CSubPattern::GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, in
         sum_delta[j] = 0;
     }
     // Go through all the color bars
-    for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
-        it != m_ColorBars.end(); 
+    for(vector<CColorBar*>::iterator it = m_ColorBars.begin();
+        it != m_ColorBars.end();
         ++it)
     {
         if ((*it)->GetDeltaColor(YUV, &delta[0], &delta[1], &delta[2], &delta[3]) == TRUE)
@@ -759,13 +759,13 @@ void CSubPattern::GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, in
     *pB_V = sum_delta[2];
     *pTotal = sum_delta[3];
 }
-    
+
 // This method draws in the video signal rectangles around each color bar of the sub-pattern
 void CSubPattern::Draw(TDeinterlaceInfo* pInfo)
 {
     // Do the job for each defined color bar
-    for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
-        it != m_ColorBars.end(); 
+    for(vector<CColorBar*>::iterator it = m_ColorBars.begin();
+        it != m_ColorBars.end();
         ++it)
     {
         (*it)->Draw(pInfo->PictureHistory[0]->pData, pInfo->InputPitch, pInfo->FieldHeight, pInfo->FrameWidth, 0, LeftCropping, RightCropping);
@@ -996,15 +996,15 @@ CTestPattern::CTestPattern(const string& FileName)
 
 CTestPattern::~CTestPattern()
 {
-    for(vector<CSubPattern*>::iterator it = m_SubPatterns.begin(); 
-        it != m_SubPatterns.end(); 
+    for(vector<CSubPattern*>::iterator it = m_SubPatterns.begin();
+        it != m_SubPatterns.end();
         ++it)
     {
         delete *it;
     }
     m_SubPatterns.clear();
-    for(vector<CColorBar*>::iterator it2 = m_ColorBars.begin(); 
-        it2 != m_ColorBars.end(); 
+    for(vector<CColorBar*>::iterator it2 = m_ColorBars.begin();
+        it2 != m_ColorBars.end();
         ++it2)
     {
         delete *it2;
@@ -1046,8 +1046,8 @@ void CTestPattern::CreateGlobalSubPattern()
     // Create the new sub-pattern
     sub_pattern = new CSubPattern(ADJ_MANUAL);
 
-    for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
-        it != m_ColorBars.end(); 
+    for(vector<CColorBar*>::iterator it = m_ColorBars.begin();
+        it != m_ColorBars.end();
         ++it)
     {
         sub_pattern->m_ColorBars.push_back(*it);
@@ -1082,8 +1082,8 @@ eTypeContentPattern CTestPattern::DetermineTypeContent()
 // Returns NULL pointer if no sub-pattern allows to do this type of adjustments
 CSubPattern* CTestPattern::GetSubPattern(eTypeAdjust type_adjust)
 {
-    for(vector<CSubPattern*>::iterator it = m_SubPatterns.begin(); 
-        it != m_SubPatterns.end(); 
+    for(vector<CSubPattern*>::iterator it = m_SubPatterns.begin();
+        it != m_SubPatterns.end();
         ++it)
     {
         if ((*it)->GetTypeAdjust() == type_adjust)
@@ -1097,8 +1097,8 @@ CSubPattern* CTestPattern::GetSubPattern(eTypeAdjust type_adjust)
 void CTestPattern::Draw(BYTE* Buffer, int Pitch)
 {
     // Do the job for each defined color bar
-    for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
-        it != m_ColorBars.end(); 
+    for(vector<CColorBar*>::iterator it = m_ColorBars.begin();
+        it != m_ColorBars.end();
         ++it)
     {
         (*it)->Draw(Buffer, Pitch, m_Height, m_Width, 0, 0, 0);
@@ -1111,8 +1111,8 @@ void CTestPattern::Log()
     unsigned short int left, right, top, bottom;
 
     LOG(3, "Pattern %s %dx%d", m_PatternName, m_Width, m_Height);
-    for(vector<CColorBar*>::iterator it2 = m_ColorBars.begin(); 
-        it2 != m_ColorBars.end(); 
+    for(vector<CColorBar*>::iterator it2 = m_ColorBars.begin();
+        it2 != m_ColorBars.end();
         ++it2)
     {
         (*it2)->GetPosition(&left, &right, &top, &bottom);
@@ -1120,13 +1120,13 @@ void CTestPattern::Log()
         (*it2)->GetRefColor(TRUE, &Y, &U, &V);
         LOG(3, "   T %4d B %4d L %4d R %4d - RGB %3d %3d %3d YUV %3d %3d %3d", top, bottom, left, right, R, G, B, Y, U, V);
     }
-    for(vector<CSubPattern*>::iterator it = m_SubPatterns.begin(); 
-        it != m_SubPatterns.end(); 
+    for(vector<CSubPattern*>::iterator it = m_SubPatterns.begin();
+        it != m_SubPatterns.end();
         ++it)
     {
         LOG(3, "   Sub-pattern %d", (*it)->GetTypeAdjust());
-        for(vector<CColorBar*>::iterator it2 = (*it)->m_ColorBars.begin(); 
-            it2 != (*it)->m_ColorBars.end(); 
+        for(vector<CColorBar*>::iterator it2 = (*it)->m_ColorBars.begin();
+            it2 != (*it)->m_ColorBars.end();
             ++it2)
         {
             (*it2)->GetPosition(&left, &right, &top, &bottom);

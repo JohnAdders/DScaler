@@ -22,10 +22,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file saa7134_defines.h saa7134_defines Header file
  */
- 
+
 #ifdef WANT_SAA713X_SUPPORT
 
 #ifndef __SAA7134_DEFINES_H___
@@ -239,9 +239,9 @@
 #define SAA7134_CHROMA_CTRL1                    0x10E
 #define     SAA7134_CHROMA_CTRL1_CCOMB              (1<<0)  // Adaptive chroma comb filter
 #define     SAA7134_CHROMA_CTRL1_AUTO               (1<<1)  // Auto color standard detect
-#define     SAA7134_CHROMA_CTRL1_FCTC               (1<<2)  // 
-#define     SAA7134_CHROMA_CTRL1_DCVF               (1<<3)  // 
-#define     SAA7134_CHROMA_CTRL1_CSTD               (7<<4)  // 
+#define     SAA7134_CHROMA_CTRL1_FCTC               (1<<2)  //
+#define     SAA7134_CHROMA_CTRL1_DCVF               (1<<3)  //
+#define     SAA7134_CHROMA_CTRL1_CSTD               (7<<4)  //
 #define     SAA7134_CHROMA_CTRL1_CDTO               (1<<7)  //
 #define SAA7134_CHROMA_GAIN_CTRL                0x10F
 #define     SAA7134_CHROMA_GAIN_CTRL_CGAIN           (0x7F)  // 0 .. 127
@@ -337,7 +337,7 @@
 
 #define SAA7134_DATA_PATH(t)                    (0x02|t)
 
-#define SAA7134_VBI_H_START(t)                  (0x04|t) 
+#define SAA7134_VBI_H_START(t)                  (0x04|t)
 #define SAA7134_VBI_H_START_HIBYTE(t)           (0x05|t)
 #define SAA7134_VBI_H_STOP(t)                   (0x06|t)
 #define SAA7134_VBI_H_STOP_HIBYTE(t)            (0x07|t)

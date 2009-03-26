@@ -8,7 +8,7 @@
 #define BYTE unsigned char
 
 #ifdef USE_FOR_DSCALER
-//#define USE_VERTICAL_FILTER 
+//#define USE_VERTICAL_FILTER
 
 BOOL DeinterlaceTomsMoComp_SSE(TDeinterlaceInfo* pInfo);
 //BOOL DeinterlaceTomsMoComp_SSE2(TDeinterlaceInfo* pInfo);
@@ -19,7 +19,7 @@ extern long SearchEffort;
 extern BOOL UseStrangeBob;
 
 #else
-//#define USE_VERTICAL_FILTER 
+//#define USE_VERTICAL_FILTER
 
 #define MyMemCopy memcpy
 
@@ -31,7 +31,7 @@ static int  Do_Dbl_Resize();
 
 #endif
 
-static int  Fieldcopy(void *dest, const void *src, size_t count, 
+static int  Fieldcopy(void *dest, const void *src, size_t count,
             int rows, int dst_pitch, int src_pitch);
 static int  Search_Effort_0();
 static int  Search_Effort_1();
@@ -59,24 +59,24 @@ static int  Search_Effort_Max_SB();
 
 
 __declspec(align(128))
-static __int64 BobDiffW[2]; 
+static __int64 BobDiffW[2];
 
 __declspec(align(16))
-static __int64 BobVal[2]; 
+static __int64 BobVal[2];
 
 __declspec(align(16))
-static __int64 Min_Vals[2]; 
+static __int64 Min_Vals[2];
 
 __declspec(align(16))
-static __int64 Max_Vals[2]; 
+static __int64 Max_Vals[2];
 
 __declspec(align(16))
-static const __int64 Max_Mov[2] =  {0x0404040404040404,0x0404040404040404}; 
-//static const __int64 Max_Mov[2] =  {0x0f0f0f0f0f0f0f0f,0x0f0f0f0f0f0f0f0f}; 
-//static const __int64 Max_Mov[2] =  {0x0808080808080808,0x0808080808080808}; 
+static const __int64 Max_Mov[2] =  {0x0404040404040404,0x0404040404040404};
+//static const __int64 Max_Mov[2] =  {0x0f0f0f0f0f0f0f0f,0x0f0f0f0f0f0f0f0f};
+//static const __int64 Max_Mov[2] =  {0x0808080808080808,0x0808080808080808};
 
 __declspec(align(16))
-static const __int64 DiffThres[2] =  {0x0f0f0f0f0f0f0f0f,0x0f0f0f0f0f0f0f0f}; 
+static const __int64 DiffThres[2] =  {0x0f0f0f0f0f0f0f0f,0x0f0f0f0f0f0f0f0f};
 
 __declspec(align(16))
 static const __int64 YMask[2] = {0x00ff00ff00ff00ff,0x00ff00ff00ff00ff}; // keeps only luma
@@ -85,16 +85,16 @@ __declspec(align(16))
 static const __int64 UVMask[2] =   {0xff00ff00ff00ff00,0xff00ff00ff00ff00}; // keeps only chroma
 
 __declspec(align(16))
-static const __int64 TENS[2]     = {0x0a0a0a0a0a0a0a0a,0x0a0a0a0a0a0a0a0a}; 
+static const __int64 TENS[2]     = {0x0a0a0a0a0a0a0a0a,0x0a0a0a0a0a0a0a0a};
 
 __declspec(align(16))
-static const __int64 FOURS[2] =    {0x0404040404040404,0x0404040404040404}; 
+static const __int64 FOURS[2] =    {0x0404040404040404,0x0404040404040404};
 
 __declspec(align(16))
-static const __int64 ONES[2] =     {0x0101010101010101,0x0101010101010101}; 
+static const __int64 ONES[2] =     {0x0101010101010101,0x0101010101010101};
 
 __declspec(align(16))
-static const __int64 Max_Comb[2] = {0x0202020202020202,0x0202020202020202}; 
+static const __int64 Max_Comb[2] = {0x0202020202020202,0x0202020202020202};
 
 __declspec(align(16))
 static const __int64 WHITE[2] =    {0x7fff0fff7fff0fff,0x7fff0fff7fff0fff};
@@ -107,27 +107,27 @@ static __int64 swork = 0;
 // A bunch of things that may need 16 byte alignment
 
 __declspec(align(16))
-static const __int64 FIFTEENS[2] = {0x0F0F0F0F0F0F0F0F,0x0F0F0F0F0F0F0F0F}; 
+static const __int64 FIFTEENS[2] = {0x0F0F0F0F0F0F0F0F,0x0F0F0F0F0F0F0F0F};
 
 __declspec(align(16))
-static const __int64 TWENTIES[2] = {0x1414141414141414,0x1414141414141414}; 
+static const __int64 TWENTIES[2] = {0x1414141414141414,0x1414141414141414};
 
 __declspec(align(16))
-static const __int64 SIXES[2] =    {0x0606060606060606,0x0606060606060606}; 
+static const __int64 SIXES[2] =    {0x0606060606060606,0x0606060606060606};
 
 __declspec(align(16))
-static const __int64 FIVES[2] =    {0x0505050505050505,0x0505050505050505}; 
+static const __int64 FIVES[2] =    {0x0505050505050505,0x0505050505050505};
 
 __declspec(align(16))
-static const __int64 THREES[2] =   {0x0303030303030303,0x0303030303030303}; 
+static const __int64 THREES[2] =   {0x0303030303030303,0x0303030303030303};
 
 __declspec(align(16))
-static const __int64 TWOS[2] =     {0x0202020202020202,0x0202020202020202}; 
+static const __int64 TWOS[2] =     {0x0202020202020202,0x0202020202020202};
 
 */
 
 
-// Define a few macros for CPU dependent instructions. 
+// Define a few macros for CPU dependent instructions.
 // I suspect I don't really understand how the C macro preprocessor works but
 // this seems to get the job done.          // TRB 7/01
 
@@ -151,12 +151,12 @@ static const __int64 TWOS[2] =     {0x0202020202020202,0x0202020202020202};
 
 #define V_PAVGB_SSE(mmr1,mmr2,mmrw,smask) {pavgb mmr1,mmr2 }
 #define V_PAVGB_3DNOW(mmr1,mmr2,mmrw,smask) {pavgusb mmr1,mmr2 }
-#define V_PAVGB(mmr1,mmr2,mmrw,smask) V_PAVGB2(mmr1,mmr2,mmrw,smask,SSE_TYPE) 
-#define V_PAVGB2(mmr1,mmr2,mmrw,smask,ssetyp) V_PAVGB3(mmr1,mmr2,mmrw,smask,ssetyp) 
-#define V_PAVGB3(mmr1,mmr2,mmrw,smask,ssetyp) V_PAVGB_##ssetyp##(mmr1,mmr2,mmrw,smask) 
+#define V_PAVGB(mmr1,mmr2,mmrw,smask) V_PAVGB2(mmr1,mmr2,mmrw,smask,SSE_TYPE)
+#define V_PAVGB2(mmr1,mmr2,mmrw,smask,ssetyp) V_PAVGB3(mmr1,mmr2,mmrw,smask,ssetyp)
+#define V_PAVGB3(mmr1,mmr2,mmrw,smask,ssetyp) V_PAVGB_##ssetyp##(mmr1,mmr2,mmrw,smask)
 
 // some macros for pmaxub instruction
-//      V_PMAXUB(mmr1, mmr2)    
+//      V_PMAXUB(mmr1, mmr2)
 #define V_PMAXUB_MMX(mmr1,mmr2)     __asm \
     { \
     __asm psubusb mmr1,mmr2 \
@@ -165,9 +165,9 @@ static const __int64 TWOS[2] =     {0x0202020202020202,0x0202020202020202};
 
 #define V_PMAXUB_SSE(mmr1,mmr2) {pmaxub mmr1,mmr2 }
 #define V_PMAXUB_3DNOW(mmr1,mmr2) V_PMAXUB_MMX(mmr1,mmr2)  // use MMX version
-#define V_PMAXUB(mmr1,mmr2) V_PMAXUB2(mmr1,mmr2,SSE_TYPE) 
-#define V_PMAXUB2(mmr1,mmr2,ssetyp) V_PMAXUB3(mmr1,mmr2,ssetyp) 
-#define V_PMAXUB3(mmr1,mmr2,ssetyp) V_PMAXUB_##ssetyp##(mmr1,mmr2) 
+#define V_PMAXUB(mmr1,mmr2) V_PMAXUB2(mmr1,mmr2,SSE_TYPE)
+#define V_PMAXUB2(mmr1,mmr2,ssetyp) V_PMAXUB3(mmr1,mmr2,ssetyp)
+#define V_PMAXUB3(mmr1,mmr2,ssetyp) V_PMAXUB_##ssetyp##(mmr1,mmr2)
 
 // some macros for pminub instruction
 //      V_PMINUB(mmr1, mmr2, mmr work register)     mmr2 may NOT = mmrw
@@ -181,17 +181,17 @@ static const __int64 TWOS[2] =     {0x0202020202020202,0x0202020202020202};
 
 #define V_PMINUB_SSE(mmr1,mmr2,mmrw) {pminub mmr1,mmr2}
 #define V_PMINUB_3DNOW(mmr1,mmr2,mmrw) V_PMINUB_MMX(mmr1,mmr2,mmrw)  // use MMX version
-#define V_PMINUB(mmr1,mmr2,mmrw) V_PMINUB2(mmr1,mmr2,mmrw,SSE_TYPE) 
-#define V_PMINUB2(mmr1,mmr2,mmrw,ssetyp) V_PMINUB3(mmr1,mmr2,mmrw,ssetyp) 
-#define V_PMINUB3(mmr1,mmr2,mmrw,ssetyp) V_PMINUB_##ssetyp##(mmr1,mmr2,mmrw) 
+#define V_PMINUB(mmr1,mmr2,mmrw) V_PMINUB2(mmr1,mmr2,mmrw,SSE_TYPE)
+#define V_PMINUB2(mmr1,mmr2,mmrw,ssetyp) V_PMINUB3(mmr1,mmr2,mmrw,ssetyp)
+#define V_PMINUB3(mmr1,mmr2,mmrw,ssetyp) V_PMINUB_##ssetyp##(mmr1,mmr2,mmrw)
 
 // some macros for movntq instruction
-//      V_MOVNTQ(mmr1, mmr2) 
+//      V_MOVNTQ(mmr1, mmr2)
 #define V_MOVNTQ_MMX(mmr1,mmr2) {movq mmr1,mmr2}
 #define V_MOVNTQ_3DNOW(mmr1,mmr2) {movq mmr1,mmr2 }
 #define V_MOVNTQ_SSE(mmr1,mmr2) {movntq mmr1,mmr2 }
-#define V_MOVNTQ(mmr1,mmr2) V_MOVNTQ2(mmr1,mmr2,SSE_TYPE) 
-#define V_MOVNTQ2(mmr1,mmr2,ssetyp) V_MOVNTQ3(mmr1,mmr2,ssetyp) 
+#define V_MOVNTQ(mmr1,mmr2) V_MOVNTQ2(mmr1,mmr2,SSE_TYPE)
+#define V_MOVNTQ2(mmr1,mmr2,ssetyp) V_MOVNTQ3(mmr1,mmr2,ssetyp)
 #define V_MOVNTQ3(mmr1,mmr2,ssetyp) V_MOVNTQ_##ssetyp##(mmr1,mmr2)
 
 // end of macros
@@ -257,7 +257,7 @@ __asm { \
         __asm por    xmm7, xmm2 \
 }
 
-#define RESET_CHROMA    __asm    {por    xmm7, UVMask}    
+#define RESET_CHROMA    __asm    {por    xmm7, UVMask}
 
 #else
 
@@ -313,6 +313,6 @@ __asm { \
 }
 
 
-#define RESET_CHROMA    __asm    {por    mm7, UVMask}    
+#define RESET_CHROMA    __asm    {por    mm7, UVMask}
 
 #endif

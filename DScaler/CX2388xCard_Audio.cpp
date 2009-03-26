@@ -152,7 +152,7 @@ const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_EIAJ[]=
     {AUD_SOFT_RESET,           0x0001},
 
     {AUD_CTL,                  EN_DAC_ENABLE | EN_DMTRX_SUMDIFF | EN_EIAJ_AUTO_STEREO},
-    
+
     // fix pilot detection
     {AUD_HP_PROG_IIR4_1,       0x0019},
     {AUD_IIR4_0_CA0,           0x000392ad},
@@ -717,9 +717,9 @@ void CCX2388xCard::AudioInitDMA()
 void CCX2388xCard::AudioInitBTSC(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
     SetAudioRegisters(m_RegList_BTSC);
-    
+
     DWORD dwVal = EN_DAC_ENABLE|EN_FMRADIO_EN_RDS;
-    
+
     switch (StereoType)
     {
     case STEREOTYPE_MONO:
@@ -727,11 +727,11 @@ void CCX2388xCard::AudioInitBTSC(eVideoFormat TVFormat, eCX2388xStereoType Stere
     case STEREOTYPE_ALT2:
         dwVal |= EN_BTSC_FORCE_MONO;
         break;
-    
+
     case STEREOTYPE_STEREO:
         dwVal |= EN_BTSC_FORCE_STEREO;
         break;
-    
+
     case STEREOTYPE_AUTO:
         dwVal |= EN_BTSC_AUTO_STEREO;
         break;
@@ -783,10 +783,10 @@ void CCX2388xCard::AudioInitEIAJ(eVideoFormat TVFormat, eCX2388xStereoType Stere
 void CCX2388xCard::AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
     SetAudioRegisters(m_RegList_Nicam_Common);
-    
+
     // Deemphasis 1:
     SetAudioRegisters(m_RegList_Nicam_Deemph1);
-    
+
     // Deemphasis 2: please test this for other TVFormat
     //SetAudioRegisters(m_RegList_Nicam_Deemph2);
 
@@ -829,10 +829,10 @@ void CCX2388xCard::AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType Ster
         dwTemp |= EN_NICAM_AUTO_STEREO;
         break;
     }
-    
+
     WriteDword(AUD_CTL,            dwTemp);
     WriteDword(AUD_SOFT_RESET,    0x00000000);  // Causes a pop every time/**/
-}   
+}
 
 void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {

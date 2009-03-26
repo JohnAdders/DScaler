@@ -54,7 +54,7 @@ FILTER_METHOD MirrorMethod =
     "&Mirror",
     FALSE,
     TRUE,
-    FilterMirror_MMX, 
+    FilterMirror_MMX,
     0,
     TRUE,
     NULL,

@@ -47,10 +47,10 @@ CDShowPinEnum::CDShowPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir)
     HRESULT hr=filter->EnumPins(&pEnum);
     if(FAILED(hr))
         throw CDShowPinEnumException("Failed to create pin enumerator",hr);
-    
+
     ASSERT(pEnum!=NULL);
     init(pEnum);
-    
+
     m_pinDir=pinDir;
 }
 
@@ -62,7 +62,7 @@ CDShowPinEnum::CDShowPinEnum(CComPtr<IBaseFilter> filter)
     HRESULT hr=filter->EnumPins(&pEnum);
     if(FAILED(hr))
         throw CDShowPinEnumException("Failed to create pin enumerator",hr);
-    
+
     ASSERT(pEnum!=NULL);
     init(pEnum);
 }
@@ -98,7 +98,7 @@ CComPtr<IPin> CDShowPinEnum::next()
             if(FAILED(hr) || pin==NULL)
                 return NULL;
                 //throw CExPinEnum("next() failed",hr);
-            
+
             PIN_DIRECTION pinDir;
             hr=pin->QueryDirection(&pinDir);
             if(SUCCEEDED(hr) && pinDir==m_pinDir)

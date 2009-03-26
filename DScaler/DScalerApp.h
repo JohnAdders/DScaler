@@ -32,10 +32,10 @@
 #endif
 
 /*! \mainpage DScaler Developer Help
- 
+
     \section intro Introduction
- 
-    This file has been produced from the comments in the source code.  
+
+    This file has been produced from the comments in the source code.
     It is hoped that this will aid in the understanding of how DScaler has
     been built and aid new developers to get up to speed quickly.
 
@@ -44,8 +44,8 @@
 
     \section arch DScaler Archetecture
 
-    DScaler is curretly in a transition phase moving away from it's c background 
-    to a more object based approach.  For this reason you will see that this documentation 
+    DScaler is curretly in a transition phase moving away from it's c background
+    to a more object based approach.  For this reason you will see that this documentation
     tends to cover the newer functions.
 
     New users should firstly try and understand what is going on at the heart of DScaler by

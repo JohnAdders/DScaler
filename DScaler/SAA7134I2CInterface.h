@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file saa7134i2cinterface.h saa7134i2cinterface Header file
  */
- 
+
 #ifdef WANT_SAA713X_SUPPORT
 
 #ifndef __SAA7134I2CINTERFACE_H__

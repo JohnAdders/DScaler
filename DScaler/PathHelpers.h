@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file PathHelpers.h
  */
- 
+
 #ifndef __PATH_HELPERS_H___
 #define __PATH_HELPERS_H___
 

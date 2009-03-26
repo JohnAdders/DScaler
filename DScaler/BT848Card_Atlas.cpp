@@ -76,12 +76,12 @@ void CBT848Card::AtlasInputSelect(int nInput)
     if (IsSPISource(nInput))
     {
         // AD9882 will auto-select input source between RGB and DVI
-        m_AD9882->Wakeup(); 
+        m_AD9882->Wakeup();
     }
     else
     {
-        m_AD9882->Suspend(); 
-        StandardBT848InputSelect(nInput); 
+        m_AD9882->Suspend();
+        StandardBT848InputSelect(nInput);
     }
     #ifdef _DEBUG
     LOG(1, "AtlasInputSelect()");

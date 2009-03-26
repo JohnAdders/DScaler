@@ -79,7 +79,7 @@ void PerformFilmDetectCalculations(TDeinterlaceInfo* pInfo, BOOL NeedComb, BOOL 
     {
         if(UseChromaInDetect)
         {
-            CalcCombFactorChroma(pInfo);        
+            CalcCombFactorChroma(pInfo);
         }
         else
         {
@@ -115,7 +115,7 @@ void PerformProgFilmDetectCalculations(TDeinterlaceInfo* pInfo)
     int Line;
     long DiffFactor = 0;
     DWORD Pitch = pInfo->InputPitch;
-    
+
     qwBitShift = BitShift;
 
     BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + 32 * Pitch;
@@ -174,7 +174,7 @@ long CalculateTotalCombFactor(DWORD* Combs, TDeinterlaceInfo* pInfo)
 // not the one used in that program
 // I only do this on the Y component as I assume that any noticable combing
 // will be visible in the black and white image
-// the relative sizes of the returns from this function will be used to 
+// the relative sizes of the returns from this function will be used to
 // determine the best ordering of the fields
 // This function only works on the area displayed so will perform better if any
 // VBI lines are off screen
@@ -213,7 +213,7 @@ void CalcCombFactor(TDeinterlaceInfo* pInfo)
     for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
     {
         Combs[Line] = CalcCombFactorLine(EvenLine + 16,
-                                        OddLine + 16, 
+                                        OddLine + 16,
                                         EvenLine + Pitch + 16,
                                         pInfo->LineLength - 32);
         EvenLine += Pitch;
@@ -264,7 +264,7 @@ void CalcCombFactorChroma(TDeinterlaceInfo* pInfo)
     for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
     {
         Combs[Line] = CalcCombFactorLineChroma(EvenLine + 16,
-                                        OddLine + 16, 
+                                        OddLine + 16,
                                         EvenLine + Pitch + 16,
                                         pInfo->LineLength - 32);
         EvenLine += Pitch;
@@ -308,7 +308,7 @@ void CalcDiffFactor(TDeinterlaceInfo* pInfo)
     long DiffFactor = 0;
     DWORD Pitch = pInfo->InputPitch;
     BOOL IsOdd((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
-    
+
     qwBitShift = BitShift;
 
     BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
@@ -358,7 +358,7 @@ void CalcDiffFactorChroma(TDeinterlaceInfo* pInfo)
     long DiffFactor = 0;
     DWORD Pitch = pInfo->InputPitch;
     BOOL IsOdd((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
-    
+
     qwBitShift = BitShift;
 
     BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
@@ -400,7 +400,7 @@ void DoBothCombAndDiff(TDeinterlaceInfo* pInfo)
     qwThreshold = CombJaggieThreshold;
     qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
     qwBitShift = BitShift;
-    
+
     if(IsOdd)
     {
         BYTE* EvenLine = pInfo->PictureHistory[1]->pData + 16 * Pitch;
@@ -410,7 +410,7 @@ void DoBothCombAndDiff(TDeinterlaceInfo* pInfo)
         for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
         {
             Combs[Line] = CalcCombFactorLine(EvenLine + 16,
-                                            OddLine + 16, 
+                                            OddLine + 16,
                                             EvenLine + Pitch + 16,
                                             pInfo->LineLength - 32);
             DiffFactor += CalcDiffFactorLine(OddLine + 16,
@@ -430,7 +430,7 @@ void DoBothCombAndDiff(TDeinterlaceInfo* pInfo)
         for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
         {
             Combs[Line] = CalcCombFactorLine(EvenLine + 16,
-                                            OddLine + 16, 
+                                            OddLine + 16,
                                             EvenLine + Pitch + 16,
                                             pInfo->LineLength - 32);
             DiffFactor += CalcDiffFactorLine(EvenLine + 16,
@@ -469,7 +469,7 @@ void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo)
     qwThreshold = CombJaggieThreshold;
     qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
     qwBitShift = BitShift;
-    
+
     if(IsOdd)
     {
         BYTE* EvenLine = pInfo->PictureHistory[1]->pData + 16 * Pitch;
@@ -479,7 +479,7 @@ void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo)
         for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
         {
             Combs[Line] = CalcCombFactorLineChroma(EvenLine + 16,
-                                                    OddLine + 16, 
+                                                    OddLine + 16,
                                                     EvenLine + Pitch + 16,
                                                     pInfo->LineLength - 32);
             DiffFactor += CalcDiffFactorLineChroma(OddLine + 16,
@@ -499,7 +499,7 @@ void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo)
         for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
         {
             Combs[Line] = CalcCombFactorLineChroma(EvenLine + 16,
-                                                    OddLine + 16, 
+                                                    OddLine + 16,
                                                     EvenLine + Pitch + 16,
                                                     pInfo->LineLength - 32);
             DiffFactor += CalcDiffFactorLineChroma(EvenLine + 16,
@@ -540,7 +540,7 @@ BOOL Weave(TDeinterlaceInfo* pInfo)
         CurrentOddLine = pInfo->PictureHistory[1]->pData;
         CurrentEvenLine = pInfo->PictureHistory[0]->pData;
     }
-    
+
     for (i = 0; i < pInfo->FieldHeight; i++)
     {
         pInfo->pMemcpy(lpOverlay, CurrentEvenLine, pInfo->LineLength);
@@ -644,7 +644,7 @@ BOOL Bob(TDeinterlaceInfo* pInfo)
     {
         return FALSE;
     }
-    
+
     // If field is odd we will offset it down 1 line to avoid jitter  TRB 1/21/01
     if (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
@@ -674,7 +674,7 @@ BOOL Bob(TDeinterlaceInfo* pInfo)
             }
             pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // only 1 copy of last line
         }
-    }   
+    }
     else
     {
         if (pInfo->CpuFeatureFlags & FEATURE_SSE)

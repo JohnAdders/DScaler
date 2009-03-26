@@ -16,11 +16,11 @@
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //    GNU General Public License for more details
-//  
-//  Also, this program is "Philanthropy-Ware".  That is, if you like it and 
+//
+//  Also, this program is "Philanthropy-Ware".  That is, if you like it and
 //  feel the need to reward or inspire the author then please feel free (but
 //  not obligated) to consider joining or donating to the Electronic Frontier
-//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
+//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.
 //
 /////////////////////////////////////////////////////////////////////////////
 /*
@@ -41,9 +41,9 @@ From the Readme_TomsMoComp.txt file:
         clip = AVISource("c:\vcr\bikes.avi")
         return clip.TomsMoComp(...)
 
-        It specifies the file spec (change yours) and asks for TopFirst and SearchEffort=10 
-        to be turned on. I've so far tested it only 
-        with Avisynth/VirtualDub. 
+        It specifies the file spec (change yours) and asks for TopFirst and SearchEffort=10
+        to be turned on. I've so far tested it only
+        with Avisynth/VirtualDub.
 
 
         TomsMoComp Parm list:
@@ -51,17 +51,17 @@ From the Readme_TomsMoComp.txt file:
           return clip.TomsMoComp(TopFirst, SearchEffort, Vertical_Filter)
 
         All the values are integer, 0=no, 1=yes:
-        
-          TopFirst - assume the top field, lines 0,2,4,... should be displayed first. 
+
+          TopFirst - assume the top field, lines 0,2,4,... should be displayed first.
             The default is the supposedly more common BottomFirst (not for me).
 
-        SearchEffort - determines how much effort (cpu time) will be used to find 
+        SearchEffort - determines how much effort (cpu time) will be used to find
             moved pixels. Currently numbers from 0-45 with 0 being practially
             just a smarter bob.
 
         Known issues and limitation:
         1)     Assumes YUV (YUY2) Frame Based input. Use an AVIsynth function to convert first if
-            needed.        
+            needed.
 
 
         Temporary file locations:
@@ -143,9 +143,9 @@ class TomsMoComp : public GenericVideoFilter {
     bool SSE2enabled;
     bool SSEMMXenabled;
     bool _3DNOWenabled;
-    int __stdcall Fieldcopy(void *dest, const void *src, size_t count, 
+    int __stdcall Fieldcopy(void *dest, const void *src, size_t count,
                 int rows, int dst_pitch, int src_pitch);
-    int __stdcall DoBorders(void *dest, const void *src, size_t count, 
+    int __stdcall DoBorders(void *dest, const void *src, size_t count,
                 int rows, int dst_pitch, int src_pitch);
 
 public:
@@ -176,7 +176,7 @@ public:
         {
             vi.height = 2 * vi.height;
             TopFirst = 0;
-        }        
+        }
     }
 
     PVideoFrame __stdcall GetFrame(int inFrame, IScriptEnvironment* env);
@@ -185,7 +185,7 @@ public:
 };
 
 
-PVideoFrame __stdcall TomsMoComp::GetFrame(int inFrame, IScriptEnvironment* env) 
+PVideoFrame __stdcall TomsMoComp::GetFrame(int inFrame, IScriptEnvironment* env)
 {
 int i;
     useFrame = inFrame;
@@ -199,18 +199,18 @@ int i;
     RowPixels = rowsize >> 1;
     height = dst->GetHeight();
     FldHeight = height / 2;
-       
+
     i = ProcessFrame(dst, dstp, true, env);       // table and then write the frame
     PrevFrame = useFrame;
     PrevInFrame = inFrame;
-    
+
     __asm emms;
 
     return dst;
 }
 
-int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp, 
-                                      BOOL WriteFrame, IScriptEnvironment* env) 
+int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
+                                      BOOL WriteFrame, IScriptEnvironment* env)
 {
     const unsigned char* srcp = src->GetReadPtr();
     int SearchEffortW = 0;
@@ -219,7 +219,7 @@ int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
     {
         return 0;
     }
-    
+
     if (useFrame)
     {
         SearchEffortW = SearchEffort;
@@ -242,15 +242,15 @@ int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
         pCopyDest = dstp;
         Fieldcopy(pWeaveDest+dst_pitch, pCopySrc, rowsize,                // copy top ODD line
                     1, dst_pitch, src_pitch);
-        Fieldcopy(pWeaveDest + (height-1)*dst_pitch,            // copy bottom ODD line    
-            pCopySrc+(FldHeight-1)*src_pitch, rowsize, 
+        Fieldcopy(pWeaveDest + (height-1)*dst_pitch,            // copy bottom ODD line
+            pCopySrc+(FldHeight-1)*src_pitch, rowsize,
                     1, dst_pitch, src_pitch);
         if (Use_Vertical_Filter)
         {
             Fieldcopy(pWeaveDest, pCopySrc, rowsize,                // copy top EVEN line
                         1, dst_pitch, src_pitch);
-            Fieldcopy(pWeaveDest + (height-2)*dst_pitch,            // copy bottom EVEN line    
-                pCopySrc+(FldHeight-1)*src_pitch, rowsize, 
+            Fieldcopy(pWeaveDest + (height-2)*dst_pitch,            // copy bottom EVEN line
+                pCopySrc+(FldHeight-1)*src_pitch, rowsize,
                         1, dst_pitch, src_pitch);
         }
         else
@@ -268,19 +268,19 @@ int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
         Fieldcopy(pWeaveDest, pCopySrc, rowsize,                // bob this later?
                     1, dst_pitch*2, src_pitch*2);
         Fieldcopy(pWeaveDest+(FldHeight-1)*dst_pitch*2,
-            pCopySrc+(FldHeight-1)*src_pitch*2, rowsize, 
+            pCopySrc+(FldHeight-1)*src_pitch*2, rowsize,
                     1, dst_pitch*2, src_pitch*2);
         if (Use_Vertical_Filter)
         {
-            Fieldcopy(pCopyDest, pCopySrc, rowsize, 
+            Fieldcopy(pCopyDest, pCopySrc, rowsize,
                         1, dst_pitch*2, src_pitch*2);
             Fieldcopy(pCopyDest+(FldHeight-1)*dst_pitch*2,        // copy last bob line
-                        pCopySrc+(FldHeight-1)*src_pitch*2, rowsize, 
+                        pCopySrc+(FldHeight-1)*src_pitch*2, rowsize,
                         1, dst_pitch*2, src_pitch*2);
         }
         else
         {
-            Fieldcopy(pCopyDest, pCopySrc, rowsize, 
+            Fieldcopy(pCopyDest, pCopySrc, rowsize,
                         FldHeight, dst_pitch*2, src_pitch*2);
         }
     }
@@ -290,14 +290,14 @@ int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
         pCopySrc = srcp + src_pitch;
         pWeaveDest = dstp;
         pCopyDest = dstp + dst_pitch;
-        Fieldcopy(pWeaveDest, pCopySrc, rowsize, 
+        Fieldcopy(pWeaveDest, pCopySrc, rowsize,
                     1, dst_pitch*2, src_pitch*2);
         Fieldcopy(pWeaveDest+(FldHeight-1)*dst_pitch*2,            // bob this later
-            pCopySrc+(FldHeight-1)*src_pitch*2, rowsize, 
+            pCopySrc+(FldHeight-1)*src_pitch*2, rowsize,
                     1, dst_pitch*2, src_pitch*2);
         if (Use_Vertical_Filter)
-        {    
-            Fieldcopy(pCopyDest, pCopySrc, rowsize, 
+        {
+            Fieldcopy(pCopyDest, pCopySrc, rowsize,
                         1, dst_pitch*2, src_pitch*2);            // copy first bob line
             Fieldcopy(pCopyDest+(FldHeight-1)*dst_pitch*2,
                 pCopySrc+(FldHeight-1)*src_pitch*2, rowsize,    // copy last bob line
@@ -306,7 +306,7 @@ int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
         }
         else
         {
-            Fieldcopy(pCopyDest, pCopySrc, rowsize, 
+            Fieldcopy(pCopyDest, pCopySrc, rowsize,
                         FldHeight, dst_pitch*2, src_pitch*2);
         }
     }
@@ -361,12 +361,12 @@ int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
     return 0;
 }
 
-int TomsMoComp::Fieldcopy(void *dest, const void *src, size_t count, 
+int TomsMoComp::Fieldcopy(void *dest, const void *src, size_t count,
                 int rows, int dst_pitch, int src_pitch)
 {
 BYTE* pDest = (BYTE*) dest;
 BYTE* pSrc = (BYTE*) src;
-    
+
     for (int i=0; i < rows; i++)
     {
         memcpy(pDest, pSrc, count);
@@ -375,7 +375,7 @@ BYTE* pSrc = (BYTE*) src;
     }
     return 0;
 }
-int TomsMoComp::DoBorders(void *dest, const void *src, size_t count, 
+int TomsMoComp::DoBorders(void *dest, const void *src, size_t count,
                 int rows, int dst_pitch, int src_pitch)
 {
     _asm
@@ -390,12 +390,12 @@ bloop:
         movq    mm0, qword ptr[esi]            // left border
         movq    mm1, qword ptr[esi+8]        // "
         movq    mm2, qword ptr[esi+ebx]        // right border
-        movq    mm3, qword ptr[esi+ebx+8]    // "    
-        
-        movq    qword ptr[edi], mm0            
-        movq    qword ptr[edi+8], mm1            
-        movq    qword ptr[edi+ebx], mm2    
-        movq    qword ptr[edi+ebx+8], mm3    
+        movq    mm3, qword ptr[esi+ebx+8]    // "
+
+        movq    qword ptr[edi], mm0
+        movq    qword ptr[edi+8], mm1
+        movq    qword ptr[edi+ebx], mm2
+        movq    qword ptr[edi+ebx+8], mm3
         add     esi, src_pitch
         add        edi, dst_pitch
         loop    bloop
@@ -406,7 +406,7 @@ bloop:
 
 
 AVSValue __cdecl Create_TomsMoComp(AVSValue args, void* user_data,
-IScriptEnvironment* env) 
+IScriptEnvironment* env)
 {
     return new TomsMoComp(args[0].AsClip(), args[1].AsInt(), args[2].AsInt(),
         args[3].AsInt(), env);

@@ -1,4 +1,4 @@
-// Searches the center vertical line above center and below, in both the old 
+// Searches the center vertical line above center and below, in both the old
 // and new fields, but takes averages.  These are even pixel addresses.
         __asm
         {

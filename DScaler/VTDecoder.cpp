@@ -24,7 +24,7 @@
 //
 // Copyright (c) 2002 Rob Muller
 //
-// Copyright (c) 2002 Jeroen Kooiman 
+// Copyright (c) 2002 Jeroen Kooiman
 //
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
@@ -1014,7 +1014,7 @@ TVTPage* CVTDecoder::GetPageStore(DWORD dwPageCode, BOOL bUpdate)
     }
 
     pPage->bBufferReserved = TRUE;
-    
+
     InitializePage(pPage);
     pPage->dwPageCode = dwPageCode;
 
@@ -1212,7 +1212,7 @@ DWORD CVTDecoder::GetNextDisplayPage(DWORD dwPageCode, TVTPage* pBuffer,
 {
     WORD wPageHex = LOWORD(dwPageCode);
     WORD wPageIndex = PageHex2ArrayIndex(wPageHex);
-    
+
     TVTPage* pPage = NULL;
     DWORD dwNextPageCode = 0UL;
 

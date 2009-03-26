@@ -58,7 +58,7 @@ void CGradientStatic::PaintRect(CDC& dc,int x,int y,int w,int h,COLORREF color)
     dc.SelectObject(pOldBrush);
 }
 
-void CGradientStatic::OnPaint() 
+void CGradientStatic::OnPaint()
 {
     CPaintDC dc(this); // device context for painting
 
@@ -68,7 +68,7 @@ void CGradientStatic::OnPaint()
     if(m_pfnGradientFill)
     {
         TRIVERTEX rcVertex[2];
-        rect.right--; // exclude this point, like FillRect does 
+        rect.right--; // exclude this point, like FillRect does
         rect.bottom--;
         rcVertex[0].x=rect.left;
         rcVertex[0].y=rect.top;
@@ -76,7 +76,7 @@ void CGradientStatic::OnPaint()
         rcVertex[0].Green=GetGValue(m_clLeft)<<8;
         rcVertex[0].Blue=GetBValue(m_clLeft)<<8;
         rcVertex[0].Alpha=0x0000;
-        rcVertex[1].x=rect.right; 
+        rcVertex[1].x=rect.right;
         rcVertex[1].y=rect.bottom;
         rcVertex[1].Red=GetRValue(m_clRight)<<8;
         rcVertex[1].Green=GetGValue(m_clRight)<<8;
@@ -85,8 +85,8 @@ void CGradientStatic::OnPaint()
         GRADIENT_RECT rect;
         rect.UpperLeft=0;
         rect.LowerRight=1;
-        
-        // fill the area 
+
+        // fill the area
         m_pfnGradientFill(dc,rcVertex,2,&rect,1,GRADIENT_FILL_RECT_H);
     }
     else
@@ -95,19 +95,19 @@ void CGradientStatic::OnPaint()
         int r1=GetRValue(m_clRight); // red
         int g1=GetGValue(m_clRight); // green
         int b1=GetBValue(m_clRight); // blue
-        
+
         // Get the intensity values for the begining color
         int r2=GetRValue(m_clLeft); // red
         int g2=GetGValue(m_clLeft); // green
         int b2=GetBValue(m_clLeft); // blue
-        
+
         int x=rect.right;
         int w=x; // width of area to shade
         int xDelta= max(w/255,1); // width of one shade band
-        
+
         // Paint far right 1/6 of caption the background color
         PaintRect(dc,x,0,rect.right-x,rect.bottom,m_clRight);
-        
+
         int r;
         int g;
         int b;
@@ -122,7 +122,7 @@ void CGradientStatic::OnPaint()
             {
                 r=r1+(r2-r1)*(w-x)/w;
             }
-            
+
             if(g1>g2)
             {
                 g=g1-(g1-g2)*(w-x)/w;
@@ -131,7 +131,7 @@ void CGradientStatic::OnPaint()
             {
                 g=g1+(g2-g1)*(w-x)/w;
             }
-            
+
             if(b1>b2)
             {
                 b=b1-(b1-b2)*(w-x)/w;
@@ -140,25 +140,25 @@ void CGradientStatic::OnPaint()
             {
                 b=b1+(b2-b1)*(w-x)/w;
             }
-            
+
             // Paint bands right to left
             PaintRect(dc, x, 0, xDelta, rect.bottom, RGB(r, g, b));
         }
     }
-    
+
     dc.SetTextColor(m_clText);
     dc.SetBkMode(TRANSPARENT);
-    
+
     CFont *pFont=GetFont();
     CFont *pOldFont=dc.SelectObject(pFont);
-    
+
     GetClientRect(&rect);
-    
+
     CString wndText;
     GetWindowText(wndText);
-    
+
     //convert CStatic flags to DrawText flags
-    //if vertical centering is on, then we can only draw one line of text 
+    //if vertical centering is on, then we can only draw one line of text
     //or it will not be centered at all.
     UINT DrawFlags=(GetWindowLong(m_hWnd,GWL_STYLE)&SS_CENTERIMAGE) ? DT_VCENTER|DT_SINGLELINE : 0;
     if(GetWindowLong(m_hWnd,GWL_STYLE)&SS_CENTER)
@@ -179,7 +179,7 @@ void CGradientStatic::OnPaint()
     DrawFlags|=DT_END_ELLIPSIS;
 
     dc.DrawText(wndText,&rect,DrawFlags);
-    
+
     if(pOldFont!=NULL)
     {
         dc.SelectObject(pOldFont);
@@ -202,7 +202,7 @@ void CGradientStatic::SetTextColor(COLORREF cl)
 void CGradientStatic::OnSysColorChange()
 {
     CStatic::OnSysColorChange();
-    
+
     //track changes in system colors so that the gradient folows windows colors
     if(m_bUsingDefaultColors)
     {

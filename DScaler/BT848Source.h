@@ -16,7 +16,7 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file bt848source.h  bt848source Header file
  */
 
@@ -79,7 +79,7 @@ public:
     void SetWidth(int w);
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
-    
+
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
@@ -103,7 +103,7 @@ public:
     SmartPtr<ITuner> GetTuner();
 
     CTreeSettingsPage* GetTreeSettingsPage();
-    
+
     void SetSourceAsCurrent();
 
     void Pause() {return;};
@@ -122,11 +122,11 @@ private:
 
     void CreateRiscCode(BOOL bCaptureVBI);
     void CreateSPIRiscCode();
-    
+
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY AudioStandardManualProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    
+
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);
     void SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate);
@@ -148,7 +148,7 @@ private:
      BYTE* m_pVBILines[5];
      SmartPtr<CUserMemory> m_VBIDMAMem[5];
      SmartPtr<CUserMemory> m_DisplayDMAMem[5];
-     DWORD m_RiscBasePhysical; 
+     DWORD m_RiscBasePhysical;
      DWORD* m_RiscBaseLinear;
      long m_BytesPerRISCField;
      TPicture m_EvenFields[5];

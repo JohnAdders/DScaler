@@ -123,10 +123,10 @@ void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,std::string &text)
     USES_CONVERSION;
     stringstream str;
     CDShowPinEnum pins(pFilter);
-    
+
     FILTER_INFO FilterInfo;
     memset(&FilterInfo,0,sizeof(FILTER_INFO));
-    
+
     str << "---Preferred media types for filter: ";
     HRESULT hr=pFilter->QueryFilterInfo(&FilterInfo);
     if(SUCCEEDED(hr))
@@ -142,8 +142,8 @@ void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,std::string &text)
         FilterInfo.pGraph->Release();
         FilterInfo.pGraph=NULL;
     }
-    
-    
+
+
     CComPtr<IPin> pin;
     while(pin=pins.next(),pin!=NULL)
     {
@@ -214,7 +214,7 @@ void DumpFilter(CComPtr<IBaseFilter> pFilter,std::string &text)
     CDShowPinEnum pins(pFilter);
     FILTER_INFO FilterInfo;
     memset(&FilterInfo,0,sizeof(FILTER_INFO));
-    
+
     HRESULT hr=pFilter->QueryFilterInfo(&FilterInfo);
     if(SUCCEEDED(hr))
     {
@@ -259,7 +259,7 @@ void DumpFilter(CComPtr<IBaseFilter> pFilter,std::string &text)
             str << "(Input)";
         }
         str << "---" << endl;
-        
+
         CComPtr<IPin> pConnectedTo;
         hr=pin->ConnectedTo(&pConnectedTo);
         if(SUCCEEDED(hr) && pConnectedTo!=NULL)
@@ -302,7 +302,7 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
     ASSERT(mt!=NULL);
     str << " MajorType: " << GetGUIDName(mt->majortype) << endl;
     str << " SubType: " << GetGUIDName(mt->subtype) << endl;
-    
+
     if(mt->bFixedSizeSamples)
     {
         str << " SampleSize: " << mt->lSampleSize;
@@ -329,7 +329,7 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
         str << " Target RECT: (L: " << pHeader->rcTarget.left << " T: " << pHeader->rcTarget.top << " R: " << pHeader->rcTarget.right << " B: " << pHeader->rcTarget.bottom << ")" << endl;
         str << " BitRate: " << pHeader->dwBitRate << " ErrorRate: " << pHeader->dwBitErrorRate << endl;
         str    << " AvgTimePerFrame: " << 1/(pHeader->AvgTimePerFrame/(double)10000000) << " fps" << endl;
-        
+
         BITMAPINFOHEADER *pmbi=NULL;
         if(mt->formattype==FORMAT_VideoInfo)
         {
@@ -340,7 +340,7 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
             VIDEOINFOHEADER2 *pHeader2=(VIDEOINFOHEADER2 *)mt->pbFormat;
             pmbi=&pHeader2->bmiHeader;
             str << " InterlaceFlags: " << pHeader2->dwInterlaceFlags << " (";
-            
+
             TFlag2String flags[]=
             {
                 {AMINTERLACE_IsInterlaced,"AMINTERLACE_IsInterlaced"},
@@ -353,7 +353,7 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
                 {AMINTERLACE_DisplayModeWeaveOnly,"AMINTERLACE_DisplayModeWeaveOnly"},
                 {AMINTERLACE_DisplayModeBobOrWeave,"AMINTERLACE_DisplayModeBobOrWeave"}
             };
-            
+
             for(int i=0;i<sizeof(flags)/sizeof(flags[0]);i++)
             {
                 if(flags[i].dwFlag&pHeader2->dwInterlaceFlags)
@@ -384,13 +384,13 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
                 }
             }
         }
-        
+
         //bitmapinfoheader
         ASSERT(pmbi!=NULL);
         str << " " << pmbi->biWidth << "x" << pmbi->biHeight << " " << pmbi->biBitCount << " bits" << endl;
         str << " biPlanes: " << pmbi->biPlanes << endl;
         str << " biSizeImage: "<< pmbi->biSizeImage;
-        
+
     }
     else if(mt->formattype==FORMAT_WaveFormatEx)
     {
@@ -405,7 +405,7 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
         if(pwfx->Format.wFormatTag==WAVE_FORMAT_EXTENSIBLE && pwfx->Format.cbSize>=22)
         {
             str << " dwChannelMask: ";
-            
+
             TFlag2String flags[]=
             {
                 {SPEAKER_FRONT_LEFT ,"SPEAKER_FRONT_LEFT"},
@@ -427,7 +427,7 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
                 {SPEAKER_TOP_BACK_CENTER,"SPEAKER_TOP_BACK_CENTER"},
                 {SPEAKER_TOP_BACK_RIGHT,"SPEAKER_TOP_BACK_RIGHT"}
             };
-            
+
             for(int i=0;i<sizeof(flags)/sizeof(flags[0]);i++)
             {
                 if(flags[i].dwFlag&pwfx->dwChannelMask)
@@ -441,7 +441,7 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
             }
             str << " SubFormat: " << GetGUIDName(pwfx->SubFormat) << endl;
         }
-        
+
     }
     text=str.str();
 }

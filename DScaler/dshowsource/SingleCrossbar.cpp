@@ -49,7 +49,7 @@ CDShowSingleCrossbar::~CDShowSingleCrossbar()
 }
 
 void CDShowSingleCrossbar::GetPinCounts(long &cIn,long &cOut)
-{    
+{
     HRESULT hr=m_crossbar->get_PinCounts(&cOut,&cIn);
     if(FAILED(hr))
     {
@@ -72,7 +72,7 @@ void CDShowSingleCrossbar::SetInputIndex(long Index,BOOL bSetRelated)
 {
     long cInputPinRelated,cOutputPinRelated,type;
     long cInput,cOutput;
-    
+
     HRESULT hr=m_crossbar->get_PinCounts(&cOutput,&cInput);
     if(FAILED(hr))
     {
@@ -88,7 +88,7 @@ void CDShowSingleCrossbar::SetInputIndex(long Index,BOOL bSetRelated)
             throw CCrossbarException("get_CrossbarPinInfo faile",hr);
         }
     }
-    
+
     //check all outputs to see if its posibel to connect with selected input
     BOOL bInputRouted=FALSE;
     for(int i=0;i<cOutput;i++)
@@ -101,15 +101,15 @@ void CDShowSingleCrossbar::SetInputIndex(long Index,BOOL bSetRelated)
             {
                 throw CCrossbarException("failed to route",hr);
             }
-            
+
             //output pin for related pin
             hr=m_crossbar->get_CrossbarPinInfo(FALSE,i,&cOutputPinRelated,&type);
-            
+
             bInputRouted=TRUE;
             break;
         }
     }
-    
+
     //successfull?
     if(bInputRouted==FALSE)
     {

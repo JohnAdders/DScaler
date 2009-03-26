@@ -9,7 +9,7 @@ int SEARCH_EFFORT_FUNC(0)()        // we don't try at all ;-)
 {
         //see Search_Effort_Max for comments
 #define SKIP_SEARCH
-#include "SearchLoopTop.inc"    
+#include "SearchLoopTop.inc"
 #include "SearchLoopBottom.inc"
 #undef SKIP_SEARCH
 }
@@ -17,7 +17,7 @@ int SEARCH_EFFORT_FUNC(0)()        // we don't try at all ;-)
 int SEARCH_EFFORT_FUNC(1)()
 {
         //see Search_Effort_Max for comments
-#include "SearchLoopTop.inc"    
+#include "SearchLoopTop.inc"
     RESET_CHROMA        // pretend chroma diffs was 255 each
 #include "SearchLoop0A.inc"
 #include "SearchLoopBottom.inc"
@@ -26,7 +26,7 @@ int SEARCH_EFFORT_FUNC(1)()
 int SEARCH_EFFORT_FUNC(3)()
 {
         //see Search_Effort_Max for comments
-#include "SearchLoopTop.inc"    
+#include "SearchLoopTop.inc"
 #include "SearchLoopOddA2.inc"
     RESET_CHROMA        // pretend chroma diffs was 255 each
 #include "SearchLoop0A.inc"
@@ -36,7 +36,7 @@ int SEARCH_EFFORT_FUNC(3)()
 int SEARCH_EFFORT_FUNC(5)()
 {
         //see Search_Effort_Max for comments
-#include "SearchLoopTop.inc"    
+#include "SearchLoopTop.inc"
 #include "SearchLoopOddA2.inc"
 #include "SearchLoopOddAH2.inc"
     RESET_CHROMA        // pretend chroma diffs was 255 each
@@ -48,7 +48,7 @@ int SEARCH_EFFORT_FUNC(5)()
 int SEARCH_EFFORT_FUNC(9)()
 {
         //see SearchEffortMax() for comments
-#include "SearchLoopTop.inc"    
+#include "SearchLoopTop.inc"
 #include "SearchLoopOddA.inc"
     RESET_CHROMA            // pretend chroma diffs was 255 each
 #include "SearchLoopVA.inc"
@@ -60,7 +60,7 @@ int SEARCH_EFFORT_FUNC(9)()
 int SEARCH_EFFORT_FUNC(11)()
 {
         //see SearchEffortMax() for comments
-#include "SearchLoopTop.inc"    
+#include "SearchLoopTop.inc"
 #include "SearchLoopOddA.inc"
 #include "SearchLoopOddAH2.inc"
     RESET_CHROMA            // pretend chroma diffs was 255 each
@@ -73,7 +73,7 @@ int SEARCH_EFFORT_FUNC(11)()
 int SEARCH_EFFORT_FUNC(13)()
 {
         //see SearchEffortMax() for comments
-#include "SearchLoopTop.inc"    
+#include "SearchLoopTop.inc"
 #include "SearchLoopOddA.inc"
 #include "SearchLoopOddAH2.inc"
     RESET_CHROMA            // pretend chroma diffs was 255 each
@@ -87,10 +87,10 @@ int SEARCH_EFFORT_FUNC(13)()
 int SEARCH_EFFORT_FUNC(15)()
 {
         //see SearchEffortMax() for comments
-#include "SearchLoopTop.inc"    
-#include "SearchLoopOddA.inc"    
+#include "SearchLoopTop.inc"
+#include "SearchLoopOddA.inc"
     RESET_CHROMA            // pretend chroma diffs was 255 each
-#include "SearchLoopEdgeA.inc"    
+#include "SearchLoopEdgeA.inc"
 #include "SearchLoopVA.inc"
 #include "SearchLoop0A.inc"
 #include "SearchLoopBottom.inc"
@@ -100,11 +100,11 @@ int SEARCH_EFFORT_FUNC(15)()
 int SEARCH_EFFORT_FUNC(19)()
 {
         //see SearchEffortMax() for comments
-#include "SearchLoopTop.inc"    
-#include "SearchLoopOddA.inc"    
+#include "SearchLoopTop.inc"
+#include "SearchLoopOddA.inc"
 #include "SearchLoopOddAH2.inc"
     RESET_CHROMA            // pretend chroma diffs was 255 each
-#include "SearchLoopEdgeA.inc"    
+#include "SearchLoopEdgeA.inc"
 #include "SearchLoopVAH.inc"
 #include "SearchLoopVA.inc"
 #include "SearchLoop0A.inc"
@@ -120,13 +120,13 @@ int SEARCH_EFFORT_FUNC(21)()
 {
         //see SearchLoopTop.inc for comments
 #include "SearchLoopTop.inc"
-        
-        // odd addresses -- the pixels at odd address wouldn't generate 
+
+        // odd addresses -- the pixels at odd address wouldn't generate
         // good luma values but we will mask those off
 
 #include "SearchLoopOddA6.inc"  // 4 odd v half pels, 3 to left & right
 #include "SearchLoopOddA.inc"   // 6 odd pels, 1 to left & right
-        
+
     RESET_CHROMA        // pretend chroma diffs was 255 each
 
         // even addresses -- use both luma and chroma from these
@@ -146,13 +146,13 @@ int SEARCH_EFFORT_FUNC(Max)()
 {
         //see SearchLoopTop.inc for comments
 #include "SearchLoopTop.inc"
-        
-        // odd addresses -- the pixels at odd address wouldn't generate 
+
+        // odd addresses -- the pixels at odd address wouldn't generate
         // good luma values but we will mask those off
 
 #include "SearchLoopOddA6.inc"  // 4 odd v half pels, 3 to left & right
 #include "SearchLoopOddA.inc"   // 6 odd pels, 1 to left & right
-        
+
     RESET_CHROMA        // pretend chroma diffs was 255 each
 
         // even addresses -- use both luma and chroma from these

@@ -51,12 +51,12 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
     switch (message)
     {
     case WM_INITDIALOG:
-        Hue = Providers_GetCurrentSource()->GetHue();    
-        Brightness = Providers_GetCurrentSource()->GetBrightness();    
-        Contrast = Providers_GetCurrentSource()->GetContrast();    
-        Saturation = Providers_GetCurrentSource()->GetSaturation();    
-        SaturationU = Providers_GetCurrentSource()->GetSaturationU();    
-        SaturationV = Providers_GetCurrentSource()->GetSaturationV();    
+        Hue = Providers_GetCurrentSource()->GetHue();
+        Brightness = Providers_GetCurrentSource()->GetBrightness();
+        Contrast = Providers_GetCurrentSource()->GetContrast();
+        Saturation = Providers_GetCurrentSource()->GetSaturation();
+        SaturationU = Providers_GetCurrentSource()->GetSaturationU();
+        SaturationV = Providers_GetCurrentSource()->GetSaturationV();
 
         if(Brightness != NULL)
         {

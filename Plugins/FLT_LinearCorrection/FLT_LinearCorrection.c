@@ -84,7 +84,7 @@ void UpdStretchTables(int Width)
     i=Width;
     Start = (double)(Width - i) / 2.0;
     End = Start + i - 1;
-    
+
     for (j=0 ; j<Width ; j++)
     {
         x = (double)(j) / (double)Width;
@@ -203,7 +203,7 @@ void UpdLinearFilterTables(int Width)
                 pixel2Y = (short)pixel_after;
                 LinearFilterTab[i][j].pixel1Y = pixel1Y * 2;
                 LinearFilterTab[i][j].pixel2Y = pixel2Y * 2;
-    
+
                 if (pixel1Y == pixel2Y)
                 {
                     if ((j % 2) == (pixel1Y % 2))
@@ -357,10 +357,10 @@ void ApplyLinearFilter(BYTE* pLine, int NewWidth, MEMCPY_FUNC *pCopy)
         // Build the new line
         t = TmpBuf;
 
-        ///////////////////////////////////////////////////////////////////////////////////////////// 
+        /////////////////////////////////////////////////////////////////////////////////////////////
         // the assember code below implements the following code
         // it doesn't seem to optimize it much
-        ///////////////////////////////////////////////////////////////////////////////////////////// 
+        /////////////////////////////////////////////////////////////////////////////////////////////
         // for (i=0 ; i<PictureWidth ; i++,t+=2,tab++)
         // {
         //   if (tab->pixel1Y == -1)
@@ -375,10 +375,10 @@ void ApplyLinearFilter(BYTE* pLine, int NewWidth, MEMCPY_FUNC *pCopy)
         //      t[1] = (pLine[tab->pixel1UV] * tab->coef1 + pLine[tab->pixel2UV] * tab->coef2) / 1024;
         //   }
         // }
-        // 
+        //
         // // Replace the old line by the new line
         // pCopy(pLine, TmpBuf, PictureWidth*2);
-        
+
         _asm
         {
             mov OldSI, esi
@@ -591,7 +591,7 @@ FILTER_METHOD LinearCorrMethod =
     "&Linear Correction (experimental)",
     FALSE,
     TRUE,
-    LinearCorrection, 
+    LinearCorrection,
     0,
     TRUE,
     NULL,

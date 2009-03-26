@@ -21,7 +21,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file cx2388xcard.h  cx2388xcard Header file
  */
 
@@ -50,7 +50,7 @@
 #define CX_INPUTS_PER_CARD        9
 #define CX_AUTODETECT_ID_PER_CARD 3
 
-class CCX2388xCard : public CPCICard, 
+class CCX2388xCard : public CPCICard,
                      public II2CLineInterface
 {
 public:
@@ -69,7 +69,7 @@ public:
         FLAG_OFF,
         FLAG_ON,
     };
-    
+
     enum eWhiteCrushMajSel
     {
         MAJSEL_3_OVER_4 = 0,
@@ -77,7 +77,7 @@ public:
         MAJSEL_1_OVER_4,
         MAJSEL_AUTOMATIC
     };
-    
+
 private:
 
     typedef struct
@@ -103,7 +103,7 @@ private:
         DWORD GPIO_2;
         DWORD GPIO_3;
     } TGPIOSet;
-    
+
     typedef struct             // Defines each input on a card
     {
         char       szName[64]; // Name of the input
@@ -117,7 +117,7 @@ private:
         MODE_STANDARD = 0,
         MODE_H3D,
     };
-    
+
     typedef struct            // Defines the specific settings for a given card
     {
         char        szName[128];
@@ -129,7 +129,7 @@ private:
         BOOL        bUseTDA9887;
     } TCardType;
 
-    
+
     class CCardTypeEx :    public TCardType                          // Same as TCardType but required to store dynamic values.
     {
     public:
@@ -137,7 +137,7 @@ private:
         CCardTypeEx() {    };
         CCardTypeEx(const TCardType& card) : TCardType(card) { }; // TCardType to CCardTypeEx implicit conversion constructor.
     };
-    
+
     typedef struct
     {
         std::vector<CCardTypeEx>*   pCardList;
@@ -163,7 +163,7 @@ public:
 
     void StartCapture(BOOL bCaptureVBI);
     void StopCapture();
-    
+
     void SetVideoSource(int nInput);
 
     void SetContrastBrightness(BYTE Contrast, BYTE Brightness);
@@ -244,7 +244,7 @@ protected:
     void ManageMyState();
     /// Card does support ACPI
     BOOL SupportsACPI() {return TRUE;};
-    
+
     // I2C stuff
 private:
     ULONG GetTickCount();

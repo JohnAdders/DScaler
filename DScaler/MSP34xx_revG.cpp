@@ -68,7 +68,7 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevG()
 {
     LOG(2,"MSPrevG: DetectStandardRevG() enter");
 
-    if(m_MSPVersion != MSPVersionG) 
+    if(m_MSPVersion != MSPVersionG)
     {
         return MSP34x0_STANDARD_NONE;
     }
@@ -89,7 +89,7 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevG(eSoundChannel soundChannel)
     //SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3000);
     SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
     SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
-    
+
     if (m_AudioStandard == MSP34x0_STANDARD_L_NICAM_AM)
     {
         SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x7c03);
@@ -97,7 +97,7 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevG(eSoundChannel soundChannel)
     else
     {
         if(soundChannel == SOUNDCHANNEL_MONO)
-        {                            
+        {
             SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3003);
         }
         else
@@ -126,7 +126,7 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevG(eSoundChannel soundChannel)
     default:
         break;
     }
-    
+
     SetDSPRegister(DSP_WR_LDSPK_SOURCE, source);
     SetDSPRegister(DSP_WR_HEADPH_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
@@ -152,23 +152,23 @@ void CMSP34x0AudioDecoder::SetStandardRevG(eStandard standard, eVideoFormat vide
     WORD modus = 0;
 
     if (standard == MSP34x0_STANDARD_AUTO)
-    {    
+    {
         // Set modus register
         modus = 0x3003;
-        
+
         if (m_AudioInput == AUDIOINPUT_RADIO)
-        {        
-            modus = 0x0003; //autodetect        
+        {
+            modus = 0x0003; //autodetect
         }
         else
-        {   
+        {
             switch(videoformat)
             {
             case VIDEOFORMAT_SECAM_L:
             case VIDEOFORMAT_SECAM_L1:
                 modus = 0x6003;
                 break;
-                
+
             case VIDEOFORMAT_PAL_M:
             case VIDEOFORMAT_PAL_60:
             case VIDEOFORMAT_NTSC_50:
@@ -189,7 +189,7 @@ void CMSP34x0AudioDecoder::SetStandardRevG(eStandard standard, eVideoFormat vide
             case VIDEOFORMAT_NTSC_M:
                 modus = 0x3003;
                 break;
-            case VIDEOFORMAT_SECAM_B:        
+            case VIDEOFORMAT_SECAM_B:
             case VIDEOFORMAT_SECAM_D:
             case VIDEOFORMAT_SECAM_G:
             case VIDEOFORMAT_SECAM_H:
@@ -204,7 +204,7 @@ void CMSP34x0AudioDecoder::SetStandardRevG(eStandard standard, eVideoFormat vide
     {
         /*
         if(m_SoundChannel == SOUNDCHANNEL_MONO)
-        {                            
+        {
             SetDEMRegister(DEM_WR_MODUS, 0x2002);  //turn of auto sound select
         } else {
             SetDEMRegister(DEM_WR_MODUS, 0x2003);
@@ -219,7 +219,7 @@ void CMSP34x0AudioDecoder::SetStandardRevG(eStandard standard, eVideoFormat vide
         {
             modus = 1;
         }
-        
+
         // choose sound IF2 input pin if needed.
         // todo: Maybe some cards are using IF1?
         switch(m_AudioInput)
@@ -243,8 +243,8 @@ void CMSP34x0AudioDecoder::SetStandardRevG(eStandard standard, eVideoFormat vide
         // Set standard
         SetDEMRegister(DEM_WR_STANDARD_SELECT, (int)standard);
     }
-    
-    
+
+
     m_AudioStandardMajorCarrier = 0;
     m_AudioStandardMinorCarrier = 0;
     if (standard != MSP34x0_STANDARD_AUTO)

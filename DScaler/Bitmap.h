@@ -16,7 +16,7 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file Bitmap.h  Bitmap Header file
  */
 
@@ -48,33 +48,33 @@ class CBitmapHolder
 public:
     CBitmapHolder(int DrawMode = 0);
     void SetDrawMode(int Mode) { m_DrawMode = Mode; };
-    
-    void Add(SmartPtr<CBitmapState> BitmapState, int State = 0);    
-    
+
+    void Add(SmartPtr<CBitmapState> BitmapState, int State = 0);
+
     SmartHandle<HBITMAP> GetBitmap(int State = 0);
 
     void Draw(HDC dc, LPPOINT bmstart, LPRECT r, int State = 0);
-    
+
     int Width(int State = 0);
     int Height(int State = 0);
-    
-    std::vector<RECT>& GetRegionList();    
-    HRGN GetWindowRegion();
-    
-    // Static functions    
 
-    static void BitmapDraw(HDC dc, SmartHandle<HBITMAP> hbmp, SmartHandle<HBITMAP> hmask, LPPOINT bmstart, LPRECT r, int DrawMode);    
+    std::vector<RECT>& GetRegionList();
+    HRGN GetWindowRegion();
+
+    // Static functions
+
+    static void BitmapDraw(HDC dc, SmartHandle<HBITMAP> hbmp, SmartHandle<HBITMAP> hmask, LPPOINT bmstart, LPRECT r, int DrawMode);
     static void BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *bmstart, LPRECT r);
-    
+
     static SmartHandle<HBITMAP> BitmapCopyPieceRGB(HDC hdestDC, HDC hsrcDC, LPRECT lpRect);
-    
+
     static HRGN CreateWindowRegion(RECT& rcBound, std::vector<RECT>& RegionList, POINT* pPosition = NULL);
     static BOOL BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, std::vector<RECT>& RegionList);
-        
+
     static SmartHandle<HBITMAP> BitmapLoadFromFile(const char *szFile);
     //static void BitmapLoad_Free(HBITMAP hBm);
 
-protected:    
+protected:
     BOOL MakeRegionList();
 
     std::vector< SmartPtr<CBitmapState> > m_States;
@@ -118,7 +118,7 @@ class CBitmapsFromIniSection
 {
 public:
     CBitmapsFromIniSection();
-    
+
     void Register(std::string sName);
 
     SmartPtr<CBitmapState> Get(std::string sName);

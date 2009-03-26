@@ -133,7 +133,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         // Let the IF demodulator know of pre-initialization.
         pExternalIFDemodulator->Init(TRUE, videoFormat);
     }
-                
+
     // Scan the I2C bus addresses for tuners
     BOOL bFoundTuner = FALSE;
 
@@ -167,9 +167,9 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 
     if (!bFoundTuner)
     {
-        LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF"); 
-        
-        delete m_Tuner; 
+        LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF");
+
+        delete m_Tuner;
         m_Tuner = new CNoTuner();
         m_TunerType = "None ";
     }
@@ -199,7 +199,7 @@ eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
     else if(pCard->TunerId == TUNER_AUTODETECT)
     {
         eTunerId Tuner = TUNER_ABSENT;
-        
+
         // Read the whole EEPROM without using I2C from SRAM
         BYTE Eeprom[256];
         for (int i=0; i<256; i += 4)
@@ -227,13 +227,13 @@ eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
             else
             {
                 LOG(2, "AutoDetectTuner: Hauppauge CX2388x Card. TunerId: 0x%02X",Eeprom[CX_EEPROM_OFFSET + 9]);
-                if (Eeprom[CX_EEPROM_OFFSET + 9] < (sizeof(m_TunerHauppaugeAnalog) / sizeof(m_TunerHauppaugeAnalog[0]))) 
+                if (Eeprom[CX_EEPROM_OFFSET + 9] < (sizeof(m_TunerHauppaugeAnalog) / sizeof(m_TunerHauppaugeAnalog[0])))
                 {
                     Tuner = m_TunerHauppaugeAnalog[Eeprom[CX_EEPROM_OFFSET + 9]];
                 }
             }
         }
-        
+
         return Tuner;
     }
 

@@ -26,7 +26,7 @@
 
 #include "PCICard.h"
 
-class CTDA9887  
+class CTDA9887
 {
 public:
     bool WriteControlBytes(const BYTE* pControlBytes);

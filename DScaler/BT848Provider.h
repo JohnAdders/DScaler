@@ -16,8 +16,8 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
- *@file bt848provider.h 
+/**
+ *@file bt848provider.h
  */
 
 #ifdef WANT_BT8X8_SUPPORT
@@ -42,11 +42,11 @@ public:
 private:
     ///  uses the subsystem id to determin the correct source to create
     SmartPtr<CBT848Source> CreateCorrectSource(
-                                        SmartPtr<CHardwareDriver> pHardwareDriver, 
-                                        LPCSTR szSection, 
-                                        WORD VendorID, 
-                                        WORD DeviceID, 
-                                        int DeviceIndex, 
+                                        SmartPtr<CHardwareDriver> pHardwareDriver,
+                                        LPCSTR szSection,
+                                        WORD VendorID,
+                                        WORD DeviceID,
+                                        int DeviceIndex,
                                         DWORD SubSystemId,
                                         char* ChipName);
     /// creates the system accesable memory to be used by all cards

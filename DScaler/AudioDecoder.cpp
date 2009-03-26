@@ -36,7 +36,7 @@ CAudioDecoder::CAudioDecoder()
 {
     m_SoundChannel = SOUNDCHANNEL_MONO;
     m_AudioInput = AUDIOINPUT_TUNER;
-    
+
     m_AudioStandard = 0;
     m_AudioStandardMajorCarrier = 0;
     m_AudioStandardMinorCarrier = 0;
@@ -72,7 +72,7 @@ void CAudioDecoder::SetAudioInput(eAudioInput audioInput)
 }
 
 const char* CAudioDecoder::GetAudioInputName(eAudioInput audioInput)
-{    
+{
     switch (audioInput)
     {
     case AUDIOINPUT_TUNER:
@@ -94,11 +94,11 @@ const char* CAudioDecoder::GetAudioInputName(eAudioInput audioInput)
         return "Stereo";
         break;
     }
-    
+
     return NULL;
 }
 
-void CAudioDecoder::SetAudioStandard(long Standard, eVideoFormat VideoFormat) 
+void CAudioDecoder::SetAudioStandard(long Standard, eVideoFormat VideoFormat)
 {
     m_AudioStandard = Standard;
     m_VideoFormat = VideoFormat;
@@ -148,7 +148,7 @@ long CAudioDecoder::GetAudioStandardFromVideoFormat(eVideoFormat videoFormat)
 }
 
 void CAudioDecoder::DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel)
-{    
+{
     m_StandardDetectInterval = Interval;
 }
 

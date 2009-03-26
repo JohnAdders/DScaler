@@ -436,7 +436,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
         }
     }
     ResizeFrame(pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameWidth, InHalfHeightMode() ? pInfo->FieldHeight : pInfo->FrameHeight, lpFrameBuffer, iFrameLinePitch, iFrameWidth, iFrameHeight);
-    
+
     // there were no exit paths between the unlock and the lock
     // so we hsould be OK
     GetActiveOutput()->Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);

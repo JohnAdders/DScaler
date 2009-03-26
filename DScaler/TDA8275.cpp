@@ -384,10 +384,10 @@ BOOL CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
             // For TDA8275A in analog TV Mode
             const tProgramingParam2* row = k_programmingTable2;
             const tProgramingParam2* last = (const tProgramingParam2*)((size_t)row + sizeof(k_programmingTable2)) - 1;
-            
+
             // Find the matching row of the programming table for this frequency.
             for ( ; row != last && freqRFIFHz > row->loMax * 1000000; row++) ;
-            
+
             WORD n11ton0 = (WORD)((double)(1 << row->SPD) * ((double)freqRFIFHz / 250000) + 0.5);
 
             BYTE channelBytes[12];
@@ -417,7 +417,7 @@ BOOL CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
             WriteToSubAddress(TDA8275_CB1, (0x04 << 2) | (row->SCR >> 2));
             Sleep(550); // 550ms delay required.
             WriteToSubAddress(TDA8275_AB1, (0x02 << 6) | (row->GC3 << 4) | 0x0F);
-            // 3 Enabling VSYNC only for analog TV 
+            // 3 Enabling VSYNC only for analog TV
             WriteToSubAddress(TDA8275A_AB3, 0x28);
             WriteToSubAddress(TDA8275A_IB3, 0x01);
             WriteToSubAddress(TDA8275A_CB3, sgIFLPFilter ? 0x3B : 0x39); // 7MHz (US) / 9Mhz (Europe);
@@ -428,7 +428,7 @@ BOOL CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
         // For TDA8275
         const tProgramingParam* row = k_programmingTable;
         const tProgramingParam* last = (const tProgramingParam*)((size_t)row + sizeof(k_programmingTable)) - 1;
-        
+
         // Find the matching row of the programming table for this frequency.
         for ( ; row != last && freqRFIFHz > row->loMax * 1000000; row++) ;
 
@@ -465,7 +465,7 @@ BOOL CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
         WriteToSubAddress(TDA8275_AB2, 0x7F);
         WriteToSubAddress(TDA8275_AB4, 0x08);
     }
-    
+
     return success;
 }
 

@@ -36,16 +36,16 @@ CMT2032::CMT2032(eVideoFormat DefaultVideoFormat) :
     m_XOGC(0),
     m_Initialized(FALSE),
     m_Frequency (0),
-    m_Locked(FALSE)      
+    m_Locked(FALSE)
 {
-    m_DefaultVideoFormat = DefaultVideoFormat;    
+    m_DefaultVideoFormat = DefaultVideoFormat;
 }
 
 BYTE CMT2032::GetDefaultAddress() const
 {
     return 0xC0>>1;
 }
-    
+
 eTunerId CMT2032::GetTunerId()
 {
     return TUNER_MT2032;
@@ -99,8 +99,8 @@ void CMT2032::Initialize()
 
     // Get chip info
     BYTE rdbuf[22];
-    BYTE wrbuf[] = { (BYTE)(m_DeviceAddress << 1), 0 };    
-    
+    BYTE wrbuf[] = { (BYTE)(m_DeviceAddress << 1), 0 };
+
     if (m_I2CBus->Read(wrbuf,2,rdbuf,21))
     {
         LOG(1,"MT2032: Companycode=%02x%02x Part=%02x Revision=%02x",
@@ -142,7 +142,7 @@ void CMT2032::Initialize()
     {
         m_ExternalIFDemodulator->Init(FALSE, m_DefaultVideoFormat);
     }
-    
+
     m_XOGC = xogc;
     m_Initialized = TRUE;
 }
@@ -279,13 +279,13 @@ int CMT2032::ComputeFreq(
     lo2num = ((desired_lo2 / 1000) % (fref / 1000)) * 3780 / (fref / 1000); /* scale to fit in 32bit arith */
     lo2freq = (lo2a + 8 * lo2n) * fref + lo2num * (fref / 1000) / 3780 * 1000;
 
-    if (lo1a < 0 ||  
-        lo1a > 7 ||  
-        lo1n < 17 ||  
-        lo1n > 48 ||  
-        lo2a < 0 ||  
-        lo2a > 7 ||  
-        lo2n < 17 ||  
+    if (lo1a < 0 ||
+        lo1a > 7 ||
+        lo1n < 17 ||
+        lo1n > 48 ||
+        lo2a < 0 ||
+        lo2a > 7 ||
+        lo2n < 17 ||
         lo2n > 30)
     {
         return -1;
@@ -513,9 +513,9 @@ eTunerAFCStatus CMT2032::GetAFCStatus(long &nFreqDeviation)
             AFCStatus = TUNER_AFC_NOCARRIER;
         }
         else
-        {            
+        {
             BYTE addr[] = { (BYTE)(m_DeviceAddress << 1), 0x0E };
-            BYTE result;        
+            BYTE result;
             if (m_I2CBus->Read(addr, 2, &result, 1))
             {
                 result = (result>>4) & 7;

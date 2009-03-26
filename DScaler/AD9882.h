@@ -17,10 +17,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file AD9882.h AD9882 Header file
  */
- 
+
 #ifndef __AD9882_H___
 #define __AD9882_H___
 
@@ -31,7 +31,7 @@
 
 /** Implemenation of a RGB decoder connected via I2C
 */
-class CAD9882 : public CI2CDevice  
+class CAD9882 : public CI2CDevice
 {
 public:
     CAD9882();

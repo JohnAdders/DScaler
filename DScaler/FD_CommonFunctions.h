@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file FD_CommonFunctions.h Film detection common functions Header file
  */
- 
+
 #ifndef __FD_COMMON_FUNCTIONS_H___
 #define __FD_COMMON_FUNCTIONS_H___
 
@@ -29,7 +29,7 @@ extern "C"
     WORD CalcCombFactorLineChroma(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3, long BytesToProcess);
     DWORD CalcDiffFactorLine(BYTE* YVal1, BYTE* YVal2, long BytesToProcess);
     DWORD CalcDiffFactorLineChroma(BYTE* YVal1, BYTE* YVal2, long BytesToProcess);
-    DWORD CalcCombAndDiffLine(BYTE* YVal11, BYTE* YVal21, BYTE* YVal31, 
+    DWORD CalcCombAndDiffLine(BYTE* YVal11, BYTE* YVal21, BYTE* YVal31,
                             BYTE* YVal12, BYTE* YVal22, BYTE* YVal32,
                             long BytesToProcess, DWORD* CombFactor);
     void memcpyBOBMMX(void* Dest1, void* Dest2, void* Src, size_t nBytes);

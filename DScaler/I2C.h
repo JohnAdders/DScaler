@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file i2c.h i2c Header file
  */
- 
+
 #ifndef __I2C_H___
 #define __I2C_H___
 
@@ -57,7 +57,7 @@ private:
 #define I2C_TDA7432        0x8a
 #define I2C_TDA8425        0x82
 #define I2C_TDA9840        0x84
-#define I2C_TDA9850        0xb6 // also used by 9855,9873 
+#define I2C_TDA9850        0xb6 // also used by 9855,9873
 #define I2C_TDA9874        0xb0
 #define I2C_TDA9875        0xb0
 #define I2C_HAUPEE         0xa0

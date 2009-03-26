@@ -39,10 +39,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file dscaler.h dscaler Header file
  */
- 
+
 #ifndef __DSCALER_H___
 #define __DSCALER_H___
 

@@ -22,7 +22,7 @@
 
 #include "windows.h"
 #include "DI_GreedyHM.h"
-   
+
 
 // debugging options
 #undef USE_JAGGIE_REDUCTION
@@ -52,7 +52,7 @@ BOOL FUNCT_NAME()
     int L2P;                    // offset to FieldStore elem holding prev weave pixels
     __int64* pFieldStore;        // ptr into FieldStore qwords
     __int64* pFieldStoreEnd;    // ptr to Last FieldStore qword
-    __int64* pL2;                // ptr into FieldStore[L2] 
+    __int64* pL2;                // ptr into FieldStore[L2]
     BYTE* WeaveDest;                    // dest for weave pixel
     BYTE* CopyDest;                // other dest, copy or vertical filter
     int CopySrc;
@@ -66,8 +66,8 @@ BOOL FUNCT_NAME()
     // set up pointers, offsets
     SetFsPtrs(&L1, &L2, &L2P, &L3, &CopySrc, &CopyDest, &WeaveDest);
     L2 = __min(L2, L2P);                // Subscript to 1st of 2 possible weave pixels, our base addr
-    L1 = (L1 - L2) * 8;                    // now is signed offset from L2  
-    L3 = (L3 - L2) * 8;                    // now is signed offset from L2  
+    L1 = (L1 - L2) * 8;                    // now is signed offset from L2
+    L3 = (L3 - L2) * 8;                    // now is signed offset from L2
     pFieldStore = & FieldStore[0];        // starting ptr into FieldStore[L2]
     pFieldStoreEnd = & FieldStore[FieldHeight * FSCOLCT];        // ending ptr into FieldStore[L2]
     pL2 = & FieldStore[L2];                // starting ptr into FieldStore[L2]
@@ -83,17 +83,17 @@ BOOL FUNCT_NAME()
             pL2 = & FieldStore[L2 + FSCOLCT];
         }
         else
-        {            
+        {
 
         _asm        // should indent here but I can't read it
         {
-        mov        edi, WeaveDest                // get ptr to line ptrs    
+        mov        edi, WeaveDest                // get ptr to line ptrs
         mov        esi, dword ptr [pL2]        // addr of our 1st qword in FieldStore
-        mov        eax, L1                        // offset to top     
-        mov        ebx, L3                        // offset to top comb     
+        mov        eax, L1                        // offset to top
+        mov        ebx, L3                        // offset to top comb
         mov        ecx, OverlayPitch            // overlay pitch
         mov        word ptr [LastAvg+6], 0     // init left avg lazy way
-        
+
         lea     edx, [esi+eax]                // where L1 would point
         cmp        edx, pFieldStore            // before begin of fieldstore?
         jnb        L1OK                        // n, ok
@@ -104,7 +104,7 @@ L1OK:
         jb        L3OK                        // n, ok
         mov        ebx, eax                    // else use this bottom pixel vals
 
-L3OK:        
+L3OK:
         mov        edx, CopyDest
 
         align 8
@@ -160,9 +160,9 @@ QwordLoop:
         // bump ptrs and loop for next 4 qword
         lea        edx,[edx+32]                // bump CopyDest
         lea        edi,[edi+32]                // bump WeaveDest
-        lea        esi,[esi+4*FSCOLSIZE]            
+        lea        esi,[esi+4*FSCOLSIZE]
         dec        LoopCtr
-        jg        QwordLoop            
+        jg        QwordLoop
 
 // Ok, done with one line
         mov        esi, pL2                // addr of our 1st qword in FieldStore
@@ -181,6 +181,6 @@ QwordLoop:
     }
 
   return TRUE;
-}    
-        
-        
+}
+
+

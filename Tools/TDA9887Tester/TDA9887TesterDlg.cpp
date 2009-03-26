@@ -89,55 +89,55 @@ const CTDA9887TesterDlg::TRegList CTDA9887TesterDlg::m_TAudioIF[]=
 
 const CTDA9887TesterDlg::TStandard CTDA9887TesterDlg::m_TStandards[]=
 {
-    {    
+    {
         "PAL-BG",
         TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
         TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
         TDA9887_AudioIF_5_5  | TDA9887_VideoIF_38_90,
     },
-    {    
+    {
         "PAL-I",
         TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
         TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
         TDA9887_AudioIF_6_0  | TDA9887_VideoIF_38_90,
     },
-    {    
+    {
         "PAL-DK",
         TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
         TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
         TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_00,
     },
-    {    
+    {
         "PAL-M/N",
         TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
         TDA9887_DeemphasisON | TDA9887_Deemphasis75 | TDA9887_TakeOverPointDefault,
         TDA9887_AudioIF_4_5  | TDA9887_VideoIF_45_75,
     },
-    {    
+    {
         "SECAM-L",
         TDA9887_PositiveAmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
         TDA9887_TakeOverPointDefault,
         TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_90,
     },
-    {    
+    {
         "SECAM-DK",
         TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
         TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
         TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_00,
     },
-    {    
+    {
         "NTSC-M",
         TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
         TDA9887_DeemphasisON | TDA9887_Deemphasis50  | TDA9887_TakeOverPointDefault,
         TDA9887_AudioIF_4_5  | TDA9887_VideoIF_45_75 | TDA9887_Gating_36,
     },
-    {    
+    {
         "NTSC-JP",
         TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
         TDA9887_DeemphasisON | TDA9887_Deemphasis50  | TDA9887_TakeOverPointDefault,
         TDA9887_AudioIF_4_5  | TDA9887_VideoIF_58_75 | TDA9887_Gating_36,
     },
-    {    
+    {
         "Radio",
         TDA9887_FmRadio1     | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
         TDA9887_DeemphasisON | TDA9887_Deemphasis75 | TDA9887_TakeOverPointDefault,
@@ -254,7 +254,7 @@ BOOL CTDA9887TesterDlg::OnInitDialog()
     InitComboRegList(m_TAudioIF,        &m_ctrlComboAudioIF);
 
     EnableTdaDlgCtrls(FALSE);
-    
+
     // Start with 1st card
     m_ctrlComboSources.SetCurSel(0);
 
@@ -264,7 +264,7 @@ BOOL CTDA9887TesterDlg::OnInitDialog()
     return TRUE;
 }
 
-void CTDA9887TesterDlg::OnPaint() 
+void CTDA9887TesterDlg::OnPaint()
 {
     if (IsIconic())
     {
@@ -293,9 +293,9 @@ HCURSOR CTDA9887TesterDlg::OnQueryDragIcon()
     return (HCURSOR) m_hIcon;
 }
 
-BOOL CTDA9887TesterDlg::PreTranslateMessage(MSG* pMsg) 
+BOOL CTDA9887TesterDlg::PreTranslateMessage(MSG* pMsg)
 {
-    m_ToolTip.RelayEvent(pMsg);    
+    m_ToolTip.RelayEvent(pMsg);
     return CDialog::PreTranslateMessage(pMsg);
 }
 
@@ -339,7 +339,7 @@ void CTDA9887TesterDlg::InitComboSources()
 BOOL CTDA9887TesterDlg::SelectComboBoxByData(const int iData, CComboBox* pComboBox)
 {
     BOOL bOK = FALSE;
-    
+
     for(int i = 0; i < pComboBox->GetCount(); i++)
     {
         if(iData == (int)pComboBox->GetItemData(i))
@@ -357,7 +357,7 @@ UINT CTDA9887TesterDlg::GetComboSelItemData(const CComboBox* pComboBox)
 {
     UINT uReturn = 0;
     int iSelItem = pComboBox->GetCurSel();
-    
+
     if(iSelItem != CB_ERR)
     {
         UINT uData = pComboBox->GetItemData(iSelItem);
@@ -376,7 +376,7 @@ CString CTDA9887TesterDlg::GetComboSelItemText(const CComboBox *pComboBox)
     strReturn.Empty();
 
     int iSelItem = pComboBox->GetCurSel();
-    
+
     if(iSelItem != CB_ERR)
     {
         pComboBox->GetLBText(iSelItem, strReturn);
@@ -385,7 +385,7 @@ CString CTDA9887TesterDlg::GetComboSelItemText(const CComboBox *pComboBox)
     return strReturn;
 }
 
-void CTDA9887TesterDlg::OnSelchangeComboSources() 
+void CTDA9887TesterDlg::OnSelchangeComboSources()
 {
     POSITION pos = (POSITION)GetComboSelItemData(&m_ctrlComboSources);
     if(!pos)
@@ -467,7 +467,7 @@ void CTDA9887TesterDlg::OnSelchangeComboSources()
     UpdateData(FALSE);
 }
 
-void CTDA9887TesterDlg::OnSelchangeComboStandards() 
+void CTDA9887TesterDlg::OnSelchangeComboStandards()
 {
     int iSel = m_ctrlComboStandards.GetCurSel();
     if(iSel == CB_ERR)
@@ -499,7 +499,7 @@ void CTDA9887TesterDlg::OnSelchangeComboStandards()
     ParseAndWrite(IDC_CHECK1); // IDC_CHECK1 = dummy
 }
 
-void CTDA9887TesterDlg::ParseAndWrite(UINT nID) 
+void CTDA9887TesterDlg::ParseAndWrite(UINT nID)
 {
     if(!m_pTDA9887)
     {
@@ -613,7 +613,7 @@ int CTDA9887TesterDlg::ScanSources()
     return iSources;
 }
 
-void CTDA9887TesterDlg::OnBtnDumpToFile() 
+void CTDA9887TesterDlg::OnBtnDumpToFile()
 {
     if(!SaveToFile())
     {
@@ -629,9 +629,9 @@ BOOL CTDA9887TesterDlg::SaveToFile()
                                  OFN_EXPLORER|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST|OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT|OFN_ENABLESIZING,
                                  "Text Documents (*.txt)|*.txt|All Files (*.*)|*.*||",
                                 this );
-     
+
      FileSaveDlg.m_ofn.lpstrTitle = "Save TDA9887Tester's settings";
- 
+
      if(FileSaveDlg.DoModal() == IDOK)
     {
         FILE* hFile = fopen(FileSaveDlg.GetPathName(), "w");
@@ -648,7 +648,7 @@ BOOL CTDA9887TesterDlg::SaveToFile()
         fprintf(hFile, "%-25s %s\n",    "TDA9887 I2C-Adress:",        m_strI2CAdress);
         fprintf(hFile, "%-25s %s\n",    "Byte B/C/E:",                m_strControlBytes);
         fprintf(hFile, "%-25s %s\n\n",    "TV Standard:",                GetComboSelItemText(&m_ctrlComboStandards));
-        
+
         fprintf(hFile, "%-25s %s\n",    "B7   Out Port2 Active:",    m_b_B7 ? "Yes"            : "No");
         fprintf(hFile, "%-25s %s\n",    "B6   Out Port1 Active:",    m_b_B6 ? "Yes"            : "No");
         fprintf(hFile, "%-25s %s\n",    "B5   Force Audio Mute:",    m_b_B5 ? "Yes"            : "No");
@@ -656,7 +656,7 @@ BOOL CTDA9887TesterDlg::SaveToFile()
         fprintf(hFile, "%-25s %s\n",    "B2   Carrier Mode:",        m_b_B2 ? "QSS"            : "Intercarrier");
         fprintf(hFile, "%-25s %s\n",    "B1   Auto Mute FM:",        m_b_B1 ? "Yes"            : "No");
         fprintf(hFile, "%-25s %s\n\n",    "B0   Sound Trap Bypass:",    m_b_B0 ? "Yes(Video)"    : "No(Audio)");
-        
+
         fprintf(hFile, "%-25s %s\n",    "C7   Audio Gain:",            m_b_C7 ? "-6dB"            : "0dB");
         fprintf(hFile, "%-25s %s\n",    "C6   Deemphasis:",            m_b_C6 ? "50"            : "75");
         fprintf(hFile, "%-25s %s\n",    "C5   Deemphasis On:",        m_b_C5 ? "Yes"            : "No");

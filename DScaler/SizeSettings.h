@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file sizesettings.h sizesettings Header file
  */
- 
+
 #ifndef __SIZESETTINGS_H___
 #define __SIZESETTINGS_H___
 

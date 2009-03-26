@@ -27,7 +27,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// Eigenschaftenseite CPage4 
+// Eigenschaftenseite CPage4
 
 IMPLEMENT_DYNCREATE(CPage4, CPropertyPage)
 
@@ -36,7 +36,7 @@ CPage4::CPage4() : CPropertyPage(CPage4::IDD)
     //{{AFX_DATA_INIT(CPage4)
         // HINWEIS: Der Klassen-Assistent fügt hier Elementinitialisierung ein
     //}}AFX_DATA_INIT
-    m_psp.dwFlags &= ~PSP_HASHELP; 
+    m_psp.dwFlags &= ~PSP_HASHELP;
 }
 
 CPage4::~CPage4()
@@ -59,12 +59,12 @@ BEGIN_MESSAGE_MAP(CPage4, CPropertyPage)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// Behandlungsroutinen für Nachrichten CPage4 
+// Behandlungsroutinen für Nachrichten CPage4
 
-BOOL CPage4::OnSetActive() 
+BOOL CPage4::OnSetActive()
 {
     CPropertySheet* parent = (CPropertySheet*)GetParent();
     parent->SetWizardButtons(PSWIZB_FINISH);
-    
+
     return CPropertyPage::OnSetActive();
 }

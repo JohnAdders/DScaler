@@ -186,23 +186,23 @@ void CSimpleSetting::SetSection(const string& NewValue)
     m_Section = NewValue;
 }
 
-const string& CSimpleSetting::GetDisplayName() 
-{ 
+const string& CSimpleSetting::GetDisplayName()
+{
     return m_DisplayName;
 }
 
-const string& CSimpleSetting::GetSection() 
-{ 
+const string& CSimpleSetting::GetSection()
+{
     return m_Section;
 }
 
-void CSimpleSetting::SetEntry(const string& NewValue) 
-{     
-    m_Entry = NewValue; 
+void CSimpleSetting::SetEntry(const string& NewValue)
+{
+    m_Entry = NewValue;
 }
 
-const string& CSimpleSetting::GetEntry() 
-{ 
+const string& CSimpleSetting::GetEntry()
+{
     return m_Entry;
 }
 
@@ -211,14 +211,14 @@ const string& CSimpleSetting::GetEntry()
     @param szSubSection Set to NULL to read from the default location
     @param bSetDefaultOnFailure If the setting was not in the .ini file, set the setting's value to the default value
     @param pSettingFlags Override setting flags of current setting if not NULL
-    @return TRUE if value was in .ini file            
+    @return TRUE if value was in .ini file
 */
 BOOL CSimpleSetting::ReadFromIniSubSection(const string& SubSection)
 {
     BOOL IsSettingInIniFile = TRUE;
 
     if(!SubSection.empty())
-    {        
+    {
         string sEntry;
 
         if(SubSection != m_Section)
@@ -231,7 +231,7 @@ BOOL CSimpleSetting::ReadFromIniSubSection(const string& SubSection)
         {
             sEntry = m_Entry;
         }
-        
+
         string szDefaultString;
         vector<char> szBuffer(256);
 
@@ -313,7 +313,7 @@ void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
         string CurrentValue(GetValueAsString());
 
         // here we want all settings in the ini file
-        // so we only optimize if the value and section 
+        // so we only optimize if the value and section
         // were the same as what was loaded
         if(!bOptimizeFileAccess || CurrentValue != m_LastSavedValue || m_LastSavedValueIniSection != m_Section)
         {
@@ -335,7 +335,7 @@ void CSimpleSetting::OSDShow()
     string OSDText(MakeString() << m_DisplayName << " " << GetDisplayValue());
 
     OSD_ShowText(OSDText, 0);
-    
+
 }
 
 void CSimpleSetting::ChangeValue(eCHANGEVALUE NewValue)
@@ -379,7 +379,7 @@ CSettingGroup* CSimpleSetting::GetGroup()
 
 /** List setting.
     Specify list with 'pszList',
-    for the rest of the parameters: 
+    for the rest of the parameters:
     @see CSimpleSetting
 */
 CListSetting::CListSetting(const string& DisplayName, long Default, long Max, const string& Section, const string& Entry, const char** pszList, CSettingGroup* pGroup) :
@@ -516,14 +516,14 @@ void CListSetting::SetFromControl(HWND hWnd)
 void CListSetting::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue)
 {
     m_Default = NewDefaultAsMessageType;
-    if (!bDontSetValue)    
+    if (!bDontSetValue)
     {
         SetValue(NewDefaultAsMessageType);
     }
 }
 
 /** Slider setting.
-    For the parameters: 
+    For the parameters:
     @see CSimpleSetting
 */
 CSliderSetting::CSliderSetting(const string& DisplayName, long Default, long Min, long Max, const string& Section, const string& Entry, CSettingGroup* pGroup) :
@@ -555,7 +555,7 @@ void CSliderSetting::SetValue(long NewValue, BOOL SuppressOnChange)
     if(NewValue > m_Max)
     {
         NewValue = m_Max;
-    }    
+    }
     m_Value = NewValue;
     if (!SuppressOnChange && IsOnChangeEnabled())
     {
@@ -618,7 +618,7 @@ void CSliderSetting::SetValueFromMessage(LPARAM LParam)
 void CSliderSetting::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue)
 {
     m_Default = NewDefaultAsMessageType;
-    if (!bDontSetValue)    
+    if (!bDontSetValue)
     {
         SetValue(NewDefaultAsMessageType);
     }
@@ -699,9 +699,9 @@ void CSliderSetting::SetFromControl(HWND hWnd)
 
 
 /** Yes/No setting.
-    Has only 0 or 1 as possible values.    
-    
-    For the rest of the parameters: 
+    Has only 0 or 1 as possible values.
+
+    For the rest of the parameters:
     @see CSimpleSetting
 */
 CYesNoSetting::CYesNoSetting(const string& DisplayName, BOOL Default, const string& Section, const string& Entry, CSettingGroup* pGroup) :
@@ -832,7 +832,7 @@ void CYesNoSetting::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
 
 
 /** Character string setting.
-    For the rest of the parameters: 
+    For the rest of the parameters:
     @see CSimpleSetting
 */
 CStringSetting::CStringSetting(const string& DisplayName, const string& Default, const string& Section, const string& Entry, CSettingGroup* pGroup) :
@@ -1071,7 +1071,7 @@ void CSettingWrapper::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetV
     if(m_Setting->Type != CHARSTRING)
     {
         m_Setting->Default = NewDefaultAsMessageType;
-        if (!bDontSetValue)    
+        if (!bDontSetValue)
         {
             SetValue(NewDefaultAsMessageType);
         }

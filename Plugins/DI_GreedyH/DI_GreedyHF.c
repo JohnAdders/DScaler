@@ -17,8 +17,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-// This is the first version of the Greedy High Motion Deinterlace method I wrote (and kept). 
-// It doesn't have many of the fancier options but I left it in because it's faster. It runs with 
+// This is the first version of the Greedy High Motion Deinterlace method I wrote (and kept).
+// It doesn't have many of the fancier options but I left it in because it's faster. It runs with
 // a field delay of 1 in a single pass with no call needed to UpdateFieldStore. It will be called
 // if no special options are needed. The logic is somewhat different than the other rtns.  TRB 7/2001
 //

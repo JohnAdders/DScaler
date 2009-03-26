@@ -48,7 +48,7 @@ public:
                         BYTE *readBuffer,
                         size_t readBufferSize
                      );
-    
+
     /**
     @return true if sucessful
     */

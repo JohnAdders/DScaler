@@ -68,7 +68,7 @@ public:
         ///Field format, currently unused
         DSREND_FIELD_FORMAT m_FieldFmt;
     };
-    
+
     ///failure codes from ChangeRes
     enum eChangeRes_Error
     {
@@ -95,7 +95,7 @@ public:
     CDShowGraph(std::string filename, std::string AudioDevice);
     ///Destructor
     virtual ~CDShowGraph();
-    
+
     /**
      * @return pointer to the source device or NULL if there is no source
      */
@@ -110,7 +110,7 @@ public:
      * @return number of dropped frames
      */
     long getDroppedFrames();
-    
+
     void ConnectGraph();
     void start();
     void pause();
@@ -143,7 +143,7 @@ public:
      *
      * @throws CDShowException
      * @param fmt new format to change to
-     * @return 
+     * @return
      */
     eChangeRes_Error ChangeRes(CDShowGraph::CVideoFormat fmt);
 
@@ -178,7 +178,7 @@ private:
     void CreateRenderer();
 
     void FindStreamConfig();
-    
+
     /// updates m_filter vector with filters in the graph
     void BuildFilterList();
 
@@ -189,14 +189,14 @@ private:
     CComPtr<IDSRendFilter> m_DSRend;
     CComPtr<IQualProp> m_pQualProp;
     CComPtr<IDSRendSettings> m_pDSRendSettings;
-    
+
     ///IAMStreamConfig interface for the filter connected to our renderer
     CComPtr<IAMStreamConfig> m_pStreamCfg;
 
     CComPtr<IGraphBuilder> m_pGraph;
     CComPtr<ICaptureGraphBuilder2> m_pBuilder;
     CComPtr<IMediaControl> m_pControl;
-        
+
     CDShowBaseSource *m_pSource;
     CDShowAudioControls *m_pAudioControlls;
     CDShowSeeking *m_pSeeking;
@@ -204,7 +204,7 @@ private:
     FILTER_STATE m_GraphState;
 
     CComPtr<IReferenceClock> m_pOldRefClk;
-    
+
     class CFilterPages
     {
     public:

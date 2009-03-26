@@ -526,9 +526,9 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             for(size_t i = 0; i < Sources.size(); ++i)
             {
                 if(Sources[i]->Object->OpenMediaFile((LPCSTR)file, FALSE))
-                {                    
+                {
                     Providers_NotifySourcePreChange();
-                    
+
                     int OldSource = CurrentSource;
                     CurrentSource = static_cast<long>(i);
                     WSS_init();
@@ -545,8 +545,8 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     }
     else if (LOWORD(wParam) == IDM_SWITCH_SOURCE)
     {
-        Providers_NotifySourcePreChange();            
-        
+        Providers_NotifySourcePreChange();
+
         Stop_Capture();
         WSS_init();
         int OldSource = CurrentSource;
@@ -560,7 +560,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         }
         Providers_UpdateMenu(hMenu);
         Start_Capture();
-        
+
         Providers_NotifySourceChange(OldSource);
         return TRUE;
     }

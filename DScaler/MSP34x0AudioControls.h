@@ -43,8 +43,8 @@ class CMSP34x0AudioControls : public CMSP34x0, public CAudioControls
 {
 public:
     CMSP34x0AudioControls();
-    virtual ~CMSP34x0AudioControls() {};    
-    void SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);    
+    virtual ~CMSP34x0AudioControls() {};
+    void SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);
 
     // from IAudioControls
     BOOL HasMute();

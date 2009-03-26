@@ -576,7 +576,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 
 // the next code based on free sources from
 // www.codeguru.com
-void CTreeSettingsDlg::OnPaint() 
+void CTreeSettingsDlg::OnPaint()
 {
     CDialog::OnPaint();
 
@@ -585,15 +585,15 @@ void CTreeSettingsDlg::OnPaint()
 
     rc.left = rc.right  - GetSystemMetrics(SM_CXHSCROLL);
     rc.top  = rc.bottom - GetSystemMetrics(SM_CYVSCROLL);
-    
+
     m_GripperRect = rc;
-    
+
     // paint the Gripper
     CClientDC dc(this);
     dc.DrawFrameControl(rc,DFC_SCROLL,DFCS_SCROLLSIZEGRIP);
 }
 
-LRESULT CTreeSettingsDlg::OnNcHitTest(CPoint point) 
+LRESULT CTreeSettingsDlg::OnNcHitTest(CPoint point)
 {
     LRESULT ht = CDialog::OnNcHitTest(point);
 
@@ -601,10 +601,10 @@ LRESULT CTreeSettingsDlg::OnNcHitTest(CPoint point)
     {
         CRect rc;
         GetWindowRect( rc );
-        
+
         rc.left = rc.right  - GetSystemMetrics (SM_CXHSCROLL);
         rc.top  = rc.bottom - GetSystemMetrics (SM_CYVSCROLL);
-        
+
         if(rc.PtInRect(point))
         {
             ht = HTBOTTOMRIGHT;
@@ -613,7 +613,7 @@ LRESULT CTreeSettingsDlg::OnNcHitTest(CPoint point)
     return (UINT)ht;
 }
 
-void CTreeSettingsDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI) 
+void CTreeSettingsDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 {
     if( (m_MinMaxInfo.x > 0) && (m_MinMaxInfo.y > 0) )
     {

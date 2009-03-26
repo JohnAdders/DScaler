@@ -115,7 +115,7 @@ BOOL DeinterlaceFieldTwoFrame_MMX(TDeinterlaceInfo* pInfo)
 
         pInfo->pMemcpy(Dest, pInfo->PictureHistory[1]->pData, pInfo->LineLength);
         Dest += pInfo->OverlayPitch;
-        
+
         pInfo->pMemcpy(Dest, YVal0, pInfo->LineLength);
         Dest += pInfo->OverlayPitch;
     }

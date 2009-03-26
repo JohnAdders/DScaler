@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file VBI_wssdecode.h wssdecode Header file
  */
- 
+
 #ifndef __WSSDECODE_H___
 #define __WSSDECODE_H___
 
@@ -32,7 +32,7 @@
 #define WSS_STATUS_PONCTUAL_ERROR   2
 
 // WSS data
-typedef struct 
+typedef struct
 {
     int     AspectRatio;
     int     AspectMode;
@@ -49,7 +49,7 @@ typedef struct
 extern TWSSDataStruct WSS_Data;
 
 // WSS control data
-typedef struct 
+typedef struct
 {
     int DecodeStatus;       // Status of last decoding
     int NbDecodeErr;        // Number of decoding errors

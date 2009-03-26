@@ -36,7 +36,7 @@
 
 #include "Bt8x8GPIOAudioDecoder.h"
 
-class CBt8x8GPIOAudioDecoderPVBt878P9B : public CBt8x8GPIOAudioDecoder  
+class CBt8x8GPIOAudioDecoderPVBt878P9B : public CBt8x8GPIOAudioDecoder
 {
 public:
     CBt8x8GPIOAudioDecoderPVBt878P9B(CPCICard* pPCICard) :

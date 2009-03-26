@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file jpeghelper.h jpeghelper Header file
  */
- 
+
 #ifndef __JPEGHELPER_H___
 #define __JPEGHELPER_H___
 

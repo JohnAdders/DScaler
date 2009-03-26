@@ -37,7 +37,7 @@
 #include "PCICard.h"
 #include "AudioDecoder.h"
 
-class CBt8x8GPIOAudioDecoder : public CAudioDecoder  
+class CBt8x8GPIOAudioDecoder : public CAudioDecoder
 {
 private:
     CPCICard* m_pPCICard;
@@ -45,7 +45,7 @@ private:
     const DWORD m_GPDATA_Mono;
     const DWORD m_GPDATA_Stereo;
     const DWORD m_GPDATA_Lang1;
-    
+
 
 public:
     CBt8x8GPIOAudioDecoder(CPCICard* pPCICard, const DWORD dwGPOE, const DWORD dwStereo, const DWORD dwMono, const DWORD dwLang1);

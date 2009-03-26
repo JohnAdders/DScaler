@@ -37,46 +37,46 @@ const char* TunerNames[TUNER_LASTONE + 2] =
     "*No Tuner/Unknown*",                       //          TUNER_ABSENT = 0
 
     // Name                                         v4l2    ID
-    "Philips FI1246 [PAL I]",                    //    1     TUNER_PHILIPS_PAL_I        
-    "Philips FI1236 [NTSC]",                    //    2     TUNER_PHILIPS_NTSC        
-    "Philips [SECAM]",                            //    3     TUNER_PHILIPS_SECAM        
+    "Philips FI1246 [PAL I]",                    //    1     TUNER_PHILIPS_PAL_I
+    "Philips FI1236 [NTSC]",                    //    2     TUNER_PHILIPS_NTSC
+    "Philips [SECAM]",                            //    3     TUNER_PHILIPS_SECAM
     "Philips [PAL]",                            //    5     TUNER_PHILIPS_PAL
     "Temic 4002 FH5 [PAL B/G]",                 //    0     TUNER_TEMIC_4002FH5_PAL
     "Temic 4032 FY5 [NTSC]",                    //    6     TUNER_TEMIC_4032FY5_NTSC
     "Temic 4062 FY5 [PAL I]",                    //    7     TUNER_TEMIC_4062FY5_PAL_I
-    "Temic 4036 FY5 [NTSC]",                    //    8     TUNER_TEMIC_4036FY5_NTSC        
-    "Alps TSBH1 [NTSC]",                        //    9     TUNER_ALPS_TSBH1_NTSC                             
-    "Alps TSBE1 [PAL]",                            //   10     TUNER_ALPS_TSBE1_PAL                                    
-    "Alps TSBB5 [PAL I]",                       //   11     TUNER_ALPS_TSBB5_PAL_I                                  
-    "Alps TSBE5 [PAL]",                            //   12     TUNER_ALPS_TSBE5_PAL                                    
-    "Alps TSBC5 [PAL]",                            //   13     TUNER_ALPS_TSBC5_PAL                                    
-    "Temic 4006 FH5 [PAL B/G]",                 //   14     TUNER_TEMIC_4006FH5_PAL        
+    "Temic 4036 FY5 [NTSC]",                    //    8     TUNER_TEMIC_4036FY5_NTSC
+    "Alps TSBH1 [NTSC]",                        //    9     TUNER_ALPS_TSBH1_NTSC
+    "Alps TSBE1 [PAL]",                            //   10     TUNER_ALPS_TSBE1_PAL
+    "Alps TSBB5 [PAL I]",                       //   11     TUNER_ALPS_TSBB5_PAL_I
+    "Alps TSBE5 [PAL]",                            //   12     TUNER_ALPS_TSBE5_PAL
+    "Alps TSBC5 [PAL]",                            //   13     TUNER_ALPS_TSBC5_PAL
+    "Temic 4006 FH5 [PAL B/G]",                 //   14     TUNER_TEMIC_4006FH5_PAL
     "Philips 1236D Input 1 [ATSC/NTSC]",        //   42     TUNER_PHILIPS_1236D_NTSC_INPUT1
     "Philips 1236D Input 2 [ATSC/NTSC]",        //   42     TUNER_PHILIPS_1236D_NTSC_INPUT2
-    "Alps TSCH6 [NTSC]",                        //   15     TUNER_ALPS_TSCH6_NTSC                                       
+    "Alps TSCH6 [NTSC]",                        //   15     TUNER_ALPS_TSCH6_NTSC
     "Temic 4016 FY5 [PAL D/K/L]",                //   16     TUNER_TEMIC_4016FY5_PAL
-    "Philips MK2 [NTSC M]",                        //   17     TUNER_PHILIPS_MK2_NTSC        
+    "Philips MK2 [NTSC M]",                        //   17     TUNER_PHILIPS_MK2_NTSC
     "Temic 4066 FY5 [PAL I]",                   //   18     TUNER_TEMIC_4066FY5_PAL_I
     "Temic 4006 FN5 [PAL Auto]",                //   19     TUNER_TEMIC_4006FN5_PAL
     "Temic 4009 FR5 [PAL B/G] + FM",            //   20     TUNER_TEMIC_4009FR5_PAL
     "Temic 4039 FR5 [NTSC] + FM",               //   21     TUNER_TEMIC_4039FR5_NTSC
     "Temic 4046 FM5 [PAL/SECAM multi]",         //   22     TUNER_TEMIC_4046FM5_MULTI
     "Philips [PAL D/K]",                        //   23     TUNER_PHILIPS_PAL_DK
-    "Philips FQ1216ME [PAL/SECAM multi]",       //   24     TUNER_PHILIPS_MULTI        
+    "Philips FQ1216ME [PAL/SECAM multi]",       //   24     TUNER_PHILIPS_MULTI
     "LG TAPC-I001D [PAL I] + FM",                //   25     TUNER_LG_I001D_PAL_I
     "LG TAPC-I701D [PAL I]",                    //   26     TUNER_LG_I701D_PAL_I
     "LG TPI8NSR01F [NTSC] + FM",                //   27     TUNER_LG_R01F_NTSC
     "LG TPI8PSB01D [PAL B/G] + FM",                //   28     TUNER_LG_B01D_PAL
-    "LG TPI8PSB11D [PAL B/G]",                    //   29     TUNER_LG_B11D_PAL        
+    "LG TPI8PSB11D [PAL B/G]",                    //   29     TUNER_LG_B11D_PAL
     "Temic 4009 FN5 [PAL Auto] + FM",           //   30     TUNER_TEMIC_4009FN5_PAL
     "MT2032 universal",                         //   33     TUNER_MT2032
     "Sharp 2U5JF5540 [NTSC JP]",                //   31     TUNER_SHARP_2U5JF5540_NTSC
     "LG TAPC-H701P [NTSC]",                     //          TUNER_LG_TAPCH701P_NTSC
     "Samsung TCPM9091PD27 [PAL B/G/I/D/K]",        //   32     TUNER_SAMSUNG_PAL_TCPM9091PD27
-    "Temic 4106 FH5 [PAL B/G]",                 //   34     TUNER_TEMIC_4106FH5  
-    "Temic 4012 FY5 [PAL D/K/L]",                //   35     TUNER_TEMIC_4012FY5        
+    "Temic 4106 FH5 [PAL B/G]",                 //   34     TUNER_TEMIC_4106FH5
+    "Temic 4012 FY5 [PAL D/K/L]",                //   35     TUNER_TEMIC_4012FY5
     "Temic 4136 FY5 [NTSC]",                    //   36     TUNER_TEMIC_4136FY5
-    "LG TAPC-new [PAL]",                           //   37     TUNER_LG_TAPCNEW_PAL        
+    "LG TAPC-new [PAL]",                           //   37     TUNER_LG_TAPCNEW_PAL
     "Philips FQ1216ME MK3 [PAL/SECAM multi]",   //   38     TUNER_PHILIPS_FM1216ME_MK3
     "LG TAPC-new [NTSC]",                       //   39     TUNER_LG_TAPCNEW_NTSC
     "MT2032 universal [PAL default]",           //   33     TUNER_MT2032_PAL

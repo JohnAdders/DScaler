@@ -20,7 +20,7 @@
 
 // The following 2 values may be defined before using this include.
 // FUNC_NAME must be defined.
-// #define USE_SHARPNESS        
+// #define USE_SHARPNESS
 // #define USE_MEDIAN_FILTER
 // #define FUNC_NAME DI_GrUpdtFS_NM_NE_P
 BOOL FUNC_NAME()
@@ -39,24 +39,24 @@ BOOL FUNC_NAME()
     int FsPrev;                    // FieldStore elem holding pixels from prev field line
     int FsPrev2;                // Offset to prev pixel (this line) to be median filtered
     int FsNewOld;                // FieldStore elem holding oldest then newest
-    int Motion = 0;                // our scaled motion total    
+    int Motion = 0;                // our scaled motion total
     int CombSum = 0;            // our scaled comb total
     int ContrSum = 0;            // our scaled contrast total
-    int CombScale;                // multiplier to keep comb as 100 * avg/pixel    
+    int CombScale;                // multiplier to keep comb as 100 * avg/pixel
 
 #ifdef USE_SHARPNESS
 // For the math, see the comments on the PullDown_VSharp() function in the Pulldown code
     int w = (GreedyHSharpnessAmt > 0)                 // note-adj down for overflow
-            ? 1000 - (GreedyHSharpnessAmt * 38 / 10)  // overflow, use 38%, 0<w<1000                                             
-            : 1000 - (GreedyHSharpnessAmt * 150 / 10); // bias towards workable range 
-    int Q = 500 * (1000 - w) / w;                      // Q as 0 - 1K, max 16k        
+            ? 1000 - (GreedyHSharpnessAmt * 38 / 10)  // overflow, use 38%, 0<w<1000
+            : 1000 - (GreedyHSharpnessAmt * 150 / 10); // bias towards workable range
+    int Q = 500 * (1000 - w) / w;                      // Q as 0 - 1K, max 16k
     int Q2 = (Q*Q) / 1000;                             // Q^2 as 0 - 1k
-    int denom = (w * (1000 - 2 * Q2)) / 1000;          // [w (1-2q^2)] as 0 - 1k    
+    int denom = (w * (1000 - 2 * Q2)) / 1000;          // [w (1-2q^2)] as 0 - 1k
     int A = 64000 / denom;                             // A as 0 - 64
     int B = 128 * Q / denom;                           // B as 0 - 64
     int C = 64 - A + B;                                // so A-B+C=64, unbiased weight
     __int64 i;
-    i = A;                          
+    i = A;
     QHA = i << 48 | i << 32 | i << 16 | i;
 
 #ifdef REALLY_USE_SOFTNESS
@@ -75,7 +75,7 @@ BOOL FUNC_NAME()
         return FALSE;
 
 // perc and adjust our global FieldStore subscripts
-    FsPtrP3 = FsPtrP2;            // now is subscript of oldest field 
+    FsPtrP3 = FsPtrP2;            // now is subscript of oldest field
     FsPtrP2 = FsPtrP;            // now is subscript of prev field same parity
     FsPtrP = FsPtr;                // now is subscript of prev field
     FsPtr = (++FsPtr) % 4;      // bump to nex
@@ -88,10 +88,10 @@ BOOL FUNC_NAME()
 
     CombScale = (FieldHeight - 2 * SkipCt) * LineLength / 100;  // Divide totals by this later
     pFieldStore = & FieldStore[0];        // starting ptr into FieldStore
-    
+
     LoopCtr = LineLength / 8 - 1;        // do 8 bytes at a time, adjusted
     LoopCtrW = LoopCtr;
-    
+
     _asm
     {
         mov        esi, pLinesW                // get ptr to line ptrs
@@ -103,7 +103,7 @@ BOOL FUNC_NAME()
 
         align 8
 LineLoop:
-        mov        eax, dword ptr [FsPrev]        // offset to pixels from prev line     
+        mov        eax, dword ptr [FsPrev]        // offset to pixels from prev line
 
 #ifdef USE_SHARPNESS
 // If we are using edge enhancement then the asm loop will expect to be entered
@@ -117,12 +117,12 @@ QwordLoop:
         movq    mm2, qword ptr[esi+8]    // pixels to the right, for edge enh.
 QwordLoop2:
 // get avg of -2 & +2 pixels
-        movq    mm5, mm0                // save copy before trashing 
+        movq    mm5, mm0                // save copy before trashing
         movq    mm7, mm1                // work copy of curr pixel val
         psrlq   mm0, 48                    // right justify 1 pixel from qword to left
         psllq   mm7, 16                 // left justify 3 pixels
         por     mm0, mm7                // and combine
-        
+
         movq    mm6, mm2                // copy of right qword pixel val
         psllq    mm6, 48                    // left just 1 pixel from qword to right
         movq    mm7, mm1                // another copy of L2N current
@@ -131,13 +131,13 @@ QwordLoop2:
         pavgb    mm0, mm6                // avg of forward and prev by 1 pixel
         pand    mm0, YMask
         pmullw  mm0, QHB                // proper ratio to use
-                    
+
 // get avg of -2 & +2 pixels and subtract
         movq    mm7, mm1                // work copy of curr pixel val
         psrlq   mm5, 32                    // right justify 2 pixels from qword to left
         psllq   mm7, 32                 // left justify 2 pixels
         por     mm5, mm7                // and combine
-        
+
         movq    mm6, mm2                // copy of right qword pixel val
         psllq    mm6, 32                    // left just 2 pixels from qword to right
         movq    mm7, mm1                // another copy of L2N current
@@ -152,12 +152,12 @@ QwordLoop2:
         pand    mm7, YMask              // only luma
         pmullw  mm7, QHA                // weight it
 #ifdef REALLY_USE_SOFTNESS
-        paddusw mm7, mm5                // add in weighted average of Zj,Zl               
+        paddusw mm7, mm5                // add in weighted average of Zj,Zl
         paddusw mm7, mm0                // adjust
 #else
-        psubusw mm0, mm5                // add in weighted average of Zj,Zl               
+        psubusw mm0, mm5                // add in weighted average of Zj,Zl
         psubusw mm7, mm0                // adjust
-#endif                               
+#endif
         psrlw   mm7, 6                    // should be our luma answers
         pminsw  mm7, YMask              // avoid overflow
         movq    mm0, mm1                // migrate for next pass through loop
@@ -166,14 +166,14 @@ QwordLoop2:
 
         movq    mm4, qword ptr[edi+eax]    // prefetch FsPrev, need later
         movq    mm1, mm2                // migrate for next pass through loop
-                    
+
 /* >>> save old way
-// do edge enhancement. 
+// do edge enhancement.
         movq    mm7, mm1                // work copy of curr pixel val
         psrlq   mm0, 48                    // right justify 1 pixel from qword to left
         psllq   mm7, 16                 // left justify 3 pixels
         por     mm0, mm7                // and combine
-        
+
         movq    mm6, mm2                // copy of right qword pixel val
         psllq    mm6, 48                    // left just 1 pixel from qword to right
         movq    mm7, mm1                // another copy of L2N current
@@ -186,19 +186,19 @@ QwordLoop2:
         psubusb mm7, mm0                // curr - surround
         pand    mm7, YMask
         pmullw  mm7, HSharpnessAmt          // mult by sharpness factor
-        psrlw   mm7, 8                    // now have diff*HSharpnessAmt/256 ratio            
+        psrlw   mm7, 8                    // now have diff*HSharpnessAmt/256 ratio
 
         psubusb mm0, mm1                // surround - curr
         pand    mm0, YMask
         pmullw  mm0, HSharpnessAmt          // mult by sharpness factor
-        psrlw   mm0, 8                    // now have diff*HSharpnessAmt/256 ratio            
+        psrlw   mm0, 8                    // now have diff*HSharpnessAmt/256 ratio
 
         paddusb mm7, mm1                // edge enhancement up
         psubusb mm7, mm0                // edge enhancement down, mm7 now our sharpened value
         movq    mm4, qword ptr[edi+eax]    // prefetch FsPrev, need later
         movq    mm0, mm1                // migrate for next pass through loop
         movq    mm1, mm2                // migrate for next pass through loop
->>>> old way */  
+>>>> old way */
 #else
 
 // If we are not using edge enhancement we just need the current value in mm1
@@ -210,8 +210,8 @@ QwordLoop:
 
         movq    mm2, qword ptr[edi+ecx]  // FsNewOld, fetch before store new pixel
         movq    qword ptr[edi+ecx], mm7 // save our sharp new value for next time
-    
-#ifdef USE_PULLDOWN    
+
+#ifdef USE_PULLDOWN
 // Now is a good time to calc comb, contrast, and motion
 //>>> need to optimize this again >>>
         pand    mm4, YMask
@@ -219,7 +219,7 @@ QwordLoop:
         movq    mm6, mm7
         pand    mm6, YMask
         psadbw  mm4, mm6                // sum of abs differences is comb
-        
+
         movq    mm6, YMask
         pand    mm6, qword ptr[edi+eax+FSROWSIZE]
         psadbw  mm5, mm6                   // sum of abs differences is contrast
@@ -232,14 +232,14 @@ QwordLoop:
         pand    mm6, YMask
         psadbw  mm6, mm5                // sum of abs differences is motion
         movd    mm4, ebx                // our motion total
-        paddd   mm4, mm6                // accum 
+        paddd   mm4, mm6                // accum
         movd    ebx, mm4                // update our motion total
 #endif
 
 #ifdef USE_MEDIAN_FILTER
 
 // apply median filter to prev pixels to (from FsPrev2) qword and save
-// in:    mm7 = new pixels        
+// in:    mm7 = new pixels
 //        mm5 = prev pixels
 //        mm2 = old pixels
 
@@ -270,7 +270,7 @@ QwordLoop:
 
 // bump ptrs and loop for next qword in row
         lea        edi,[edi+FSCOLSIZE]
-        lea        esi,[esi+8]            
+        lea        esi,[esi+8]
         dec        LoopCtr
 
 #ifdef USE_SHARPNESS
@@ -278,7 +278,7 @@ QwordLoop:
         movq    mm2, mm1                // if on last qword use same qword again
         jz        QwordLoop2                // fall thru only if neg
 #else
-        jnl        QwordLoop            
+        jnl        QwordLoop
 #endif
 
 // Ok, done with one line
@@ -293,7 +293,7 @@ QwordLoop:
 NotFirst:
         cmp     eax, LastLine           // ignore some lines, save totals early?
         jnz     NotLast                 // no
-        mov        Motion, ebx                // Save our Motion total now 
+        mov        Motion, ebx                // Save our Motion total now
         movd    CombSum, mm3            // Save our comb total
         psrlq    mm3, 32                    // shift our Kontrast total
         movd    ContrSum, mm3            // save that too
@@ -327,4 +327,4 @@ NotLast:
 #endif
 
     return TRUE;
-}    
+}

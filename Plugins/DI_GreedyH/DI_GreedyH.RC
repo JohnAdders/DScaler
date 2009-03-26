@@ -29,7 +29,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 GREEDYH DIALOGEX 0, 0, 432, 246
-STYLE DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+STYLE DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | WS_CAPTION |
     WS_SYSMENU
 CAPTION "Greedy High Motion Controls"
 FONT 8, "MS Sans Serif"
@@ -40,15 +40,15 @@ BEGIN
     CONTROL         "Median Filter",IDC_USE_MEDIAN_FILTER,"Button",
                     BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_TOP | WS_TABSTOP,4,17,
                     74,11
-    CONTROL         "Slider1",IDC_MAX_COMB,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_MAX_COMB,"msctls_trackbar32",TBS_TOP |
                     TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | WS_TABSTOP,
                     4,143,83,10,WS_EX_TRANSPARENT
-    RTEXT           "0",IDC_MAX_COMB_V,65,134,19,9,SS_NOPREFIX | NOT 
+    RTEXT           "0",IDC_MAX_COMB_V,65,134,19,9,SS_NOPREFIX | NOT
                     WS_GROUP
     LTEXT           "Max Comb",IDC_STATIC,4,133,62,8
     PUSHBUTTON      "Advanced",IDC_ADVANCED,5,65,38,14
     CONTROL         "Auto Pull-Down",IDC_USE_PULLDOWN,"Button",
-                    BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_LEFT | BS_TOP | 
+                    BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_LEFT | BS_TOP |
                     WS_TABSTOP,4,4,74,11
     CONTROL         "V. Sharpness",IDC_USE_V_SHARPNESS,"Button",
                     BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_TOP | WS_TABSTOP,94,
@@ -60,44 +60,44 @@ BEGIN
                     BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_TOP | WS_TABSTOP,94,
                     18,75,11
     CONTROL         "Slider1",IDC_MOTION_THRESHOLD,"msctls_trackbar32",
-                    TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | 
+                    TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP |
                     WS_TABSTOP,4,123,83,10,WS_EX_TRANSPARENT
     LTEXT           "Motion Threshold",IDC_STATIC,4,112,64,9
-    RTEXT           "0",IDC_MOTION_THRESHOLD_V,65,113,19,9,SS_NOPREFIX | NOT 
+    RTEXT           "0",IDC_MOTION_THRESHOLD_V,65,113,19,9,SS_NOPREFIX | NOT
                     WS_GROUP
     LTEXT           "Motion Sensitivity",IDC_STATIC,89,112,60,8
-    CONTROL         "Slider1",IDC_MOTION_SENSE,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_MOTION_SENSE,"msctls_trackbar32",TBS_TOP |
                     TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | WS_TABSTOP,
                     89,123,83,10,WS_EX_TRANSPARENT
     LTEXT           "Good PullDown Lvl",IDC_STATIC,4,154,69,8
     LTEXT           "Bad PullDown Lvl",IDC_STATIC,89,154,60,8
     LTEXT           "Low Motion PD Lvl",IDC_STATIC,89,133,60,8
-    CONTROL         "Slider1",IDC_H_SHARPNESS,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_H_SHARPNESS,"msctls_trackbar32",TBS_TOP |
                     TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | WS_TABSTOP,
                     4,184,83,10,WS_EX_TRANSPARENT
     CONTROL         "Slider1",IDC_LOW_MOTION_PD_LVL,"msctls_trackbar32",
-                    TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | 
+                    TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP |
                     WS_TABSTOP,89,143,83,10,WS_EX_TRANSPARENT
     CONTROL         "Slider1",IDC_GOOD_PULLDOWN_LVL,"msctls_trackbar32",
-                    TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | 
+                    TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP |
                     WS_TABSTOP,4,163,83,10,WS_EX_TRANSPARENT
     CONTROL         "Slider1",IDC_BAD_PULLDOWN_LVL,"msctls_trackbar32",
-                    TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | 
+                    TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP |
                     WS_TABSTOP,89,163,83,10,WS_EX_TRANSPARENT
-    CONTROL         "Slider1",IDC_MEDIAN_FILTER,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_MEDIAN_FILTER,"msctls_trackbar32",TBS_TOP |
                     TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | WS_TABSTOP,
                     89,184,83,10,WS_EX_TRANSPARENT
-    RTEXT           "0",IDC_H_SHARPNESS_V,65,174,19,9,SS_NOPREFIX | NOT 
+    RTEXT           "0",IDC_H_SHARPNESS_V,65,174,19,9,SS_NOPREFIX | NOT
                     WS_GROUP
-    RTEXT           "0",IDC_MOTION_SENSE_V,149,112,19,9,SS_NOPREFIX | NOT 
+    RTEXT           "0",IDC_MOTION_SENSE_V,149,112,19,9,SS_NOPREFIX | NOT
                     WS_GROUP
-    RTEXT           "0",IDC_LOW_MOTION_PD_LVL_V,149,134,19,9,SS_NOPREFIX | 
+    RTEXT           "0",IDC_LOW_MOTION_PD_LVL_V,149,134,19,9,SS_NOPREFIX |
                     NOT WS_GROUP
-    RTEXT           "0",IDC_GOOD_PULLDOWN_LVL_V,65,155,19,9,SS_NOPREFIX | 
+    RTEXT           "0",IDC_GOOD_PULLDOWN_LVL_V,65,155,19,9,SS_NOPREFIX |
                     NOT WS_GROUP
-    RTEXT           "0",IDC_BAD_PULLDOWN_LVL_V,149,155,19,9,SS_NOPREFIX | 
+    RTEXT           "0",IDC_BAD_PULLDOWN_LVL_V,149,155,19,9,SS_NOPREFIX |
                     NOT WS_GROUP
-    RTEXT           "0",IDC_MEDIAN_FILTER_V,149,174,19,9,SS_NOPREFIX | NOT 
+    RTEXT           "0",IDC_MEDIAN_FILTER_V,149,174,19,9,SS_NOPREFIX | NOT
                     WS_GROUP
     LTEXT           "H. Sharpness",IDC_STATIC,4,174,62,8
     LTEXT           "Median Filter",IDC_STATIC,89,174,60,8
@@ -199,10 +199,10 @@ BEGIN
     RTEXT           "0",IDC_COMBK12,352,121,22,8
     RTEXT           "0",IDC_COMBK13,352,130,22,8
     RTEXT           "0",IDC_COMBK14,352,139,22,8
-    CONTROL         "Slider1",IDC_V_SHARPNESS,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_V_SHARPNESS,"msctls_trackbar32",TBS_TOP |
                     TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | WS_TABSTOP,
                     4,206,83,10,WS_EX_TRANSPARENT
-    RTEXT           "0",IDC_V_SHARPNESS_V,66,196,19,9,SS_NOPREFIX | NOT 
+    RTEXT           "0",IDC_V_SHARPNESS_V,66,196,19,9,SS_NOPREFIX | NOT
                     WS_GROUP
     LTEXT           "V. Sharpness",IDC_STATIC,4,196,62,8
 END
@@ -214,12 +214,12 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE DISCARDABLE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
     "#include ""windows.h""\r\n"
@@ -227,7 +227,7 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE DISCARDABLE
 BEGIN
     "\r\n"
     "\0"
@@ -242,7 +242,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO DISCARDABLE
 BEGIN
     "GREEDYH", DIALOG
     BEGIN

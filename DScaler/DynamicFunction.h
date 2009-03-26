@@ -52,7 +52,7 @@ public:
         DynamicFunctionParent(LibraryName, FunctionName)
     {
     }
-    
+
     RETVAL operator()(PARAM1 Param1) const
     {
         return m_pFunc(Param1);
@@ -69,7 +69,7 @@ public:
         DynamicFunctionParent(LibraryName, FunctionName)
     {
     }
-    
+
     RETVAL operator()() const
     {
         return m_pFunc();
@@ -85,7 +85,7 @@ public:
         DynamicFunctionParent(LibraryName, FunctionName)
     {
     }
-    
+
     RETVAL operator()(PARAM1 Param1) const
     {
         return m_pFunc(Param1);
@@ -101,7 +101,7 @@ public:
         DynamicFunctionParent(LibraryName, FunctionName)
     {
     }
-    
+
     RETVAL operator()(PARAM1 Param1, PARAM2 Param2) const
     {
         return m_pFunc(Param1, Param2);
@@ -117,7 +117,7 @@ public:
         DynamicFunctionParent(LibraryName, FunctionName)
     {
     }
-    
+
     RETVAL operator()(PARAM1 Param1, PARAM2 Param2, PARAM3 Param3) const
     {
         return m_pFunc(Param1, Param2, Param3);
@@ -133,7 +133,7 @@ public:
         DynamicFunctionParent(LibraryName, FunctionName)
     {
     }
-    
+
     RETVAL operator()(PARAM1 Param1, PARAM2 Param2, PARAM3 Param3, PARAM4 Param4) const
     {
         return m_pFunc(Param1, Param2, Param3, Param4);
@@ -149,7 +149,7 @@ public:
         DynamicFunctionParent(LibraryName, FunctionName)
     {
     }
-    
+
     RETVAL operator()(PARAM1 Param1, PARAM2 Param2, PARAM3 Param3, PARAM4 Param4, PARAM5 Param5) const
     {
         return m_pFunc?m_pFunc(Param1, Param2, Param3, Param4, Param5):0;
@@ -165,7 +165,7 @@ public:
         DynamicFunctionParent(LibraryName, FunctionName)
     {
     }
-    
+
     RETVAL operator()(PARAM1 Param1, PARAM2 Param2, PARAM3 Param3, PARAM4 Param4, PARAM5 Param5, PARAM6 Param6) const
     {
         return m_pFunc?m_pFunc(Param1, Param2, Param3, Param4, Param5, Param6):0;

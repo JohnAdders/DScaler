@@ -474,38 +474,38 @@ static const unsigned char yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals. */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "XMLTOK_NAME", "XMLTOK_ENCNAME", 
-  "XMLTOK_ENCVERS", "XMLTOK_ATTVAL", "XMLTOK_NMTOKEN", "XMLTOK_TAGDOC", 
-  "XMLTOK_TAGENC", "XMLTOK_TAGENT", "XMLTOK_TAGPI", "XMLTOK_TAGELEM", 
-  "XMLTOK_TAGATT", "XMLTOK_TAGNOT", "XMLTOK_SYSLIT", "XMLTOK_PUBLIT", 
-  "XMLTOK_ENTVAL", "XMLTOK_PICONTENT", "XMLTOK_CLOSE", "XMLTOK_SPACE", 
-  "XMLTOK_CONTENT", "XMLTOK_CONTENT_END", "XMLTOK_ENCODING", 
-  "XMLTOK_STANDALONE", "XMLTOK_YES", "XMLTOK_NO", "XMLTOK_CHR_PERCENT", 
-  "XMLTOK_VERSION", "XMLTOK_NDATA", "XMLTOK_EQ", "XMLTOK_STR_PUBLIC", 
-  "XMLTOK_STR_SYSTEM", "XMLTOK_DTD_OPEN", "XMLTOK_DTD_CLOSE", 
-  "XMLTOK_STR_EMPTY", "XMLTOK_STR_ANY", "XMLTOK_STR_PCDATA", 
-  "XMLTOK_CHR_OPBR", "XMLTOK_CHR_CLBR", "XMLTOK_CHR_ASTX", 
-  "XMLTOK_CHR_PLUS", "XMLTOK_CHR_QUMK", "XMLTOK_CHR_PIPE", 
-  "XMLTOK_CHR_COMA", "XMLTOK_STR_FIXED", "XMLTOK_STR_NOTATION", 
-  "XMLTOK_STR_ENTITY", "XMLTOK_STR_ENTITIES", "XMLTOK_STR_REQUIRED", 
-  "XMLTOK_STR_NMTOKEN", "XMLTOK_STR_CDATA", "XMLTOK_STR_IMPLIED", 
-  "XMLTOK_STR_NMTOKENS", "XMLTOK_STR_ID", "XMLTOK_STR_IDREF", 
-  "XMLTOK_STR_IDREFS", "XMLTOK_ERR_CLOSE", "$accept", "xml", "prolog", 
-  "XMLDeclO", "XMLDecl", "XMLDecl2", "EncodingDecl", "SDDecl", "YesOrNo", 
-  "VersionInfo", "Eq", "MiscL", "Misc", "PI", "PITarget", "doctypeMiscO", 
-  "doctypedecl", "docExtIDIntO", "intSubsetDecl", "intSubsetL", 
-  "intSubset", "markupdecl", "DeclSep", "markupdeclErr", "markupdeclErrE", 
-  "errorL", "EntityDecl", "GEDecl", "PEDecl", "EntityDef", "PEDef", 
-  "ExternalID", "NDataDeclO", "NDataDecl", "elementdecl", "contentspec", 
-  "children", "cp", "choice", "choiceNextL1", "choiceNext", "seq", 
-  "seqNextL", "seqNext", "Mixed", "MixedPipeL1", "MixedPipe", 
-  "childReCharO", "childReChar", "AttlistDecl", "AttDefL", "AttDef", 
-  "AttType", "StringType", "TokenizedType", "EnumeratedType", 
-  "NotationType", "NotationNameL", "Enumeration", "EnumNmtokenL", 
-  "DefaultDecl", "DefaultFixedO", "NotationDecl", "ExtOrPubID", "@1", 
-  "@2", "content", "contentL", "contents", "SS", "SO", "EncName", 
-  "VersionStr", "DocName", "GEName", "PEName", "EntityValue", 
-  "NotationName", "PubidLiteral", "PIName", "PIContent", "Name", 
+  "$end", "error", "$undefined", "XMLTOK_NAME", "XMLTOK_ENCNAME",
+  "XMLTOK_ENCVERS", "XMLTOK_ATTVAL", "XMLTOK_NMTOKEN", "XMLTOK_TAGDOC",
+  "XMLTOK_TAGENC", "XMLTOK_TAGENT", "XMLTOK_TAGPI", "XMLTOK_TAGELEM",
+  "XMLTOK_TAGATT", "XMLTOK_TAGNOT", "XMLTOK_SYSLIT", "XMLTOK_PUBLIT",
+  "XMLTOK_ENTVAL", "XMLTOK_PICONTENT", "XMLTOK_CLOSE", "XMLTOK_SPACE",
+  "XMLTOK_CONTENT", "XMLTOK_CONTENT_END", "XMLTOK_ENCODING",
+  "XMLTOK_STANDALONE", "XMLTOK_YES", "XMLTOK_NO", "XMLTOK_CHR_PERCENT",
+  "XMLTOK_VERSION", "XMLTOK_NDATA", "XMLTOK_EQ", "XMLTOK_STR_PUBLIC",
+  "XMLTOK_STR_SYSTEM", "XMLTOK_DTD_OPEN", "XMLTOK_DTD_CLOSE",
+  "XMLTOK_STR_EMPTY", "XMLTOK_STR_ANY", "XMLTOK_STR_PCDATA",
+  "XMLTOK_CHR_OPBR", "XMLTOK_CHR_CLBR", "XMLTOK_CHR_ASTX",
+  "XMLTOK_CHR_PLUS", "XMLTOK_CHR_QUMK", "XMLTOK_CHR_PIPE",
+  "XMLTOK_CHR_COMA", "XMLTOK_STR_FIXED", "XMLTOK_STR_NOTATION",
+  "XMLTOK_STR_ENTITY", "XMLTOK_STR_ENTITIES", "XMLTOK_STR_REQUIRED",
+  "XMLTOK_STR_NMTOKEN", "XMLTOK_STR_CDATA", "XMLTOK_STR_IMPLIED",
+  "XMLTOK_STR_NMTOKENS", "XMLTOK_STR_ID", "XMLTOK_STR_IDREF",
+  "XMLTOK_STR_IDREFS", "XMLTOK_ERR_CLOSE", "$accept", "xml", "prolog",
+  "XMLDeclO", "XMLDecl", "XMLDecl2", "EncodingDecl", "SDDecl", "YesOrNo",
+  "VersionInfo", "Eq", "MiscL", "Misc", "PI", "PITarget", "doctypeMiscO",
+  "doctypedecl", "docExtIDIntO", "intSubsetDecl", "intSubsetL",
+  "intSubset", "markupdecl", "DeclSep", "markupdeclErr", "markupdeclErrE",
+  "errorL", "EntityDecl", "GEDecl", "PEDecl", "EntityDef", "PEDef",
+  "ExternalID", "NDataDeclO", "NDataDecl", "elementdecl", "contentspec",
+  "children", "cp", "choice", "choiceNextL1", "choiceNext", "seq",
+  "seqNextL", "seqNext", "Mixed", "MixedPipeL1", "MixedPipe",
+  "childReCharO", "childReChar", "AttlistDecl", "AttDefL", "AttDef",
+  "AttType", "StringType", "TokenizedType", "EnumeratedType",
+  "NotationType", "NotationNameL", "Enumeration", "EnumNmtokenL",
+  "DefaultDecl", "DefaultFixedO", "NotationDecl", "ExtOrPubID", "@1",
+  "@2", "content", "contentL", "contents", "SS", "SO", "EncName",
+  "VersionStr", "DocName", "GEName", "PEName", "EntityValue",
+  "NotationName", "PubidLiteral", "PIName", "PIContent", "Name",
   "Nmtoken", "SystemLiteral", "AttValue", 0
 };
 #endif
@@ -1129,7 +1129,7 @@ yyparse ()
 #endif
 #endif
 {
-  
+
   register int yystate;
   register int yyn;
   int yyresult;

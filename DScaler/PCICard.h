@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file pcicard.h pcicard Header file
  */
- 
+
 #ifndef __PCICARD_H___
 #define __PCICARD_H___
 
@@ -27,7 +27,7 @@
 #include "BitVector.h"
 
 /** This class is used to provide access to the low level function provided
-    by the drivers.  To use these function derive your card specific class 
+    by the drivers.  To use these function derive your card specific class
     from this one.
 */
 class CPCICard
@@ -54,7 +54,7 @@ protected:
          ManageXXXX functions.
     */
     virtual void ManageMyState() = 0;
-    /** Tells the state management code to save and restore 
+    /** Tells the state management code to save and restore
         the DWORD at Offset.
         This function must only be called from ManageMyState
     */
@@ -63,12 +63,12 @@ protected:
     virtual void ResetChip() = 0;
 
     void ManageDword(DWORD Offset);
-    /** Tells the state management code to save and restore 
+    /** Tells the state management code to save and restore
         the WORD at Offset
         This function must only be called from ManageMyState
     */
     void ManageWord(DWORD Offset);
-    /** Tells the state management code to save and restore 
+    /** Tells the state management code to save and restore
         the BYTE at Offset
         This function must only be called from ManageMyState
     */

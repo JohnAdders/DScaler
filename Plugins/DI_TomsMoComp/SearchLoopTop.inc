@@ -24,10 +24,10 @@ int     Last8 = (rowsize-8);            // ofs to last 8 bytes in row
 int        SaveMotion = 0;
 int        dst_pitchw = dst_pitch; // local stor so asm can ref
     pSrc  = pWeaveSrc;            // points 1 weave line above
-    pSrcP = pWeaveSrcP;            // " 
+    pSrcP = pWeaveSrcP;            // "
 
 #ifdef DBL_RESIZE
-            
+
 #ifdef USE_VERTICAL_FILTER
     pDest = pWeaveDest + dst_pitch2;
 #else
@@ -55,7 +55,7 @@ int        dst_pitchw = dst_pitch; // local stor so asm can ref
         pBobP =  pCopySrcP;
     }
 
-    for (y=1; y < FldHeight-1; y++)    
+    for (y=1; y < FldHeight-1; y++)
     {
 
         // pretend it's indented -->>
@@ -63,7 +63,7 @@ int        dst_pitchw = dst_pitch; // local stor so asm can ref
         {
         // Loop general reg usage
         //
-        // eax - pBobP, then pDest 
+        // eax - pBobP, then pDest
         // ebx - pBob
         // ecx - src_pitch2
         // edx - current offset
@@ -127,10 +127,10 @@ int        dst_pitchw = dst_pitch; // local stor so asm can ref
         mov        edi, pSrcP
         mov        edx, 8                // curr offset into all lines
 
-LoopQ:    
+LoopQ:
         mov        eax, pBobP
-        add        edi, 8        
-        add        esi, 8        
+        add        edi, 8
+        add        esi, 8
         add        ebx, 8
         add        eax, edx
         }
@@ -145,14 +145,14 @@ LoopQ:
         // through out most of the rest of this loop we will maintain
         //    mm4        our min bob value
         //    mm5        best weave pixels so far
-        //  mm6        our max Bob value 
+        //  mm6        our max Bob value
         //    mm7        best weighted pixel ratings so far
 
         // We will keep a slight bias to using the weave pixels
         // from the current location, by rating them by the min distance
         // from the Bob value instead of the avg distance from that value.
         // our best and only rating so far
-        
+
         __asm
         {
         pcmpeqb    mm7, mm7            // ffff, say we didn't find anything good yet

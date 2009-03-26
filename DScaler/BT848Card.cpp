@@ -51,27 +51,27 @@ using namespace std;
 // Timing generator SRAM table values for CCIR601 720x480 NTSC
 //===========================================================================
 
-// For NTSC CCIR656 
+// For NTSC CCIR656
 static BYTE SRAMTable_NTSC[ 60 ] =
 {
     // SRAM Timing Table for NTSC
-    0x33, 
-    0x0c, 0xc0, 0x00, 
-    0x00, 0x90, 0xc2, 
-    0x03, 0x10, 0x03, 
-    0x06, 0x10, 0x34, 
-    0x12, 0x12, 0x65, 
-    0x02, 0x13, 0x24, 
-    0x19, 0x00, 0x24, 
-    0x39, 0x00, 0x96, 
-    0x59, 0x08, 0x93, 
+    0x33,
+    0x0c, 0xc0, 0x00,
+    0x00, 0x90, 0xc2,
+    0x03, 0x10, 0x03,
+    0x06, 0x10, 0x34,
+    0x12, 0x12, 0x65,
+    0x02, 0x13, 0x24,
+    0x19, 0x00, 0x24,
+    0x39, 0x00, 0x96,
+    0x59, 0x08, 0x93,
     0x83, 0x08, 0x97,
-    0x03, 0x50, 0x30, 
-    0xc0, 0x40, 0x30, 
-    0x86, 0x01, 0x01, 
-    0xa6, 0x0d, 0x62, 
-    0x03, 0x11, 0x61, 
-    0x05, 0x37, 0x30, 
+    0x03, 0x50, 0x30,
+    0xc0, 0x40, 0x30,
+    0x86, 0x01, 0x01,
+    0xa6, 0x0d, 0x62,
+    0x03, 0x11, 0x61,
+    0x05, 0x37, 0x30,
     0xac, 0x21, 0x50
 };
 
@@ -216,7 +216,7 @@ void CBT848Card::ResetHardware(DWORD RiscBasePhysical)
 
     WriteDword(BT848_INT_STAT, (DWORD) 0x0fffffff);
     WriteDword(BT848_INT_MASK, 0);
-    
+
     WriteByte(BT848_ADC, BT848_ADC_RESERVED);
 
     SetPLL(PLL_NONE);
@@ -489,7 +489,7 @@ void CBT848Card::SetCoring(BOOL Coring)
     }
 }
 
-   
+
 void CBT848Card::SetEvenComb(BOOL EvenComb)
 {
     if(EvenComb)
@@ -812,7 +812,7 @@ BOOL CBT848Card::IsVideoPresent()
     {
         DWORD stat = ReadDword(BT848_INT_STAT);
         WriteDword(BT848_INT_STAT, BT848_INT_HSYNC);
-        return (stat & BT848_INT_HSYNC); 
+        return (stat & BT848_INT_HSYNC);
     }
     else
     {
@@ -881,7 +881,7 @@ BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, 
     switch (message)
     {
     case WM_INITDIALOG:
-        pThis = (CBT848Card*)lParam; 
+        pThis = (CBT848Card*)lParam;
         SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType().c_str());
         sprintf_s(szVendorId, 9, "%04X", pThis->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
@@ -931,9 +931,9 @@ void CBT848Card::InitializeI2C()
 
     ULONGLONG frequency;
     QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
-    
+
     m_I2CSleepCycle = (unsigned long)(frequency / 50000);
-    
+
     m_I2CInitialized = TRUE;
 }
 
@@ -1029,23 +1029,23 @@ BOOL CBT848Card::Is878Family()
 
 void CBT848Card::SetGPOE(ULONG val)
 {
-    WriteDword(BT848_GPIO_OUT_EN, val);    
+    WriteDword(BT848_GPIO_OUT_EN, val);
 }
 
 ULONG CBT848Card::GetGPOE()
 {
-    return ReadDword(BT848_GPIO_OUT_EN);    
+    return ReadDword(BT848_GPIO_OUT_EN);
 }
 
 void CBT848Card::SetGPDATA(ULONG val)
 {
-    WriteDword(BT848_GPIO_DATA, val);  
+    WriteDword(BT848_GPIO_DATA, val);
 }
 
 ULONG CBT848Card::GetGPDATA()
 {
     return ReadDword(BT848_GPIO_DATA);
-    
+
 }
 
 void CBT848Card::ResetChip()
@@ -1054,7 +1054,7 @@ void CBT848Card::ResetChip()
 
     // try and switch on the card using the PCI Command value
     // this is to try and solve problems when a driver hasn't been
-    // loaded for the card, which may be necessary when you have 
+    // loaded for the card, which may be necessary when you have
     // multiple cards
     if(GetPCIConfigOffset(&Command, 0x04, m_BusNumber, m_SlotNumber))
     {
@@ -1160,7 +1160,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
             {
                 char RegName[20];
                 sprintf(RegName, "SAA7118_%02x",i);
-                long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), RegName); 
+                long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), RegName);
                 ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, i + 0x1000);
             }
         }
@@ -1241,7 +1241,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
             break;
         }
         break;
-    
+
     default:
         break;
     }

@@ -133,7 +133,7 @@ HWND                VTGotoProcDlg = NULL;
 CRITICAL_SECTION    VTPageChangeMutex;
 
 
-// 
+//
 // ETSI TR 101 203
 //
 // The following table contains the registered values of the Network Identification (NI) field of the Teletext
@@ -143,7 +143,7 @@ CRITICAL_SECTION    VTPageChangeMutex;
 //
 // Source: http://www.ebu.ch/CMSimages/en/tec_info_tr231-2005_tcm6-18471.pdf
 //
-TChannelIdentif RegisteredCNICodes[] = 
+TChannelIdentif RegisteredCNICodes[] =
 {
 { "Austria",        "ORF-1",                                            0x4301, 0,    0,    0,    0,    0x0AC1 },
 { "Austria",        "ORF-2",                                            0x4302, 0,    0,    0,    0,    0x0AC2 },
@@ -1385,7 +1385,7 @@ BOOL VT_SetPage(HDC hDC, LPRECT lpRect, WORD wPageHex, WORD wPageSubCode)
 
         // Get the loading status message
         VTDecoder.GetDisplayComment(dwPageCode, &VTVisiblePage);
-        
+
         VT_SetPageOSD(NULL, FALSE);
         VT_Redraw(hDC, lpRect);
     }
@@ -2024,7 +2024,7 @@ BOOL VT_ProcessCommentUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode)
     }
 
     if (LOWORD(VTLoadedPageCode) != VTPageHex)
-    {    
+    {
         if (VTDecoder.GetDisplayComment(dwPageCode, &VTVisiblePage))
         {
             if (VTVisiblePage.LineState[24] & CACHESTATE_UPDATED)
@@ -2272,7 +2272,7 @@ BOOL VT_IsPageNumberAtPosition(LPRECT lpRect, LPPOINT lpPoint)
     {
         VTCursorRowCol = wRowCol;
         VTCursorPageHex =
-            VTDrawer.FindPageNumberAtRowCol(&VTVisiblePage, VTCursorRowCol);        
+            VTDrawer.FindPageNumberAtRowCol(&VTVisiblePage, VTCursorRowCol);
     }
 
     return VTCursorPageHex != 0;
@@ -2745,7 +2745,7 @@ static const char* VTCodepageName[VTCODEPAGE_LASTONE] =
 };
 
 
-static const char* VTRegionName[VTREGION_LASTONE] = 
+static const char* VTRegionName[VTREGION_LASTONE] =
 {
     "0: Default",
     "1: Central Europe",
@@ -2900,7 +2900,7 @@ SmartPtr<CTreeSettingsGeneric> VideoText_GetTreeSettingsPage()
 {
     // Teletext Settings
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
-    
+
     Holder->AddSetting(&VTSettings[VT_LANGUAGE_REGION              ]);
     Holder->AddSetting(&VTSettings[VT_SHOW_SUBCODE_OSD             ]);
     Holder->AddSetting(&VTSettings[VT_LINES_CACHINGCONTROL         ]);
@@ -3024,10 +3024,10 @@ void VBI_DecodeLine_VT(BYTE* VBI_Buffer)
     // length of 4 periods (8 bits)
     // normally 40 ish for PAL @ 8*fsc
     // or 31 ish for PAL 27Mhz
-    i = hi[5] - hi[1];  
+    i = hi[5] - hi[1];
 
     // check that the found frequency is very close to what we expect it
-    // to be.  We will use the precalculated one rather than the one we've 
+    // to be.  We will use the precalculated one rather than the one we've
     // just locked to
     if ( (i - (VTStep * 8 / FPFAC)) < -1 || (i - (VTStep * 8 / FPFAC)) > 1)
     {

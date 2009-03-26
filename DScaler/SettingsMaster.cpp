@@ -116,7 +116,7 @@ void CSettingsMaster::AddSettings(long MessageIdRoot, GENERICGETSETTING GetSetti
         ++i;
         NewSetting = GetSettingFunction(i);
     }
-    
+
     m_Holders.push_back(Holder);
 }
 void CSettingsMaster::LoadOneGroupedSetting(CSimpleSetting* pSetting)
@@ -158,9 +158,9 @@ void CSettingsMaster::WriteOneGroupedSetting(CSimpleSetting* pSetting)
 void CSettingsMaster::ParseSettingHolder(CSettingsHolder* Holder, BOOL IsLoad)
 {
     int Num = Holder->GetNumSettings();
-    
+
     BOOL bAction = FALSE;
-    
+
     for (int n = 0; n < Num; n++)
     {
         if (IsLoad)
@@ -306,7 +306,7 @@ void CSettingsMaster::Unregister(SmartPtr<CSettingsHolder> pHolder)
         {
             m_Holders.erase(m_Holders.begin() + i);
             return;
-        } 
+        }
     }
 }
 
@@ -325,7 +325,7 @@ void CSettingsMaster::SetSource(CSource* pSource)
 void CSettingsMaster::SetChannelName(long NewValue)
 {
     if (NewValue >= 0)
-    {        
+    {
         m_ChannelName = Channel_GetName();
     }
     else

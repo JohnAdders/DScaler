@@ -28,7 +28,7 @@
 #include "SAA7134I2CInterface.h"
 #include "SAA7134I2CBus.h"
 
-class CSAA7134Card : public CPCICard,  
+class CSAA7134Card : public CPCICard,
                      public ISAA7134I2CInterface
 {
 public:

@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file settingsperchannel.h settingsperchannel Header file
  */
- 
+
 #ifndef __SETTINGSPERCHANNEL_H___
 #define __SETTINGSPERCHANNEL_H___
 

@@ -30,7 +30,7 @@
 #include "HierarchicalConfigParser.h"
 #include "ParsingCommon.h"
 
-class CDoParse  
+class CDoParse
 {
 protected:
     CDoParse(const char* pszFileName, CListBox* pErrorList, CTreeCtrl* pTreeCtrl, BOOL bSort);

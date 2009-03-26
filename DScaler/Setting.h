@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file setting.h setting Header file
  */
- 
+
 #ifndef __SETTING_H___
 #define __SETTING_H___
 
@@ -27,7 +27,7 @@
 #include "SettingHolder.h"
 
 
-/** Base class for settings that can be represented as a long    
+/** Base class for settings that can be represented as a long
 */
 class CSimpleSetting
 {
@@ -44,7 +44,7 @@ public:
     void ChangeValue(eCHANGEVALUE TypeOfChange);
     virtual std::string GetDisplayValue() = 0;
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE) = 0;
-    
+
     void OSDShow();
     const std::string& GetDisplayName();
 
@@ -54,10 +54,10 @@ public:
     const std::string& GetEntry();
     BOOL ReadFromIni();
     void WriteToIni(BOOL bOptimizeFileAccess);
-    
-    void SetGroup(CSettingGroup* pGroup); 
+
+    void SetGroup(CSettingGroup* pGroup);
     CSettingGroup* GetGroup();
-        
+
     BOOL ReadFromIniSubSection(const std::string& SubSection);
     void WriteToIniSubSection(const std::string& SubSection, BOOL bOptimizeFileAccess = TRUE);
 
@@ -67,7 +67,7 @@ public:
 protected:
     BOOL IsOnChangeEnabled();
 
-private:    
+private:
     virtual std::string GetValueAsString() = 0;
     virtual void SetValueFromString(const std::string& NewValue) = 0;
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange) = 0;
@@ -107,7 +107,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual std::string GetDisplayValue();
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
-private:    
+private:
     virtual std::string GetValueAsString();
     virtual void SetValueFromString(const std::string& NewValue);
     void SetValue(long NewValue);
@@ -121,7 +121,7 @@ private:
 class CYesNoSetting : public CSimpleSetting
 {
 public:
-    CYesNoSetting(const std::string& DisplayName, BOOL Default, const std::string& Section, const std::string& Entry, 
+    CYesNoSetting(const std::string& DisplayName, BOOL Default, const std::string& Section, const std::string& Entry,
                    CSettingGroup* pGroup = NULL);
     ~CYesNoSetting();
     SETTING_TYPE GetType() {return YESNO;};
@@ -134,7 +134,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual std::string GetDisplayValue();
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
-private:    
+private:
     virtual std::string GetValueAsString();
     virtual void SetValueFromString(const std::string& NewValue);
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange);
@@ -147,8 +147,8 @@ private:
 */
 class CSliderSetting : public CSimpleSetting
 {
-public:    
-    CSliderSetting(const std::string& DisplayName, long Default, long Min, long Max, const std::string& Section, const std::string& Entry, 
+public:
+    CSliderSetting(const std::string& DisplayName, long Default, long Min, long Max, const std::string& Section, const std::string& Entry,
                    CSettingGroup* pGroup = NULL);
     ~CSliderSetting();
     SETTING_TYPE GetType() {return SLIDER;};
@@ -166,7 +166,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual std::string GetDisplayValue();
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
-private:    
+private:
     virtual std::string GetValueAsString();
     virtual void SetValueFromString(const std::string& NewValue);
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange);
@@ -183,7 +183,7 @@ private:
 class CListSetting : public CSimpleSetting
 {
 public:
-    CListSetting(const std::string& DisplayName, long Default, long Max, const std::string& Section, const std::string& Entry, const char** pszList, 
+    CListSetting(const std::string& DisplayName, long Default, long Max, const std::string& Section, const std::string& Entry, const char** pszList,
                    CSettingGroup* pGroup = NULL);
     ~CListSetting();
     SETTING_TYPE GetType() {return ITEMFROMLIST;};
@@ -198,7 +198,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
     virtual std::string GetDisplayValue();
-private:    
+private:
     virtual std::string GetValueAsString();
     virtual void SetValueFromString(const std::string& NewValue);
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange);
@@ -221,7 +221,7 @@ public:
     void GetDisplayText(LPSTR szBuffer);
     const char* GetValue();
     void SetValue(const char* NewValue, BOOL SupressOnChange = FALSE);
-    void ChangeValue(eCHANGEVALUE NewValue);    
+    void ChangeValue(eCHANGEVALUE NewValue);
 
     BOOL ReadFromIni();
     void WriteToIni(BOOL bOptimizeFileAccess);
@@ -235,7 +235,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual std::string GetDisplayValue();
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
-private:    
+private:
     virtual std::string GetValueAsString();
     virtual void SetValueFromString(const std::string& NewValue);
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange);

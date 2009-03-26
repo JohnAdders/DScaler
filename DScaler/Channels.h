@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file channels.h channels Header file
  */
- 
+
 #ifndef __CHANNELS_H___
 #define __CHANNELS_H___
 
@@ -36,10 +36,10 @@ const LPCSTR SZ_DEFAULT_PROGRAMS_FILENAME  = "program.txt"; //default user chann
 class CChannel
 {
 public:
-    
+
     CChannel(LPCSTR Name, LPCSTR EPGName, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
     CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
-    
+
     CChannel(const CChannel& CopyFrom);
     ~CChannel();
     LPCSTR GetName() const;
@@ -60,7 +60,7 @@ private:
 };
 
 
-class CChannelList 
+class CChannelList
 {
 
 
@@ -84,7 +84,7 @@ public :
     void Clear();
 
     int GetSize() const;
-    
+
     int GetMinChannelNumber() const;
 
     int GetMaxChannelNumber() const;
@@ -97,21 +97,21 @@ public :
 
     CChannel* GetChannelByNumber(int iChannelNumber); //May return NULL
 
-    CChannel* GetChannelByFrequency(DWORD dwFreq); //May return NULL 
+    CChannel* GetChannelByFrequency(DWORD dwFreq); //May return NULL
 
-    inline BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, int eFormat, BOOL bActive = TRUE) 
+    inline BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, int eFormat, BOOL bActive = TRUE)
     {
         return AddChannel(szName, dwFreq, iChannelNumber, (eVideoFormat)eFormat, bActive);
     }
 
 
-    BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive = TRUE); 
+    BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive = TRUE);
 
-    BOOL AddChannel(LPCSTR szName, LPCSTR szEPGName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive = TRUE); 
+    BOOL AddChannel(LPCSTR szName, LPCSTR szEPGName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive = TRUE);
 
-    BOOL AddChannel(LPCSTR szName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive = TRUE); 
+    BOOL AddChannel(LPCSTR szName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive = TRUE);
 
-    BOOL AddChannel(LPCSTR szName, LPCSTR szEPGName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive = TRUE); 
+    BOOL AddChannel(LPCSTR szName, LPCSTR szEPGName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive = TRUE);
 
     //Generates a name for you as the channels are not named
     //in the channels.txt file (channels/country)
@@ -121,7 +121,7 @@ public :
 
     //The given channel will be destroyed when list is cleared
     BOOL AddChannel(CChannel*);
-    
+
     BOOL RemoveChannel(int index);
 
     BOOL SetChannel(int index, CChannel* pChannel);
@@ -129,22 +129,22 @@ public :
     BOOL SwapChannels(int, int );
 
     int AddChannels(const CChannelList* const);
-    
+
     BOOL WriteFile(LPCSTR, CChannelList::FileFormat)  const;
 
     BOOL ReadFile(LPCSTR, CChannelList::FileFormat);
 
-    
+
     //Read/Write using the legacy "program.txt" file format
     inline BOOL WriteASCII(LPCSTR szFilename)  const {return WriteFile(szFilename, CChannelList::FILE_FORMAT_ASCII);};
-    
+
     inline BOOL ReadASCII(LPCSTR szFilename) {return ReadFile(szFilename, CChannelList::FILE_FORMAT_ASCII);};
-    
+
     inline BOOL WriteXML(LPCSTR szFilename)  const {return WriteFile(szFilename, CChannelList::FILE_FORMAT_XML);};
-    
+
     inline BOOL ReadXML(LPCSTR szFilename) {return ReadFile(szFilename, CChannelList::FILE_FORMAT_XML);};
-    
-    
+
+
     //Shortcuts..
     inline LPCSTR GetChannelName(int index) const {return GetChannel(index)->GetName();};
 
@@ -163,13 +163,13 @@ public :
 
     inline eVideoFormat GetChannelFormat(int index) const {return GetChannel(index)->GetFormat();};
 
-   
+
 protected :
 
     void SetMinChannelNumber(int);
     void SetMaxChannelNumber(int);
 
-    //update the members holding the boundary values 
+    //update the members holding the boundary values
     //when a modification to the list is done (by adding/removing channels)
     virtual void UpdateFields();
 
@@ -194,13 +194,13 @@ private:
 class CUserChannels : public CChannelList
 {
 public:
-    CUserChannels();    
+    CUserChannels();
     CUserChannels(const CUserChannels&);
 
     ~CUserChannels();
 
 protected :
-    
+
     BOOL WriteASCIIImpl(FILE*) const;
     BOOL ReadASCIIImpl(FILE*);
 
@@ -217,16 +217,16 @@ class CCountryChannels : public CChannelList
     friend class CCountryList;
 
 public:
-    CCountryChannels(LPCSTR szSomeIdentifierString, eVideoFormat eCountryVideoFormat = VIDEOFORMAT_LAST_TV);        
+    CCountryChannels(LPCSTR szSomeIdentifierString, eVideoFormat eCountryVideoFormat = VIDEOFORMAT_LAST_TV);
     CCountryChannels(const CCountryChannels&);
 
     ~CCountryChannels();
 
     const LPCSTR GetCountryName() const;
     const eVideoFormat GetCountryFormat() const;
-    
+
 protected :
-   
+
     BOOL WriteASCIIImpl(FILE*) const;
     BOOL ReadASCIIImpl(FILE*);
 
@@ -239,22 +239,22 @@ private:
 };
 
 
-class CCountryList 
+class CCountryList
 {
 private:
     //could be a map too..would be better for lookups
     typedef std::vector<CCountryChannels*> Countries;
 
 public :
-    CCountryList();    
+    CCountryList();
     ~CCountryList();
-    
+
     const CCountryChannels* GetChannels(int) const;
 
     int GetSize() const;
 
     int GetSize(int index) const {return GetChannels(index)->GetSize();};
-    
+
     inline LPCSTR GetCountryName(int index) const {return GetChannels(index)->GetCountryName();};
 
     inline int GetMinChannelNumber(int index) const {return GetChannels(index)->GetMinChannelNumber();};
@@ -266,16 +266,16 @@ public :
     inline DWORD GetHigherFrequency(int index) const {return GetChannels(index)->GetHigherFrequency();};
 
     //Adds the content of the given channel list
-    //(makes a deep copy)    
+    //(makes a deep copy)
     BOOL AddChannels(LPCSTR szName, CChannelList*);
-    
+
     //Makes a shallow copy only
     BOOL AddChannels(CCountryChannels*);
 
     BOOL RemoveChannels(int);
-   
+
     void Clear();
-    
+
 
     BOOL ReadASCII(FILE*);
     BOOL ReadASCII(LPCSTR);

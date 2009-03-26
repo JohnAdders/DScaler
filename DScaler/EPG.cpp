@@ -236,8 +236,8 @@ int CEPG::ExecuteCommand(string command)
     WaitForSingleObject(pi.hProcess, INFINITE);
 
     // Close process and thread handles
-    CloseHandle(pi.hProcess); 
-    CloseHandle(pi.hThread); 
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
 
     return 0;
 }
@@ -1576,7 +1576,7 @@ static BOOL        EPG_ChannelFiltering = FALSE;
 static long        EPG_MaxCharsPerLine = 75;
 static int        EPG_ProgSorting = 0;
 static BOOL        EPG_ToggleButtons = FALSE;
-static const char* EPG_ProgSortingLabels[2] = 
+static const char* EPG_ProgSortingLabels[2] =
 {
     "Programme start time",
     "Channel order / Programme start time",

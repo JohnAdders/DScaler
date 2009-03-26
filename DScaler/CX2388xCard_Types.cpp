@@ -44,7 +44,7 @@ using namespace HCParser;
 
 static const char* k_CX2388xCardListFilename = "CX2388xCards.ini";
 
-const CCX2388xCard::TCardType CCX2388xCard::m_CX2388xUnknownCard = 
+const CCX2388xCard::TCardType CCX2388xCard::m_CX2388xUnknownCard =
 {
     "*Unknown Card*",
     MODE_STANDARD,
@@ -133,7 +133,7 @@ const CParseTag CCX2388xCard::k_parseCardAutoDetectID[] =
 
 const CParseTag CCX2388xCard::k_parseCard[] =
 {
-    PT( "Name",           PARSE_STRING,                 1, 127,                   NULL,                     ReadCardInfoProc         ), 
+    PT( "Name",           PARSE_STRING,                 1, 127,                   NULL,                     ReadCardInfoProc         ),
     PT( "CardMode",       PARSE_CONSTANT,               0, 32,                 k_parseCardModeConstants, ReadCardInfoProc         ),
     PT( "DefaultTuner",   PARSE_CONSTANT|PARSE_NUMERIC, 0, 32,                 k_parseTunerConstants,    ReadCardDefaultTunerProc ),
     PT( "AutoDetectID",   PARSE_CHILDREN,               0, 1,                   k_parseCardAutoDetectID,  NULL                     ),
@@ -200,7 +200,7 @@ void CCX2388xCard::ReadCardInputInfoProc(int report, const CParseTag* tag, unsig
     {
         input->GPIOSet.GPIO_1 = static_cast<DWORD>(value->GetNumber());
     }
-    
+
     // GPIOSet->GPIO_2
     else if (tag == k_parseCardGPIOSet + 2)
     {
@@ -313,7 +313,7 @@ void CCX2388xCard::ReadCardInfoProc(int report, const CParseTag* tag, unsigned c
         {
             throw std::exception("\"\" is not a valid name of a card");
         }
-        
+
         for (size_t i = 0; i < parseInfo->nGoodCards; i++)
         {
             if (_stricmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
@@ -321,7 +321,7 @@ void CCX2388xCard::ReadCardInfoProc(int report, const CParseTag* tag, unsigned c
                 throw std::exception("A card was already specified with this name");
             }
         }
-        
+
         strcpy(parseInfo->pCurrentCard->szName, value->GetString());
     }
 
@@ -367,12 +367,12 @@ void CCX2388xCard::ReadCardProc(int report, const CParseTag*, unsigned char, con
                     finalCount++;
                 }
             }
-            
+
             if (finalCount > 1)
             {
                 throw std::exception("There can only be one input of type FINAL");
             }
-            
+
             if (finalCount == 1)
             {
                 int i = parseInfo->pCurrentCard->NumInputs - 1;
@@ -631,13 +631,13 @@ void CCX2388xCard::StandardInputSelect(int nInput)
         LOG(1, "Input Select Called for invalid input");
         nInput = m_CX2388xCards[m_CardType].NumInputs - 1;
     }
-    
+
     if(nInput < 0)
     {
         LOG(1, "Input Select Called for invalid input");
         nInput = 0;
     }
-    
+
     m_CurrentInput = nInput;
 
     TInputType* pInput = &m_CX2388xCards[m_CardType].Inputs[nInput];
@@ -651,7 +651,7 @@ void CCX2388xCard::StandardInputSelect(int nInput)
     {
         // disable color bars
         AndDataDword(CX2388X_VIDEO_COLOR_FORMAT, 0xFFFFBFFF);
-    
+
         // Read and mask the video input register
         DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);
         // zero out mux and svideo bit
@@ -659,7 +659,7 @@ void CCX2388xCard::StandardInputSelect(int nInput)
         // also turn off CCIR input
         // also VERTEN & SPSPD
         VideoInput &= 0x0F;
-        
+
         // set the Mux up from the card setup
         VideoInput |= (pInput->MuxSelect << CX2388X_VIDEO_INPUT_MUX_SHIFT);
 
@@ -667,19 +667,19 @@ void CCX2388xCard::StandardInputSelect(int nInput)
         switch (pInput->InputType)
         {
             case INPUTTYPE_SVIDEO: // SVideo
-                VideoInput |= CX2388X_VIDEO_INPUT_SVID_C_SEL; 
+                VideoInput |= CX2388X_VIDEO_INPUT_SVID_C_SEL;
                 VideoInput |= CX2388X_VIDEO_INPUT_SVID;
 
                 // Switch chroma DAC to chroma channel
                 OrDataDword(MO_AFECFG_IO, 0x00000001);
 
                 break;
-            
+
             case INPUTTYPE_CCIR:
                 VideoInput |= CX2388X_VIDEO_INPUT_PE_SRCSEL;
-                VideoInput |= CX2388X_VIDEO_INPUT_SVID_C_SEL; 
+                VideoInput |= CX2388X_VIDEO_INPUT_SVID_C_SEL;
                 break;
-        
+
             case INPUTTYPE_TUNER:
             case INPUTTYPE_COMPOSITE:
             default:
@@ -687,7 +687,7 @@ void CCX2388xCard::StandardInputSelect(int nInput)
                 AndDataDword(MO_AFECFG_IO, 0xFFFFFFFE);
                 break;
         }
-        
+
         WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
     }
 

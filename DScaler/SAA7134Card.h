@@ -25,10 +25,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/**    
+/**
  * @file saa7134card.h saa7134card Header file
  */
- 
+
 #ifdef WANT_SAA713X_SUPPORT
 
 #ifndef    __SAA7134CARD_H___
@@ -54,7 +54,7 @@
 /**    A Generic saa7134 based    capture    card
     The    card can cope with the standard    inputs,
     a tuner    and    one    of the supported sound chips.
-    Control    is given over most of the supported    chip 
+    Control    is given over most of the supported    chip
     functions.
 */
 class CSAA7134Card : public    CPCICard,
@@ -63,7 +63,7 @@ class CSAA7134Card : public    CPCICard,
 {
 
 private:
-    
+
     ///    Different types    of input currently supported
     enum eInputType
     {
@@ -192,7 +192,7 @@ public:
 public:
     CSAA7134Card(CHardwareDriver* pDriver);
     ~CSAA7134Card();
-    
+
 
     /**    General    card setup
      */

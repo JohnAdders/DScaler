@@ -63,7 +63,7 @@ BOOL CTDA9887TesterApp::InitInstance()
         AfxMessageBox("Can't open driver", MB_OK);
         return FALSE;
     }
-      
+
     CTDA9887TesterDlg dlg(pDriver);
     m_pMainWnd = &dlg;
     dlg.DoModal();

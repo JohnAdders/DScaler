@@ -37,7 +37,7 @@ public:
     CMT2050(eVideoFormat DefaultVideoFormat);
     WORD GetVersion();
     WORD GetVendor();
-    
+
     // from ITuner
     eTunerId GetTunerId();
     eVideoFormat GetDefaultVideoFormat();

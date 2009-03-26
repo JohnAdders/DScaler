@@ -37,13 +37,13 @@ CPreTuneVoodooFM::CPreTuneVoodooFM(CBT848Card* pBT848Card)
     m_pBT848Card = pBT848Card;
 }
 
-BOOL CPreTuneVoodooFM::Detect() 
-{ 
-    if ((m_pBT848Card != NULL) && 
+BOOL CPreTuneVoodooFM::Detect()
+{
+    if ((m_pBT848Card != NULL) &&
         ((m_pBT848Card->GetCardType() == TVCARD_VOODOOTV_200)  ||
          (m_pBT848Card->GetCardType() == TVCARD_VOODOOTV_FM)))
     {
-        return TRUE; 
+        return TRUE;
     }
     return FALSE;
 }
@@ -53,11 +53,11 @@ void CPreTuneVoodooFM::TunerSet(BOOL bPreSet, eVideoFormat videoFormat)
     if (bPreSet && (m_pBT848Card!=NULL))
     {
         //Set the demodulator using the GPIO port
-        
+
         ULONG Val;
         m_pBT848Card->SetGPOE( m_pBT848Card->GetGPOE() | (1<<16));
         Val = m_pBT848Card->GetGPDATA();
-            
+
         switch (videoFormat)
         {
             case VIDEOFORMAT_PAL_N_COMBO:

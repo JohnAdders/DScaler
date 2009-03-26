@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file deinterlace.h deinterlace Header file
  */
- 
+
 #ifndef __DEINTERLACE_H___
 #define __DEINTERLACE_H___
 

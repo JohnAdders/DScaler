@@ -91,7 +91,7 @@ bool CTDA9887::WriteControlBytes(const BYTE* pControlBytes)
     bBuffer[3] = Byte C
     bBuffer[4] = Byte E
 */
-    
+
     bBuffer[0] = m_I2CAdress;
 //    bBuffer[1] = 0; // not needed
     bBuffer[2] = pControlBytes[0];

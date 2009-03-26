@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file pattern.h pattern Header file
  */
- 
+
 #ifndef __PATTERN_H___
 #define __PATTERN_H___
 
@@ -111,7 +111,7 @@ public:
     void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char* pR, unsigned char* pG, unsigned char* pB);
 #endif
 
-protected: 
+protected:
     /** Left position of the rectangular zone in the full test pattern
         Range between 0 and 10000
     */

@@ -15,10 +15,10 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 //
-//  Also, this program is "Philanthropy-Ware".  That is, if you like it and 
+//  Also, this program is "Philanthropy-Ware".  That is, if you like it and
 //  feel the need to reward or inspire the author then please feel free (but
 //  not obligated) to consider joining or donating to the Electronic Frontier
-//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
+//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
 
@@ -68,12 +68,12 @@ DEINTERLACE_METHOD TomsMoCompMethod =
 {
     sizeof(DEINTERLACE_METHOD),
     DEINTERLACE_CURRENT_VERSION,
-    "Video (TomsMoComp)", 
+    "Video (TomsMoComp)",
     "TomsMoComp",
-    FALSE, 
-    FALSE, 
-    DeinterlaceTomsMoComp_SSE, 
-    50, 
+    FALSE,
+    FALSE,
+    DeinterlaceTomsMoComp_SSE,
+    50,
     60,
     DI_TOMSMOCOMP_SETTING_LASTONE,
     DI_TOMSMOCOMPSETTINGS,
@@ -100,8 +100,8 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     {
         // there doesn't really seem to be much advantage in performance
         // of the SSE2 version of this. Let's not maintain it for now
-        TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_SSE; 
-//        TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_SSE2; 
+        TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_SSE;
+//        TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_SSE2;
     }
     else if (CpuFeatureFlags & FEATURE_SSE)
     {

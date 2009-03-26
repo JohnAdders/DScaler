@@ -29,13 +29,13 @@ extern _qwBitShift:qword
 
     .code
 ;////////////////////////////////////////////////////////////////////
-; WORD CalcCombFactorLineChroma(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3, 
+; WORD CalcCombFactorLineChroma(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3,
 ;       long BytesToProcess);
 ;
 ; This (and the other comb factor calculations) are based on Gunnar
 ; Thalin's "Deinterlace - area based" in Virtual Dub
 ;////////////////////////////////////////////////////////////////////
-    
+
 public _CalcCombFactorLine
 
     YVal1   equ [esp+4+16]
@@ -123,7 +123,7 @@ Comb_Loop:
     ret
 
 ;////////////////////////////////////////////////////////////////////
-; WORD CalcCombFactorLineChroma(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3, 
+; WORD CalcCombFactorLineChroma(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3,
 ;       long BytesToProcess);
 ;////////////////////////////////////////////////////////////////////
 
@@ -190,7 +190,7 @@ CombChroma_Loop:
 
     ; FF's if greater than qwThreshold
     pcmpgtw mm6, _qwThreshold
-    
+
     ; add to count if we are greater than threshold
     pand mm6, _qwOnes
     paddw mm7, mm6
@@ -245,7 +245,7 @@ CombChroma_Loop:
 
 
 ;////////////////////////////////////////////////////////////////////
-; DWORD CalcCombAndDiffLine(BYTE* YVal11, BYTE* YVal21, BYTE* YVal31, 
+; DWORD CalcCombAndDiffLine(BYTE* YVal11, BYTE* YVal21, BYTE* YVal31,
 ;                               BYTE* YVal12, BYTE* YVal22, BYTE* YVal32,
 ;       long BytesToProcess, DWORD* CombFactor);
 ;
@@ -263,12 +263,12 @@ CombChroma_Loop:
 ;           E2         E1
 ;      O22       O21
 ;
-; With moving Video material the movement comb factors are expected to be 
+; With moving Video material the movement comb factors are expected to be
 ; spread between all fields evenly as E2 and E1 are taken from temporally
 ; different pictures
-; With moving film material the movement comb factors should move in a pattern 
+; With moving film material the movement comb factors should move in a pattern
 ; as E1 either belongs with O11 and O21 or it doesn't.  A high movement comb
-; will indicate that E1 doesn't belong with O11 and O21 and a high picture comb 
+; will indicate that E1 doesn't belong with O11 and O21 and a high picture comb
 ; will indicate that this will be visible so the combination is bad as
 ; can be used as a bad edit detection method.
 ;
@@ -295,7 +295,7 @@ _CalcCombAndDiffLine:
     mov eax, dword ptr [YVal11]
     mov ebx, dword ptr [YVal21]
     mov edx, dword ptr [YVal31]
-    
+
     mov edi, dword ptr [YVal12]
     mov esi, dword ptr [YVal22]
     mov ebp, dword ptr [YVal32]
@@ -318,7 +318,7 @@ CombAndDiff_Loop:
     psubusb mm1, mm0
     por     mm1, mm2
     psrlw   mm1, 1
-    
+
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; Calculate |O21 - O22|/2
     ;
@@ -404,7 +404,7 @@ CombAndDiff_Loop:
     psubw  mm1, mm4             ; mm1 = (M1 - M2)*(M3 - M2) - (M1 - M3)^2 >> 7
 
     pcmpgtw mm1, _qwThreshold   ; FF if there is a movement comb
-    
+
     pand mm0, mm1
     pand mm0, _qwOnes
     paddw mm7, mm0
@@ -419,7 +419,7 @@ CombAndDiff_Loop:
     pmaddwd mm2, mm2            ; mm2 = |E1 - E2| ^ 2
     psrld mm2, _qwBitShift      ; divide mm2 by 2 ^ Bitshift
     paddd mm6, mm2              ; keep total in mm6
-    
+
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; Bottom
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -486,8 +486,8 @@ _CalcDiffFactorLine:
     pxor mm0, mm0    ; mm0 = 0  this is running total
 align 4
 Diff_Loop:
-    movq mm4, qword ptr[eax] 
-    movq mm5, qword ptr[ebx] 
+    movq mm4, qword ptr[eax]
+    movq mm5, qword ptr[ebx]
     pand mm5, mm1    ; get only Y compoment
     pand mm4, mm1    ; get only Y compoment
 
@@ -498,7 +498,7 @@ Diff_Loop:
 
     add eax, 8
     add ebx, 8
-    
+
     dec ecx
     jne Diff_Loop
 
@@ -511,7 +511,7 @@ Diff_Loop:
     pop esi
     pop edi
     pop ebp
-    ret 
+    ret
 
 ;////////////////////////////////////////////////////////////////////
 ; DWORD CalcDiffFactorLineChroma(BYTE* YVal1, BYTE* YVal2, long BytesToProcess);
@@ -539,9 +539,9 @@ _CalcDiffFactorLineChroma:
     pxor mm7, mm7    ; mm0 = 0  this is running total
 align 4
 DiffChroma_Loop:
-    movq mm2, qword ptr[eax] 
-    movq mm3, qword ptr[ebx] 
-    movq mm4, mm2 
+    movq mm2, qword ptr[eax]
+    movq mm3, qword ptr[ebx]
+    movq mm4, mm2
     movq mm5, mm3
     pand mm4, mm1    ; get only Y compoment
     pand mm5, mm1    ; get only Y compoment
@@ -559,7 +559,7 @@ DiffChroma_Loop:
 
     add eax, 8
     add ebx, 8
-    
+
     loop DiffChroma_Loop
 
     ; add the two running totals
@@ -573,7 +573,7 @@ DiffChroma_Loop:
     pop esi
     pop edi
     pop ebp
-    ret 
+    ret
 
 ;////////////////////////////////////////////////////////////////////
 ; void memcpyBOBMMX(void* Dest1, void* Dest2, void* Src, size_t nBytes);
@@ -636,7 +636,7 @@ memcpyBOB_Loop:
 
 align 4
 memcpyBOB_Loop2:
-    mov edx, [esi] 
+    mov edx, [esi]
     mov [edi], edx
     mov [ebx], edx
     add esi, 4
@@ -649,7 +649,7 @@ memcpyBOB_End:
     pop esi
     pop edi
     pop ebp
-    ret 
+    ret
 
 ;////////////////////////////////////////////////////////////////////
 ; void memcpyBOBSSE(void* Dest1, void* Dest2, void* Src, size_t nBytes);
@@ -711,7 +711,7 @@ memcpyBOBSSE_Loop:
     je memcpyBOBSSE_End
 align 4
 memcpyBOBSSE_Loop2:
-    mov edx, [esi] 
+    mov edx, [esi]
     mov [edi], edx
     mov [ebx], edx
     add esi, 4
@@ -720,12 +720,12 @@ memcpyBOBSSE_Loop2:
     loop memcpyBOBSSE_Loop2
 
 memcpyBOBSSE_End:
-    
+
     pop ebx
     pop esi
     pop edi
     pop ebp
-    ret 
+    ret
 
 ;////////////////////////////////////////////////////////////////////
 ; void memcpyMMX(void* Dest, void* Src, size_t nBytes);
@@ -735,7 +735,7 @@ memcpyBOBSSE_End:
 ; using MMX instructions
 ; then copies any extra bytes
 ; assumes there will be at least 64 bytes to copy
-; This code was originally from Borg's bTV plugin SDK 
+; This code was originally from Borg's bTV plugin SDK
 ;////////////////////////////////////////////////////////////////////
 
 public _memcpyMMX
@@ -784,15 +784,15 @@ Memcpy_End:
     emms
     pop esi
     pop edi
-    ret 
+    ret
 
 
 ;////////////////////////////////////////////////////////////////////
 ; void memcpySSE(void* Dest, void* Src, size_t nBytes);
 ;
-; On SSE machines we use the 
+; On SSE machines we use the
 ; bypass write caching to copy a bit faster.  The destination has to be
-; 16-byte aligned.  
+; 16-byte aligned.
 ;////////////////////////////////////////////////////////////////////
 public _memcpySSE
 
@@ -841,7 +841,7 @@ align 4
 MemcpySSE_End:
     pop esi
     pop edi
-    ret 
+    ret
 
 ;////////////////////////////////////////////////////////////////////
 ; void memcpyAMD(void* Dest, void* Src, size_t nBytes);
@@ -913,14 +913,14 @@ align 4
 MemcpyAMD_End:
     pop esi
     pop edi
-    ret 
+    ret
 
 ;////////////////////////////////////////////////////////////////////
 ; void memcpySimple(void* Dest, void* Src, size_t nBytes);
 ;
-; On SSE machines we use the 
+; On SSE machines we use the
 ; bypass write caching to copy a bit faster.  The destination has to be
-; 16-byte aligned.  
+; 16-byte aligned.
 ;////////////////////////////////////////////////////////////////////
 public _memcpySimple
 
@@ -939,7 +939,7 @@ _memcpySimple:
 
     pop esi
     pop edi
-    ret 
-    
+    ret
+
     end
 

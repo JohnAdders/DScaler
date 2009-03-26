@@ -21,7 +21,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file AudioControls.h AudioControls Header file
  */
 
@@ -68,9 +68,9 @@ public:
     virtual void SetSpatialEffect(int nLevel);
     virtual int  GetSpatialEffect();
     virtual BOOL HasDolby();
-    virtual void SetDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan, WORD nPanorama);    
+    virtual void SetDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan, WORD nPanorama);
     // \todo: define a getter for Dolby
-    
+
     virtual BOOL HasAutoVolumeCorrection();
     virtual void SetAutoVolumeCorrection(long milliSeconds);
     virtual long GetAutoVolumeCorrection();

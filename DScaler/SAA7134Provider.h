@@ -21,10 +21,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file saa7134provider.h saa7134provider Header file
  */
- 
+
 #ifdef WANT_SAA713X_SUPPORT
 
 #ifndef __SAA7134PROVIDER_H___
@@ -50,11 +50,11 @@ public:
 private:
     ///  uses the subsystem id to determin the correct source to create
     SmartPtr<CSAA7134Source> CreateCorrectSource(
-                                        SmartPtr<CHardwareDriver> pHardwareDriver, 
-                                        LPCSTR szSection, 
-                                        WORD VendorID, 
-                                        WORD DeviceID, 
-                                        int DeviceIndex, 
+                                        SmartPtr<CHardwareDriver> pHardwareDriver,
+                                        LPCSTR szSection,
+                                        WORD VendorID,
+                                        WORD DeviceID,
+                                        int DeviceIndex,
                                         DWORD SubSystemId,
                                         char* ChipName);
     /// creates the system accesable memory to be used by all cards

@@ -60,10 +60,10 @@
 // Explanation of the MMX version: 1 is added to the source pixel if it is odd (and != 255)
 // Then half the (adjusted) source pixel (rounding down -- which is effectively the same as
 // rounding the unadjusted pixel up unless source == 255) is added to half the destination
-// pixel (also rounding down). This gives the same result as the much faster and less 
+// pixel (also rounding down). This gives the same result as the much faster and less
 // complicated versions for other processors
 
-// tempMM is changed 
+// tempMM is changed
 
 #undef AVERAGE
 #if defined(IS_SSE)
@@ -450,7 +450,7 @@ void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold,
     }
 
     for( ; ThisLine < BottomLine; ++ThisLine)
-    {        
+    {
         __asm
         {
             // Cycles is negative for optimization reasons.  So the subtractions below actually add the
@@ -485,7 +485,7 @@ MAINLOOP_LABEL:
             // Get inPhase, outPhase deltas
 
             ABSOLUTE_DIFFERENCE_BYTES(mm3, mm0, mm1, mm7)   // mm3 = outPhase delta
-        
+
             movq    mm2, qword ptr[ebx + ecx]               // mm2 = lastLastPixel
 
 #if defined( USE_PREFETCH )
@@ -497,7 +497,7 @@ MAINLOOP_LABEL:
 #endif
 
             ABSOLUTE_DIFFERENCE_BYTES(mm4, mm0, mm2, mm7)   // mm4 = inPhase delta
-        
+
             // Make mask of "significant" shimmering
             // (where inPhase < outPhase, and low detected motion)
 
@@ -545,7 +545,7 @@ MAINLOOP_LABEL:
             // Get inPhase, outPhase deltas
 
             ABSOLUTE_DIFFERENCE_BYTES(mm3, mm0, mm1, mm7)   // mm3 = outPhase delta
-        
+
             movq    mm2, qword ptr[ebx + ecx + 8]           // mm2 = lastLastPixel
 
 #if defined( USE_PREFETCH )
@@ -555,7 +555,7 @@ MAINLOOP_LABEL:
 #endif
 
             ABSOLUTE_DIFFERENCE_BYTES(mm4, mm0, mm2, mm7)   // mm4 = inPhase delta
-        
+
             // Make mask of "significant" shimmering
             // (where inPhase < outPhase, and low detected motion)
 
@@ -603,7 +603,7 @@ MAINLOOP_LABEL:
             // Get inPhase, outPhase deltas
 
             ABSOLUTE_DIFFERENCE_BYTES(mm3, mm0, mm1, mm7)   // mm3 = outPhase delta
-        
+
             movq    mm2, qword ptr[ebx + ecx + 16]          // mm2 = lastLastPixel
 
 #if defined( USE_PREFETCH)
@@ -613,7 +613,7 @@ MAINLOOP_LABEL:
 #endif
 
             ABSOLUTE_DIFFERENCE_BYTES(mm4, mm0, mm2, mm7)   // mm4 = inPhase delta
-        
+
             // Make mask of "significant" shimmering
             // (where inPhase < outPhase, and low detected motion)
 
@@ -661,7 +661,7 @@ MAINLOOP_LABEL:
             // Get inPhase, outPhase deltas
 
             ABSOLUTE_DIFFERENCE_BYTES(mm3, mm0, mm1, mm7)   // mm3 = outPhase delta
-        
+
             movq    mm2, qword ptr[ebx + ecx + 24]          // mm2 = lastLastPixel
 
 #if defined( USE_PREFETCH )
@@ -673,7 +673,7 @@ MAINLOOP_LABEL:
 #endif
 
             ABSOLUTE_DIFFERENCE_BYTES(mm4, mm0, mm2, mm7)   // mm4 = inPhase delta
-        
+
             // Make mask of "significant" shimmering
             // (where inPhase < outPhase, and low detected motion)
 
@@ -735,6 +735,6 @@ MAINLOOP_LABEL:
         emms
 #endif
     }
-    
+
     return 1000;
 }

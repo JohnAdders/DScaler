@@ -39,7 +39,7 @@
  * @see CDSCaptureSource
  * @see CDSFileSource
  */
-class CDSProvider : public ISourceProvider  
+class CDSProvider : public ISourceProvider
 {
 public:
     CDSProvider();
@@ -47,7 +47,7 @@ public:
 
     virtual int GetNumberOfSources();
     virtual SmartPtr<CSource> GetSource(int SourceIndex);
-    
+
     std::string GetSourceName(int SourceIndex);
 
 private:
@@ -55,7 +55,7 @@ private:
     BOOL CanUseDShow(std::string &FailMsg);
     std::vector<SmartPtr<CDSSourceBase> > m_DSSources;
     std::map<int, std::string> m_SourceNames;
-    
+
 };
 
 #endif // !defined(AFX_DSPROVIDER_H__D8D191FB_3156_439A_9261_F81B9EB3B9E4__INCLUDED_)

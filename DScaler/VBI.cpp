@@ -91,7 +91,7 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
     // set up threshold and offset data
     VBI_AGC(VBI_Buffer, 120, 450, 1);
 
-    // all kinds of data with videotext data format: videotext, intercast, ... 
+    // all kinds of data with videotext data format: videotext, intercast, ...
     if (DoTeletext)
     {
         VBI_DecodeLine_VT(VBI_Buffer);
@@ -107,18 +107,18 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
     // it also appears on PAL videos at line 22
     // see http://www.wgbh.org/wgbh/pages/captioncenter/cctechfacts4.html
     // for more infomation
-    if ((CCMode != CCMODE_OFF) && line == TVFormat->CC_Line) 
+    if ((CCMode != CCMODE_OFF) && line == TVFormat->CC_Line)
     {
         VBI_DecodeLine_CC(VBI_Buffer, CCMode, IsOdd);
     }
 
-    // VPS information with channel name, time, VCR programming Info, etc. 
+    // VPS information with channel name, time, VCR programming Info, etc.
     if (DoVPS && !IsOdd && (line == 9))
     {
         VBI_DecodeLine_VPS(VBI_Buffer);
     }
 
-    // WSS information with source aspect ratio. 
+    // WSS information with source aspect ratio.
     if (DoWSS && !IsOdd && (line == TVFormat->WSS_Line))
     {
 //        LOG(1, "WSS VBI_thresh %d VBIOffset %d", VBI_thresh, VBIOffset);

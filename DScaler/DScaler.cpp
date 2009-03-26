@@ -241,14 +241,14 @@ int On_IconHandler(WPARAM wParam, LPARAM lParam);
 BOOL DoWeNeedToShowHWSetupBox();
 static BOOL g_bOverlayStopped = FALSE;
 
-static const char* UIPriorityNames[3] = 
+static const char* UIPriorityNames[3] =
 {
     "Normal",
     "High",
     "Real time",
 };
 
-static const char* DecodingPriorityNames[5] = 
+static const char* DecodingPriorityNames[5] =
 {
     "Below normal",
     "Normal",
@@ -257,13 +257,13 @@ static const char* DecodingPriorityNames[5] =
     "Time critical",
 };
 
-static const char* OutputMethodNames[2] = 
+static const char* OutputMethodNames[2] =
 {
     "Overlay",
     "Direct3D",
 };
 
-static const char* MinimizeHandlingLabels[3] = 
+static const char* MinimizeHandlingLabels[3] =
 {
     "User control / Continue capture",
     "User control / Stop capture",
@@ -354,19 +354,19 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
                 char* lpMsg = NULL;
 
                 hMapFile = CreateFileMapping(INVALID_HANDLE_VALUE,  // Use the system page file
-                    NULL, PAGE_READWRITE, 0, 1024, "DScalerSendMessageFileMappingObject");                        
-                
-                if(hMapFile == NULL) 
-                { 
+                    NULL, PAGE_READWRITE, 0, 1024, "DScalerSendMessageFileMappingObject");
+
+                if(hMapFile == NULL)
+                {
                     // send error message to running copy of DScaler
                     SendMessage(hPrevWindow, MsgOSDShow, GetLastError(), 1);
-                } 
+                }
                 else
                 {
-                    lpMsg = (char*)MapViewOfFile(hMapFile, FILE_MAP_WRITE, 0, 0, 1024);              
-                    
-                    if (lpMsg == NULL) 
-                    { 
+                    lpMsg = (char*)MapViewOfFile(hMapFile, FILE_MAP_WRITE, 0, 0, 1024);
+
+                    if (lpMsg == NULL)
+                    {
                         // send error message to running copy of DScaler
                         SendMessage(hPrevWindow, MsgOSDShow, GetLastError(), 2);
                     }
@@ -397,13 +397,13 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     {
         // RM oct 1 2006
         // Do not start if the mutex already exists.
-        // There is another similar check that tests for the dscaler window name. 
+        // There is another similar check that tests for the dscaler window name.
         // This did not always work because several things happen before the window is created,
         // sometimes there is a delay in starting up before the window is created. The user
-        // then tries to start the program a second time. This might result in corrupting the 
+        // then tries to start the program a second time. This might result in corrupting the
         // ini file.
         // I am uncertain what is causing the occasional delay in startup. This delay happens
-        // for example when Windows Explorer (the shell) is busy, as can be seen by a 
+        // for example when Windows Explorer (the shell) is busy, as can be seen by a
         // non-responding task bar.
         if(GetLastError() == ERROR_ALREADY_EXISTS)
         {
@@ -450,7 +450,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
                 {
                     DWORD result = 0;
                     CHardwareDriver* HardwareDriver = NULL;
-                    
+
                     HardwareDriver = new CHardwareDriver();
                     if(!HardwareDriver->InstallNTDriver())
                     {
@@ -461,16 +461,16 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
                         }
                         result = 1;
                     }
-                    
+
                     delete HardwareDriver;
-                    
+
                     return result;
                 }
                 else if(strcmp(szParameter, "riveruninstall") == 0)
                 {
                     DWORD result = 0;
                     CHardwareDriver* HardwareDriver = NULL;
-                    
+
                     HardwareDriver = new CHardwareDriver();
                     if(!HardwareDriver->UnInstallNTDriver())
                     {
@@ -481,9 +481,9 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
                         }
                         result = 1;
                     }
-                    
+
                     delete HardwareDriver;
-                    
+
                     return result;
                 }
             case 'i':
@@ -534,10 +534,10 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     {
         EventCollector = new CEventCollector();
     }
-        
+
     /// Master setting. Holds all settings
     SettingsMaster = new CSettingsMaster(GetIniFileForSettings());
-    
+
     /// Loads up the values from the ini file
     SettingsMaster->Initialize();
 
@@ -577,7 +577,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
         hCursorHand = LoadCursor(NULL, IDC_HAND);
     }
     else
-    {        
+    {
         hCursorHand = LoadCursor(hResourceInst, MAKEINTRESOURCE(IDC_CURSOR_HAND));
     }
 
@@ -587,7 +587,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     wc.cbWndExtra = sizeof(LONG);
     wc.hInstance = hInstance;
     wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DSCALER));
-    wc.hCursor = hCursorDefault; 
+    wc.hCursor = hCursorDefault;
     // Set to the default overlay colour to workaround a redraw bug that happens
     // over overlay surfaces on some systems.  atnak 3rd May 2004
     wc.hbrBackground = CreateSolidBrush(RGB(32, 16, 16));
@@ -674,7 +674,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 #ifdef _DEBUG
     CreateDScalerPopupMenu();
 #endif
-    
+
     // catch any serious errors during message handling
     while (GetMessage(&msg, NULL, 0, 0))
     {
@@ -699,7 +699,7 @@ LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     }
     // if there is any exception thrown then exit the process
     catch(std::exception& e)
-    { 
+    {
         LOG(1, "Crash in MainWndProc");
         LOG(1, e.what());
         // try as best we can to unload everything
@@ -710,7 +710,7 @@ LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         return 0;
     }
     catch(...)
-    { 
+    {
         LOG(1, "Crash in MainWndProc");
         // try as best we can to unload everything
         // mostly we want to make sure that the driver is stopped
@@ -832,7 +832,7 @@ HMENU CreateDScalerPopupMenu()
 
 
 BOOL WINAPI OnContextMenu(HWND hWnd, int x, int y)
-{ 
+{
     RECT rc;                    // client area of window
     POINT pt = {0,0};           // location of mouse click
     HMENU hMenuPopup = CreateDScalerPopupMenu();
@@ -857,19 +857,19 @@ BOOL WINAPI OnContextMenu(HWND hWnd, int x, int y)
         ClientToScreen(hWnd, &pt);
         // Display the shortcut menu. Track the right mouse
         // button.
-        return TrackPopupMenuEx(hMenuPopup, 
-                                TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON, 
-                                pt.x, pt.y, hWnd, NULL); 
+        return TrackPopupMenuEx(hMenuPopup,
+                                TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON,
+                                pt.x, pt.y, hWnd, NULL);
     }
 
     if (hMenuPopup != NULL)
     {
         DestroyMenu(hMenuPopup);
     }
- 
+
     // Return FALSE if no menu is displayed.
-    return FALSE; 
-} 
+    return FALSE;
+}
 
 
 BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -1073,12 +1073,12 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         // Draw the OSD over the top
         OSD_Redraw(hDC, &OSDDrawRect);
-        switch(GetActiveOutput()->Type()) 
+        switch(GetActiveOutput()->Type())
         {
         case IOutput::OUT_OVERLAY:
             OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
             break;
-        case IOutput::OUT_D3D:        
+        case IOutput::OUT_D3D:
             OffscreenHDC.BitBltRectsD3D(PaintedRects, nPaintedRects, ((CD3D9Output *)GetActiveOutput())->lpDDOSD);
             break;
         }
@@ -1158,8 +1158,8 @@ BOOL ProcessOSDMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         LONG nPaintedRects = OSD_GetPaintedRects(PaintedRects, OSD_MAX_TEXT);
 
         if (nPaintedRects != 0)
-        {            
-            switch(GetActiveOutput()->Type()) 
+        {
+            switch(GetActiveOutput()->Type())
             {
             case IOutput::OUT_OVERLAY:
                 OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
@@ -1167,13 +1167,13 @@ BOOL ProcessOSDMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             case IOutput::OUT_D3D:
                 OffscreenHDC.BitBltRectsD3D(PaintedRects, nPaintedRects, ((CD3D9Output *)GetActiveOutput())->lpDDOSD);
                 break;
-            }            
+            }
         }
     }
 
     ReleaseDC(hWnd, hWndDC);
 
-    return bHandled;            
+    return bHandled;
 }
 
 
@@ -1183,7 +1183,7 @@ LRESULT CALLBACK KeyboardHookProc(int code, UINT wParam, UINT lParam)
     {
         if(!(bKeyboardLockMainWindowOnly && hWnd != GetFocus()))
         {
-            // if it is not Ctrl+Shift+L do not pass the message to the rest of the hook chain 
+            // if it is not Ctrl+Shift+L do not pass the message to the rest of the hook chain
             // or the target window procedure
             if(!((char)wParam == 'L' && GetKeyState(VK_SHIFT) < 0 && GetKeyState(VK_CONTROL) < 0))
             {
@@ -1202,7 +1202,7 @@ void SetKeyboardLock(BOOL Enabled)
         bKeyboardLock = TRUE;
         if(hKeyboardHook == NULL)
         {
-            hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD, (HOOKPROC)KeyboardHookProc, NULL, 
+            hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD, (HOOKPROC)KeyboardHookProc, NULL,
                                              GetCurrentThreadId());
         }
     }
@@ -1259,7 +1259,7 @@ void SetScreensaverMode(BOOL bScreensaverOff)
         if( bScreensaverDisabled )
         {
             SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, 1, NULL, 0);
-            bScreensaverDisabled = FALSE;    
+            bScreensaverDisabled = FALSE;
         }
 
         if( bLowpowerDisabled )
@@ -1286,17 +1286,17 @@ string UpdateSleepMode(TSMState* SMState)
     switch( SMState->State )
     {
     case SM_WaitMode:
-        // Called by press on delete key. 
+        // Called by press on delete key.
         // Initial mode. (ie 1st press)
-        
+
         // Show current sleep setting
-        if( SMState->SleepAt != 0 ) 
+        if( SMState->SleepAt != 0 )
         {
             KillTimer(hWnd, TIMER_SLEEPMODE);
             SMTime = localtime(&SMState->SleepAt);
-            RetVal = MakeString() << "Sleep  " 
+            RetVal = MakeString() << "Sleep  "
                                  << SMState->Period
-                                 << " (" 
+                                 << " ("
                                  << setw(2) << setfill('0') << SMTime->tm_hour
                                  << ":"
                                  << setw(2) << setfill('0') << SMTime->tm_min
@@ -1315,41 +1315,41 @@ string UpdateSleepMode(TSMState* SMState)
 
     case SM_ChangeMode:
         // Called by press on delete key.
-        // Subsequent presses within TIMER_SLEEPMODE_MS of previous press 
-        
+        // Subsequent presses within TIMER_SLEEPMODE_MS of previous press
+
         // Next higher period (cycle)
         SMState->iPeriod = ++SMState->iPeriod % SMPeriodCount;
         SMState->Period = SMPeriods[SMState->iPeriod];
 
         // Set & show activation time
-        if( SMState->Period != 0 ) 
+        if( SMState->Period != 0 )
         {
             curr = time(0);
             SMState->SleepAt = curr + SMState->Period * 60;
             SMTime = localtime(&SMState->SleepAt);
-            RetVal = MakeString() << "New sleep  " 
+            RetVal = MakeString() << "New sleep  "
                                  << SMState->Period
-                                 << " (" 
+                                 << " ("
                                  << setw(2) << setfill('0') << SMTime->tm_hour
                                  << ":"
                                  << setw(2) << setfill('0') << SMTime->tm_min
                                  << ")";
         }
         else
-        {   
+        {
             SMState->SleepAt = 0;
             RetVal = "New sleep OFF";
         }
-        
+
         // Restart change-mode timing
         KillTimer(hWnd, TIMER_SLEEPMODE);
         SetTimer(hWnd, TIMER_SLEEPMODE, TIMER_SLEEPMODE_MS, NULL);
         break;
-        
+
     case SM_UpdateMode:
         // Mode set by WM_TIMER upon passing of TIMER_SLEEPMODE_MS
         curr = time(0);
-        
+
         // Set timer to remainder of period if applicable
         if( SMState->SleepAt > curr )
         {
@@ -1367,14 +1367,14 @@ string UpdateSleepMode(TSMState* SMState)
             else
             {
                 // Sleep OFF
-                ; 
+                ;
             }
         }
 
         // Return to wait-mode.
         SMState->State = SM_WaitMode;
         break;
-        
+
     default:
         ; //NEVER_GET_HERE
     }
@@ -1393,7 +1393,7 @@ void UpdatePriorityClass()
     }
     else
     {
-        SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);        
+        SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
     }
 }
 
@@ -1401,7 +1401,7 @@ BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar)
 {
     BOOL result = GetClientRect(hWnd, lpRect);
 
-    if(bIsFullScreen == TRUE) 
+    if(bIsFullScreen == TRUE)
     {
         if (WithToolbar == FALSE && ToolbarControl)
         {
@@ -1435,18 +1435,18 @@ void AddDisplayAreaRect(HWND hWnd, LPRECT lpRect)
 {
     if (ToolbarControl)
     {
-        ToolbarControl->AdjustArea(lpRect, 0);    
+        ToolbarControl->AdjustArea(lpRect, 0);
     }
 
     if ((WindowBorder) && WindowBorder->Visible())
-    { 
+    {
        WindowBorder->AdjustArea(lpRect,0);
-    }    
-    
+    }
+
     if (IsStatusBarVisible())
     {
         lpRect->bottom += StatusBar_Height();
-    }   
+    }
 }
 
 void InvalidateDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL bErase)
@@ -1481,11 +1481,11 @@ LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFla
         {
           case WM_LBUTTONUP:
               {
-                  SendMessage(hWndParent,WM_CLOSE,0,0);                  
+                  SendMessage(hWndParent,WM_CLOSE,0,0);
               }
-              return TRUE;              
+              return TRUE;
         }
-    } 
+    }
     else if (sID=="BUTTON_MINIMIZE")
     {
         switch(message)
@@ -1494,20 +1494,20 @@ LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFla
               {
                   ShowWindow(hWndParent,SW_MINIMIZE);
               }
-              return TRUE;              
+              return TRUE;
         }
-    } 
+    }
     else if (sID=="BUTTON_MAXIMIZE")
     {
         switch(message)
         {
           case WM_LBUTTONUP:
               {
-                  SendMessage(hWnd, WM_COMMAND, IDM_FULL_SCREEN, 0);                  
+                  SendMessage(hWnd, WM_COMMAND, IDM_FULL_SCREEN, 0);
               }
-              return TRUE;              
+              return TRUE;
         }
-    } 
+    }
     else if (sID=="BUTTON_SIZE")
     {
         switch(message)
@@ -1516,7 +1516,7 @@ LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFla
               {
                   if (MouseFlags & MK_LBUTTON)
                   {
-                      return ::DefWindowProc(hWndParent, WM_NCLBUTTONDOWN, HTBOTTOMRIGHT, lParam);                                            
+                      return ::DefWindowProc(hWndParent, WM_NCLBUTTONDOWN, HTBOTTOMRIGHT, lParam);
                   }
               }
               break;
@@ -1538,9 +1538,9 @@ LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFla
         switch(message)
         {
           case WM_LBUTTONUP:
-              {                  
+              {
               }
-              return TRUE;              
+              return TRUE;
         }
     }
     return FALSE;
@@ -1558,23 +1558,23 @@ LPCSTR GetSkinDirectory()
     int len = GetFullPathName(GetIniFileForSettings(), MAX_PATH, szPath, &s);
     if ((len > 0) && (s!=NULL))
     {
-        *s = 0;            
+        *s = 0;
     }
     else
     {
         GetCurrentDirectory(MAX_PATH, szPath);
         strcat(szPath,"\\");
     }
-    strcpy(szSkinDirectory,szPath);        
-    strcat(szSkinDirectory,"Skins\\");    
+    strcpy(szSkinDirectory,szPath);
+    strcat(szSkinDirectory,"Skins\\");
 
     return szSkinDirectory;
 }
 
 void SetWindowBorder(HWND hWnd, BOOL bShow)
 {
-    if (!WindowBorder) 
-    {                
+    if (!WindowBorder)
+    {
         if (!szSkinName)
         {
             //Don't make the windowborder unless it is necessary
@@ -1601,17 +1601,17 @@ void SetWindowBorder(HWND hWnd, BOOL bShow)
         WindowBorder->RegisterButton("BUTTON_SIZE",BITMAPASBUTTON_PUSH,"ButtonSize","ButtonSizeMouseOver","ButtonSizeClick", BorderButtonProc);
         WindowBorder->RegisterButton("BUTTON_MINIMIZE",BITMAPASBUTTON_PUSH,"ButtonMinimize","ButtonMinimizeMouseOver","ButtonMinimizeClick", BorderButtonProc);
         WindowBorder->RegisterButton("BUTTON_MAXIMIZE",BITMAPASBUTTON_PUSH,"ButtonMaximize","ButtonMaximizeMouseOver","ButtonMaximizeClick", BorderButtonProc);
-        //WindowBorder->RegisterButton("BUTTON_SIDEBAR",BITMAPASBUTTON_PUSH,"ButtonSideBar","ButtonSideBarMouseOver","ButtonSideBarClick", BorderButtonProc);        
-        
-        vector<int>Results;        
+        //WindowBorder->RegisterButton("BUTTON_SIDEBAR",BITMAPASBUTTON_PUSH,"ButtonSideBar","ButtonSideBarMouseOver","ButtonSideBarClick", BorderButtonProc);
+
+        vector<int>Results;
         WindowBorder->LoadSkin(szSkinIniFile,"Border",&Results);
 
-        ///\todo Process errors    
+        ///\todo Process errors
     }
-    
+
     if (bShow && !bIsFullScreen)
     {
-        WindowBorder->Show();                        
+        WindowBorder->Show();
     }
     else
     {
@@ -1622,20 +1622,20 @@ void SetWindowBorder(HWND hWnd, BOOL bShow)
 void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
 {
     if (!bUpdateOnly)
-    {                
+    {
         vSkinNameList.clear();
 
         //Find sub directories with skin.ini files
         WIN32_FIND_DATA FindFileData;
-        HANDLE hFind;                
+        HANDLE hFind;
         char szSearch[MAX_PATH+10];
 
-        strcpy(szSearch,GetSkinDirectory());        
+        strcpy(szSearch,GetSkinDirectory());
         strcat(szSearch,"*.*");
         hFind = FindFirstFile(szSearch, &FindFileData);
-        if (hFind != INVALID_HANDLE_VALUE) 
+        if (hFind != INVALID_HANDLE_VALUE)
         {
-            do           
+            do
             {
                 if ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
                     && strcmp(FindFileData.cFileName,".") && strcmp(FindFileData.cFileName,"..") )
@@ -1654,8 +1654,8 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
                     }
                 }
             } while (FindNextFile(hFind, &FindFileData));
-            FindClose(hFind);       
-        }        
+            FindClose(hFind);
+        }
 
         //Make menu
 
@@ -1663,8 +1663,8 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
         char string[256];
         string[0] = '\0';
         GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
-        int reduc1 = !strcmp(string, "&Channels") ? 0 : 1;        
-        HMENU hViewMenu = GetSubMenuWithName(hMenu, 3-reduc1, "&View");        
+        int reduc1 = !strcmp(string, "&Channels") ? 0 : 1;
+        HMENU hViewMenu = GetSubMenuWithName(hMenu, 3-reduc1, "&View");
         HMENU hSkinMenu = NULL;
         for (int i = 0; i < GetMenuItemCount(hViewMenu); i++)
         {
@@ -1683,9 +1683,9 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
             {
                 DeleteMenu(hSkinMenu, 2, MF_BYPOSITION);
             }
-            
+
             MENUITEMINFO MenuItemInfo;
-            memset(&MenuItemInfo, 0, sizeof(MenuItemInfo));            
+            memset(&MenuItemInfo, 0, sizeof(MenuItemInfo));
             for (i = 0; i < vSkinNameList.size(); i++)
             {
                 MenuItemInfo.cbSize = sizeof (MenuItemInfo);
@@ -1700,7 +1700,7 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
     }
 
     CheckMenuItemBool(hMenu, IDM_SKIN_NONE, ((vSkinNameList.size()==0) || !szSkinName));
-        
+
     int Found = 0;
     if(szSkinName)
     {
@@ -1711,7 +1711,7 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
                 Found = 1;
             }
             CheckMenuItemBool(hMenu, IDM_SKIN_FIRST+i, (Found==1));
-            if (Found==1) 
+            if (Found==1)
             {
                 Found=2;
             }
@@ -1792,7 +1792,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         HANDLE hMapFile = NULL;
         char* lpMsg = NULL;
         char msg[1024];
-        
+
         // show error message if an error occurred with the other instance of DScaler
         if(lParam != 0)
         {
@@ -1803,20 +1803,20 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         else
         {
             hMapFile = OpenFileMapping(FILE_MAP_READ, FALSE, "DScalerSendMessageFileMappingObject");
-            
-            if(hMapFile == NULL) 
-            { 
+
+            if(hMapFile == NULL)
+            {
                 sprintf(msg, "Error processing incoming message. (#10 0x%x)", GetLastError());
-                LOG(0, msg); 
-            } 
+                LOG(0, msg);
+            }
             else
             {
-                lpMsg = (char*)MapViewOfFile(hMapFile, FILE_MAP_READ, 0, 0, 1024);              
-                
-                if (lpMsg == NULL) 
-                { 
+                lpMsg = (char*)MapViewOfFile(hMapFile, FILE_MAP_READ, 0, 0, 1024);
+
+                if (lpMsg == NULL)
+                {
                     sprintf(msg, "Error processing incoming message. (#11 0x%x)", GetLastError());
-                    LOG(0, msg); 
+                    LOG(0, msg);
                 }
                 else
                 {
@@ -1830,7 +1830,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 s[0] = '\n';
                 strncpy(&s[1], &s[2], strlen(&s[1]));
             }
-            
+
             if(wParam == 0 && hMapFile != NULL && lpMsg != NULL)
             {
                 OSD_ShowText(msg, 5);
@@ -1839,7 +1839,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 OSD_ShowTextPersistent(msg, 5);
             }
-            
+
             if(lpMsg != NULL)
             {
                 UnmapViewOfFile(lpMsg);
@@ -1860,7 +1860,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             SetTray(TRUE);
         }
     }
-    
+
     if (message == IDI_TRAYICON)
     {
         return On_IconHandler(wParam, lParam);
@@ -1881,7 +1881,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Audio_SetUserMute(lParam);
             ShowText(hWnd, lParam ? "MUTE" : "UNMUTE");
             break;
-            
+
         case IDM_VOLUMEPLUS:
             if (Audio_GetUserMute() == TRUE)
             {
@@ -1895,7 +1895,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     CSimpleSetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                     if(pSetting != NULL)
                     {
-                        pSetting->ChangeValue(ADJUSTUP);                        
+                        pSetting->ChangeValue(ADJUSTUP);
                     }
                     else
                     {
@@ -1962,14 +1962,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             else
             {
                 extern void Mixer_SetVolume(long volume);
-            
+
                 Mixer_SetVolume(lParam);
                 ostringstream oss;
                 oss << "Mixer-Volume " << Mixer_GetVolume();
                 ShowText(hWnd, oss.str());
             }
             break;
-    
+
         case IDM_AUTO_FORMAT:
             if(Setting_GetValue(WM_TIMING_GETVALUE, AUTOFORMATDETECT))
             {
@@ -2078,7 +2078,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
             // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
-            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // sources since the audio signal menu entries are updated and the audio signal status is
             // unknown since we have just switched channels.
             return 0;
 
@@ -2105,7 +2105,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
             // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
-            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // sources since the audio signal menu entries are updated and the audio signal status is
             // unknown since we have just switched channels.
             return 0;
 
@@ -2118,7 +2118,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
             // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
-            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // sources since the audio signal menu entries are updated and the audio signal status is
             // unknown since we have just switched channels.
             return 0;
 
@@ -2151,7 +2151,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
             // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
-            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // sources since the audio signal menu entries are updated and the audio signal status is
             // unknown since we have just switched channels.
             return 0;
 
@@ -2164,11 +2164,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
             // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
-            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // sources since the audio signal menu entries are updated and the audio signal status is
             // unknown since we have just switched channels.
             return 0;
 
-            
+
         case IDM_PATTERN_SELECT:
             pCalibration->SelectTestPattern(lParam);
             break;
@@ -2212,7 +2212,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_SLEEPMODE:
             ShowText(hWnd, UpdateSleepMode(&SMState));
             break;
-        
+
         case IDM_AUTODETECT:
             KillTimer(hWnd, TIMER_FINDPULL);
             if(Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT))
@@ -2347,7 +2347,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             SendMessage(hWnd, WM_COMMAND, IDM_USATURATION_CURRENT, 0);
             break;
-        
+
         case IDM_USATURATION_MINUS:
             if((pSetting = Providers_GetCurrentSource()->GetSaturationU()) != NULL)
             {
@@ -2366,7 +2366,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 ShowText(hWnd, "No Saturation U Control");
             }
             break;
-        
+
         case IDM_VSATURATION_PLUS:
             if((pSetting = Providers_GetCurrentSource()->GetSaturationV()) != NULL)
             {
@@ -2556,12 +2556,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if (MessageBox(hWnd,
                                "At least one of your snapshots is not yet saved in a file.\n"
-                               "Do you confirm that you want to exit without saving it?", 
-                               "DScaler - Unsaved Snapshots", 
+                               "Do you confirm that you want to exit without saving it?",
+                               "DScaler - Unsaved Snapshots",
                                MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDNO)
                 {
                     break;
-                } 
+                }
             }
             ShowWindow(hWnd, SW_HIDE);
             PostMessage(hWnd, WM_DESTROY, wParam, lParam);
@@ -2591,17 +2591,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TEXT2:
         case IDM_TEXT3:
         case IDM_TEXT4:
-            Setting_SetValue(WM_VBI_GETVALUE, CLOSEDCAPTIONMODE, 
+            Setting_SetValue(WM_VBI_GETVALUE, CLOSEDCAPTIONMODE,
                 LOWORD(wParam) - IDM_CCOFF);
             break;
 
         case IDM_VBI_VPS:
-            Setting_SetValue(WM_VBI_GETVALUE, DOVPS, 
+            Setting_SetValue(WM_VBI_GETVALUE, DOVPS,
                 !Setting_GetValue(WM_VBI_GETVALUE, DOVPS));
             break;
 
         case IDM_VBI_WSS:
-            Setting_SetValue(WM_VBI_GETVALUE, DOWSS, 
+            Setting_SetValue(WM_VBI_GETVALUE, DOWSS,
                 !Setting_GetValue(WM_VBI_GETVALUE, DOWSS));
             break;
 
@@ -2622,7 +2622,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     NewState = VT_OFF;
                     break;
                 }
-            
+
                 if (NewState != VT_OFF)
                 {
                     if (!Setting_GetValue(WM_VBI_GETVALUE, CAPTURE_VBI))
@@ -2725,7 +2725,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VT_SEARCHHIGHLIGHT:
-            Setting_SetValue(WM_VBI_GETVALUE, SEARCHHIGHLIGHT, 
+            Setting_SetValue(WM_VBI_GETVALUE, SEARCHHIGHLIGHT,
                 !Setting_GetValue(WM_VBI_GETVALUE, SEARCHHIGHLIGHT));
             InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
             break;
@@ -2761,7 +2761,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             bVTAutoCodePage = VT_GetAutoCodepage();
             break;
-        
+
         case IDM_VT_ANTIALIAS:
             if (!ProcessVTMessage(hWnd, message, wParam, lParam))
             {
@@ -2783,19 +2783,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 OSD_ShowText("Keyboard lock off", 0);
             }
-            
+
             break;
 
         case IDM_JUDDERTERMINATOR:
             Stop_Capture();
-            Setting_SetValue(WM_OUTTHREADS_GETVALUE, DOACCURATEFLIPS, 
+            Setting_SetValue(WM_OUTTHREADS_GETVALUE, DOACCURATEFLIPS,
                 !Setting_GetValue(WM_OUTTHREADS_GETVALUE, DOACCURATEFLIPS));
             Start_Capture();
             break;
 
         case IDM_USECHROMA:
             Stop_Capture();
-            Setting_SetValue(WM_FD_COMMON_GETVALUE, USECHROMA, 
+            Setting_SetValue(WM_FD_COMMON_GETVALUE, USECHROMA,
                 !Setting_GetValue(WM_FD_COMMON_GETVALUE, USECHROMA));
             Start_Capture();
             break;
@@ -2820,7 +2820,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             IsFullScreen_OnChange(!bIsFullScreen);
             WorkoutOverlaySize(TRUE);
             break;
-        
+
         case IDM_RETURN_TO_WINDOW:
             if(bIsFullScreen)
             {
@@ -2884,10 +2884,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             TimeShiftOnOptions();
             break;
 
-        case IDM_SCHEDULE: 
+        case IDM_SCHEDULE:
             ShowSchedRecDlg();
             break;
-                        
+
         case IDM_TSRECORD:
             if (TimeShiftRecord())
             {
@@ -2981,7 +2981,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 RECT winRect;
                 RECT DestRect;
                 PAINTSTRUCT sPaint;
-                GetDisplayAreaRect(hWnd, &winRect);                
+                GetDisplayAreaRect(hWnd, &winRect);
                 InvalidateRect(hWnd, &winRect, FALSE);
                 BeginPaint(hWnd, &sPaint);
                 PaintColorkey(hWnd, TRUE, sPaint.hdc, &winRect);
@@ -3148,7 +3148,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_CHARSET_TEST:
             ProcessVTMessage(hWnd, message, wParam, lParam);
             break;
-        
+
         case IDM_SETTINGS_CHANGESETTINGS:
             CTreeSettingsDlg::ShowTreeSettingsDlg(ADVANCED_SETTINGS_MASK);
             break;
@@ -3176,7 +3176,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_DEINTERLACE_SHOWVIDEOMETHODUI:
             ShowVideoModeUI();
             break;
-        
+
         case IDM_CLEAROSD:
             ProcessOSDMessage(hWnd, message, wParam, lParam);
             break;
@@ -3201,12 +3201,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDM_OUTPUTTYPE_DIRECT3D:
-            if(CheckMenuItem(hMenu, IDM_OUTPUTTYPE_DIRECT3D, MF_CHECKED)!=MF_CHECKED) 
+            if(CheckMenuItem(hMenu, IDM_OUTPUTTYPE_DIRECT3D, MF_CHECKED)!=MF_CHECKED)
             {
                 Overlay_Stop(hWnd);
                 GetActiveOutput()->ExitDD();
                 SetActiveOutput(IOutput::OUT_D3D);
-                CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_UNCHECKED);                
+                CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_UNCHECKED);
                 CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_DIRECT3D, MF_CHECKED);
                 OutputMethod = IOutput::OUT_D3D;
                 if(GetActiveOutput()->InitDD(hWnd)==TRUE)
@@ -3215,23 +3215,23 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
             break;
-        case IDM_OUTPUTTYPE_OVERLAY:            
-            if(CheckMenuItem(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_CHECKED)!=MF_CHECKED) 
+        case IDM_OUTPUTTYPE_OVERLAY:
+            if(CheckMenuItem(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_CHECKED)!=MF_CHECKED)
             {
                 Overlay_Stop(hWnd);
                 GetActiveOutput()->ExitDD();
                 SetActiveOutput(IOutput::OUT_OVERLAY);
                 CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_DIRECT3D, MF_UNCHECKED);
-                CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_CHECKED);               
+                CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_CHECKED);
                 OutputMethod = IOutput::OUT_OVERLAY;
                 if(GetActiveOutput()->InitDD(hWnd)==TRUE)
                 {
                     Overlay_Start(hWnd);
                 }
-                
+
             }
             break;
-        
+
         default:
             bDone = FALSE;
 
@@ -3243,12 +3243,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     strcpy(szSkinName, vSkinNameList[n].c_str());
                 }
                 Skin_SetMenu(hMenu, TRUE);
-                SetWindowBorder(hWnd, TRUE);  
+                SetWindowBorder(hWnd, TRUE);
                 if (ToolbarControl)
                 {
                     ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);
                 }
-                UpdateWindowState();            
+                UpdateWindowState();
                 WorkoutOverlaySize(FALSE);
                 InvalidateRect(hWnd, NULL, FALSE);
                 bDone = TRUE;
@@ -3277,7 +3277,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 if(bDone)
                 {
                     // return here. SetMenuAnalog() is called otherwise. This adds a delay with some
-                    // sources since the audio signal menu entries are updated and the audio signal status is 
+                    // sources since the audio signal menu entries are updated and the audio signal status is
                     // unknown since we have just switched channels.
                     return 0;
                 }
@@ -3339,7 +3339,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             // Set the configuration file autosave timer.
             // We use an autosave timer so that when the user has finished
             // making adjustments and at least a small delay has occured,
-            // that the DTV.INI file is properly up to date, even if 
+            // that the DTV.INI file is properly up to date, even if
             // the system crashes or system is turned off abruptly.
             KillTimer(hWnd, TIMER_AUTOSAVE);
             SetTimer(hWnd, TIMER_AUTOSAVE, TIMER_AUTOSAVE_MS, NULL);
@@ -3459,7 +3459,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             static int y = -1;
             int newx = GET_X_LPARAM(lParam);
             int newy = GET_Y_LPARAM(lParam);
-            
+
             if (x != newx || y != newy)
             {
                 x = newx;
@@ -3508,7 +3508,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         return 0;
         break;
 
-    case WM_INITMENU: 
+    case WM_INITMENU:
         SetMenuAnalog();
         return 0;
         break;
@@ -3679,17 +3679,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (Cursor_IsOurs() != FALSE)
             {
                 KillTimer(hWnd, TIMER_HIDECURSOR);
-                if (ToolbarControl) 
+                if (ToolbarControl)
                 {
-                    POINT Point;        
+                    POINT Point;
                     GetCursorPos(&Point);
-                    
+
                     if (ToolbarControl->PtInToolbar(Point))
                     {
                         Cursor_SetVisibility(TRUE);
                         break;
                     }
-                }                
+                }
                 Cursor_SetVisibility(FALSE);
             }
             break;
@@ -3744,7 +3744,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         pPerf->Resume();
         return 0;
         break;
-    
+
     // support for mouse wheel
     // the WM_MOUSEWHEEL message is not defined but this is it's Value
     case WM_MOUSEWHEEL:
@@ -3816,7 +3816,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         }
         break;
 
-    case WM_SIZE:        
+    case WM_SIZE:
         return OnSize(hWnd, wParam, lParam);
         break;
 
@@ -3896,7 +3896,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         WorkoutOverlaySize(FALSE);
         return FALSE;
         break;
-    
+
     case UWM_SQUAREPIXELS_CHECK:
         if (Providers_GetCurrentSource())
         {
@@ -3944,7 +3944,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     //in future we migth need to adjust this to only erase parts not covered by overlay
     case WM_ERASEBKGND:
         return TRUE;
-    
+
     case WM_QUERYENDSESSION:
         return TRUE;
         break;
@@ -3990,7 +3990,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     // Set the configuration file autosave timer.
                     // We use an autosave timer so that when the user has finished
                     // making adjustments and at least a small delay has occured,
-                    // that the DTV.INI file is properly up to date, even if 
+                    // that the DTV.INI file is properly up to date, even if
                     // the system crashes or system is turned off abruptly.
                     KillTimer(hWnd, TIMER_AUTOSAVE);
                     SetTimer(hWnd, TIMER_AUTOSAVE, TIMER_AUTOSAVE_MS, NULL);
@@ -4042,7 +4042,7 @@ void SaveActualPStripTiming(HWND hPSWnd)
     ATOM pStripTimingAtom = static_cast<ATOM>(SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0));
     if(lPStripTimingString == NULL)
     {
-        lPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];    
+        lPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];
     }
     GlobalGetAtomName(pStripTimingAtom, lPStripTimingString, PSTRIP_TIMING_STRING_SIZE);
     GlobalDeleteAtom(pStripTimingAtom);
@@ -4078,7 +4078,7 @@ void MainWndOnInitBT(HWND hWnd)
                 bInitOK = TRUE;
             }
         }
-        else 
+        else
         {
             // no supported d3d hardware?
             if(GetActiveOutput()->Type() == IOutput::OUT_D3D)
@@ -4100,8 +4100,8 @@ void MainWndOnInitBT(HWND hWnd)
             {
                 if (MessageBox(hWnd,
                                "The overlay couldn't be created.\n"
-                               "Do you want to try DirectX?", 
-                               "DScaler - Overlay create Failed", 
+                               "Do you want to try DirectX?",
+                               "DScaler - Overlay create Failed",
                                MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDYES)
                 {
                     SetActiveOutput(IOutput::OUT_D3D);
@@ -4143,7 +4143,7 @@ void MainWndOnInitBT(HWND hWnd)
             LoadFilterPlugins();
         }
     }
-    
+
     if (bInitOK)
     {
         AddSplashTextLine("Position Window");
@@ -4177,11 +4177,11 @@ void MainWndOnInitBT(HWND hWnd)
         if (szSkinName)
         {
             AddSplashTextLine("Load Skin");
-            
-            SetWindowBorder(hWnd, (bool)szSkinName);  
+
+            SetWindowBorder(hWnd, (bool)szSkinName);
             if (ToolbarControl)
             {
-                ToolbarControl->Set(hWnd, szSkinName);  
+                ToolbarControl->Set(hWnd, szSkinName);
             }
         }
 
@@ -4213,7 +4213,7 @@ void MainWndOnInitBT(HWND hWnd)
 
         // OK we're ready to go
         WorkoutOverlaySize(FALSE);
-        
+
         AddSplashTextLine("Update Menu");
         OSD_UpdateMenu(hMenu);
         pCalibration->UpdateMenu(hMenu);
@@ -4257,7 +4257,7 @@ void MainWndOnInitBT(HWND hWnd)
                 }
             }
         }
-        
+
         if (InitialTextPage >= 0x100)
         {
             Setting_SetValue(WM_VBI_GETVALUE, CAPTURE_VBI, TRUE);
@@ -4272,7 +4272,7 @@ void MainWndOnInitBT(HWND hWnd)
         AddSplashTextLine("Start Video");
         Start_Capture();
         GetActiveOutput()->SetCurrentMonitor(hWnd);
-        
+
     }
     else
     {
@@ -4317,7 +4317,7 @@ void MainWndOnCreate(HWND hWnd)
     AddSplashTextLine("Table Build");
     AddSplashTextLine("Teletext");
 
-    VBI_Init(); 
+    VBI_Init();
     OSD_Init();
     Mixer_Init();
 
@@ -4389,7 +4389,7 @@ void KillTimers()
 }
 
 
-// basically we want do make sure everything that needs to be done on exit gets 
+// basically we want do make sure everything that needs to be done on exit gets
 // done even if one of the functions crashes we should just carry on with the rest
 // of the functions
 void MainWndOnDestroy()
@@ -4407,7 +4407,7 @@ void MainWndOnDestroy()
         Stop_Capture();
     }
     catch(...) {LOG(1, "Error Stop_Capture");}
-      
+
     try
     {
         LOG(1, "Try CTimeShift::OnStop");
@@ -4416,7 +4416,7 @@ void MainWndOnDestroy()
     }
     catch(...) {LOG(1, "Error TimeShiftStop");}
 
-    
+
     // Kill timeshift before muting since it always exits unmuted on cleanup.
     try
     {
@@ -4439,7 +4439,7 @@ void MainWndOnDestroy()
         {
             LOG(1, "Try SaveWindowPos");
             if(hPSWnd)
-            {            
+            {
                 // Save the actual PowerStrip timing string in lPStripTimingString
                 SaveActualPStripTiming(hPSWnd);
             }
@@ -4447,14 +4447,14 @@ void MainWndOnDestroy()
         }
     }
     catch(...) {LOG(1, "Error SaveWindowPos");}
-    
+
     try
     {
         LOG(1, "Try free skinned border");
         if (WindowBorder)
         {
             WindowBorder = 0L;
-        }            
+        }
     }
     catch(...) {LOG(1, "Error free skinned border");}
 
@@ -4466,7 +4466,7 @@ void MainWndOnDestroy()
             ToolbarControl = 0L;
         }
     }
-    catch(...) {LOG(1, "Error free toolbars");}    
+    catch(...) {LOG(1, "Error free toolbars");}
 
     if(SettingsMaster)
     {
@@ -4478,10 +4478,10 @@ void MainWndOnDestroy()
             SettingsMaster->SaveGroupedSettings();
         }
         catch(...) {LOG(1, "Error SettingsMaster->SaveGroupedSettings");}
-    
+
         try
         {
-            // write out setting with optimize on 
+            // write out setting with optimize on
             // to avoid delay on flushing file
             // all the setting should be filled out anyway
             LOG(1, "SettingsMaster->SaveAllSettings");
@@ -4530,7 +4530,7 @@ void MainWndOnDestroy()
         }
     }
     catch(...) {LOG(1, "Error restore display resolution");}
- 
+
     try
     {
         // unload plug-ins
@@ -4765,7 +4765,7 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERCHANNEL, SettingsPerChannel_IsPerChannel());
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERINPUT, SettingsPerChannel_IsPerInput());
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERFORMAT, SettingsPerChannel_IsPerFormat());
-    
+
     CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_OVERLAY, GetActiveOutput()->Type() == IOutput::OUT_OVERLAY);
     CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_DIRECT3D, GetActiveOutput()->Type() == IOutput::OUT_D3D);
 }
@@ -5120,12 +5120,12 @@ void ShowText(HWND hWnd, const string& Text)
 }
 
 //----------------------------------------------------------------------------
-// Updates the window position/window state and enable/disable titlebar 
-// as necessary.  This function should be globally used for everytime 
-// you want to update the window everytime you have enabled/disabled the 
+// Updates the window position/window state and enable/disable titlebar
+// as necessary.  This function should be globally used for everytime
+// you want to update the window everytime you have enabled/disabled the
 // statusbar, menus, full screen state, etc.
 //
-// This allows for more cosmetic handling - including the ability to 
+// This allows for more cosmetic handling - including the ability to
 // startup directly to maximized without any intermediate cosmetic
 // glitches during startup.
 //
@@ -5158,13 +5158,13 @@ void UpdateWindowState()
         {
             if ((WindowBorder) && WindowBorder->Visible())
             {
-                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));                
+                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             }
             else
             {
                 SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             }
-            SetMenu(hWnd, NULL);            
+            SetMenu(hWnd, NULL);
         }
         StatusBar_ShowWindow(bDisplayStatusBar);
         if (ToolbarControl)
@@ -5172,7 +5172,7 @@ void UpdateWindowState()
             ToolbarControl->Adjust(hWnd, FALSE, FALSE);
         }
         if (UpdateWindowRegion(hWnd, FALSE) == NULL)
-        {                
+        {
            if (!bShowMenu)
            {
                SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
@@ -5180,14 +5180,14 @@ void UpdateWindowState()
         }
         SetWindowPos(hWnd,bAlwaysOnTop?HWND_TOPMOST:HWND_NOTOPMOST,
                     0,0,0,0,
-                    SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_NOACTIVATE);            
-    }    
+                    SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
+    }
 }
 
 HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
 {
     if (!bIsFullScreen && (WindowBorder) && WindowBorder->Visible() && !bShowMenu)
-    {   
+    {
         RECT rcExtra;
         if (IsStatusBarVisible())
         {
@@ -5196,7 +5196,7 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
         else
         {
             ::SetRect(&rcExtra,0,0,0,0);
-        }   
+        }
         HRGN hRgn = WindowBorder->MakeRegion(&rcExtra);
         if (hRgn != NULL)
         {
@@ -5207,7 +5207,7 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
             LOG(2,"DScaler: Set window region (0x%08x)",hRgn);
             if (hRgn != DScalerWindowRgn)
             {
-                SetWindowRgn(hWnd,hRgn,TRUE);            
+                SetWindowRgn(hWnd,hRgn,TRUE);
             }
             DScalerWindowRgn = hRgn;
         }
@@ -5261,7 +5261,7 @@ void Cursor_SetVisibility(BOOL bVisible)
 
 void Cursor_UpdateVisibility()
 {
-    KillTimer(hWnd, TIMER_HIDECURSOR);    
+    KillTimer(hWnd, TIMER_HIDECURSOR);
 
     if (Cursor_IsOurs() == FALSE)
     {
@@ -5439,7 +5439,7 @@ void Cursor_VTUpdate(int x, int y)
         RECT Rect;
         POINT Point;
 
-        if (x == -1 || y == -1) 
+        if (x == -1 || y == -1)
         {
             GetCursorPos(&Point);
             ScreenToClient(hWnd, &Point);
@@ -5567,7 +5567,7 @@ static void Init_IconMenu()
         mInfo.hSubMenu = CreateDScalerPopupMenu();
 
         SetMenuItemInfo(hMenuTray, 2, TRUE, &mInfo);
-        
+
         SetMenuDefaultItem(hMenuTray, 4, TRUE);
     }
 }
@@ -5615,7 +5615,7 @@ int On_IconHandler(WPARAM wParam, LPARAM lParam)
         }
         break;
     }
-    
+
     return 0;
 }
 
@@ -5656,14 +5656,14 @@ BOOL IsFullScreen_OnChange(long NewValue)
                 // Save the actual PowerStrip timing string in lPStripTimingString
                 SaveActualPStripTiming(hPSWnd);
             }
-            SaveWindowPos(hWnd);                
+            SaveWindowPos(hWnd);
             KillTimer(hWnd, TIMER_STATUS);
             OutReso_Change(hWnd, hPSWnd, FALSE, TRUE, NULL, FALSE);
         }
         if (WindowBorder)
         {
             if (bIsFullScreen && WindowBorder->Visible())
-            {                
+            {
                 WindowBorder->Hide();
             }
             else if (!bIsFullScreen && szSkinName[0]!=0)
@@ -5672,10 +5672,10 @@ BOOL IsFullScreen_OnChange(long NewValue)
             }
         }
         if (ToolbarControl)
-        {            
+        {
             ToolbarControl->Set(hWnd, NULL, 0, 1);
         }
-        
+
         Cursor_UpdateVisibility();
         //InvalidateRect(hWnd, NULL, FALSE);
         UpdateWindowState();
@@ -5762,7 +5762,7 @@ BOOL DisplayStatusBar_OnChange(long NewValue)
         if (ToolbarControl)
         {
             ToolbarControl->Adjust(hWnd, TRUE, FALSE);
-        }        
+        }
         UpdateWindowState();
         WorkoutOverlaySize(TRUE);
     }

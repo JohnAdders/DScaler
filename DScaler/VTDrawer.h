@@ -20,10 +20,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file vtdrawer.h vtdrawer Header file
  */
- 
+
 #ifndef __VTDRAWER_H__
 #define __VTDRAWER_H__
 
@@ -125,7 +125,7 @@ private:
     double      m_dAvgHeight;
 
     static COLORREF     m_ColourTable[8];
-    static const char   m_szFontName[32];  
+    static const char   m_szFontName[32];
 };
 
 #endif

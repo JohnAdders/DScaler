@@ -22,10 +22,10 @@
 // Explanation of the MMX version: 1 is added to the source pixel if it is odd (and != 255)
 // Then half the (adjusted) source pixel (rounding down -- which is effectively the same as
 // rounding the unadjusted pixel up unless source == 255) is added to half the destination
-// pixel (also rounding down). This gives the same result as the much faster and less 
+// pixel (also rounding down). This gives the same result as the much faster and less
 // complicated versions for other processors
 
-// tempMM is changed 
+// tempMM is changed
 
 #undef AVERAGE
 #if defined(IS_SSE)

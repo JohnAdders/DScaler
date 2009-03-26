@@ -28,7 +28,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// Eigenschaftenseite CPage1 
+// Eigenschaftenseite CPage1
 
 IMPLEMENT_DYNCREATE(CPage1, CPropertyPage)
 
@@ -38,7 +38,7 @@ CPage1::CPage1() : CPropertyPage(CPage1::IDD)
         // HINWEIS: Der Klassen-Assistent fügt hier Elementinitialisierung ein
     //}}AFX_DATA_INIT
 
-    m_psp.dwFlags &= ~PSP_HASHELP; 
+    m_psp.dwFlags &= ~PSP_HASHELP;
 }
 
 CPage1::~CPage1()
@@ -61,9 +61,9 @@ BEGIN_MESSAGE_MAP(CPage1, CPropertyPage)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// Behandlungsroutinen für Nachrichten CPage1 
+// Behandlungsroutinen für Nachrichten CPage1
 
-BOOL CPage1::OnSetActive() 
+BOOL CPage1::OnSetActive()
 {
     BOOL bEnableNextButton = FALSE;
 
@@ -77,7 +77,7 @@ BOOL CPage1::OnSetActive()
             bEnableNextButton = TRUE;
         }
 
-        else 
+        else
         {
             GetDlgItem(IDC_STATIC_EEPROM)->SetWindowText("EEPROM is not corrupted.");
         }
@@ -87,7 +87,7 @@ BOOL CPage1::OnSetActive()
     {
         GetDlgItem(IDC_STATIC_CARD)->SetWindowText("MSI Master Card not found.");
     }
-    
+
     CPropertySheet* parent = (CPropertySheet*)GetParent();
 
     bEnableNextButton == TRUE ?

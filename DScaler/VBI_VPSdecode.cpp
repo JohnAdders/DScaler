@@ -137,7 +137,7 @@ void VPS_DecodeLabel(BYTE b)
 
         VPS_Data.LabelIndex = 0;
     }
-        
+
     VPS_Data.LabelCurr[VPS_Data.LabelIndex++] = b & 0x7f;
 
     if(VPS_Data.LabelIndex >= 9)
@@ -171,7 +171,7 @@ BYTE VBI_Scan(BYTE* VBI_Buffer, UINT step, UINT* scanPos)
     {
         dat |= ((VBI_Buffer[*scanPos >> FPSHIFT] + VBIOffset) & 0x80) >> j;
     }
-    
+
     return dat;
 }
 
@@ -185,14 +185,14 @@ BYTE VPS_Scan(const BYTE* VBI_Buffer, UINT step, UINT* scanPos, BOOL* pError)
     for(j = 0, dat = 0; j < 8; j++, *scanPos += step * 2)
     {
         bit = ((VBI_Buffer[*scanPos >> FPSHIFT] + VBIOffset) & 0x80);
-        
+
         if (bit == ((VBI_Buffer[(*scanPos + step) >> FPSHIFT] + VBIOffset) & 0x80))
         {
             // bi-phase encoding error, i.e. bit is not followed by it's inverse
             *pError = TRUE;
             break;
         }
-        
+
         dat |= bit >> j;
     }
 
@@ -205,7 +205,7 @@ void VBI_DecodeLine_VPS(BYTE* VBI_Buffer)
     BOOL bError = TRUE;
 
     int p = VPSStep * 12 / FPFAC;
-    
+
     while((VBI_Buffer[p] < VBI_thresh) && (VPSStep * 37 / FPFAC))
     {
         p++;
@@ -259,7 +259,7 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
             sprintf(buffer, "0x%0x", VPS_Data.CNI);
             SetDlgItemText(hDlg, IDC_VPS_CNI, buffer);
-            
+
             if(VPS_Data.Day == 0)
             {
 
@@ -290,7 +290,7 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             else
             {
                 SetDlgItemText(hDlg, IDC_VPS_SERVICE, "");
-                
+
                 sprintf(buffer, "%02d.%02d", VPS_Data.Day, VPS_Data.Month);
                 SetDlgItemText(hDlg, IDC_VPS_MONTH, buffer);
 
@@ -316,7 +316,7 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 strcpy(buffer, "Error");
                 break;
             }
-            
+
             SetDlgItemText(hDlg, IDC_VPS_AUDIO, buffer);
             SetDlgItemText(hDlg, IDC_VPS_LABEL, VPS_Data.LabelTemp);
 

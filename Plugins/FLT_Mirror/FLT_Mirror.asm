@@ -86,7 +86,7 @@ LOOP_LABEL:
 
                                                 // swap the pixels from the first block
             SWAPPIXELS(mm0, mm1, mm2, mm5, mm6, mm7)
-        
+
             movq    [edx], mm0                  // and swap the block of pixels
 
                                                 // swap the pixels from the second block
@@ -101,7 +101,7 @@ LOOP_LABEL:
         }
         Pixels += pInfo->InputPitch;
     }
-    _asm 
+    _asm
     {
         emms
     }

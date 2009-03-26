@@ -247,7 +247,7 @@ void Toggle_Vertical_Flip()
 }
 
 // save the Info structure to a snapshot file
-// these files will make it easier to test 
+// these files will make it easier to test
 // deinterlacing techniques as we can start
 // to exchange the actual data we are each looking
 // at and have the ability to recreate results
@@ -305,7 +305,7 @@ void SaveStreamSnapshot(TDeinterlaceInfo* pInfo)
             fwrite(CurLine, pInfo->LineLength, 1, file);
             CurLine += pInfo->InputPitch;
         }
-        i++;      
+        i++;
     }
     fclose(file);
 }
@@ -425,7 +425,7 @@ void SetOutputThreadPriority()
     {
         return;
     }
-    
+
     if (ThreadClassId == 0)
         SetThreadPriority(g_hOutThread, THREAD_PRIORITY_BELOW_NORMAL);
     else if (ThreadClassId == 1)
@@ -495,7 +495,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
         // Anti-plop and update screen delay timers may have been cancelled.
         // Reset to default values
-        bNoScreenUpdateDuringTuning = FALSE;   
+        bNoScreenUpdateDuringTuning = FALSE;
 
         // Sets processor Affinity and Thread priority according to menu selection
         SetOutputThreadProcessor();
@@ -601,8 +601,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     if (pPerf->IsValid((ePerfType)i) && (pPerf->GetDurationLastCycle((ePerfType)i) != -1))
                     {
                         LOG(2, "    %s : %d (avg %d)",
-                            pPerf->GetName((ePerfType)i), 
-                            pPerf->GetDurationLastCycle((ePerfType)i) * 10, 
+                            pPerf->GetName((ePerfType)i),
+                            pPerf->GetDurationLastCycle((ePerfType)i) * 10,
                             pPerf->GetAverageDuration((ePerfType)i));
                     }
                 }
@@ -674,7 +674,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // and the pitch is negative
                 // Note that we don't "own" these pictures but we have them for the time being
                 // so make sure that we change them back after we use them
-                // so just in case the setting gets changes while we are using it 
+                // so just in case the setting gets changes while we are using it
                 // we save the current value
                 BOOL bDoVerticalFlipCurrent = bDoVerticalFlipSetting;
                 if (bDoVerticalFlipCurrent)
@@ -722,7 +722,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 // update the source area
                 GetSourceRect(&Info.SourceRect);
-                
+
 #ifdef USE_PERFORMANCE_STATS
                 pPerf->StartCount(PERF_INPUT_FILTERS);
 #endif
@@ -781,7 +781,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             {
                                 // we will need always need diff
                                 // comb is needed in film Mode or when we ask for it
-                                PerformFilmDetectCalculations(&Info, 
+                                PerformFilmDetectCalculations(&Info,
                                                             IsFilmMode() ||
                                                                 CurrentMethod->bNeedCombFactor,
                                                             TRUE);
@@ -793,8 +793,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         }
                         else
                         {
-                            PerformFilmDetectCalculations(&Info, 
-                                                            CurrentMethod->bNeedCombFactor, 
+                            PerformFilmDetectCalculations(&Info,
+                                                            CurrentMethod->bNeedCombFactor,
                                                             CurrentMethod->bNeedFieldDiff);
                         }
                     }
@@ -894,11 +894,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         {
                             bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
                         }
-                        // if we have dropped a field then do BOB 
+                        // if we have dropped a field then do BOB
                         // or if we need to get more history
                         // if we are doing a half height Mode then just do that
                         // anyway as it will be just as fast
-                        else if(CurrentMethod->bIsHalfHeight == FALSE && 
+                        else if(CurrentMethod->bIsHalfHeight == FALSE &&
                                 ((Info.bMissedFrame == TRUE) || (nHistory < CurrentMethod->nFieldsRequired)))
                         {
                             bFlipNow = Bob(&Info);
@@ -908,7 +908,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
                         }
                         CHECK_FPU_STACK;
-                    
+
 #ifdef USE_PERFORMANCE_STATS
                         pPerf->StopCount(PERF_DEINTERLACE);
 #endif
@@ -1032,7 +1032,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_START, 0);
                                 return 1;
                             }
-                                                       
+
 
                             // update which surface we write to only after a flip
                             bUseExtraBuffer = Filter_WillWeDoOutput()
@@ -1044,9 +1044,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #endif
                         }
                     }
-                }                   
-                catch(...) 
-                { 
+                }
+                catch(...)
+                {
                     if(bOverlayLocked == TRUE)
                     {
 #ifdef USE_PERFORMANCE_STATS
@@ -1062,11 +1062,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     ErrorBox("Crash in output code. Restart DScaler.");
                     return 1;
                 }
-            
+
                 // Vertical flipping support
                 // change the pictures back to how they were before
                 // not that we use the bDoVerticalFlipCurrent
-                // at the top and here, so this variable cannot change 
+                // at the top and here, so this variable cannot change
                 // during the processing
                 if (bDoVerticalFlipCurrent)
                 {
@@ -1201,8 +1201,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
     }
     // if there is any exception thrown then exit the thread
-    catch(...) 
-    { 
+    catch(...)
+    {
         Providers_GetCurrentSource()->Stop();
         ErrorBox("Crash in OutThreads main loop. Restart DScaler.");
         return 1;
@@ -1214,7 +1214,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         Providers_GetCurrentSource()->Stop();
     }
     // if there is any exception thrown then exit the thread
-    catch(...) 
+    catch(...)
     {
         ErrorBox("Crash in in OutThreads Providers_GetCurrentSource()->Stop(). Restart DScaler.");
         return 1;

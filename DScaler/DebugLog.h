@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file debuglog.h debuglog Header file
  */
- 
+
 #ifndef __DEBUGLOG_H__
 #define __DEBUGLOG_H__
 
@@ -32,7 +32,7 @@ SmartPtr<CTreeSettingsGeneric> Debug_GetTreeSettingsPage();
 #if !defined(NOLOGGING)
 void LOG(int DebugLevel, LPCSTR format, ...);
 #else
-#define LOG 
+#define LOG
 #endif
 
 // LOGD outputs a string to the debug screen while debugging

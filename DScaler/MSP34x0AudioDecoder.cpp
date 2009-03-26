@@ -867,13 +867,13 @@ void CMSP34x0AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     CAudioDecoder::DetectAudioStandard(Interval, SupportedSoundChannels, TargetChannel);
 
     if (Interval > 0)
-    {                
+    {
         m_DetectInterval10ms = (Interval/10);
     }
     else
     {
         //Abort
-        StopThread();    
+        StopThread();
         return;
     }
 
@@ -884,42 +884,42 @@ void CMSP34x0AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
 
     LOGD("MSP34xx: Detect %d\n",SupportedSoundChannels);
 
-    EnterCriticalSection(&MSP34xxCriticalSection);    
-    int AutoDetecting = m_AutoDetecting;       
+    EnterCriticalSection(&MSP34xxCriticalSection);
+    int AutoDetecting = m_AutoDetecting;
     LeaveCriticalSection(&MSP34xxCriticalSection);
 
     // Stop thread if detecting audio standard
     // Suspend thread if detecting stereo
     if (AutoDetecting == 1)
     {
-        StopThread();    
+        StopThread();
     }
     else if (AutoDetecting == 2)
     {
-        EnterCriticalSection(&MSP34xxCriticalSection);    
+        EnterCriticalSection(&MSP34xxCriticalSection);
         m_ThreadWait = TRUE;
         LeaveCriticalSection(&MSP34xxCriticalSection);
         Sleep(10);
-        
-        EnterCriticalSection(&MSP34xxCriticalSection);    
+
+        EnterCriticalSection(&MSP34xxCriticalSection);
         BOOL bSuspended = (m_AutoDetecting == 0);
         LeaveCriticalSection(&MSP34xxCriticalSection);
 
         if (!bSuspended)
-        {            
+        {
             Sleep(50);
-            EnterCriticalSection(&MSP34xxCriticalSection);    
+            EnterCriticalSection(&MSP34xxCriticalSection);
             bSuspended = (m_AutoDetecting == 0);
             LeaveCriticalSection(&MSP34xxCriticalSection);
-            
+
             if (!bSuspended)
             {
                 StopThread();
             }
         }
-        Sleep(1);   
+        Sleep(1);
     }
-    
+
     //Setup
     if (SupportedSoundChannels == 2)
     {
@@ -944,7 +944,7 @@ void CMSP34x0AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     }
 
     //Set new state
-    EnterCriticalSection(&MSP34xxCriticalSection);        
+    EnterCriticalSection(&MSP34xxCriticalSection);
     m_DetectCounter = 0;
 
     if (SupportedSoundChannels == 2)
@@ -959,7 +959,7 @@ void CMSP34x0AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_MONO;
     m_ThreadWait = FALSE;
     LeaveCriticalSection(&MSP34xxCriticalSection);
-    
+
     //Start or resume thread
     StartThread();
 }
@@ -1028,11 +1028,11 @@ void CMSP34x0AudioDecoder::StopThread()
             if (GetExitCodeThread(m_MSP34xxThread, &ExitCode) == TRUE)
             {
                 if (ExitCode != STILL_ACTIVE)
-                {                    
+                {
                     Thread_Stopped = TRUE;
                 }
                 else
-                {                    
+                {
                     Sleep(50);
                 }
             }
@@ -1075,7 +1075,7 @@ int CMSP34x0AudioDecoder::DetectThread()
         }
 
         EnterCriticalSection(&MSP34xxCriticalSection);
-        AutoDetecting = m_AutoDetecting;        
+        AutoDetecting = m_AutoDetecting;
         LeaveCriticalSection(&MSP34xxCriticalSection);
 
         if ( (AutoDetecting==1) //Detect standard
@@ -1151,7 +1151,7 @@ int CMSP34x0AudioDecoder::DetectThread()
             }
             EnterCriticalSection(&MSP34xxCriticalSection);
             m_AutoDetecting = AutoDetecting;
-            m_DetectCounter = 1;            
+            m_DetectCounter = 1;
             LeaveCriticalSection(&MSP34xxCriticalSection);
         }
 
@@ -1195,7 +1195,7 @@ int CMSP34x0AudioDecoder::DetectThread()
                     {
                         //Finished
                         EnterCriticalSection(&MSP34xxCriticalSection);
-                        m_AutoDetecting = 0;                        
+                        m_AutoDetecting = 0;
                         m_ThreadWait = TRUE;
 
                         AutoDetecting = 0;
@@ -1218,7 +1218,7 @@ int CMSP34x0AudioDecoder::DetectThread()
         {
             Sleep(10);
             m_DetectCounter++;
-        }        
+        }
     }
     return 0;
 }

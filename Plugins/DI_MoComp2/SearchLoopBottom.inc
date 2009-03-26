@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 //
 //  (From Tom Barry)
-//  Also, this program is "Philanthropy-Ware".  That is, if you like it and 
+//  Also, this program is "Philanthropy-Ware".  That is, if you like it and
 //  feel the need to reward or inspire the author then please feel free (but
 //  not obligated) to consider joining or donating to the Electronic Frontier
-//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.  
+//  Foundation. This will help keep cyber space free of barbed wire and bullsh*t.
 //  See www.eff.org for details
 /////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@ __asm
     // mm0 = 0
     // mm1 = weave pixels
     // mm3 = "movement" in the centre
-    // mm6 = Bob pixels          
+    // mm6 = Bob pixels
 
     // operate only on luma as we will always bob the chroma
     pand    mm3, YMask
@@ -45,13 +45,13 @@ __asm
 
     PABS(mm4, mm7, mm5)
     pand    mm4, YMask
-    
+
     // mm0 = 0
     // mm1 = weave pixels
     // mm2 = "movement" in the top
     // mm3 = "movement" in the centre
     // mm4 = "movement" in the bottom
-    // mm6 = Bob pixels          
+    // mm6 = Bob pixels
 
     psubusb mm2, MOVE           // non-zero where mm2 > MOVE i.e. Movement
     pcmpeqd mm2, mm0            // FFFF where the luma has no movement in two pixels
@@ -79,8 +79,8 @@ __asm
     lea     edx, [edx+8]        // bump offset pointer
     cmp     edx, Last8          // done with line?
     jb      LoopQ               // y
-    
-    }   
+
+    }
 
     // adjust for next line
     pSrc  += src_pitch2;

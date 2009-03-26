@@ -58,7 +58,7 @@ long Filter_DoInput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
             {
                 if(History >= Filters[i]->HistoryRequired)
                 {
-                    if(!(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK) || 
+                    if(!(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK) ||
                         Filters[i]->CanDoInterlaced)
                     {
                         SourceAspectAdjust *= Filters[i]->pfnAlgorithm(pInfo);
@@ -259,8 +259,8 @@ BOOL LoadFilterPlugins()
                     LOG(1, "Loading %s ...", FindFileData.cFileName);
                     LoadFilterPlugin(FindFileData.cFileName);
                 }
-                catch(...) 
-                { 
+                catch(...)
+                {
                     LOG(1, "Crash Loading %s", FindFileData.cFileName);
                 }
             }
@@ -355,7 +355,7 @@ void Filter_SetMenu(HMENU hMenu)
 void RegisterSettings(SmartPtr<CSettingsHolder> Holder, FILTER_METHOD* Filter)
 {
     char szDescription[100];
-        
+
     sprintf(szDescription,"Flt On Off - %s",Filter->szName);
 
     int iOnOffSetting = -1;
@@ -369,17 +369,17 @@ void RegisterSettings(SmartPtr<CSettingsHolder> Holder, FILTER_METHOD* Filter)
     int i;
 
     for (i = 0; i < Filter->nSettings; i++ )
-    {        
+    {
         if (Filter->pSettings[i].pValue == (long*)&Filter->bActive)
-        {            
+        {
             Holder->AddSetting(Filter->pSettings + i, pOnOffGroup);
             iOnOffSetting = i;
             break;
-        }        
+        }
     }
 
     for (i = 0; i < Filter->nSettings; i++ )
-    {        
+    {
         if (i != iOnOffSetting)
         {
             Holder->AddSetting(Filter->pSettings + i);

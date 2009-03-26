@@ -16,10 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * @file hardwaredriver.h hardwaredriver Header file
  */
- 
+
 #ifndef __HARDWAREDRIVER_H___
 #define __HARDWAREDRIVER_H___
 
@@ -55,9 +55,9 @@ public:
                      );
 
     BOOL DoesThisPCICardExist(
-                                 WORD VendorID, 
-                                 WORD DeviceID, 
-                                 int DeviceIndex, 
+                                 WORD VendorID,
+                                 WORD DeviceID,
+                                 int DeviceIndex,
                                  DWORD& SubSystemId
                               );
 

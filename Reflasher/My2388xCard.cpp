@@ -73,7 +73,7 @@ BOOL CMy2388xCard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
 
         if((VendorID == 0x14F1) && (DeviceID == 0x8800))
             hwParam.dwFlags = 0x400000;
-        
+
         else
             hwParam.dwFlags = m_MemoryLength;
 
@@ -103,7 +103,7 @@ DWORD CMy2388xCard::ReadDword(DWORD Offset)
 {
     TDSDrvParam hwParam;
     hwParam.dwAddress = m_MemoryBase + Offset;
-    
+
     DWORD dwReturnedLength;
     DWORD dwValue = NULL;
 

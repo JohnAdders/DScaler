@@ -45,16 +45,16 @@ class CDShowObject
 public:
     CDShowObject(IGraphBuilder *pGraph);
     virtual ~CDShowObject();
-    
+
     /**
      * This is used to tell the different object types apart, istead of using RTTI.
      * @return type of object
      */
     virtual eDSObjectType getObjectType()=0;
-    
+
     //name of object
     //virtual char* getName()=0;
-    
+
     //virtual void configure(HWND hWnd)=0;
     //virtual BOOL canConfigure()=0;
 

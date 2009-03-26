@@ -420,7 +420,7 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 
     m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, LONG_MAX, IniSection, pVideoGroup);
     m_Settings.push_back(m_Resolution);
-    
+
     m_ConnectAudio = new CConnectAudioSetting(this,"ConnectAudio",TRUE,IniSection);
     m_Settings.push_back(m_ConnectAudio);
 
@@ -434,7 +434,7 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
         {
             LOG(2,"DSCaptureSource: Reading too litle data, problem with ResolutionSize or ResolutionData in ini file");
         }
-        
+
         string str=pcData;
         vector<std::string> strlist;
         string::size_type LastPos=0;
@@ -457,7 +457,7 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 
         delete pcData;
     }
-    
+
     ReadFromIni();
     LOG(2,"DSCaptureSource: setting read from .ini");
 }
@@ -508,7 +508,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
     {
         return TRUE;
     }
-    
+
     if(LOWORD(wParam)==IDM_DSHOW_SETTINGS)
     {
         CTreeSettingsDlg dlg(CString("DirectShow Settings"));
@@ -520,7 +520,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
         dlg.AddPage(&AudioDevice);
         dlg.AddPage(&VidemFmt);
         dlg.DoModal();
-        
+
         m_ConnectAudio->SetValue(bConnectAudio);
 
         return TRUE;
@@ -843,7 +843,7 @@ eVideoFormat CDSCaptureSource::ConvertVideoStd(AnalogVideoStandard fmt)
     default:
         LOG(1,"CDSCaptureSource::ConvertVideoFmt: Unknown videoformat!");
         return VIDEOFORMAT_PAL_B;
-    }    
+    }
 }
 
 BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
@@ -1162,7 +1162,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
     FILTER_STATE state=m_pDSGraph->getState();
     UINT pos=8-state;
     menu->CheckMenuRadioItem(6,8,pos,MF_BYPOSITION);
-    
+
     //audio channel submenu
     CDShowTVAudio *pTVAudio=pCap->GetTVAudio();
     if(pTVAudio!=NULL && pTVAudio->GetAvailableModes()!=0)
@@ -1174,7 +1174,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
         {
             menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_MONO,MF_BYCOMMAND);
             menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_MONO,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_MONO ? MF_CHECKED : MF_UNCHECKED));
-            
+
         }
         if(modes&AMTVAUDIO_MODE_STEREO)
         {
@@ -1304,7 +1304,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
                 pCrossbar->SetInputIndex(NewValue,TRUE);
 
                 PhysicalConnectorType NewInputType = pCrossbar->GetInputType(NewValue);
-                
+
                 /**
                  * @todo we also must figure out what the related pin is and then call
                  * AudioInputOnChange if it is an audio pin.
@@ -1353,7 +1353,7 @@ void CDSCaptureSource::AudioInputOnChange(long NewValue, long OldValue)
             if(pCrossbar!=NULL)
             {
                 LOG(2,"DSCaptureSource: Set audio input to %d",NewValue);
-                
+
                 //prevent changing to a pin that is not an audio pin
                 PhysicalConnectorType type=pCrossbar->GetInputType(NewValue);
                 if(type>=0x1000)
@@ -1401,7 +1401,7 @@ void CDSCaptureSource::Start()
                     LOG(2,"Error restoring resolution, failed to change to new resolution or format not supported");
                     break;
                 case CDShowGraph::ERROR_FAILED_TO_CHANGE_BACK:
-                    //oops we broke the filter graph, reset resolution 
+                    //oops we broke the filter graph, reset resolution
                     //setting so we don't break it the next time too.
                     m_Resolution->SetValue(-1);
                     LOG(2,"Error restoring resolution, broke filter graph");
@@ -1423,7 +1423,7 @@ void CDSCaptureSource::Start()
 
         VideoInputOnChange(m_VideoInput->GetValue(), m_VideoInput->GetValue());
         AudioInputOnChange(m_AudioInput->GetValue(), m_AudioInput->GetValue());
-        
+
         CDSSourceBase::Start();
     }
     catch(CDShowException &e)
@@ -1517,7 +1517,7 @@ int CDSCaptureSource::NumInputs(eSourceInputType InputType)
         pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
     }
     if(pCap == NULL) { return 0; }
-    
+
     if(!m_HaveInputList)
     {
         m_VideoInputList.clear();
@@ -1529,7 +1529,7 @@ int CDSCaptureSource::NumInputs(eSourceInputType InputType)
             {
                 return 0;
             }
-            
+
             long cIn,cOut;
             pCrossbar->GetPinCounts(cIn,cOut);
             for(int i=0;i<cIn;i++)
@@ -1552,7 +1552,7 @@ int CDSCaptureSource::NumInputs(eSourceInputType InputType)
             return 0;
         }
     }
-    
+
     if(InputType == VIDEOINPUT)
     {
         return m_VideoInputList.size();
@@ -1599,7 +1599,7 @@ int CDSCaptureSource::GetInput(eSourceInputType InputType)
     {
         NumInputs(InputType);   // Make input list
     }
-    
+
     if(InputType == VIDEOINPUT)
     {
         int i;
@@ -1641,7 +1641,7 @@ string CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
     {
         return "";
     }
-    
+
     if(!m_HaveInputList)
     {
         // Make input list
@@ -1660,7 +1660,7 @@ string CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
                 {
                     return "";
                 }
-                
+
                 int nInputNumber;
                 if (InputType == VIDEOINPUT)
                 {
@@ -1697,15 +1697,15 @@ BOOL CDSCaptureSource::InputHasTuner(eSourceInputType InputType, int Nr)
     {
         return FALSE;
     }
-    
-    
+
+
     if(InputType == VIDEOINPUT)
     {
         if(!m_HaveInputList)
         {
             NumInputs(InputType);
         }
-        
+
         if((Nr>=0) && (Nr < m_VideoInputList.size()))
         {
             try
@@ -1715,7 +1715,7 @@ BOOL CDSCaptureSource::InputHasTuner(eSourceInputType InputType, int Nr)
                 {
                     return FALSE;
                 }
-                
+
                 if(pCrossbar->GetInputType(m_VideoInputList[Nr]) == PhysConn_Video_Tuner)
                 {
                     return TRUE;

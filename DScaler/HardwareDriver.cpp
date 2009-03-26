@@ -49,7 +49,7 @@ CHardwareDriver::CHardwareDriver()
     m_bWindows95 = (ov.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
     m_WeStartedDriver = TRUE;
     strcpy(m_NTDriverName, "DSDrv4");
-    
+
     // we are a 32bit program possibly running on 64bit hardware
     // if this is the case then we need to load up an arch
     // specific driver, we just append the arch to the standard name
@@ -86,14 +86,14 @@ BOOL CHardwareDriver::LoadDriver()
         // This function fails on WinXP when not logged on as an administrator.
         // The following note comes from the updated Platform SDK documentation:
 
-        // Windows 2000 and earlier: All processes are granted SC_MANAGER_CONNECT, 
+        // Windows 2000 and earlier: All processes are granted SC_MANAGER_CONNECT,
         // SC_MANAGER_ENUMERATE_SERVICE, and SC_MANAGER_QUERY_LOCK_STATUS access to all service control
         // manager databases. This enables any process to open a service control manager database handle
-        // that it can use in the OpenService, EnumServicesStatus, and QueryServiceLockStatus functions. 
+        // that it can use in the OpenService, EnumServicesStatus, and QueryServiceLockStatus functions.
         //
-        // Windows XP: Only authenticated users are granted SC_MANAGER_CONNECT, 
+        // Windows XP: Only authenticated users are granted SC_MANAGER_CONNECT,
         // SC_MANAGER_ENUMERATE_SERVICE, and SC_MANAGER_QUERY_LOCK_STATUS access to all service control
-        // manager databases. 
+        // manager databases.
 
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
         if(hSCManager == NULL)
@@ -141,7 +141,7 @@ BOOL CHardwareDriver::LoadDriver()
             if(StartService(m_hService, 0, NULL) == FALSE)
             {
                 DWORD Err = GetLastError();
-                
+
                 // uninstall the driver if the driver location in the registry is incorrect.
                 if(Err == ERROR_PATH_NOT_FOUND || Err == ERROR_FILE_NOT_FOUND)
                 {
@@ -197,7 +197,7 @@ BOOL CHardwareDriver::LoadDriver()
     {
         if(m_hFile != INVALID_HANDLE_VALUE)
         {
-            // OK so we've loaded the driver 
+            // OK so we've loaded the driver
             // we had better check that it's the same version as we are
             // otherwise all sorts of nasty things could happen
             // n.b. note that if someone else has already loaded our driver this may
@@ -215,7 +215,7 @@ BOOL CHardwareDriver::LoadDriver()
                         &dwReturnedLength
                        );
 
-            // we should try and force the user to have the 
+            // we should try and force the user to have the
             // latest possible driver installed
             if(dwVersion < DSDRV_VERSION)
             {
@@ -223,7 +223,7 @@ BOOL CHardwareDriver::LoadDriver()
                 LOG(0, "We've loaded up the wrong version of the driver");
                 bError = TRUE;
 
-                // Maybe another driver from an old DScaler version is still installed. 
+                // Maybe another driver from an old DScaler version is still installed.
                 // Try to uninstall it.
                 UnInstallNTDriver();
             }
@@ -318,16 +318,16 @@ BOOL CHardwareDriver::InstallNTDriver()
     {
         szDriverPath +=  "\\";
         szDriverPath += m_NTDriverName;
-        szDriverPath += ".sys";       
-        
+        szDriverPath += ".sys";
+
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
         if(hSCManager == NULL)
         {
             LOG(0, "OpenSCManager returned an error = 0x%X", GetLastError());
             bError = TRUE;
-        }   
+        }
     }
-    
+
     if(!bError)
     {
         // Make sure no spaces exist in the path since CreateService() does not like spaces.
@@ -349,13 +349,13 @@ BOOL CHardwareDriver::InstallNTDriver()
             NULL,                  // LocalSystem account
             NULL                   // no password
             );
-        
+
         if(m_hService == NULL)
         {
             // if the service already exists delete it and create it again.
             // this might prevent problems when the existing service points to another driver.
             if(GetLastError() == ERROR_SERVICE_EXISTS)
-            {              
+            {
                 m_hService = OpenService(hSCManager, m_NTDriverName, SERVICE_ALL_ACCESS);
                 if(DeleteService(m_hService) == FALSE)
                 {
@@ -398,7 +398,7 @@ BOOL CHardwareDriver::InstallNTDriver()
             }
         }
     }
-    
+
     if(!bError)
     {
         if(!AdjustAccessRights())
@@ -406,7 +406,7 @@ BOOL CHardwareDriver::InstallNTDriver()
             bError = TRUE;
         }
     }
-    
+
     if(hSCManager != NULL)
     {
         if(!CloseServiceHandle(hSCManager))
@@ -416,7 +416,7 @@ BOOL CHardwareDriver::InstallNTDriver()
         }
         hSCManager = NULL;
     }
-    
+
     if(bError)
     {
         LOG(1, "(NT driver) Failed to install driver.");
@@ -455,9 +455,9 @@ BOOL CHardwareDriver::AdjustAccessRights()
 
     // Find out how much memory to allocate for psd.
     // psd can't be NULL so we let it point to itself.
-    
+
     psd = (PSECURITY_DESCRIPTOR)&psd;
-    
+
     if(!QueryServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, psd, 0, &dwSize))
     {
         if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
@@ -474,19 +474,19 @@ BOOL CHardwareDriver::AdjustAccessRights()
         {
             LOG(0,"QueryServiceObjectSecurity #1 failed. 0x%X", GetLastError());
             bError = TRUE;
-        }                
+        }
     }
-    
+
     // Get the current security descriptor.
     if(!bError)
     {
         if(!QueryServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, psd,dwSize, &dwSize))
         {
             LOG(0,"QueryServiceObjectSecurity #2 failed. 0x%X",GetLastError());
-            bError = TRUE;                       
+            bError = TRUE;
         }
     }
-    
+
     // Get the DACL.
     if(!bError)
     {
@@ -496,7 +496,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
             bError = TRUE;
         }
     }
-    
+
     // Build the ACE.
     if(!bError)
     {
@@ -523,7 +523,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
             ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
             ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
             ea.Trustee.ptstrName = (char *)pSIDEveryone;
-    
+
             dwError = SetEntriesInAcl(1, &ea, pacl, &pNewAcl);
             if(dwError != ERROR_SUCCESS)
             {
@@ -533,7 +533,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
         }
         FreeSid(pSIDEveryone);
     }
-    
+
     // Initialize a new Security Descriptor.
     if(!bError)
     {
@@ -543,7 +543,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
             bError = TRUE;
         }
     }
-    
+
     // Set the new DACL in the Security Descriptor.
     if(!bError)
     {
@@ -553,7 +553,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
             bError = TRUE;
         }
     }
-    
+
     // Set the new DACL for the service object.
     if(!bError)
     {
@@ -563,11 +563,11 @@ BOOL CHardwareDriver::AdjustAccessRights()
             bError = TRUE;
         }
     }
-    
+
     // Free buffers.
     LocalFree((HLOCAL)pNewAcl);
     HeapFree(GetProcessHeap(), 0, (LPVOID)psd);
-    
+
     return !bError;
 }
 

@@ -72,27 +72,27 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
             long CurrentStandard = pThis->m_pBT848Card->GetAudioStandardCurrent();
 
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_RESETCONTENT, 0, 0);
-            
+
             vCarriers.clear();
 
             int i;
             int nIndex;
             int Select = -1;
-            for (i = 0; i < Num; i++) 
-            { 
+            for (i = 0; i < Num; i++)
+            {
                 long Standard = pThis->m_pBT848Card->GetAudioStandard(i);
                 if (pThis->m_pBT848Card->GetAudioStandardName(Standard) != NULL)
                 {
-                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_ADDSTRING, 0, 
-                                (LPARAM) pThis->m_pBT848Card->GetAudioStandardName(Standard)); 
-                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_SETITEMDATA, nIndex, (LPARAM) Standard); 
+                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_ADDSTRING, 0,
+                                (LPARAM) pThis->m_pBT848Card->GetAudioStandardName(Standard));
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_SETITEMDATA, nIndex, (LPARAM) Standard);
 
                     if (Standard == CurrentStandard)
                     {
                         Select = nIndex;
                     }
 
-                    long Carrier;                    
+                    long Carrier;
                     Carrier = pThis->m_pBT848Card->GetAudioStandardMajorCarrier(Standard);
                     if (Carrier != 0)
                     {
@@ -116,7 +116,7 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                     }
 
                 }
-            } 
+            }
             if (Select>=0)
             {
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_SETCURSEL, Select, 0);
@@ -128,11 +128,11 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
             BOOL bMajorInList = FALSE;
             BOOL bMinorInList = FALSE;
 
-            for (i = 0; i < vCarriers.size(); i++) 
-            { 
+            for (i = 0; i < vCarriers.size(); i++)
+            {
                 sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
                 nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
-                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]); 
+                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
 
                 if (vCarriers[i] == pThis->m_pBT848Card->GetAudioStandardMajorCarrier(-1))
                 {
@@ -141,8 +141,8 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                 }
 
                 nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
-                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]); 
-                
+                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
+
                 if (vCarriers[i] == pThis->m_pBT848Card->GetAudioStandardMinorCarrier(-1))
                 {
                     SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, nIndex, 0);
@@ -157,8 +157,8 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                 vCarriers.push_back(pThis->m_pBT848Card->GetAudioStandardMajorCarrier(-1));
                 sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
                 int nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
-                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]); 
-                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, nIndex, 0);                
+                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
+                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, nIndex, 0);
             }
             if (!bMinorInList)
             {
@@ -167,21 +167,21 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                 vCarriers.push_back(pThis->m_pBT848Card->GetAudioStandardMinorCarrier(-1));
                 sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
                 int nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
-                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]); 
-                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, nIndex, 0);                
+                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
+                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, nIndex, 0);
             }
 
-            
+
             CheckDlgButton(hDlg, IDC_AUDIOSTANDARD_MANUAL_MONO, (pThis->m_AudioChannel->GetValue() == SOUNDCHANNEL_MONO));
             CheckDlgButton(hDlg, IDC_AUDIOSTANDARD_MANUAL_STEREO, (pThis->m_AudioChannel->GetValue() == SOUNDCHANNEL_STEREO));
             CheckDlgButton(hDlg, IDC_AUDIOSTANDARD_MANUAL_LANG1, (pThis->m_AudioChannel->GetValue() == SOUNDCHANNEL_LANGUAGE1));
             CheckDlgButton(hDlg, IDC_AUDIOSTANDARD_MANUAL_LANG2, (pThis->m_AudioChannel->GetValue() == SOUNDCHANNEL_LANGUAGE2));
-            
+
             CheckDlgButton(hDlg, IDC_AUDIOSTANDARD_MANUAL_FORCEAM, ((pThis->m_MSP34xxFlags->GetValue()&0x08)!=0));
 
             SetTimer(hDlg, IDC_AUDIOSTANDARD_MANUAL_DETECTNOW, 200, NULL);
-            
-            SetFocus(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST)); 
+
+            SetFocus(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST));
         }
         return TRUE;
         break;
@@ -220,22 +220,22 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                     EnableWindow(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), TRUE);
                     EnableWindow(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), TRUE);
                     BOOL bMajorInList = FALSE;
-                    BOOL bMinorInList = FALSE;                        
-                    for (i = 0; i < vCarriers.size(); i++) 
+                    BOOL bMinorInList = FALSE;
+                    for (i = 0; i < vCarriers.size(); i++)
                     {
-                        if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER),i) == 
+                        if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER),i) ==
                              pThis->m_pBT848Card->GetAudioStandardMajorCarrier(-1)
                            )
                         {
-                            SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, i, 0);   
+                            SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, i, 0);
                             bMajorInList = TRUE;
                         }
 
-                        if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER),i) == 
+                        if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER),i) ==
                              pThis->m_pBT848Card->GetAudioStandardMinorCarrier(-1)
                            )
                         {
-                            SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, i, 0);   
+                            SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, i, 0);
                             bMinorInList = TRUE;
                         }
                     }
@@ -246,8 +246,8 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                         vCarriers.push_back(pThis->m_pBT848Card->GetAudioStandardMajorCarrier(-1));
                         sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
                         int nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
-                        SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]); 
-                        SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, nIndex, 0);                
+                        SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
+                        SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, nIndex, 0);
                     }
                     if (!bMinorInList)
                     {
@@ -256,62 +256,62 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                         vCarriers.push_back(pThis->m_pBT848Card->GetAudioStandardMinorCarrier(-1));
                         sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
                         int nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
-                        SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]); 
-                        SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, nIndex, 0);                
+                        SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
+                        SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, nIndex, 0);
                     }
-                }                
-            }            
-            
+                }
+            }
+
             CheckDlgButton(hDlg, IDC_AUDIOSTANDARD_MANUAL_MONO, (pThis->m_AudioChannel->GetValue() == SOUNDCHANNEL_MONO));
             CheckDlgButton(hDlg, IDC_AUDIOSTANDARD_MANUAL_STEREO, (pThis->m_AudioChannel->GetValue() == SOUNDCHANNEL_STEREO));
             CheckDlgButton(hDlg, IDC_AUDIOSTANDARD_MANUAL_LANG1, (pThis->m_AudioChannel->GetValue() == SOUNDCHANNEL_LANGUAGE1));
-            CheckDlgButton(hDlg, IDC_AUDIOSTANDARD_MANUAL_LANG2, (pThis->m_AudioChannel->GetValue() == SOUNDCHANNEL_LANGUAGE2));            
+            CheckDlgButton(hDlg, IDC_AUDIOSTANDARD_MANUAL_LANG2, (pThis->m_AudioChannel->GetValue() == SOUNDCHANNEL_LANGUAGE2));
         }
         break;
-    case WM_COMMAND:                
+    case WM_COMMAND:
         switch(LOWORD(wParam))
         {
-            case IDC_AUDIOSTANDARD_LIST: 
-                switch (HIWORD(wParam)) 
-                { 
-                    case LBN_SELCHANGE: 
+            case IDC_AUDIOSTANDARD_LIST:
+                switch (HIWORD(wParam))
+                {
+                    case LBN_SELCHANGE:
                     {
-                        int nItem = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_GETCURSEL, 0, 0); 
-                        long Standard = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_GETITEMDATA, nItem, 0); 
+                        int nItem = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_GETCURSEL, 0, 0);
+                        long Standard = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_GETITEMDATA, nItem, 0);
 
                         //pThis->m_AudioChannel->SetValue(SOUNDCHANNEL_MONO);
-                        pThis->m_AudioStandardManual->SetValue(Standard);                        
-                        
-                        for (int i = 0; i < vCarriers.size(); i++) 
+                        pThis->m_AudioStandardManual->SetValue(Standard);
+
+                        for (int i = 0; i < vCarriers.size(); i++)
                         {
-                            if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER),i) == 
+                            if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER),i) ==
                                  pThis->m_pBT848Card->GetAudioStandardMajorCarrier(Standard)
                                )
                             {
-                                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, i, 0);                                   
+                                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, i, 0);
                             }
-                            if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER),i) == 
+                            if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER),i) ==
                                  pThis->m_pBT848Card->GetAudioStandardMinorCarrier(Standard)
                                )
                             {
-                                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, i, 0);                               
+                                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, i, 0);
                             }
-                        }                        
-                    }                    
+                        }
+                    }
                     break;
                 }
                 break;
             case IDC_AUDIOSTANDARD_MINORCARRIER:
                 {
                     int i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER));
-                    i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), i);                                            
+                    i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), i);
                     pThis->m_AudioStandardMinorCarrier->SetValue(i);
                 }
                 break;
             case IDC_AUDIOSTANDARD_MAJORCARRIER:
                 {
                     int i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER));
-                    i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), i);                                            
+                    i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), i);
                     pThis->m_AudioStandardMajorCarrier->SetValue(i);
                 }
                 break;
@@ -358,7 +358,7 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
             case IDCANCEL:
                 if (pThis->m_DetectingAudioStandard)
                 {
-            
+
                 }
                 else
                 {
@@ -415,18 +415,18 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
 
         // \todo: check if the differenct controls are supported
 
-        SetDlgItemInt(hDlg, IDC_VOLUME_VAL, TVolume, FALSE);        
+        SetDlgItemInt(hDlg, IDC_VOLUME_VAL, TVolume, FALSE);
         SetDlgItemInt(hDlg, IDC_BALANCE_VAL, TBalance, TRUE);
 
         //SetDlgItemInt(hDlg, IDC_D4, TBass, TRUE);
         //SetDlgItemInt(hDlg, IDC_D5, TTreble, TRUE);
 
-        pThis->m_Volume->SetupControl(GetDlgItem(hDlg, IDC_VOLUME_SLIDER));       
+        pThis->m_Volume->SetupControl(GetDlgItem(hDlg, IDC_VOLUME_SLIDER));
         pThis->m_Balance->SetupControl(GetDlgItem(hDlg, IDC_BALANCE_SLIDER));
 
         if (!pThis->m_pBT848Card->HasAudioBassBoost())
         {
-            SendMessage(GetDlgItem(hDlg, IDC_SUPERBASS), WM_ENABLE, FALSE, 0);                
+            SendMessage(GetDlgItem(hDlg, IDC_SUPERBASS), WM_ENABLE, FALSE, 0);
         }
         else
         {
@@ -438,7 +438,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
 
         if (!pThis->m_pBT848Card->HasAudioEqualizers())
         {
-            SendMessage(GetDlgItem(hDlg,IDC_USEEQUALIZER),WM_ENABLE,FALSE,0);                
+            SendMessage(GetDlgItem(hDlg,IDC_USEEQUALIZER),WM_ENABLE,FALSE,0);
             TUseEqualizer = FALSE;
         }
         else
@@ -475,7 +475,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
             {
                 pThis->m_EqualizerBand2->SetFromControl((HWND)lParam);
                 SetDlgItemInt(hDlg, IDC_BAND2_VAL, pThis->m_EqualizerBand2->GetValue(), TRUE);
-            }        
+            }
             else
             {
                 pThis->m_Bass->SetFromControl((HWND)lParam);
@@ -496,7 +496,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
             {
                 pThis->m_EqualizerBand4->SetFromControl((HWND)lParam);
                 SetDlgItemInt(hDlg, IDC_BAND4_VAL, pThis->m_EqualizerBand4->GetValue(), TRUE);
-            }        
+            }
             else
             {
                 pThis->m_Treble->SetFromControl((HWND)lParam);
@@ -513,11 +513,11 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         }
         else if((HWND)lParam == GetDlgItem(hDlg, IDC_LOUDNESS_SLIDER))
         {
-            pThis->m_AudioLoudness->SetFromControl((HWND)lParam);            
+            pThis->m_AudioLoudness->SetFromControl((HWND)lParam);
         }
         else if((HWND)lParam == GetDlgItem(hDlg, IDC_SPATIALEFFECT_SLIDER))
         {
-            pThis->m_AudioSpatialEffect->SetFromControl((HWND)lParam);            
+            pThis->m_AudioSpatialEffect->SetFromControl((HWND)lParam);
         }
         break;
     case WM_COMMAND:
@@ -532,7 +532,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND1_SLIDER),SW_SHOW);
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND3_SLIDER),SW_SHOW);
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND5_SLIDER),SW_SHOW);
-                    
+
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND1_TEXT),SW_SHOW);
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND3_TEXT),SW_SHOW);
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND5_TEXT),SW_SHOW);
@@ -542,14 +542,14 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND5_VAL),SW_SHOW);
 
                     SetDlgItemText(hDlg, IDC_BAND2_TEXT,"500 Hz");
-                    SetDlgItemText(hDlg, IDC_BAND4_TEXT,"5000 Hz");                    
+                    SetDlgItemText(hDlg, IDC_BAND4_TEXT,"5000 Hz");
 
                     pThis->m_EqualizerBand1->SetupControl(GetDlgItem(hDlg, IDC_BAND1_SLIDER));
                     pThis->m_EqualizerBand2->SetupControl(GetDlgItem(hDlg, IDC_BAND2_SLIDER));
                     pThis->m_EqualizerBand3->SetupControl(GetDlgItem(hDlg, IDC_BAND3_SLIDER));
                     pThis->m_EqualizerBand4->SetupControl(GetDlgItem(hDlg, IDC_BAND4_SLIDER));
                     pThis->m_EqualizerBand5->SetupControl(GetDlgItem(hDlg, IDC_BAND5_SLIDER));
-                    
+
                     SetDlgItemInt(hDlg, IDC_BAND1_VAL, pThis->m_EqualizerBand1->GetValue(), TRUE);
                     SetDlgItemInt(hDlg, IDC_BAND2_VAL, pThis->m_EqualizerBand2->GetValue(), TRUE);
                     SetDlgItemInt(hDlg, IDC_BAND3_VAL, pThis->m_EqualizerBand3->GetValue(), TRUE);
@@ -570,10 +570,10 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
 
                     SetDlgItemText(hDlg, IDC_BAND2_TEXT,"Bass");
                     SetDlgItemText(hDlg, IDC_BAND4_TEXT,"Treble");
-                    
+
                     pThis->m_Bass->SetupControl(GetDlgItem(hDlg, IDC_BAND2_SLIDER));
                     pThis->m_Treble->SetupControl(GetDlgItem(hDlg, IDC_BAND4_SLIDER));
-                    
+
                     SetDlgItemInt(hDlg, IDC_BAND2_VAL, pThis->m_Bass->GetValue(), TRUE);
                     SetDlgItemInt(hDlg, IDC_BAND4_VAL, pThis->m_Treble->GetValue(), TRUE);
                 }
@@ -589,7 +589,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
             SettingsMaster->SaveAllSettings(TRUE);
             EndDialog(hDlg, TRUE);
             break;
-        
+
         case IDCANCEL:
             pThis->Mute();
             pThis->m_Volume->SetValue(TVolume);
@@ -597,20 +597,20 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
             pThis->m_AudioSuperbass->SetValue(TSuperBass);
             pThis->m_AudioLoudness->SetValue(TLoudness);
             pThis->m_AudioSpatialEffect->SetValue(TSpatialEffect);
-            
+
             pThis->m_EqualizerBand1->SetValue(TEqualizerVal[1]);
             pThis->m_EqualizerBand2->SetValue(TEqualizerVal[2]);
             pThis->m_EqualizerBand3->SetValue(TEqualizerVal[3]);
             pThis->m_EqualizerBand4->SetValue(TEqualizerVal[4]);
             pThis->m_EqualizerBand5->SetValue(TEqualizerVal[5]);
-                    
+
             pThis->m_Bass->SetValue(TBass);
             pThis->m_Treble->SetValue(TTreble);
-            
+
             pThis->UnMute();
             EndDialog(hDlg, TRUE);
             break;
-        
+
         case IDC_DEFAULT:
             pThis->Mute();
             pThis->m_Volume->ChangeValue(RESET_SILENT);
@@ -626,11 +626,11 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
                 pThis->m_EqualizerBand3->ChangeValue(RESET_SILENT);
                 pThis->m_EqualizerBand4->ChangeValue(RESET_SILENT);
                 pThis->m_EqualizerBand5->ChangeValue(RESET_SILENT);
-            } 
+            }
             else
-            {        
+            {
                 pThis->m_Bass->ChangeValue(RESET_SILENT);
-                pThis->m_Treble->ChangeValue(RESET_SILENT);            
+                pThis->m_Treble->ChangeValue(RESET_SILENT);
             }
             SetDlgItemInt(hDlg, IDC_VOLUME_VAL, pThis->m_Volume->GetValue(), FALSE);
             SetDlgItemInt(hDlg, IDC_BALANCE_VAL, pThis->m_Balance->GetValue(), TRUE);
@@ -644,7 +644,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
             pThis->m_AudioSpatialEffect->SetupControl(GetDlgItem(hDlg, IDC_SPATIALEFFECT_SLIDER));
 
             pThis->UnMute();
-            
+
             SendMessage(hDlg, WM_COMMAND, IDC_USEEQUALIZER, 0);
             break;
         default:
@@ -701,7 +701,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         {
             i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
             if (i == pThis->m_TunerType->GetValue() )
-            {          
+            {
                 SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
             }
         }
@@ -738,12 +738,12 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
             break;
         case IDC_CARDSSELECT:
             i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CARDSSELECT));
-            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);                        
+            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
             i = pThis->m_pBT848Card->AutoDetectTuner((eTVCardId)i);
             for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
-            {   
+            {
               if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex) == i)
-              {          
+              {
                  ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
               }
             }
@@ -752,7 +752,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
             {
                 eTVCardId CardId = pThis->m_pBT848Card->AutoDetectCardType();
                 eTunerId TunerId = pThis->m_pBT848Card->AutoDetectTuner(CardId);
-                
+
                 SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
                 for(i = 0; i < TVCARD_LASTONE; i++)
                 {
@@ -764,7 +764,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
                         SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
                     }
                 }
-                
+
                 SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
                 for(i = 0; i < TUNER_LASTONE; i++)
                 {
@@ -778,11 +778,11 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
                 {
                     i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
                     if (i == TunerId)
-                    {          
+                    {
                         SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
                     }
                 }
-                
+
             }
             break;
         default:
@@ -820,13 +820,13 @@ void CBT848Source::SetMenu(HMENU hMenu)
         MenuItemInfo.cch = Buffer.length();
         MenuItemInfo.dwTypeData = const_cast<char*>(Buffer.c_str());
         SetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
-        
+
         // enable the menu and check it appropriately
         //EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_ENABLED);
         EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_TunerType->GetValue() == TUNER_ABSENT && m_pBT848Card->IsInputATuner(i)) ? MF_GRAYED : MF_ENABLED);
         CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
     }
-    
+
     while(i < BT_INPUTS_PER_CARD)
     {
         EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_GRAYED);
@@ -838,11 +838,11 @@ void CBT848Source::SetMenu(HMENU hMenu)
 
     // \todo: check for additional controls
 
-    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS, 
-        m_pBT848Card->HasAudioBalance() 
+    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS,
+        m_pBT848Card->HasAudioBalance()
         || m_pBT848Card->HasAudioBass()
         || m_pBT848Card->HasAudioBassBoost()
-        || m_pBT848Card->HasAudioEqualizers() 
+        || m_pBT848Card->HasAudioEqualizers()
         || m_pBT848Card->HasAudioLoudness()
         || m_pBT848Card->HasAudioTreble()
         || m_pBT848Card->HasAudioVolume()
@@ -886,7 +886,7 @@ void CBT848Source::SetMenu(HMENU hMenu)
     EnableMenuItemBool(m_hMenu, IDM_TYPEFORMAT_8, !IsInTunerMode());
 
     eVideoFormat videoFormat = (eVideoFormat)m_VideoFormat->GetValue();
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_0, (IsPALVideoFormat(videoFormat) 
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_0, (IsPALVideoFormat(videoFormat)
                                                     && videoFormat != VIDEOFORMAT_PAL_M
                                                     && videoFormat != VIDEOFORMAT_PAL_N
                                                     && videoFormat != VIDEOFORMAT_PAL_60
@@ -933,7 +933,7 @@ void CBT848Source::SetMenu(HMENU hMenu)
            break;
         }
     }
-    
+
     UINT MenuID = IDM_SOUNDCHANNEL_MONO;
     int AudioChannelNr = 1;
     do {
@@ -953,18 +953,18 @@ void CBT848Source::SetMenu(HMENU hMenu)
         GetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
 
         char Buffer2[256];
-        if (Buffer[0]=='[') 
-        {            
+        if (Buffer[0]=='[')
+        {
             strcpy(Buffer2, &Buffer[1]);
         }
         else
         {
             strcpy(Buffer2, &Buffer[0]);
-        }   
+        }
         int Len = strlen(Buffer2);
-        if (Buffer2[Len-1]==']') { Buffer2[Len-1]=0; }        
-        
-        
+        if (Buffer2[Len-1]==']') { Buffer2[Len-1]=0; }
+
+
         if (m_AutoStereoSelect->GetValue() && (AudioChannelNr!=m_pBT848Card->IsAudioChannelDetected((eSoundChannel)AudioChannelNr)))
         {
             Buffer = "[";
@@ -972,21 +972,21 @@ void CBT848Source::SetMenu(HMENU hMenu)
             Buffer += "]";
             MenuItemInfo.dwTypeData = &Buffer[0];
             MenuItemInfo.cch = Buffer.length();
-        }    
+        }
         else
         {
             MenuItemInfo.dwTypeData = Buffer2;
             MenuItemInfo.cch = strlen(Buffer2);
-        }                
+        }
         SetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
-        
+
         CheckMenuItemBool(m_hMenu, MenuID, (m_AudioChannel->GetValue() == AudioChannelNr));
-        
+
         if (m_AutoStereoSelect->GetValue() && (hSoundChannelMenu != NULL) && (AudioChannelNr == RealAudioChannel))
         {
             //Highlight real audio channel
             //SetMenuDefaultItem(hSoundChannelMenu, AudioChannelNr-1, TRUE); //MenuID, FALSE);
-        }        
+        }
 
         AudioChannelNr++;
         if (AudioChannelNr==2)
@@ -1002,7 +1002,7 @@ void CBT848Source::SetMenu(HMENU hMenu)
             MenuID = IDM_SOUNDCHANNEL_LANGUAGE2;
         }
     } while (AudioChannelNr<=4);
-    
+
 
     EnableMenuItemBool(m_hMenu, IDM_AUTOSTEREO, TRUE);
     CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, m_AutoStereoSelect->GetValue());
@@ -1023,7 +1023,7 @@ void CBT848Source::SetMenu(HMENU hMenu)
     for (i = 0; i < GetMenuItemCount(hBTMenu); i++)
     {
         if (GetMenuItemID(GetSubMenu(hBTMenu, i), 0) == IDM_AUDIOSTANDARD_VIDEOFORMATDEFAULT)
-        {            
+        {
             EnableMenuItem(hBTMenu, i, (m_pBT848Card->GetNumAudioStandards()>0) ? (MF_BYPOSITION|MF_ENABLED) : (MF_BYPOSITION|MF_GRAYED|MF_DISABLED));
         }
     }
@@ -1031,7 +1031,7 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_AUTODETECTPERVIDEOFORMAT, (m_AudioStandardDetect->GetValue() == 2));
     CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_AUTODETECTPERCHANNEL, (m_AudioStandardDetect->GetValue() == 3));
     CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_MANUAL, (m_AudioStandardDetect->GetValue() == 4));
-    
+
     string Buffer("<No standard>");
     if (m_pBT848Card->GetNumAudioStandards()>0)
     {
@@ -1133,7 +1133,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_AUTOSTEREO:
-            m_AutoStereoSelect->SetValue(!m_AutoStereoSelect->GetValue());            
+            m_AutoStereoSelect->SetValue(!m_AutoStereoSelect->GetValue());
             break;
 
         case IDM_USEINPUTPIN1:
@@ -1149,23 +1149,23 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             GetCurrentAudioSetting()->SetValue((LOWORD(wParam) - IDM_AUDIO_0));
             switch (GetCurrentAudioSetting()->GetValue())
             {
-            case AUDIOINPUT_TUNER:     
-                ShowText(hWnd, "Audio Input - Tuner");     
+            case AUDIOINPUT_TUNER:
+                ShowText(hWnd, "Audio Input - Tuner");
                 break;
-            case AUDIOINPUT_RADIO: 
-                ShowText(hWnd, "Audio Input - MSP/Radio"); 
+            case AUDIOINPUT_RADIO:
+                ShowText(hWnd, "Audio Input - MSP/Radio");
                 break;
-            case AUDIOINPUT_EXTERNAL:  
-                ShowText(hWnd, "Audio Input - External");  
+            case AUDIOINPUT_EXTERNAL:
+                ShowText(hWnd, "Audio Input - External");
                 break;
-            case AUDIOINPUT_INTERNAL:  
-                ShowText(hWnd, "Audio Input - Internal");  
+            case AUDIOINPUT_INTERNAL:
+                ShowText(hWnd, "Audio Input - Internal");
                 break;
-            case AUDIOINPUT_MUTE:      
-                ShowText(hWnd, "Audio Input - Disabled");  
+            case AUDIOINPUT_MUTE:
+                ShowText(hWnd, "Audio Input - Disabled");
                 break;
-            case AUDIOINPUT_STEREO:    
-                ShowText(hWnd, "Audio Input - Stereo");    
+            case AUDIOINPUT_STEREO:
+                ShowText(hWnd, "Audio Input - Stereo");
                 break;
             }
             break;
@@ -1196,7 +1196,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 }
             }
             break;
-            
+
         case IDM_HWINFO:
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CBT848Card::ChipSettingProc, (LPARAM)m_pBT848Card);
             break;
@@ -1204,7 +1204,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_AUDIOSETTINGS:
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc, (LPARAM)this);
             break;
-        
+
         // Video format (NTSC, PAL, etc)
         case IDM_TYPEFORMAT_0:
             m_VideoFormat->SetValue(VIDEOFORMAT_PAL_B);
@@ -1298,23 +1298,23 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SETTINGS_PIXELWIDTH_720:
             m_PixelWidth->SetValue(720);
             break;
-    
+
         case IDM_SETTINGS_PIXELWIDTH_640:
             m_PixelWidth->SetValue(640);
             break;
-    
+
         case IDM_SETTINGS_PIXELWIDTH_480:
             m_PixelWidth->SetValue(480);
             break;
-    
+
         case IDM_SETTINGS_PIXELWIDTH_384:
             m_PixelWidth->SetValue(384);
             break;
-    
+
         case IDM_SETTINGS_PIXELWIDTH_320:
             m_PixelWidth->SetValue(320);
             break;
-    
+
         case IDM_SETTINGS_PIXELWIDTH_CUSTOM:
             m_PixelWidth->SetValue(m_CustomPixelWidth->GetValue());
             break;
@@ -1334,7 +1334,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSTANDARD_MANUAL), hWnd, AudioStandardManualProc, (LPARAM)this);
             break;
         case IDM_AUDIOSTANDARD_DETECTNOW:
-            {                
+            {
                 m_DetectingAudioStandard = 1;
                 if (m_AutoStereoSelect->GetValue())
                 {

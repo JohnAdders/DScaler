@@ -53,7 +53,7 @@ void CCX2388xSource::UnMute()
 
 void CCX2388xSource::VolumeOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetAudioVolume((WORD)NewValue);    
+    m_pCard->SetAudioVolume((WORD)NewValue);
     EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, NewValue);
 }
 
@@ -66,15 +66,15 @@ void CCX2388xSource::AudioStandardOnChange(long NewValue, long OldValue)
 {
     StopUpdateAudioStatus();
     m_pCard->AudioInit(
-                        m_VideoSource->GetValue(), 
-                        (eVideoFormat)m_VideoFormat->GetValue(), 
+                        m_VideoSource->GetValue(),
+                        (eVideoFormat)m_VideoFormat->GetValue(),
                         (eCX2388xAudioStandard)NewValue,
                         (eCX2388xStereoType)m_StereoType->GetValue()
                       );
-    
+
     // needed, AUD_VOL_CTRL's default is 0x14 after writing to AUD_SOFT_RESET
     m_Volume->SetValue(m_Volume->GetValue());
-    
+
     StartUpdateAudioStatus();
 }
 
@@ -82,12 +82,12 @@ void CCX2388xSource::StereoTypeOnChange(long NewValue, long OldValue)
 {
     StopUpdateAudioStatus();
     m_pCard->AudioInit(
-                        m_VideoSource->GetValue(), 
-                        (eVideoFormat)m_VideoFormat->GetValue(), 
+                        m_VideoSource->GetValue(),
+                        (eVideoFormat)m_VideoFormat->GetValue(),
                         (eCX2388xAudioStandard)m_AudioStandard->GetValue(),
                         (eCX2388xStereoType)NewValue
                       );
-    
+
     m_Volume->SetValue(m_Volume->GetValue());
 
     StartUpdateAudioStatus();
@@ -142,7 +142,7 @@ void CCX2388xSource::UpdateAudioStatus()
                         break;
                     }
                     break;
-                
+
                 case STEREOTYPE_MONO:
                     SoundChannel = SOUNDCHANNEL_MONO;
                     break;
@@ -159,7 +159,7 @@ void CCX2388xSource::UpdateAudioStatus()
                     SoundChannel = SOUNDCHANNEL_LANGUAGE2;
                     break;
                 }
-                
+
                 break;
 
             case AUDIO_STANDARD_NICAM:
@@ -192,7 +192,7 @@ void CCX2388xSource::UpdateAudioStatus()
                 case STEREOTYPE_STEREO:
                     SoundChannel = SOUNDCHANNEL_STEREO;
                     break;
-                
+
                 case STEREOTYPE_MONO:
                 case STEREOTYPE_ALT1:
                 case STEREOTYPE_ALT2:
@@ -223,7 +223,7 @@ void CCX2388xSource::UpdateAudioStatus()
                     Audio_Mute();
                 }
             }
-        
+
             m_AutoDetectA2Counter = 0;
         }
     }
@@ -233,7 +233,7 @@ void CCX2388xSource::UpdateAudioStatus()
     {
         SoundChannel = SOUNDCHANNEL_STEREO;
     }
-    
+
     char szSoundChannel[256] = "";
 
     switch(SoundChannel)

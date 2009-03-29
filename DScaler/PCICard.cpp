@@ -28,7 +28,7 @@
 #include "DebugLog.h"
 #include "BuildNum.h"
 
-CPCICard::CPCICard(CHardwareDriver* pDriver) :
+CPCICard::CPCICard(SmartPtr<CHardwareDriver> pDriver) :
             m_pDriver(pDriver),
             m_MemoryAddress(0),
             m_MemoryLength(0),

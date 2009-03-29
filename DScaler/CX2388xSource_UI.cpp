@@ -330,7 +330,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_HWINFO:
-            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CCX2388xCard::ChipSettingProc, (LPARAM)m_pCard);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CCX2388xCard::ChipSettingProc, (LPARAM)(CCX2388xCard*)m_pCard);
             break;
 
         case IDM_SOURCE_INPUT1:

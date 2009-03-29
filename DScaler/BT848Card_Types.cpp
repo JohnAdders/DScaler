@@ -4770,7 +4770,7 @@ void CBT848Card::SetVideoSource(int nInput)
     (*this.*m_TVCards[m_CardType].pInputSwitchFunction)(nInput);
 }
 
-SmartPtr<const CBT848Card::TCardType> CBT848Card::GetCardSetup()
+const CBT848Card::TCardType* CBT848Card::GetCardSetup()
 {
     return &(m_TVCards[m_CardType]);
 }

@@ -43,7 +43,7 @@ public:
     */
     BOOL OpenPCICard(WORD dwVendorID, WORD dwDeviceID, int dwDeviceIndex);
 protected:
-    CPCICard(CHardwareDriver* pDriver);
+    CPCICard(SmartPtr<CHardwareDriver> pDriver);
     ~CPCICard();
     /// Close the card and unmap memory
     void ClosePCICard();

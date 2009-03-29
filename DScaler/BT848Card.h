@@ -299,7 +299,7 @@ private:
     void SetGeometryEvenOdd(BOOL bOdd, int wHScale, int wVScale, int wHActive, int wVActive, int wHDelay, int wVDelay, BYTE bCrop);
     void SetPLL(ePLLFreq PLL);
     BOOL IsCCIRSource(int nInput);
-    SmartPtr<const TCardType> GetCardSetup();
+    const TCardType* GetCardSetup();
 
     void StandardBT848InputSelect(int nInput);
     void Sasem4ChannelInputSelect(int nInput);

@@ -933,6 +933,11 @@ void CStringSetting::SetFromControl(HWND hWnd)
     }
 }
 
+CEmptySetting::CEmptySetting() :
+    CYesNoSetting("", FALSE, "", "")
+{
+}
+
 CSettingWrapper::CSettingWrapper(SETTING* pSetting, CSettingGroup* pGroup) :
     CSimpleSetting(pSetting->szDisplayName, pSetting->szIniSection, pSetting->szIniEntry, pGroup),
     m_Setting(pSetting)

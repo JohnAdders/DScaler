@@ -278,13 +278,13 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_Settings.push_back(m_TunerType);
 
     // save per input removed
-    m_Settings.push_back(NULL);
+    m_Settings.push_back(new CEmptySetting);
 
     // save per format removed
-    m_Settings.push_back(NULL);
+    m_Settings.push_back(new CEmptySetting);
 
     // save per channel removed
-    m_Settings.push_back(NULL);
+    m_Settings.push_back(new CEmptySetting);
 
     m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", FALSE, IniSection, pH3DGroup);
     m_Settings.push_back(m_IsVideoProgressive);

@@ -360,10 +360,10 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_Settings.push_back(m_Balance);
 
     // save per input removed
-    m_Settings.push_back(new CYesNoSetting("", FALSE, "", ""));
+    m_Settings.push_back(new CEmptySetting);
 
     // save per format removed
-    m_Settings.push_back(new CYesNoSetting("", FALSE, "", ""));
+    m_Settings.push_back(new CEmptySetting);
 
     m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
     m_Settings.push_back(m_AudioSource2);

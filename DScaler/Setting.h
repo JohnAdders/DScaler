@@ -245,6 +245,13 @@ private:
 
 };
 
+class CEmptySetting : public CYesNoSetting
+{
+public:
+    CEmptySetting();
+};
+
+
 /// This class should be used to store the value of all string settings within the
 /// main DScaler app, using this class means that the allocated string gets deleted properly on exit
 class SettingStringValue

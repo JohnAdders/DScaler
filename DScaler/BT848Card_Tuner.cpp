@@ -149,7 +149,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     {
         if (pExternalIFDemodulator->SetDetectedI2CAddress(m_I2CBus))
         {
-            m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
+            m_Tuner->AttachIFDem(pExternalIFDemodulator);
             pExternalIFDemodulator->Init(TRUE, videoFormat);
         }
         else

@@ -172,7 +172,7 @@ BOOL CTDA8275::HasRadio() const
 
 BOOL CTDA8275::SetTVFrequency(long frequencyHz, eVideoFormat videoFormat)
 {
-    if (m_ExternalIFDemodulator != NULL)
+    if (m_ExternalIFDemodulator)
     {
         m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
     }
@@ -180,7 +180,7 @@ BOOL CTDA8275::SetTVFrequency(long frequencyHz, eVideoFormat videoFormat)
     BOOL success = SetFrequency(frequencyHz, CTDA8290::GetTDA8290Standard(videoFormat));
     m_Frequency = frequencyHz;
 
-    if (m_ExternalIFDemodulator != NULL)
+    if (m_ExternalIFDemodulator)
     {
         m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
     }
@@ -213,7 +213,7 @@ eTunerLocked CTDA8275::IsLocked()
 
 eTunerAFCStatus CTDA8275::GetAFCStatus(long &nFreqDeviation)
 {
-    if (m_ExternalIFDemodulator != NULL)
+    if (m_ExternalIFDemodulator)
     {
         return m_ExternalIFDemodulator->GetAFCStatus(nFreqDeviation);
     }

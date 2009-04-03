@@ -1553,7 +1553,7 @@ void CSAA7134Source::ChangeTVSettingsBasedOnTuner()
     {
         // be a bit defensive here to avoid a possible
         // crash
-        if(m_pSAA7134Card->GetTuner() != NULL)
+        if(m_pSAA7134Card->GetTuner())
         {
             eVideoFormat videoFormat = m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat();
             m_VideoFormat->ChangeDefault(videoFormat);

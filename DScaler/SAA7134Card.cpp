@@ -55,18 +55,17 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-CSAA7134Card::CSAA7134Card(CHardwareDriver* pDriver) :
+CSAA7134Card::CSAA7134Card(SmartPtr<CHardwareDriver> pDriver) :
     CPCICard(pDriver),
     m_CardType(SAA7134CARDID_UNKNOWN),
-    m_Tuner(NULL),
     m_PreparedRegions(0x00),
     m_VideoStandard(VIDEOSTANDARD_INVALID),
     m_bAudioLineReservedForMute(FALSE),
+    m_I2CBus(new CSAA7134I2CBus(this)),
     m_bStereoExternalLines(FALSE)
 {
     m_LastTriggerError = 0UL;
 
-    m_I2CBus = new CSAA7134I2CBus(this);
 }
 
 
@@ -75,9 +74,6 @@ CSAA7134Card::~CSAA7134Card()
     WriteDword(SAA7134_IRQ1, 0UL);
     WriteDword(SAA7134_IRQ2, 0UL);
     MaskDataDword(SAA7134_MAIN_CTRL, 0, 0x000000FF);
-
-    delete m_I2CBus;
-    delete m_Tuner;
 
     ClosePCICard();
 }

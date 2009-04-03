@@ -41,10 +41,9 @@ using namespace std;
 BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 {
     // clean up if we get called twice
-    if(m_Tuner != NULL)
+    if(m_Tuner)
     {
-        delete m_Tuner;
-        m_Tuner = NULL;
+        m_Tuner = 0L;
     }
 
     switch (tunerId)
@@ -91,7 +90,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     }
 
     // Look for possible external IF demodulator
-    IExternalIFDemodulator *pExternalIFDemodulator = NULL;
+    SmartPtr<IExternalIFDemodulator> pExternalIFDemodulator;
 
     // TDA8275s are paired with a TDA8290.
     if (tunerId == TUNER_TDA8275)
@@ -100,16 +99,16 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         pExternalIFDemodulator = CTDA8290::CreateDetectedTDA8290(m_I2CBus);
     }
 
-    if (pExternalIFDemodulator == NULL)
+    if (!pExternalIFDemodulator)
     {
         // bUseTDA9887 is the setting in CX2388xCards.ini.
         if (m_CX2388xCards[m_CardType].bUseTDA9887)
         {
             // Have a TDA9887 object detected and created.
-            CTDA9887Ex *pTDA9887 = CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus);
+            SmartPtr<CTDA9887Ex> pTDA9887 = CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus);
 
             // If a TDA9887 was found.
-            if (pTDA9887 != NULL)
+            if (pTDA9887)
             {
                 // Set card specific modes that were parsed from CX2388xCards.ini.
                 size_t count = m_CX2388xCards[m_CardType].tda9887Modes.size();
@@ -126,10 +125,10 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 
     eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
 
-    if (pExternalIFDemodulator != NULL)
+    if (pExternalIFDemodulator)
     {
         // Attach the IF demodulator to the tuner.
-        m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
+        m_Tuner->AttachIFDem(pExternalIFDemodulator);
         // Let the IF demodulator know of pre-initialization.
         pExternalIFDemodulator->Init(TRUE, videoFormat);
     }
@@ -159,7 +158,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         }
     }
 
-    if (pExternalIFDemodulator != NULL)
+    if (pExternalIFDemodulator)
     {
         //End initialization
         pExternalIFDemodulator->Init(FALSE, videoFormat);
@@ -168,17 +167,16 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     if (!bFoundTuner)
     {
         LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF");
-
-        delete m_Tuner;
         m_Tuner = new CNoTuner();
         m_TunerType = "None ";
     }
     return bFoundTuner;
 }
 
-ITuner* CCX2388xCard::GetTuner() const
+SmartPtr<ITuner> CCX2388xCard::GetTuner() const
 {
-    return m_Tuner;
+	SmartPtr<ITuner> RetVal(m_Tuner);
+    return RetVal;
 }
 
 string CCX2388xCard::GetTunerType()

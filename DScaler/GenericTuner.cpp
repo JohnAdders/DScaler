@@ -554,14 +554,14 @@ BOOL CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
 
     if (m_I2CBus != NULL)
     {
-        if (m_ExternalIFDemodulator != NULL)
+        if (m_ExternalIFDemodulator)
         {
             m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
         }
 
         BOOL result = m_I2CBus->Write(buffer, sizeof(buffer));
 
-        if (m_ExternalIFDemodulator != NULL)
+        if (m_ExternalIFDemodulator)
         {
             m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
         }
@@ -615,7 +615,7 @@ BOOL CGenericTuner::SetRadioFrequency(long nFrequencyHz)
     {
         // not working but needed for FM Radio
         /*
-        if (m_ExternalIFDemodulator != NULL)
+        if (m_ExternalIFDemodulator)
         {
             m_ExternalIFDemodulator->TunerSet(TRUE, VIDEOFORMAT_LASTONE+1);
         }
@@ -624,7 +624,7 @@ BOOL CGenericTuner::SetRadioFrequency(long nFrequencyHz)
         BOOL result = m_I2CBus->Write(buffer, sizeof(buffer));
 
         /*
-        if (m_ExternalIFDemodulator != NULL)
+        if (m_ExternalIFDemodulator)
         {
             m_ExternalIFDemodulator->TunerSet(FALSE, VIDEOFORMAT_LASTONE+1);
         }
@@ -675,7 +675,7 @@ eTunerAFCStatus CGenericTuner::GetAFCStatus(long &nFreqDeviation)
 {
     if (m_I2CBus != NULL)
     {
-        if (m_ExternalIFDemodulator != NULL)
+        if (m_ExternalIFDemodulator)
         {
             eTunerAFCStatus AFCStatus = m_ExternalIFDemodulator->GetAFCStatus(nFreqDeviation);
             return AFCStatus;

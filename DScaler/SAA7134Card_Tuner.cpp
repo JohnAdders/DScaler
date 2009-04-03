@@ -49,10 +49,9 @@ using namespace std;
 BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 {
     // clean up if we get called twice
-    if (m_Tuner != NULL)
+    if (m_Tuner)
     {
-        delete m_Tuner;
-        m_Tuner = NULL;
+        m_Tuner = 0L;
     }
 
     // Create a tuner object for the selected tuner.
@@ -95,7 +94,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     }
 
     // Look for possible external IF demodulator
-    IExternalIFDemodulator* pExternalIFDemodulator = NULL;
+    SmartPtr<IExternalIFDemodulator> pExternalIFDemodulator;
 
     // TDA8275s are paired with a TDA8290.
     if (tunerId == TUNER_TDA8275)
@@ -104,16 +103,16 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         pExternalIFDemodulator = CTDA8290::CreateDetectedTDA8290(m_I2CBus);
     }
 
-    if (pExternalIFDemodulator == NULL)
+    if (!pExternalIFDemodulator)
     {
         // bUseTDA9887 is the setting in SAA713xCards.ini.
         if (m_SAA713xCards[m_CardType].bUseTDA9887)
         {
             // Have a TDA9887 object detected and created.
-            CTDA9887Ex *pTDA9887Ex = CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus);
+            SmartPtr<CTDA9887Ex> pTDA9887Ex = CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus);
 
             // If a TDA9887 was found.
-            if (pTDA9887Ex != NULL)
+            if (pTDA9887Ex)
             {
                 // Set card specific modes that were parsed from SAA713xCards.ini.
                 size_t count = m_SAA713xCards[m_CardType].tda9887Modes.size();
@@ -130,10 +129,10 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 
     eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
 
-    if (pExternalIFDemodulator != NULL)
+    if (pExternalIFDemodulator)
     {
         // Attach the IF demodulator to the tuner.
-        m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
+        m_Tuner->AttachIFDem(pExternalIFDemodulator);
         // Let the IF demodulator know of pre-initialization.
         pExternalIFDemodulator->Init(TRUE, videoFormat);
     }
@@ -161,7 +160,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         }
     }
 
-    if (pExternalIFDemodulator != NULL)
+    if (pExternalIFDemodulator)
     {
         // End initialization
         pExternalIFDemodulator->Init(FALSE, videoFormat);
@@ -171,7 +170,6 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     {
         LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF");
 
-        delete m_Tuner;
         m_Tuner = new CNoTuner();
         m_TunerType = "None ";
     }
@@ -179,9 +177,10 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 }
 
 
-ITuner* CSAA7134Card::GetTuner() const
+SmartPtr<ITuner> CSAA7134Card::GetTuner() const
 {
-    return m_Tuner;
+	SmartPtr<ITuner> RetVal(m_Tuner);
+    return RetVal;
 }
 
 

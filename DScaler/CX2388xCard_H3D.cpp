@@ -484,7 +484,7 @@ void CCX2388xCard::SetSharpness(char Sharpness)
 {
     // had better check that we've been initilaized here as
     // this is a public function
-    if(m_SAA7118 != NULL)
+    if(m_SAA7118)
     {
         // get existing sharpness and set luma comb filter
         BYTE LuminaceControl = m_SAA7118->GetRegister(0x09) & 0xF0;

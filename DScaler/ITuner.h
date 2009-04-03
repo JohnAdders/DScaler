@@ -88,11 +88,10 @@ public:
     //Sets frequency deviation from optimum if there is a carrier (e.g. -62500 or 125000 Hz)
     virtual eTunerAFCStatus GetAFCStatus(long &nFreqDeviation) = 0;
 
-    virtual void AttachIFDem(IExternalIFDemodulator* pExternalIFDemodulator, BOOL bFreeOnDestruction = FALSE);
+    virtual void AttachIFDem(SmartPtr<IExternalIFDemodulator> pExternalIFDemodulator);
 
 protected:
-    IExternalIFDemodulator* m_ExternalIFDemodulator;
-    BOOL m_bFreeIFDemodulatorOnDestruction;
+    SmartPtr<IExternalIFDemodulator> m_ExternalIFDemodulator;
 };
 
 

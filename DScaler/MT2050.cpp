@@ -90,7 +90,7 @@ void CMT2050::Initialize()
 {
     int             SRO, xok = 0;
 
-    if (m_ExternalIFDemodulator != NULL)
+    if (m_ExternalIFDemodulator)
     {
         m_ExternalIFDemodulator->Init(TRUE, m_DefaultVideoFormat);
     }
@@ -123,7 +123,7 @@ void CMT2050::Initialize()
         LOG(1, "MT2050: SRO Crystal problem - tuner will not function!");
     }
 
-    if (m_ExternalIFDemodulator != NULL)
+    if (m_ExternalIFDemodulator)
     {
         m_ExternalIFDemodulator->Init(FALSE, m_DefaultVideoFormat);
     }
@@ -266,7 +266,7 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
         buf [4] = 64 + div2a;
     }
 
-    if (m_ExternalIFDemodulator != NULL)
+    if (m_ExternalIFDemodulator)
     {
         m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
     }
@@ -293,7 +293,7 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
         nlock++;
     } while(nlock < 100);
 
-    if (m_ExternalIFDemodulator != NULL)
+    if (m_ExternalIFDemodulator)
     {
         m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
     }
@@ -341,7 +341,7 @@ eTunerLocked CMT2050::IsLocked()
 eTunerAFCStatus CMT2050::GetAFCStatus(long &nFreqDeviation)
 {
     eTunerAFCStatus AFCStatus = TUNER_AFC_NOTSUPPORTED;
-    if (m_ExternalIFDemodulator != NULL)
+    if (m_ExternalIFDemodulator)
     {
         AFCStatus = m_ExternalIFDemodulator->GetAFCStatus(nFreqDeviation);
     }

@@ -35,22 +35,15 @@
 
 ITuner::ITuner()
 {
-    m_ExternalIFDemodulator = NULL;
-    m_bFreeIFDemodulatorOnDestruction = FALSE;
 }
 
 ITuner::~ITuner()
 {
-    if (m_bFreeIFDemodulatorOnDestruction && (m_ExternalIFDemodulator != NULL))
-    {
-        delete m_ExternalIFDemodulator;
-    }
 }
 
-void ITuner::AttachIFDem(IExternalIFDemodulator* pExternalIFDemodulator, BOOL bFreeOnDestruction)
+void ITuner::AttachIFDem(SmartPtr<IExternalIFDemodulator> pExternalIFDemodulator)
 {
     m_ExternalIFDemodulator = pExternalIFDemodulator;
-    m_bFreeIFDemodulatorOnDestruction = bFreeOnDestruction;
 }
 
 

@@ -190,7 +190,7 @@ public:
 
 
 public:
-    CSAA7134Card(CHardwareDriver* pDriver);
+    CSAA7134Card(SmartPtr<CHardwareDriver> pDriver);
     ~CSAA7134Card();
 
 
@@ -209,7 +209,7 @@ public:
 
     std::string    GetChipType();
     std::string    GetTunerType();
-    ITuner*        GetTuner() const;
+    SmartPtr<ITuner>        GetTuner() const;
 
     int         GetNumInputs();
     std::string GetInputName(int nVideoSource);
@@ -435,13 +435,13 @@ private:
     BOOL IsCCIRSource(int nInput);
     const TCardType* GetCardSetup();
 
-    void StandardSAA7134InputSelect(int    nInput);
+    void StandardSAA7134InputSelect(int nInput);
 
 
 private:
     ///    Holds the list of all cards
     static const TCardType            m_SAA7134UnknownCard;
-    static std::vector<CCardTypeEx>    m_SAA713xCards;
+    static std::vector<CCardTypeEx>   m_SAA713xCards;
 
     static const HCParser::CParseConstant k_parseAudioPinConstants[];
     static const HCParser::CParseConstant k_parseInputTypeConstants[];
@@ -453,22 +453,22 @@ private:
     static const HCParser::CParseTag k_parseCard[];
     static const HCParser::CParseTag k_parseCardList[];
 
-    eSAA7134CardId        m_CardType;
-    std::string           m_TunerType;
+    eSAA7134CardId      m_CardType;
+    std::string         m_TunerType;
 
-    CI2CBus*            m_I2CBus;
-    II2CTuner*            m_Tuner;
+    SmartPtr<CI2CBus>   m_I2CBus;
+    SmartPtr<II2CTuner>	m_Tuner;
 
     ///    Stores amount of memory    assigned to    DMA
-    DWORD                m_DMAChannelMemorySize[7];
+    DWORD               m_DMAChannelMemorySize[7];
     ///    Stores regions prepared    for    DMA
     BYTE                m_PreparedRegions;
 
-    DWORD                m_LastTriggerError;
+    DWORD               m_LastTriggerError;
 
-    eVideoStandard        m_VideoStandard;
+    eVideoStandard      m_VideoStandard;
 
-    eAudioInputSource    m_AudioInputSource;
+    eAudioInputSource   m_AudioInputSource;
     BOOL                m_bAudioLineReservedForMute;
     BOOL                m_bStereoExternalLines;
 };

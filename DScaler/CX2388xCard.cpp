@@ -41,11 +41,9 @@
 
 using namespace std;
 
-CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
+CCX2388xCard::CCX2388xCard(SmartPtr<CHardwareDriver> pDriver) :
     CPCICard(pDriver),
     m_CardType(CX2388xCARD_UNKNOWN),
-    m_Tuner(NULL),
-    m_SAA7118(NULL),
     m_RISCIsRunning(FALSE),
     m_CurrentInput(0),
     m_CurrentAudioStandard(AUDIO_STANDARD_AUTO),
@@ -60,12 +58,6 @@ CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
 
 CCX2388xCard::~CCX2388xCard()
 {
-    delete m_I2CBus;
-    delete m_AudioDecoder;
-    delete m_AudioControls;
-    delete m_Tuner;
-    delete m_SAA7118;
-
     ClosePCICard();
 }
 

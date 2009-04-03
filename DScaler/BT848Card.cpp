@@ -102,7 +102,6 @@ static BYTE SRAMTable_PAL[ 60 ] =
 CBT848Card::CBT848Card(SmartPtr<CHardwareDriver> pDriver) :
     CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
-    m_Tuner(NULL),
     m_CurrentInput(0),
     m_TunerType("n/a"),
     m_AudioDecoderType("n/a"),

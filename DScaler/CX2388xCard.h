@@ -149,7 +149,7 @@ private:
     } TParseCardInfo;
 
 public:
-    CCX2388xCard(CHardwareDriver* pDriver);
+    CCX2388xCard(SmartPtr<CHardwareDriver> pDriver);
     ~CCX2388xCard();
 
     void SetCardType(int CardType);
@@ -225,7 +225,7 @@ public:
     void Sleep();
     void I2CLock();
     void I2CUnlock();
-    ITuner* GetTuner() const;
+    SmartPtr<ITuner> GetTuner() const;
 
     // Audio
     void AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioStandard Standard, eCX2388xStereoType StereoType);
@@ -300,13 +300,13 @@ private:
 private:
     eCX2388xCardId  m_CardType;
 
-    CI2CBus*        m_I2CBus;
-    II2CTuner*      m_Tuner;
-    CSAA7118*       m_SAA7118;
+    SmartPtr<CI2CBus>        m_I2CBus;
+    SmartPtr<II2CTuner>      m_Tuner;
+    SmartPtr<CSAA7118>       m_SAA7118;
 
     BOOL            m_RISCIsRunning;
-    CAudioDecoder*  m_AudioDecoder;
-    CAudioControls* m_AudioControls;
+    SmartPtr<CAudioDecoder>  m_AudioDecoder;
+    SmartPtr<CAudioControls> m_AudioControls;
     std::string     m_TunerType;
     int             m_CurrentInput;
     DWORD           m_FilterDefault;

@@ -230,7 +230,7 @@ END_MESSAGE_MAP()
 
 void CCredits::OnOK()
 {
-    KillTimer(DISPLAY_TIMER_ID);
+	::KillTimer(m_hWnd, DISPLAY_TIMER_ID);
 
     CDialog::OnOK();
 }
@@ -426,7 +426,7 @@ void CCredits::OnPaint()
                     CString str;
                     str.Format("Could not find bitmap resource \"%s\". "
                                "Be sure to assign the bitmap a QUOTED resource name", szBitmap);
-                    KillTimer(DISPLAY_TIMER_ID);
+					::KillTimer(m_hWnd, DISPLAY_TIMER_ID);
                     MessageBox(str);
                     return;
                     }

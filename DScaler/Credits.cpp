@@ -87,9 +87,9 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 // strings do not get a font assignment.
 // (see #defines above)
 
-char *ArrCredits[] = {     "DScaler\n",
+char *ArrCredits[] = {  "DScaler\n",
                         "",
-                        "Copyright © 2007\f",
+                        "Copyright © 2009\f",
                         "DScaler Team\f",
                         "All Rights Reserved\f",
                         "",
@@ -167,6 +167,7 @@ char *ArrCredits[] = {     "DScaler\n",
                         "MultiDec - Copyright © Espresso\f",
                         "saa713x - Copyright © Gerd Knorr\f",
                         "VirtualDub - Copyright © Avery Lee\f",
+                        "LinuxTV - www.linuxtv.org \f",
                         "",
                         "",
                         "Libraries we use\t",

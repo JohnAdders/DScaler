@@ -29,7 +29,6 @@
 
 #include "exception.h"
 #include "DShowBaseSource.h"
-#include "TreeSettingsOleProperties.h"
 #include "DShowAudioControls.h"
 #include "DShowSeeking.h"
 
@@ -37,6 +36,8 @@
 //or compiled it atleast once.
 //it has to be checked out in the same directory as dscaler is checked out in.
 #include "..\..\..\DSRend\DSRend.h"
+
+class CTreeSettingsPage;
 
 /**
  * Class that manages a direct show filter graph and the filters in it.
@@ -130,13 +131,13 @@ public:
      * @param bHasSubPages TRUE if specified filter has subpages
      * @return TRUE if the propertypage was successfully created
      */
-    BOOL getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,BOOL &bHasSubPages);
+    BOOL getFilterPropertyPage(int index, CComPtr<ISpecifyPropertyPages>& pSpecifyPages);
 
     /**
      * This function works almost the same as getFilterPropertyPage() but returns the subpage.
      * @return TRUE if successfull
      */
-    BOOL getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage);
+    BOOL getFilterSubPage(int filterIndex, int subIndex, CComPtr<ISpecifyPropertyPages>& pSpecifyPages);
 
     /**
      * Changes connection settings to dsrend filter.

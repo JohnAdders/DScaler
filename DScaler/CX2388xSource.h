@@ -81,7 +81,7 @@ public:
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
 
-    CTreeSettingsPage* GetTreeSettingsPage();
+    SmartPtr<CSettingsHolder> GetSettingsPage();
 
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);

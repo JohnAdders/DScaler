@@ -23,8 +23,8 @@
 #ifndef __ERRORBOX_H___
 #define __ERRORBOX_H___
 
-void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage);
-void _RealErrorBox(LPCSTR szFile, int Line, LPCSTR szMessage);
+void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, const std::string& Message);
+void _RealErrorBox(LPCSTR szFile, int Line, const std::string& szMessage);
 
 #define RealErrorBox(Message) _RealErrorBox(__FILE__, __LINE__, Message);
 

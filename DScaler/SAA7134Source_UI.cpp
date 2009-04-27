@@ -56,13 +56,6 @@ using namespace std;
 // for AUDIOSTANDARD_LASTONE IDs
 #define SAA7134MENU_AUDIOSTANDARD_START     IDM_DSVIDEO_STANDARD_0
 
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 extern const char *TunerNames[TUNER_LASTONE];
 
 
@@ -1623,11 +1616,9 @@ void CSAA7134Source::ChangeDefaultsForAudioInput(BOOL bDontSetValue)
 
 }
 
-CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
+SmartPtr<CSettingsHolder> CSAA7134Source::GetSettingsPage()
 {
-    SmartPtr<CTreeSettingsGeneric> pPage;
-
-    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder(0, IDH_SAA713X_ADV));
 
     Holder->AddSetting(m_AutomaticVolumeLevel);
     Holder->AddSetting(m_VBIUpscaleDivisor);
@@ -1645,11 +1636,7 @@ CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
     Holder->AddSetting(m_AudioLine1Voltage);
     Holder->AddSetting(m_AudioLine2Voltage);
 
-    pPage = new CTreeSettingsGeneric("SAA713x Advanced", Holder);
-
-    pPage->SetHelpID(IDH_SAA713X_ADV);
-
-    return pPage;
+    return Holder;
 }
 
 #endif//xxx

@@ -30,12 +30,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -173,10 +167,9 @@ string CDShowDevEnum::getProperty(string szName)
     hr = m_pPropBag->Read(oleProperty, &varProperty, 0);
     if(SUCCEEDED(hr))
     {
-        CString tmp;
-        tmp.Format("%S",varProperty.bstrVal);
+        string tmp(OLE2T(varProperty.bstrVal));
         SysFreeString(varProperty.bstrVal);
-        return std::string(tmp);
+        return tmp;
     }
     else
     {

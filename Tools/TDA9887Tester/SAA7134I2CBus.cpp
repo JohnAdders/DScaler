@@ -25,7 +25,7 @@
 CSAA7134I2CBus::CSAA7134I2CBus(ISAA7134I2CInterface* pSAA7134I2C) :
     m_InitializedSleep(FALSE)
 {
-    ASSERT(pSAA7134I2C != 0);
+    _ASSERTE(pSAA7134I2C != 0);
     this->m_pSAA7134I2C = pSAA7134I2C;
 }
 
@@ -34,10 +34,10 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
                   BYTE *readBuffer,
                   size_t readBufferSize)
 {
-    ASSERT(m_pSAA7134I2C != 0);
-    ASSERT(writeBuffer != 0);
-    ASSERT(writeBufferSize >= 1);
-    ASSERT(readBuffer != 0 || readBufferSize == 0);
+    _ASSERTE(m_pSAA7134I2C != 0);
+    _ASSERTE(writeBuffer != 0);
+    _ASSERTE(writeBufferSize >= 1);
+    _ASSERTE(readBuffer != 0 || readBufferSize == 0);
 
     if (readBufferSize == 0)
     {
@@ -57,7 +57,7 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
 
     if (writeBufferSize != 1)
     {
-        ASSERT(writeBufferSize > 1);
+        _ASSERTE(writeBufferSize > 1);
 
         SetData(address & ~1);
 
@@ -113,10 +113,10 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
 
 bool CSAA7134I2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
 {
-    ASSERT(m_pSAA7134I2C != NULL);
-    ASSERT(writeBuffer != 0);
-    ASSERT(writeBufferSize >= 1);
-    ASSERT((writeBuffer[0] & 1) == 0);
+    _ASSERTE(m_pSAA7134I2C != NULL);
+    _ASSERTE(writeBuffer != 0);
+    _ASSERTE(writeBufferSize >= 1);
+    _ASSERTE((writeBuffer[0] & 1) == 0);
 
     if (!IsBusReady())
     {
@@ -156,7 +156,7 @@ void CSAA7134I2CBus::Sleep()
 
 bool CSAA7134I2CBus::BusyWait()
 {
-    ASSERT(m_pSAA7134I2C != NULL);
+    _ASSERTE(m_pSAA7134I2C != NULL);
 
     int Retries = 0;
     BYTE Status;
@@ -181,13 +181,13 @@ bool CSAA7134I2CBus::BusyWait()
 
 void CSAA7134I2CBus::SetData(BYTE Data)
 {
-    ASSERT(m_pSAA7134I2C != NULL);
+    _ASSERTE(m_pSAA7134I2C != NULL);
     m_pSAA7134I2C->SetI2CData(Data);
 }
 
 BYTE CSAA7134I2CBus::GetData()
 {
-    ASSERT(m_pSAA7134I2C != 0);
+    _ASSERTE(m_pSAA7134I2C != 0);
     return m_pSAA7134I2C->GetI2CData();
 }
 
@@ -222,21 +222,21 @@ bool CSAA7134I2CBus::IsError(BYTE Status)
 
 bool CSAA7134I2CBus::I2CStart()
 {
-    ASSERT(m_pSAA7134I2C != 0);
+    _ASSERTE(m_pSAA7134I2C != 0);
     m_pSAA7134I2C->SetI2CCommand(ISAA7134I2CInterface::COMMAND_START);
     return BusyWait();
 }
 
 bool CSAA7134I2CBus::I2CStop()
 {
-    ASSERT(m_pSAA7134I2C != 0);
+    _ASSERTE(m_pSAA7134I2C != 0);
     m_pSAA7134I2C->SetI2CCommand(ISAA7134I2CInterface::COMMAND_STOP);
     return BusyWait();
 }
 
 bool CSAA7134I2CBus::I2CContinue()
 {
-    ASSERT(m_pSAA7134I2C != 0);
+    _ASSERTE(m_pSAA7134I2C != 0);
     m_pSAA7134I2C->SetI2CCommand(ISAA7134I2CInterface::COMMAND_CONTINUE);
     return BusyWait();
 }

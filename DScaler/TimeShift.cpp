@@ -68,13 +68,13 @@
 #include "Providers.h"    // Providers_GetCurrentSource
 #include "DebugLog.h"     // LOG
 
+using namespace std;
+
 #define P3_OR_BETTER (FEATURE_SSE | FEATURE_MMXEXT)
 #define BUG()\
 {\
-    char bugText[256];\
-    _snprintf(bugText, sizeof(bugText), "Bug found in %s around line %d",\
-                                        __FILE__, __LINE__);\
-    MessageBox(NULL, bugText, "Error", MB_OK);\
+    string bugText(MakeString() << "Bug found in " << __FILE__ << " around line " << __LINE__);\
+    MessageBox(NULL, bugText.c_str(), "Error", MB_OK);\
 }
 
 /* This is just to ensure that the TimeShift data is handled properly */
@@ -687,7 +687,7 @@ ULONGLONG GetFreeDiskSpace(void)
                                      PULARGE_INTEGER);
     OSVERSIONINFO VersionInfo;
     VersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    CString strProcName, strErrMsg;
+    string strProcName;
     char lpszDrivePath[4] = "c:\\";
 
     if (!timeShift)
@@ -724,14 +724,13 @@ ULONGLONG GetFreeDiskSpace(void)
 
             // Get ProcAddress for GetDiskFreeSpaceEx function
             ProcAdd = (DSKFREE)GetProcAddress(GetModuleHandle("kernel32.dll"),
-                                              strProcName);
+                                              strProcName.c_str());
 
             if (!ProcAdd)
             {
-                strErrMsg = _T("Could not get the address for ");
-                strErrMsg += strProcName;
+                string strErrMsg(MakeString() << "Could not get the address for " << strProcName);
                 ::MessageBox( NULL,
-                              strErrMsg,
+                              strErrMsg.c_str(),
                               NULL,
                               MB_OK | MB_ICONERROR | MB_TASKMODAL
                              );
@@ -866,16 +865,9 @@ TIME_SHIFT::TIME_SHIFT(HWND hWndIn) :
     waveFormat.wBitsPerSample  = 16;
     waveFormat.nBlockAlign     = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
     waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
-
+    savingPath[0] = 0;
+    sizeLimit = 0;
     InitializeCriticalSection(&lock);
-
-
-    /* Set the default saving path */
-    TimeShiftSetSavingPath(NULL);
-
-    /* Overwrite any of the above defaults with whatever's in the INI
-       file */
-    TimeShiftReadFromINI();
 }
 
 TIME_SHIFT::~TIME_SHIFT()
@@ -902,6 +894,7 @@ BOOL TimeShiftInit(HWND hWnd)
     if (!timeShift)
     {
         timeShift = new TIME_SHIFT(hWnd);
+        TimeShiftReadFromINI();
 
     }
     else
@@ -1437,7 +1430,7 @@ BOOL TimeShiftGetWaveInDeviceIndex(int *index)
     return result;
 }
 
-BOOL TimeShiftSetWaveInDevice(char *pszDevice)
+BOOL TimeShiftSetWaveInDevice(const char *pszDevice)
 {
     BOOL result = FALSE;
 
@@ -1492,7 +1485,7 @@ BOOL TimeShiftGetWaveOutDeviceIndex(int *index)
     return result;
 }
 
-BOOL TimeShiftSetWaveOutDevice(char *pszDevice)
+BOOL TimeShiftSetWaveOutDevice(const char *pszDevice)
 {
     BOOL result = FALSE;
 
@@ -1906,8 +1899,8 @@ BOOL TimeShiftOnOptions(void)
 
         if (timeShift->mode==MODE_STOPPED)
         {
-            CTSOptionsDlg dlg(CWnd::FromHandle(timeShift->hWnd));
-            if (dlg.DoModal()==IDOK)
+            CTSOptionsDlg dlg;
+            if (dlg.DoModal(timeShift->hWnd) == IDOK)
             {
                 result = TRUE;
                 TimeShiftWriteToINI();

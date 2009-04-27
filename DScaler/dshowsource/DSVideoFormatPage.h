@@ -20,22 +20,17 @@
  * @file DSVideoFormatPage.h header file
  */
 
-#if !defined(AFX_DSVIDEOFORMATPAGE_H__24867333_526D_4B36_8A75_E64A92C140A3__INCLUDED_)
-#define AFX_DSVIDEOFORMATPAGE_H__24867333_526D_4B36_8A75_E64A92C140A3__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#if !defined(_DSVIDEOFORMATPAGE_H__)
+#define _DSVIDEOFORMATPAGE_H__
 
 #include "TreeSettingsPage.h"
 #include "..\DScalerRes\resource.h"
 #include "DSGraph.h"
 #include <vector>
-#include "HSListBox.h"
 
 /**
  * CDSVideoFormatPage dialog.
- * Makes it posibel to customize the resolution submenu.
+ * Makes it possible to customize the resolution submenu.
  * @todo validate settings in OnOK
  * @todo implement "Reset to default" button
  * @todo implement croping, might need changes to dsrend filter
@@ -44,53 +39,31 @@ class CDSVideoFormatPage : public CTreeSettingsPage
 {
 // Construction
 public:
-    CDSVideoFormatPage(CString name, std::vector<CDShowGraph::CVideoFormat> &fmts,CSliderSetting *pResolution);   // standard constructor
+    CDSVideoFormatPage(const std::string& name, std::vector<CDShowGraph::CVideoFormat>& fmts,CSliderSetting* pResolution);   // standard constructor
     ~CDSVideoFormatPage() {};
 
-// Dialog Data
-    //{{AFX_DATA(CDSVideoFormatPage)
-    enum { IDD = IDD_DSHOW_VIDEOFMTS };
-    CDragListBox m_ListBox;
-    CSpinButtonCtrl    m_SpinWidth;
-    CSpinButtonCtrl    m_SpinHeight;
-    //CButton m_YUY2Check;
-    //CComboBox m_SampleFormat;
-    //}}AFX_DATA
-
-
-// Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(CDSVideoFormatPage)
-    protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    //}}AFX_VIRTUAL
-
 // Implementation
-protected:
-
-    // Generated message map functions
-    //{{AFX_MSG(CDSVideoFormatPage)
-    virtual BOOL OnInitDialog();
-    afx_msg void OnVideoFmtSelChange();
-    afx_msg void OnDeltaPosWidth(NMHDR* pNMHDR, LRESULT* pResult);
-    afx_msg void OnDeltaPosHeight(NMHDR* pNMHDR, LRESULT* pResult);
-    afx_msg void OnChangeWidth();
-    afx_msg void OnChangeHeight();
-    afx_msg void OnChangeName();
-    //afx_msg void OnClickedYUY2();
-    //afx_msg void OnSelEndOkFieldFmt();
-    afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-    afx_msg void OnClickedDelete();
-    afx_msg void OnClickedNew();
-    afx_msg void OnClickedClear();
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
-
-    void OnOK();
-
 private:
-    void UpdateControlls();
-    void GenerateName(int pos);
+    BOOL ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    LRESULT OnNotify(HWND hwnd, int id, LPNMHDR nmhdr);
+    void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
+
+    BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
+    void OnVideoFmtSelChange(HWND hDlg);
+    LRESULT OnDeltaPosWidth(HWND hDlg, NMHDR* pNMHDR);
+    LRESULT OnDeltaPosHeight(HWND hDlg, NMHDR* pNMHDR);
+    void OnChangeWidth(HWND hDlg);
+    void OnChangeHeight(HWND hDlg);
+    void OnChangeName(HWND hDlg);
+    void OnContextMenu(HWND hDlg, HWND hwndContext, UINT xPos, UINT yPos);
+    void OnClickedDelete(HWND hDlg);
+    void OnClickedNew(HWND hDlg);
+    void OnClickedClear(HWND hDlg);
+
+    void OnOK(HWND hDlg);
+
+    void UpdateControlls(HWND hDlg);
+    void GenerateName(HWND hDlg, int pos);
     std::vector<CDShowGraph::CVideoFormat> m_VideoFmt;
 
     /**
@@ -102,9 +75,9 @@ private:
     ///flag to prevent controlls from messing with the settings when updating controlls
     BOOL m_bInUpdateControlls;
     CSliderSetting *m_pResolutionSetting;
+    HWND m_ListBox;
+    HWND m_SpinWidth;
+    HWND m_SpinHeight;
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_DSVIDEOFORMATPAGE_H__24867333_526D_4B36_8A75_E64A92C140A3__INCLUDED_)
+#endif

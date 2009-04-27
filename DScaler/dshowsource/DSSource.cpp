@@ -41,12 +41,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 struct videoStandardsType
 {
     AnalogVideoStandard format;
@@ -469,7 +463,7 @@ int CDSCaptureSource::ChangeRes(int nResIndex)
     {
         CAutoCriticalSection lock(m_hOutThreadSync);
 
-        ASSERT(nResIndex>=0 && nResIndex<m_VideoFmt.size());
+        _ASSERTE(nResIndex>=0 && nResIndex<m_VideoFmt.size());
         CDShowGraph::eChangeRes_Error err=m_pDSGraph->ChangeRes(m_VideoFmt[nResIndex]);
         switch(err)
         {
@@ -493,11 +487,11 @@ int CDSCaptureSource::ChangeRes(int nResIndex)
     }
     catch(CDShowException &e)
     {
-        ErrorBox(CString("Error when changeing resolution\n\n")+e.what());
+        ErrorBox(MakeString() << "Error when changeing resolution\n\n" << e.what());
     }
     catch(exception &e2)
     {
-        ErrorBox(CString("Stl exception:\n\n")+e2.what());
+        ErrorBox(MakeString() << "Stl exception:\n\n" << e2.what());
     }
     return resu;
 }
@@ -511,15 +505,15 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 
     if(LOWORD(wParam)==IDM_DSHOW_SETTINGS)
     {
-        CTreeSettingsDlg dlg(CString("DirectShow Settings"));
+        CTreeSettingsDlg dlg("DirectShow Settings");
 
         BOOL bConnectAudio=(m_ConnectAudio->GetValue()!=0);
-        CDSAudioDevicePage AudioDevice(CString("Audio output"),m_AudioDevice,&bConnectAudio);
-        CDSVideoFormatPage VidemFmt(CString("Resolution"),m_VideoFmt,m_Resolution);
+        CDSAudioDevicePage AudioDevice("Audio output", m_AudioDevice, &bConnectAudio);
+        CDSVideoFormatPage VidemFmt("Resolution", m_VideoFmt, m_Resolution);
 
         dlg.AddPage(&AudioDevice);
         dlg.AddPage(&VidemFmt);
-        dlg.DoModal();
+        dlg.DoModal(hWnd);
 
         m_ConnectAudio->SetValue(bConnectAudio);
 
@@ -562,7 +556,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
         }
         catch(CDShowException &e)
         {
-            ErrorBox(CString("Failed to change input\n\n")+e.what());
+            ErrorBox(MakeString() << "Failed to change input\n\n" << e.what());
         }
 
         return TRUE;
@@ -578,7 +572,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
         }
         catch(CDShowException &e)
         {
-            ErrorBox(CString("Failed to change video format\n\n")+e.what());
+            ErrorBox(MakeString() << "Failed to change video format\n\n" << e.what());
         }
         return TRUE;
     }
@@ -587,7 +581,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
         TGUIRequest req;
         req.type = REQ_DSHOW_CHANGERES;
         req.param1 = LOWORD(wParam)-IDM_DSHOW_RES_0;
-        ASSERT(req.param1>=0 && req.param1<m_VideoFmt.size());
+        _ASSERTE(req.param1>=0 && req.param1<m_VideoFmt.size());
         PutRequest(&req);
     }
     else if(LOWORD(wParam)==ID_DSHOW_AUDIOCHANNEL_MONO)
@@ -600,7 +594,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Error changing audio channel\n\n")+e.what());
+                ErrorBox(MakeString() << "Error changing audio channel\n\n" << e.what());
             }
         }
     }
@@ -614,7 +608,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Error changing audio channel\n\n")+e.what());
+                ErrorBox(MakeString() << "Error changing audio channel\n\n" << e.what());
             }
         }
     }
@@ -628,7 +622,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Error changing audio channel\n\n")+e.what());
+                ErrorBox(MakeString() << "Error changing audio channel\n\n" << e.what());
             }
         }
     }
@@ -642,7 +636,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Error changing audio channel\n\n")+e.what());
+                ErrorBox(MakeString() << "Error changing audio channel\n\n" << e.what());
             }
         }
     }
@@ -656,7 +650,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Error changing audio channel\n\n")+e.what());
+                ErrorBox(MakeString() << "Error changing audio channel\n\n" << e.what());
             }
         }
     }
@@ -1022,9 +1016,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
         return;
     }
 
-    CMenu topMenu;
-    topMenu.Attach(m_hMenu);
-    CMenu *menu=topMenu.GetSubMenu(0);
+    HMENU menu = GetSubMenu(hMenu, 0);
 
     CDShowCaptureDevice *pCap=NULL;
     CDShowBaseCrossbar *pCrossbar=NULL;
@@ -1040,54 +1032,51 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
     }
 
     //setup input selection menus
-    CString menuText;
+    vector<char> menuText(MAX_PATH+1);
     if(pCrossbar!=NULL)
     {
-        CMenu vidSubMenu;
-        CMenu audSubMenu;
-
         //create video input submenu and insert it
-        vidSubMenu.CreateMenu();
-        menu->GetMenuString(0,menuText,MF_BYPOSITION);
-        menu->ModifyMenu(0,MF_POPUP|MF_BYPOSITION,(UINT) vidSubMenu.GetSafeHmenu(),menuText);
-        menu->EnableMenuItem(0,MF_BYPOSITION|MF_ENABLED);
+        HMENU vidSubMenu = CreateMenu();
+
+        GetMenuString(menu,0, &menuText[0], MAX_PATH, MF_BYPOSITION);
+        ModifyMenu(menu, 0,MF_POPUP|MF_BYPOSITION,(UINT)vidSubMenu, &menuText[0]);
+        EnableMenuItem(menu, 0,MF_BYPOSITION|MF_ENABLED);
 
         //same for audio input menu
-        audSubMenu.CreateMenu();
-        menu->GetMenuString(3,menuText,MF_BYPOSITION);
-        menu->ModifyMenu(3,MF_POPUP|MF_BYPOSITION,(UINT) audSubMenu.GetSafeHmenu(),menuText);
-        menu->EnableMenuItem(3,MF_BYPOSITION|MF_ENABLED);
+        HMENU audSubMenu = CreateMenu();
+        GetMenuString(menu, 3, &menuText[0], MAX_PATH, MF_BYPOSITION);
+        ModifyMenu(menu, 3, MF_POPUP|MF_BYPOSITION, (UINT) audSubMenu, &menuText[0]);
+        EnableMenuItem(menu, 3, MF_BYPOSITION|MF_ENABLED);
 
         long cIn,cOut;
         pCrossbar->GetPinCounts(cIn,cOut);
         for(int i=0;i<cIn;i++)
         {
-            ASSERT((IDM_CROSSBAR_INPUT0+i)<=IDM_CROSSBAR_INPUT_MAX);
+            _ASSERTE((IDM_CROSSBAR_INPUT0+i)<=IDM_CROSSBAR_INPUT_MAX);
             BOOL bSelected=pCrossbar->IsInputSelected(i);
 
             //is it an audio or video input?
             if(pCrossbar->GetInputType(i)<4096)
             {
-                vidSubMenu.AppendMenu(MF_STRING,IDM_CROSSBAR_INPUT0+i,pCrossbar->GetInputName(i).c_str());
-                vidSubMenu.CheckMenuItem(IDM_CROSSBAR_INPUT0+i,bSelected ? MF_CHECKED:MF_UNCHECKED);
+                AppendMenu(vidSubMenu, MF_STRING,IDM_CROSSBAR_INPUT0+i,pCrossbar->GetInputName(i).c_str());
+                CheckMenuItem(vidSubMenu, IDM_CROSSBAR_INPUT0+i,bSelected ? MF_CHECKED:MF_UNCHECKED);
             }
             else
             {
-                audSubMenu.AppendMenu(MF_STRING,IDM_CROSSBAR_INPUT0+i,pCrossbar->GetInputName(i).c_str());
-                audSubMenu.CheckMenuItem(IDM_CROSSBAR_INPUT0+i,bSelected ? MF_CHECKED:MF_UNCHECKED);
+                AppendMenu(audSubMenu, MF_STRING,IDM_CROSSBAR_INPUT0+i,pCrossbar->GetInputName(i).c_str());
+                CheckMenuItem(audSubMenu, IDM_CROSSBAR_INPUT0+i,bSelected ? MF_CHECKED:MF_UNCHECKED);
             }
         }
     }
     else
     {
-        menu->EnableMenuItem(0,MF_BYPOSITION|MF_GRAYED);
-        menu->EnableMenuItem(3,MF_BYPOSITION|MF_GRAYED);
+        EnableMenuItem(menu, 0,MF_BYPOSITION|MF_GRAYED);
+        EnableMenuItem(menu, 3,MF_BYPOSITION|MF_GRAYED);
     }
 
     //video standards menu
     if(IsInTunerMode()==FALSE && pCap!=NULL && pCap->hasVideoDec())
     {
-        CMenu formatMenu;
 
         long formats=0;
         long selectedFormat=0;
@@ -1104,105 +1093,102 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
         //make sure there is at least one format to be selected
         if(formats!=0)
         {
-            formatMenu.CreateMenu();
-            menu->GetMenuString(1,menuText,MF_BYPOSITION);
-            menu->ModifyMenu(1,MF_POPUP|MF_BYPOSITION,(UINT)formatMenu.GetSafeHmenu(),menuText);
-            menu->EnableMenuItem(1,MF_BYPOSITION|MF_ENABLED);
+            HMENU formatMenu = CreateMenu();
+            GetMenuString(menu, 1, &menuText[0], MAX_PATH, MF_BYPOSITION);
+            ModifyMenu(menu, 1, MF_POPUP|MF_BYPOSITION, (UINT)formatMenu, &menuText[0]);
+            EnableMenuItem(menu, 1,MF_BYPOSITION|MF_ENABLED);
 
             int i=0;
             while(videoStandards[i].format!=0)
             {
-                ASSERT(i <= IDM_DSVIDEO_STANDARD_MAX-IDM_DSVIDEO_STANDARD_0);
+                _ASSERTE(i <= IDM_DSVIDEO_STANDARD_MAX-IDM_DSVIDEO_STANDARD_0);
 
                 if(formats & videoStandards[i].format)
                 {
                     UINT check=selectedFormat & videoStandards[i].format ? MF_CHECKED:MF_UNCHECKED;
-                    formatMenu.AppendMenu(MF_STRING,IDM_DSVIDEO_STANDARD_0+i,videoStandards[i].name);
-                    formatMenu.CheckMenuItem(IDM_DSVIDEO_STANDARD_0+i,check);
+                    AppendMenu(formatMenu, MF_STRING,IDM_DSVIDEO_STANDARD_0+i,videoStandards[i].name);
+                    CheckMenuItem(formatMenu, IDM_DSVIDEO_STANDARD_0+i,check);
                 }
                 i++;
             }
         }
         else
         {
-            menu->EnableMenuItem(1,MF_BYPOSITION|MF_GRAYED);
+            EnableMenuItem(menu, 1,MF_BYPOSITION|MF_GRAYED);
         }
     }
     else
     {
-        menu->EnableMenuItem(1,MF_BYPOSITION|MF_GRAYED);
+        EnableMenuItem(menu, 1,MF_BYPOSITION|MF_GRAYED);
     }
 
     //resolution submenu
     BOOL ResAdded=FALSE;
-    CMenu ResSubMenu;
-    ResSubMenu.CreateMenu();
+    HMENU ResSubMenu = CreateMenu();
 
     for(vector<CDShowGraph::CVideoFormat>::size_type index=0;index<m_VideoFmt.size();index++)
     {
-        ASSERT(IDM_DSHOW_RES_0+index<=IDM_DSHOW_RES_MAX);
-        ResSubMenu.AppendMenu(MF_STRING|(m_Resolution->GetValue()==index?MF_CHECKED:MF_UNCHECKED),IDM_DSHOW_RES_0+index,m_VideoFmt[index].m_Name.c_str());
+        _ASSERTE(IDM_DSHOW_RES_0+index<=IDM_DSHOW_RES_MAX);
+        AppendMenu(ResSubMenu, MF_STRING|(m_Resolution->GetValue()==index?MF_CHECKED:MF_UNCHECKED),IDM_DSHOW_RES_0+index,m_VideoFmt[index].m_Name.c_str());
         ResAdded=TRUE;
     }
 
     if(ResAdded)
     {
-        menu->GetMenuString(2,menuText,MF_BYPOSITION);
-        menu->ModifyMenu(2,MF_POPUP|MF_BYPOSITION,(UINT) ResSubMenu.GetSafeHmenu(),menuText);
-        menu->EnableMenuItem(2,MF_BYPOSITION|MF_ENABLED);
+        GetMenuString(menu, 2, &menuText[0], MAX_PATH, MF_BYPOSITION);
+        ModifyMenu(menu, 2,MF_POPUP|MF_BYPOSITION, (UINT) ResSubMenu, &menuText[0]);
+        EnableMenuItem(menu, 2, MF_BYPOSITION|MF_ENABLED);
     }
     else
     {
         //no resolution was added, gray the menu item
-        menu->EnableMenuItem(2,MF_BYPOSITION|MF_GRAYED);
-        ResSubMenu.DestroyMenu();
+        EnableMenuItem(menu, 2,MF_BYPOSITION|MF_GRAYED);
+        DestroyMenu(ResSubMenu);
     }
 
     //set a radio checkmark infront of the current play/pause/stop menu entry
     FILTER_STATE state=m_pDSGraph->getState();
     UINT pos=8-state;
-    menu->CheckMenuRadioItem(6,8,pos,MF_BYPOSITION);
+    CheckMenuRadioItem(menu, 6, 8, pos, MF_BYPOSITION);
 
     //audio channel submenu
     CDShowTVAudio *pTVAudio=pCap->GetTVAudio();
     if(pTVAudio!=NULL && pTVAudio->GetAvailableModes()!=0)
     {
-        menu->EnableMenuItem(4,MF_BYPOSITION);
+        EnableMenuItem(menu, 4, MF_BYPOSITION);
         long modes=pTVAudio->GetAvailableModes();
         TVAudioMode mode=pTVAudio->GetMode();
         if(modes&AMTVAUDIO_MODE_MONO)
         {
-            menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_MONO,MF_BYCOMMAND);
-            menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_MONO,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_MONO ? MF_CHECKED : MF_UNCHECKED));
+            EnableMenuItem(menu, ID_DSHOW_AUDIOCHANNEL_MONO, MF_BYCOMMAND);
+            CheckMenuItem(menu, ID_DSHOW_AUDIOCHANNEL_MONO, MF_BYCOMMAND | (mode&AMTVAUDIO_MODE_MONO ? MF_CHECKED : MF_UNCHECKED));
 
         }
         if(modes&AMTVAUDIO_MODE_STEREO)
         {
-            menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_STEREO,MF_BYCOMMAND);
-            menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_STEREO,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_STEREO ? MF_CHECKED : MF_UNCHECKED));
+            EnableMenuItem(menu, ID_DSHOW_AUDIOCHANNEL_STEREO,MF_BYCOMMAND);
+            CheckMenuItem(menu, ID_DSHOW_AUDIOCHANNEL_STEREO,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_STEREO ? MF_CHECKED : MF_UNCHECKED));
         }
         if(modes&AMTVAUDIO_MODE_LANG_A)
         {
-            menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEA,MF_BYCOMMAND);
-            menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEA,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_LANG_A ? MF_CHECKED : MF_UNCHECKED));
+            EnableMenuItem(menu, ID_DSHOW_AUDIOCHANNEL_LANGUAGEA,MF_BYCOMMAND);
+            CheckMenuItem(menu, ID_DSHOW_AUDIOCHANNEL_LANGUAGEA,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_LANG_A ? MF_CHECKED : MF_UNCHECKED));
         }
         if(modes&AMTVAUDIO_MODE_LANG_B)
         {
-            menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEB,MF_BYCOMMAND);
-            menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEB,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_LANG_B ? MF_CHECKED : MF_UNCHECKED));
+            EnableMenuItem(menu, ID_DSHOW_AUDIOCHANNEL_LANGUAGEB,MF_BYCOMMAND);
+            CheckMenuItem(menu, ID_DSHOW_AUDIOCHANNEL_LANGUAGEB,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_LANG_B ? MF_CHECKED : MF_UNCHECKED));
         }
         if(modes&AMTVAUDIO_MODE_LANG_C)
         {
-            menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEC,MF_BYCOMMAND);
-            menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEC,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_LANG_C ? MF_CHECKED : MF_UNCHECKED));
+            EnableMenuItem(menu, ID_DSHOW_AUDIOCHANNEL_LANGUAGEC,MF_BYCOMMAND);
+            CheckMenuItem(menu, ID_DSHOW_AUDIOCHANNEL_LANGUAGEC,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_LANG_C ? MF_CHECKED : MF_UNCHECKED));
         }
     }
     else
     {
-        menu->EnableMenuItem(4,MF_BYPOSITION|MF_GRAYED);
+        EnableMenuItem(menu, 4,MF_BYPOSITION|MF_GRAYED);
     }
-
-    topMenu.Detach();
 }
 
 void CDSCaptureSource::HandleTimerMessages(int TimerId)
@@ -1286,7 +1272,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
     {
         pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
     }
-    ASSERT(pCap!=NULL);
+    _ASSERTE(pCap!=NULL);
 
     try
     {
@@ -1326,7 +1312,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
     }
     catch(CDShowException &e)
     {
-        ErrorBox(CString("Failed to change video input\n\n")+e.what());
+        ErrorBox(MakeString() << "Failed to change video input\n\n" << e.what());
     }
 }
 
@@ -1343,7 +1329,7 @@ void CDSCaptureSource::AudioInputOnChange(long NewValue, long OldValue)
     {
         pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
     }
-    ASSERT(pCap!=NULL);
+    _ASSERTE(pCap!=NULL);
 
     try
     {
@@ -1369,7 +1355,7 @@ void CDSCaptureSource::AudioInputOnChange(long NewValue, long OldValue)
     }
     catch(CDShowException &e)
     {
-        ErrorBox(CString("Failed to change audio input\n\n")+e.what());
+        ErrorBox(MakeString() << "Failed to change audio input\n\n" << e.what());
     }
 }
 
@@ -1379,7 +1365,7 @@ void CDSCaptureSource::Start()
     {
         if(m_pDSGraph==NULL)
         {
-            m_pDSGraph=new CDShowGraph(m_Device,m_DeviceName,m_AudioDevice,m_ConnectAudio->GetValue()!=0);
+            m_pDSGraph=new CDShowGraph(m_Device,m_DeviceName,m_AudioDevice->GetValue(),m_ConnectAudio->GetValue()!=0);
         }
 
         m_pDSGraph->ConnectGraph();

@@ -863,7 +863,7 @@ const char* TiXmlElement::GetText() const
             return childText->Value();
         }
     }
-    return 0;
+    return "";
 }
 
 

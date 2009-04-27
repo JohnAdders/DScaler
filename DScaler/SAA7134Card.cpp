@@ -49,12 +49,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 CSAA7134Card::CSAA7134Card(SmartPtr<CHardwareDriver> pDriver) :
     CPCICard(pDriver),
     m_CardType(SAA7134CARDID_UNKNOWN),

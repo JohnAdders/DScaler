@@ -163,8 +163,6 @@ private:
 
 
 SETTING* EPG_GetSetting(EPG_SETTING Setting);
-SmartPtr<CTreeSettingsGeneric> EPG_GetTreeSettingsPage();
-
 
 extern CUserChannels MyChannels;
 extern CEPG MyEPG;

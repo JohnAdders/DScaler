@@ -23,13 +23,6 @@
 #include "stdafx.h"
 #include "GradientStatic.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
-
 CGradientStatic::CGradientStatic() :
     m_iSpacing(10),
     m_bUsingDefaultColors(TRUE),

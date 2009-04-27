@@ -159,9 +159,3 @@ SETTING* Debug_GetSetting(DEBUG_SETTING Setting)
         return NULL;
     }
 }
-
-SmartPtr<CTreeSettingsGeneric> Debug_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_DEBUG_GETVALUE));
-    return new CTreeSettingsGeneric("Logging Settings", Holder);
-}

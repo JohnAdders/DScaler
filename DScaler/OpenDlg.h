@@ -21,68 +21,30 @@
  * @file OpenDlg.h header file for COpenDlg
  */
 
-#if !defined(AFX_OPENDLG_H__FBCD6DFF_AB97_4632_A1FD_E93DE3A1FAE5__INCLUDED_)
-#define AFX_OPENDLG_H__FBCD6DFF_AB97_4632_A1FD_E93DE3A1FAE5__INCLUDED_
+#if !defined(__OPENDLG_H__)
+#define __OPENDLG_H__
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
+#include "DSDialog.h"
 
 /**
  * This class is a simple open dialog similar to how windows run command and
  * mediaplayer open dialog works.
  */
-class COpenDlg : public CDialog
+class COpenDlg : public CDSDialog
 {
 // Construction
 public:
-    COpenDlg(CWnd* pParent = NULL);   // standard constructor
+    COpenDlg();
 
-    /**
-     * Creates a open dialog and shows it.
-     * @param hParent parent window
-     * @param FileName filename of selected file if returned TRUE
-     * @return TRUE if a file was selected and closed with ok button
-     */
-    static BOOL ShowOpenDialog(HWND hParent,CString &FileName);
+    const std::string& GetFileName() {return m_FileName;}
 
-// Dialog Data
-    //{{AFX_DATA(COpenDlg)
-    enum { IDD = IDD_OPEN };
-    CEdit    m_File;
-    //}}AFX_DATA
-
-
-// Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(COpenDlg)
-    protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    //}}AFX_VIRTUAL
-
-// Implementation
-protected:
-
-    // Generated message map functions
-    //{{AFX_MSG(COpenDlg)
-    virtual BOOL OnInitDialog();
-    afx_msg void OnBrowse();
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
-
-    void OnOK();
-    CString m_FileName;
 private:
-    /**
-     * Makes the edit box auto complete.
-     * This will only work with internet explorer 5 or later installed,
-     * if it is not installed this function will do nothing.
-     */
-    void SetupAutoComplete();
+    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
+    void OnBrowse(HWND hDlg);
+    void OnOK(HWND hDlg);
+    void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
+    std::string m_FileName;
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_OPENDLG_H__FBCD6DFF_AB97_4632_A1FD_E93DE3A1FAE5__INCLUDED_)
+#endif

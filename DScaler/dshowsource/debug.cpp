@@ -299,7 +299,7 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
         char *szName;
     };
     stringstream str;
-    ASSERT(mt!=NULL);
+    _ASSERTE(mt!=NULL);
     str << " MajorType: " << GetGUIDName(mt->majortype) << endl;
     str << " SubType: " << GetGUIDName(mt->subtype) << endl;
 
@@ -386,7 +386,7 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
         }
 
         //bitmapinfoheader
-        ASSERT(pmbi!=NULL);
+        _ASSERTE(pmbi!=NULL);
         str << " " << pmbi->biWidth << "x" << pmbi->biHeight << " " << pmbi->biBitCount << " bits" << endl;
         str << " biPlanes: " << pmbi->biPlanes << endl;
         str << " biSizeImage: "<< pmbi->biSizeImage;

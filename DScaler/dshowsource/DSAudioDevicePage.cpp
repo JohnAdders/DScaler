@@ -30,71 +30,76 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CDSAudioDevicePage dialog
 
 
-CDSAudioDevicePage::CDSAudioDevicePage(CString name,std::string &AudioDevice)
-    : CTreeSettingsPage(name,CDSAudioDevicePage::IDD),m_AudioDeviceSetting(AudioDevice),m_bConnectAudio(NULL)
+CDSAudioDevicePage::CDSAudioDevicePage(const string& name, SmartPtr<CStringSetting> AudioDeviceSetting) :
+    CTreeSettingsPage(name, IDD_DSHOW_AUDIODEVICE),
+    m_AudioDeviceSetting(AudioDeviceSetting),
+    m_bConnectAudio(NULL)
 {
-    //{{AFX_DATA_INIT(CDSAudioDevicePage)
-        // NOTE: the ClassWizard will add member initialization here
-    //}}AFX_DATA_INIT
 }
 
-CDSAudioDevicePage::CDSAudioDevicePage(CString name,std::string &AudioDevice,BOOL *bConnectAudio)
-    : CTreeSettingsPage(name,CDSAudioDevicePage::IDD),m_AudioDeviceSetting(AudioDevice),m_bConnectAudio(bConnectAudio)
+CDSAudioDevicePage::CDSAudioDevicePage(const string& name, SmartPtr<CStringSetting> AudioDeviceSetting, BOOL *bConnectAudio) :
+    CTreeSettingsPage(name,IDD_DSHOW_AUDIODEVICE),
+    m_AudioDeviceSetting(AudioDeviceSetting),
+    m_bConnectAudio(bConnectAudio)
 {
-    //{{AFX_DATA_INIT(CDSAudioDevicePage)
-        // NOTE: the ClassWizard will add member initialization here
-    //}}AFX_DATA_INIT
 }
 
-
-void CDSAudioDevicePage::DoDataExchange(CDataExchange* pDX)
+BOOL CDSAudioDevicePage::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    CTreeSettingsPage::DoDataExchange(pDX);
-    //{{AFX_DATA_MAP(CDSAudioDevicePage)
-    DDX_Control(pDX, IDC_DSHOW_AUDIODEVICE_DEVICE, m_AudioDevice);
-    DDX_Control(pDX, IDC_DSHOW_AUDIODEVICE_USEDEFAULT, m_UseDefault);
-    DDX_Control(pDX, IDC_DSHOW_AUDIODEVICE_RENDER, m_ConnectAudio);
-    //}}AFX_DATA_MAP
+    switch(message)
+    {
+    HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+    HANDLE_MSG(hDlg, WM_COMMAND, OnCommand);
+    default:
+        return FALSE;
+    }
 }
 
-
-BEGIN_MESSAGE_MAP(CDSAudioDevicePage, CTreeSettingsPage)
-    //{{AFX_MSG_MAP(CDSAudioDevicePage)
-    ON_CBN_SELENDOK(IDC_DSHOW_AUDIODEVICE_DEVICE,OnSelEndOkAudioDevice)
-    ON_BN_CLICKED(IDC_DSHOW_AUDIODEVICE_USEDEFAULT,OnClickedUseDefault)
-    ON_BN_CLICKED(IDC_DSHOW_AUDIODEVICE_RENDER,OnClickedConnectAudio)
-    //}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-
-BOOL CDSAudioDevicePage::OnInitDialog()
+void CDSAudioDevicePage::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
-    CTreeSettingsPage::OnInitDialog();
+    switch(id)
+    {
+    case IDC_DSHOW_AUDIODEVICE_USEDEFAULT:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnClickedUseDefault(hDlg);
+        }
+        break;
+    case IDC_DSHOW_AUDIODEVICE_RENDER:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnClickedConnectAudio(hDlg);
+        }
+        break;
+    case IDC_DSHOW_AUDIODEVICE_DEVICE:
+        if(CBN_SELENDOK == codeNotify)
+        {
+            OnSelEndOkAudioDevice(hDlg);
+        }
+        break;
+    }
+}
 
+BOOL CDSAudioDevicePage::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
+{
     try
     {
         CDShowDevEnum devenum(CLSID_AudioRendererCategory);
         while(devenum.getNext()==TRUE)
         {
             string deviceName=devenum.getProperty("FriendlyName");
-            int pos=m_AudioDevice.AddString(deviceName.c_str());
+            int pos = ComboBox_AddString(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_DEVICE), deviceName.c_str());
             if(pos!=CB_ERR)
             {
                 m_DeviceList.push_back(devenum.getDisplayName());
-                m_AudioDevice.SetItemData(pos,m_DeviceList.size()-1);
-                if(m_AudioDeviceSetting==devenum.getDisplayName())
+                ComboBox_SetItemData(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_DEVICE), pos, m_DeviceList.size()-1);
+                if(m_AudioDeviceSetting->GetValue() == devenum.getDisplayName())
                 {
-                    m_AudioDevice.SetCurSel(pos);
+                    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_DEVICE), pos);
                 }
             }
         }
@@ -103,84 +108,86 @@ BOOL CDSAudioDevicePage::OnInitDialog()
     {
     }
 
-    if(m_AudioDeviceSetting.size()==0)
+    if(m_AudioDeviceSetting->GetValue() == NULL)
     {
-        m_UseDefault.SetCheck(BST_CHECKED);
-        OnClickedUseDefault();
+        Button_SetCheck(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_USEDEFAULT), BST_CHECKED);
+        OnClickedUseDefault(hDlg);
     }
 
-    if(m_AudioDevice.GetCurSel()==CB_ERR && m_DeviceList.size()>0)
+    if(ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_DEVICE))==CB_ERR && m_DeviceList.size()>0)
     {
-        m_AudioDevice.SetCurSel(0);
+        ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_DEVICE), 0);
     }
 
     if(m_bConnectAudio!=NULL)
     {
-        m_ConnectAudio.SetCheck(*m_bConnectAudio?BST_UNCHECKED:BST_CHECKED);
-        OnClickedConnectAudio();
+        Button_SetCheck(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_RENDER), *m_bConnectAudio?BST_UNCHECKED:BST_CHECKED);
+        OnClickedConnectAudio(hDlg);
     }
     else
     {
-        m_ConnectAudio.ShowWindow(SW_HIDE);
-        ::ShowWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_TEXT2),SW_HIDE);
+        ShowWindow(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_RENDER), SW_HIDE);
+        ShowWindow(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_TEXT2), SW_HIDE);
     }
 
     return TRUE;
 }
 
-void CDSAudioDevicePage::OnOK()
+void CDSAudioDevicePage::OnOK(HWND hDlg)
 {
-    int pos=m_AudioDevice.GetCurSel();
-    if(pos!=CB_ERR && m_UseDefault.GetCheck()==BST_UNCHECKED)
+    int pos = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_DEVICE));
+    if(pos!=CB_ERR && Button_GetCheck(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_USEDEFAULT))==BST_UNCHECKED)
     {
-        int index=m_AudioDevice.GetItemData(pos);
-        m_AudioDeviceSetting=m_DeviceList[index];
+        int index = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_DEVICE), pos);
+        m_AudioDeviceSetting->SetValue(m_DeviceList[index].c_str());
     }
     else
     {
-        m_AudioDeviceSetting="";
+        m_AudioDeviceSetting->SetValue("");
     }
-    if(m_bConnectAudio!=NULL)
+    if(m_bConnectAudio != NULL)
     {
-        *m_bConnectAudio=(m_ConnectAudio.GetCheck()==BST_UNCHECKED);
+        *m_bConnectAudio = (Button_GetCheck(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_RENDER)) == BST_UNCHECKED);
     }
+
+    EndDialog(hDlg, IDOK);
 }
 
-void CDSAudioDevicePage::OnSelEndOkAudioDevice()
+void CDSAudioDevicePage::OnSelEndOkAudioDevice(HWND hDlg)
 {
 
 }
 
-void CDSAudioDevicePage::OnClickedUseDefault()
+void CDSAudioDevicePage::OnClickedUseDefault(HWND hDlg)
 {
-    if(m_UseDefault.GetCheck()==BST_CHECKED)
+    if(Button_GetCheck(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_USEDEFAULT))==BST_CHECKED)
     {
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE),FALSE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_DEVICE),FALSE);
     }
     else
     {
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE),TRUE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_DEVICE),TRUE);
     }
 }
 
-void CDSAudioDevicePage::OnClickedConnectAudio()
+void CDSAudioDevicePage::OnClickedConnectAudio(HWND hDlg)
 {
-    if(m_ConnectAudio.GetCheck()==BST_UNCHECKED)
+    if(Button_GetCheck(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_RENDER))==BST_UNCHECKED)
     {
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE),TRUE);
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE_TEXT),TRUE);
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_GRPBOX),TRUE);
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_USEDEFAULT),TRUE);
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE_LABEL),TRUE);
-        OnClickedUseDefault();
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_DEVICE),TRUE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_DEVICE_TEXT),TRUE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_GRPBOX),TRUE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_USEDEFAULT),TRUE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_DEVICE_LABEL),TRUE);
+        OnClickedUseDefault(hDlg);
     }
     else
     {
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE),FALSE);
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE_TEXT),FALSE);
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_GRPBOX),FALSE);
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_USEDEFAULT),FALSE);
-        ::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE_LABEL),FALSE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_DEVICE),FALSE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_DEVICE_TEXT),FALSE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_GRPBOX),FALSE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_USEDEFAULT),FALSE);
+        EnableWindow(GetDlgItem(hDlg,IDC_DSHOW_AUDIODEVICE_DEVICE_LABEL),FALSE);
     }
 }
 

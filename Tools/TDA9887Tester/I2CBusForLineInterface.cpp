@@ -22,13 +22,13 @@
 
 CI2CBusForLineInterface::CI2CBusForLineInterface(II2CLineInterface* lineInterface)
 {
-    ASSERT(lineInterface != 0);
+    _ASSERTE(lineInterface != 0);
     this->m_LineInterface = lineInterface;
 }
 
 void CI2CBusForLineInterface::Sleep()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
     m_LineInterface->Sleep();
 }
 
@@ -69,7 +69,7 @@ void CI2CBusForLineInterface::SetSCLHi()
 
 void CI2CBusForLineInterface::Start()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     // I2C start: SDA 1 -> 0 with SCL = 1
     // SDA   ^^^\___
@@ -84,7 +84,7 @@ void CI2CBusForLineInterface::Start()
 
 void CI2CBusForLineInterface::Stop()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     // I2C stop: SDA 0 -> 1 with SCL = 1
     // SDA    ___/^^^
@@ -97,7 +97,7 @@ void CI2CBusForLineInterface::Stop()
 
 bool CI2CBusForLineInterface::GetAcknowledge()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     SetSCLLo();
     SetSDAHi();
@@ -110,7 +110,7 @@ bool CI2CBusForLineInterface::GetAcknowledge()
 
 bool CI2CBusForLineInterface::Write(BYTE byte)
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     for(BYTE mask = 0x80; mask > 0; mask /= 2)
     {
@@ -134,7 +134,7 @@ bool CI2CBusForLineInterface::Write(BYTE byte)
 
 unsigned char CI2CBusForLineInterface::Read(bool last)
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     BYTE result = 0;
 
@@ -166,7 +166,7 @@ unsigned char CI2CBusForLineInterface::Read(bool last)
 
 void CI2CBusForLineInterface::SendNAK()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     SetSCLLo();
     SetSDAHi();
@@ -177,7 +177,7 @@ void CI2CBusForLineInterface::SendNAK()
 
 void CI2CBusForLineInterface::SendACK()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     SetSCLLo();
     SetSDALo();

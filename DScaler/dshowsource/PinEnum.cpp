@@ -27,12 +27,6 @@
 #include "PinEnum.h"
 #include "exception.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -40,15 +34,15 @@ static char THIS_FILE[]=__FILE__;
 CDShowPinEnum::CDShowPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir)
 :m_anydir(FALSE)
 {
-    ASSERT(filter!=NULL);
-    ASSERT(pinDir==PINDIR_INPUT || pinDir==PINDIR_OUTPUT);
+    _ASSERTE(filter!=NULL);
+    _ASSERTE(pinDir==PINDIR_INPUT || pinDir==PINDIR_OUTPUT);
 
     CComPtr<IEnumPins> pEnum;
     HRESULT hr=filter->EnumPins(&pEnum);
     if(FAILED(hr))
         throw CDShowPinEnumException("Failed to create pin enumerator",hr);
 
-    ASSERT(pEnum!=NULL);
+    _ASSERTE(pEnum!=NULL);
     init(pEnum);
 
     m_pinDir=pinDir;
@@ -57,13 +51,13 @@ CDShowPinEnum::CDShowPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir)
 CDShowPinEnum::CDShowPinEnum(CComPtr<IBaseFilter> filter)
 :m_anydir(TRUE)
 {
-    ASSERT(filter!=NULL);
+    _ASSERTE(filter!=NULL);
     CComPtr<IEnumPins> pEnum;
     HRESULT hr=filter->EnumPins(&pEnum);
     if(FAILED(hr))
         throw CDShowPinEnumException("Failed to create pin enumerator",hr);
 
-    ASSERT(pEnum!=NULL);
+    _ASSERTE(pEnum!=NULL);
     init(pEnum);
 }
 

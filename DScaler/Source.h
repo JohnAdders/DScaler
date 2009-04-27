@@ -28,7 +28,6 @@
 #include "Setting.h"
 #include "TVFormats.h"
 #include "ITuner.h"
-#include "TreeSettingsGeneric.h"
 
 enum eSourceInputType
 {
@@ -174,7 +173,7 @@ public:
     virtual SmartPtr<ITuner> GetTuner() = 0;
 
     /// returns NULL if there is no tree settings page
-    virtual CTreeSettingsPage* GetTreeSettingsPage() = 0;
+    virtual SmartPtr<CSettingsHolder> GetSettingsPage() = 0;
 
     virtual void SetSourceAsCurrent();
     virtual void UnsetSourceAsCurrent();

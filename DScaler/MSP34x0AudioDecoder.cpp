@@ -35,12 +35,6 @@
 #include "DebugLog.h"
 #include "Crash.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 #define MSP_UNCARRIER(carrier) ((double)(carrier)*18.432/(double)(1<<24))
 #define MSP_CARRIER_HZ(freq) ((int)((double)(freq/18432000.0)*(1<<24)))
 #define MSP_UNCARRIER_HZ(carrier) ((long)((double)(carrier)*18432000.0/double(1<<24)))

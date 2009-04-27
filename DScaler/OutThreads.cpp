@@ -129,7 +129,7 @@ void AssertOnOutThread()
     {
         if(GetCurrentThreadId()==OutThreadID)
         {
-            //the reason for using int 3 insted of ASSERT() is that the ASSERT
+            //the reason for using int 3 insted of _ASSERTE() is that the _ASSERTE
             //macro shows a dialog which might create problems.
             _asm int 3;
         }
@@ -565,6 +565,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             Info.FieldDiff = -1;
             bFlipNow = FALSE;
             bTakeStill = FALSE;
+            Request.type = REQ_NONE;
             pAllocBuf = NULL;
             bUseOverlay = TRUE;
             GetDestRect(&Info.DestRect);
@@ -1285,13 +1286,6 @@ SETTING* OutThreads_GetSetting(OUTTHREADS_SETTING Setting)
     {
         return NULL;
     }
-}
-
-
-SmartPtr<CTreeSettingsGeneric> OutThreads_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_OUTTHREADS_GETVALUE));
-    return new CTreeSettingsGeneric("Decoding / Output Settings", Holder);
 }
 
 void OutThreads_SetMenu(HMENU hMenu)

@@ -67,7 +67,7 @@ public:
 
     CSettingGroup* GetGroup(LPCSTR szDisplayName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
 
-    SmartPtr<CTreeSettingsGeneric> GetTreeSettingsPage();
+    SmartPtr<CSettingsHolder> GetSettingsPage();
 
     void LoadOneGroupedSetting(CSimpleSetting* pSetting);
     void WriteOneGroupedSetting(CSimpleSetting* pSetting);

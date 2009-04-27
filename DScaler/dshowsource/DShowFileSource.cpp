@@ -33,13 +33,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-
 CDShowFileSource::CDShowFileSource(IGraphBuilder *pGraph,string filename)
 :CDShowBaseSource(pGraph),m_file(filename),m_bIsConnected(FALSE)
 {
@@ -55,9 +48,8 @@ CDShowFileSource::CDShowFileSource(IGraphBuilder *pGraph,string filename)
         throw CDShowException("SetFiltergraph failed on capture graph builder",hr);
     }
 
-    CString tmp;
-    tmp=m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4)).c_str();
-    if(_tcsicmp(tmp.GetBuffer(0),_T(".grf"))!=0)
+    string tmp = m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4));
+    if(!AreEqualInsensitive(tmp, ".grf"))
     {
         hr=m_pGraph->AddSourceFilter(A2W(filename.c_str()),NULL,&m_pFileSource);
         if(FAILED(hr))
@@ -78,9 +70,8 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
     HRESULT hr;
 
     //is this a grf file? grf files needs special handling
-    CString tmp;
-    tmp=m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4)).c_str();
-    if(_tcsicmp(tmp.GetBuffer(0),_T(".grf"))!=0)
+    string tmp = m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4)).c_str();
+    if(!AreEqualInsensitive(tmp, ".grf"))
     {
         //the simple case, RenderStream is able to properly connect the filters
         hr=m_pBuilder->RenderStream(NULL,NULL,m_pFileSource,NULL,VideoFilter);
@@ -209,7 +200,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
                 AM_MEDIA_TYPE mt;
                 memset(&mt,0,sizeof(AM_MEDIA_TYPE));
                 hr=pOutPin->ConnectionMediaType(&mt);
-                ASSERT(SUCCEEDED(hr));
+                _ASSERTE(SUCCEEDED(hr));
 
                 //preserve dsrend filter settings
                 CComPtr<IPersistStream> pPStrmOld;

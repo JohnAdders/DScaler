@@ -83,6 +83,7 @@
 #include "D3D9Output.h"
 #include "RemoteInput.h"
 #include "PathHelpers.h"
+#include "ComInitialise.h"
 #include "..\API\DScalerVersion.h"
 
 #ifdef WANT_DSHOW_SUPPORT
@@ -90,13 +91,6 @@
 #endif
 
 using namespace std;
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
@@ -236,6 +230,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam);
 LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam);
 LONG OnInput(HWND hWnd, UINT wParam, LONG lParam);
+void OnHelp(LPHELPINFO HelpInfo);
 void SetTray(BOOL Way);
 int On_IconHandler(WPARAM wParam, LPARAM lParam);
 BOOL DoWeNeedToShowHWSetupBox();
@@ -296,16 +291,26 @@ static HANDLE hMainWindowEvent = NULL;
 //
 ///**************************************************************************
 
-int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     WNDCLASS wc;
     MSG msg;
     HWND hPrevWindow;
+    ComInitialise SetupCOMForMainThread(COINIT_APARTMENTTHREADED);
+    
+    DScalerThread("Main thread");
 
     hDScalerInst = hInstance;
     hMainThread = GetCurrentThreadId();
 
     SetErrorMode(SEM_NOGPFAULTERRORBOX);
+
+    hResourceInst = LibraryCache::GetLibraryHandle("DScalerRes.dll");
+    if(hResourceInst == NULL)
+    {
+        MessageBox(NULL, "DScaler can't find the resource library DScalerRes.dll", "Installation Error", MB_OK | MB_ICONSTOP);
+        return FALSE;
+    }
 
     SetCurrentDirectory(GetInstallationPath().c_str());
 
@@ -3080,7 +3085,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_CREDITS:
             {
                 CCredits CreditsDlg;
-                CreditsDlg.DoModal();
+                CreditsDlg.DoModal(hWnd);
             }
             break;
 
@@ -3879,6 +3884,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             EndPaint(hWnd, &sPaint);
         }
         return 0;
+        break;
+
+    case WM_HELP:
+        OnHelp((LPHELPINFO)lParam);
+        return TRUE;
         break;
 
     case UWM_VIDEOTEXT:
@@ -4876,7 +4886,7 @@ HMENU GetFiltersSubmenu()
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
     HMENU hmenu = GetSubMenuWithName(hMenu, 5-reduc, "&Filters");
-    ASSERT(hmenu != NULL);
+    _ASSERTE(hmenu != NULL);
 
     return hmenu;
 }
@@ -4891,14 +4901,14 @@ HMENU GetVideoDeinterlaceSubmenu()
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
     HMENU hmenu = GetSubMenuWithName(hMenu, 4-reduc, "Deinter&lace");
-    ASSERT(hmenu != NULL);
+    _ASSERTE(hmenu != NULL);
 
     return hmenu;
 }
 
 HMENU GetChannelsSubmenu()
 {
-    ASSERT(hSubMenuChannels != NULL);
+    _ASSERTE(hSubMenuChannels != NULL);
 
     return hSubMenuChannels;
 }
@@ -4912,7 +4922,7 @@ HMENU GetOSDSubmenu()
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
     HMENU hmenu = GetSubMenuWithName(hMenu, 3-reduc, "&View");
-    ASSERT(hmenu != NULL);
+    _ASSERTE(hmenu != NULL);
 
     return hmenu;
 }
@@ -4926,7 +4936,7 @@ HMENU GetPatternsSubmenu()
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
     HMENU hmenu = GetOrCreateSubSubSubMenu(7-reduc, 2, 0, "Test &Patterns");
-    ASSERT(hmenu != NULL);
+    _ASSERTE(hmenu != NULL);
 
     return hmenu;
 }
@@ -4940,13 +4950,13 @@ HMENU GetVTCodepageSubmenu()
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
     HMENU hmenu = GetSubMenuWithName(hMenu, 9-reduc, "&Datacasting");
-    ASSERT(hmenu != NULL);
+    _ASSERTE(hmenu != NULL);
 
     GetMenuString(hmenu, 8, string, sizeof(string), MF_BYPOSITION);
     reduc = !strcmp(string, "Toggle &Mixed Mode\tShift-T") ? 0 : 1;
 
     hmenu = GetSubMenuWithName(hmenu, 9-reduc, "Teletext Code Page");
-    ASSERT(hmenu != NULL);
+    _ASSERTE(hmenu != NULL);
 
     return hmenu;
 }
@@ -4960,7 +4970,7 @@ HMENU GetOutResoSubmenu()
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
     HMENU hmenu = GetOrCreateSubSubMenu(3-reduc, 10, "Switch Resolution in F&ull Screen");
-    ASSERT(hmenu != NULL);
+    _ASSERTE(hmenu != NULL);
 
     return hmenu;
 }
@@ -4973,7 +4983,7 @@ HMENU GetEPGDaySubmenu()
     GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
     HMENU hmenu = GetOrCreateSubSubSubMenu(8-reduc, 12, 15, "Day");
-    ASSERT(hmenu != NULL);
+    _ASSERTE(hmenu != NULL);
 
     return hmenu;
 }
@@ -6097,14 +6107,14 @@ BOOL DoWeNeedToShowHWSetupBox()
             IniSettingNotPresent(VIDEOCARD);
 }
 
-SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage()
+SmartPtr<CSettingsHolder> DScaler_GetSettingsPage1()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
     Holder->AddSettings(&DScalerSettings[WINDOWPRIORITY], AUTOSAVESETTINGS - WINDOWPRIORITY);
-    return new CTreeSettingsGeneric("Threads Priority Settings", Holder);
+    return Holder;
 }
 
-SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage2()
+SmartPtr<CSettingsHolder> DScaler_GetSettingsPage2()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
     Holder->AddSettings(&DScalerSettings[DISPLAYSPLASHSCREEN], 1);
@@ -6114,25 +6124,25 @@ SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage2()
     Holder->AddSettings(&DScalerSettings[SCREENSAVEROFF], 1);
     Holder->AddSettings(&DScalerSettings[SINGLEKEYTELETEXTTOGGLE], 1);
     Holder->AddSettings(&DScalerSettings[MINIMIZEHANDLING], 1);
-    return new CTreeSettingsGeneric("Other Settings", Holder);
+    return Holder;
 }
 
-SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage3()
+SmartPtr<CSettingsHolder> DScaler_GetSettingsPage3()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
     Holder->AddSettings(&DScalerSettings[REVERSECHANNELSCROLLING], 1);
     Holder->AddSettings(&DScalerSettings[CHANNELPREVIEWWNBCOLS], 1);
     Holder->AddSettings(&DScalerSettings[CHANNELPREVIEWNBROWS], 1);
     Holder->AddSettings(&DScalerSettings[CHANNELENTERTIME], 1);
-    return new CTreeSettingsGeneric("Channel Settings", Holder);
+    return Holder;
 }
 
-SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage4()
+SmartPtr<CSettingsHolder> DScaler_GetSettingsPage4()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
     Holder->AddSettings(&DScalerSettings[PSTRIPRESO576I], 1);
     Holder->AddSettings(&DScalerSettings[PSTRIPRESO480I], 1);
-    return new CTreeSettingsGeneric("PowerStrip Settings", Holder);
+    return Holder;
 }
 
 HWND GetMainWnd()
@@ -6176,6 +6186,20 @@ void ResetMainWindowEvent()
         ResetEvent(hMainWindowEvent);
     }
 }
+
+void OnHelp(LPHELPINFO HelpInfo)
+{
+    //try to open the help
+    if(::HtmlHelp(::GetMainWnd(), "DScaler.chm", HH_HELP_CONTEXT, HelpInfo->dwContextId)==NULL)
+    {
+        //didnt work, maybe wrong help id? try to open just the toc
+        if(::HtmlHelp(::GetMainWnd(), "DScaler.chm", HH_DISPLAY_TOC, NULL)==NULL)
+        {
+            ErrorBox("Failed to open help");
+        }
+    }
+}
+
 
 #if _MSC_VER > 1310
 #pragma comment(linker, "\"/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")

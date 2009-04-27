@@ -32,12 +32,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 /** Internal flags
 */
 
@@ -1107,11 +1101,11 @@ string CSettingWrapper::GetDisplayValue()
         }
         else if(m_Setting->OSDDivider == 8)
         {
-            return MakeString() << setprecision(3) << (float)*(m_Setting->pValue) / (float)m_Setting->OSDDivider;
+            return MakeString() << fixed << setprecision(3) << (float)*(m_Setting->pValue) / (float)m_Setting->OSDDivider;
         }
         else
         {
-            return MakeString() << setprecision((int)log10((double)m_Setting->OSDDivider)) << (float)*(m_Setting->pValue) / (float)m_Setting->OSDDivider;
+            return MakeString() << fixed << setprecision((int)log10((double)m_Setting->OSDDivider)) << (float)*(m_Setting->pValue) / (float)m_Setting->OSDDivider;
         }
         break;
     case CHARSTRING:

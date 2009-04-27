@@ -38,12 +38,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -140,7 +134,7 @@ void CDShowGraph::InitGraph()
     if(m_hLogFile!=INVALID_HANDLE_VALUE)
     {
         hr=m_pGraph->SetLogFile((DWORD_PTR)m_hLogFile);
-        ASSERT(SUCCEEDED(hr));
+        _ASSERTE(SUCCEEDED(hr));
     }*/
 #endif
 
@@ -191,15 +185,14 @@ BOOL CDShowGraph::GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &in
     {
         return FALSE;
     }
-    ASSERT(ppFields!=NULL && pcFields!=NULL);
+    _ASSERTE(ppFields!=NULL && pcFields!=NULL);
     HRESULT hr=m_DSRend->GetFields(ppFields,pcFields,&info,400,dwLateness);
     if(FAILED(hr))
     {
-        CString tmpstr;
-        DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
-        tmpstr.ReleaseBuffer(len);
-        LOG(3, "GetFields failed - Error Code: '0x%x' Error Text: '%s'", hr,(LPCSTR)tmpstr);
-        LOGD("GetFields failed - Error Code: '0x%x' Error Text: '%s'\n", hr,(LPCSTR)tmpstr);
+        vector<char> tmpstr(MAX_ERROR_TEXT_LEN);
+        DWORD len=AMGetErrorText(hr,&tmpstr[0],MAX_ERROR_TEXT_LEN);
+        LOG(3, "GetFields failed - Error Code: '0x%x' Error Text: '%s'", hr,&tmpstr[0]);
+        LOGD("GetFields failed - Error Code: '0x%x' Error Text: '%s'\n", hr,&tmpstr[0]);
         return FALSE;
     }
     return TRUE;
@@ -213,7 +206,7 @@ void CDShowGraph::ConnectGraph()
         BOOL IsUnConnected=FALSE;
         CDShowPinEnum pins(m_renderer,PINDIR_INPUT);
         CComPtr<IPin> InPin=pins.next();
-        ASSERT(InPin!=NULL);
+        _ASSERTE(InPin!=NULL);
         CComPtr<IPin> OutPin;
         HRESULT hr=InPin->ConnectedTo(&OutPin);
         if(hr==VFW_E_NOT_CONNECTED)
@@ -314,7 +307,7 @@ CDShowBaseSource* CDShowGraph::getSourceDevice()
 
 void CDShowGraph::getConnectionMediatype(AM_MEDIA_TYPE *pmt)
 {
-    ASSERT(pmt!=NULL);
+    _ASSERTE(pmt!=NULL);
 
     if(m_renderer==NULL)
     {
@@ -343,10 +336,9 @@ void CDShowGraph::BuildFilterList()
     HRESULT hr=m_pGraph->EnumFilters(&filterEnum.m_pEnum);
     if(FAILED(hr))
     {
-        CString tmpstr;
-        DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
-        tmpstr.ReleaseBuffer(len);
-        LOG(1, "Failed to get filter enumerator!!! : Error Code: '0x%x' Error Text: '%s'",hr,(LPCSTR)tmpstr);
+        vector<char> tmpstr(MAX_ERROR_TEXT_LEN);
+        DWORD len=AMGetErrorText(hr,&tmpstr[0],MAX_ERROR_TEXT_LEN);
+        LOG(1, "Failed to get filter enumerator!!! : Error Code: '0x%x' Error Text: '%s'",hr,&tmpstr[0]);
         return;
     }
     CComPtr<IBaseFilter> pFilter;
@@ -389,55 +381,12 @@ void CDShowGraph::BuildFilterList()
     }
 }
 
-BOOL CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,BOOL &bHasSubPages)
+BOOL CDShowGraph::getFilterPropertyPage(int index,CComPtr<ISpecifyPropertyPages>& pSpecifyPages)
 {
-    USES_CONVERSION;
-    if(ppPage==NULL)
-        return FALSE;
-
     if(index>=0 && index<m_filters.size())
     {
-
         CComPtr<IBaseFilter> pFilter=m_filters[index].m_pFilter;
-        bHasSubPages=m_filters[index].m_SubPage.size()>0;
-        FILTER_INFO info;
-        HRESULT hr=pFilter->QueryFilterInfo(&info);
-        if(SUCCEEDED(hr))
-        {
-            if(info.pGraph!=NULL)
-            {
-                info.pGraph->Release();
-                info.pGraph=NULL;
-            }
-            CComPtr<ISpecifyPropertyPages> pSpecifyPages;
-            hr=pFilter.QueryInterface(&pSpecifyPages);
-            if(SUCCEEDED(hr))
-            {
-                CAUUID pages;
-                hr=pSpecifyPages->GetPages(&pages);
-                if(SUCCEEDED(hr) && pages.cElems>0)
-                {
-                    IUnknown *pUnk;
-                    hr=pFilter->QueryInterface(IID_IUnknown,(void**)&pUnk);
-                    //a com object cant exist without IUnknown
-                    ASSERT(SUCCEEDED(hr));
-
-                    *ppPage=new CTreeSettingsOleProperties(W2A(info.achName),1,&pUnk,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_SYS_DEFAULT),SORT_DEFAULT));
-                    pUnk->Release();
-                    pUnk=NULL;
-                    CoTaskMemFree(pages.pElems);
-                }
-                else
-                {
-                    *ppPage=new CTreeSettingsPage(W2A(info.achName),IDD_TREESETTINGS_NOPROPERTIES);
-                }
-            }
-            else
-            {
-                *ppPage=new CTreeSettingsPage(W2A(info.achName),IDD_TREESETTINGS_NOPROPERTIES);
-            }
-
-        }
+        pFilter.QueryInterface(&pSpecifyPages);
         return TRUE;
     }
     else
@@ -446,43 +395,15 @@ BOOL CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,BOO
     }
 }
 
-BOOL CDShowGraph::getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage)
+BOOL CDShowGraph::getFilterSubPage(int filterIndex,int subIndex,CComPtr<ISpecifyPropertyPages>& pSpecifyPages)
 {
-    USES_CONVERSION;
     if(filterIndex>=0 && filterIndex<m_filters.size())
     {
         if(subIndex>=0 && subIndex<m_filters[filterIndex].m_SubPage.size())
         {
-            PIN_INFO pinInfo;
             CComPtr<IPin> pPin=m_filters[filterIndex].m_SubPage[subIndex];
-            HRESULT hr=pPin->QueryPinInfo(&pinInfo);
-            if(SUCCEEDED(hr))
-            {
-                if(pinInfo.pFilter!=NULL)
-                {
-                    pinInfo.pFilter->Release();
-                    pinInfo.pFilter=NULL;
-                }
-                CComPtr<ISpecifyPropertyPages> pSpecifyPages;
-                hr=pPin.QueryInterface(&pSpecifyPages);
-                if(SUCCEEDED(hr))
-                {
-                    CAUUID pages;
-                    hr=pSpecifyPages->GetPages(&pages);
-                    if(SUCCEEDED(hr) && pages.cElems>0)
-                    {
-                        IUnknown *pUnk;
-                        hr=pPin->QueryInterface(IID_IUnknown,(void**)&pUnk);
-                        ASSERT(SUCCEEDED(hr));
-
-                        *ppPage=new CTreeSettingsOleProperties(W2A(pinInfo.achName),1,&pUnk,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_SYS_DEFAULT),SORT_DEFAULT));
-                        pUnk->Release();
-                        pUnk=NULL;
-                        CoTaskMemFree(pages.pElems);
-                        return TRUE;
-                    }
-                }
-            }
+            pPin.QueryInterface(&pSpecifyPages);
+            return TRUE;
         }
     }
     return FALSE;
@@ -521,7 +442,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
     InPin=RendPins.next();
 
     //if this assert is trigered there is most likely s bug in the renderer filter
-    ASSERT(InPin!=NULL);
+    _ASSERTE(InPin!=NULL);
 
     //get the upstream pin
     CComPtr<IPin> OutPin;
@@ -637,8 +558,8 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
     }
     //if pbFormat is null then there is something strange going on with the renderer filter
     //most likely a bug
-    ASSERT(NewType.pbFormat!=NULL && NewType2.pbFormat!=NULL);
-    ASSERT(OldMt->formattype==FORMAT_VideoInfo2 || OldMt->formattype==FORMAT_VideoInfo);
+    _ASSERTE(NewType.pbFormat!=NULL && NewType2.pbFormat!=NULL);
+    _ASSERTE(OldMt->formattype==FORMAT_VideoInfo2 || OldMt->formattype==FORMAT_VideoInfo);
 
     //change dsrend filter settings acording to fmt
     //@todo handle error
@@ -844,7 +765,7 @@ void CDShowGraph::FindStreamConfig()
     inPin=rendPins.next();
 
     //if this assert is trigered there is most likely s bug in the renderer filter
-    ASSERT(inPin!=NULL);
+    _ASSERTE(inPin!=NULL);
 
     //get the upstream pin
     CComPtr<IPin> outPin;
@@ -969,7 +890,7 @@ void CDShowGraph::CVideoFormat::operator=(std::string &str)
         strlist.push_back(str.substr(LastPos));
     }
 
-    ASSERT(strlist.size()==5);
+    _ASSERTE(strlist.size()==5);
     m_Name=strlist[0];
     m_Width=atol(strlist[1].c_str());
     m_Height=atol(strlist[2].c_str());

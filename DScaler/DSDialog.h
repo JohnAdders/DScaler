@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // $Id$
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
+// Copyright (c) 2009 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -17,21 +17,33 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file AutoCriticalSection.cpp implementation of the CAutoCriticalSection class.
+ * @file DScalerUtils.h
  */
 
-#include "stdafx.h"
-#include "dscaler.h"
-#include "AutoCriticalSection.h"
+#ifndef __DSDIALOG_H___
+#define __DSDIALOG_H___
 
-CAutoCriticalSection::CAutoCriticalSection(CRITICAL_SECTION &pCriticalSection)
-:m_pCriticalSection(&pCriticalSection)
+/// DScaler Dialog class
+/// Replacement for MFC type class.
+/// Allows holding of dialog state within an object instance
+class CDSDialog
 {
-    _ASSERTE(m_pCriticalSection!=NULL);
-    EnterCriticalSection(m_pCriticalSection);
-}
+public:
+    CDSDialog(LPCSTR ResourceId);
+    virtual ~CDSDialog();
+    INT_PTR DoModal(HWND hParent);
+    HWND Create(HWND hParent);
+    void Destroy(HWND hDlg);
+    void SetHelpID(int HelpID);
+private:
+    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) = 0;
+    static BOOL CALLBACK MasterModalDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    LPCSTR m_ResourceId;
+    int m_HelpID;
+};
 
-CAutoCriticalSection::~CAutoCriticalSection()
-{
-    LeaveCriticalSection(m_pCriticalSection);
-}
+std::string GetDlgItemString(HWND hDlg, int id);
+int GetDlgItemInt(HWND hDlg, int id);
+void SetDlgItemInt(HWND hDlg, int id, int Value);
+
+#endif

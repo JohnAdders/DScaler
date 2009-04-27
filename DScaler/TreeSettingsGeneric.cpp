@@ -28,74 +28,165 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CTreeSettingsGeneric dialog
 
-CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SmartPtr<CSettingsHolder> SettingHolder)
-    :CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
+CTreeSettingsGeneric::CTreeSettingsGeneric(const string& name,SmartPtr<CSettingsHolder> SettingHolder)
+    :CTreeSettingsPage(name, IDD_TREESETTINGS_GENERIC),
     m_CurrentSetting(0),
-    m_Settings(SettingHolder)
+    m_Settings(SettingHolder),
+    m_Combo(NULL),
+    m_CheckBox(NULL),
+    m_Spin(NULL),
+    m_Slider(NULL),
+    m_Edit(NULL),
+    m_EditString(NULL),
+    m_DefaultButton(NULL),
+    m_ListBox(NULL),
+    m_CheckGlobal(NULL),
+    m_CheckGlobalBox(NULL),
+    m_CheckSourceBox(NULL),
+    m_CheckVideoInputBox(NULL),
+    m_CheckAudioInputBox(NULL),
+    m_CheckVideoFormatBox(NULL),
+    m_CheckChannelBox(NULL),
+    m_SavePerInfoBox(NULL),
+    m_TopGroupBox(NULL)
 {
-    //{{AFX_DATA_INIT(CTreeSettingsGeneric)
-    //}}AFX_DATA_INIT
     m_SettingsCount = m_Settings->GetNumSettings();
 }
 
-void CTreeSettingsGeneric::DoDataExchange(CDataExchange* pDX)
+BOOL CTreeSettingsGeneric::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    CTreeSettingsPage::DoDataExchange(pDX);
-    //{{AFX_DATA_MAP(CTreeSettingsGeneric)
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST, m_Combo);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_CHECK, m_CheckBox);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SPIN, m_Spin);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SLIDER, m_Slider);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_EDIT, m_Edit);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_EDIT2, m_EditString);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_DEFAULT, m_DefaultButton);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_LIST, m_ListBox);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL, m_CheckGlobalBox);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE, m_CheckSourceBox);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT, m_CheckVideoInputBox);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT, m_CheckAudioInputBox);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT, m_CheckVideoFormatBox);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL, m_CheckChannelBox);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SETTINGINFO, m_SavePerInfoBox);
-    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_TOPBOX, m_TopGroupBox);
-    //}}AFX_DATA_MAP
+    switch(message)
+    {
+    HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+    HANDLE_MSG(hDlg, WM_COMMAND, OnCommand);
+    HANDLE_MSG(hDlg, WM_HSCROLL, OnHScroll);
+    HANDLE_MSG(hDlg, WM_NOTIFY, OnNotify);
+    HANDLE_MSG(hDlg, WM_SIZE, OnSize);
+    default:
+        return FALSE;
+    }
 }
 
-BEGIN_MESSAGE_MAP(CTreeSettingsGeneric, CTreeSettingsPage)
-    //{{AFX_MSG_MAP(CTreeSettingsGeneric)
-    ON_LBN_SELCHANGE(IDC_TREESETTINGS_GENERIC_LIST, OnSelchangeList)
-    ON_EN_CHANGE(IDC_TREESETTINGS_GENERIC_EDIT, OnChangeEdit)
-    ON_EN_KILLFOCUS(IDC_TREESETTINGS_GENERIC_EDIT2, OnChangeEditString)
-    ON_WM_HSCROLL()
-    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_DEFAULT, OnSettingsDefault)
-    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_CHECK, OnCheckClick)
-    ON_CBN_SELCHANGE(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST, OnSelchangeChoosefromlist)
-    ON_NOTIFY(UDN_DELTAPOS, IDC_TREESETTINGS_GENERIC_SPIN, OnDeltaposSettingsSpin)
-    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL, OnCheckGlobalClick)
-    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE, OnCheckSourceClick)
-    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT, OnCheckVideoInputClick)
-    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT, OnCheckAudioInputClick)
-    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT, OnCheckVideoFormatClick)
-    ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL, OnCheckChannelClick)
-    ON_WM_SIZE()
-    //}}AFX_MSG_MAP
-END_MESSAGE_MAP()
+void CTreeSettingsGeneric::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
+{
+    switch(id)
+    {
+    case IDC_TREESETTINGS_GENERIC_LIST:
+        if(LBN_SELCHANGE == codeNotify)
+        {
+            OnSelchangeList(hDlg);
+        }
+        break;
+    case IDC_TREESETTINGS_GENERIC_EDIT:
+        if(EN_CHANGE == codeNotify)
+        {
+            OnChangeEdit(hDlg);
+        }
+        break;
+    case IDC_TREESETTINGS_GENERIC_EDIT2:
+        if(EN_KILLFOCUS == codeNotify)
+        {
+            OnChangeEditString(hDlg);
+        }
+        break;
+    case IDC_TREESETTINGS_GENERIC_DEFAULT:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnSettingsDefault(hDlg);
+        }
+        break;
+    case IDC_TREESETTINGS_GENERIC_CHECK:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnCheckClick(hDlg);
+        }
+    break;
+        case IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST:
+        if(CBN_SELCHANGE == codeNotify)
+        {
+            OnSelchangeChoosefromlist(hDlg);
+        }
+        break;
+    case IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnCheckGlobalClick(hDlg);
+        }
+        break;
+    case IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnCheckSourceClick(hDlg);
+        }
+        break;
+    case IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnCheckVideoInputClick(hDlg);
+        }
+        break;
+    case IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnCheckAudioInputClick(hDlg);
+        }
+        break;
+    case IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnCheckVideoFormatClick(hDlg);
+        }
+        break;
+    case IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnCheckChannelClick(hDlg);
+        }
+        break;
+    }
+}
+
+LRESULT CTreeSettingsGeneric::OnNotify(HWND hwnd, int id, LPNMHDR nmhdr)
+{
+    switch(id)
+    {
+    case IDC_TREESETTINGS_GENERIC_SPIN:
+        if(nmhdr->code == UDN_DELTAPOS)
+        {
+            return OnDeltaposSettingsSpin(hwnd, nmhdr);
+        }
+        break;
+    default:
+        break;
+    }
+    return FALSE;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // CTreeSettingsGeneric message handlers
 
-BOOL CTreeSettingsGeneric::OnInitDialog()
+BOOL CTreeSettingsGeneric::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
-    CTreeSettingsPage::OnInitDialog();
+    // get the window handles of all the controls we care about
+    m_Combo = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST);
+    m_CheckBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_CHECK);
+    m_Spin = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SPIN);
+    m_Slider = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SLIDER);
+    m_Edit = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_EDIT);
+    m_EditString = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_EDIT2);
+    m_DefaultButton = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_DEFAULT);
+    m_ListBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_LIST);
+    m_CheckGlobalBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL);
+    m_CheckSourceBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE);
+    m_CheckVideoInputBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT);
+    m_CheckAudioInputBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT);
+    m_CheckVideoFormatBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT);
+    m_CheckChannelBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL);
+    m_SavePerInfoBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SETTINGINFO);
+    m_TopGroupBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_TOPBOX);
 
     //add relevant settings to listbox
     for(int i=0;i<m_SettingsCount;i++)
@@ -103,25 +194,25 @@ BOOL CTreeSettingsGeneric::OnInitDialog()
         CSimpleSetting* pSetting = m_Settings->GetSetting(i);
         if ((pSetting != NULL) && !pSetting->GetDisplayName().empty() && (pSetting->GetType() != NOT_PRESENT))
         {
-            int index=m_ListBox.AddString(pSetting->GetDisplayName().c_str());
+            int index=ListBox_AddString(m_ListBox, pSetting->GetDisplayName().c_str());
             if(index!=LB_ERR)
             {
-                m_ListBox.SetItemData(index,i);
+                ListBox_SetItemData(m_ListBox, index, i);
             }
         }
     }
 
     if(m_SettingsCount>0)
     {
-        m_ListBox.SetCurSel(0);
+        ListBox_SetCurSel(m_ListBox, 0);
     }
-    OnSelchangeList();
+    OnSelchangeList(hDlg);
     return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
-void CTreeSettingsGeneric::OnSelchangeList()
+void CTreeSettingsGeneric::OnSelchangeList(HWND hDlg)
 {
-    long idx = m_ListBox.GetItemData(m_ListBox.GetCurSel());
+    long idx = ListBox_GetItemData(m_ListBox, ListBox_GetCurSel(m_ListBox));
     m_CurrentSetting = idx;
 
     SETTING_TYPE Type = NOT_PRESENT;
@@ -134,48 +225,48 @@ void CTreeSettingsGeneric::OnSelchangeList()
         {
         case YESNO:
         case ONOFF:
-            m_DefaultButton.ShowWindow(SW_SHOWNA);
-            m_CheckBox.ShowWindow(SW_SHOWNA);
-            m_Edit.ShowWindow(SW_HIDE);
-            m_EditString.ShowWindow(SW_HIDE);
-            m_Slider.ShowWindow(SW_HIDE);
-            m_Spin.ShowWindow(SW_HIDE);
-            m_Combo.ShowWindow(SW_HIDE);
+            ShowWindow(m_DefaultButton, SW_SHOWNA);
+            ShowWindow(m_CheckBox, SW_SHOWNA);
+            ShowWindow(m_Edit, SW_HIDE);
+            ShowWindow(m_EditString, SW_HIDE);
+            ShowWindow(m_Slider, SW_HIDE);
+            ShowWindow(m_Spin, SW_HIDE);
+            ShowWindow(m_Combo, SW_HIDE);
             m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_CheckBox);
             break;
 
         case SLIDER:
-            m_DefaultButton.ShowWindow(SW_SHOWNA);
-            m_Edit.ShowWindow(SW_SHOWNA);
-            m_Spin.ShowWindow(SW_SHOWNA);
-            m_Slider.ShowWindow(SW_SHOWNA);
-            m_EditString.ShowWindow(SW_HIDE);
-            m_CheckBox.ShowWindow(SW_HIDE);
-            m_Combo.ShowWindow(SW_HIDE);
+            ShowWindow(m_DefaultButton, SW_SHOWNA);
+            ShowWindow(m_Edit, SW_SHOWNA);
+            ShowWindow(m_Spin, SW_SHOWNA);
+            ShowWindow(m_Slider, SW_SHOWNA);
+            ShowWindow(m_EditString, SW_HIDE);
+            ShowWindow(m_CheckBox, SW_HIDE);
+            ShowWindow(m_Combo, SW_HIDE);
             m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_Edit);
             m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_Spin);
             m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_Slider);
             break;
 
         case ITEMFROMLIST:
-            m_CheckBox.ShowWindow(SW_HIDE);
-            m_DefaultButton.ShowWindow(SW_SHOWNA);
-            m_Edit.ShowWindow(SW_HIDE);
-            m_EditString.ShowWindow(SW_HIDE);
-            m_Slider.ShowWindow(SW_HIDE);
-            m_Spin.ShowWindow(SW_HIDE);
-            m_Combo.ShowWindow(SW_SHOWNA);
+            ShowWindow(m_CheckBox, SW_HIDE);
+            ShowWindow(m_DefaultButton, SW_SHOWNA);
+            ShowWindow(m_Edit, SW_HIDE);
+            ShowWindow(m_EditString, SW_HIDE);
+            ShowWindow(m_Slider, SW_HIDE);
+            ShowWindow(m_Spin, SW_HIDE);
+            ShowWindow(m_Combo, SW_SHOWNA);
             m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_Combo);
             break;
 
         case CHARSTRING:
-            m_DefaultButton.ShowWindow(SW_SHOWNA);
-            m_EditString.ShowWindow(SW_SHOWNA);
-            m_CheckBox.ShowWindow(SW_HIDE);
-            m_Edit.ShowWindow(SW_HIDE);
-            m_Slider.ShowWindow(SW_HIDE);
-            m_Spin.ShowWindow(SW_HIDE);
-            m_Combo.ShowWindow(SW_HIDE);
+            ShowWindow(m_DefaultButton, SW_SHOWNA);
+            ShowWindow(m_EditString, SW_SHOWNA);
+            ShowWindow(m_CheckBox, SW_HIDE);
+            ShowWindow(m_Edit, SW_HIDE);
+            ShowWindow(m_Slider, SW_HIDE);
+            ShowWindow(m_Spin, SW_HIDE);
+            ShowWindow(m_Combo, SW_HIDE);
             m_Settings->GetSetting(m_CurrentSetting)->SetupControl(m_EditString);
             break;
         default:
@@ -189,37 +280,37 @@ void CTreeSettingsGeneric::OnSelchangeList()
             szName = m_Settings->GetSetting(m_CurrentSetting)->GetEntry();
         }
 
-        m_TopGroupBox.SetWindowText("");
-        m_SavePerInfoBox.SetWindowText(szName.c_str());
-        m_SavePerInfoBox.ShowWindow(SW_HIDE);
+        SetWindowText(m_TopGroupBox, "");
+        SetWindowText(m_SavePerInfoBox, szName.c_str());
+        ShowWindow(m_SavePerInfoBox, SW_HIDE);
 
         UpdateControls(NULL);
     }
     else
     {
-        m_CheckBox.ShowWindow(SW_HIDE);
-        m_DefaultButton.ShowWindow(SW_HIDE);
-        m_Edit.ShowWindow(SW_HIDE);
-        m_EditString.ShowWindow(SW_HIDE);
-        m_Slider.ShowWindow(SW_HIDE);
-        m_Spin.ShowWindow(SW_HIDE);
-        m_Combo.ShowWindow(SW_HIDE);
+        ShowWindow(m_CheckBox, SW_HIDE);
+        ShowWindow(m_DefaultButton, SW_HIDE);
+        ShowWindow(m_Edit, SW_HIDE);
+        ShowWindow(m_EditString, SW_HIDE);
+        ShowWindow(m_Slider, SW_HIDE);
+        ShowWindow(m_Spin, SW_HIDE);
+        ShowWindow(m_Combo, SW_HIDE);
     }
 
-    m_CheckGlobalBox.ShowWindow(SW_HIDE);
-    m_CheckSourceBox.ShowWindow(SW_HIDE);
-    m_CheckVideoInputBox.ShowWindow(SW_HIDE);
-    m_CheckAudioInputBox.ShowWindow(SW_HIDE);
-    m_CheckVideoFormatBox.ShowWindow(SW_HIDE);
-    m_CheckChannelBox.ShowWindow(SW_HIDE);
+    ShowWindow(m_CheckGlobalBox, SW_HIDE);
+    ShowWindow(m_CheckSourceBox, SW_HIDE);
+    ShowWindow(m_CheckVideoInputBox, SW_HIDE);
+    ShowWindow(m_CheckAudioInputBox, SW_HIDE);
+    ShowWindow(m_CheckVideoFormatBox, SW_HIDE);
+    ShowWindow(m_CheckChannelBox, SW_HIDE);
 }
 
 // atnak 2005/03/05:
 // The control specified by 'pChangedControl' is excluded from
 // the list of controls updated by this function.
-void CTreeSettingsGeneric::UpdateControls(CWnd* pChangedControl)
+void CTreeSettingsGeneric::UpdateControls(HWND pChangedControl)
 {
-    ASSERT(m_CurrentSetting>=0 && m_CurrentSetting<m_SettingsCount);
+    _ASSERTE(m_CurrentSetting>=0 && m_CurrentSetting<m_SettingsCount);
 
     static BOOL bInUpdate = FALSE;
 
@@ -230,123 +321,122 @@ void CTreeSettingsGeneric::UpdateControls(CWnd* pChangedControl)
     }
     bInUpdate = TRUE;
 
-    if((m_Spin.GetStyle() & WS_VISIBLE) && (&m_Spin != pChangedControl))
+    if((GetWindowLong(m_Spin, GWL_STYLE) & WS_VISIBLE) && (m_Spin != pChangedControl))
     {
         m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_Spin);
     }
 
-    if((m_Edit.GetStyle() & WS_VISIBLE) && (&m_Edit != pChangedControl))
+    if((GetWindowLong(m_Edit, GWL_STYLE) & WS_VISIBLE) && (m_Edit != pChangedControl))
     {
         m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_Edit);
     }
 
-    if((m_EditString.GetStyle() & WS_VISIBLE) && (&m_EditString != pChangedControl))
+    if((GetWindowLong(m_EditString, GWL_STYLE) & WS_VISIBLE) && (m_EditString != pChangedControl))
     {
         m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_EditString);
     }
 
-    if((m_CheckBox.GetStyle() & WS_VISIBLE) && (&m_CheckBox != pChangedControl))
+    if((GetWindowLong(m_CheckBox, GWL_STYLE) & WS_VISIBLE) && (m_CheckBox != pChangedControl))
     {
         m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_CheckBox);
     }
 
-    if((m_Slider.GetStyle() & WS_VISIBLE) && (&m_Slider != pChangedControl))
+    if((GetWindowLong(m_Slider, GWL_STYLE) & WS_VISIBLE) && (m_Slider != pChangedControl))
     {
         m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_Slider);
     }
 
-    if((m_Combo.GetStyle() & WS_VISIBLE) && (&m_Combo != pChangedControl))
+    if((GetWindowLong(m_Combo, GWL_STYLE) & WS_VISIBLE) && (m_Combo != pChangedControl))
     {
         m_Settings->GetSetting(m_CurrentSetting)->SetControlValue(m_Combo);
     }
-
     bInUpdate = FALSE;
 }
 
-void CTreeSettingsGeneric::OnChangeEdit()
+void CTreeSettingsGeneric::OnChangeEdit(HWND hDlg)
 {
-    if(m_Edit.m_hWnd==NULL)
+    if(m_Edit == NULL)
         return;
 
     m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_Edit);
 
-    UpdateControls(&m_Edit);
+    UpdateControls(m_Edit);
 }
 
-void CTreeSettingsGeneric::OnChangeEditString()
+void CTreeSettingsGeneric::OnChangeEditString(HWND hDlg)
 {
-    if(m_EditString.m_hWnd==NULL)
+    if(m_EditString==NULL)
         return;
 
     m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_EditString);
 
-    UpdateControls(&m_EditString);
+    UpdateControls(m_EditString);
 }
 
-void CTreeSettingsGeneric::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+void CTreeSettingsGeneric::OnHScroll(HWND hwnd, HWND hwndCtl, UINT code, int pos)
 {
     //slider has changed
 
-    m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_Slider.m_hWnd);
+    m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_Slider);
 
-    UpdateControls(&m_Slider);
+    UpdateControls(m_Slider);
 }
 
-void CTreeSettingsGeneric::OnSettingsDefault()
+void CTreeSettingsGeneric::OnSettingsDefault(HWND hDlg)
 {
     m_Settings->GetSetting(m_CurrentSetting)->ChangeValue(RESET_SILENT);
 
     UpdateControls(NULL);
 }
 
-void CTreeSettingsGeneric::OnCheckClick()
+void CTreeSettingsGeneric::OnCheckClick(HWND hDlg)
 {
     m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_CheckBox);
 
     UpdateControls(NULL);
 }
 
-void CTreeSettingsGeneric::OnCheckGlobalClick()
+void CTreeSettingsGeneric::OnCheckGlobalClick(HWND hDlg)
 {
     UpdateControls(NULL);
 }
 
-void CTreeSettingsGeneric::OnCheckSourceClick()
+void CTreeSettingsGeneric::OnCheckSourceClick(HWND hDlg)
 {
     UpdateControls(NULL);
 }
 
-void CTreeSettingsGeneric::OnCheckVideoInputClick()
+void CTreeSettingsGeneric::OnCheckVideoInputClick(HWND hDlg)
 {
     UpdateControls(NULL);
 }
 
-void CTreeSettingsGeneric::OnCheckAudioInputClick()
+void CTreeSettingsGeneric::OnCheckAudioInputClick(HWND hDlg)
 {
     UpdateControls(NULL);
 }
 
 
-void CTreeSettingsGeneric::OnCheckVideoFormatClick()
+void CTreeSettingsGeneric::OnCheckVideoFormatClick(HWND hDlg)
 {
     UpdateControls(NULL);
 }
 
-void CTreeSettingsGeneric::OnCheckChannelClick()
+void CTreeSettingsGeneric::OnCheckChannelClick(HWND hDlg)
 {
     UpdateControls(NULL);
 }
 
-void CTreeSettingsGeneric::OnSelchangeChoosefromlist()
+void CTreeSettingsGeneric::OnSelchangeChoosefromlist(HWND hDlg)
 {
-    if((m_Combo.GetCurSel()!=CB_ERR))
+    if((ComboBox_GetCurSel(m_Combo)!=CB_ERR))
     {
         m_Settings->GetSetting(m_CurrentSetting)->SetFromControl(m_Combo);
     }
-    UpdateControls(&m_Combo);
+    UpdateControls(m_Combo);
 }
 
-void CTreeSettingsGeneric::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResult)
+LRESULT CTreeSettingsGeneric::OnDeltaposSettingsSpin(HWND hDlg, NMHDR* pNMHDR)
 {
     NM_UPDOWN* pNMUpDown = (NM_UPDOWN*)pNMHDR;
 
@@ -361,64 +451,61 @@ void CTreeSettingsGeneric::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResul
         Slider->ChangeValue(ADJUSTUP_SILENT);
     }
 
-    *pResult = 0;
-
     UpdateControls(NULL);
+    return 0;
 }
 
-void CTreeSettingsGeneric::OnOK()
+void CTreeSettingsGeneric::OnOK(HWND hDlg)
 {
     //Write settings
     m_Settings->WriteToIni(TRUE);
-    CTreeSettingsPage::OnOK();
+    EndDialog(hDlg, IDOK);
 }
 
-void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
+void CTreeSettingsGeneric::OnSize(HWND hDlg, UINT nType, int cx, int cy)
 {
-    CTreeSettingsPage::OnSize(nType,cx,cy);
-
     RECT rect;
     int TopBoxBottom = -1;
     int ValueBoxTop = -1;
 
-    CWnd *pTopBox = GetDlgItem(IDC_TREESETTINGS_GENERIC_TOPBOX);
+    HWND pTopBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_TOPBOX);
     if (pTopBox != NULL)
     {
-        pTopBox->GetWindowRect(&rect);
-        ScreenToClient(&rect);
+        GetWindowRect(pTopBox, &rect);
+        ScreenToClient(hDlg, rect);
         rect.right = cx;
-        pTopBox->MoveWindow(&rect);
+        MoveWindow(pTopBox, rect);
         TopBoxBottom = rect.bottom;
     }
 
 
-    CWnd *pValueBox = GetDlgItem(IDC_TREESETTINGS_GENERIC_VALUEBOX);
+    HWND pValueBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_VALUEBOX);
     if (pValueBox != NULL)
     {
         int DefaultBtnLeft = 0;
         RECT rcBox;
         RECT rcBoxOrg;
 
-        pValueBox->GetWindowRect(&rect);
-        ScreenToClient(&rect);
+        GetWindowRect(pValueBox, &rect);
+        ScreenToClient(hDlg, rect);
 
         rcBoxOrg = rect;
 
         rect.right = cx;
         rect.top = cy - (rect.bottom-rect.top);
         rect.bottom = cy;
-        pValueBox->MoveWindow(&rect);
+        MoveWindow(pValueBox, rect);
         ValueBoxTop = rect.top;
 
         // Items in box
         rcBox = rect;
 
         // Default button
-        CWnd *pDefaultBtn = GetDlgItem(IDC_TREESETTINGS_GENERIC_DEFAULT);
+        HWND pDefaultBtn = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_DEFAULT);
         if (pDefaultBtn != NULL)
         {
-            pDefaultBtn->GetWindowRect(&rect);
-            ScreenToClient(&rect);
+            GetWindowRect(pDefaultBtn, &rect);
+            ScreenToClient(hDlg, rect);
             int Width = (rect.right-rect.left);
             int Height= (rect.bottom-rect.top);
 
@@ -427,42 +514,42 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
 
             rect.left = rect.right - Width;
             rect.top = rect.bottom - Height;
-            pDefaultBtn->MoveWindow(&rect);
+            MoveWindow(pDefaultBtn, rect);
 
             DefaultBtnLeft = rect.left;
         }
 
         // Check box
-        CWnd *pCheckBtn = GetDlgItem(IDC_TREESETTINGS_GENERIC_CHECK);
+        HWND pCheckBtn = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_CHECK);
         if (pCheckBtn != NULL)
         {
-            pCheckBtn->GetWindowRect(&rect);
-            ScreenToClient(&rect);
+            GetWindowRect(pCheckBtn, &rect);
+            ScreenToClient(hDlg, rect);
             int Height= (rect.bottom-rect.top);
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
             rect.bottom = rect.top + Height;
             rect.right = rcBox.right - 5;
-            pCheckBtn->MoveWindow(&rect);
+            MoveWindow(pCheckBtn, rect);
         }
 
         // Edit box
-        CWnd *pEditBox = GetDlgItem(IDC_TREESETTINGS_GENERIC_EDIT);
+        HWND pEditBox = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_EDIT);
         if (pEditBox != NULL)
         {
-            pEditBox->GetWindowRect(&rect);
-            ScreenToClient(&rect);
+            GetWindowRect(pEditBox, &rect);
+            ScreenToClient(hDlg, rect);
             int Height= (rect.bottom-rect.top);
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
             rect.bottom = rect.top + Height;
-            pEditBox->MoveWindow(&rect);
+            MoveWindow(pEditBox, rect);
         }
 
         // Edit box2
-        CWnd *pEditBox2 = GetDlgItem(IDC_TREESETTINGS_GENERIC_EDIT2);
+        HWND pEditBox2 = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_EDIT2);
         if (pEditBox2 != NULL)
         {
-            pEditBox2->GetWindowRect(&rect);
-            ScreenToClient(&rect);
+            GetWindowRect(pEditBox2, &rect);
+            ScreenToClient(hDlg, rect);
             int Height= (rect.bottom-rect.top);
             if (DefaultBtnLeft > 10)
             {
@@ -470,27 +557,27 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
             }
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
             rect.bottom = rect.top + Height;
-            pEditBox2->MoveWindow(&rect);
+            MoveWindow(pEditBox2, rect);
         }
 
         // Spin
-        CWnd *pSpinControl = GetDlgItem(IDC_TREESETTINGS_GENERIC_SPIN);
+        HWND pSpinControl = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SPIN);
         if (pSpinControl != NULL)
         {
-            pSpinControl->GetWindowRect(&rect);
-            ScreenToClient(&rect);
+            GetWindowRect(pSpinControl, &rect);
+            ScreenToClient(hDlg, rect);
             int Height= (rect.bottom-rect.top);
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
             rect.bottom = rect.top + Height;
-            pSpinControl->MoveWindow(&rect);
+            MoveWindow(pSpinControl, rect);
         }
 
         //Slider
-        CWnd *pSlider = GetDlgItem(IDC_TREESETTINGS_GENERIC_SLIDER);
+        HWND pSlider = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_SLIDER);
         if (pSlider != NULL)
         {
-            pSlider->GetWindowRect(&rect);
-            ScreenToClient(&rect);
+            GetWindowRect(pSlider, &rect);
+            ScreenToClient(hDlg, rect);
             int Height= (rect.bottom-rect.top);
             if (DefaultBtnLeft > 10)
             {
@@ -498,15 +585,15 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
             }
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
             rect.bottom = rect.top + Height;
-            pSlider->MoveWindow(&rect);
+            MoveWindow(pSlider, rect);
         }
 
         //Combo box
-        CWnd *pChooseFromList = GetDlgItem(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST);
+        HWND pChooseFromList = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST);
         if (pChooseFromList != NULL)
         {
-            pChooseFromList->GetWindowRect(&rect);
-            ScreenToClient(&rect);
+            GetWindowRect(pChooseFromList, &rect);
+            ScreenToClient(hDlg, rect);
             int Height= (rect.bottom-rect.top);
             if (DefaultBtnLeft > 10)
             {
@@ -514,23 +601,23 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
             }
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
             rect.bottom = rect.top + Height;
-            pChooseFromList->MoveWindow(&rect);
+            MoveWindow(pChooseFromList, rect);
         }
     }
 
 
-    CWnd *pList = GetDlgItem(IDC_TREESETTINGS_GENERIC_LIST);
+    HWND pList = GetDlgItem(hDlg, IDC_TREESETTINGS_GENERIC_LIST);
     if (pList != NULL)
     {
-        pList->GetWindowRect(&rect);
-        ScreenToClient(&rect);
+        GetWindowRect(pList, &rect);
+        ScreenToClient(hDlg, rect);
         rect.right = cx;
         if (ValueBoxTop > rect.top)
         {
            rect.bottom = ValueBoxTop;
         }
-        pList->MoveWindow(&rect);
+        MoveWindow(pList, rect);
     }
-    Invalidate();
+    InvalidateRect(hDlg, NULL, TRUE);
 
 }

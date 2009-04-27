@@ -10,87 +10,100 @@
 #include "TSCompressionDlg.h"
 #include "TimeShift.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CTSCompressionDlg dialog
 
 
-CTSCompressionDlg::CTSCompressionDlg(CWnd *pParent /*=NULL*/,
-                                     TS_OPTIONS *options)
-    : CDialog(CTSCompressionDlg::IDD, pParent)
+CTSCompressionDlg::CTSCompressionDlg(TS_OPTIONS* Options) :
+    CDSDialog(MAKEINTRESOURCE(IDD_TSCOMPRESSION)),
+    m_Options(Options),
+    m_fcc(Options->fcc)
 {
-    //{{AFX_DATA_INIT(CTSCompressionDlg)
-    m_AudioFormat = _T("");
-    m_VideoFormat = _T("");
-    //}}AFX_DATA_INIT
-
-    this->options = options;
-    m_fcc         = options->fcc;
 }
 
-
-void CTSCompressionDlg::DoDataExchange(CDataExchange* pDX)
+BOOL CTSCompressionDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    char buffer[256];
-
-    CDialog::DoDataExchange(pDX);
-    //{{AFX_DATA_MAP(CTSCompressionDlg)
-    DDX_Text(pDX, IDC_TSAUDIOFORMAT, m_AudioFormat);
-    DDX_Text(pDX, IDC_TSVIDEOFORMAT, m_VideoFormat);
-    //}}AFX_DATA_MAP
-
-    if (!pDX->m_bSaveAndValidate)
+    switch(message)
     {
-        if (TimeShiftGetVideoCompressionDesc(buffer,
-                                             sizeof(buffer),
-                                             options->recHeight,
-                                             options->format))
-           m_VideoFormat = buffer;
-
-        if (TimeShiftGetAudioCompressionDesc(buffer, sizeof(buffer)))
-           m_AudioFormat = buffer;
+    HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+    HANDLE_MSG(hDlg, WM_COMMAND, OnCommand);
+    default:
+        return FALSE;
     }
 }
 
-BEGIN_MESSAGE_MAP(CTSCompressionDlg, CDialog)
-    //{{AFX_MSG_MAP(CTSCompressionDlg)
-    ON_BN_CLICKED(IDC_TSCONFIGVIDEO, OnConfigVideo)
-    ON_BN_CLICKED(IDC_TSCONFIGAUDIO, OnConfigAudio)
-    //}}AFX_MSG_MAP
-END_MESSAGE_MAP()
+void CTSCompressionDlg::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
+{
+    switch(id)
+    {
+    case IDC_TSCONFIGVIDEO:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnConfigVideo(hDlg);
+        }
+        break;
+    case IDC_TSCONFIGAUDIO:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnConfigAudio(hDlg);
+        }
+        break;
+    case IDOK:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnOK(hDlg);
+        }
+        break;
+    case IDCANCEL:
+        if(BN_CLICKED == codeNotify)
+        {
+            EndDialog(hDlg, IDCANCEL);
+        }
+        break;
+    }
+}
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CTSCompressionDlg message handlers
 
-BOOL CTSCompressionDlg::OnInitDialog()
+BOOL CTSCompressionDlg::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
-    CDialog::OnInitDialog();
+    char buffer[256];
 
-    UpdateData(FALSE);
+    if (TimeShiftGetVideoCompressionDesc(buffer,
+                                     sizeof(buffer),
+                                     m_Options->recHeight,
+                                     m_Options->format))
+    {
+        SetWindowText(GetDlgItem(hDlg, IDC_TSVIDEOFORMAT), buffer);
+    }
+
+    if (TimeShiftGetAudioCompressionDesc(buffer, sizeof(buffer)))
+    {
+        SetWindowText(GetDlgItem(hDlg, IDC_TSAUDIOFORMAT), buffer);
+    }
 
     return TRUE;  // return TRUE unless you set the focus to a control
                   // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CTSCompressionDlg::OnConfigVideo()
+void CTSCompressionDlg::OnConfigVideo(HWND hDlg)
 {
-    TimeShiftVideoCompressionOptions(m_hWnd, options->recHeight,
-                                     options->format, &m_fcc);
+    TimeShiftVideoCompressionOptions(hDlg, m_Options->recHeight, m_Options->format, &m_fcc);
 }
 
-void CTSCompressionDlg::OnConfigAudio()
+void CTSCompressionDlg::OnConfigAudio(HWND hDlg)
 {
 }
 
-void CTSCompressionDlg::OnOK()
+void CTSCompressionDlg::OnOK(HWND hDlg)
 {
     /* Update the options */
-    options->fcc = m_fcc;
+    m_Options->fcc = m_fcc;
+    m_AudioFormat = GetDlgItemString(hDlg, IDC_TSAUDIOFORMAT);
+    m_VideoFormat = GetDlgItemString(hDlg, IDC_TSVIDEOFORMAT);
 
-    CDialog::OnOK();
+    EndDialog(hDlg, IDOK);
 }

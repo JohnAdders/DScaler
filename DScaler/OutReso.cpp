@@ -26,6 +26,7 @@
  */
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
 #include "DScaler.h"
 #include "OutReso.h"
 #include "Setting.h"

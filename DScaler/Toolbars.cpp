@@ -26,6 +26,7 @@
  */
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
 #include "TVFormats.h"
 #include "Channels.h"
 #include "ToolbarWindow.h"
@@ -46,13 +47,6 @@ using namespace std;
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource/DSSourceBase.h"
-#endif
-
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
 #endif
 
 extern CUserChannels MyChannels;

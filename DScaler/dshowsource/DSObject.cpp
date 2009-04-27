@@ -26,11 +26,6 @@
 
 #include "DSObject.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -39,7 +34,7 @@ static char THIS_FILE[]=__FILE__;
 CDShowObject::CDShowObject(IGraphBuilder *pGraph)
 :m_pGraph(pGraph)
 {
-    ASSERT(pGraph!=NULL);
+    _ASSERTE(pGraph!=NULL);
 }
 
 CDShowObject::~CDShowObject()

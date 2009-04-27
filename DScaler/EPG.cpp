@@ -16,10 +16,8 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-#include <string.h>
-#include <time.h>
-#include <sys/stat.h>
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
 #include "DebugLog.h"
 #include "EPG.h"
 #include "ProgramList.h"
@@ -1663,13 +1661,6 @@ SETTING* EPG_GetSetting(EPG_SETTING Setting)
         return NULL;
     }
 }
-
-SmartPtr<CTreeSettingsGeneric> EPG_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_EPG_GETVALUE));
-    return new CTreeSettingsGeneric("EPG Settings", Holder);
-}
-
 
 // -----------------------------------------------------
 

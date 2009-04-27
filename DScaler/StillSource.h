@@ -25,7 +25,6 @@
 
 #include "Source.h"
 #include "Bt848_Defines.h"
-#include "TreeSettingsGeneric.h"
 
 #define MAX_PLAYLIST_SIZE   50
 
@@ -125,7 +124,7 @@ public:
     CSliderSetting* GetHDelay() {return NULL;};
     CSliderSetting* GetVDelay() {return NULL;};
 
-    CTreeSettingsPage* GetTreeSettingsPage() {return NULL;};
+    SmartPtr<CSettingsHolder> GetSettingsPage() {return NULL;};
 
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return FALSE;};
@@ -236,7 +235,5 @@ BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* 
 std::string BuildDScalerContext();
 
 SETTING* Still_GetSetting(STILL_SETTING Setting);
-SmartPtr<CTreeSettingsGeneric> Still_GetTreeSettingsPage();
-
 
 #endif

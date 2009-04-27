@@ -20,12 +20,8 @@
  * @file DSAudioDevicePage.h header file
  */
 
-#if !defined(AFX_DSAUDIODEVICEPAGE_H__06F4CD66_73E2_49F4_8B9A_0A86543633D3__INCLUDED_)
-#define AFX_DSAUDIODEVICEPAGE_H__06F4CD66_73E2_49F4_8B9A_0A86543633D3__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#if !defined(_DSAUDIODEVICEPAGE_H__)
+#define _DSAUDIODEVICEPAGE_H__
 
 #include "TreeSettingsPage.h"
 #include "..\DScalerRes\resource.h"
@@ -38,46 +34,26 @@ class CDSAudioDevicePage : public CTreeSettingsPage
 {
 // Construction
 public:
-    CDSAudioDevicePage(CString name,std::string &AudioDevice);   // standard constructor
-    CDSAudioDevicePage(CString name,std::string &AudioDevice,BOOL *bConnectAudio);
+    CDSAudioDevicePage(const std::string& name, SmartPtr<CStringSetting> AudioDeviceSetting);   // standard constructor
+    CDSAudioDevicePage(const std::string& name, SmartPtr<CStringSetting> AudioDeviceSetting, BOOL *bConnectAudio);
     ~CDSAudioDevicePage() {};
 
-// Dialog Data
-    //{{AFX_DATA(CDSAudioDevicePage)
-    enum { IDD = IDD_DSHOW_AUDIODEVICE };
-    CComboBox m_AudioDevice;
-    CButton m_UseDefault;
-    CButton m_ConnectAudio;
-    //}}AFX_DATA
-
-
-// Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(CDSAudioDevicePage)
-    protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    //}}AFX_VIRTUAL
-
 // Implementation
-protected:
+public:
+    virtual void OnOK(HWND hDlg);
 
-    // Generated message map functions
-    //{{AFX_MSG(CDSAudioDevicePage)
-    virtual BOOL OnInitDialog();
-    afx_msg void OnSelEndOkAudioDevice();
-    afx_msg void OnClickedUseDefault();
-    afx_msg void OnClickedConnectAudio();
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
-
-    void OnOK();
 private:
+    virtual BOOL ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
+    BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
+    void OnSelEndOkAudioDevice(HWND hDlg);
+    void OnClickedUseDefault(HWND hDlg);
+    void OnClickedConnectAudio(HWND hDlg);
+
     std::vector<std::string> m_DeviceList;
-    std::string &m_AudioDeviceSetting;
+    SmartPtr<CStringSetting> m_AudioDeviceSetting;
     BOOL *m_bConnectAudio;
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_DSAUDIODEVICEPAGE_H__06F4CD66_73E2_49F4_8B9A_0A86543633D3__INCLUDED_)
+#endif

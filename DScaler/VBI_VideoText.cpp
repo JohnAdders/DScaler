@@ -29,6 +29,7 @@
  */
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
 #include "VTCommon.h"
 #include "VTDecoder.h"
 #include "VTDrawer.h"
@@ -2896,7 +2897,7 @@ SETTING* VT_GetSetting(VT_SETTING Setting)
     }
 }
 
-SmartPtr<CTreeSettingsGeneric> VideoText_GetTreeSettingsPage()
+SmartPtr<CSettingsHolder> VideoText_GetSettingsPage()
 {
     // Teletext Settings
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
@@ -2909,7 +2910,7 @@ SmartPtr<CTreeSettingsGeneric> VideoText_GetTreeSettingsPage()
     Holder->AddSetting(&VTSettings[VT_SUBTITLE_DUPLICATION_FILTER  ]);
     Holder->AddSetting(&VTSettings[VT_DOUBLEHEIGHT_SUBTITLES_FILTER]);
 
-    return new CTreeSettingsGeneric("Teletext Settings", Holder);
+    return Holder;
 }
 
 

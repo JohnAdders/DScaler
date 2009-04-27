@@ -1599,9 +1599,3 @@ SETTING* Calibr_GetSetting(CALIBR_SETTING Setting)
         return NULL;
     }
 }
-
-SmartPtr<CTreeSettingsGeneric> Calibr_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_CALIBR_GETVALUE));
-    return new CTreeSettingsGeneric("Card Calibration Settings", Holder);
-}

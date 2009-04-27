@@ -27,69 +27,45 @@
 #if !defined(__CREDITS_H_)
 #define __CREDITS_H_
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "..\DScalerRes\resource.h"
+#include "DSDialog.h"
 
 /** Credits Dialog
     Creates a scolling credit screen
 */
-class CCredits : public CDialog
+class CCredits : public CDSDialog
 {
 // Construction
 public:
-    CCredits(CWnd* pParent = NULL);   // standard constructor
+    CCredits();   // standard constructor
 
-    #define     DISPLAY_TIMER_ID        150        // timer id
+private:
 
-     RECT        m_ScrollRect,r;           // rect of Static Text frame
-    int         nArrIndex,nCounter;           // work ints
-    CString     m_szWork;               // holds display line
+    RECT        m_ScrollRect;               // rect of Static Text frame
+    int         m_nArrIndex;                // work ints
+    int         m_nCounter;
+    std::string m_szWork;                   // holds display line
     BOOL        m_bFirstTime;
-    BOOL        m_bDrawText;
-    int         nClip;
-    int         nCurrentFontHeight;
+    int         m_nClip;
+    int         m_nCurrentFontHeight;
 
-    CWnd*       m_pDisplayFrame;
+    HWND        m_pDisplayFrame;
 
-    CBitmap     m_bmpWork;                  // bitmap holder
-    CBitmap*     pBmpOld;                    // other bitmap work members
-    CBitmap*    m_bmpCurrent;
-    HBITMAP     m_hBmpOld;
+    HBITMAP     m_BmpWork;
+    HGDIOBJ     m_BmpOld;
 
-    CSize         m_size;                     // drawing helpers
-    CPoint         m_pt;
-    BITMAP         m_bmpInfo;
-    CDC         m_dcMem;
+    int          m_BitmapWidth;             // drawing helpers
+    int          m_BitmapHeight;            // drawing helpers
+    POINT        m_DisplayPoint;
+    HDC          m_dcMem;
     BOOL         m_bProcessingBitmap;
+    WNDPROC      m_OldWndProc;
 
-// Dialog Data
-    //{{AFX_DATA(CCredits)
-    enum { IDD = IDD_CREDITS };
-    //}}AFX_DATA
-
-
-// Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(CCredits)
-    protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    //}}AFX_VIRTUAL
-
-// Implementation
-protected:
-
-    // Generated message map functions
-    //{{AFX_MSG(CCredits)
-    virtual void OnOK();
-    afx_msg void OnPaint();
-    virtual BOOL OnInitDialog();
-    afx_msg void OnTimer(UINT nIDEvent);
-    afx_msg void OnDestroy();
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
+    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
+    void OnPaint(HWND hDlg);
+    BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
+    void OnTimer(HWND hDlg, UINT nIDEvent);
+    static BOOL CALLBACK StaticWndProc(HWND hStatic, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

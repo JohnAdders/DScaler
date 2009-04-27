@@ -66,7 +66,6 @@ void OSD_ResetPaintedRects();
 
 // Get Hold of the OSD.c file settings
 SETTING* OSD_GetSetting(OSD_SETTING Setting);
-SmartPtr<CTreeSettingsGeneric> OSD_GetTreeSettingsPage();
 
 void OSD_UpdateMenu(HMENU hMenu);
 void OSD_SetMenu(HMENU hMenu);

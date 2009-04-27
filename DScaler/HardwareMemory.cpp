@@ -27,9 +27,9 @@
 #include "DebugLog.h"
 
 CHardwareMemory::CHardwareMemory(CHardwareDriver* pDriver) :
-                    m_pDriver(pDriver)
+            m_pDriver(pDriver),
+            m_pMemStruct(0)
 {
-    m_pMemStruct = NULL;
 }
 
 CHardwareMemory::~CHardwareMemory()
@@ -103,7 +103,8 @@ BOOL CHardwareMemory::IsValid()
 }
 
 CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
-     CHardwareMemory(pDriver)
+    CHardwareMemory(pDriver),
+    m_AllocatedBlock(0)
 {
     TDSDrvParam paramIn;
     DWORD dwReturnedLength;
@@ -113,7 +114,7 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
     m_AllocatedBlock = malloc(Bytes + 0xFFF);
     if(m_AllocatedBlock == NULL)
     {
-        throw std::runtime_error("Out of memory");
+        throw std::bad_alloc("Out of memory");
     }
 
     memset(m_AllocatedBlock, 0, Bytes + 0xFFF);
@@ -126,7 +127,7 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
     {
         free(m_AllocatedBlock);
         m_AllocatedBlock = NULL;
-        throw std::runtime_error("Out of memory");
+        throw std::bad_alloc("Out of memory");
     }
 
     memset(m_pMemStruct, 0, dwOutParamLength);

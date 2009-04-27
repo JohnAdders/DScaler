@@ -73,7 +73,7 @@ public:
 
     SmartPtr<ITuner> GetTuner() {return NULL;}
 
-    CTreeSettingsPage* GetTreeSettingsPage() {return NULL;}
+    SmartPtr<CSettingsHolder> GetSettingsPage() {return 0L;}
 
     void SetSourceAsCurrent();
 
@@ -109,11 +109,10 @@ protected:
 
     std::string m_IDString;
 
-    std::string m_AudioDevice;
+    SmartPtr<CStringSetting> m_AudioDevice;
 
 private:
     void UpdateDroppedFields();
-    CString m_IniSection;
 
     BOOL m_InitialSetup;
 

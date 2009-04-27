@@ -1,16 +1,25 @@
-/* $Id$ */
+/////////////////////////////////////////////////////////////////////////////
+// $Id$
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2001 Nick Kochakian.  All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+//
+//    This file is subject to the terms of the GNU General Public License as
+//    published by the Free Software Foundation.  A copy of this license is
+//    included with this software distribution in the file COPYING.  If you
+//    do not have a copy, you may obtain a copy by writing to the Free
+//    Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//
+//    This software is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details
+//
+/////////////////////////////////////////////////////////////////////////////
 
-/** \file
- * Time Shift compression options dialog
- * \author Nick Kochakian
- */
+#if !defined(_TSCOMPRESSION_H__)
+#define _TSCOMPRESSION_H__
 
-#if !defined(AFX_TSCOMPRESSION_H__0383010E_0797_44D3_B4E6_2992E75326F3__INCLUDED_)
-#define AFX_TSCOMPRESSION_H__0383010E_0797_44D3_B4E6_2992E75326F3__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 // TSCompression.h : header file
 //
 
@@ -19,45 +28,26 @@
 /////////////////////////////////////////////////////////////////////////////
 // CTSCompressionDlg dialog
 
-class CTSCompressionDlg : public CDialog
+class CTSCompressionDlg : public CDSDialog
 {
 // Construction
 public:
-    CTSCompressionDlg(CWnd* pParent = NULL, TS_OPTIONS *options = NULL);
-
-// Dialog Data
-    //{{AFX_DATA(CTSCompressionDlg)
-    enum { IDD = IDD_TSCOMPRESSION };
-    CString    m_AudioFormat;
-    CString    m_VideoFormat;
-    //}}AFX_DATA
-
-
-// Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(CTSCompressionDlg)
-    protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    //}}AFX_VIRTUAL
-
-// Implementation
-protected:
-
-    // Generated message map functions
-    //{{AFX_MSG(CTSCompressionDlg)
-    afx_msg void OnConfigVideo();
-    afx_msg void OnConfigAudio();
-    virtual void OnOK();
-    virtual BOOL OnInitDialog();
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
+    CTSCompressionDlg(TS_OPTIONS* Options);
 
 private:
-    TS_OPTIONS *options;
+    std::string m_AudioFormat;
+    std::string m_VideoFormat;
+
+    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
+    void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
+
+    void OnConfigVideo(HWND hDlg);
+    void OnConfigAudio(HWND hDlg);
+    void OnOK(HWND hDlg);
+
+    TS_OPTIONS* m_Options;
     FOURCC     m_fcc;
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_TSCOMPRESSION_H__0383010E_0797_44D3_B4E6_2992E75326F3__INCLUDED_)
+#endif

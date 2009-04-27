@@ -515,7 +515,7 @@ BYTE CVTCommon::ParseLineElements(TVTPage* pPage, BYTE nRow, LPWORD lpFlags,
         if (nRow < 1 || nRow >= 23)
         {
             // Programming error
-            ASSERT(FALSE);
+            _ASSERTE(FALSE);
             return PARSE_CONFIGERROR;
         }
     }

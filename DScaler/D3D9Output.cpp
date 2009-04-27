@@ -765,9 +765,3 @@ void D3D9_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     D3D9SettingsHolder.WriteToIni(bOptimizeFileAccess);
 }
-
-SmartPtr<CTreeSettingsGeneric> D3D9_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
-    return new CTreeSettingsGeneric("Direct3D Settings", Holder);
-}

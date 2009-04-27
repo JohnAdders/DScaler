@@ -1659,9 +1659,9 @@ void Overlay_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     OverlaySettingsHolder.WriteToIni(bOptimizeFileAccess);
 }
 
-SmartPtr<CTreeSettingsGeneric> Overlay_GetTreeSettingsPage()
+SmartPtr<CSettingsHolder> Overlay_GetSettingsPage()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
     Holder->AddSettings(OverlayOutputInstance.GetOtherSettings(), OVERLAYBRIGHTNESS);
-    return new CTreeSettingsGeneric("Overlay Settings", Holder);
+    return Holder;
 }

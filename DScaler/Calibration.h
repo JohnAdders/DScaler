@@ -146,7 +146,6 @@ extern SmartPtr<CCalibration> pCalibration;
 
 
 SETTING* Calibr_GetSetting(CALIBR_SETTING Setting);
-SmartPtr<CTreeSettingsGeneric> Calibr_GetTreeSettingsPage();
 
 
 #endif

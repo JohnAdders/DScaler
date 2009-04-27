@@ -33,12 +33,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -115,7 +109,6 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
     {
         LOG(2,"Capture device has a VideoPort pin, trying to connect it...",hr);
         //render the vp pin
-        CString tmpstr;
         hr=m_pGraph->Render(pVPPin);
         if(SUCCEEDED(hr))
         {
@@ -128,24 +121,24 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
                 hr=pVWnd->put_AutoShow(OAFALSE);
                 if(FAILED(hr))
                 {
-                    DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
-                    tmpstr.ReleaseBuffer(len);
-                    LOG(2,"IVideoWindow::put_AutoShow failed. ErrorCode: 0x%x ErrorText: '%s'",hr,(LPCTSTR)tmpstr);
+                    vector<char> tmpstr(MAX_ERROR_TEXT_LEN);
+                    DWORD len=AMGetErrorText(hr,&tmpstr[0],MAX_ERROR_TEXT_LEN);
+                    LOG(2,"IVideoWindow::put_AutoShow failed. ErrorCode: 0x%x ErrorText: '%s'",hr,&tmpstr[0]);
                 }
                 hr=pVWnd->put_Visible(OAFALSE);
                 if(FAILED(hr))
                 {
-                    DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
-                    tmpstr.ReleaseBuffer(len);
-                    LOG(2,"IVideoWindow::put_Visible failed. ErrorCode: 0x%x ErrorText: '%s'",hr,(LPCTSTR)tmpstr);
+                    vector<char> tmpstr(MAX_ERROR_TEXT_LEN);
+                    DWORD len=AMGetErrorText(hr,&tmpstr[0],MAX_ERROR_TEXT_LEN);
+                    LOG(2,"IVideoWindow::put_Visible failed. ErrorCode: 0x%x ErrorText: '%s'",hr,&tmpstr[0]);
                 }
             }
         }
         else
         {
-            DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
-            tmpstr.ReleaseBuffer(len);
-            LOG(1,"Failed to connect VideoPort pin. ErrorCode: 0x%x ErrorText: '%s'",hr,(LPCTSTR)tmpstr);
+            vector<char> tmpstr(MAX_ERROR_TEXT_LEN);
+            DWORD len=AMGetErrorText(hr,&tmpstr[0],MAX_ERROR_TEXT_LEN);
+            LOG(1,"Failed to connect VideoPort pin. ErrorCode: 0x%x ErrorText: '%s'",hr,&tmpstr[0]);
         }
     }
 
@@ -192,20 +185,20 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
 
     /*if(driverSupportsIR())
     {
-        TRACE("Yes! driver supports ir\n");
+        LOGD("Yes! driver supports ir\n");
         if(isRemotePresent())
         {
-            TRACE("Remote is present\n");
+            LOGD("Remote is present\n");
             ULONG code=getRemoteCode();
             if(code&0x10000)
             {
                 code=code & ~0x10000;
-                TRACE("Remote code=0x%x\n",code);
+                LOGD("Remote code=0x%x\n",code);
             }
         }
         else
         {
-            TRACE("No remote\n");
+            LOGD("No remote\n");
         }
     }*/
 }
@@ -292,7 +285,7 @@ ULONG CDShowCaptureDevice::getRemoteCode()
         HRESULT hr=pPropSet->Get(PROPSETID_IR,KSPROPERTY_IR_GETCODE,&tmp,sizeof(KSPROPERTY_IR_GETCODE_S),&tmp,sizeof(KSPROPERTY_IR_GETCODE_S),&bytes);
         if(SUCCEEDED(hr))
         {
-            //TRACE("Got ircode: %lu\n",(tmp.Code & ~0x10000));
+            //LOGD("Got ircode: %lu\n",(tmp.Code & ~0x10000));
             return tmp.Code;
         }
     }

@@ -27,10 +27,6 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#ifndef __AFXWIN_H__
-    #error include 'stdafx.h' before including this file for PCH
-#endif
-
 /*! \mainpage DScaler Developer Help
 
     \section intro Introduction

@@ -16,31 +16,32 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-class CScheduleDlg : public CDialog
+#if !defined(__SCHEDULED_RECORDING_H_)
+#define __SCHEDULED_RECORDING_H_
+
+#include "DSDialog.h"
+
+class CScheduleDlg : public CDSDialog
 {
 public:
-    CScheduleDlg(CWnd *pParent = NULL);   // standard constructor
+    CScheduleDlg();   // standard constructor
     ~CScheduleDlg();
     static void OnDscalerExit();
 
-protected:
-    //{{AFX_MSG(ScheduleDlg)
-    virtual BOOL OnInitDialog();
-    afx_msg void OnAddClicked();
-    afx_msg void OnRemoveClicked();
-    afx_msg void OnOkClicked();
-    afx_msg void OnDurationUpdate();
-    afx_msg void OnTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult);
-    afx_msg void OnEndTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult);
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
 
 private:
-    void InitCtrls();
-    void SetDurationCtrl(int minutes);
+    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
+    void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
+    LRESULT OnNotify(HWND hwnd, int id, LPNMHDR nmhdr);
+    void InitCtrls(HWND hDlg);
+    void SetDurationCtrl(HWND hDlg, int minutes);
+    void OnAddClicked(HWND hDlg);
+    void OnRemoveClicked(HWND hDlg);
+    void OnOkClicked(HWND hDlg);
+    void OnDurationUpdate(HWND hDlg);
+    LRESULT OnTimePickerChanged(HWND hDlg, LPNMHDR nmhdr);
 
-    SYSTEMTIME prev_time;
-    BOOL m_bPrevTimeSet;
     BOOL m_bCtrlsInit;
 };
 
@@ -54,14 +55,14 @@ public:
     CSchedule(const std::string& schedule_name, const std::string& program_name, int duration, int state, CTime time);
     ~CSchedule(){};
 
-    const char* getName()         const   {return m_name.c_str();};
-    const char* getProgramName()  const   {return m_program_name.c_str();};
-    std::string getDateStr() const   {return m_time_start.Format("%m.%d.%Y").GetBuffer(0);};
-    std::string getTimeStr() const   {return m_time_start.Format("%H:%M").GetBuffer(0);};
-    int getDuration()             const   {return m_duration;};
-    CTime getStartTime()          const   {return m_time_start;};
-    CTime getTimeEnd()            const   {return m_time_end;};
-    int getState()                const   {return m_state;};
+    const char* getName()           const   {return m_name.c_str();};
+    const char* getProgramName()    const   {return m_program_name.c_str();};
+    std::string getDateStr()        const;
+    std::string getTimeStr()        const;
+    int getDuration()               const   {return m_duration;};
+    CTime getStartTime()            const   {return m_time_start;};
+    CTime getTimeEnd()              const   {return m_time_end;};
+    int getState()                  const   {return m_state;};
 
     void setTimeEnd(CTime time) {m_time_end = time;};
     void setState(int state) {m_state = state;};
@@ -85,10 +86,10 @@ public:
     static void initScheduledRecordingThreadProc();
     void exitScheduledRecording();
 
-    void showRecords();
-    void addSchedule();
-    void removeSchedule();
-    void saveOnClose();
+    void showRecords(HWND hDlg);
+    void addSchedule(HWND hDlg);
+    void removeSchedule(HWND hDlg);
+    void saveOnClose(HWND hDlg);
 
     void getChannels(std::vector<std::string> &channels);
 
@@ -111,3 +112,5 @@ private:
     std::vector<CSchedule> m_schedules;
     CSchedule m_recording_program;
 };
+
+#endif

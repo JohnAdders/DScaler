@@ -36,7 +36,6 @@ void Channels_SetMenu(HMENU hMenu);
 BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID);
 
 SETTING* AntiPlop_GetSetting(ANTIPLOP_SETTING Setting);
-SmartPtr<CTreeSettingsGeneric> AntiPlop_GetTreeSettingsPage();
 
 void Channels_Exit();
 

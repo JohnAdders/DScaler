@@ -621,7 +621,7 @@ void CCX2388xSource::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
     }
 }
 
-CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
+SmartPtr<CSettingsHolder> CCX2388xSource::GetSettingsPage()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
 
@@ -663,7 +663,7 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
         Holder->AddSetting(m_VerticalSyncDetection);
     }
 
-    return new CTreeSettingsGeneric("CX2388x Advanced", Holder);
+    return Holder;
 }
 
 void CCX2388xSource::InitializeUI()

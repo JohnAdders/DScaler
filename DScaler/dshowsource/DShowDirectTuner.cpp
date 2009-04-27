@@ -31,11 +31,7 @@
 #include <ks.h>
 #include <ksmedia.h>
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
+using namespace std;
 
 #define INSTANCE_DATA_OF_PROPERTY_PTR(x) ( (PKSPROPERTY((x)) ) + 1 )
 #define INSTANCE_DATA_OF_PROPERTY_SIZE(x) ( sizeof((x)) - sizeof(KSPROPERTY) )
@@ -62,12 +58,14 @@ void GetKSData(CComPtr<IKsPropertySet> pKSProp,KSPROPERTY_TUNER Property,DataTyp
         }
         else
         {
-            throw CDShowException(CString("GetKSData<")+typeid(Data).name()+">: Failed",hr);
+            string Msg(MakeString() << "GetKSData<" << typeid(Data).name() << ">: Failed");
+            throw CDShowException(Msg.c_str(),hr);
         }
     }
     else
     {
-        throw CDShowException(CString("GetKSData<")+typeid(Data).name()+">: Property is not supported by tuner",hr);
+        string Msg(MakeString() << "GetKSData<" << typeid(Data).name() << ">: Property is not supported by tuner");
+        throw CDShowException(Msg,hr);
     }
 }
 

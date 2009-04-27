@@ -33,13 +33,13 @@
 
 CI2CBusForLineInterface::CI2CBusForLineInterface(II2CLineInterface* lineInterface)
 {
-    ASSERT(lineInterface != 0);
+    _ASSERTE(lineInterface != 0);
     this->m_LineInterface = lineInterface;
 }
 
 void CI2CBusForLineInterface::Sleep()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
     m_LineInterface->Sleep();
 }
 
@@ -81,7 +81,7 @@ void CI2CBusForLineInterface::SetSCLHi()
 
 void CI2CBusForLineInterface::Start()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     LOG(4, "I2C BusForLine Start");
     // I2C start: SDA 1 -> 0 with SCL = 1
@@ -97,7 +97,7 @@ void CI2CBusForLineInterface::Start()
 
 void CI2CBusForLineInterface::Stop()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     LOG(4, "I2C BusForLine Stop");
     // I2C stop: SDA 0 -> 1 with SCL = 1
@@ -112,7 +112,7 @@ void CI2CBusForLineInterface::Stop()
 
 BOOL CI2CBusForLineInterface::GetAcknowledge()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     SetSCLLo();
     SetSDAHi();
@@ -126,7 +126,7 @@ BOOL CI2CBusForLineInterface::GetAcknowledge()
 
 BOOL CI2CBusForLineInterface::Write(BYTE byte)
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     LOG(4, "I2C BusForLine NAK Write %02X", byte);
     for(BYTE mask = 0x80; mask > 0; mask /= 2)
@@ -147,7 +147,7 @@ BOOL CI2CBusForLineInterface::Write(BYTE byte)
 
 unsigned char CI2CBusForLineInterface::Read(BOOL last)
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     BYTE result = 0;
 
@@ -175,7 +175,7 @@ unsigned char CI2CBusForLineInterface::Read(BOOL last)
 
 void CI2CBusForLineInterface::SendNAK()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     LOG(4, "I2C BusForLine send NAK");
     SetSCLLo();
@@ -187,7 +187,7 @@ void CI2CBusForLineInterface::SendNAK()
 
 void CI2CBusForLineInterface::SendACK()
 {
-    ASSERT(m_LineInterface != 0);
+    _ASSERTE(m_LineInterface != 0);
 
     LOG(4, "I2C BusForLine send ACK");
     SetSCLLo();

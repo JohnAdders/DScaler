@@ -385,9 +385,3 @@ SETTING* FDProg_GetSetting(FDPROG_SETTING Setting)
 void FDProg_SetMenu(HMENU hMenu)
 {
 }
-
-SmartPtr<CTreeSettingsGeneric> FDProg_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_FDPROG_GETVALUE));
-    return new CTreeSettingsGeneric("Progressive Pulldown Settings", Holder);
-}

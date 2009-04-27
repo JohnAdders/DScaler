@@ -114,11 +114,12 @@ inline DScalerPrivate::_StringBuffer StringBuffer(std::string &str, size_t nSize
     return DScalerPrivate::_StringBuffer(str, nSize);
 }
 
-inline BOOL AreEqualInsensitive(const std::string& String1, const std::string& String2)
-{
-    return _stricmp(String1.c_str(), String2.c_str()) == 0;
-}
+BOOL AreEqualInsensitive(const std::string& String1, const std::string& String2);
+void Trim(std::string& StringToTrim);
+void ScreenToClient(HWND hWnd, RECT& Rect);
+void ClientToScreen(HWND hWnd, RECT& Rect);
+void MoveWindow(HWND hWnd, RECT& Rect);
 
-
+std::string ReplaceCharWithString(const std::string& InString, char CharToReplace, const std::string& StringToReplace);
 
 #endif

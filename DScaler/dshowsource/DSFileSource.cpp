@@ -34,13 +34,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-
 CDSFileSource::CDSFileSource()
 :CDSSourceBase(0,IDC_DSHOW_FILESOURCE_MENU)
 {
@@ -68,11 +61,11 @@ BOOL CDSFileSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
     if(LOWORD(wParam)==IDM_DSHOW_SETTINGS)
     {
-        CTreeSettingsDlg dlg(CString("DirectShow Settings"));
-        CDSAudioDevicePage AudioDevice(CString("Audio output"),m_AudioDevice);
+        CTreeSettingsDlg dlg("DirectShow Settings");
+        CDSAudioDevicePage AudioDevice("Audio output",m_AudioDevice);
 
         dlg.AddPage(&AudioDevice);
-        dlg.DoModal();
+        dlg.DoModal(hWnd);
         return TRUE;
     }
     return FALSE;
@@ -108,7 +101,7 @@ BOOL CDSFileSource::OpenMediaFile(const string& FileName, BOOL NewPlayList)
     m_filename="";
     try
     {
-        m_pDSGraph=new CDShowGraph(FileName,m_AudioDevice);
+        m_pDSGraph=new CDShowGraph(FileName,m_AudioDevice->GetValue());
         m_filename=FileName;
         m_pDSGraph->start();
         return TRUE;
@@ -120,7 +113,7 @@ BOOL CDSFileSource::OpenMediaFile(const string& FileName, BOOL NewPlayList)
     }
     catch(CDShowException& e)
     {
-        AfxMessageBox(e.what(),MB_OK|MB_ICONERROR);
+        ErrorBox(e.what());
         LOG(1, "Failed to open DShow file - %s", e.what());
         return FALSE;
     }
@@ -190,7 +183,7 @@ void CDSFileSource::Start()
     {
         if(m_pDSGraph==NULL)
         {
-            m_pDSGraph=new CDShowGraph(m_filename,m_AudioDevice);
+            m_pDSGraph=new CDShowGraph(m_filename,m_AudioDevice->GetValue());
         }
         CDSSourceBase::Start();
     }
@@ -216,16 +209,12 @@ void CDSFileSource::SetMenu(HMENU hMenu)
     {
         return;
     }
-    CMenu topMenu;
-    topMenu.Attach(m_hMenu);
-    CMenu *menu=topMenu.GetSubMenu(0);
+    HMENU menu = GetSubMenu(hMenu, 0);
 
     //set a radio checkmark in front of the current play/pause/stop menu entry
     FILTER_STATE state=m_pDSGraph->getState();
     UINT pos=2-state;
-    menu->CheckMenuRadioItem(0,2,pos,MF_BYPOSITION);
-
-    topMenu.Detach();
+    CheckMenuRadioItem(menu, 0,2,pos,MF_BYPOSITION);
 }
 
 void CDSFileSource::Pause()
@@ -238,7 +227,7 @@ void CDSFileSource::Pause()
         }
         catch(CDShowException &e)
         {
-            ErrorBox(CString("Pause failed\n\n")+e.what());
+            ErrorBox(MakeString() << "Pause failed\n\n" << e.what());
         }
         OSD_ShowText("Pause", 0);
     }
@@ -255,7 +244,7 @@ void CDSFileSource::UnPause()
         }
         catch(CDShowException &e)
         {
-            ErrorBox(CString("Play failed\n\n")+e.what());
+            ErrorBox(MakeString() << "Play failed\n\n" << e.what());
         }
         OSD_ShowText("Play", 0);
     }

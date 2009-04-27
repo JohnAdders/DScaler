@@ -121,7 +121,7 @@ SETTING* VT_GetSetting(VT_SETTING Setting);
 void VT_UpdateMenu(HMENU hMenu);
 void VT_SetMenu(HMENU hMenu);
 
-SmartPtr<CTreeSettingsGeneric> VideoText_GetTreeSettingsPage();
+SmartPtr<CSettingsHolder> VideoText_GetSettingsPage();
 
 BOOL ProcessVTCodepageSelection(HWND hWnd, WORD wMenuID);
 

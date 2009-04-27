@@ -27,12 +27,6 @@
 #include "SingleCrossbar.h"
 #include "exception.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -40,7 +34,7 @@ static char THIS_FILE[]=__FILE__;
 CDShowSingleCrossbar::CDShowSingleCrossbar(CComPtr<IAMCrossbar> &pCrossbar,IGraphBuilder *pGraph)
 :m_crossbar(pCrossbar),CDShowBaseCrossbar(pGraph)
 {
-    ASSERT(m_crossbar!=NULL);
+    _ASSERTE(m_crossbar!=NULL);
 }
 
 CDShowSingleCrossbar::~CDShowSingleCrossbar()

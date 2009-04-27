@@ -30,12 +30,6 @@
 #include "crash.h"
 #include "LibraryCache.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // CDScalerApp
 
@@ -64,7 +58,7 @@ CDScalerApp theApp;
 // CDScalerApp initialization
 
 //the old winmain
-int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
 
 BOOL CDScalerApp::InitInstance()
 {

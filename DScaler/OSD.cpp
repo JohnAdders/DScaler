@@ -22,6 +22,7 @@
  */
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
 #include "OSD.h"
 #include "AspectRatio.h"
 #include "OverlayOutput.h"
@@ -2686,12 +2687,6 @@ SETTING* OSD_GetSetting(OSD_SETTING Setting)
     {
         return NULL;
     }
-}
-
-SmartPtr<CTreeSettingsGeneric> OSD_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_OSD_GETVALUE));
-    return new CTreeSettingsGeneric("OSD Settings", Holder);
 }
 
 void OSD_Init()

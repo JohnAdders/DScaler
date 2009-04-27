@@ -44,9 +44,9 @@ BOOL CI2CBus::Read(const BYTE *writeBuffer,
                   BYTE *readBuffer,
                   size_t readBufferSize)
 {
-    ASSERT(writeBuffer != 0);
-    ASSERT(writeBufferSize >= 1);
-    ASSERT(readBuffer != 0 || readBufferSize == 0);
+    _ASSERTE(writeBuffer != 0);
+    _ASSERTE(writeBufferSize >= 1);
+    _ASSERTE(readBuffer != 0 || readBufferSize == 0);
 
     if (readBufferSize == 0)
         return TRUE;
@@ -57,7 +57,7 @@ BOOL CI2CBus::Read(const BYTE *writeBuffer,
 
     if (writeBufferSize != 1)
     {
-        ASSERT(writeBufferSize > 1);
+        _ASSERTE(writeBufferSize > 1);
 
         Start();
 
@@ -111,9 +111,9 @@ BOOL CI2CBus::Read(const BYTE *writeBuffer,
 
 BOOL CI2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
 {
-    ASSERT(writeBuffer != 0);
-    ASSERT(writeBufferSize >= 1);
-    ASSERT((writeBuffer[0] & 1) == 0);
+    _ASSERTE(writeBuffer != 0);
+    _ASSERTE(writeBufferSize >= 1);
+    _ASSERTE((writeBuffer[0] & 1) == 0);
 
 
     Lock();

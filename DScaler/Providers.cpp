@@ -519,13 +519,13 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     }
     else if (LOWORD(wParam) == IDM_OPEN_FILE)
     {
-        CString file;
-        if(COpenDlg::ShowOpenDialog(hWnd,file))
+        COpenDlg OpenDlg;
+        if(OpenDlg.DoModal(hWnd) == IDOK)
         {
             Stop_Capture();
             for(size_t i = 0; i < Sources.size(); ++i)
             {
-                if(Sources[i]->Object->OpenMediaFile((LPCSTR)file, FALSE))
+                if(Sources[i]->Object->OpenMediaFile(OpenDlg.GetFileName().c_str(), FALSE))
                 {
                     Providers_NotifySourcePreChange();
 

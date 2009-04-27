@@ -122,7 +122,7 @@ public:
     BOOL IsAccessAllowed() {return TRUE;};
     BOOL HasSquarePixels() {return FALSE;};
 
-    CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage();
+    SmartPtr<CSettingsHolder> GetSettingsPage();
 
     void SetSourceAsCurrent();
 

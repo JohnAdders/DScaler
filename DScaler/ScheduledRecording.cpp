@@ -26,13 +26,11 @@
 #include "ScheduledRecording.h"
 #include "Crash.h"
 #include "DebugLog.h"
-#include <afxdtctl.h>
 #include <vector>
 
 using namespace std;
 
 SmartPtr<CScheduledRecording> pSchRec;
-CScheduleDlg* pSchDlg;
 HANDLE  gThreadId = NULL;
 
 enum STATE {READY,SUCCEED,CANCELED,RECORDING};
@@ -43,7 +41,7 @@ enum STATE {READY,SUCCEED,CANCELED,RECORDING};
 void ShowSchedRecDlg()
 {
     CScheduleDlg schDlg;
-    schDlg.DoModal();
+    schDlg.DoModal(GetMainWnd());
 }
 
 DWORD WINAPI RecordThreadProc(LPVOID lParam)
@@ -60,9 +58,8 @@ DWORD WINAPI RecordThreadProc(LPVOID lParam)
 /*****************************************
 *    CScheduleDlg functions
 ******************************************/
-CScheduleDlg::CScheduleDlg(CWnd *pParent)
-    : CDialog(IDD_SCHEDULE, pParent),
-    m_bPrevTimeSet(TRUE),
+CScheduleDlg::CScheduleDlg() :
+    CDSDialog(MAKEINTRESOURCE(IDD_SCHEDULE)),
     m_bCtrlsInit(FALSE)
 {
 }
@@ -71,174 +68,200 @@ CScheduleDlg::~CScheduleDlg()
 {
 }
 
-BOOL CScheduleDlg::OnInitDialog()
+BOOL CScheduleDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    CDialog::OnInitDialog();
-
-    pSchDlg = this;
-    InitCtrls();
-    pSchRec->showRecords();
-
-    return TRUE;
+    switch(message)
+    {
+    HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+    HANDLE_MSG(hDlg, WM_COMMAND, OnCommand);
+    HANDLE_MSG(hDlg, WM_NOTIFY, OnNotify);
+    default:
+        return FALSE;
+    }
 }
 
-BEGIN_MESSAGE_MAP(CScheduleDlg, CDialog)
-    //{{AFX_MSG_MAP(CScheduleDlg)
-    ON_BN_CLICKED(IDC_SCHEDULE_ADD, OnAddClicked)
-    ON_BN_CLICKED(IDC_SCHEDULE_REMOVE, OnRemoveClicked)
-    ON_BN_CLICKED(IDC_SCHEDULE_OK, OnOkClicked)
-    ON_EN_UPDATE(IDC_SCHEDULE_EDIT_DURATION, OnDurationUpdate)
-    ON_NOTIFY(DTN_DATETIMECHANGE, IDC_SCHEDULE_TIMEPICKER, OnTimePickerChanged)
-    ON_NOTIFY(DTN_DATETIMECHANGE, IDC_SCHEDULE_ENDTIMEPICKER, OnEndTimePickerChanged)
-    //}}AFX_MSG_MAP
-END_MESSAGE_MAP()
+void CScheduleDlg::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
+{
+    switch(id)
+    {
+    case IDC_SCHEDULE_OK:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnOkClicked(hDlg);
+        }
+    case IDC_SCHEDULE_REMOVE:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnRemoveClicked(hDlg);
+        }
+        break;
+    case IDC_SCHEDULE_ADD:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnAddClicked(hDlg);
+        }
+        break;
+    case IDC_SCHEDULE_EDIT_DURATION:
+        if(EN_UPDATE == codeNotify)
+        {
+            OnDurationUpdate(hDlg);
+        }
+        break;
+    }
+}
+
+LRESULT CScheduleDlg::OnNotify(HWND hwnd, int id, LPNMHDR nmhdr)
+{
+    switch(id)
+    {
+    case IDC_SCHEDULE_TIMEPICKER:
+        if(nmhdr->code == DTN_DATETIMECHANGE)
+        {
+            return OnTimePickerChanged(hwnd, nmhdr);
+        }
+        break;
+    case IDC_SCHEDULE_ENDTIMEPICKER:
+        if(nmhdr->code == DTN_DATETIMECHANGE)
+        {
+            return OnTimePickerChanged(hwnd, nmhdr);
+        }
+        break;
+    }
+    return 0;
+}
+
+
+BOOL CScheduleDlg::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
+{
+    InitCtrls(hDlg);
+    pSchRec->showRecords(hDlg);
+    return TRUE;
+}
 
 void CScheduleDlg::OnDscalerExit()
 {
     pSchRec->exitScheduledRecording();
 }
 
-void CScheduleDlg::OnAddClicked()
+void CScheduleDlg::OnAddClicked(HWND hDlg)
 {
-    pSchRec->addSchedule();
+    pSchRec->addSchedule(hDlg);
 }
 
-void CScheduleDlg::OnDurationUpdate()
+void CScheduleDlg::OnDurationUpdate(HWND hDlg)
 {
-    if(!m_bCtrlsInit || !(::GetFocus() == (GetDlgItem(IDC_SCHEDULE_EDIT_DURATION))->GetSafeHwnd()))
+    if(!m_bCtrlsInit || GetFocus() != GetDlgItem(hDlg, IDC_SCHEDULE_EDIT_DURATION))
         return;
 
-    CString str_dur;
-    GetDlgItemText(IDC_SCHEDULE_EDIT_DURATION, str_dur);
+    string str_dur(GetDlgItemString(hDlg, IDC_SCHEDULE_EDIT_DURATION));
 
-    for(int i=0; i<str_dur.GetLength(); i++)
-    {
-        const char chEntered = str_dur.GetAt(i);
+    SYSTEMTIME SysTime;
 
-        if(::IsCharAlphaA(chEntered))
-        {
-            ((CEdit*)GetDlgItemText(IDC_SCHEDULE_EDIT_DURATION, str_dur))->SetSel(i,i);
-            ((CEdit*)GetDlgItemText(IDC_SCHEDULE_EDIT_DURATION, str_dur))->Clear();
-            return;
-        }
-    }
+    DateTime_GetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_TIMEPICKER), &SysTime);
 
-    if(!m_bPrevTimeSet)
-    {
-        ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_TIMEPICKER))->GetTime(&prev_time);
-        m_bPrevTimeSet = TRUE;
-    }
+    CTime new_time(SysTime);
 
-    CTimeSpan end_timespan(0, 0, atoi(str_dur.GetBuffer(0)), 0);
-    CTime new_time(prev_time);
+    CTimeSpan end_timespan(0, 0, FromString<long>(str_dur), 0);
 
     new_time += end_timespan;
-    ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_ENDTIMEPICKER))->SetTime(&new_time);
+
+    new_time.GetAsSystemTime(SysTime);
+    DateTime_SetSystemtime(GetDlgItem(hDlg, IDC_SCHEDULE_ENDTIMEPICKER), GDT_VALID, &SysTime);
 }
 
-void CScheduleDlg::OnTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult)
+LRESULT CScheduleDlg::OnTimePickerChanged(HWND hDlg, NMHDR* nmhdr)
 {
     if(!m_bCtrlsInit)
-        return;
+        return 0;
 
-    SYSTEMTIME end_time;
-    ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_ENDTIMEPICKER))->GetTime(&end_time);
+    SYSTEMTIME StartSysTime;
+    SYSTEMTIME EndSysTime;
 
-    CTimeSpan prev_timespan(prev_time.wDay, prev_time.wHour, prev_time.wMinute, 0);
-    CTimeSpan end_timespan(end_time.wDay, end_time.wHour, end_time.wMinute, 0);
+    DateTime_GetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_TIMEPICKER), &StartSysTime);
+    DateTime_GetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_ENDTIMEPICKER), &EndSysTime);
 
-    SYSTEMTIME start_time;
-    ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_TIMEPICKER))->GetTime(&start_time);
-    CTimeSpan start_timespan(start_time.wDay, start_time.wHour, start_time.wMinute, 0);
+    CTime StartTime(StartSysTime);
+    CTime EndTime(EndSysTime);
 
-    if(start_timespan > end_timespan)
+    if(EndTime < StartTime)
     {
-        SetDurationCtrl(0);
-        return;
+        SetDurationCtrl(hDlg, 0);
+        return 0;
     }
 
-    CTimeSpan dur_timespan = end_timespan - start_timespan;
-    SetDurationCtrl((int)dur_timespan.GetTotalMinutes());
-    m_bPrevTimeSet = FALSE;
+    CTimeSpan DurTimespan = EndTime - StartTime;
+    SetDurationCtrl(hDlg, (int)DurTimespan.GetTotalMinutes());
+    return 0;
 }
 
-void CScheduleDlg::OnEndTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult)
+void CScheduleDlg::SetDurationCtrl(HWND hDlg, int minutes)
 {
-    if(!m_bCtrlsInit)
-        return;
-
-    CTime start_time, end_time;
-
-    ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_TIMEPICKER))->GetTime(start_time);
-    ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_ENDTIMEPICKER))->GetTime(end_time);
-
-    if(end_time < start_time)
-    {
-        SetDurationCtrl(0);
-        return;
-    }
-
-    CTimeSpan dur_timespan = end_time - start_time;
-    SetDurationCtrl((int)dur_timespan.GetTotalMinutes());
+    string chDur(ToString(minutes));
+    SetDlgItemText(hDlg, IDC_SCHEDULE_EDIT_DURATION, chDur.c_str());
 }
 
-void CScheduleDlg::SetDurationCtrl(int minutes)
+void CScheduleDlg::OnRemoveClicked(HWND hDlg)
 {
-    char chDur[20];
-    _itoa_s(minutes, chDur, 20, 10);
-    SetDlgItemText(IDC_SCHEDULE_EDIT_DURATION, chDur);
+    pSchRec->removeSchedule(hDlg);
 }
 
-void CScheduleDlg::OnRemoveClicked()
+void CScheduleDlg::OnOkClicked(HWND hDlg)
 {
-    pSchRec->removeSchedule();
+    pSchRec->saveOnClose(hDlg);
+    EndDialog(hDlg, 0);
 }
 
-void CScheduleDlg::OnOkClicked()
+void ListView_MyInsertColumn(HWND hList, int ColumnIndex, LPCSTR ColumnHeading, int Width)
 {
-    pSchRec->saveOnClose();
-    int i = 0;
-    this->EndDialog(i);
+    LVCOLUMN Column;
+    Column.mask = LVCF_TEXT | LVCF_FMT | LVCF_WIDTH;
+    Column.pszText = (LPSTR)ColumnHeading;
+    Column.fmt = 0;
+    Column.cx = Width;
+    ListView_InsertColumn(hList, ColumnIndex, &Column);
 }
 
-void CScheduleDlg::InitCtrls()
+void CScheduleDlg::InitCtrls(HWND hDlg)
 {
-    CListCtrl* pList = (CListCtrl*)GetDlgItem(IDC_SCHEDULE_LIST);
-    pList->InsertColumn(0, "Name", 0, 70);
-    pList->InsertColumn(1, "Program",0, 70);
-    pList->InsertColumn(2, "Date", 0, 80);
-    pList->InsertColumn(3, "Start", 0, 60);
-    pList->InsertColumn(4, "Duration(minutes)", 0, 100);
-    pList->InsertColumn(5, "State", 0, 60);
-    pList->SetExtendedStyle(LVS_EX_FULLROWSELECT);
+    HWND hList = GetDlgItem(hDlg, IDC_SCHEDULE_LIST);
+
+    ListView_MyInsertColumn(hList, 0, "Name", 70);
+    ListView_MyInsertColumn(hList, 1, "Program", 70);
+    ListView_MyInsertColumn(hList, 2, "Date", 80);
+    ListView_MyInsertColumn(hList, 3, "Start", 60);
+    ListView_MyInsertColumn(hList, 4, "Duration(minutes)", 100);
+    ListView_MyInsertColumn(hList, 5, "State", 60);
+    SendMessage(hList, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
     CTime time_now = CTime::GetCurrentTime();
 
-    SetDlgItemText(IDC_SCHEDULE_EDIT_NAME,"Name");
-    SetDlgItemText(IDC_SCHEDULE_EDIT_DURATION,"90");
-    ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_DATEPICKER))->SetTime(&time_now);
-    ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_TIMEPICKER))->SetTime(&time_now);
+    SetDlgItemText(hDlg, IDC_SCHEDULE_EDIT_NAME, "Name");
+    SetDlgItemText(hDlg, IDC_SCHEDULE_EDIT_DURATION, "90");
+    SYSTEMTIME SysTime;
+    time_now.GetAsSystemTime(SysTime);
+    DateTime_SetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_DATEPICKER), GDT_VALID, &SysTime);
+    DateTime_SetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_TIMEPICKER), GDT_VALID, &SysTime);
 
     CTimeSpan end_time_span(0,1,30,0);
     time_now += end_time_span;
-    ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_ENDTIMEPICKER))->SetTime(&time_now);
+    time_now.GetAsSystemTime(SysTime);
+    DateTime_SetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_ENDTIMEPICKER), GDT_VALID, &SysTime);
 
-    ((CEdit*)GetDlgItem(IDC_SCHEDULE_EDIT_NAME))->SetLimitText(19);
-    ((CEdit*)GetDlgItem(IDC_SCHEDULE_EDIT_DURATION))->SetLimitText(3);
+    SendMessage(GetDlgItem(hDlg,IDC_SCHEDULE_EDIT_NAME), EM_SETLIMITTEXT, 19, 0);
+    SendMessage(GetDlgItem(hDlg,IDC_SCHEDULE_EDIT_DURATION), EM_SETLIMITTEXT, 3, 0);
 
     std::vector<std::string> channels;
     pSchRec->getChannels(channels);
 
-    if(channels.empty())
-        return;
-
-    for(std::vector<std::string>::iterator iter=channels.begin(); iter != channels.end(); iter++)
+    if(!channels.empty())
     {
-        ((CComboBox*)GetDlgItem(IDC_SCHEDULE_COMBO))->AddString(iter->c_str());
-    }
+        for(std::vector<std::string>::iterator iter=channels.begin(); iter != channels.end(); iter++)
+        {
+            ComboBox_AddString(GetDlgItem(hDlg, IDC_SCHEDULE_COMBO), iter->c_str());
+        }
 
-    ((CComboBox*)GetDlgItem(IDC_SCHEDULE_COMBO))->SelectString(0, channels[0].c_str());
-    ((CDateTimeCtrl*)GetDlgItem(IDC_SCHEDULE_TIMEPICKER))->GetTime(&prev_time);
+        ComboBox_SelectString(GetDlgItem(hDlg, IDC_SCHEDULE_COMBO), 0, channels[0].c_str());
+    }
 
     m_bCtrlsInit = TRUE;
 }
@@ -254,6 +277,16 @@ CSchedule::CSchedule(const string& name, const string& program_name, int duratio
     m_time_start(time)
 {
 }
+
+string CSchedule::getDateStr() const
+{
+    return m_time_start.Format("%m.%d.%Y").GetBuffer(0);
+};
+
+string CSchedule::getTimeStr() const
+{
+    return m_time_start.Format("%H:%M").GetBuffer(0);
+};
 
 /*****************************************
 *    CScheduledRecording funtions
@@ -312,81 +345,75 @@ void CScheduledRecording::getChannels(std::vector<std::string> &channels)
     }
 }
 
-void CScheduledRecording::addSchedule()
+void CScheduledRecording::addSchedule(HWND hDlg)
 {
-    CListCtrl *list = (CListCtrl*) pSchDlg->GetDlgItem(IDC_SCHEDULE_LIST);
-    CComboBox *comboCtrl = (CComboBox*) pSchDlg->GetDlgItem(IDC_SCHEDULE_COMBO);
-    CDateTimeCtrl *dateCtrl = (CDateTimeCtrl*) pSchDlg->GetDlgItem(IDC_SCHEDULE_DATEPICKER);
-    CDateTimeCtrl *timeCtrl = (CDateTimeCtrl*) pSchDlg->GetDlgItem(IDC_SCHEDULE_TIMEPICKER);
+    HWND hList = GetDlgItem(hDlg, IDC_SCHEDULE_LIST);
+    HWND hCombo = GetDlgItem(hDlg, IDC_SCHEDULE_COMBO);
+    HWND hDateCtrl = GetDlgItem(hDlg, IDC_SCHEDULE_DATEPICKER);
+    HWND hTimeCtrl = GetDlgItem(hDlg, IDC_SCHEDULE_TIMEPICKER);
 
-    CString name;
-    CString program;
-    CString strDuration;
-
-    pSchDlg->GetDlgItemText(IDC_SCHEDULE_EDIT_NAME,name);
-
-    if(name.IsEmpty())
+    string name(GetDlgItemString(hDlg, IDC_SCHEDULE_EDIT_NAME));
+    
+    if(name.empty())
     {
-        MessageBox(GetMainWnd(),"Enter name for schedule","Error",MB_OK);
+        MessageBox(GetMainWnd(), "Enter name for schedule", "Error", MB_OK);
         return;
     }
 
-    for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();iter++)
-        if(strcmp(iter->getName(),name.GetBuffer(0)) == 0)
+    for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();++iter)
+    {
+        if(iter->getName() == name)
         {
             string err_text("Schedule name ");
 
-            err_text += name.GetBuffer(0);
+            err_text += name;
             err_text += "already used";
 
             MessageBox(GetMainWnd(),err_text.c_str(),"Error",MB_OK);
             return;
         }
+    }
 
-    pSchDlg->GetDlgItemText(IDC_SCHEDULE_EDIT_DURATION,strDuration);
+    string strDuration(GetDlgItemString(hDlg, IDC_SCHEDULE_EDIT_DURATION));
 
-    if(strDuration.IsEmpty())
+    if(strDuration.empty())
     {
         MessageBox(GetMainWnd(),"Enter recording time in minutes","Error",MB_OK);
         return;
     }
 
-    int duration = atoi(strDuration.GetBuffer(0));
+    int duration(FromString<int>(strDuration));
 
-    comboCtrl->GetWindowText(program);
+    string program(GetDlgItemString(hDlg, IDC_SCHEDULE_COMBO));
 
     SYSTEMTIME date;
     SYSTEMTIME time;
 
-    dateCtrl->GetTime(&date);
-    timeCtrl->GetTime(&time);
+    DateTime_GetSystemtime(hDateCtrl, &date);
+    DateTime_GetSystemtime(hTimeCtrl, &time);
 
     CTime time_start(date.wYear,date.wMonth,date.wDay,time.wHour,time.wMinute,0);
 
-    string chName(name.GetBuffer(0));
-    string chProgramName(program.GetBuffer(0));
-
-    CSchedule schedule(chName,chProgramName,duration,READY,time_start);
+    CSchedule schedule(name,program,duration,READY,time_start);
 
     m_schedules.push_back(schedule);
-    showRecords();
+    showRecords(hDlg);
 }
 
-void CScheduledRecording::removeSchedule()
+void CScheduledRecording::removeSchedule(HWND hDlg)
 {
-    CListCtrl *list;
-
-    list = (CListCtrl*)pSchDlg->GetDlgItem(IDC_SCHEDULE_LIST);
+    HWND list = GetDlgItem(hDlg, IDC_SCHEDULE_LIST);
     int i;
-    for(i=0;i<list->GetItemCount();i++)
+    for(i=0; i < ListView_GetItemCount(list); ++i)
     {
-        if(list->GetItemState(i,LVIS_SELECTED) == LVIS_SELECTED)
+        if(ListView_GetItemState(list, i, LVIS_SELECTED) == LVIS_SELECTED)
         {
-            CString item_text;
-            item_text = list->GetItemText(i,0);
+            vector<char> item_text(MAX_PATH);
+            ListView_GetItemText(list, i, 0, &item_text[0], MAX_PATH);
 
-            for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();iter++)
-                if(strcmp(iter->getName(),item_text.GetBuffer(0)) == 0)
+            for(std::vector<CSchedule>::iterator iter = m_schedules.begin(); iter!=m_schedules.end(); ++iter)
+            {
+                if(strcmp(iter->getName(), &item_text[0]) == 0)
                 {
                     if(iter->getState() == RECORDING)
                     {
@@ -398,14 +425,15 @@ void CScheduledRecording::removeSchedule()
 
                     break;
                 }
+            }
             break;
         }
     }
 
-    list->DeleteItem(i);
-    showRecords();
+    ListView_DeleteItem(list, i);
+    showRecords(hDlg);
 }
-void CScheduledRecording::saveOnClose()
+void CScheduledRecording::saveOnClose(HWND hDlg)
 {
     saveToXml(m_schedules);
 }
@@ -564,10 +592,10 @@ BOOL CScheduledRecording::processSchedules()
     return FALSE;
 }
 
-void CScheduledRecording::showRecords()
+void CScheduledRecording::showRecords(HWND hDlg)
 {
-    CListCtrl *list = (CListCtrl*)pSchDlg->GetDlgItem(IDC_SCHEDULE_LIST);
-    list->DeleteAllItems();
+    HWND list = GetDlgItem(hDlg, IDC_SCHEDULE_LIST);
+    ListView_DeleteAllItems(list);
 
     if(!m_schedules.size())
         return;
@@ -577,30 +605,35 @@ void CScheduledRecording::showRecords()
         char chBuff[4];
         _itoa_s(iter->getDuration(),chBuff,4,10);
 
-        list->InsertItem(0,iter->getName());
-        list->SetItem(0,1,LVIF_TEXT,iter->getProgramName(),0,0,0,0);
+        LVITEM ListItem;
+        memset(&ListItem, 0, sizeof(LVITEM));
+        ListItem.mask = LVIF_TEXT;
+        ListItem.iItem = 0;
+        ListItem.pszText = (char*)iter->getName();
+        ListView_InsertItem(list, &ListItem);
+        ListView_SetItemText(list, 0, 1, (LPSTR)iter->getProgramName());
 
         string chDate(iter->getDateStr());
-        list->SetItem(0,2,LVIF_TEXT,chDate.c_str(),0,0,0,0);
+        ListView_SetItemText(list, 0, 2, (LPSTR)chDate.c_str());
 
         string chTime(iter->getTimeStr());
-        list->SetItem(0,3,LVIF_TEXT,chTime.c_str(),0,0,0,0);
+        ListView_SetItemText(list, 0, 3, (LPSTR)chTime.c_str());
 
-        list->SetItem(0,4,LVIF_TEXT,chBuff,0,0,0,0);
+        ListView_SetItemText(list, 0, 4, chBuff);
 
         switch(iter->getState())
         {
         case CANCELED:
-            list->SetItem(0,5,LVIF_TEXT,"Canceled",0,0,0,0);
+            ListView_SetItemText(list, 0,5,"Canceled");
             break;
         case READY:
-            list->SetItem(0,5,LVIF_TEXT,"Ready",0,0,0,0);
+            ListView_SetItemText(list, 0,5,"Ready");
             break;
         case SUCCEED:
-            list->SetItem(0,5,LVIF_TEXT,"Succeed",0,0,0,0);
+            ListView_SetItemText(list, 0,5,"Succeed");
             break;
         case RECORDING:
-            list->SetItem(0,5,LVIF_TEXT,"Recording",0,0,0,0);
+            ListView_SetItemText(list, 0,5,"Recording");
             break;
         }
     }

@@ -20,12 +20,8 @@
  * @file TreeSettingsOleProperties.h interface for the CTreeSettingsOleProperties class.
  */
 
-#if !defined(AFX_TREESETTINGSOLEPROPERTIES_H__D135AD9A_6F42_4439_90A3_025DA1E71858__INCLUDED_)
-#define AFX_TREESETTINGSOLEPROPERTIES_H__D135AD9A_6F42_4439_90A3_025DA1E71858__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#if !defined(_TREESETTINGSOLEPROPERTIES_H__)
+#define _TREESETTINGSOLEPROPERTIES_H__
 
 #include "TreeSettingsPage.h"
 #include <vector>
@@ -42,37 +38,21 @@ class CTreeSettingsOleProperties : public CTreeSettingsPage
 {
 // Construction
 public:
-    CTreeSettingsOleProperties(CString name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid);
+    CTreeSettingsOleProperties(const std::string& name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid);
     virtual ~CTreeSettingsOleProperties();
 
-// Dialog Data
-    //{{AFX_DATA(CTreeSettingsOleProperties)
-    enum { IDD = IDD_TREESETTINGS_OLEPAGE };
-    CTabCtrl    m_tabCtrl;
-    //}}AFX_DATA
-
-// Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(CTreeSettingsOleProperties)
-    protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    //}}AFX_VIRTUAL
-
 // Implementation
-protected:
-
-    // Generated message map functions
-    //{{AFX_MSG(CTreeSettingsOleProperties)
-    virtual BOOL OnInitDialog();
-    afx_msg void OnSelchangeTreesettingsTab(NMHDR* pNMHDR, LRESULT* pResult);
-    afx_msg void OnSelchangingTreesettingsTab(NMHDR* pNMHDR, LRESULT* pResult);
-    afx_msg void OnSize(UINT nType, int cx, int cy);
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
-    void OnOK();
-    BOOL OnSetActive();
-
 private:
+    // Generated message map functions
+    BOOL ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
+    LRESULT OnSelchangeTreesettingsTab(HWND hDlg, NMHDR* pNMHDR);
+    LRESULT OnSelchangingTreesettingsTab(HWND hDlg, NMHDR* pNMHDR);
+    LRESULT OnNotify(HWND hwnd, int id, LPNMHDR nmhdr);
+    void OnSize(HWND hDlg, UINT nType, int cx, int cy);
+    void OnOK(HWND hDlg);
+    BOOL OnSetActive(HWND hDlg);
+
     /**
      * Internal IPropertyPageSite COM object.
      * Used for comunicating with the the COM property page (IPropertyPage).
@@ -113,6 +93,8 @@ private:
     };
     ///vector of all pages
     std::vector<CPageInfo*> m_pages;
+    HWND m_tabCtrl;
+
 };
 
-#endif // !defined(AFX_TREESETTINGSOLEPROPERTIES_H__D135AD9A_6F42_4439_90A3_025DA1E71858__INCLUDED_)
+#endif

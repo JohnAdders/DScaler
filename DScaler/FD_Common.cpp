@@ -770,9 +770,3 @@ SETTING* FD_Common_GetSetting(FD_COMMON_SETTING Setting)
 void FD_Common_SetMenu(HMENU hMenu)
 {
 }
-
-SmartPtr<CTreeSettingsGeneric> FD_Common_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_FD_COMMON_GETVALUE));
-    return new CTreeSettingsGeneric("Pulldown Shared Settings", Holder);
-}

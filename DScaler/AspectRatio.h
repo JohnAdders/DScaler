@@ -37,7 +37,6 @@
 // Get Hold of the AspectRatio.c file settings
 SmartPtr<CSettingsHolder> Aspect_GetSettingsHolder();
 void Aspect_FinalSetup();
-SmartPtr<CTreeSettingsGeneric> Aspect_GetTreeSettingsPage();
 
 #define    MAX_RATIO_STATISTICS 20
 

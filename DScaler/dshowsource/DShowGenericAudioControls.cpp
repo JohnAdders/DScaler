@@ -28,17 +28,10 @@
 #include "DShowGenericAudioControls.h"
 #include "exception.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-
 CDShowGenericAudioControls::CDShowGenericAudioControls(CComPtr<IBasicAudio> pAudio)
 :m_pAudio(pAudio)
 {
-    ASSERT(pAudio!=NULL);
+    _ASSERTE(pAudio!=NULL);
 }
 
 CDShowGenericAudioControls::~CDShowGenericAudioControls()
@@ -66,6 +59,13 @@ long CDShowGenericAudioControls::GetVolume()
     }
     long volume=0;
     HRESULT hr=m_pAudio->get_Volume(&volume);
+
+    // if there is no audio path can get this error
+    if(hr == E_NOTIMPL)
+    {
+        return 0;
+    }
+
     if(FAILED(hr))
     {
         throw CDShowException("get_Volume failed",hr);
@@ -75,13 +75,14 @@ long CDShowGenericAudioControls::GetVolume()
 
 void CDShowGenericAudioControls::SetVolume(long volume)
 {
-    ASSERT((volume/100)<=0 && (volume/100)>=-10000);
+    _ASSERTE((volume/100)<=0 && (volume/100)>=-10000);
     if(m_pAudio==NULL)
     {
         return;
     }
     HRESULT hr=m_pAudio->put_Volume(volume*100);
-    if(FAILED(hr))
+    // if there is no audio path can get E_NOTIMPL
+    if(hr != E_NOTIMPL && FAILED(hr))
     {
         throw CDShowException("put_Volume failed",hr);
     }
@@ -110,7 +111,7 @@ long CDShowGenericAudioControls::GetBalance()
 
 void CDShowGenericAudioControls::SetBalance(long balance)
 {
-    ASSERT((balance/100)<=10000 && (balance/100)>=-10000);
+    _ASSERTE((balance/100)<=10000 && (balance/100)>=-10000);
     if(m_pAudio==NULL)
     {
         return;

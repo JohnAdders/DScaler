@@ -53,12 +53,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 CSAA7134Source::CSAA7134Source(SmartPtr<CSAA7134Card> pSAA7134Card, SmartPtr<CContigMemory> PageTableDMAMem[4], SmartPtr<CUserMemory> DisplayDMAMem[2], SmartPtr<CUserMemory> VBIDMAMem[2], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
     CSource(WM_SAA7134_GETVALUE, IDC_SAA7134),
     m_pSAA7134Card(pSAA7134Card),

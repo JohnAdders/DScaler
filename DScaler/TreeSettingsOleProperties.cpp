@@ -23,23 +23,15 @@
 #include "stdafx.h"
 #include "TreeSettingsOleProperties.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
+using namespace std;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CTreeSettingsOleProperties::CTreeSettingsOleProperties(CString name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid)
-:CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE)
+CTreeSettingsOleProperties::CTreeSettingsOleProperties(const string& name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid) :
+    CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE),
+    m_tabCtrl(NULL)
 {
-    //{{AFX_DATA_INIT(CTreeSettingsOleProperties)
-        // NOTE: the ClassWizard will add member initialization here
-    //}}AFX_DATA_INIT
-
     for(int i=0;i<cPages;i++)
     {
         CComPtr<IPropertyPage> pPage;
@@ -55,9 +47,9 @@ CTreeSettingsOleProperties::CTreeSettingsOleProperties(CString name,ULONG cObjec
         pInfo->m_pPageSite->AddRef();
 
         hr=pInfo->m_pPropertyPage->SetPageSite(pInfo->m_pPageSite);
-        ASSERT(SUCCEEDED(hr));
+        _ASSERTE(SUCCEEDED(hr));
         hr=pInfo->m_pPropertyPage->SetObjects(cObjects,lplpUnk);
-        ASSERT(SUCCEEDED(hr));
+        _ASSERTE(SUCCEEDED(hr));
         m_pages.push_back(pInfo);
     }
 }
@@ -80,7 +72,7 @@ CTreeSettingsOleProperties::~CTreeSettingsOleProperties()
         //access voilation, propably cause by trying to delete a pointer
         //that poits to 0xBADF00D
         hr=pPage->m_pPropertyPage->SetObjects(0,NULL);
-        //ASSERT(SUCCEEDED(hr));
+        //_ASSERTE(SUCCEEDED(hr));
         pPage->m_pPropertyPage.Release();
         pPage->m_pPageSite->Release();
         pPage->m_pPageSite=NULL;
@@ -89,27 +81,44 @@ CTreeSettingsOleProperties::~CTreeSettingsOleProperties()
     m_pages.erase(m_pages.begin(),m_pages.end());
 }
 
-void CTreeSettingsOleProperties::DoDataExchange(CDataExchange* pDX)
+BOOL CTreeSettingsOleProperties::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    CTreeSettingsPage::DoDataExchange(pDX);
-    //{{AFX_DATA_MAP(CTreeSettingsOleProperties)
-    DDX_Control(pDX, IDD_TREESETTINGS_TAB, m_tabCtrl);
-    //}}AFX_DATA_MAP
+    switch(message)
+    {
+    HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+    HANDLE_MSG(hDlg, WM_SIZE, OnSize);
+    HANDLE_MSG(hDlg, WM_NOTIFY, OnNotify);
+    default:
+        return FALSE;
+    }
 }
 
 
-BEGIN_MESSAGE_MAP(CTreeSettingsOleProperties, CTreeSettingsPage)
-    //{{AFX_MSG_MAP(CTreeSettingsOleProperties)
-    ON_NOTIFY(TCN_SELCHANGE, IDD_TREESETTINGS_TAB, OnSelchangeTreesettingsTab)
-    ON_NOTIFY(TCN_SELCHANGING, IDD_TREESETTINGS_TAB, OnSelchangingTreesettingsTab)
-    ON_WM_SIZE()
-    //}}AFX_MSG_MAP
-END_MESSAGE_MAP()
+LRESULT CTreeSettingsOleProperties::OnNotify(HWND hwnd, int id, LPNMHDR nmhdr)
+{
+    switch(id)
+    {
+    case IDD_TREESETTINGS_TAB:
+        if(nmhdr->code == TCN_SELCHANGE)
+        {
+            return OnSelchangeTreesettingsTab(hwnd, nmhdr);
+        }
+        if(nmhdr->code == TCN_SELCHANGING)
+        {
+            return OnSelchangingTreesettingsTab(hwnd, nmhdr);
+        }
+        break;
+    default:
+        break;
+    }
+    return FALSE;
+}
 
-BOOL CTreeSettingsOleProperties::OnInitDialog()
+BOOL CTreeSettingsOleProperties::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
     USES_CONVERSION;
-    CTreeSettingsPage::OnInitDialog();
+    
+    m_tabCtrl = GetDlgItem(hDlg, IDD_TREESETTINGS_TAB);
 
     //find maximum width and height of the pages
     int i;
@@ -131,26 +140,26 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
     }
     m_bInitMinSize=FALSE;
 
-    CRect rect(0,0,0,0);
+    RECT rect = {0,0,0,0};
     //add the border size of the tab controll
-    m_tabCtrl.AdjustRect(TRUE,&rect);
-    m_minWidth+=rect.Width();
-    m_minHeight+=rect.Height();
+    TabCtrl_AdjustRect(m_tabCtrl, TRUE, &rect);
+    m_minWidth+=rect.right - rect.left;
+    m_minHeight+=rect.bottom - rect.top;
 
-    m_tabCtrl.GetClientRect(&rect);
+    GetClientRect(m_tabCtrl, &rect);
 
-    m_tabCtrl.ClientToScreen(&rect);
-    ScreenToClient(&rect);
+    ClientToScreen(m_tabCtrl, rect);
+    ScreenToClient(hDlg, rect);
 
-    m_tabCtrl.AdjustRect(FALSE,&rect);
+    TabCtrl_AdjustRect(m_tabCtrl, FALSE, &rect);
     for(i=0;i<m_pages.size();i++)
     {
         PROPPAGEINFO pageInfo;
         HRESULT hr=m_pages[i]->m_pPropertyPage->GetPageInfo(&pageInfo);
         if(SUCCEEDED(hr))
         {
-            m_tabCtrl.InsertItem(i,OLE2T(pageInfo.pszTitle));
-            hr=m_pages[i]->m_pPropertyPage->Activate(m_tabCtrl.m_hWnd,rect,FALSE);
+            TabCtrl_InsertItem(m_tabCtrl, i,OLE2T(pageInfo.pszTitle));
+            hr=m_pages[i]->m_pPropertyPage->Activate(m_tabCtrl, &rect, FALSE);
             if(SUCCEEDED(hr))
             {
                 m_pages[i]->m_bActivated=TRUE;
@@ -165,20 +174,19 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
     return TRUE;
 }
 
-BOOL CTreeSettingsOleProperties::OnSetActive()
+BOOL CTreeSettingsOleProperties::OnSetActive(HWND hDlg)
 {
     //try to activate a tab, if no tab can be activated, return FALSE
     //so access to this whole page will be denied
     BOOL bActivated=FALSE;
     for(int i=0;i<m_pages.size();i++)
     {
-        m_tabCtrl.SetCurSel(i);
+        TabCtrl_SetCurSel(m_tabCtrl, i);
         //simulate a click on one of the tabs
-        LRESULT result;
-        OnSelchangingTreesettingsTab(NULL,&result);
+        LRESULT result = OnSelchangingTreesettingsTab(hDlg, NULL);
         if(result==FALSE)
         {
-            OnSelchangeTreesettingsTab(NULL,&result);
+            result = OnSelchangeTreesettingsTab(hDlg, NULL);
             bActivated=TRUE;
             break;
         }
@@ -186,24 +194,24 @@ BOOL CTreeSettingsOleProperties::OnSetActive()
     return bActivated;
 }
 
-void CTreeSettingsOleProperties::OnSelchangingTreesettingsTab(NMHDR* pNMHDR, LRESULT* pResult)
+LRESULT CTreeSettingsOleProperties::OnSelchangingTreesettingsTab(HWND hDlg, NMHDR* pNMHDR)
 {
-    int cursel=m_tabCtrl.GetCurSel();
+    int cursel=TabCtrl_GetCurSel(m_tabCtrl);
     if(!m_pages[cursel]->m_bActivated)
     {
-        AfxMessageBox(_T("This page can not be activated"),MB_OK|MB_ICONINFORMATION);
-        *pResult=TRUE;
+        ErrorBox("This page can not be activated");
+        return TRUE;
     }
     else
     {
-        *pResult=FALSE;
+        return FALSE;
     }
 }
 
-void CTreeSettingsOleProperties::OnSelchangeTreesettingsTab(NMHDR* pNMHDR, LRESULT* pResult)
+LRESULT CTreeSettingsOleProperties::OnSelchangeTreesettingsTab(HWND hDlg, NMHDR* pNMHDR)
 {
     //activate and deactivate the proper pages
-    int cursel=m_tabCtrl.GetCurSel();
+    int cursel=TabCtrl_GetCurSel(m_tabCtrl);
     for(int i=0;i<m_pages.size();i++)
     {
         if(i==cursel)
@@ -217,32 +225,30 @@ void CTreeSettingsOleProperties::OnSelchangeTreesettingsTab(NMHDR* pNMHDR, LRESU
     }
 
     //make sure the page is properly positioned
-    CRect rect;
-    GetClientRect(&rect);
-    PostMessage(WM_SIZE,SIZE_RESTORED,MAKELPARAM(rect.Width(),rect.Height()));
+    RECT rect;
+    GetClientRect(hDlg, &rect);
+    PostMessage(hDlg, WM_SIZE,SIZE_RESTORED,MAKELPARAM(rect.right - rect.left,rect.bottom - rect.top));
 
-    *pResult = 0;
+    return 0;
 }
 
-void CTreeSettingsOleProperties::OnSize(UINT nType, int cx, int cy)
+void CTreeSettingsOleProperties::OnSize(HWND hDlg, UINT nType, int cx, int cy)
 {
-    CTreeSettingsPage::OnSize(nType, cx, cy);
-
-    if(m_tabCtrl.m_hWnd==NULL)
+    if(m_tabCtrl==NULL)
         return;
 
-    CRect rect;
-    GetClientRect(&rect);
+    RECT rect;
+    GetClientRect(hDlg, &rect);
     rect.right = cx;
     rect.bottom = cy;
-    m_tabCtrl.MoveWindow(&rect);
+    MoveWindow(m_tabCtrl, rect);
 
-    m_tabCtrl.AdjustRect(FALSE,&rect);
-    int cursel=m_tabCtrl.GetCurSel();
+    TabCtrl_AdjustRect(m_tabCtrl, FALSE, &rect);
+    int cursel=TabCtrl_GetCurSel(m_tabCtrl);
     HRESULT hr=m_pages[cursel]->m_pPropertyPage->Move(&rect);
 }
 
-void CTreeSettingsOleProperties::OnOK()
+void CTreeSettingsOleProperties::OnOK(HWND hDlg)
 {
     //check if any settings in the pages need to be aplied
     for(int i=0;i<m_pages.size();i++)
@@ -252,7 +258,8 @@ void CTreeSettingsOleProperties::OnOK()
             HRESULT hr=m_pages[i]->m_pPropertyPage->Apply();
             //FIXME: log error if any
         }
-    }
+   }
+   EndDialog(hDlg, IDOK);
 }
 
 ULONG CTreeSettingsOleProperties::CPageSite::AddRef()

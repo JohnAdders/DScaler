@@ -30,12 +30,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 /**
     The event collector has one global instance 'EventCollector'.
     From everywhere in the code (also from threads), you can raise

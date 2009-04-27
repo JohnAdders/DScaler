@@ -26,7 +26,6 @@
 
 #include "DS_ApiCommon.h"
 #include "DS_Control.h"
-#include "TreeSettingsGeneric.h"
 #include "avi.h"
 
 // These match the radio group in TSOptionsDlg.
@@ -179,8 +178,8 @@ BOOL TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo);
 BOOL TimeShiftIsRunning(void);
 BOOL TimeShiftWorkOnInputFrames(void);
 BOOL TimeShiftCancelSchedule(void);
-BOOL TimeShiftSetWaveInDevice(char *pszDevice);
-BOOL TimeShiftSetWaveOutDevice(char *pszDevice);
+BOOL TimeShiftSetWaveInDevice(const char *pszDevice);
+BOOL TimeShiftSetWaveOutDevice(const char *pszDevice);
 BOOL TimeShiftSetSavingPath(char *newPath);
 BOOL TimeShiftIsPathValid(const char *path);
 BOOL TimeShiftSetFileSizeLimit(DWORD sizeLimit);

@@ -37,7 +37,6 @@ extern BOOL bAlwaysSleep;
 // Get Hold of the FieldTiming.c file settings
 SETTING* Timing_GetSetting(TIMING_SETTING Setting);
 void Timing_SetMenu(HMENU hMenu);
-SmartPtr<CTreeSettingsGeneric> Timing_GetTreeSettingsPage();
 
 void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo, int NumFields);
 void Timing_Setup();

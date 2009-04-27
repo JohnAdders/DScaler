@@ -104,5 +104,4 @@ public:
     OUTPUTTYPES Type();
 };
 
-SmartPtr<CTreeSettingsGeneric> D3D9_GetTreeSettingsPage();
 SETTING* D3D9_GetSetting(OTHER_SETTING Setting);

@@ -31,13 +31,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-
 CDSProvider::CDSProvider()
 {
     std::string ErrMsg;
@@ -45,8 +38,7 @@ CDSProvider::CDSProvider()
     {
         //the only reason for the extra \n is to avoid text on the osd being drawn outside the window
         //(== some text will not be visible)
-        std::string msg="Can't use DirectShow support because\n"+ErrMsg+"\nThe DirectShow input sources will be disabled";
-        ErrorBox(msg.c_str());
+        ErrorBox(MakeString() << "Can't use DirectShow support because\n" << ErrMsg << "\nThe DirectShow input sources will be disabled");
         return;
     }
 
@@ -74,11 +66,7 @@ CDSProvider::CDSProvider()
         m_DSSources.push_back(src);
         m_SourceNames[m_DSSources.size()-1]="Media file";
     }
-    catch(std::runtime_error& e)
-    {
-        ErrorBox(e.what());
-    }
-    catch(CDShowException& e)
+    catch(std::exception& e)
     {
         ErrorBox(e.what());
     }
@@ -94,7 +82,7 @@ CDSProvider::~CDSProvider()
 
 string CDSProvider::GetSourceName(int SourceIndex)
 {
-    ASSERT(SourceIndex>=0 && SourceIndex<m_DSSources.size());
+    _ASSERTE(SourceIndex>=0 && SourceIndex<m_DSSources.size());
     return m_SourceNames[SourceIndex];
 }
 
@@ -105,7 +93,7 @@ int CDSProvider::GetNumberOfSources()
 
 SmartPtr<CSource> CDSProvider::GetSource(int SourceIndex)
 {
-    ASSERT(SourceIndex>=0 && SourceIndex<m_DSSources.size());
+    _ASSERTE(SourceIndex>=0 && SourceIndex<m_DSSources.size());
 
     if(SourceIndex>=0 && SourceIndex<m_DSSources.size())
     {

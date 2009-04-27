@@ -48,7 +48,7 @@ CPeriodBouncer::CPeriodBouncer(time_t period, double amplitude, double offset) :
     m_Amplitude(amplitude),
     m_Offset(offset)
 {
-    time(&m_StartTime);
+    _time64(&m_StartTime);
 }
 
     CPeriodBouncer::CPeriodBouncer(time_t startTime, time_t period, double amplitude, double offset) :
@@ -61,7 +61,7 @@ CPeriodBouncer::CPeriodBouncer(time_t period, double amplitude, double offset) :
 
 double CPeriodBouncer::position()
 {
-    double phase = fmod((((double)((time(NULL)-m_StartTime)%m_Period))/m_Period+0.25),1);
+    double phase = fmod((((double)((_time64(NULL)-m_StartTime)%m_Period))/m_Period+0.25),1);
     // We go from 0% to 100% over m_Period - but start 25% of the way into the phase.
     double val = phase*m_Amplitude*2.0;
     if (val > m_Amplitude)
@@ -179,7 +179,7 @@ COrbitAspectFilter::COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY,
 {
     if (AspectSettings.BounceStartTime == 0)
     {
-        time(&AspectSettings.BounceStartTime);
+        _time64(&AspectSettings.BounceStartTime);
     }
     m_pXOrbitBouncer = new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodX,OrbitSize,-OrbitSize/2.0);
     m_pYOrbitBouncer = new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodY,OrbitSize,-OrbitSize/2.0);
@@ -205,7 +205,7 @@ CBounceDestinationAspectFilter::CBounceDestinationAspectFilter(time_t period)
 {
     if (AspectSettings.BounceStartTime == 0)
     {
-        time(&AspectSettings.BounceStartTime);
+        _time64(&AspectSettings.BounceStartTime);
     }
     m_pBouncer = new CPeriodBouncer(
         AspectSettings.BounceStartTime, period,

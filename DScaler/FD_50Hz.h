@@ -28,7 +28,6 @@
 
 // Get Hold of the FD_50Hz.c file settings
 SETTING* FD50_GetSetting(FD50_SETTING Setting);
-SmartPtr<CTreeSettingsGeneric> FD50_GetTreeSettingsPage();
 
 void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo);
 BOOL FilmModePALEven(TDeinterlaceInfo* pInfo);

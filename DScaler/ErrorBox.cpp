@@ -31,21 +31,23 @@
 #include "DScaler.h"
 #endif
 
+using namespace std;
+
 extern HWND hWnd;
 
-void _ErrorBoxOSD(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
+void _ErrorBoxOSD(HWND hwndParent, LPCSTR szFile, int Line, const string& Message)
 {
 }
 
 
-void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
+void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, const string& Message)
 {
     char szDispMessage[1024];
     // variable used to prevent recusive error problems
     static BOOL AlreadyInErrorBox = FALSE;
 
     // put the message into the log for debugging
-    LOG(0, "ErrorBox File:%s line: %d Message: %s", szFile, Line, szMessage);
+    LOG(0, "ErrorBox File:%s line: %d Message: %s", szFile, Line, Message.c_str());
 
 #ifndef _DEBUG
     if (hWnd != NULL && AlreadyInErrorBox == FALSE)
@@ -57,7 +59,7 @@ void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
             // Show OSD text immediately and pause for 2 seconds.  OSD will
             // continue to show after the 2 seconds if there are no other
             // OSDs pending.
-            _snprintf(szDispMessage, sizeof(szDispMessage), "ERROR: %s\nFile %s Line %d", szMessage, szFile, Line);
+            _snprintf(szDispMessage, sizeof(szDispMessage), "ERROR: %s\nFile %s Line %d", Message.c_str(), szFile, Line);
             OSD_ShowTextPersistent(szDispMessage, 4);
 
             RECT OSDDisplayRect;
@@ -73,33 +75,33 @@ void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
         }
         else
         {
-            _snprintf(szDispMessage, sizeof(szDispMessage), "%s\nThe error occured in %s at line %d", szMessage, szFile, Line);
+            _snprintf(szDispMessage, sizeof(szDispMessage), "%s\nThe error occured in %s at line %d", Message.c_str(), szFile, Line);
             RealErrorBox(szDispMessage);
         }
         AlreadyInErrorBox = FALSE;
     }
     else
     {
-        _snprintf(szDispMessage, sizeof(szDispMessage), "%s\nThe error occured in %s at line %d", szMessage, szFile, Line);
+        _snprintf(szDispMessage, sizeof(szDispMessage), "%s\nThe error occured in %s at line %d", Message.c_str(), szFile, Line);
         RealErrorBox(szDispMessage);
     }
 #else
-    _snprintf(szDispMessage, sizeof(szDispMessage), "%s\nThe error occured in %s at line %d", szMessage, szFile, Line);
+    _snprintf(szDispMessage, sizeof(szDispMessage), "%s\nThe error occured in %s at line %d", Message.c_str(), szFile, Line);
     if(hwndParent == NULL)
     {
         MessageBox(hWnd, szDispMessage, "DScaler Error", MB_ICONSTOP | MB_OK);
     }
     else
     {
-        MessageBox(hwndParent, szDispMessage, "DScaler Error", MB_ICONSTOP | MB_OK);
+        MessageBox(hwndParent,szDispMessage, "DScaler Error", MB_ICONSTOP | MB_OK);
     }
 #endif
 }
 
-void _RealErrorBox(LPCSTR szFile, int Line, LPCSTR szMessage)
+void _RealErrorBox(LPCSTR szFile, int Line, const string& Message)
 {
-    LOG(0, "ErrorBox File:%s line: %d Message: %s", szFile, Line, szMessage);
+    LOG(0, "ErrorBox File:%s line: %d Message: %s", szFile, Line, Message.c_str());
     HideSplashScreen();
-    MessageBox(hWnd, szMessage, "DScaler Error", MB_ICONSTOP | MB_OK);
+    MessageBox(hWnd, Message.c_str(), "DScaler Error", MB_ICONSTOP | MB_OK);
 }
 

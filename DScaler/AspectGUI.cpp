@@ -1324,9 +1324,3 @@ void Aspect_FinalSetup()
     Bounce_OnChange(AspectSettings.BounceEnabled);
     Orbit_OnChange(AspectSettings.OrbitEnabled);
 }
-
-SmartPtr<CTreeSettingsGeneric> Aspect_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_ASPECT_GETVALUE));
-    return new CTreeSettingsGeneric("Aspect Ratio Settings", Holder);
-}

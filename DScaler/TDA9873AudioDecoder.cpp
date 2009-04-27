@@ -108,7 +108,7 @@ BYTE CTDA9873AudioDecoder::ReadStatus()
 
 BOOL CTDA9873AudioDecoder::Write(eReg SubAddress, BYTE Data, BYTE Mask)
 {
-    ASSERT(SubAddress >= TDA9873_REG_SWITCH && SubAddress < TDA9873_REG_LAST_ONE);
+    _ASSERTE(SubAddress >= TDA9873_REG_SWITCH && SubAddress < TDA9873_REG_LAST_ONE);
 
     BYTE NewValue = (m_ShadowReg[SubAddress]&~Mask) | (Data&Mask);
 

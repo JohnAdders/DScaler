@@ -142,7 +142,7 @@ public:
                 throw CDShowException("next failed",hr);
             }
         }
-        ASSERT(item!=NULL);
+        _ASSERTE(item!=NULL);
         return item;
     }
 

@@ -27,86 +27,72 @@
 #include "crash.h"
 #include "DynamicFunction.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // COpenDlg dialog
 
-COpenDlg::COpenDlg(CWnd* pParent /*=NULL*/)
-    : CDialog(COpenDlg::IDD, pParent)
+COpenDlg::COpenDlg() :
+    CDSDialog(MAKEINTRESOURCE(IDD_OPEN))
 {
-    //{{AFX_DATA_INIT(COpenDlg)
-        // NOTE: the ClassWizard will add member initialization here
-    //}}AFX_DATA_INIT
-}
-
-void COpenDlg::DoDataExchange(CDataExchange* pDX)
-{
-    CDialog::DoDataExchange(pDX);
-    //{{AFX_DATA_MAP(COpenDlg)
-    DDX_Control(pDX, IDC_OPEN_FILE, m_File);
-    //}}AFX_DATA_MAP
 }
 
 
-BEGIN_MESSAGE_MAP(COpenDlg, CDialog)
-    //{{AFX_MSG_MAP(COpenDlg)
-    ON_BN_CLICKED(IDC_OPEN_BROWSE, OnBrowse)
-    //}}AFX_MSG_MAP
-END_MESSAGE_MAP()
+BOOL COpenDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch(message)
+    {
+        HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+        HANDLE_MSG(hDlg, WM_COMMAND, OnCommand);
+    default:
+        return FALSE;
+    }
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // COpenDlg message handlers
 
-BOOL COpenDlg::OnInitDialog()
+BOOL COpenDlg::OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 {
-    CDialog::OnInitDialog();
-
-    SetupAutoComplete();
-
-    return TRUE;  // return TRUE unless you set the focus to a control
-                  // EXCEPTION: OCX Property Pages should return FALSE
-}
-
-void COpenDlg::SetupAutoComplete()
-{
+    // setup auto complete
     DynamicFunctionS2<HRESULT, HWND, DWORD> pSHAC("SHLWAPI.DLL", "SHAutoComplete");
     HRESULT hr;
     if(pSHAC)
     {
         //this only work in single threaded apartments
         //(same problem as with the file open dialogs)
-        hr = pSHAC(m_File.m_hWnd, SHACF_URLALL|SHACF_FILESYS_ONLY);
-        ASSERT(SUCCEEDED(hr));
+        hr = pSHAC(GetDlgItem(hwnd, IDC_OPEN_FILE), SHACF_URLALL|SHACF_FILESYS_ONLY);
+        _ASSERTE(SUCCEEDED(hr));
     }
+
+    // return TRUE unless you set the focus to a control
+    // EXCEPTION: OCX Property Pages should return FALSE
+    return TRUE;
 }
 
-void COpenDlg::OnOK()
+void COpenDlg::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
-    m_File.GetWindowText(m_FileName);
-    CDialog::OnOK();
+    switch(id)
+    {
+    case IDOK:
+        OnOK(hDlg);
+        break;
+    case IDCANCEL:
+        EndDialog(hDlg, IDCANCEL);
+        break;
+    case IDC_OPEN_BROWSE:
+        OnBrowse(hDlg);
+        break;
+    }
 }
 
-BOOL COpenDlg::ShowOpenDialog(HWND hParent,CString &FileName)
+
+void COpenDlg::OnOK(HWND hDlg)
 {
-    COpenDlg dlg(CWnd::FromHandle(hParent));
-
-    if(dlg.DoModal()==IDOK)
-    {
-        FileName=dlg.m_FileName;
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
+    m_FileName = GetDlgItemString(hDlg, IDC_OPEN_FILE);
+    EndDialog(hDlg, IDOK);
 }
 
-void COpenDlg::OnBrowse()
+void COpenDlg::OnBrowse(HWND hDlg)
 {
     OPENFILENAME OpenFileInfo;
     char FilePath[MAX_PATH];
@@ -131,7 +117,7 @@ void COpenDlg::OnBrowse()
     FilePath[0] = 0;
     ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
     OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
-    OpenFileInfo.hwndOwner = m_hWnd;
+    OpenFileInfo.hwndOwner = hDlg;
     OpenFileInfo.lpstrFilter = FileFilters;
     OpenFileInfo.nFilterIndex = 2;
     OpenFileInfo.lpstrCustomFilter = NULL;
@@ -144,6 +130,6 @@ void COpenDlg::OnBrowse()
     OpenFileInfo.lpstrDefExt = NULL;
     if(GetOpenFileName(&OpenFileInfo))
     {
-        m_File.SetWindowText(FilePath);
+        SetWindowText(GetDlgItem(hDlg, IDC_OPEN_FILE), FilePath);
     }
 }

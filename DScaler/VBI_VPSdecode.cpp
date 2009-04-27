@@ -29,6 +29,7 @@
  */
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
 #include "DScaler.h"
 #include "VBI.h"
 #include "VBI_VPSdecode.h"

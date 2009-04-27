@@ -29,8 +29,6 @@
 // Get Hold of the FD_50Hz.c file settings
 SETTING* FDProg_GetSetting(FDPROG_SETTING Setting);
 void FDProg_SetMenu(HMENU hMenu);
-SmartPtr<CTreeSettingsGeneric> FDProg_GetTreeSettingsPage();
-
 
 #define MAXMODESWITCHES 50  // Maximum number of switches to track in TrackModeSwitches()
 

@@ -390,9 +390,3 @@ SETTING* FD50_GetSetting(FD50_SETTING Setting)
         return NULL;
     }
 }
-
-SmartPtr<CTreeSettingsGeneric> FD50_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_FD50_GETVALUE));
-    return new CTreeSettingsGeneric("2:2 Pulldown Settings", Holder);
-}

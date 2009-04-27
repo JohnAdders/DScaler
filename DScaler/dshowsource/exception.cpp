@@ -26,17 +26,11 @@
 
 #include "exception.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CDShowException::CDShowException(const char* msg, HRESULT hr) :
-    std::exception(msg),
+CDShowException::CDShowException(const std::string& msg, HRESULT hr) :
+    std::runtime_error(msg),
     m_err(hr)
 {
 

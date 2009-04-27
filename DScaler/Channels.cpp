@@ -54,18 +54,12 @@ CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Form
 
 LPCSTR CChannel::GetName() const
 {
-    static char sbuf[256];
-    strncpy(sbuf, m_Name.c_str(), 255);
-    sbuf[255] = '\0';
-    return sbuf;
+    return m_Name.c_str();
 }
 
 LPCSTR CChannel::GetEPGName() const
 {
-    static char sbuf[256];
-    strncpy(sbuf, m_EPGName.c_str(), 255);
-    sbuf[255] = '\0';
-    return sbuf;
+    return m_EPGName.c_str();
 }
 
 DWORD CChannel::GetFrequency() const
@@ -333,7 +327,7 @@ BOOL CUserChannels::ReadFile(LPCSTR szFilename)
 
 BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
 {
-    ASSERT(NULL != SettingFile);
+    _ASSERTE(NULL != SettingFile);
 
     char sbuf[256];
     DWORD Frequency = -1;
@@ -469,7 +463,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
 
 BOOL CUserChannels::WriteASCIIImpl(FILE* SettingFile)  const
 {
-    ASSERT(NULL != SettingFile);
+    _ASSERTE(NULL != SettingFile);
 
     BOOL bSuccess = FALSE;
 
@@ -578,8 +572,8 @@ void CCountryList::Clear()
 
 const CCountryChannels* CCountryList::GetChannels(int index)  const
 {
-    ASSERT(index >= 0);
-    ASSERT(index < m_Countries.size());
+    _ASSERTE(index >= 0);
+    _ASSERTE(index < m_Countries.size());
     return m_Countries[index];
 }
 
@@ -617,13 +611,13 @@ BOOL CCountryList::ReadASCII(LPCSTR szFilename)
 
 BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
 {
-    ASSERT(NULL != CountryFile);
+    _ASSERTE(NULL != CountryFile);
 
     char      line[128];
     char*     Pos;
     char*     Pos1;
     char*     eol_ptr;
-    CString   channelName;
+    string    channelName;
     SmartPtr<CCountryChannels> NewCountry;
     eVideoFormat Format = VIDEOFORMAT_LAST_TV;
     int channelCounter = 0;
@@ -637,10 +631,8 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
         }
         if(eol_ptr != NULL)
         {
-            channelName.ReleaseBuffer();
+            channelName.clear();
             channelName = eol_ptr;
-            //_snprintf(Name, 254,"%s", eol_ptr);
-            //Name[255] = '\0';
             *eol_ptr = '\0';
         }
         if(eol_ptr == line)
@@ -693,19 +685,18 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
                         DWORD freq = (DWORD)atol(Pos);
                         if (freq > 0)
                         {
-                            channelName.TrimLeft();
-                            channelName.TrimRight();
+                            Trim(channelName);
                             //eliminate the trailing ";" in name if it exists,
                             //otherwise pickup a default name
                             SmartPtr<CChannel> NewChannel;
-                            if (channelName.GetLength() < 2) 
+                            if (channelName.length() < 2)
                             {
-                                string ChannelName(MakeString() << "Channel " << channelNumber);
-                                NewChannel = new CChannel(ChannelName.c_str(), freq, channelNumber, Format, FALSE);
+                                channelName = MakeString() << "Channel " << channelNumber;
+                                NewChannel = new CChannel(channelName.c_str(), freq, channelNumber, Format, FALSE);
                             }
                             else 
                             {
-                                NewChannel = new CChannel(channelName.Right(channelName.GetLength() - 2), freq, channelNumber, Format, FALSE);
+                                NewChannel = new CChannel(channelName.c_str(), freq, channelNumber, Format, FALSE);
                             }
                             NewCountry->AddChannel(NewChannel);
                         }

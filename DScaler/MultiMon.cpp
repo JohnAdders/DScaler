@@ -25,8 +25,6 @@
 
 #include "stdafx.h"
 
-// need stubs with VS6 and with shared library builds
-#if _MSC_VER < 1300 || defined(_AFXDLL)
+// need stubs with
 #define COMPILE_MULTIMON_STUBS
 #include <multimon.h>
-#endif

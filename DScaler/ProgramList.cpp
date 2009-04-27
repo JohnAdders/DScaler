@@ -453,12 +453,11 @@ DWORD FindFrequency(DWORD Freq, int Format, DWORD dwAFCFrequencyDeviationThresho
     }
 
     CSource* currentSource = Providers_GetCurrentSource();
-    ASSERT(NULL != currentSource);
+    _ASSERTE(NULL != currentSource);
 
     if (!currentSource->SetTunerFrequency(Freq, (eVideoFormat)Format))
     {
-        sprintf(sbuf, "SetFrequency %10.2lf Failed.", (double) Freq / 1000000.0);
-        ErrorBox(sbuf);
+        ErrorBox(MakeString() << "SetFrequency " << (double)Freq / 1000000.0 << " Failed.");
         return 0;
     }
 
@@ -567,8 +566,7 @@ DWORD FindFrequency(DWORD Freq, int Format, DWORD dwAFCFrequencyDeviationThresho
 
 void AddScannedChannel(HWND hDlg, CChannel* pNewChannel)
 {
-    ASSERT(NULL != pNewChannel);
-    static char sbuf[256];
+    _ASSERTE(NULL != pNewChannel);
     MyChannels.AddChannel(pNewChannel);
 
     // We are going to add current channel at the end
@@ -576,9 +574,7 @@ void AddScannedChannel(HWND hDlg, CChannel* pNewChannel)
     // as we will have just tunes to it and it will be
     // what is showing
     CurrentProgram = MyChannels.GetSize() - 1;
-    sprintf(sbuf, "%s", pNewChannel->GetName());
-    ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
-
+    ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), pNewChannel->GetName());
     ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
     UpdateDetails(hDlg, pNewChannel);
 }
@@ -587,8 +583,8 @@ void AddScannedChannel(HWND hDlg, CChannel* pNewChannel)
 //if found
 void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 {
-    ASSERT(iCountryCode >= 0);
-    ASSERT(iCountryCode < MyCountries.GetSize());
+    _ASSERTE(iCountryCode >= 0);
+    _ASSERTE(iCountryCode < MyCountries.GetSize());
 
     MyInUpdate = TRUE;
 
@@ -671,8 +667,8 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 // with active set appropriately
 void ScanChannelCustom(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 {
-    ASSERT(iCountryCode >= 0);
-    ASSERT(iCountryCode < MyCountries.GetSize());
+    _ASSERTE(iCountryCode >= 0);
+    _ASSERTE(iCountryCode < MyCountries.GetSize());
 
     MyInUpdate = TRUE;
 
@@ -756,7 +752,7 @@ void BeginScan(HWND hDlg)
 {
     static char sbuf[256];
 
-    ASSERT(FALSE == MyInScan);
+    _ASSERTE(FALSE == MyInScan);
     MyInScan = TRUE;
 
     UpdateEnabledState(hDlg, TRUE);
@@ -791,7 +787,7 @@ void BeginScan(HWND hDlg)
 //when a WM_SCAN_ABORT is received
 void EndScan(HWND hDlg)
 {
-    ASSERT(TRUE == MyInScan);
+    _ASSERTE(TRUE == MyInScan);
     MyInScan = FALSE;
 
     if(MyChannels.GetSize() > 0)
@@ -906,11 +902,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             // with country setting info if relevant
             if (!MyCountries.ReadASCII(SZ_DEFAULT_CHANNELS_FILENAME))
             {
-                CString errorMessage("Channel presets cannot be loaded, \"");
-                errorMessage = errorMessage + SZ_DEFAULT_CHANNELS_FILENAME;
-                errorMessage = errorMessage + "\" is corrupted or missing";
-                ErrorBox((LPCSTR)errorMessage);
-                errorMessage.Empty();
+                string errorMessage(MakeString() << "Channel presets cannot be loaded, \"" <<
+                                                    SZ_DEFAULT_CHANNELS_FILENAME << 
+                                                    "\" is corrupted or missing");
+                ErrorBox(errorMessage);
                 EndDialog(hDlg, FALSE);
                 return TRUE;
             }
@@ -1340,11 +1335,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 // try to write out programs
                 if (!MyChannels.WriteFile(SZ_DEFAULT_PROGRAMS_FILENAME))
                 {
-                    CString dummy("Unable to write to file \n\"");
-                    dummy += SZ_DEFAULT_PROGRAMS_FILENAME;
-                    dummy += "\"";
-                    ErrorBox((LPCSTR)dummy);
-                    dummy.Empty();
+                    string dummy(MakeString() << "Unable to write to file \n\"" <<
+                                                SZ_DEFAULT_PROGRAMS_FILENAME <<
+                                                "\"");
+                    ErrorBox(dummy);
                 }
                 SettingsMaster->SaveAllSettings(TRUE);
                 MyEPG.ReloadEPGData();    // Reload EPG data
@@ -1890,10 +1884,4 @@ SETTING* AntiPlop_GetSetting(ANTIPLOP_SETTING Setting)
     {
         return NULL;
     }
-}
-
-SmartPtr<CTreeSettingsGeneric> AntiPlop_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_ANTIPLOP_GETVALUE));
-    return new CTreeSettingsGeneric("Anti Plop Settings", Holder);
 }

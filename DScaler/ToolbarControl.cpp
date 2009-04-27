@@ -26,7 +26,7 @@
  */
 
 #include "stdafx.h"
-
+#include "..\DScalerRes\resource.h"
 #include "ToolbarWindow.h"
 #include "Toolbars.h"
 #include "ToolbarControl.h"
@@ -38,13 +38,6 @@
 #include "Providers.h"
 
 using namespace std;
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 
 /**
     Toolbar control creates & destroys the toolbar with the subbars inside.

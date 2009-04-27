@@ -20,24 +20,20 @@
  * @file exception.h interface for exception classes.
  */
 
-#if !defined(AFX_EXCEPTION_H__3DCA2AE5_2EC6_405F_AE26_D7D1E8E0E2D0__INCLUDED_)
-#define AFX_EXCEPTION_H__3DCA2AE5_2EC6_405F_AE26_D7D1E8E0E2D0__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#if !defined(_EXCEPTION_H__)
+#define _EXCEPTION_H__
 
 /**
  * Exception baseclass.
  */
-class CDShowException : public std::exception
+class CDShowException : public std::runtime_error
 {
 public:
-    CDShowException(const char* msg,HRESULT hr = S_OK);
+    CDShowException(const std::string& Msg,HRESULT hr = S_OK);
     HRESULT getErrNo() {return m_err;};
 
 private:
     HRESULT m_err;            //error code
 };
 
-#endif // !defined(AFX_EXCEPTION_H__3DCA2AE5_2EC6_405F_AE26_D7D1E8E0E2D0__INCLUDED_)
+#endif

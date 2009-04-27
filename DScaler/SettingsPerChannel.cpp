@@ -34,12 +34,6 @@
 #include "SettingsPerChannel.h"
 #include "SettingsMaster.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 BOOL bSpcChannelSpecific = FALSE;
 BOOL bSpcVideoInputSpecific = TRUE;
 BOOL bSpcVideoFormatSpecific = TRUE;

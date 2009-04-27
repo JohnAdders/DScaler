@@ -2038,8 +2038,7 @@ SmartPtr<ITuner> CBT848Source::GetTuner()
     return m_pBT848Card->GetTuner();
 }
 
-
-CTreeSettingsPage* CBT848Source::GetTreeSettingsPage()
+SmartPtr<CSettingsHolder> CBT848Source::GetSettingsPage()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
 
@@ -2098,7 +2097,7 @@ CTreeSettingsPage* CBT848Source::GetTreeSettingsPage()
         Holder->AddSetting(m_AD9882CoastPol);
     }
 
-    return new CTreeSettingsGeneric("BT8x8 Advanced",Holder);
+    return Holder;
 }
 
 #endif // WANT_BT8X8_SUPPORT

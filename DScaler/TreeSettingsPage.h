@@ -20,13 +20,10 @@
  * @file TreeSettingsPage.h header file for CTreeSettingsPage
  */
 
-#if !defined(AFX_TREESETTINGSPAGE_H__FD745055_FF62_4B27_9F15_6D6F31EDFA3A__INCLUDED_)
-#define AFX_TREESETTINGSPAGE_H__FD745055_FF62_4B27_9F15_6D6F31EDFA3A__INCLUDED_
+#if !defined(_TREESETTINGSPAGE_H__)
+#define _TREESETTINGSPAGE_H__
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
+#include "DSDialog.h"
 
 /**
  * Class for one page in the settings dialog.
@@ -38,7 +35,7 @@
  *
  * @see CTreeSettingsDlg
  */
-class CTreeSettingsPage : public CDialog
+class CTreeSettingsPage : public CDSDialog
 {
 // Construction
 public:
@@ -47,59 +44,15 @@ public:
      * @param name name used in the tree
      * @param nIDTemplate dialog template id
      */
-    CTreeSettingsPage(CString name,UINT nIDTemplate);   // standard constructor
-    CTreeSettingsPage(CString TreeName,CString HeaderName,UINT nIDTemplate);
-    virtual ~CTreeSettingsPage() {};
+    CTreeSettingsPage(const std::string& name,UINT nIDTemplate);   // standard constructor
+    CTreeSettingsPage(const std::string& TreeName,const std::string& HeaderName,UINT nIDTemplate);
+    virtual ~CTreeSettingsPage();
 
-// Dialog Data
-    //{{AFX_DATA(CTreeSettingsPage)
-        // NOTE: the ClassWizard will add data members here
-    //}}AFX_DATA
+    virtual BOOL OnSetActive(HWND hDlg);
+    virtual BOOL OnKillActive(HWND hDlg);
 
-
-// Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(CTreeSettingsPage)
-    public:
-    virtual BOOL PreTranslateMessage(MSG* pMsg);
-    protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    //}}AFX_VIRTUAL
-
-// Implementation
-protected:
-
-    // Generated message map functions
-    //{{AFX_MSG(CTreeSettingsPage)
-        // NOTE: the ClassWizard will add member functions here
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
-
-    friend class CTreeSettingsDlg;
-    virtual void OnOK();
-    virtual void OnCancel();
-
-    /**
-     * Called when the page is about to be activated.
-     *
-     * @return TRUE to allow the page to be activated
-     */
-    virtual BOOL OnSetActive();
-
-    /**
-     * Called when the page is about to be deactivated.
-     *
-     * @return TRUE to allow the page to be deactivated
-     */
-    virtual BOOL OnKillActive();
-
-    /**
-     * Called when cancel is pressed in CTreeSettingsDlg but before the dialog is closed.
-     * This function allows the page to abort the cancel.
-     *
-     * @return TRUE to allow the cancel to continue or FALSE to disalow cancel
-     */
-    virtual BOOL OnQueryCancel();
+    virtual void OnOK(HWND hDlg);
+    virtual void OnCancel(HWND hDlg);
 
     /**
      * This function is used by CTreeSettingsDlg to get the minimum allowed
@@ -110,26 +63,23 @@ protected:
      * @param width minimum allowed width of the page
      * @param height minimum allowed heith of the page
      */
-    virtual void GetMinSize(int &width,int &height);
+    void GetMinSize(HWND hWnd, int& width, int& height);
 
     /// @return name of this page
-    virtual CString GetName() {return m_name;};
-    virtual CString GetHeaderName() {return m_HeaderName;};
-
-    /// @return dialog template id for the dialog
-    UINT GetDlgID() {return m_dlgID;};
+    const std::string& GetName() {return m_name;};
+    const std::string& GetHeaderName() {return m_HeaderName;};
 
 protected:
-    CString m_name;
-    CString m_HeaderName;
+    std::string m_name;
+    std::string m_HeaderName;
     UINT m_dlgID;
 
     int m_minWidth;
     int m_minHeight;
     BOOL m_bInitMinSize;
+private:
+    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual BOOL ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_TREESETTINGSPAGE_H__FD745055_FF62_4B27_9F15_6D6F31EDFA3A__INCLUDED_)
+#endif

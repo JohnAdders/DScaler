@@ -36,13 +36,13 @@
 //      dialog which was causing annoying flicker.
 
 #include "stdafx.h"
-#include "resource.h"
-#include "credits.h"
+#include "Credits.h"
+#include "..\DScalerRes\resource.h"
+#include "DScaler.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#endif
+using namespace std;
+
+#define DISPLAY_TIMER_ID  150       // timer id
 
 #define SCROLLAMOUNT                -1
 #define DISPLAY_SLOW                70
@@ -201,79 +201,95 @@ char *ArrCredits[] = {  "DScaler\n",
 // CCredits dialog
 
 
-CCredits::CCredits(CWnd* pParent /*=NULL*/)
-    : CDialog(CCredits::IDD, pParent)
+CCredits::CCredits() : CDSDialog(MAKEINTRESOURCE(IDD_CREDITS))
 {
-    //{{AFX_DATA_INIT(CCredits)
-    //}}AFX_DATA_INIT
 }
 
-
-void CCredits::DoDataExchange(CDataExchange* pDX)
+BOOL CCredits::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    CDialog::DoDataExchange(pDX);
-    //{{AFX_DATA_MAP(CCredits)
-    //}}AFX_DATA_MAP
+    switch(message)
+    {
+        HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+        HANDLE_MSG(hDlg, WM_COMMAND, OnCommand);
+        HANDLE_MSG(hDlg, WM_TIMER, OnTimer);
+    default:
+        return FALSE;
+    }
 }
 
-
-BEGIN_MESSAGE_MAP(CCredits, CDialog)
-    //{{AFX_MSG_MAP(CCredits)
-    ON_WM_PAINT()
-    ON_WM_TIMER()
-    ON_WM_DESTROY()
-    //}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CCredits message handlers
-
-void CCredits::OnOK()
+void CCredits::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
-	::KillTimer(m_hWnd, DISPLAY_TIMER_ID);
-
-    CDialog::OnOK();
+    switch(id)
+    {
+    case IDCANCEL:
+    case IDOK:
+        // clean up after ourselves
+        KillTimer(hDlg, DISPLAY_TIMER_ID);
+        if (m_bProcessingBitmap)
+        {
+            SelectObject(m_dcMem, m_BmpOld);
+            DeleteObject(m_BmpWork);
+        }
+        DeleteDC(m_dcMem);
+        RemoveProp(m_pDisplayFrame, "DSSubClass");
+        EndDialog(hDlg, id);
+        break;
+    }
 }
+
+BOOL CALLBACK CCredits::StaticWndProc(HWND hStatic, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    CCredits* myDialogObject = (CCredits*)GetProp(hStatic, "DSSubClass");
+    if(myDialogObject)
+    {
+        if(message != WM_PAINT)
+        {
+            return myDialogObject->m_OldWndProc(hStatic, message, wParam, lParam);
+        }
+        else
+        {
+            myDialogObject->OnPaint(hStatic);
+        }
+    }
+    return FALSE;
+}
+
 
 //************************************************************************
 //     InitDialog
 //
 //         Setup the display rect and start the timer.
 //************************************************************************
-BOOL CCredits::OnInitDialog()
+BOOL CCredits::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
-    CDialog::OnInitDialog();
-    BOOL bRet;
     UINT nRet;
 
-    nCurrentFontHeight = NORMAL_TEXT_HEIGHT;
-
-    CClientDC dc(this);
-    bRet = m_dcMem.CreateCompatibleDC(&dc);
-
+    m_nCurrentFontHeight = NORMAL_TEXT_HEIGHT;
 
     m_bProcessingBitmap=FALSE;
 
-    nArrIndex=0;
-    nCounter=1;
-    nClip=0;
+    m_nArrIndex = 0;
+    m_nCounter = 1;
+    m_nClip=0;
     m_bFirstTime=TRUE;
-    m_bDrawText=FALSE;
-    m_hBmpOld = 0;
+    m_BmpOld = 0;
 
-    m_pDisplayFrame=(CWnd*)GetDlgItem(IDC_CREDITS_STATIC);
+    m_pDisplayFrame = GetDlgItem(hDlg, IDC_CREDITS_STATIC);
+
+    m_dcMem = CreateCompatibleDC(GetDC(m_pDisplayFrame));
 
     // If you assert here, you did not assign your static display control
     // the IDC_ value that was used in the GetDlgItem(...). This is the
     // control that will display the credits.
     _ASSERTE(m_pDisplayFrame);
 
-    m_pDisplayFrame->GetClientRect(&m_ScrollRect);
+    GetClientRect(m_pDisplayFrame, &m_ScrollRect);
 
-
-    nRet = SetTimer(DISPLAY_TIMER_ID,DISPLAY_SPEED,NULL);
+    nRet = SetTimer(hDlg, DISPLAY_TIMER_ID, DISPLAY_SPEED, NULL);
     _ASSERTE(nRet != 0);
+
+    SetProp(m_pDisplayFrame, "DSSubClass", (HANDLE)this);
+    m_OldWndProc = (WNDPROC)SetWindowLongPtr (m_pDisplayFrame, GWLP_WNDPROC, (LONG_PTR)StaticWndProc);
 
     return TRUE;  // return TRUE unless you set the focus to a control
                   // EXCEPTION: OCX Property Pages should return FALSE
@@ -287,241 +303,178 @@ BOOL CCredits::OnInitDialog()
 //      Invalidate and UpdateWindow to invoke the OnPaint which will paint
 //      the contents of the newly updated work string.
 //************************************************************************
-void CCredits::OnTimer(UINT nIDEvent)
+void CCredits::OnTimer(HWND hDlg, UINT nIDEvent)
 {
-    if (nIDEvent != DISPLAY_TIMER_ID)
-        {
-        CDialog::OnTimer(nIDEvent);
-        return;
-        }
-
     if (!m_bProcessingBitmap)
-    if (nCounter++ % nCurrentFontHeight == 0)     // every x timer events, show new line
+    {
+        if (m_nCounter++ % m_nCurrentFontHeight == 0)     // every x timer events, show new line
         {
-        nCounter=1;
-        m_szWork = ArrCredits[nArrIndex++];
+            m_nCounter=1;
+            m_szWork = ArrCredits[m_nArrIndex++];
 
-        if (nArrIndex > ARRAYCOUNT-1)
-            nArrIndex=0;
-        nClip = 0;
-        m_bDrawText=TRUE;
+            if (m_nArrIndex > ARRAYCOUNT-1)
+            {
+                m_nArrIndex = 0;
+            }
+            m_nClip = 0;
         }
+    }
 
-    m_pDisplayFrame->ScrollWindow(0,SCROLLAMOUNT,&m_ScrollRect,&m_ScrollRect);
-    nClip = nClip + abs(SCROLLAMOUNT);
+    ScrollWindow(m_pDisplayFrame, 0,SCROLLAMOUNT,&m_ScrollRect,&m_ScrollRect);
+    m_nClip = m_nClip + abs(SCROLLAMOUNT);
 
-    CRect r;
-    CWnd* pWnd = GetDlgItem(IDC_CREDITS_STATIC);
-    ASSERT_VALID(pWnd);
-    pWnd->GetClientRect(&r);
-    pWnd->ClientToScreen(r);
-    ScreenToClient(&r);
-    InvalidateRect(r,FALSE); // FALSE does not erase background
-
-    CDialog::OnTimer(nIDEvent);
+    InvalidateRect(m_pDisplayFrame, NULL, FALSE); // FALSE does not erase background
 }
 
+
+HFONT CreateCreditsFont(int Height, BOOL Bold, BOOL Underline)
+{
+    return CreateFont(Height, 0, 0, 0,
+                       Bold?FW_BOLD:FW_THIN, 
+                       FALSE, Underline, 0,
+                       ANSI_CHARSET,
+                       OUT_DEFAULT_PRECIS,
+                       CLIP_DEFAULT_PRECIS,
+                       PROOF_QUALITY,
+                       VARIABLE_PITCH | 0x04 | FF_DONTCARE,
+                       "Arial");
+}
 
 //************************************************************************
 //     OnPaint
 //
-//         Send the newly updated work string to the display rect.
+//     Send the newly updated work string to the display rect.
 //************************************************************************
-void CCredits::OnPaint()
+void CCredits::OnPaint(HWND hDlg)
 {
-    CPaintDC dc(this); // device context for painting
-
     PAINTSTRUCT ps;
-    CDC* pDc = m_pDisplayFrame->BeginPaint(&ps);
+    HDC Dc = BeginPaint(hDlg, &ps);
 
-    pDc->SetBkMode(TRANSPARENT);
+    SetBkMode(Dc, TRANSPARENT);
 
 
     //*********************************************************************
     //    FONT SELECTION
-        CFont m_fntArial;
-    CFont* pOldFont;
-    BOOL bSuccess;
+    HFONT fntArial = 0;
+    HGDIOBJ pOldFont = 0;
 
-    BOOL bUnderline;
-    BOOL bItalic;
-
-
-    if (!m_szWork.IsEmpty())
-    switch (m_szWork[m_szWork.GetLength()-1] )
+    if (!m_szWork.empty())
+    {
+        switch(m_szWork[m_szWork.length()-1])
         {
         case NORMAL_TEXT:
         default:
-            bItalic = FALSE;
-            bUnderline = FALSE;
-            nCurrentFontHeight = NORMAL_TEXT_HEIGHT;
-               bSuccess = m_fntArial.CreateFont(NORMAL_TEXT_HEIGHT, 0, 0, 0,
-                                   FW_THIN, bItalic, bUnderline, 0,
-                                   ANSI_CHARSET,
-                                   OUT_DEFAULT_PRECIS,
-                                   CLIP_DEFAULT_PRECIS,
-                                   PROOF_QUALITY,
-                                   VARIABLE_PITCH | 0x04 | FF_DONTCARE,
-                                   (LPSTR)"Arial");
-            pDc->SetTextColor(NORMAL_TEXT_COLOR);
-            pOldFont  = pDc->SelectObject(&m_fntArial);
+            m_nCurrentFontHeight = NORMAL_TEXT_HEIGHT;
+            fntArial = CreateCreditsFont(m_nCurrentFontHeight, FALSE, FALSE);
+            SetTextColor(Dc, NORMAL_TEXT_COLOR);
+            pOldFont = SelectObject(Dc, fntArial);
             break;
 
         case TOP_LEVEL_GROUP:
-            bItalic = FALSE;
-            bUnderline = FALSE;
-            nCurrentFontHeight = TOP_LEVEL_GROUP_HEIGHT;
-               bSuccess = m_fntArial.CreateFont(TOP_LEVEL_GROUP_HEIGHT, 0, 0, 0,
-                                   FW_BOLD, bItalic, bUnderline, 0,
-                                   ANSI_CHARSET,
-                                   OUT_DEFAULT_PRECIS,
-                                   CLIP_DEFAULT_PRECIS,
-                                   PROOF_QUALITY,
-                                   VARIABLE_PITCH | 0x04 | FF_DONTCARE,
-                                   (LPSTR)"Arial");
-            pDc->SetTextColor(TOP_LEVEL_GROUP_COLOR);
-            pOldFont  = pDc->SelectObject(&m_fntArial);
+            m_nCurrentFontHeight = TOP_LEVEL_GROUP_HEIGHT;
+            fntArial = CreateCreditsFont(m_nCurrentFontHeight, TRUE, FALSE);
+            SetTextColor(Dc, TOP_LEVEL_GROUP_COLOR);
+            pOldFont = SelectObject(Dc, fntArial);
             break;
 
 
 
         case GROUP_TITLE:
-            bItalic = FALSE;
-            bUnderline = FALSE;
-            nCurrentFontHeight = GROUP_TITLE_HEIGHT;
-               bSuccess = m_fntArial.CreateFont(GROUP_TITLE_HEIGHT, 0, 0, 0,
-                                   FW_BOLD, bItalic, bUnderline, 0,
-                                   ANSI_CHARSET,
-                                   OUT_DEFAULT_PRECIS,
-                                   CLIP_DEFAULT_PRECIS,
-                                   PROOF_QUALITY,
-                                   VARIABLE_PITCH | 0x04 | FF_DONTCARE,
-                                   (LPSTR)"Arial");
-            pDc->SetTextColor(GROUP_TITLE_COLOR);
-            pOldFont  = pDc->SelectObject(&m_fntArial);
+            m_nCurrentFontHeight = GROUP_TITLE_HEIGHT;
+            fntArial = CreateCreditsFont(m_nCurrentFontHeight, TRUE, FALSE);
+            SetTextColor(Dc, GROUP_TITLE_COLOR);
+            pOldFont = SelectObject(Dc, fntArial);
             break;
 
 
         case TOP_LEVEL_TITLE:
-            bItalic = FALSE;
-            bUnderline = TRUE;
-            nCurrentFontHeight = TOP_LEVEL_TITLE_HEIGHT;
-            bSuccess = m_fntArial.CreateFont(TOP_LEVEL_TITLE_HEIGHT, 0, 0, 0,
-                                FW_BOLD, bItalic, bUnderline, 0,
-                                ANSI_CHARSET,
-                                   OUT_DEFAULT_PRECIS,
-                                   CLIP_DEFAULT_PRECIS,
-                                   PROOF_QUALITY,
-                                   VARIABLE_PITCH | 0x04 | FF_DONTCARE,
-                                   (LPSTR)"Arial");
-            pDc->SetTextColor(TOP_LEVEL_TITLE_COLOR);
-            pOldFont  = pDc->SelectObject(&m_fntArial);
+            m_nCurrentFontHeight = TOP_LEVEL_TITLE_HEIGHT;
+            fntArial = CreateCreditsFont(m_nCurrentFontHeight, TRUE, TRUE);
+            SetTextColor(Dc, TOP_LEVEL_TITLE_COLOR);
+            pOldFont = SelectObject(Dc, fntArial);
             break;
 
         case DISPLAY_BITMAP:
             if (!m_bProcessingBitmap)
+            {
+                BITMAP bmpInfo;
+                string szBitmap = m_szWork.substr(0, m_szWork.length()-1);
+                m_BmpWork = LoadBitmap(hResourceInst, szBitmap.c_str());
+                if(m_BmpWork == NULL)
                 {
-                CString szBitmap = m_szWork.Left(m_szWork.GetLength()-1);
-                   if (!m_bmpWork.LoadBitmap((const char *)szBitmap))
-                    {
-                    CString str;
-                    str.Format("Could not find bitmap resource \"%s\". "
-                               "Be sure to assign the bitmap a QUOTED resource name", szBitmap);
-					::KillTimer(m_hWnd, DISPLAY_TIMER_ID);
-                    MessageBox(str);
+                    string str(MakeString() << "Could not find bitmap resource " << 
+                                            szBitmap << ". " << 
+                                            "Be sure to assign the bitmap a QUOTED resource name");
+                    KillTimer(hDlg, DISPLAY_TIMER_ID);
+                    ErrorBox(str.c_str());
                     return;
-                    }
-                m_bmpCurrent = &m_bmpWork;
-                   m_bmpCurrent->GetObject(sizeof(BITMAP), &m_bmpInfo);
-
-                m_size.cx = m_bmpInfo.bmWidth;    // width  of dest rect
-                RECT workRect;
-                m_pDisplayFrame->GetClientRect(&workRect);
-                m_pDisplayFrame->ClientToScreen(&workRect);
-                ScreenToClient(&workRect);
-                // upper left point of dest
-                m_pt.x = (workRect.right -
-                            ((workRect.right-workRect.left)/2) - (m_bmpInfo.bmWidth/2));
-                m_pt.y = workRect.bottom;
-
-
-                pBmpOld = m_dcMem.SelectObject(m_bmpCurrent);
-                if (m_hBmpOld == 0)
-                    m_hBmpOld = (HBITMAP) pBmpOld->GetSafeHandle();
-                m_bProcessingBitmap = TRUE;
                 }
+                GetObject(m_BmpWork, sizeof(BITMAP), &bmpInfo);
+
+                m_BitmapWidth = bmpInfo.bmWidth;    // width  of dest rect
+                m_BitmapHeight = bmpInfo.bmHeight;
+                RECT workRect;
+                GetClientRect(m_pDisplayFrame, &workRect);
+                // upper left point of dest
+                m_DisplayPoint.x = (workRect.right -
+                            ((workRect.right-workRect.left)/2) - (bmpInfo.bmWidth/2));
+                m_DisplayPoint.y = workRect.bottom;
+
+                m_BmpOld = SelectObject(m_dcMem, m_BmpWork);
+                m_bProcessingBitmap = TRUE;
+            }
             break;
 
         }
+    }
 
-
-
-
-    CBrush bBrush(BLACK);
-    CBrush* pOldBrush;
-    pOldBrush  = pDc->SelectObject(&bBrush);
+    HBRUSH bBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    HGDIOBJ pOldBrush;
+    pOldBrush  = SelectObject(Dc, bBrush);
     // Only fill rect comprised of gap left by bottom of scrolling window
-    r=m_ScrollRect;
+    RECT r=m_ScrollRect;
     r.top = r.bottom-abs(SCROLLAMOUNT);
-    pDc->DPtoLP(&r);
+    DPtoLP(Dc, (LPPOINT)&r, 2);
 
     if (m_bFirstTime)
-        {
+    {
         m_bFirstTime=FALSE;
-        pDc->FillRect(&m_ScrollRect,&bBrush);
-        }
+        FillRect(Dc, &m_ScrollRect, bBrush);
+    }
     else
-        pDc->FillRect(&r,&bBrush);
+    {
+        FillRect(Dc, &r, bBrush);
+    }
 
-    r=m_ScrollRect;
-    r.top = r.bottom-nClip;
+    r = m_ScrollRect;
+    r.top = r.bottom - m_nClip;
 
 
     if (!m_bProcessingBitmap)
-        {
-        int x = pDc->DrawText((const char *)m_szWork,m_szWork.GetLength()-1,&r,DT_TOP|DT_CENTER|
+    {
+        int x = DrawText(Dc, m_szWork.c_str(),m_szWork.length()-1,&r,DT_TOP|DT_CENTER|
                     DT_NOPREFIX | DT_SINGLELINE);
-        m_bDrawText=FALSE;
-        }
+
+        SelectObject(Dc, pOldFont);
+        DeleteObject(fntArial);
+    }
     else
-        {
-        dc.StretchBlt( m_pt.x, m_pt.y-nClip, m_size.cx, nClip,
-                           &m_dcMem, 0, 0, m_bmpInfo.bmWidth-1, nClip,
+    {
+        StretchBlt(Dc, m_DisplayPoint.x, m_DisplayPoint.y-m_nClip, m_BitmapWidth, m_nClip,
+                           m_dcMem, 0, 0, m_BitmapWidth - 1, m_nClip,
                            SRCCOPY );
-        if (nClip > m_bmpInfo.bmHeight)
-            {
-            m_bmpWork.DeleteObject();
-            m_bProcessingBitmap = FALSE;
-            nClip=0;
-            m_szWork.Empty();
-            nCounter=1;
-            }
-        pDc->SelectObject(pOldBrush);
-        bBrush.DeleteObject();
-        m_pDisplayFrame->EndPaint(&ps);
-        return;
-        }
-
-
-    pDc->SelectObject(pOldBrush);
-    bBrush.DeleteObject();
-
-    if (!m_szWork.IsEmpty())
+        if (m_nClip > m_BitmapHeight)
         {
-        pDc->SelectObject(pOldFont);
-        m_fntArial.DeleteObject();
+            SelectObject(m_dcMem, m_BmpOld);
+            DeleteObject(m_BmpWork);
+            m_bProcessingBitmap = FALSE;
+            m_nClip=0;
+            m_szWork.clear();
+            m_nCounter=1;
         }
+    }
 
-    m_pDisplayFrame->EndPaint(&ps);
+    SelectObject(Dc, pOldBrush);
 
-    // Do not call CDialog::OnPaint() for painting messages
-}
-
-void CCredits::OnDestroy()
-{
-    CDialog::OnDestroy();
-
-    m_dcMem.SelectObject(CBitmap::FromHandle(m_hBmpOld));
-    m_bmpWork.DeleteObject();
-
+    EndPaint(hDlg, &ps);
 }

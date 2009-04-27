@@ -17,14 +17,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_TSOPTIONSDLG_H__C76FD300_76CF_11D5_A1E2_AD9180F1D520__INCLUDED_)
-#define AFX_TSOPTIONSDLG_H__C76FD300_76CF_11D5_A1E2_AD9180F1D520__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#if !defined(_TSOPTIONSDLG_H__)
+#define _TSOPTIONSDLG_H__
 
 #include "TimeShift.h"
+#include "DSDialog.h"
 
 /** Holds all of the configuration variables for the TimeShift options */
 typedef struct
@@ -37,54 +34,32 @@ typedef struct
 } TS_OPTIONS;
 
 /** TimeShift options dialog */
-class CTSOptionsDlg : public CDialog
+class CTSOptionsDlg : public CDSDialog
 {
 
 public:
-// Construction
-    CTSOptionsDlg(CWnd* pParent);   // standard constructor
-
-// Dialog Data
-    //{{AFX_DATA(CTSOptionsDlg)
-    enum { IDD = IDD_TSOPTIONS };
-    CEdit    m_PathDisplay;
-    CStatic    m_SizeGiB;
-    CButton    m_SizeCheckBox;
-    CEdit    m_SizeEdit;
-    CComboBox    m_WaveOutComboBox;
-    CComboBox    m_WaveInComboBox;
-    //}}AFX_DATA
-
-// Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(CTSOptionsDlg)
-    protected:
-    virtual void DoDataExchange(CDataExchange* pDX);
-    //}}AFX_VIRTUAL
+    CTSOptionsDlg();
 
 // Implementation
-protected:
+private:
+    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    BOOL UpdateData(HWND hDlg, BOOL bSaveAndValidate);
+    BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
+    void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
 
-    // Generated message map functions
-    //{{AFX_MSG(CTSOptionsDlg)
-    afx_msg void OnButtonCompression();
-    virtual BOOL OnInitDialog();
-    afx_msg void OnCompressionhelp();
-    afx_msg void OnWavehelp();
-    afx_msg void OnHeighthelp();
-    afx_msg void OnButtonMixer();
-    afx_msg void OnTSPathSelect();
-    afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-    afx_msg void OnDestroy();
-    afx_msg void OnUpdateTSSize();
-    afx_msg void OnKillfocusTSSize();
-    afx_msg void OnTSSizeNoLimit();
-    virtual void OnOK();
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
+    void OnButtonCompression(HWND hDlg);
+    void OnCompressionhelp(HWND hDlg);
+    void OnWavehelp(HWND hDlg);
+    void OnHeighthelp(HWND hDlg);
+    void OnButtonMixer(HWND hDlg);
+    void OnTSPathSelect(HWND hDlg);
+    void OnUpdateTSSize(HWND hDlg);
+    void OnKillfocusTSSize(HWND hDlg);
+    void OnTSSizeNoLimit(HWND hDlg);
+    void OnOK(HWND hDlg);
 
-    BOOL IsChecked(int id);
-    void SetChecked(int id, BOOL checked);
+    BOOL IsChecked(HWND hDlg, int id);
+    void SetChecked(HWND hDlg, int id, BOOL checked);
 
 private:
     TS_OPTIONS options;
@@ -95,7 +70,4 @@ private:
     DWORD m_lastSize;
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_TSOPTIONSDLG_H__C76FD300_76CF_11D5_A1E2_AD9180F1D520__INCLUDED_)
+#endif

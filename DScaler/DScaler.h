@@ -50,10 +50,10 @@
 
 // Get Hold of the DScaler.c file settings
 SETTING* DScaler_GetSetting(DSCALER_SETTING Setting);
-SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage();
-SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage2();
-SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage3();
-SmartPtr<CTreeSettingsGeneric> DScaler_GetTreeSettingsPage4();
+SmartPtr<CSettingsHolder> DScaler_GetSettingsPage1();
+SmartPtr<CSettingsHolder> DScaler_GetSettingsPage2();
+SmartPtr<CSettingsHolder> DScaler_GetSettingsPage3();
+SmartPtr<CSettingsHolder> DScaler_GetSettingsPage4();
 
 LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam);
 LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam);

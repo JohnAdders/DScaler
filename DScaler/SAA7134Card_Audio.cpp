@@ -226,7 +226,7 @@ BOOL CSAA7134Card::WriteDSPData7133(DWORD registerOffset, DWORD registerMask, CB
 #ifdef _DEBUG
     if (registerOffset < 0x400 || registerOffset >= 0x580)
     {
-        TRACE("WriteDSPData7133 used for low latency register %lu!", registerOffset);
+        LOGD("WriteDSPData7133 used for low latency register %lu!", registerOffset);
         WriteData(registerOffset, registerMask, value);
         return TRUE;
     }
@@ -275,7 +275,7 @@ BOOL CSAA7134Card::ReadDSPData7133(DWORD registerOffset, DWORD registerMask, CBi
 #ifdef _DEBUG
     if (registerOffset < 0x400 || registerOffset >= 0x500)
     {
-        TRACE("ReadDSPData7133 used for low latency register %lu!", registerOffset);
+        LOGD("ReadDSPData7133 used for low latency register %lu!", registerOffset);
         value = ReadData(registerOffset, registerMask);
         return TRUE;
     }

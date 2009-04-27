@@ -24,7 +24,6 @@
 
 #include "Source.h"
 #include "Providers.h"
-#include "TreeSettingsGeneric.h"
 #include "SettingsMaster.h"
 #include "SettingsPerChannel.h"
 #include "TVFormats.h"
@@ -385,7 +384,7 @@ CSettingGroup* CSettingsMaster::GetGroup(LPCSTR szName, DWORD Flags, BOOL IsActi
     return pNewGroup;
 }
 
-SmartPtr<CTreeSettingsGeneric> CSettingsMaster::GetTreeSettingsPage()
+SmartPtr<CSettingsHolder> CSettingsMaster::GetSettingsPage()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
 
@@ -393,7 +392,7 @@ SmartPtr<CTreeSettingsGeneric> CSettingsMaster::GetTreeSettingsPage()
     {
         Holder->AddSetting(m_SettingsGroups[i]->GetIsActiveSetting());
     }
-    return new CTreeSettingsGeneric("Activate Setting's Saving", Holder);
+    return Holder;
 }
 
 

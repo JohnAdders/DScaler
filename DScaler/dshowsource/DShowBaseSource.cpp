@@ -28,12 +28,6 @@
 #include "DShowBaseSource.h"
 #include "DevEnum.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 CDShowBaseSource::CDShowBaseSource(IGraphBuilder *pGraph)
 :CDShowObject(pGraph)
 {
@@ -47,7 +41,7 @@ CDShowBaseSource::~CDShowBaseSource()
 
 void CDShowBaseSource::SetAudioDevice(std::string device)
 {
-    m_AudioDevice=device;
+    m_AudioDevice = device;
 }
 
 CComPtr<IBaseFilter> CDShowBaseSource::GetNewAudioRenderer()

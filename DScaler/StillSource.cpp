@@ -1915,12 +1915,6 @@ SETTING* Still_GetSetting(STILL_SETTING Setting)
     }
 }
 
-SmartPtr<CTreeSettingsGeneric> Still_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_STILL_GETVALUE));
-    return new CTreeSettingsGeneric("Still Settings", Holder);
-}
-
 BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight)
 {
     unsigned int* hControl;        // weighting masks, alternating dwords for Y & UV

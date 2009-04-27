@@ -105,7 +105,7 @@ private:
     CComPtr<ICreateDevEnum> m_pSysDevEnum;
     CComPtr<IPropertyBag> m_pPropBag;
 
-    CString m_DisplayName;
+    std::string m_DisplayName;
 };
 
 #endif // !defined(AFX_DEVENUM_H__480881D3_9016_422D_8B1C_44D23FED26FE__INCLUDED_)

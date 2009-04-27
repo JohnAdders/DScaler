@@ -31,210 +31,271 @@
 #include "MixerDev.h"
 #include <shlobj.h>
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
+using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
 // CTSOptionsDlg dialog
 
 
-CTSOptionsDlg::CTSOptionsDlg(CWnd* pParent /*=NULL*/)
-    : CDialog(CTSOptionsDlg::IDD, pParent)
+CTSOptionsDlg::CTSOptionsDlg() :
+    CDSDialog(MAKEINTRESOURCE(IDD_TSOPTIONS))
 {
-    //{{AFX_DATA_INIT(CTSOptionsDlg)
-    //}}AFX_DATA_INIT
 }
 
-int CTSOptionsDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
+BOOL CTSOptionsDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    if (CDialog::OnCreate(lpCreateStruct)==-1)
-       return -1;
-
-    if (FAILED(CoInitialize(NULL)))
-       return -1;
-
-    return 0;
+    switch(message)
+    {
+    HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+    HANDLE_MSG(hDlg, WM_COMMAND, OnCommand);
+    default:
+        return FALSE;
+    }
 }
 
-void CTSOptionsDlg::OnDestroy()
+void CTSOptionsDlg::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
-    CDialog::OnDestroy();
-    CoUninitialize();
+    switch(id)
+    {
+    case IDC_TS_SIZE_NO_LIMIT:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnTSSizeNoLimit(hDlg);
+        }
+        break;
+    case IDC_TS_PATH_SELECT:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnTSPathSelect(hDlg);
+        }
+        break;
+    case IDC_TSCOMPRESSIONBUTTON:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnButtonCompression(hDlg);
+        }
+        break;
+    case IDC_TSCOMPRESSIONHELP:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnCompressionhelp(hDlg);
+        }
+        break;
+    case IDC_TSWAVEHELP:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnWavehelp(hDlg);
+        }
+        break;
+    case IDC_TSHEIGHTHELP:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnHeighthelp(hDlg);
+        }
+        break;
+    case IDOK:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnOK(hDlg);
+        }
+        break;
+    case IDCANCEL:
+        if(BN_CLICKED == codeNotify)
+        {
+            EndDialog(hDlg, IDCANCEL);
+        }
+        break;
+    case IDC_TSMIXERBUTTON:
+        if(BN_CLICKED == codeNotify)
+        {
+            OnButtonMixer(hDlg);
+        }
+        break;
+    case IDC_TS_SIZE:
+        if(EN_UPDATE == codeNotify)
+        {
+            OnUpdateTSSize(hDlg);
+        }
+        if(EN_KILLFOCUS == codeNotify)
+        {
+            OnKillfocusTSSize(hDlg);
+        }
+        break;
+    }
 }
 
-void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
+BOOL CTSOptionsDlg::UpdateData(HWND hDlg, BOOL bSaveAndValidate)
 {
-    CDialog::DoDataExchange(pDX);
-
-    //{{AFX_DATA_MAP(CTSOptionsDlg)
-    DDX_Control(pDX, IDC_TS_PATH_DISPLAY, m_PathDisplay);
-    DDX_Control(pDX, IDC_TS_SIZE_GIB, m_SizeGiB);
-    DDX_Control(pDX, IDC_TS_SIZE_NO_LIMIT, m_SizeCheckBox);
-    DDX_Control(pDX, IDC_TS_SIZE, m_SizeEdit);
-    DDX_Control(pDX, IDC_TSWAVEOUTCOMBO, m_WaveOutComboBox);
-    DDX_Control(pDX, IDC_TSWAVEINCOMBO, m_WaveInComboBox);
-    //}}AFX_DATA_MAP
-
-    if (!pDX->m_bSaveAndValidate)
+    if (!bSaveAndValidate)
     {
         /* Recording height radio buttons */
         switch (options.recHeight)
         {
-            case TS_FULLHEIGHT:
-                SetChecked(IDC_TSFULLHEIGHTRADIO, TRUE);
-                SetChecked(IDC_TSHALFEVENRADIO, FALSE);
-                SetChecked(IDC_TSHALFODDRADIO, FALSE);
-                SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
+        case TS_FULLHEIGHT:
+            SetChecked(hDlg, IDC_TSFULLHEIGHTRADIO, TRUE);
+            SetChecked(hDlg, IDC_TSHALFEVENRADIO, FALSE);
+            SetChecked(hDlg, IDC_TSHALFODDRADIO, FALSE);
+            SetChecked(hDlg, IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
 
-            default:
-            case TS_HALFHEIGHTEVEN:
-                SetChecked(IDC_TSHALFEVENRADIO, TRUE);
-                SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
-                SetChecked(IDC_TSHALFODDRADIO, FALSE);
-                SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
+        default:
+        case TS_HALFHEIGHTEVEN:
+            SetChecked(hDlg, IDC_TSHALFEVENRADIO, TRUE);
+            SetChecked(hDlg, IDC_TSFULLHEIGHTRADIO, FALSE);
+            SetChecked(hDlg, IDC_TSHALFODDRADIO, FALSE);
+            SetChecked(hDlg, IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
 
-            case TS_HALFHEIGHTODD:
-                SetChecked(IDC_TSHALFODDRADIO, TRUE);
-                SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
-                SetChecked(IDC_TSHALFEVENRADIO, FALSE);
-                SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
+        case TS_HALFHEIGHTODD:
+            SetChecked(hDlg, IDC_TSHALFODDRADIO, TRUE);
+            SetChecked(hDlg, IDC_TSFULLHEIGHTRADIO, FALSE);
+            SetChecked(hDlg, IDC_TSHALFEVENRADIO, FALSE);
+            SetChecked(hDlg, IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
 
-            case TS_HALFHEIGHTAVG:
-                SetChecked(IDC_TSHALFAVERAGEDRADIO, TRUE);
-                SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
-                SetChecked(IDC_TSHALFEVENRADIO, FALSE);
-                SetChecked(IDC_TSHALFODDRADIO, FALSE);
+        case TS_HALFHEIGHTAVG:
+            SetChecked(hDlg, IDC_TSHALFAVERAGEDRADIO, TRUE);
+            SetChecked(hDlg, IDC_TSFULLHEIGHTRADIO, FALSE);
+            SetChecked(hDlg, IDC_TSHALFEVENRADIO, FALSE);
+            SetChecked(hDlg, IDC_TSHALFODDRADIO, FALSE);
             break;
         }
 
         /* Recording format radio buttons */
-        SetChecked(IDC_TSYUY2RADIO, options.format==FORMAT_YUY2 ? TRUE : FALSE);
-        SetChecked(IDC_TSRGBRADIO, options.format==FORMAT_YUY2 ? FALSE : TRUE);
+        SetChecked(hDlg, IDC_TSYUY2RADIO, options.format==FORMAT_YUY2 ? TRUE : FALSE);
+        SetChecked(hDlg, IDC_TSRGBRADIO, options.format==FORMAT_YUY2 ? FALSE : TRUE);
 
         /* Path */
-        m_PathDisplay.SetWindowText(options.path);
+        Edit_SetText(GetDlgItem(hDlg, IDC_TS_PATH_DISPLAY), options.path);
 
         /* File size limit */
-        SetDlgItemInt(IDC_TS_SIZE, options.sizeLimit, FALSE);
-        OnUpdateTSSize();
-    } else
+        SetDlgItemInt(hDlg, IDC_TS_SIZE, options.sizeLimit);
+        OnUpdateTSSize(hDlg);
+    }
+    else
     {
         /* Recording height */
-        if (IsChecked(IDC_TSFULLHEIGHTRADIO))
+        if (IsChecked(hDlg, IDC_TSFULLHEIGHTRADIO))
+        {
            options.recHeight = TS_FULLHEIGHT;
-           else if (IsChecked(IDC_TSHALFEVENRADIO))
-                   options.recHeight = TS_HALFHEIGHTEVEN;
-           else if (IsChecked(IDC_TSHALFODDRADIO))
-                   options.recHeight = TS_HALFHEIGHTODD;
-           else if (IsChecked(IDC_TSHALFAVERAGEDRADIO))
-                   options.recHeight = TS_HALFHEIGHTAVG;
+        }
+        else if (IsChecked(hDlg, IDC_TSHALFEVENRADIO))
+        {
+           options.recHeight = TS_HALFHEIGHTEVEN;
+        }
+        else if (IsChecked(hDlg, IDC_TSHALFODDRADIO))
+        {
+            options.recHeight = TS_HALFHEIGHTODD;
+        }
+        else if (IsChecked(hDlg, IDC_TSHALFAVERAGEDRADIO))
+        {
+            options.recHeight = TS_HALFHEIGHTAVG;
+        }
 
         /* Recording format */
-        if (IsChecked(IDC_TSYUY2RADIO))
+        if (IsChecked(hDlg, IDC_TSYUY2RADIO))
+        {
            options.format = FORMAT_YUY2;
-           else
+        }
+        else
+        {
            options.format = FORMAT_RGB;
+        }
 
         /* File size */
-        options.sizeLimit = GetDlgItemInt(IDC_TS_SIZE, NULL, FALSE);
+        options.sizeLimit = GetDlgItemInt(hDlg, IDC_TS_SIZE);
     }
+    return TRUE;
 }
 
-BEGIN_MESSAGE_MAP(CTSOptionsDlg, CDialog)
-    //{{AFX_MSG_MAP(CTSOptionsDlg)
-    ON_BN_CLICKED(IDC_TSCOMPRESSIONBUTTON, OnButtonCompression)
-    ON_BN_CLICKED(IDC_TSCOMPRESSIONHELP, OnCompressionhelp)
-    ON_BN_CLICKED(IDC_TSWAVEHELP, OnWavehelp)
-    ON_BN_CLICKED(IDC_TSHEIGHTHELP, OnHeighthelp)
-    ON_BN_CLICKED(IDC_TSMIXERBUTTON, OnButtonMixer)
-    ON_BN_CLICKED(IDC_TS_PATH_SELECT, OnTSPathSelect)
-    ON_WM_CREATE()
-    ON_WM_DESTROY()
-    ON_EN_UPDATE(IDC_TS_SIZE, OnUpdateTSSize)
-    ON_EN_KILLFOCUS(IDC_TS_SIZE, OnKillfocusTSSize)
-    ON_BN_CLICKED(IDC_TS_SIZE_NO_LIMIT, OnTSSizeNoLimit)
-    //}}AFX_MSG_MAP
-END_MESSAGE_MAP()
 
-BOOL CTSOptionsDlg::IsChecked(int id)
+BOOL CTSOptionsDlg::IsChecked(HWND hDlg, int id)
 {
-    HWND hwnd = NULL;
-    GetDlgItem(id, &hwnd);
+    HWND hwnd = GetDlgItem(hDlg, id);
     if (hwnd)
-        return BST_CHECKED & (int)::SendMessage(hwnd, BM_GETCHECK, 0, 0);
+    {
+        return BST_CHECKED & (int)SendMessage(hwnd, BM_GETCHECK, 0, 0);
+    }
 
     return FALSE;
 }
 
-void CTSOptionsDlg::SetChecked(int id, BOOL checked)
+void CTSOptionsDlg::SetChecked(HWND hDlg, int id, BOOL checked)
 {
-    HWND hwnd = NULL;
-    GetDlgItem(id, &hwnd);
+    HWND hwnd = GetDlgItem(hDlg, id);
     if (hwnd)
-        ::SendMessage(hwnd,
+    {
+        SendMessage(hwnd,
                       BM_SETCHECK,
                       checked ? BST_CHECKED : BST_UNCHECKED,
                       0);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // CTSOptionsDlg message handlers
 
-void CTSOptionsDlg::OnButtonCompression()
+void CTSOptionsDlg::OnButtonCompression(HWND hDlg)
 {
-    if (UpdateData(TRUE))
+    if(UpdateData(hDlg, TRUE))
     {
-        CTSCompressionDlg dlg(CWnd::FromHandle(m_hWnd), &options);
+        CTSCompressionDlg dlg(&options);
 
-        dlg.DoModal();
+        dlg.DoModal(hDlg);
     }
 }
 
-void CTSOptionsDlg::OnButtonMixer()
+void CTSOptionsDlg::OnButtonMixer(HWND hDlg)
 {
     // Bring up the audio mixer setup dialog.
-    Mixer_SetupDlg(m_hWnd);
+    Mixer_SetupDlg(hDlg);
 }
 
-void CTSOptionsDlg::OnOK()
+int GetComboBoxString(HWND hDlg, int ComboId, string& ComboString)
 {
-    char name[MAXPNAMELEN];
+    HWND hComboBox = GetDlgItem(hDlg, ComboId);
+    int CurSel(ComboBox_GetCurSel(hComboBox));
+    int TextLen(ComboBox_GetLBTextLen(hComboBox, CurSel));
+    vector<char> Buffer(TextLen + 1);
+    int Result = ComboBox_GetLBText(hComboBox, CurSel, &Buffer[0]);
+    ComboString = &Buffer[0];
+    return Result;
+}
+
+void CTSOptionsDlg::OnOK(HWND hDlg)
+{
 
     /* Update the options that the user has selected in the dialog */
-    if (UpdateData(TRUE))
+    if (UpdateData(hDlg, TRUE))
     {
         /* Wave devices */
-        if (m_WaveInComboBox.GetLBText(m_WaveInComboBox.GetCurSel(), name) != CB_ERR)
-           TimeShiftSetWaveInDevice(name);
+        string name;
+        if (GetComboBoxString(hDlg, IDC_TSWAVEINCOMBO, name) != CB_ERR)
+        {
+            TimeShiftSetWaveInDevice(name.c_str());
+        }
 
-        if (m_WaveOutComboBox.GetLBText(m_WaveOutComboBox.GetCurSel(), name)!=CB_ERR)
-           TimeShiftSetWaveOutDevice(name);
+        if (GetComboBoxString(hDlg, IDC_TSWAVEOUTCOMBO, name) != CB_ERR)
+        {
+            TimeShiftSetWaveOutDevice(name.c_str());
+        }
 
         TimeShiftSetRecHeight(options.recHeight);
         TimeShiftSetRecFormat(options.format);
         TimeShiftSetSavingPath(options.path);
         TimeShiftSetFileSizeLimit(options.sizeLimit);
         TimeShiftSetFourCC(options.fcc);
-
-        CDialog::OnOK();
+        EndDialog(hDlg, IDOK);
     }
 }
 
-BOOL CTSOptionsDlg::OnInitDialog()
+BOOL CTSOptionsDlg::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
     char       *waveDevice;
     UINT       numDevs;
     UINT       i;
     int        index;
     const char *tsPath = TimeShiftGetSavingPath();
-
-    CDialog::OnInitDialog();
 
     /* Initialize the options */
     memset(&options, 0, sizeof(options));
@@ -256,16 +317,20 @@ BOOL CTSOptionsDlg::OnInitDialog()
         waveInGetDevCaps(i, &caps, sizeof(caps));
 
         if (waveDevice && !lstrcmp(caps.szPname, waveDevice))
-           index = i;
+        {
+            index = i;
+        }
 
         // If getdevcaps fails, this'll just put a blank line in the control.
-        m_WaveInComboBox.AddString(caps.szPname);
+        ComboBox_AddItemData(GetDlgItem(hDlg, IDC_TSWAVEINCOMBO), caps.szPname);
     }
 
-    m_WaveInComboBox.SetCurSel(index);
+    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TSWAVEINCOMBO), index);
 
     if (!TimeShiftGetWaveOutDevice(&waveDevice))
-       waveDevice = NULL;
+    {
+        waveDevice = NULL;
+    }
 
     numDevs = waveOutGetNumDevs();
     index   = 0;
@@ -277,17 +342,21 @@ BOOL CTSOptionsDlg::OnInitDialog()
         waveOutGetDevCaps(i, &caps, sizeof(caps));
 
         if (waveDevice && !lstrcmp(caps.szPname, waveDevice))
-           index = i;
+        {
+            index = i;
+        }
 
         // If getdevcaps fails, this'll just put a blank line in the control.
-        m_WaveOutComboBox.AddString(caps.szPname);
+        ComboBox_AddItemData(GetDlgItem(hDlg, IDC_TSWAVEOUTCOMBO), caps.szPname);
     }
 
-    m_WaveOutComboBox.SetCurSel(index);
+    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TSWAVEOUTCOMBO), index);
 
     /**** Recording format related ****/
     if (TimeShiftGetRecHeight(&index))
-       options.recHeight = index;
+    {
+        options.recHeight = index;
+    }
 
     TimeShiftGetRecFormat(&options.format);
     TimeShiftGetFourCC(&options.fcc);
@@ -300,10 +369,10 @@ BOOL CTSOptionsDlg::OnInitDialog()
     m_lastSize        = options.sizeLimit;
 
     /* Limit the edit control to only accept 8 numbers */
-    m_SizeEdit.LimitText(8);
+    Edit_LimitText(GetDlgItem(hDlg, IDC_TS_SIZE), 8);
 
     // Refresh the controls on the dialog with the current data.
-    UpdateData(FALSE);
+    UpdateData(hDlg, FALSE);
 
     return TRUE;  // return TRUE unless you set the focus to a control
                   // EXCEPTION: OCX Property Pages should return FALSE
@@ -339,7 +408,7 @@ int CALLBACK browseCallback(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 }
 
 /** Path select button pressed */
-void CTSOptionsDlg::OnTSPathSelect()
+void CTSOptionsDlg::OnTSPathSelect(HWND hDlg)
 {
     BROWSEINFO   info;
     LPITEMIDLIST list;
@@ -351,10 +420,12 @@ void CTSOptionsDlg::OnTSPathSelect()
        function so it can select it after the dialog initializes */
     strncpy(path, TimeShiftGetSavingPath(), sizeof(path));
     if (!TimeShiftIsPathValid(path))
-       memset(path, 0, sizeof(path));
+    {
+        memset(path, 0, sizeof(path));
+    }
 
     memset(&info, 0, sizeof(info));
-    info.hwndOwner = m_hWnd;
+    info.hwndOwner = hDlg;
     info.lpfn      = browseCallback;
     info.ulFlags   = BIF_NEWDIALOGSTYLE;
     info.lParam    = (LPARAM)path;
@@ -363,40 +434,43 @@ void CTSOptionsDlg::OnTSPathSelect()
     if (list)
     {
         if (!SHGetPathFromIDList(list, path) || !TimeShiftIsPathValid(path))
-           MessageBox("Invalid path selected", "Error", MB_OK | MB_ICONERROR);
-           else
-           {
-               strncpy(options.path, path, sizeof(options.path));
+        {
+            MessageBox(hDlg, "Invalid path selected", "Error", MB_OK | MB_ICONERROR);
+        }
+        else
+        {
+            strncpy(options.path, path, sizeof(options.path));
 
-               maxSize = GetMaximumVolumeFileSize(options.path);
-               if (maxSize)
-               {
-                   CString text;
-
-                   text.Format("The path you have selected is on a volume "
+            maxSize = GetMaximumVolumeFileSize(options.path);
+            if (maxSize)
+            {
+                string text(MakeString() << "The path you have selected is on a volume "
                                "that can't store files that are larger than "
-                               "about %0.2f GiB. Your recorded files will be "
+                               "about " << fixed << setprecision(2) << (float)maxSize / (float)(1 << 10) << " GiB"
+                               ". Your recorded files will be "
                                "limited to this size even if the maximum size "
-                               "is set higher.",
-                               (float)maxSize / (float)(1 << 10));
-                   MessageBox(text, "Limited Volume", MB_ICONWARNING | MB_OK);
-               }
-           }
+                               "is set higher.");
+                MessageBox(hDlg, text.c_str(), "Limited Volume", MB_ICONWARNING | MB_OK);
+            }
+        }
 
         if (SHGetMalloc(&pMalloc) != E_FAIL)
         {
             pMalloc->Free(list);
             pMalloc->Release();
-        } else
-          MessageBox("Memory leak", "Error", MB_OK | MB_ICONERROR);
+        }
+        else
+        {
+            MessageBox(hDlg, "Memory leak", "Error", MB_OK | MB_ICONERROR);
+        }
 
-        m_PathDisplay.SetWindowText(options.path);
+        SetWindowText(GetDlgItem(hDlg, IDC_TS_PATH_DISPLAY), options.path);
     }
 }
 
-void CTSOptionsDlg::OnCompressionhelp()
+void CTSOptionsDlg::OnCompressionhelp(HWND hDlg)
 {
-    MessageBox("Configure the audio and video compression settings. "
+    MessageBox(hDlg, "Configure the audio and video compression settings. "
                "The default is uncompressed frames, which should be "
                "changed if the recording format is RGB. Try using a "
                "fast codec for best results. Huffyuv is recommended.",
@@ -404,17 +478,17 @@ void CTSOptionsDlg::OnCompressionhelp()
                MB_OK);
 }
 
-void CTSOptionsDlg::OnWavehelp()
+void CTSOptionsDlg::OnWavehelp(HWND hDlg)
 {
-    MessageBox("WaveIn: Choose the device to which your tuner card is "
+    MessageBox(hDlg, "WaveIn: Choose the device to which your tuner card is "
                "directly attached.",
                "Wave Device Help",
                MB_OK);
 }
 
-void CTSOptionsDlg::OnHeighthelp()
+void CTSOptionsDlg::OnHeighthelp(HWND hDlg)
 {
-    MessageBox("Using full height will record every interlaced frame assuming "
+    MessageBox(hDlg, "Using full height will record every interlaced frame assuming "
                "none are lost. It's recommended that you use a fast, "
                "lightweight lossless codec like Huffyuv in this mode. "
                "Recording at half the height will reduce the vertical "
@@ -424,62 +498,75 @@ void CTSOptionsDlg::OnHeighthelp()
                MB_OK);
 }
 
-void CTSOptionsDlg::OnUpdateTSSize()
+void CTSOptionsDlg::OnUpdateTSSize(HWND hDlg)
 {
     DWORD   value;
-    CString text;
 
     /* The file size edit control has been changed */
-    value = GetDlgItemInt(IDC_TS_SIZE, NULL, FALSE);
+    value = GetDlgItemInt(hDlg, IDC_TS_SIZE);
 
     /* Enable or disable the "no limit" check box */
-    if (!value)
+    if (value)
     {
-        if (m_SizeCheckBox.GetCheck() != BST_CHECKED)
-           m_SizeCheckBox.SetCheck(BST_CHECKED);
-    } else
+        if (IsChecked(hDlg, IDC_TS_SIZE_NO_LIMIT))
+        {
+            SetChecked(hDlg, IDC_TS_SIZE_NO_LIMIT, FALSE);
+        }
+    } 
+    else
     {
-        if (m_SizeCheckBox.GetCheck() != BST_UNCHECKED)
-           m_SizeCheckBox.SetCheck(BST_UNCHECKED);
+        if (!IsChecked(hDlg, IDC_TS_SIZE_NO_LIMIT))
+        {
+            SetChecked(hDlg, IDC_TS_SIZE_NO_LIMIT, TRUE);
+        }
     }
 
     /* Update the size in GiB */
-    text.Format("(%0.2f GiB)", (float)value / (float)(1 << 10));
-    m_SizeGiB.SetWindowText(text);
+    string SizeText(MakeString() << "(" << fixed << setprecision(2) << (float)value / (float)(1 << 10) << " GiB)");
+    SetWindowText(GetDlgItem(hDlg, IDC_TS_SIZE_GIB), SizeText.c_str());
 }
 
-void CTSOptionsDlg::OnKillfocusTSSize()
+void CTSOptionsDlg::OnKillfocusTSSize(HWND hDlg)
 {
     DWORD value;
 
     /* Make sure something's being displayed in the edit control to reduce
        confusion */
-    if (m_SizeEdit.GetWindowTextLength() <= 0)
-       SetDlgItemInt(IDC_TS_SIZE, 0, FALSE);
-       else
-       {
-           /* Validate the data. Make sure the value is in the range of valid
-              values. */
-           value = GetDlgItemInt(IDC_TS_SIZE, NULL, FALSE);
-           if (value > MAX_FILE_SIZE)
-              value = MAX_FILE_SIZE;
+    if (GetDlgItemString(hDlg,IDC_TS_SIZE).empty())
+    {
+        SetDlgItemInt(hDlg, IDC_TS_SIZE, 0);
+    }
+    else
+    {
+        /* Validate the data. Make sure the value is in the range of valid
+          values. */
+        value = GetDlgItemInt(hDlg, IDC_TS_SIZE);
+        if (value > MAX_FILE_SIZE)
+        {
+            value = MAX_FILE_SIZE;
+        }
 
-           /* This will set the value back into the edit box. Weird formatting
-              like leading zeroes will also be removed after the value is
-              set. */
-           SetDlgItemInt(IDC_TS_SIZE, value, FALSE);
+        /* This will set the value back into the edit box. Weird formatting
+          like leading zeroes will also be removed after the value is
+          set. */
+        SetDlgItemInt(hDlg, IDC_TS_SIZE, value);
 
-           /* Save the value as the last size if it's not zero */
-           if (value)
-              m_lastSize = value;
-       }
+        /* Save the value as the last size if it's not zero */
+        if (value)
+        {
+            m_lastSize = value;
+        }
+   }
 }
 
-void CTSOptionsDlg::OnTSSizeNoLimit()
+void CTSOptionsDlg::OnTSSizeNoLimit(HWND hDlg)
 {
-    if (m_SizeCheckBox.GetCheck()==BST_CHECKED)
-       SetDlgItemInt(IDC_TS_SIZE, 0, FALSE);
-       else
-       SetDlgItemInt(IDC_TS_SIZE, m_lastSize ? m_lastSize :
-                                               (MAX_FILE_SIZE >> 1), FALSE);
+    if(IsChecked(hDlg, IDC_TS_SIZE_NO_LIMIT))
+    {
+        SetDlgItemInt(hDlg, IDC_TS_SIZE, 0);
+    }
+    else
+    {
+        SetDlgItemInt(hDlg, IDC_TS_SIZE, m_lastSize ? m_lastSize : (MAX_FILE_SIZE >> 1));
+    }
 }

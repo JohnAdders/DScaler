@@ -20,16 +20,11 @@
  * @file TreeSettingsGeneric.h Header file for CTreeSettingsGeneric class
  */
 
-#if !defined(AFX_TREESETTINGSDLG_H__AF9102F2_06B5_43B0_8DD7_C3CFFA8DCCDB__INCLUDED_)
-#define AFX_TREESETTINGSDLG_H__AF9102F2_06B5_43B0_8DD7_C3CFFA8DCCDB__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#if !defined(_TREESETTINGSGENERIC_H__)
+#define _TREESETTINGSGENERIC_H__
 
 #include "Setting.h"
 #include "DS_ApiCommon.h"
-#include "HSListBox.h"
 #include "TreeSettingsPage.h"
 #include "Settings.h"
 #include "..\DScalerRes\resource.h"
@@ -52,69 +47,55 @@ public:
      * @param name name used in the tree
      * @param SettingHolder Settings to display in Dialog
      */
-    CTreeSettingsGeneric(CString name,SmartPtr<CSettingsHolder> SettingHolder);
+    CTreeSettingsGeneric(const std::string& name,SmartPtr<CSettingsHolder> SettingHolder);
     ~CTreeSettingsGeneric() {};
 
-// Dialog Data
-    //{{AFX_DATA(CTreeSettingsGeneric)
-    enum { IDD = IDD_TREESETTINGS_GENERIC };
-    CComboBox   m_Combo;
-    CButton m_CheckBox;
-    CSpinButtonCtrl m_Spin;
-    CSliderCtrl m_Slider;
-    CEdit   m_Edit;
-    CEdit   m_EditString;
-    CButton m_DefaultButton;
-    CHSListBox  m_ListBox;
-    CButton m_CheckGlobal;
-    CButton m_CheckGlobalBox;
-    CButton m_CheckSourceBox;
-    CButton m_CheckVideoInputBox;
-    CButton m_CheckAudioInputBox;
-    CButton m_CheckVideoFormatBox;
-    CButton m_CheckChannelBox;
-    CStatic    m_SavePerInfoBox;
-    CStatic m_TopGroupBox;
-    //}}AFX_DATA
+public:
+    virtual void OnOK(HWND hDlg);
 
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(CTreeSettingsGeneric)
-    protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    //}}AFX_VIRTUAL
-
-// Implementation
-protected:
-
-    // Generated message map functions
-    //{{AFX_MSG(CTreeSettingsGeneric)
-    virtual BOOL OnInitDialog();
-    afx_msg void OnSelchangeList();
-    afx_msg void OnChangeEdit();
-    afx_msg void OnChangeEditString();
-    afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
-    afx_msg void OnSettingsDefault();
-    afx_msg void OnCheckClick();
-    afx_msg void OnSelchangeChoosefromlist();
-    afx_msg void OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResult);
-    afx_msg void OnCheckGlobalClick();
-    afx_msg void OnCheckSourceClick();
-    afx_msg void OnCheckVideoInputClick();
-    afx_msg void OnCheckAudioInputClick();
-    afx_msg void OnCheckVideoFormatClick();
-    afx_msg void OnCheckChannelClick();
-    afx_msg void OnSize(UINT nType, int cx, int cy);
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
-    void OnOK();
 private:
-    void UpdateControls(CWnd* pChangedControl);
+    virtual BOOL CTreeSettingsGeneric::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
+    void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
+    LRESULT OnNotify(HWND hwnd, int id, LPNMHDR nmhdr);
+    void OnSelchangeList(HWND hDlg);
+    void OnChangeEdit(HWND hDlg);
+    void OnChangeEditString(HWND hDlg);
+    void OnHScroll(HWND hwnd, HWND hwndCtl, UINT code, int pos);
+    void OnSettingsDefault(HWND hDlg);
+    void OnCheckClick(HWND hDlg);
+    void OnSelchangeChoosefromlist(HWND hDlg);
+    LRESULT OnDeltaposSettingsSpin(HWND hDlg, NMHDR* pNMHDR);
+    void OnCheckGlobalClick(HWND hDlg);
+    void OnCheckSourceClick(HWND hDlg);
+    void OnCheckVideoInputClick(HWND hDlg);
+    void OnCheckAudioInputClick(HWND hDlg);
+    void OnCheckVideoFormatClick(HWND hDlg);
+    void OnCheckChannelClick(HWND hDlg);
+    void OnSize(HWND hDlg, UINT nType, int cx, int cy);
+    void UpdateControls(HWND pChangedControl);
     long m_SettingsCount;
     SmartPtr<CSettingsHolder> m_Settings;
     long m_CurrentSetting;
+
+    // control window handles
+    HWND m_Combo;
+    HWND m_CheckBox;
+    HWND m_Spin;
+    HWND m_Slider;
+    HWND m_Edit;
+    HWND m_EditString;
+    HWND m_DefaultButton;
+    HWND m_ListBox;
+    HWND m_CheckGlobal;
+    HWND m_CheckGlobalBox;
+    HWND m_CheckSourceBox;
+    HWND m_CheckVideoInputBox;
+    HWND m_CheckAudioInputBox;
+    HWND m_CheckVideoFormatBox;
+    HWND m_CheckChannelBox;
+    HWND m_SavePerInfoBox;
+    HWND m_TopGroupBox;
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_SETTINGSDLG_H__AF9102F2_06B5_43B0_8DD7_C3CFFA8DCCDB__INCLUDED_)
+#endif

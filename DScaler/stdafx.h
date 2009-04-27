@@ -35,11 +35,12 @@
 #endif // _MSC_VER > 1000
 
 #define VC_EXTRALEAN
-#include <afxwin.h>
-#include <afxext.h>
-#include <afxcmn.h>
+//#include <afxwin.h>
+//#include <afxext.h>
+//#include <afxcmn.h>
 
 #include <atlbase.h>
+#include <atltime.h>
 
 //uncomment the folowing line if you want to try the experimental direct show support
 #ifdef WANT_DSHOW_SUPPORT
@@ -71,6 +72,8 @@
 #include <algorithm>
 #include <math.h>
 #include <multimon.h>
+#include <time.h>
+
 
 #include "ErrorBox.h"
 #include "DSDrv.h"
@@ -78,6 +81,7 @@
 #include "SmartPtr.h"
 #include "SmartHandle.h"
 #include "DScalerUtils.h"
+#include "SettingsMaster.h"
 
 // fix for including external header with IDC_STATIC defined
 #ifdef IDC_STATIC

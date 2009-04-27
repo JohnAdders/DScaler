@@ -22,110 +22,86 @@
 
 #include "stdafx.h"
 #include "TreeSettingsPage.h"
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
+#include "DScaler.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CTreeSettingsPage dialog
+using namespace std;
 
-
-CTreeSettingsPage::CTreeSettingsPage(CString TreeName,UINT nIDTemplate)
-:CDialog(nIDTemplate, NULL),
-m_dlgID(nIDTemplate),
-m_name(TreeName),
-m_HeaderName(TreeName),
-m_minHeight(0),
-m_minWidth(0),
-m_bInitMinSize(TRUE)
+CTreeSettingsPage::CTreeSettingsPage(const string& TreeName, UINT nIDTemplate): 
+    CDSDialog(MAKEINTRESOURCE(nIDTemplate)),
+    m_name(TreeName),
+    m_HeaderName(TreeName),
+    m_minHeight(0),
+    m_minWidth(0),
+    m_bInitMinSize(TRUE)
 {
-    //{{AFX_DATA_INIT(CTreeSettingsPage)
-        // NOTE: the ClassWizard will add member initialization here
-    //}}AFX_DATA_INIT
 }
 
-CTreeSettingsPage::CTreeSettingsPage(CString TreeName,CString HeaderName,UINT nIDTemplate)
-:CDialog(nIDTemplate, NULL),
-m_dlgID(nIDTemplate),
-m_name(TreeName),
-m_HeaderName(HeaderName),
-m_minHeight(0),
-m_minWidth(0),
-m_bInitMinSize(TRUE)
+CTreeSettingsPage::CTreeSettingsPage(const string& TreeName,const string& HeaderName,UINT nIDTemplate) :
+            CDSDialog(MAKEINTRESOURCE(nIDTemplate)),
+            m_name(TreeName),
+            m_HeaderName(HeaderName),
+            m_minHeight(0),
+            m_minWidth(0),
+            m_bInitMinSize(TRUE)
 {
-
 }
 
-void CTreeSettingsPage::DoDataExchange(CDataExchange* pDX)
+CTreeSettingsPage::~CTreeSettingsPage()
 {
-    CDialog::DoDataExchange(pDX);
-    //{{AFX_DATA_MAP(CTreeSettingsPage)
-        // NOTE: the ClassWizard will add DDX and DDV calls here
-    //}}AFX_DATA_MAP
 }
 
-
-BEGIN_MESSAGE_MAP(CTreeSettingsPage, CDialog)
-    //{{AFX_MSG_MAP(CTreeSettingsPage)
-        // NOTE: the ClassWizard will add message map macros here
-    //}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
-// CTreeSettingsPage message handlers
-
-BOOL CTreeSettingsPage::PreTranslateMessage(MSG* pMsg)
+BOOL CTreeSettingsPage::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     //dont allow escape key to be processed by the page
     //the escape key will normaly close the dialog
-    if((pMsg->message==WM_KEYDOWN) && (pMsg->wParam==VK_ESCAPE))
+    if((message==WM_KEYDOWN) && (wParam==VK_ESCAPE))
     {
         return TRUE;
     }
 
-    return CDialog::PreTranslateMessage(pMsg);
+    return ChildDialogProc(hDlg, message, wParam, lParam);
 }
 
-void CTreeSettingsPage::GetMinSize(int &width,int &height)
+
+void CTreeSettingsPage::GetMinSize(HWND hWnd, int& width,int& height)
 {
     //check if minimum size is initialized
-    if(m_bInitMinSize && m_hWnd!=NULL)
+    if(m_bInitMinSize && hWnd != NULL)
     {
         //use current window width and height as minimum
-        CRect rect;
-        GetClientRect(&rect);
-        m_minHeight=rect.Height();
-        m_minWidth=rect.Width();
+        RECT rect;
+        GetClientRect(hWnd, &rect);
+        m_minHeight=rect.bottom - rect.top;
+        m_minWidth=rect.right - rect.left;
         m_bInitMinSize=FALSE;
     }
     width=m_minWidth;
     height=m_minHeight;
 }
 
-void CTreeSettingsPage::OnOK()
+void CTreeSettingsPage::OnOK(HWND hDlg)
 {
-    EndDialog(IDOK);
+    EndDialog(hDlg, IDOK);
 }
 
-void CTreeSettingsPage::OnCancel()
+void CTreeSettingsPage::OnCancel(HWND hDlg)
 {
-    EndDialog(IDCANCEL);
+    EndDialog(hDlg, IDCANCEL);
 }
 
-BOOL CTreeSettingsPage::OnKillActive()
+BOOL CTreeSettingsPage::OnKillActive(HWND hDlg)
 {
     return TRUE;
 }
 
-BOOL CTreeSettingsPage::OnSetActive()
+BOOL CTreeSettingsPage::OnSetActive(HWND hDlg)
 {
     return TRUE;
 }
 
-BOOL CTreeSettingsPage::OnQueryCancel()
+BOOL CTreeSettingsPage::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    return TRUE;
+    return FALSE;
 }

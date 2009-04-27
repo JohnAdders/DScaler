@@ -29,13 +29,14 @@
 #endif
 
 #define VC_EXTRALEAN
-#include <afxwin.h>
-#include <afxext.h>
-#include <afxcmn.h>
+//#include <afxwin.h>
+//#include <afxext.h>
+//#include <afxcmn.h>
 
 #include <atlbase.h>
 
 // Windows Header Files:
+#include <windows.h>
 #include <windowsx.h>
 
 #include <stdio.h>
@@ -55,13 +56,13 @@
 #include <mmsystem.h>
 #include <vfw.h>
 #include <winioctl.h>
-#include "../DScaler/ErrorBox.h"
-#include "DSDrv.h"
-#include "HtmlHelp.H"
 #include <vector>
 #include <string>
+#include "HtmlHelp.H"
 
 #include "../DScaler/SmartPtr.h"
+#include "../DScaler/ErrorBox.h"
+#include "DSDrv.h"
 
 // fix for including external header with IDC_STATIC defined
 #ifdef IDC_STATIC

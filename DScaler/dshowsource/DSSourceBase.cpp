@@ -25,22 +25,16 @@
 #ifdef WANT_DSHOW_SUPPORT
 
 #include "dscaler.h"
+#include "..\DScalerRes\resource.h"
 #include "DSSourceBase.h"
 #include "AutoCriticalSection.h"
 #include "FieldTiming.h"
 #include "DebugLog.h"
-#include "TreeSettingsDlg.h"
-#include "TreeSettingsOleProperties.h"
 #include "OSD.h"
 #include "OutThreads.h"
+#include "TreeSettingsDlg.h"
 
 using namespace std;
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
 
 CDSSourceBase::CDSSourceBase(long SetMessage, long MenuId) :
     CSource(SetMessage,MenuId),
@@ -65,7 +59,7 @@ CDSSourceBase::~CDSSourceBase()
         }
     }
     DeleteCriticalSection(&m_hOutThreadSync);
-    WritePrivateProfileString(m_IniSection,_T("AudioDevice"),m_AudioDevice.c_str(),GetIniFileForSettings());
+    m_AudioDevice->WriteToIni(TRUE);
 }
 
 void CDSSourceBase::CreateSettings(LPCSTR IniSection)
@@ -76,11 +70,7 @@ void CDSSourceBase::CreateSettings(LPCSTR IniSection)
     m_Balance = new CBalanceSetting(this, "Balance", 0, LONG_MIN, LONG_MAX, IniSection);
     m_Settings.push_back(m_Balance);
 
-    CString AudioDevice;
-    m_IniSection=IniSection;
-    GetPrivateProfileString(IniSection,_T("AudioDevice"),_T(""),AudioDevice.GetBufferSetLength(MAX_PATH),MAX_PATH,GetIniFileForSettings());
-    AudioDevice.ReleaseBuffer();
-    m_AudioDevice=AudioDevice;
+    m_AudioDevice = new CStringSetting("Audio Device", "", IniSection, "AudioDevice");
 }
 
 int CDSSourceBase::GetWidth()
@@ -106,7 +96,7 @@ void CDSSourceBase::Start()
     try
     {
         //derived class must create the graph first
-        ASSERT(m_pDSGraph!=NULL);
+        _ASSERTE(m_pDSGraph!=NULL);
 
         m_pDSGraph->start();
     }
@@ -180,7 +170,7 @@ void CDSSourceBase::StopAndSeekToBeginning()
         }
         catch(CDShowException &e)
         {
-            ErrorBox(CString("Stop failed\n\n")+e.what());
+            ErrorBox(MakeString() << "Stop failed\n\n"  << e.what());
         }
     }
 }
@@ -196,7 +186,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     if(m_dwRendStartTime!=0)
     {
         dwLastDelay=timeGetTime()-m_dwRendStartTime;
-        //TRACE("Processing delay: %ld(ms)\n",dwLastDelay);
+        //LOGD("Processing delay: %ld(ms)\n",dwLastDelay);
         m_dwRendStartTime=0;
     }
     //info to return if we fail
@@ -227,7 +217,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 
     //width must be 16 byte aligned or optimized memcpy will not work
     //this assert will never be triggered (checked in dsrend filter)
-    ASSERT((binfo.Width&0xf)==0);
+    _ASSERTE((binfo.Width&0xf)==0);
 
     //check if size has changed
     if(m_CurrentX!=binfo.Width || m_CurrentY!=binfo.Height*2)
@@ -321,7 +311,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             }
             catch(CDShowException &e)
             {
-                ErrorBox(CString("Play failed\n\n")+e.what());
+                ErrorBox(MakeString() << "Play failed\n\n" << e.what());
             }
             OSD_ShowText("Play", 0);
         }
@@ -403,23 +393,19 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             int root=dlg.AddPage(&rootPage);
 
             int filterIndex=0;
-            vector<CTreeSettingsPage*> pages;
+            CComPtr<ISpecifyPropertyPages> SpecifyPages;
             CTreeSettingsPage *pPage=NULL;
 
-            BOOL bHasSubPage=FALSE;
-            while(m_pDSGraph->getFilterPropertyPage(filterIndex,&pPage,bHasSubPage))
+            while(m_pDSGraph->getFilterPropertyPage(filterIndex, SpecifyPages))
             {
-                pages.push_back(pPage);
-                int filterRoot=dlg.AddPage(pPage,root);
-                if(bHasSubPage)
+                int filterRoot=dlg.AddPages(SpecifyPages, root);
+
+                int subIndex=0;
+                CComPtr<ISpecifyPropertyPages> SpecifyPages2;
+                while(m_pDSGraph->getFilterSubPage(filterIndex,subIndex, SpecifyPages2))
                 {
-                    int subIndex=0;
-                    while(m_pDSGraph->getFilterSubPage(filterIndex,subIndex,&pPage))
-                    {
-                        pages.push_back(pPage);
-                        dlg.AddPage(pPage,filterRoot);
-                        subIndex++;
-                    }
+                    dlg.AddPages(SpecifyPages2, filterRoot);
+                    subIndex++;
                 }
 
                 filterIndex++;
@@ -427,17 +413,13 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             if(filterIndex!=0)
             {
                 //show the dialog
-                dlg.DoModal();
+                dlg.DoModal(hWnd);
             }
             else
             {
-                AfxMessageBox(_T("There is no filters to show properties for"),MB_OK|MB_ICONINFORMATION);
+                ErrorBox("There is no filters to show properties for");
             }
 
-            for(vector<CTreeSettingsPage*>::iterator it=pages.begin();it!=pages.end();it++)
-            {
-                delete *it;
-            }
             return TRUE;
             break;
         }

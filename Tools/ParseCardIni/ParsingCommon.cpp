@@ -224,7 +224,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const CParseTag* tag, IN unsigned char
         else if (report == REPORT_CLOSE)
         {
             // This should not fail because constants only provide 0 .. TDA9887_LASTFORMAT.
-            ASSERT(useTDA9887Info->_readingFormat == TDA9887_FORMAT_NONE ||
+            _ASSERTE(useTDA9887Info->_readingFormat == TDA9887_FORMAT_NONE ||
                 (useTDA9887Info->_readingFormat >= 0 &&
                 useTDA9887Info->_readingFormat < TDA9887_FORMAT_LASTONE));
 

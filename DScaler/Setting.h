@@ -223,11 +223,6 @@ public:
     void SetValue(const char* NewValue, BOOL SupressOnChange = FALSE);
     void ChangeValue(eCHANGEVALUE NewValue);
 
-    BOOL ReadFromIni();
-    void WriteToIni(BOOL bOptimizeFileAccess);
-    BOOL ReadFromIniSubSection(const std::string& szSubSection);
-    void WriteToIniSubSection(const std::string& szSubSection, BOOL bOptimizeFileAccess = TRUE);
-
     void SetupControl(HWND hWnd);
     void SetControlValue(HWND hWnd);
     void SetFromControl(HWND hWnd);

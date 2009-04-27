@@ -1098,7 +1098,7 @@ WORD CVTDecoder::GetNonVisiblePageNumbers(LPWORD lpNumberList, WORD nListSize)
     WORD nPagesCount = 0;
     TVTPage* pPage;
 
-    ASSERT(nListSize != 0);
+    _ASSERTE(nListSize != 0);
 
     EnterCriticalSection(&m_PageStoreMutex);
 

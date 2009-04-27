@@ -41,7 +41,7 @@ CI2CDevice::CI2CDevice()
 
 void CI2CDevice::SetI2CBus(CI2CBus* i2cBus, BYTE address)
 {
-    ASSERT(i2cBus != NULL);
+    _ASSERTE(i2cBus != NULL);
 
     this->m_I2CBus = i2cBus;
     this->m_DeviceAddress = (address == 0x00) ? GetDefaultAddress() : address;
@@ -64,7 +64,7 @@ BOOL CI2CDevice::WriteToSubAddress(BYTE subAddress, BYTE writeByte)
 
 BOOL CI2CDevice::WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize)
 {
-    ASSERT(m_I2CBus != 0);
+    _ASSERTE(m_I2CBus != 0);
 
     BYTE* buffer = (BYTE*)malloc(writeBufferSize + 2);
     buffer[0] = m_DeviceAddress << 1;
@@ -83,7 +83,7 @@ BOOL CI2CDevice::ReadFromSubAddress(BYTE subAddress, BYTE* readBuffer, size_t re
 
 BOOL CI2CDevice::ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize, BYTE* readBuffer, size_t readBufferSize)
 {
-    ASSERT(m_I2CBus != 0);
+    _ASSERTE(m_I2CBus != 0);
 
     if (writeBuffer == 0)
     {

@@ -1851,7 +1851,7 @@ BOOL CMixerFinder::GetMixerName(long nMixerIndex, char szName[MAXPNAMELEN])
     MIXERCAPS mxcaps;
     MMRESULT mmresult;
 
-    ASSERT(nMixerIndex >= 0 && (UINT)nMixerIndex < m_nMixerCount);
+    _ASSERTE(nMixerIndex >= 0 && (UINT)nMixerIndex < m_nMixerCount);
 
     mmresult = mixerGetDevCaps(nMixerIndex, &mxcaps, sizeof(MIXERCAPS));
     if (mmresult == MMSYSERR_NOERROR)

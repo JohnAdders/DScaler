@@ -522,9 +522,3 @@ void Timing_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_AUTO_FORMAT, bDoAutoFormatDetect);
 }
 
-SmartPtr<CTreeSettingsGeneric> Timing_GetTreeSettingsPage()
-{
-    SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(WM_TIMING_GETVALUE));
-    return new CTreeSettingsGeneric("Field Timing Settings", Holder);
-}
-

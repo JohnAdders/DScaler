@@ -102,7 +102,7 @@ public:
 
     SmartPtr<ITuner> GetTuner();
 
-    CTreeSettingsPage* GetTreeSettingsPage();
+    SmartPtr<CSettingsHolder> GetSettingsPage();
 
     void SetSourceAsCurrent();
 

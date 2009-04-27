@@ -20,36 +20,32 @@
  * @file TreeSettingsDlg.h header file for tree settings dialog
  */
 
-#if !defined(AFX_TREESETTINGSDLG_H__80CDEE5F_F683_4BEB_9028_5EE2ACEE51F6__INCLUDED_)
-#define AFX_TREESETTINGSDLG_H__80CDEE5F_F683_4BEB_9028_5EE2ACEE51F6__INCLUDED_
+#if !defined(_TREESETTINGSDLG_H__)
+#define _TREESETTINGSDLG_H__
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 // TreeSettingsDlg.h : header file
 //
 
 #include <vector>
 #include "Setting.h"
+#include "DSDialog.h"
 #include "TreeSettingsPage.h"
 #include "..\DScalerRes\resource.h"
-#include "GradientStatic.h"
 
 #define FILTER_SETTINGS_MASK        0x01
 #define DEINTERLACE_SETTINGS_MASK   0x02
 #define ADVANCED_SETTINGS_MASK      0x04
 #define ALL_SETTINGS_MASK            0x08
 
-
 /**
  * Tree based settings dialog.
  * @see CTreeSettingsPage
  */
-class CTreeSettingsDlg : public CDialog
+class CTreeSettingsDlg : public CDSDialog
 {
 // Construction
 public:
-    CTreeSettingsDlg(CString caption,CWnd* pParent = NULL);   // standard constructor
+    CTreeSettingsDlg(const std::string& Caption);   // standard constructor
     virtual ~CTreeSettingsDlg();
 
     /**
@@ -61,8 +57,9 @@ public:
      * @return integer used when adding new pages as a child of this one
      */
     int AddPage(SmartPtr<CTreeSettingsPage> pPage,int parent=-1);
+    int AddPages(CComPtr<ISpecifyPropertyPages> SpecifyPages, int Parent = -1);
 
-    BOOL ShowPage(int iPage);
+    BOOL ShowPage(HWND hDlg, int iPage);
 
     /**
      * @param iStartPage page that will be shown initialy
@@ -70,62 +67,46 @@ public:
     void SetStartPage(int iStartPage) {m_iStartPage=iStartPage;};
     static void ShowTreeSettingsDlg(int iSettingsMask);
 
-// Dialog Data
-    //{{AFX_DATA(CTreeSettingsDlg)
-    enum { IDD = IDD_TREESETTING };
-    CTreeCtrl    m_tree;
-    CGradientStatic    m_PageHeader;
-    //}}AFX_DATA
-
-
-// Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(CTreeSettingsDlg)
-    protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    //}}AFX_VIRTUAL
-
 // Implementation
 protected:
 
-    // Generated message map functions
-    //{{AFX_MSG(CTreeSettingsDlg)
-    virtual void OnOK();
-    virtual void OnCancel();
-    afx_msg void OnSelchangingTree(NMHDR* pNMHDR, LRESULT* pResult);
-    virtual BOOL OnInitDialog();
-    afx_msg void OnHelpBtn();
-    afx_msg void OnSize(UINT nType, int cx, int cy);
-    afx_msg void OnPaint();
-    afx_msg void OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI);
-    afx_msg LRESULT OnNcHitTest(CPoint point);
-    //}}AFX_MSG
-    DECLARE_MESSAGE_MAP()
+    void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
+    LRESULT OnNotify(HWND hwnd, int id, LPNMHDR nmhdr);
+    void OnOK(HWND hDlg);
+    void OnCancel(HWND hDlg);
+    LRESULT OnSelchangingTree(HWND hDlg, NMHDR* pNMHDR);
+    BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
+    void OnHelpBtn(HWND hDlg);
+    void OnSize(HWND hDlg, UINT nType, int cx, int cy);
+    void OnPaint(HWND hDlg);
+    void OnGetMinMaxInfo(HWND hDlg, MINMAXINFO FAR* lpMMI);
 
 private:
+    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     ///internal class. used for storing information about one page
-    typedef struct
+    class CPageInfo
     {
+    public:
+        CPageInfo();
+        ~CPageInfo();
         SmartPtr<CTreeSettingsPage> m_pPage;
         int m_parent;
         HTREEITEM m_hTreeItem;
-    } CPageInfo;
+        HWND m_hWnd;
+    };
     ///vector of all pages
     std::vector<CPageInfo> m_pages;
-    CString m_settingsDlgCaption;
+    std::string m_settingsDlgCaption;
     ///current page
     int m_iCurrentPage;
     ///start page
     int m_iStartPage;
     //image list
-    CImageList m_ImageList;
+    //CImageList m_ImageList;
 
-    CFont m_StaticFont;
-    CRect m_GripperRect;
-    CPoint m_MinMaxInfo;
+    HFONT m_StaticFont;
+    RECT m_GripperRect;
+    POINT m_MinMaxInfo;
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_TREESETTINGSDLG_H__80CDEE5F_F683_4BEB_9028_5EE2ACEE51F6__INCLUDED_)
+#endif

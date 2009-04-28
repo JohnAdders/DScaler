@@ -179,7 +179,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 
 SmartPtr<ITuner> CSAA7134Card::GetTuner() const
 {
-	SmartPtr<ITuner> RetVal(m_Tuner);
+    SmartPtr<ITuner> RetVal(m_Tuner);
     return RetVal;
 }
 

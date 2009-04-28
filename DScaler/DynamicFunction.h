@@ -36,9 +36,9 @@ public:
     }
 
     operator BOOL() const
-	{
-		return m_pFunc != 0;
-	}
+    {
+        return m_pFunc != 0;
+    }
 protected:
     FUNCTYPE m_pFunc;
 };

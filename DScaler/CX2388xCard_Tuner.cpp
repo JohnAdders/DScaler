@@ -175,7 +175,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 
 SmartPtr<ITuner> CCX2388xCard::GetTuner() const
 {
-	SmartPtr<ITuner> RetVal(m_Tuner);
+    SmartPtr<ITuner> RetVal(m_Tuner);
     return RetVal;
 }
 

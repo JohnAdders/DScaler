@@ -457,7 +457,7 @@ private:
     std::string         m_TunerType;
 
     SmartPtr<CI2CBus>   m_I2CBus;
-    SmartPtr<II2CTuner>	m_Tuner;
+    SmartPtr<II2CTuner> m_Tuner;
 
     ///    Stores amount of memory    assigned to    DMA
     DWORD               m_DMAChannelMemorySize[7];

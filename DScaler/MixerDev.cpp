@@ -102,8 +102,6 @@ SettingStringValue g_pMixerName;                            // Saved setting var
 static long     g_nDestinationIndex;                        // Saved setting variable
 static long     g_nSourceIndexes[MAX_SUPPORTED_INPUTS];     // Saved setting variable
 
-static CMixerList g_mixerList;
-
 
 //----------------------------------------------------------------------
 //  Public functions
@@ -262,7 +260,7 @@ void Mixer_SetupDlg(HWND hWndParent)
     }
     else
     {
-        if (g_mixerList.GetMixerCount() > 0)
+        if (CMixerList::getInstance()->GetMixerCount() > 0)
         {
             BOOL bWasInvalidSection = g_bMixerDevInvalidSection;
 
@@ -327,7 +325,7 @@ static void Mixer_SetCurrentMixer(long nMixerIndex)
         g_pCurrentMixer = NULL;
     }
 
-    g_pCurrentMixer = g_mixerList.GetMixer(nMixerIndex);
+    g_pCurrentMixer = CMixerList::getInstance()->GetMixer(nMixerIndex);
 }
 
 
@@ -470,7 +468,7 @@ static IMixer* LoadSourceSettingsCallback(void* pContext)
             return g_pCurrentMixer;
         }
 
-        return g_mixerList.GetMixer(nMixerIndex);
+        return CMixerList::getInstance()->GetMixer(nMixerIndex);
     }
 
     return NULL;
@@ -698,7 +696,7 @@ static long Mixer_NameToIndex(char* szName)
 
     if (szName != NULL)
     {
-        nMixerIndex = g_mixerList.FindMixer(szName);
+        nMixerIndex = CMixerList::getInstance()->FindMixer(szName);
     }
 
     return nMixerIndex;
@@ -1087,13 +1085,13 @@ static void RefillMixerDeviceBox(HWND hDlg, long nSelectIndex)
 
     ComboBox_ResetContent(hMixerControl);
 
-    int mixerCount = g_mixerList.GetMixerCount();
+    int mixerCount = CMixerList::getInstance()->GetMixerCount();
     BOOL bSelected = FALSE;
     int index;
 
     for (int i = 0; i < mixerCount; i++)
     {
-        const char* name = g_mixerList.GetMixer(i)->GetName();
+        const char* name = CMixerList::getInstance()->GetMixer(i)->GetName();
 
         index = ComboBox_AddString(hMixerControl, name);
         ComboBox_SetItemData(hMixerControl, index, i);

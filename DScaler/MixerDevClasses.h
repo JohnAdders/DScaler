@@ -176,12 +176,12 @@ private:
 class CMixerList
 {
 public:
-    CMixerList();
     long GetMixerCount();
     IMixer* GetMixer(long nMixerIndex);
     long FindMixer(const char* MixerName);
-
+    static CMixerList* getInstance();
 private:
+    CMixerList();
     std::vector< SmartPtr<CMixer> > m_Mixers;
 };
 

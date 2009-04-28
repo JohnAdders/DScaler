@@ -26,7 +26,6 @@
  */
 
 #include "stdafx.h"
-#include "MixerDev.h"
 #include "MixerDevClasses.h"
 
 using namespace std;
@@ -402,3 +401,10 @@ long CMixerList::FindMixer(const char* MixerName)
     }
     return -1;
 }
+
+CMixerList* CMixerList::getInstance()
+{
+    static CMixerList TheInstance;
+    return &TheInstance;
+}
+

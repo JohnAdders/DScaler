@@ -154,7 +154,7 @@ public:
     DWORD           GetIndex();
 
     long            GetDestinationCount();
-    CMixerLineDst*  GetDestinationLine(DWORD nIndex);
+    IMixerLineDst*  GetDestinationLine(DWORD nIndex);
 
     void            StoreState();
     void            RestoreState();
@@ -162,10 +162,7 @@ public:
 private:
     HMIXER          m_hMixer;
     MIXERCAPS       m_mxcaps;
-
     DWORD           m_nMixerIndex;
-
-    DWORD           m_nDestinationCount;
     std::vector< SmartPtr<IMixerLineDst> > m_pDestinationLines;
 };
 
@@ -185,6 +182,4 @@ private:
     std::vector< SmartPtr<CMixer> > m_Mixers;
 };
 
-
 #endif
-

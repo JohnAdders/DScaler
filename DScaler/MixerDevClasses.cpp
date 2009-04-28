@@ -27,6 +27,9 @@
 
 #include "stdafx.h"
 #include "MixerDevClasses.h"
+#include "Mmdeviceapi.h"
+#define __IKsJackDescription_INTERFACE_DEFINED__
+#include "Endpointvolume.h"
 
 using namespace std;
 
@@ -337,7 +340,7 @@ long CMixer::GetDestinationCount()
 }
 
 
-CMixerLineDst* CMixer::GetDestinationLine(DWORD nIndex)
+IMixerLineDst* CMixer::GetDestinationLine(DWORD nIndex)
 {
     if (nIndex >= m_pDestinationLines.size())
     {
@@ -365,6 +368,235 @@ void CMixer::RestoreState()
     }
 }
 
+// get a name for the device
+// may not be very friendly, need to test
+string GetDeviceName(CComPtr<IMMDevice>& Device)
+{
+    USES_CONVERSION;
+    LPWSTR Id = NULL;
+    Device->GetId(&Id);
+    if(Id == NULL)
+    {
+        throw logic_error("Can't get device name");
+    }
+    string result(OLE2A(Id));
+    CoTaskMemFree(Id);
+    return result;
+}
+
+//----------------------------------------------------------------------
+//  CVistaMixerLineSrc
+//  corresponds to an input audio endpoint
+//----------------------------------------------------------------------
+class CVistaMixerLineSrc : public IMixerLineSrc
+{
+public:
+    CVistaMixerLineSrc(CComPtr<IMMDevice>& Device) :
+        m_Name(GetDeviceName(Device))
+    {
+        if(FAILED(Device->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, NULL, (VOID**)&m_AudioEndPointVolume)))
+        {
+            throw logic_error("Can't get endpoint volume control");
+        }
+    }
+
+    virtual ~CVistaMixerLineSrc()
+    {
+    }
+
+    const char* GetName()
+    {
+        return m_Name.c_str();
+    }
+
+    void SetMute(BOOL bEnable)
+    {
+        m_AudioEndPointVolume->SetMute(bEnable, NULL);
+    }
+
+    BOOL GetMute()
+    {
+        BOOL Mute(FALSE);
+        m_AudioEndPointVolume->GetMute(&Mute);
+        return Mute;
+    }
+
+    void SetVolume(int volumePercentage)
+    {
+        m_AudioEndPointVolume->SetMasterVolumeLevelScalar(float(volumePercentage / 100.0), NULL);
+    }
+    
+    int GetVolume()
+    {
+        float Volume(0.0);
+        m_AudioEndPointVolume->GetMasterVolumeLevelScalar(&Volume);
+        return long(Volume * 100.0);
+    }
+
+    void StoreState()
+    {
+        m_AudioEndPointVolume->GetMasterVolumeLevelScalar(&m_StoredVolume);
+        m_AudioEndPointVolume->GetMute(&m_StoredMute);
+    }
+    
+    void RestoreState()
+    {
+        m_AudioEndPointVolume->SetMasterVolumeLevelScalar(m_StoredVolume, NULL);
+        m_AudioEndPointVolume->SetMute(m_StoredMute, NULL);
+    }
+
+private:
+    CComPtr<IAudioEndpointVolume> m_AudioEndPointVolume;
+    float m_StoredVolume;
+    BOOL m_StoredMute;
+    std::string m_Name;
+};
+
+//----------------------------------------------------------------------
+//  CVistaMixerLineDst
+//  Corresponds to an output audio endpoint
+//  Note that we dont try and match the input sto the outputs in terms
+//  of topology, we'll see if this matters in practice after some testing
+//----------------------------------------------------------------------
+class CVistaMixerLineDst : public IMixerLineDst
+{
+public:
+    CVistaMixerLineDst(CComPtr<IMMDevice>& Device, CComPtr<IMMDeviceEnumerator> DeviceEnum) :
+        m_Device(Device),
+        m_Name(GetDeviceName(Device))
+    {
+        CComPtr<IMMDeviceCollection> DeviceCollection;
+        if(FAILED(DeviceEnum->EnumAudioEndpoints(eCapture, DEVICE_STATEMASK_ALL, &DeviceCollection)))
+        {
+            throw logic_error("Couldn't enumerate audio endpoints");
+        }
+        UINT Count(0);
+        if(FAILED(DeviceCollection->GetCount(&Count)))
+        {
+            throw logic_error("Couldn't count items in endpoint collection");
+        }
+        for(UINT i(0); i < Count; ++i)
+        {
+            CComPtr<IMMDevice> Device;
+            if(FAILED(DeviceCollection->Item(i, &Device)))
+            {
+                throw logic_error("Couldn't get item in endpoint collection");
+            }
+
+            SmartPtr<IMixerLineSrc> NewSource = new CVistaMixerLineSrc(Device);
+            m_SourceLines.push_back(NewSource);
+
+            // done with this copy of pointer
+            Device.Release();
+        }
+    }
+
+    virtual ~CVistaMixerLineDst()
+    {
+    }
+    
+    const char* GetName()
+    {
+        return m_Name.c_str();
+    }
+
+    long GetSourceCount()
+    {
+        return m_SourceLines.size();
+    }
+    
+    IMixerLineSrc* GetSourceLine(DWORD nIndex)
+    {
+        return m_SourceLines[nIndex];
+    }
+
+    void StoreState()
+    {
+        for (DWORD i = 0; i < m_SourceLines.size(); i++)
+        {
+            m_SourceLines[i]->StoreState();
+        }
+    }
+    
+    void RestoreState()
+    {
+        for (DWORD i = 0; i < m_SourceLines.size(); i++)
+        {
+            m_SourceLines[i]->RestoreState();
+        }
+    }
+
+    BOOL IsTypicalSpeakerLine()
+    {
+        return TRUE;
+    }
+
+    BOOL IsTypicalRecordingLine()
+    {
+        return FALSE;
+    }
+
+private:
+    CComPtr<IMMDevice> m_Device;
+    std::vector< SmartPtr<IMixerLineSrc> > m_SourceLines;
+    std::string m_Name;
+};
+
+//----------------------------------------------------------------------
+//  CVistaMixer
+//  In Vista the sound design is different
+//  the ideaof an audo end point seems to correspond to the concept of 
+//  dest line and there is no coresponding conecpt to Mixer so we'll just
+// have Mixer has one Dest line
+//----------------------------------------------------------------------
+class CVistaMixer : public IMixer
+{
+public:
+    CVistaMixer(DWORD nMixerIndex, CComPtr<IMMDevice>& Device, CComPtr<IMMDeviceEnumerator> DeviceEnum) :
+        m_nMixerIndex(nMixerIndex),
+        m_DestinationLine(Device, DeviceEnum)
+    {
+    }
+
+    ~CVistaMixer()
+    {
+    }
+
+    const char* GetName()
+    {
+        return m_DestinationLine.GetName();
+    }
+    DWORD GetIndex()
+    {
+        return m_nMixerIndex;
+    }
+
+    long GetDestinationCount()
+    {
+        return 1;
+    }
+    
+    IMixerLineDst* GetDestinationLine(DWORD nIndex)
+    {
+        return &m_DestinationLine;
+    }
+
+    void StoreState()
+    {
+        m_DestinationLine.StoreState();
+    }
+
+    void RestoreState()
+    {
+        m_DestinationLine.RestoreState();
+    }
+
+private:
+    DWORD m_nMixerIndex;
+
+    CVistaMixerLineDst m_DestinationLine;
+};
+
 
 //----------------------------------------------------------------------
 //  CMixerFinder
@@ -372,11 +604,44 @@ void CMixer::RestoreState()
 
 CMixerList::CMixerList()
 {
-    long nMixerCount = mixerGetNumDevs();
-    for(long i(0); i < nMixerCount; ++i)
+    CComPtr<IMMDeviceEnumerator> DeviceEnum;
+    if(FAILED(DeviceEnum.CoCreateInstance(__uuidof(MMDeviceEnumerator))))
     {
-        SmartPtr<IMixer> NewMixer = new CMixer(i);
-        m_Mixers.push_back(NewMixer);
+        // do old school mixer based classed
+        long nMixerCount = mixerGetNumDevs();
+        for(long i(0); i < nMixerCount; ++i)
+        {
+            SmartPtr<IMixer> NewMixer = new CMixer(i);
+            m_Mixers.push_back(NewMixer);
+        }
+    }
+    else
+    {
+        // do new Vista style approach
+        CComPtr<IMMDeviceCollection> DeviceCollection;
+        if(FAILED(DeviceEnum->EnumAudioEndpoints(eRender, DEVICE_STATEMASK_ALL, &DeviceCollection)))
+        {
+            throw logic_error("Couldn't enumerate audio endpoints");
+        }
+        UINT Count(0);
+        if(FAILED(DeviceCollection->GetCount(&Count)))
+        {
+            throw logic_error("Couldn't count items in endpoint collection");
+        }
+        for(UINT i(0); i < Count; ++i)
+        {
+            CComPtr<IMMDevice> Device;
+            if(FAILED(DeviceCollection->Item(i, &Device)))
+            {
+                throw logic_error("Couldn't get item in endpoint collection");
+            }
+
+            SmartPtr<IMixer> NewMixer = new CVistaMixer(i, Device, DeviceEnum);
+            m_Mixers.push_back(NewMixer);
+
+            // done with this copy of pointer
+            Device.Release();
+        }
     }
 }
 

@@ -236,7 +236,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="2"
+			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			>
@@ -342,7 +342,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="2"
+			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			>
@@ -4260,6 +4260,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\MixerDevClasses.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MSP34x0.cpp"
 				>
 				<FileConfiguration
@@ -4652,27 +4656,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						RuntimeLibrary="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Express|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_Express|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
 			</File>
@@ -8511,6 +8494,10 @@
 			</File>
 			<File
 				RelativePath="MixerDev.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MixerDevClasses.h"
 				>
 			</File>
 			<File

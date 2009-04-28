@@ -321,7 +321,6 @@ static void Mixer_SetCurrentMixer(long nMixerIndex)
             return;
         }
 
-        delete g_pCurrentMixer;
         g_pCurrentMixer = NULL;
     }
 
@@ -673,11 +672,6 @@ static void Mixer_DoSettingsTransition(tSyncChangesCallback* pSyncfunc, void* pC
     // Synchronize g_pCurrentMixer
     if (g_pCurrentMixer != pNewMixer)
     {
-        if (g_pCurrentMixer != NULL)
-        {
-            delete g_pCurrentMixer;
-        }
-
         g_pCurrentMixer = pNewMixer;
     }
 
@@ -790,12 +784,6 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                         break;
                     }
 
-                    // Make sure it's our own
-                    if (g_pDlgActiveMixer != g_pCurrentMixer)
-                    {
-                        delete g_pDlgActiveMixer;
-                    }
-
                     g_pDlgActiveMixer = NULL;
                 }
 
@@ -904,10 +892,6 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDCANCEL:
             if (g_pDlgActiveMixer != NULL)
             {
-                if (g_pDlgActiveMixer != g_pCurrentMixer)
-                {
-                    delete g_pDlgActiveMixer;
-                }
                 g_pDlgActiveMixer = NULL;
             }
 

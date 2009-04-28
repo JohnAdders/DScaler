@@ -179,7 +179,7 @@ public:
     static CMixerList* getInstance();
 private:
     CMixerList();
-    std::vector< SmartPtr<CMixer> > m_Mixers;
+    std::vector< SmartPtr<IMixer> > m_Mixers;
 };
 
 #endif

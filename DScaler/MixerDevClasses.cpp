@@ -605,7 +605,7 @@ private:
 CMixerList::CMixerList()
 {
     CComPtr<IMMDeviceEnumerator> DeviceEnum;
-    if(FAILED(DeviceEnum.CoCreateInstance(__uuidof(MMDeviceEnumerator))))
+    if(TRUE || FAILED(DeviceEnum.CoCreateInstance(__uuidof(MMDeviceEnumerator))))
     {
         // do old school mixer based classed
         long nMixerCount = mixerGetNumDevs();
@@ -652,7 +652,14 @@ long CMixerList::GetMixerCount()
 
 IMixer* CMixerList::GetMixer(long nMixerIndex)
 {
-    return m_Mixers[nMixerIndex];
+	if(nMixerIndex >= 0 && nMixerIndex <= m_Mixers.size())
+	{
+		return m_Mixers[nMixerIndex];
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 long CMixerList::FindMixer(const char* MixerName)

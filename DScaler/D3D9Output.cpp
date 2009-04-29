@@ -31,6 +31,7 @@
 #include "SettingsPerChannel.h"
 #include "SettingsMaster.h"
 #include "PaintingHDC.h"
+#include "DynamicFunction.h"
 #include <multimon.h>
 
 // the instance of the d3d9 object
@@ -613,14 +614,18 @@ BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExt
 
 BOOL CD3D9Output::InitDD(HWND hWnd)
 {
-    if( NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
+    DynamicFunctionS1<IDirect3D9*, UINT> create3D9("D3D9.dll", "Direct3DCreate9");
+    if(!create3D9)
+    {
+        return FALSE;
+    }
+    if( NULL == (g_pD3D = create3D9(D3D_SDK_VERSION)))
     {
         ErrorBox("Direct3DCreate9 failed");
         return FALSE;
     }
 
     m_hWnd=hWnd;
-
 
     // find display adapter
     HMONITOR hmon=MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);

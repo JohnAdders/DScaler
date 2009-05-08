@@ -372,14 +372,13 @@ void CMixer::RestoreState()
 // may not be very friendly, need to test
 tstring GetDeviceName(CComPtr<IMMDevice>& Device)
 {
-    USES_CONVERSION;
     LPWSTR Id = NULL;
     Device->GetId(&Id);
     if(Id == NULL)
     {
         throw logic_error("Can't get device name");
     }
-    tstring result(OLE2T(Id));
+    tstring result(UnicodeToTString(Id));
     CoTaskMemFree(Id);
     return result;
 }

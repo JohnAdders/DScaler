@@ -90,9 +90,8 @@ BOOL CDShowDevEnum::getNext()
         WCHAR *szDisplayName=NULL;
         if(SUCCEEDED(pMoniker->GetDisplayName(NULL,NULL,&szDisplayName)))
         {
-            USES_CONVERSION;
 
-            m_DisplayName = szDisplayName ? OLE2T(szDisplayName) : _T("");
+            m_DisplayName = szDisplayName ? UnicodeToTString(szDisplayName) : _T("");
             CoTaskMemFree(szDisplayName);
         }
         else

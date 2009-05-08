@@ -118,7 +118,6 @@ void DumpGraph(IFilterGraph *pGraph,tstring &text)
 
 void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,tstring &text)
 {
-    USES_CONVERSION;
     tostringstream str;
     CDShowPinEnum pins(pFilter);
 
@@ -129,7 +128,7 @@ void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,tstring &text)
     HRESULT hr=pFilter->QueryFilterInfo(&FilterInfo);
     if(SUCCEEDED(hr))
     {
-        str << W2A(FilterInfo.achName) << _T("---") << endl;
+        str << UnicodeToTString(FilterInfo.achName) << _T("---") << endl;
     }
     else
     {
@@ -151,7 +150,7 @@ void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,tstring &text)
         hr=pin->QueryPinInfo(&PinInfo);
         if(SUCCEEDED(hr))
         {
-            str << W2A(PinInfo.achName);
+            str << UnicodeToTString(PinInfo.achName);
         }
         else
         {
@@ -207,7 +206,6 @@ void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,tstring &text)
 
 void DumpFilter(CComPtr<IBaseFilter> pFilter,tstring &text)
 {
-    USES_CONVERSION;
     tostringstream str;
     CDShowPinEnum pins(pFilter);
     FILTER_INFO FilterInfo;
@@ -216,7 +214,7 @@ void DumpFilter(CComPtr<IBaseFilter> pFilter,tstring &text)
     HRESULT hr=pFilter->QueryFilterInfo(&FilterInfo);
     if(SUCCEEDED(hr))
     {
-        str << _T("---") << W2A(FilterInfo.achName) << _T("---") << endl;
+        str << _T("---") << UnicodeToTString(FilterInfo.achName) << _T("---") << endl;
     }
     else
     {
@@ -236,7 +234,7 @@ void DumpFilter(CComPtr<IBaseFilter> pFilter,tstring &text)
         hr=pin->QueryPinInfo(&PinInfo);
         if(SUCCEEDED(hr))
         {
-            str << _T(" ---") << W2A(PinInfo.achName);
+            str << _T(" ---") << UnicodeToTString(PinInfo.achName);
         }
         else
         {

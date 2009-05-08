@@ -40,8 +40,6 @@ using namespace std;
 CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,tstring device,tstring deviceName,BOOL bConnectAudio)
 :CDShowBaseSource(pGraph),m_bIsConnected(FALSE),m_pCrossbar(NULL),m_pTVTuner(NULL),m_pTVAudio(NULL),m_bConnectAudio(bConnectAudio)
 {
-    USES_CONVERSION;
-
     HRESULT hr=m_pBuilder.CoCreateInstance(CLSID_CaptureGraphBuilder2);
     if(FAILED(hr))
     {

@@ -116,8 +116,6 @@ LRESULT CTreeSettingsOleProperties::OnNotify(HWND hwnd, int id, LPNMHDR nmhdr)
 
 BOOL CTreeSettingsOleProperties::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
-    USES_CONVERSION;
-    
     m_tabCtrl = GetDlgItem(hDlg, IDD_TREESETTINGS_TAB);
 
     //find maximum width and height of the pages
@@ -158,7 +156,7 @@ BOOL CTreeSettingsOleProperties::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM 
         HRESULT hr=m_pages[i]->m_pPropertyPage->GetPageInfo(&pageInfo);
         if(SUCCEEDED(hr))
         {
-            TabCtrl_InsertItem(m_tabCtrl, i,OLE2T(pageInfo.pszTitle));
+            TabCtrl_InsertItem(m_tabCtrl, i,UnicodeToTString(pageInfo.pszTitle).c_str());
             hr=m_pages[i]->m_pPropertyPage->Activate(m_tabCtrl, &rect, FALSE);
             if(SUCCEEDED(hr))
             {

@@ -36,7 +36,6 @@ using namespace std;
 CDShowFileSource::CDShowFileSource(IGraphBuilder *pGraph,tstring filename)
 :CDShowBaseSource(pGraph),m_file(filename),m_bIsConnected(FALSE)
 {
-    USES_CONVERSION;
     HRESULT hr=m_pBuilder.CoCreateInstance(CLSID_CaptureGraphBuilder2);
     if(FAILED(hr))
     {
@@ -66,7 +65,6 @@ CDShowFileSource::~CDShowFileSource()
 
 void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
 {
-    USES_CONVERSION;
     HRESULT hr;
 
     //is this a grf file? grf files needs special handling

@@ -550,7 +550,6 @@ CCountryList::CCountryList() : m_Countries()
 
 CCountryList::~CCountryList()
 {
-    Clear();
 }
 
 int CCountryList::GetSize() const
@@ -560,12 +559,6 @@ int CCountryList::GetSize() const
 
 void CCountryList::Clear()
 {
-    for(Countries::iterator it = m_Countries.begin();
-        it != m_Countries.end();
-        ++it)
-    {
-        delete (*it);
-    }
     m_Countries.clear();
 }
 

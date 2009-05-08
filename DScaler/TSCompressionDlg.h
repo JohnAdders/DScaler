@@ -35,8 +35,8 @@ public:
     CTSCompressionDlg(TS_OPTIONS* Options);
 
 private:
-    std::string m_AudioFormat;
-    std::string m_VideoFormat;
+    tstring m_AudioFormat;
+    tstring m_VideoFormat;
 
     virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);

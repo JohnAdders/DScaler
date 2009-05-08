@@ -70,7 +70,7 @@ void CTSCompressionDlg::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNoti
 
 BOOL CTSCompressionDlg::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
-    char buffer[256];
+    TCHAR buffer[256];
 
     if (TimeShiftGetVideoCompressionDesc(buffer,
                                      sizeof(buffer),

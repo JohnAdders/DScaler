@@ -65,7 +65,7 @@ private:
     void SetRegister(BYTE reg, BYTE value);
     int SpurCheck(int f1, int f2, int spectrum_from, int spectrum_to);
     int ComputeFreq(int rfin, int if1, int if2, int spectrum_from, int spectrum_to,
-        unsigned char *buf, int *ret_sel, int xogc);
+        BYTE* buf, int *ret_sel, int xogc);
     int CheckLOLock();
     int OptimizeVCO(int sel, int lock);
     void SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoFormat videoFormat);

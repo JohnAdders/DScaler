@@ -46,7 +46,7 @@ class CTreeSettingsGeneric;
 class CSettingsMaster
 {
 public:
-    CSettingsMaster(LPCSTR szIniFile);
+    CSettingsMaster(LPCTSTR szIniFile);
     ~CSettingsMaster();
 
     void Initialize();
@@ -65,7 +65,7 @@ public:
 
     void SaveAllSettings(BOOL bOptimizeFileAccess);
 
-    CSettingGroup* GetGroup(LPCSTR szDisplayName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
+    CSettingGroup* GetGroup(LPCTSTR szDisplayName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
 
     SmartPtr<CSettingsHolder> GetSettingsPage();
 
@@ -82,21 +82,21 @@ private:
 
     void ParseSettingHolder(CSettingsHolder* Holder, BOOL IsLoad);
     void ParseAllSettings(BOOL IsLoad);
-    void MakeSubSection(std::string& SubSection, CSettingGroup* pGroup);
+    void MakeSubSection(tstring& SubSection, CSettingGroup* pGroup);
 
     typedef std::vector< SmartPtr<CSettingsHolder> > Holders;
     /// List of setting holders
     Holders m_Holders;
 
     /// Name of the ini file
-    std::string m_sIniFile;
+    tstring m_sIniFile;
 
     /// Names of the current source, inputs, video format and channel
-    std::string m_SourceName;
-    std::string m_VideoInputName;
-    std::string m_AudioInputName;
-    std::string m_VideoFormatName;
-    std::string m_ChannelName;
+    tstring m_SourceName;
+    tstring m_VideoInputName;
+    tstring m_AudioInputName;
+    tstring m_VideoFormatName;
+    tstring m_ChannelName;
 
     std::vector< SmartPtr<CSettingGroup> > m_SettingsGroups;
 };

@@ -216,7 +216,7 @@ static TTVFormat TVFormats[VIDEOFORMAT_LASTONE] =
     },
 };
 
-const char *VideoFormatNames[VIDEOFORMAT_LASTONE] =
+const char* VideoFormatNames[VIDEOFORMAT_LASTONE] =
 {
     "PAL-B",
     "PAL-D",
@@ -249,7 +249,7 @@ const char *VideoFormatNames[VIDEOFORMAT_LASTONE] =
     "RGB-1024x768@75",
 };
 
-const char *VideoFormatSaveNames[VIDEOFORMAT_LASTONE] =
+const char* VideoFormatSaveNames[VIDEOFORMAT_LASTONE] =
 {
     "PAL-B",
     "PAL-B",

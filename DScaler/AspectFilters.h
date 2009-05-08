@@ -85,7 +85,7 @@ class CAspectFilter
 public:
     CAspectFilter();
     virtual ~CAspectFilter();
-    virtual const char* getFilterName() = 0;
+    virtual const TCHAR* getFilterName() = 0;
 
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun) = 0;
 
@@ -103,7 +103,7 @@ class COverscanAspectFilter : public CAspectFilter
 public:
     COverscanAspectFilter(int TopOverscanSize, int BottomOverscanSize, int LeftOverscanSize, int RightOverscanSize);
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
     virtual void DebugDump();
 
 protected:
@@ -119,7 +119,7 @@ class CAnalogueBlankingFilter : public CAspectFilter
 public:
     CAnalogueBlankingFilter(int SourceWidth, int SourceHeight);
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
     virtual void DebugDump();
 
 protected:
@@ -139,7 +139,7 @@ class COrbitAspectFilter : public CAspectFilter
 public:
     COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY, long OrbitSize);
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
     virtual void DebugDump();
 
 protected:
@@ -154,7 +154,7 @@ class CBounceDestinationAspectFilter : public CAspectFilter
 public:
     CBounceDestinationAspectFilter(time_t period);
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
     virtual void DebugDump();
 
 protected:
@@ -169,7 +169,7 @@ class CPositionDestinationAspectFilter : public CAspectFilter
 public:
     CPositionDestinationAspectFilter(double x, double y);
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
     virtual void DebugDump();
 
 protected:
@@ -182,7 +182,7 @@ class CCropAspectFilter : public CAspectFilter
 {
 public:
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
 };
 
 /** Applies the child filters and uncrops the source image to use all the area available in
@@ -192,7 +192,7 @@ class CUnCropAspectFilter : public CAspectFilter
 {
 public:
     virtual void adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
 };
 
 /** Zooms in on the source image
@@ -207,7 +207,7 @@ class CPanAndZoomAspectFilter : public CAspectFilter
 public:
     CPanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom);
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
     virtual void DebugDump();
 
 protected:
@@ -225,7 +225,7 @@ class CScreenSanityAspectFilter : public CAspectFilter
 public:
     CScreenSanityAspectFilter(int SrcWidth, int SrcHeight);
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
 protected:
     int m_SrcWidth;
     int m_SrcHeight;
@@ -237,7 +237,7 @@ class CResizeWindowAspectFilter : public CAspectFilter
 {
 public:
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
 };
 
 /** Ordered list of aspect filters to be applied
@@ -247,7 +247,7 @@ class CMasterFilterChain : public CAspectFilter
 public:
     CMasterFilterChain(int SrcWidth, int SrcHeight);
     virtual void adjustAspect(CAspectRectangles& ar, BOOL& RequestRerun);
-    virtual const char* getFilterName();
+    virtual const TCHAR* getFilterName();
 protected:
     std::vector< SmartPtr<CAspectFilter> > m_FilterChain;
 };

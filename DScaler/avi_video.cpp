@@ -107,12 +107,12 @@ BOOL aviVideoCompressorOpen(AVI_FILE *file)
         /* Check the input format */
         if (file->video.info.biCompression != BI_RGB &&
             file->video.info.biCompression != FOURCC_YUY2)
-           VIDEO_ERROR(file, "The input format isn't supported");
+           VIDEO_ERROR(file, _T("The input format isn't supported"));
 
         /* Make the output format equal to the input format */
         comp->format = malloc(sizeof(BITMAPINFOHEADER));
         if (!comp->format)
-           VIDEO_ERROR(file, "Out of memory");
+           VIDEO_ERROR(file, _T("Out of memory"));
 
         memcpy(comp->format, &file->video.info, sizeof(BITMAPINFOHEADER));
 
@@ -130,11 +130,11 @@ BOOL aviVideoCompressorOpen(AVI_FILE *file)
         comp->hIC = ICOpen(ICTYPE_VIDEO, file->video.fccHandler,
                            ICMODE_COMPRESS);
         if (!comp->hIC)
-           VIDEO_ERROR(file, "Could not open the selected compressor");
+           VIDEO_ERROR(file, _T("Could not open the selected compressor"));
 
         /* Make sure the compressor supports the input format */
         if (ICCompressQuery(comp->hIC, &file->video.info, NULL) != ICERR_OK)
-           VIDEO_ERROR(file, "Input format not supported");
+           VIDEO_ERROR(file, _T("Input format not supported"));
 
         /* Get the output format */
         assert(!comp->format);
@@ -144,11 +144,11 @@ BOOL aviVideoCompressorOpen(AVI_FILE *file)
 
         comp->format = malloc(size);
         if (!comp->format)
-           VIDEO_ERROR(file, "Out of memory");
+           VIDEO_ERROR(file, _T("Out of memory"));
 
         if (ICCompressGetFormat(comp->hIC, &file->video.info,
                                 comp->format) != ICERR_OK)
-           VIDEO_ERROR(file, "Could not get the output format");
+           VIDEO_ERROR(file, _T("Could not get the output format"));
 
         /* Get the compressor's default quality setting */
         comp->quality = ICGetDefaultQuality(comp->hIC);
@@ -166,7 +166,7 @@ BOOL aviVideoCompressorOpen(AVI_FILE *file)
         vars->lQ         = comp->quality;
 
         if (!ICSeqCompressFrameStart(vars, (BITMAPINFO *)&file->video.info))
-           VIDEO_ERROR(file, "Couldn't begin compressing data");
+           VIDEO_ERROR(file, _T("Couldn't begin compressing data"));
     }
 
     comp->compressing = TRUE;

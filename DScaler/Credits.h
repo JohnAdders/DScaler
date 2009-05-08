@@ -43,7 +43,7 @@ private:
     RECT        m_ScrollRect;               // rect of Static Text frame
     int         m_nArrIndex;                // work ints
     int         m_nCounter;
-    std::string m_szWork;                   // holds display line
+    tstring m_szWork;                   // holds display line
     BOOL        m_bFirstTime;
     int         m_nClip;
     int         m_nCurrentFontHeight;

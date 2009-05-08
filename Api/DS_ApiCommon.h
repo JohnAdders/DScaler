@@ -68,7 +68,15 @@ typedef enum
     SLIDER,
     // character string
     CHARSTRING,
+    // wide character string
+    WCHARSTRING,
 } SETTING_TYPE;
+
+#ifdef _UNICODE
+#define TCHARSTRING WCHARSTRING
+#else
+#define TCHARSTRING CHARSTRING
+#endif
 
 /** Function called when setting Value changes
     return Value indicates whether.rest of screen needs to be

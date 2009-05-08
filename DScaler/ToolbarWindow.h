@@ -129,7 +129,7 @@ public:
     void UpdateWindowPosition(HWND hParentWnd);
     void ForceUpdateWindowPosition(HWND hParentWnd);
 
-    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, std::vector<int> *Results);
+    virtual BOOL LoadSkin(const TCHAR* szSkinIniFile,  const TCHAR* szSection, std::vector<int> *Results);
     virtual void ClearSkin();
 
     static LRESULT CALLBACK ToolbarProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -172,7 +172,7 @@ public:
     HWND GethWndParent() { return m_pToolbar->GethWnd(); }
     HWND GethWndParentOfToolbar() { return m_pToolbar->GethWndParent(); }
 
-    void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct, HICON hIcon, LPCSTR szText, int Width, int Height, int Align);
+    void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct, HICON hIcon, LPCTSTR szText, int Width, int Height, int Align);
 
     virtual void UpdateWindow() {;};
 
@@ -182,17 +182,17 @@ public:
     virtual HWND Create(LPCTSTR szClassName, HINSTANCE hResourceInst);
     virtual HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
 
-    virtual BOOL SkinWindow(HWND hWnd, std::string sID, std::string sIniEntry, eBitmapAsButtonType ButtonType, std::string sSection, std::string sIniFile);
-    virtual BOOL RemoveSkin(std::string sID);
+    virtual BOOL SkinWindow(HWND hWnd, tstring sID, tstring sIniEntry, eBitmapAsButtonType ButtonType, tstring sSection, tstring sIniFile);
+    virtual BOOL RemoveSkin(tstring sID);
 
-    virtual BOOL SkinDlgItem(UINT uItemID, std::string sIniEntry, eBitmapAsButtonType ButtonType, std::string sSection, std::string sIniFile);
+    virtual BOOL SkinDlgItem(UINT uItemID, tstring sIniEntry, eBitmapAsButtonType ButtonType, tstring sSection, tstring sIniFile);
     virtual BOOL RemoveSkinDlgItem(UINT uItemID);
 
-    virtual LRESULT ButtonChildProc(std::string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual LRESULT ButtonChildProc(tstring sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     static LRESULT CALLBACK StaticToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK StaticToolbarChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    static LRESULT StaticToolbarChildButtonProc(std::string sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static LRESULT StaticToolbarChildButtonProc(tstring sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

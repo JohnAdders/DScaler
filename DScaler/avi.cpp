@@ -18,34 +18,34 @@
  *              Error functions                 *
  ************************************************/
 
-const char *aviErrorLocations[AVI_MAX_ERROR] =
+const TCHAR* aviErrorLocations[AVI_MAX_ERROR] =
 {
     /* AVI_ERROR_NONE */
-    "in an unknown location",
+    _T("in an unknown location"),
 
     /* AVI_ERROR_BEGIN */
-    "getting ready to write",
+    _T("getting ready to write"),
 
     /* AVI_ERROR_FILE_OPEN */
-    "opening the file",
+    _T("opening the file"),
 
     /* AVI_ERROR_ASYNC */
-    "writing data to the buffer",
+    _T("writing data to the buffer"),
 
     /* AVI_ERROR_FILE */
-    "in the data writing thread",
+    _T("in the data writing thread"),
 
     /* AVI_ERROR_FIFO */
-    "reading from the FIFO buffer",
+    _T("reading from the FIFO buffer"),
 
     /* AVI_ERROR_AUDIO_OPEN */
-    "initializing the waveIn device",
+    _T("initializing the waveIn device"),
 
     /* AVI_ERROR_VIDEO_OPEN */
-    "initializing the video compressor",
+    _T("initializing the video compressor"),
 
     /* AVI_ERROR_BUILD_INDEX */
-    "building the legacy index"
+    _T("building the legacy index")
 };
 
 /** Sets a new error for a file
@@ -54,13 +54,13 @@ const char *aviErrorLocations[AVI_MAX_ERROR] =
  * \param message The message associated with the error
  */
 
-void aviSetError(AVI_FILE *file, aviError_t type, char *message)
+void aviSetError(AVI_FILE *file, aviError_t type, TCHAR* message)
 {
     if (file && message)
     {
         EnterCriticalSection(&file->error.lock);
         file->error.type = type;
-        strncpy(file->error.message, message, sizeof(file->error.message));
+        _tcsncpy(file->error.message, message, sizeof(file->error.message));
         LeaveCriticalSection(&file->error.lock);
     }
 }
@@ -85,76 +85,41 @@ BOOL aviHasError(AVI_FILE *file)
  * \param post Text to append after the error message. Can be NULL.
  */
 
-void aviDisplayError(AVI_FILE *file, HWND hWnd, char *post)
+void aviDisplayError(AVI_FILE *file, HWND hWnd, TCHAR* post)
 {
-    char       *message;
-    const char *pre   = "An error occurred while ";
-    const char *title = "Recording Error";
-    const char *location;
-    const char *locationPost = ":\n";
-    int        preLength;
-    int        postLength;
-    int        length;
-    int        offset;
+    tstring message(_T("An error occurred while "));
+    const TCHAR* title = _T("Recording Error");
+    const TCHAR* locationPost = _T(":\n");
 
     if (file)
     {
-        preLength = strlen(pre);
-
-        if (post)
-           postLength = strlen(post) + 1; /* Include a new line before the message */
-           else
-           postLength = 0;
-
         EnterCriticalSection(&file->error.lock);
 
-        /* Get the string that describes where the error occurred */
+        /* Get the tstring that describes where the error occurred */
         if (file->error.type >= 0 && file->error.type < AVI_MAX_ERROR)
-           location = aviErrorLocations[file->error.type];
-           else
-           location = aviErrorLocations[AVI_ERROR_NONE];
-
-        length = preLength + strlen(location) + strlen(locationPost) +
-                 strlen(file->error.message) + postLength + 1;
-
-        message = (char *)malloc(length);
-        if (message)
         {
-            offset = 0;
+           message += aviErrorLocations[file->error.type];
+        }
+        else
+        {
+           message += aviErrorLocations[AVI_ERROR_NONE];
+        }
+        
+        message += locationPost;
 
-            memcpy(message, pre, preLength);
-            offset += preLength;
+        if (post)
+        {
+            message += post;
+        }
 
-            memcpy(&message[offset], location, strlen(location));
-            offset += strlen(location);
-
-            memcpy(&message[offset], locationPost, strlen(locationPost));
-            offset += strlen(locationPost);
-
-            memcpy(&message[offset], file->error.message,
-                   strlen(file->error.message));
-            offset += strlen(file->error.message);
-
-            if (post)
-            {
-                message[offset] = '\n';
-                offset++;
-
-                memcpy(&message[offset], post, postLength);
-                offset += postLength;
-            }
-
-            message[offset] = 0;
-
-            MessageBox(hWnd, message, title, MB_OK | MB_ICONERROR);
-
-            free(message);
-        } else
-          MessageBox(hWnd, file->error.message, title, MB_OK | MB_ICONERROR);
+        MessageBox(hWnd, message.c_str(), title, MB_OK | MB_ICONERROR);
 
         LeaveCriticalSection(&file->error.lock);
-    } else
-      MessageBox(hWnd, "Unknown error", title, MB_OK | MB_ICONERROR);
+    } 
+    else
+    {
+        MessageBox(hWnd, _T("Unknown error"), title, MB_OK | MB_ICONERROR);
+    }
 }
 
 /************************************************
@@ -207,7 +172,7 @@ AVI_FILE *aviFileCreate(void)
     file->error.type = AVI_ERROR_NONE;
 
     /* Check for large file support */
-    hLibrary = GetModuleHandle("kernel32.dll");
+    hLibrary = GetModuleHandle(_T("kernel32.dll"));
     if (hLibrary)
     {
         if (GetProcAddress(hLibrary, "SetFilePointerEx"))
@@ -253,7 +218,7 @@ __inline int64 aviGetBaseOffset(AVI_FILE *file, int type)
  * \retval FALSE If writing could not start because of an error
  */
 
-BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
+BOOL aviBeginWriting(AVI_FILE *file, TCHAR* fileName)
 {
     MainAVIHeader         avih;
     AVIStreamHeader       strh;
@@ -271,7 +236,7 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
 
     #ifdef AVI_DEBUG
     AllocConsole();
-    cprintf("----------------------\n");
+    cprintf(_T("----------------------\n"));
     #endif
 
     /* Just to be safe */
@@ -280,7 +245,7 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     /**** Variable initialization ****/
 
     /* Clear any errors */
-    aviSetError(file, AVI_ERROR_NONE, "No error");
+    aviSetError(file, AVI_ERROR_NONE, _T("No error"));
 
     /* Make sure audio and video data can be written */
     file->hold = FALSE;
@@ -302,8 +267,8 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     file->timer.freq = aviGetTimerFreq();
     if (!file->timer.freq)
     {
-        aviSetError(file, AVI_ERROR_BEGIN, "Couldn't get the timer's "
-                                           "frequency");
+        aviSetError(file, AVI_ERROR_BEGIN, _T("Couldn't get the timer's ")
+                                           _T("frequency"));
         AVI_BEGIN_WRITING_ABORT();
     }
 
@@ -312,7 +277,7 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     if (!aviVideoCompressorOpen(file))
     {
         #ifdef AVI_DEBUG
-        cprintf("Couldn't open the video compressor\n");
+        cprintf(_T("Couldn't open the video compressor\n"));
         #endif
 
         AVI_BEGIN_WRITING_ABORT();
@@ -321,7 +286,7 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     if ((file->flags & AVI_FLAG_AUDIO) && !aviAudioBegin(file))
     {
         #ifdef AVI_DEBUG
-        cprintf("Audio initialization failed\n");
+        cprintf(_T("Audio initialization failed\n"));
         #endif
 
         AVI_BEGIN_WRITING_ABORT();
@@ -949,18 +914,18 @@ BOOL aviSaveFrame(AVI_FILE *file, void *src, aviTime_t inTime)
                     file->video.timer.lostFrames > 0 ||
                     file->timer.elapsed - (temp * file->timer.freq) > 0)
                 {
-                   cprintf("%d second(s), %d frame(s), %d extra, %d lost",
+                   cprintf(_T("%d second(s), %d frame(s), %d extra, %d lost"),
                                                    (int)temp,
                                                    file->video.timer.frames,
                                                    file->video.timer.extraFrames,
                                                    file->video.timer.lostFrames);
 
-                    cprintf(", elapsed: %u", (unsigned long)(file->timer.elapsed - (temp * file->timer.freq)));
+                    cprintf(_T(", elapsed: %u"), (unsigned long)(file->timer.elapsed - (temp * file->timer.freq)));
 
                     if (file->video.timer.lostFrames > 0)
-                       cprintf(", %u MB", (unsigned long)(fileTell(file) / (1024 * 1024)));
+                       cprintf(_T(", %u MB"), (unsigned long)(fileTell(file) / (1024 * 1024)));
 
-                    cprintf("\n");
+                    cprintf(_T("\n"));
                 }
                 #endif
 

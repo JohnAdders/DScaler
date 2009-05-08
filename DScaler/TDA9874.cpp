@@ -36,7 +36,7 @@ CTDA9874::CTDA9874()
 BYTE CTDA9874::GetDefaultAddress()const
 {
     //TODO
-    LOG(1,"CTDA9874::GetDefaultAddress()");
+    LOG(1,_T("CTDA9874::GetDefaultAddress()"));
     return I2C_TDA9874 >> 1;
 }
 
@@ -66,7 +66,7 @@ BOOL CTDA9874::IsDevicePresent(int& dic, int& sic)
 
     if (dic == 0x11 || dic == 0x07)
     {
-        LOG(1, "TDA9874%s audio decoder found: dic=0x%x, sic=0x%x", (dic == 0x11) ? "a":"h", dic, sic);
+        LOG(1, _T("TDA9874%s audio decoder found: dic=0x%x, sic=0x%x"), (dic == 0x11) ? _T("a"):_T("h"), dic, sic);
         m_iDic = dic;
         return TRUE;
     }

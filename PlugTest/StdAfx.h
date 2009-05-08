@@ -21,6 +21,8 @@
 #include "DS_Deinterlace.h"
 #include "DS_Filter.h"
 
+#include "../DScaler/StringHelpers.h"
+
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 

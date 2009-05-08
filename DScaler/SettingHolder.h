@@ -59,7 +59,7 @@ protected:
 
     SettingsArray   m_Settings;
     long            m_SetMessage;
-    std::string     m_SettingFlagsSection;
+    tstring     m_SettingFlagsSection;
     UINT            m_HelpID;
 
 };

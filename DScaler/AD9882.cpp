@@ -49,36 +49,34 @@ BYTE CAD9882::GetRegister(BYTE Register)
     return Result;
 }
 
-void CAD9882::DumpSettings(LPCSTR Filename)
+void CAD9882::DumpSettings(LPCTSTR Filename)
 {
-    FILE* hFile = 0;
-
-    fopen_s(&hFile, Filename, "w");
+    FILE* hFile = _tfopen(Filename, _T("w"));
     if(!hFile)
     {
         return;
     }
 
-    fprintf(hFile, "AD01 = 0x%02x\n", GetRegister(0x01));
-    fprintf(hFile, "AD02 = 0x%02x\n", GetRegister(0x02));
-    fprintf(hFile, "AD03 = 0x%02x\n", GetRegister(0x03));
-    fprintf(hFile, "AD04 = 0x%02x\n", GetRegister(0x04));
-    fprintf(hFile, "AD07 = 0x%02x\n", GetRegister(0x07));
-    fprintf(hFile, "AD08 = 0x%02x\n", GetRegister(0x08));
-    fprintf(hFile, "AD09 = 0x%02x\n", GetRegister(0x09));
-    fprintf(hFile, "AD0a = 0x%02x\n", GetRegister(0x0a));
-    fprintf(hFile, "AD0b = 0x%02x\n", GetRegister(0x0b));
-    fprintf(hFile, "AD0c = 0x%02x\n", GetRegister(0x0c));
-    fprintf(hFile, "AD0d = 0x%02x\n", GetRegister(0x0d));
-    fprintf(hFile, "AD0e = 0x%02x\n", GetRegister(0x0e));
-    fprintf(hFile, "AD0f = 0x%02x\n", GetRegister(0x0f));
-    fprintf(hFile, "AD10 = 0x%02x\n", GetRegister(0x10));
-    fprintf(hFile, "AD11 = 0x%02x\n", GetRegister(0x11));
-    fprintf(hFile, "AD12 = 0x%02x\n", GetRegister(0x12));
-    fprintf(hFile, "AD13 = 0x%02x\n", GetRegister(0x13));
-    fprintf(hFile, "AD14 = 0x%02x\n", GetRegister(0x14));
-    fprintf(hFile, "AD15 = 0x%02x\n", GetRegister(0x15));
-    fprintf(hFile, "AD16 = 0x%02x\n", GetRegister(0x16));
+    _ftprintf(hFile, _T("AD01 = 0x%02x\n"), GetRegister(0x01));
+    _ftprintf(hFile, _T("AD02 = 0x%02x\n"), GetRegister(0x02));
+    _ftprintf(hFile, _T("AD03 = 0x%02x\n"), GetRegister(0x03));
+    _ftprintf(hFile, _T("AD04 = 0x%02x\n"), GetRegister(0x04));
+    _ftprintf(hFile, _T("AD07 = 0x%02x\n"), GetRegister(0x07));
+    _ftprintf(hFile, _T("AD08 = 0x%02x\n"), GetRegister(0x08));
+    _ftprintf(hFile, _T("AD09 = 0x%02x\n"), GetRegister(0x09));
+    _ftprintf(hFile, _T("AD0a = 0x%02x\n"), GetRegister(0x0a));
+    _ftprintf(hFile, _T("AD0b = 0x%02x\n"), GetRegister(0x0b));
+    _ftprintf(hFile, _T("AD0c = 0x%02x\n"), GetRegister(0x0c));
+    _ftprintf(hFile, _T("AD0d = 0x%02x\n"), GetRegister(0x0d));
+    _ftprintf(hFile, _T("AD0e = 0x%02x\n"), GetRegister(0x0e));
+    _ftprintf(hFile, _T("AD0f = 0x%02x\n"), GetRegister(0x0f));
+    _ftprintf(hFile, _T("AD10 = 0x%02x\n"), GetRegister(0x10));
+    _ftprintf(hFile, _T("AD11 = 0x%02x\n"), GetRegister(0x11));
+    _ftprintf(hFile, _T("AD12 = 0x%02x\n"), GetRegister(0x12));
+    _ftprintf(hFile, _T("AD13 = 0x%02x\n"), GetRegister(0x13));
+    _ftprintf(hFile, _T("AD14 = 0x%02x\n"), GetRegister(0x14));
+    _ftprintf(hFile, _T("AD15 = 0x%02x\n"), GetRegister(0x15));
+    _ftprintf(hFile, _T("AD16 = 0x%02x\n"), GetRegister(0x16));
 
     fclose(hFile);
 }

@@ -32,11 +32,11 @@
 
 using namespace std;
 
-CSettingGroup::CSettingGroup(const string& Name, DWORD Flags, BOOL IsActiveByDefault) :
+CSettingGroup::CSettingGroup(const tstring& Name, DWORD Flags, BOOL IsActiveByDefault) :
     m_Name(Name),
     m_Flags(Flags)
 {
-    m_IsActive = new CYesNoSetting(Name, IsActiveByDefault, "SettingsPerChannel", Name);
+    m_IsActive = new CYesNoSetting(Name, IsActiveByDefault, _T("SettingsPerChannel"), Name);
     m_IsActive->ReadFromIni();
 }
 
@@ -46,7 +46,7 @@ CSettingGroup::~CSettingGroup()
     m_IsActive->WriteToIni(TRUE);
 }
 
-const string& CSettingGroup::GetName()
+const tstring& CSettingGroup::GetName()
 {
     return m_Name;
 }

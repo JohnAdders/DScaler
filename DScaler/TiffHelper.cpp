@@ -83,7 +83,7 @@ CTiffHelper::CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving) :
     m_FormatSaving = FormatSaving;
 }
 
-BOOL CTiffHelper::OpenMediaFile(const string& FileName)
+BOOL CTiffHelper::OpenMediaFile(const tstring& FileName)
 {
     int y1, y2, cr, cb, r, g, b, i, j;
     BYTE* pFrameBuf;
@@ -107,7 +107,7 @@ BOOL CTiffHelper::OpenMediaFile(const string& FileName)
     int LinePitch;
 
     // Open the file
-    tif = TIFFOpen(FileName.c_str(), "r");
+    tif = TIFFOpen(TStringToMBCS(FileName).c_str(), "r");
     if (!tif) {
         return FALSE;
     }
@@ -117,7 +117,7 @@ BOOL CTiffHelper::OpenMediaFile(const string& FileName)
         !TIFFGetField(tif, TIFFTAG_COMPRESSION, &Compression) ||
         !TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &Class) )
     {
-        LOG(1, "At least one of the tags IMAGEWIDTH, IMAGELENGTH, COMPRESSION or PHOTOMETRIC is missing in the file %s", FileName);
+        LOG(1, _T("At least one of the tags IMAGEWIDTH, IMAGELENGTH, COMPRESSION or PHOTOMETRIC is missing in the file %s"), FileName);
         TIFFClose(tif);
         return FALSE;
     }
@@ -130,13 +130,13 @@ BOOL CTiffHelper::OpenMediaFile(const string& FileName)
           && (tTiffTagClassCompress[i].tag_compression == Compression) )
         {
             Found = TRUE;
-            LOG(3, "File %s supported (class %d compression %d)", FileName, Class, Compression);
+            LOG(3, _T("File %s supported (class %d compression %d)"), FileName, Class, Compression);
             break;
         }
     }
     if (!Found)
     {
-        LOG(1, "File %s not supported (class %d compression %d)", FileName, Class, Compression);
+        LOG(1, _T("File %s not supported (class %d compression %d)"), FileName, Class, Compression);
         TIFFClose(tif);
         return FALSE;
     }
@@ -274,22 +274,22 @@ BOOL CTiffHelper::OpenMediaFile(const string& FileName)
       || !strstr(Software, "DScaler") )
     {
         m_pParent->m_SquarePixels = TRUE;
-        m_pParent->m_Comments = "";
+        m_pParent->m_Comments = _T("");
     }
     else if (!TIFFGetField(tif, TIFFTAG_IMAGEDESCRIPTION, &Description))
     {
         m_pParent->m_SquarePixels = FALSE;
-        m_pParent->m_Comments = "";
+        m_pParent->m_Comments = _T("");
     }
     else if (!(square_mark = strstr(Description, SQUARE_MARK)))
     {
         m_pParent->m_SquarePixels = FALSE;
-        m_pParent->m_Comments = Description;
+        m_pParent->m_Comments = MBCSToTString(Description);
     }
     else
     {
         m_pParent->m_SquarePixels = TRUE;
-        m_pParent->m_Comments.assign(Description, square_mark-Description);
+        m_pParent->m_Comments.assign(Description, square_mark);
     }
 
     // Close the file
@@ -308,7 +308,7 @@ BOOL CTiffHelper::OpenMediaFile(const string& FileName)
 }
 
 
-void CTiffHelper::SaveSnapshot(const string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const string& Context)
+void CTiffHelper::SaveSnapshot(const tstring& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const tstring& Context)
 {
     int y, cr, cb, r, g, b;
     TIFF* tif;
@@ -391,7 +391,7 @@ void CTiffHelper::SaveSnapshot(const string& FilePath, int Height, int Width, BY
     }
 
     // Open the file
-    tif = TIFFOpen(FilePath.c_str(), "w");
+    tif = TIFFOpen(TStringToMBCS(FilePath).c_str(), "w");
     if (!tif)
     {
         _TIFFfree(buffer);
@@ -406,12 +406,12 @@ void CTiffHelper::SaveSnapshot(const string& FilePath, int Height, int Width, BY
 
     if (!TIFFSetField(tif, TIFFTAG_SUBFILETYPE, 0) ||
         !TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8) ||                 // 8 bits for each channel
-        !TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, Context.c_str()) ||
+        !TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, TStringToMBCS(Context).c_str()) ||
         !TIFFSetField(tif, TIFFTAG_IMAGELENGTH, Height) ||
         !TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG) ||         // RGB bytes are interleaved
         !TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, Height) ||             // Whole image is one strip
         !TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3) ||               // RGB = 3 channels/pixel
-        !TIFFSetField(tif, TIFFTAG_SOFTWARE, GetProductNameAndVersion()) ||
+        !TIFFSetField(tif, TIFFTAG_SOFTWARE, TStringToMBCS(GetProductNameAndVersion()).c_str()) ||
         !TIFFSetField(tif, TIFFTAG_DATETIME, asctime(tm_time)))
     {
         _TIFFfree(buffer);

@@ -36,7 +36,7 @@ CSettingsHolder::CSettingsHolder(long SetMessage, UINT HelpID) :
     m_SetMessage(SetMessage),
     m_HelpID(HelpID)
 {
-    m_SettingFlagsSection = "SettingFlags";
+    m_SettingFlagsSection = _T("SettingFlags");
 }
 
 CSettingsHolder::~CSettingsHolder()

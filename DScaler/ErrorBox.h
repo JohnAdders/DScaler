@@ -23,12 +23,15 @@
 #ifndef __ERRORBOX_H___
 #define __ERRORBOX_H___
 
-void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, const std::string& Message);
-void _RealErrorBox(LPCSTR szFile, int Line, const std::string& szMessage);
+void _ErrorBox(HWND hwndParent, LPCTSTR szFile, int Line, const tstring& Message);
+#ifdef _UNICODE
+void _ErrorBox(HWND hwndParent, LPCTSTR szFile, int Line, const std::string& Message);
+#endif
+void _RealErrorBox(LPCTSTR szFile, int Line, const tstring& szMessage);
 
-#define RealErrorBox(Message) _RealErrorBox(__FILE__, __LINE__, Message);
+#define RealErrorBox(Message) _RealErrorBox(_T(__FILE__), __LINE__, Message);
 
-#define ErrorBox(Message) _ErrorBox(NULL, __FILE__, __LINE__, Message);
-#define ErrorBoxDlg(hWnd,Message) _ErrorBox(hWnd, __FILE__, __LINE__, Message);
+#define ErrorBox(Message) _ErrorBox(NULL, _T(__FILE__), __LINE__, Message);
+#define ErrorBoxDlg(hWnd,Message) _ErrorBox(hWnd, _T(__FILE__), __LINE__, Message);
 
 #endif

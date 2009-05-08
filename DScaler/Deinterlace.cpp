@@ -175,9 +175,8 @@ void Deinterlace_SetStatus(LPCSTR StatusText)
     size_t len=strlen(StatusText);
     if(len>0)
     {
-        LPSTR tmpstr=(LPSTR)malloc(len+1);
-        strncpy(tmpstr,StatusText,len+1);
-        PostMessageToMainWindow(UWM_DEINTERLACE_SETSTATUS, (WPARAM)tmpstr,0);
+        static tstring StringToShow(MBCSToTString(StatusText));
+        PostMessageToMainWindow(UWM_DEINTERLACE_SETSTATUS, (WPARAM)StringToShow.c_str(),0);
     }
 }
 
@@ -664,7 +663,7 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
         bFound = TRUE;
         nDeinterlaceIndex = wMenuID - IDM_FIRST_DEINTMETHOD;
         SetVideoDeinterlaceIndex(wMenuID - IDM_FIRST_DEINTMETHOD);
-        OSD_ShowText(GetDeinterlaceModeName(), 0);
+        OSD_ShowText(MBCSToTString(GetDeinterlaceModeName()).c_str(), 0);
     }
     else
     {
@@ -678,7 +677,7 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
                 if(!bIsFilmMode || (Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT) == FALSE))
                 {
                     SetVideoDeinterlaceMode(i);
-                    OSD_ShowText(GetDeinterlaceModeName(), 0);
+                    OSD_ShowText(MBCSToTString(GetDeinterlaceModeName()).c_str(), 0);
                 }
                 else
                 {
@@ -705,7 +704,7 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
     return bFound;
 }
 
-void LoadDeintPlugin(LPCSTR szFileName)
+void LoadDeintPlugin(LPCTSTR szFileName)
 {
     DynamicFunctionC1<DEINTERLACE_METHOD*, long> GetDeinterlacePluginInfo(szFileName, "GetDeinterlacePluginInfo");
     DEINTERLACE_METHOD* pMethod;
@@ -780,7 +779,7 @@ void AddUIForDeintPlugin(HMENU hMenu, DEINTERLACE_METHOD* DeintMethod)
     {
         DeintMethod->MenuId = MenuId++;
     }
-    AppendMenu(hMenu, MF_STRING | MF_ENABLED, DeintMethod->MenuId, DeintMethod->szName);
+    AppendMenuA(hMenu, MF_STRING | MF_ENABLED, DeintMethod->MenuId, DeintMethod->szName);
 }
 
 BOOL LoadDeinterlacePlugins()
@@ -790,7 +789,7 @@ BOOL LoadDeinterlacePlugins()
     int i;
     HMENU hMenu;
 
-    hFindFile = FindFirstFile("DI_*.dll", &FindFileData);
+    hFindFile = FindFirstFile(_T("DI_*.dll"), &FindFileData);
 
     if (hFindFile != INVALID_HANDLE_VALUE)
     {
@@ -802,7 +801,7 @@ BOOL LoadDeinterlacePlugins()
             // FLT_bogus.dllasdf will be found when searching for FLT_*.dll since it's short
             // file name is FLT_bo~1.dll
 
-            if(_stricmp(".dll", &FindFileData.cFileName[strlen(FindFileData.cFileName)-4]) == 0)
+            if(_tcsicmp(_T(".dll"), &FindFileData.cFileName[_tcslen(FindFileData.cFileName)-4]) == 0)
             {
                 try
                 {
@@ -810,7 +809,7 @@ BOOL LoadDeinterlacePlugins()
                 }
                 catch(...)
                 {
-                    LOG(1, "Crash Loading %s", FindFileData.cFileName);
+                    LOG(1, _T("Crash Loading %s"), FindFileData.cFileName);
                 }
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
@@ -850,7 +849,7 @@ BOOL LoadDeinterlacePlugins()
         // Cut the menu in two colums if there are a lot of deinterlace video modes
         if (GetMenuItemCount(hMenu) > 29)
         {
-            char Text[32];
+            TCHAR Text[32];
             GetMenuString(hMenu, IDM_PROGRESSIVE_SCAN, Text, sizeof(Text), MF_BYCOMMAND);
             ModifyMenu(hMenu, IDM_PROGRESSIVE_SCAN, MF_MENUBARBREAK | MF_STRING, IDM_PROGRESSIVE_SCAN, Text);
         }
@@ -862,13 +861,13 @@ BOOL LoadDeinterlacePlugins()
     }
 }
 
-void GetDeinterlaceSettings(vector< SmartPtr<CSettingsHolder> >& Holders, vector< string >& Names)
+void GetDeinterlaceSettings(vector< SmartPtr<CSettingsHolder> >& Holders, vector< tstring >& Names)
 {
     Holders = DeinterlaceHolders;
     Names.clear();
     for(int i(0); i < NumVideoModes; i++)
     {
-        Names.push_back(VideoDeintMethods[i]->szName);
+        Names.push_back(MBCSToTString(VideoDeintMethods[i]->szName));
     }
 }
 

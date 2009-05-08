@@ -102,7 +102,7 @@ const char* StereoTypeList[] =
     { "Alt2"        },
 };
 
-CCX2388xSource::CCX2388xSource(SmartPtr<CCX2388xCard> pCard, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCSTR IniSection) :
+CCX2388xSource::CCX2388xSource(SmartPtr<CCX2388xCard> pCard, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCTSTR IniSection) :
     CSource(WM_CX2388X_GETVALUE, IDC_CX2388X),
     m_pCard(pCard),
     m_CurrentX(720),
@@ -237,44 +237,44 @@ void CCX2388xSource::SetupPictureStructures()
     }
 }
 
-void CCX2388xSource::CreateSettings(LPCSTR IniSection)
+void CCX2388xSource::CreateSettings(LPCTSTR IniSection)
 {
-    CSettingGroup *pVideoFormatGroup = SettingsMaster->GetGroup("CX2388x - Video Format", SETTING_BY_INPUT, TRUE);
-    CSettingGroup *pVideoGroup = SettingsMaster->GetGroup("CX2388x - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
-    CSettingGroup *pH3DGroup = SettingsMaster->GetGroup("CX2388x - H3D", SETTING_BY_FORMAT | SETTING_BY_INPUT);
-    CSettingGroup *pAudioGroup = SettingsMaster->GetGroup("CX2388x - Audio", SETTING_BY_CHANNEL, FALSE);
+    CSettingGroup *pVideoFormatGroup = SettingsMaster->GetGroup(_T("CX2388x - Video Format"), SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pVideoGroup = SettingsMaster->GetGroup(_T("CX2388x - Video"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pH3DGroup = SettingsMaster->GetGroup(_T("CX2388x - H3D"), SETTING_BY_FORMAT | SETTING_BY_INPUT);
+    CSettingGroup *pAudioGroup = SettingsMaster->GetGroup(_T("CX2388x - Audio"), SETTING_BY_CHANNEL, FALSE);
 
-    m_Brightness = new CBrightnessSetting(this, "Brightness", 128, 0, 255, IniSection, pVideoGroup);
+    m_Brightness = new CBrightnessSetting(this, _T("Brightness"), 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Brightness);
 
-    m_Contrast = new CContrastSetting(this, "Contrast", 128, 0, 255, IniSection, pVideoGroup);
+    m_Contrast = new CContrastSetting(this, _T("Contrast"), 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Contrast);
 
-    m_Hue = new CHueSetting(this, "Hue", 128, 0, 255, IniSection, pVideoGroup);
+    m_Hue = new CHueSetting(this, _T("Hue"), 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Hue);
 
-    m_Saturation = new CSaturationSetting(this, "Saturation", 128, 0, 255, IniSection, pVideoGroup);
+    m_Saturation = new CSaturationSetting(this, _T("Saturation"), 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Saturation);
 
-    m_SaturationU = new CSaturationUSetting(this, "Blue Saturation", 128, 0, 255, IniSection, pVideoGroup);
+    m_SaturationU = new CSaturationUSetting(this, _T("Blue Saturation"), 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_SaturationU);
 
-    m_SaturationV = new CSaturationVSetting(this, "Red Saturation", 128, 0, 255, IniSection, pVideoGroup);
+    m_SaturationV = new CSaturationVSetting(this, _T("Red Saturation"), 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_SaturationV);
 
-    m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
+    m_TopOverscan = new CTopOverscanSetting(this, _T("Overscan at Top"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_TopOverscan);
 
-    m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 7, IniSection);
+    m_VideoSource = new CVideoSourceSetting(this, _T("Video Source"), 0, 0, 7, IniSection);
     m_Settings.push_back(m_VideoSource);
 
-    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LAST_TV - 1, IniSection, pVideoFormatGroup);
+    m_VideoFormat = new CVideoFormatSetting(this, _T("Video Format"), VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LAST_TV - 1, IniSection, pVideoFormatGroup);
     m_Settings.push_back(m_VideoFormat);
 
-    m_CardType = new CSliderSetting("Card Type", CX2388xCARD_UNKNOWN, CX2388xCARD_UNKNOWN, m_pCard->GetMaxCards() - 1, IniSection, "CardType");
+    m_CardType = new CSliderSetting(_T("Card Type"), CX2388xCARD_UNKNOWN, CX2388xCARD_UNKNOWN, m_pCard->GetMaxCards() - 1, IniSection, _T("CardType"));
     m_Settings.push_back(m_CardType);
 
-    m_TunerType = new CTunerTypeSetting(this, "Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
+    m_TunerType = new CTunerTypeSetting(this, _T("Tuner Type"), TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
     m_Settings.push_back(m_TunerType);
 
     // save per input removed
@@ -286,130 +286,130 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     // save per channel removed
     m_Settings.push_back(new CEmptySetting);
 
-    m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", FALSE, IniSection, pH3DGroup);
+    m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, _T("Is Video Progressive"), FALSE, IniSection, pH3DGroup);
     m_Settings.push_back(m_IsVideoProgressive);
 
-    m_FLIFilmDetect = new CFLIFilmDetectSetting(this, "FLI Film Detect", TRUE, IniSection, pH3DGroup);
+    m_FLIFilmDetect = new CFLIFilmDetectSetting(this, _T("FLI Film Detect"), TRUE, IniSection, pH3DGroup);
     m_Settings.push_back(m_FLIFilmDetect);
 
-    m_HDelay = new CHDelaySetting(this, "Horizontal Delay Adjustment", 0, -12, 12, IniSection, pVideoGroup);
+    m_HDelay = new CHDelaySetting(this, _T("Horizontal Delay Adjustment"), 0, -12, 12, IniSection, pVideoGroup);
     m_HDelay->SetStepValue(2);
     m_Settings.push_back(m_HDelay);
 
-    m_VDelay = new CVDelaySetting(this, "Vertical Delay Adjustment", 0, -40, 40, IniSection, pVideoGroup);
+    m_VDelay = new CVDelaySetting(this, _T("Vertical Delay Adjustment"), 0, -40, 40, IniSection, pVideoGroup);
     m_VDelay->SetStepValue(4);
     m_Settings.push_back(m_VDelay);
 
-    m_EatLinesAtTop = new CEatLinesAtTopSetting(this, "Eat Lines At Top", 12, 0, 100, IniSection, pH3DGroup);
+    m_EatLinesAtTop = new CEatLinesAtTopSetting(this, _T("Eat Lines At Top"), 12, 0, 100, IniSection, pH3DGroup);
     m_Settings.push_back(m_EatLinesAtTop);
 
-    m_Sharpness = new CSharpnessSetting(this, "Sharpness", 0, -8, 7, IniSection, pH3DGroup);
+    m_Sharpness = new CSharpnessSetting(this, _T("Sharpness"), 0, -8, 7, IniSection, pH3DGroup);
     m_Settings.push_back(m_Sharpness);
 
-    m_LumaAGC = new CLumaAGCSetting(this, "Luma AGC", FALSE, IniSection, pVideoGroup);
+    m_LumaAGC = new CLumaAGCSetting(this, _T("Luma AGC"), FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_LumaAGC);
 
-    m_ChromaAGC = new CChromaAGCSetting(this, "Chroma AGC", FALSE, IniSection, pVideoGroup);
+    m_ChromaAGC = new CChromaAGCSetting(this, _T("Chroma AGC"), FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_ChromaAGC);
 
-    m_FastSubcarrierLock = new CFastSubcarrierLockSetting(this, "Fast Subcarrier Lock", FALSE, IniSection, pVideoGroup);
+    m_FastSubcarrierLock = new CFastSubcarrierLockSetting(this, _T("Fast Subcarrier Lock"), FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_FastSubcarrierLock);
 
-    m_WhiteCrush = new CWhiteCrushSetting(this, "White Crush", TRUE, IniSection, pVideoGroup);
+    m_WhiteCrush = new CWhiteCrushSetting(this, _T("White Crush"), TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_WhiteCrush);
 
-    m_LowColorRemoval = new CLowColorRemovalSetting(this, "Low Color Removal", FALSE, IniSection, pVideoGroup);
+    m_LowColorRemoval = new CLowColorRemovalSetting(this, _T("Low Color Removal"), FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_LowColorRemoval);
 
-    m_CombFilter = new CCombFilterSetting(this, "Comb Filter", CCX2388xCard::COMBFILTER_DEFAULT, CCX2388xCard::COMBFILTER_FULL, IniSection, CombFilterSzList, pVideoGroup);
+    m_CombFilter = new CCombFilterSetting(this, _T("Comb Filter"), CCX2388xCard::COMBFILTER_DEFAULT, CCX2388xCard::COMBFILTER_FULL, IniSection, CombFilterSzList, pVideoGroup);
     m_Settings.push_back(m_CombFilter);
 
-    m_FullLumaRange = new CFullLumaRangeSetting(this, "Full Luma Range", FALSE, IniSection, pVideoGroup);
+    m_FullLumaRange = new CFullLumaRangeSetting(this, _T("Full Luma Range"), FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_FullLumaRange);
 
-    m_Remodulation = new CRemodulationSetting(this, "Remodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
+    m_Remodulation = new CRemodulationSetting(this, _T("Remodulation"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_Remodulation);
 
-    m_Chroma2HComb = new CChroma2HCombSetting(this, "Chroma 2H Comb", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
+    m_Chroma2HComb = new CChroma2HCombSetting(this, _T("Chroma 2H Comb"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_Chroma2HComb);
 
-    m_ForceRemodExcessChroma = new CForceRemodExcessChromaSetting(this, "Force Remodulation of Excess Chroma", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
+    m_ForceRemodExcessChroma = new CForceRemodExcessChromaSetting(this, _T("Force Remodulation of Excess Chroma"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_ForceRemodExcessChroma);
 
-    m_IFXInterpolation = new CIFXInterpolationSetting(this, "IFX Interpolation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
+    m_IFXInterpolation = new CIFXInterpolationSetting(this, _T("IFX Interpolation"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_IFXInterpolation);
 
-    m_CombRange = new CCombRangeSetting(this, "Adaptative Comb Filter Threshold", 0x01f, 0, 0x3ff, IniSection, pVideoGroup);
+    m_CombRange = new CCombRangeSetting(this, _T("Adaptative Comb Filter Threshold"), 0x01f, 0, 0x3ff, IniSection, pVideoGroup);
     m_Settings.push_back(m_CombRange);
 
-    m_SecondChromaDemod = new CSecondChromaDemodSetting(this, "Second Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
+    m_SecondChromaDemod = new CSecondChromaDemodSetting(this, _T("Second Chroma Demodulation"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_SecondChromaDemod);
 
-    m_ThirdChromaDemod = new CThirdChromaDemodSetting(this, "Third Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
+    m_ThirdChromaDemod = new CThirdChromaDemodSetting(this, _T("Third Chroma Demodulation"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_ThirdChromaDemod);
 
-    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection, pVideoGroup);
+    m_PixelWidth = new CPixelWidthSetting(this, _T("Sharpness"), 720, 120, DSCALER_MAX_WIDTH, IniSection, pVideoGroup);
     m_PixelWidth->SetStepValue(2);
     m_Settings.push_back(m_PixelWidth);
 
-    m_CustomPixelWidth = new CSliderSetting("Custom Pixel Width", 750, 120, DSCALER_MAX_WIDTH, IniSection, "CustomPixelWidth", pVideoGroup);
+    m_CustomPixelWidth = new CSliderSetting(_T("Custom Pixel Width"), 750, 120, DSCALER_MAX_WIDTH, IniSection, _T("CustomPixelWidth"), pVideoGroup);
     m_CustomPixelWidth->SetStepValue(2);
     m_Settings.push_back(m_CustomPixelWidth);
 
-    m_WhiteCrushUp = new CWhiteCrushUpSetting(this, "White Crush Up", 15, 0, 63, IniSection, pVideoGroup);
+    m_WhiteCrushUp = new CWhiteCrushUpSetting(this, _T("White Crush Up"), 15, 0, 63, IniSection, pVideoGroup);
     m_Settings.push_back(m_WhiteCrushUp);
 
-    m_WhiteCrushDown = new CWhiteCrushDownSetting(this, "White Crush Down", 63, 0, 63, IniSection, pVideoGroup);
+    m_WhiteCrushDown = new CWhiteCrushDownSetting(this, _T("White Crush Down"), 63, 0, 63, IniSection, pVideoGroup);
     m_Settings.push_back(m_WhiteCrushDown);
 
-    m_WhiteCrushMajorityPoint = new CWhiteCrushMajorityPointSetting(this, "White Crush Majority Point", CCX2388xCard::MAJSEL_AUTOMATIC, CCX2388xCard::MAJSEL_AUTOMATIC, IniSection, WhiteCrushMajorityPointList, pVideoGroup);
+    m_WhiteCrushMajorityPoint = new CWhiteCrushMajorityPointSetting(this, _T("White Crush Majority Point"), CCX2388xCard::MAJSEL_AUTOMATIC, CCX2388xCard::MAJSEL_AUTOMATIC, IniSection, WhiteCrushMajorityPointList, pVideoGroup);
     m_Settings.push_back(m_WhiteCrushMajorityPoint);
 
-    m_WhiteCrushPerFrame = new CWhiteCrushPerFrameSetting(this, "White Crush Per Frame", TRUE, IniSection, pVideoGroup);
+    m_WhiteCrushPerFrame = new CWhiteCrushPerFrameSetting(this, _T("White Crush Per Frame"), TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_WhiteCrushPerFrame);
 
-    m_Volume = new CVolumeSetting(this, "Volume", 900, 0, 1000, IniSection, pAudioGroup);
+    m_Volume = new CVolumeSetting(this, _T("Volume"), 900, 0, 1000, IniSection, pAudioGroup);
     m_Volume->SetStepValue(20);
     m_Settings.push_back(m_Volume);
 
-    m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection, pAudioGroup);
+    m_Balance = new CBalanceSetting(this, _T("Balance"), 0, -127, 127, IniSection, pAudioGroup);
     m_Settings.push_back(m_Balance);
 
-    m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", AUDIO_STANDARD_AUTO, AUDIO_STANDARD_FM, IniSection, AudioStandardList, pAudioGroup);
+    m_AudioStandard = new CAudioStandardSetting(this, _T("Audio Standard"), AUDIO_STANDARD_AUTO, AUDIO_STANDARD_FM, IniSection, AudioStandardList, pAudioGroup);
     m_Settings.push_back(m_AudioStandard);
 
-    m_StereoType = new CStereoTypeSetting(this, "Stereo Type", STEREOTYPE_AUTO, STEREOTYPE_ALT2, IniSection, StereoTypeList, pAudioGroup);
+    m_StereoType = new CStereoTypeSetting(this, _T("Stereo Type"), STEREOTYPE_AUTO, STEREOTYPE_ALT2, IniSection, StereoTypeList, pAudioGroup);
     m_Settings.push_back(m_StereoType);
 
-    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
+    m_BottomOverscan = new CBottomOverscanSetting(this, _T("Overscan at Bottom"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_BottomOverscan);
 
-    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
+    m_LeftOverscan = new CLeftOverscanSetting(this, _T("Overscan at Left"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_LeftOverscan);
 
-    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
+    m_RightOverscan = new CRightOverscanSetting(this, _T("Overscan at Right"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_RightOverscan);
 
-    m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup);
+    m_AnalogueBlanking = new CAnalogueBlankingSetting(this, _T("Analogue Blanking"), FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AnalogueBlanking);
 
-    m_ConexantStopDriver = new CConexantStopDriverSetting(this, "Stop Conexant driver while DScaler is running", FALSE, IniSection, pAudioGroup);
+    m_ConexantStopDriver = new CConexantStopDriverSetting(this, _T("Stop Conexant driver while DScaler is running"), FALSE, IniSection, pAudioGroup);
     m_Settings.push_back(m_ConexantStopDriver);
 
-    m_AutoMute = new CAutoMuteSetting(this, "Automute if no Tunersignal", TRUE, IniSection, pVideoGroup);
+    m_AutoMute = new CAutoMuteSetting(this, _T("Automute if no Tunersignal"), TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AutoMute);
 
-    m_VerticalSyncDetection = new CVerticalSyncDetectionSetting(this, "Vertical Sync Detection", TRUE, IniSection, pVideoGroup);
+    m_VerticalSyncDetection = new CVerticalSyncDetectionSetting(this, _T("Vertical Sync Detection"), TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_VerticalSyncDetection);
 
-    m_CardName = new CStringSetting("Card Name", "", IniSection, "CardName");
+    m_CardName = new CStringSetting(_T("Card Name"), _T(""), IniSection, _T("CardName"));
     m_Settings.push_back(m_CardName);
 
 #ifdef _DEBUG
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
-        LOGD("Number of settings in CX2388X source is not equal to the number of settings in DS_Control.h");
-        LOGD("DS_Control.h or CX2388xSource.cpp are probably not in sync with eachother.");
+        LOGD(_T("Number of settings in CX2388X source is not equal to the number of settings in DS_Control.h"));
+        LOGD(_T("DS_Control.h or CX2388xSource.cpp are probably not in sync with eachother."));
     }
 #endif
 }
@@ -638,7 +638,7 @@ void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
             }
             if(pPhysical == 0 || BytesPerLine > GotBytesPerLine)
             {
-                ErrorBox("GetPhysicalAddress failed during RISC build");
+                ErrorBox(_T("GetPhysicalAddress failed during RISC build"));
                 return;
             }
             *(pRiscCode++) = RISC_WRITE | RISC_SOL | RISC_EOL | BytesPerLine;
@@ -811,9 +811,9 @@ SmartPtr<CCX2388xCard> CCX2388xSource::GetCard()
     return m_pCard;
 }
 
-string CCX2388xSource::GetStatus()
+tstring CCX2388xSource::GetStatus()
 {
-    string pRetVal;
+    tstring pRetVal;
 
     if (IsInTunerMode())
     {
@@ -990,7 +990,7 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         pInfo->bMissedFrame = FALSE;
         if (bLate)
         {
-            LOG(2, " Running late but right field");
+            LOG(2, _T(" Running late but right field"));
             if (pInfo->bRunningLate)
             {
                 Timing_AddDroppedFields(1);
@@ -1002,7 +1002,7 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         NewPos = (OldPos + 1) % 10;
         pInfo->bMissedFrame = FALSE;
         Timing_AddLateFields(FieldDistance - 1);
-        LOG(2, " Running late by %d fields", FieldDistance - 1);
+        LOG(2, _T(" Running late by %d fields"), FieldDistance - 1);
     }
     else
     {
@@ -1010,7 +1010,7 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(FieldDistance - 1);
-        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
+        LOG(2, _T(" Dropped %d Field(s)"), FieldDistance - 1);
     }
 
     switch(NewPos)
@@ -1089,7 +1089,7 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
         pInfo->bMissedFrame = FALSE;
         if (bLate)
         {
-            LOG(2, " Running late but right field");
+            LOG(2, _T(" Running late but right field"));
             if (pInfo->bRunningLate)
             {
                 Timing_AddDroppedFields(1);
@@ -1101,7 +1101,7 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
         NewPos = (OldPos + 1) % 10;
         pInfo->bMissedFrame = FALSE;
         Timing_AddLateFields(FieldDistance - 1);
-        LOG(2, " Running late by %d fields", FieldDistance - 1);
+        LOG(2, _T(" Running late by %d fields"), FieldDistance - 1);
     }
     else
     {
@@ -1109,7 +1109,7 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(FieldDistance - 1);
-        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
+        LOG(2, _T(" Dropped %d Field(s)"), FieldDistance - 1);
     }
 
     pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
@@ -1146,7 +1146,7 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         // No skipped fields, do nothing
         if (bLate)
         {
-            LOG(2, " Running late but right field");
+            LOG(2, _T(" Running late but right field"));
         }
     }
     else if (FieldDistance <= (MaxFieldShift+1))
@@ -1154,7 +1154,7 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         NewPos = (OldPos + 1) % 10;
         Timing_SetFlipAdjustFlag(TRUE);
         Timing_AddLateFields(FieldDistance - 1);
-        LOG(2, " Running late by %d fields", FieldDistance - 1);
+        LOG(2, _T(" Running late by %d fields"), FieldDistance - 1);
     }
     else
     {
@@ -1162,7 +1162,7 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(FieldDistance - 1);
-        LOG(2, " Dropped %d Fields", FieldDistance - 1);
+        LOG(2, _T(" Dropped %d Fields"), FieldDistance - 1);
         Timing_Reset();
         FieldCount = -1;
     }
@@ -1237,7 +1237,7 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
         // No skipped fields, do nothing
         if (bLate)
         {
-            LOG(2, " Running late but right field");
+            LOG(2, _T(" Running late but right field"));
         }
     }
     else if (FieldDistance <= (MaxFieldShift+1))
@@ -1245,7 +1245,7 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
         NewPos = (OldPos + 1) % m_NumFields;
         Timing_SetFlipAdjustFlag(TRUE);
         Timing_AddLateFields(FieldDistance - 1);
-        LOG(2, " Running late by %d fields", FieldDistance - 1);
+        LOG(2, _T(" Running late by %d fields"), FieldDistance - 1);
     }
     else
     {
@@ -1253,7 +1253,7 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(FieldDistance - 1);
-        LOG(2, " Dropped %d Fields", FieldDistance - 1);
+        LOG(2, _T(" Dropped %d Fields"), FieldDistance - 1);
         Timing_Reset();
         FieldCount = -1;
     }
@@ -1473,9 +1473,9 @@ void CCX2388xSource::SetupCard()
         }
     }
 
-    // If the string card name is set, recalculate the card type based on
+    // If the tstring card name is set, recalculate the card type based on
     // the given name.
-    LPCSTR cardName = m_CardName->GetValue();
+    LPCTSTR cardName = m_CardName->GetValue();
     if (*cardName != '\0')
     {
         m_CardType->SetValue(m_pCard->GetCardByName(cardName));
@@ -1569,7 +1569,7 @@ void CCX2388xSource::ChangeTVSettingsBasedOnTuner()
         }
         else
         {
-            LOG(1, " NULL Tuner in ChangeTVSettingsBasedOnTuner");
+            LOG(1, _T(" NULL Tuner in ChangeTVSettingsBasedOnTuner"));
         }
     }
 }
@@ -1625,7 +1625,7 @@ void CCX2388xSource::DecodeVBI(TDeinterlaceInfo* pInfo)
 }
 
 
-string CCX2388xSource::GetMenuLabel()
+tstring CCX2388xSource::GetMenuLabel()
 {
     return m_pCard->GetCardName(m_pCard->GetCardType());
 }
@@ -1838,7 +1838,7 @@ int CCX2388xSource::GetInput(eSourceInputType InputType)
     return -1;
 }
 
-string CCX2388xSource::GetInputName(eSourceInputType InputType, int Nr)
+tstring CCX2388xSource::GetInputName(eSourceInputType InputType, int Nr)
 {
     if (InputType == VIDEOINPUT)
     {
@@ -1900,18 +1900,18 @@ void CCX2388xSource::VerticalSyncDetectionOnChange(BOOL NewValue,BOOL OldValue)
 BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 {
 
-    LOG(1, "CX2388x: WDM-Driver start search ...");
+    LOG(1, _T("CX2388x: WDM-Driver start search ..."));
 
     // all CX2388x-Cards are having
     // VendorID = 0x14F1
     // DeviceID = 0x8800 (first sub-device)
-    const char* pszCX2388X_HW_ID = "PCI\\VEN_14F1&DEV_88";
+    const TCHAR* pszCX2388X_HW_ID = _T("PCI\\VEN_14F1&DEV_88");
 
     // scan only Media-Classes
     HDEVINFO hDevInfo = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_MEDIA, NULL, NULL, DIGCF_PRESENT);
     if (hDevInfo == INVALID_HANDLE_VALUE)
     {
-        LOG(0, "CX2388x: WDM-Driver search error - Media Class not found.");
+        LOG(0, _T("CX2388x: WDM-Driver search error - Media Class not found."));
         return FALSE;
     }
 
@@ -1947,9 +1947,9 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 
         LOG(2, buffer);
 
-        if(strncmp(buffer, pszCX2388X_HW_ID, strlen(pszCX2388X_HW_ID)) == 0)
+        if(_tcsncmp(buffer, pszCX2388X_HW_ID, _tcslen(pszCX2388X_HW_ID)) == 0)
         {
-            LOG(1,"CX2388x: WDM-Driver found.");
+            LOG(1,_T("CX2388x: WDM-Driver found."));
 
             // see DDK src/setup/devcon
             SP_PROPCHANGE_PARAMS PropChangeParams = {sizeof(SP_CLASSINSTALL_HEADER)};
@@ -1962,7 +1962,7 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
             if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
                 (SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams)))
             {
-                LOG(0,"CX2388x: WDM-Driver unable to %s in DICS_FLAG_GLOBAL.", NewState == DICS_DISABLE ? "Stop" : "Start");
+                LOG(0,_T("CX2388x: WDM-Driver unable to %s in DICS_FLAG_GLOBAL."), NewState == DICS_DISABLE ? _T("Stop") : _T("Start"));
                 return FALSE;
             }
 
@@ -1976,11 +1976,11 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
                 (SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams))
                 || !SetupDiCallClassInstaller(DIF_PROPERTYCHANGE,hDevInfo,&DeviceInfoData))
             {
-                LOG(0,"CX2388x: WDM-Driver unable to %s in DICS_FLAG_CONFIGSPECIFIC.", NewState == DICS_DISABLE ? "Stop" : "Start");
+                LOG(0,_T("CX2388x: WDM-Driver unable to %s in DICS_FLAG_CONFIGSPECIFIC."), NewState == DICS_DISABLE ? _T("Stop") : _T("Start"));
                 return FALSE;
             }
 
-            LOG(1,"CX2388x: WDM-Driver %s.", NewState == DICS_DISABLE ? "Stop" : "Start");
+            LOG(1,_T("CX2388x: WDM-Driver %s."), NewState == DICS_DISABLE ? _T("Stop") : _T("Start"));
             bFound = TRUE;
         }
 
@@ -1992,7 +1992,7 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 
     if(bFound != TRUE)
     {
-        LOG(1,"CX2388x: WDM-Driver not found.");
+        LOG(1,_T("CX2388x: WDM-Driver not found."));
     }
 
     SetupDiDestroyDeviceInfoList(hDevInfo);

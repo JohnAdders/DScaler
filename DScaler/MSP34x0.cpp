@@ -75,7 +75,7 @@ WORD CMSP34x0::GetRegister(BYTE subAddress, WORD reg)
     BYTE write[] = {(reg >> 8) & 0xFF, reg & 0xFF};
     BYTE result[2] = {0, 0};
     ReadFromSubAddress(subAddress, write, sizeof(write), result, sizeof(result));
-    LOG(2, "MSP: %02X %02X %02X=%02X %02X",
+    LOG(2, _T("MSP: %02X %02X %02X=%02X %02X"),
         subAddress,
         write[0],
         write[1],
@@ -87,7 +87,7 @@ WORD CMSP34x0::GetRegister(BYTE subAddress, WORD reg)
 void CMSP34x0::SetRegister(BYTE subAddress, WORD reg, WORD value)
 {
     BYTE write[] = {(reg >> 8) & 0xFF, reg & 0xFF, (value >> 8) & 0xFF, value & 0xFF};
-    LOG(2, "MSP: %02X %02X %02X %02X %02X",
+    LOG(2, _T("MSP: %02X %02X %02X %02X %02X"),
         subAddress,
         write[0],
         write[1],
@@ -120,13 +120,13 @@ void CMSP34x0::SetDSPRegister(eDSPWriteRegister reg, WORD value)
 void CMSP34x0::Reset()
 {
     BYTE reset[2] = {0x80, 0};
-    LOG(2, "MSP: %02X %02X %02X",
+    LOG(2, _T("MSP: %02X %02X %02X"),
         0,
         reset[0],
         reset[1]);
     WriteToSubAddress(0, reset, sizeof(reset));
     reset[0] = 0;
-    LOG(2, "MSP: %02X %02X %02X",
+    LOG(2, _T("MSP: %02X %02X %02X"),
         0,
         reset[0],
         reset[1]);

@@ -84,7 +84,7 @@ typedef void (OSDREFRESHFUNCTION)(double Size);
 // Stores the OSD data cache
 typedef struct
 {
-    char            szText[512];        // Text of OSD
+    TCHAR           szText[512];        // Text of OSD
     double          Size;               // Size of OSD as percentage of screen height
     long            TextColor;          // Text color (RGB)
     long            BackgroundColor;    // Background color (RGB)
@@ -99,7 +99,7 @@ typedef struct
 // Used to define OSD screens
 typedef struct
 {
-    char    name[24];       // Name of the screen
+    TCHAR   name[24];       // Name of the screen
     BOOL    managed_by_app; // TRUE if only app can display the screen
     BOOL    auto_hide;      // TRUE if the screen must disappear after a delay
     int     refresh_delay;  // Refresh period in ms (0 means no refresh)
@@ -124,7 +124,7 @@ void OSD_FreeCommand(TOSDCommand* pOSDCommand);
 
 void OSD_AddTextSingleLine(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double);
 void OSD_AddText(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double);
-int OSD_CutLines(LPCTSTR, long);
+int OSD_CutLines(LPTSTR, long);
 void OSD_ClearAllTexts();
 
 
@@ -161,16 +161,16 @@ static void OSD_DisplayProgrammeInfos(double Size);
 // Screens definition
 static TActiveScreen ActiveScreens[] =
 {
-    { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
-    { "Short prog screen",       TRUE,  TRUE,  0,                       TRUE,  FALSE, OSD_DisplayProgrammeInfos },
-    { "Detailed prog screen",    TRUE,  FALSE, 500,                     TRUE,  TRUE,  OSD_RefreshCurrentProgrammeScreen },
-    { "Prog browser screen",     TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshProgrammesScreen },
-    { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshGeneralScreen },
-    { "Statistics screen",       FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshStatisticsScreen },
-    { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshWSSScreen },
-//  { "AR screen",               FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshARScreen },
+    { _T("Card calibration screen"), TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
+    { _T("Short prog screen"),       TRUE,  TRUE,  0,                       TRUE,  FALSE, OSD_DisplayProgrammeInfos },
+    { _T("Detailed prog screen"),    TRUE,  FALSE, 500,                     TRUE,  TRUE,  OSD_RefreshCurrentProgrammeScreen },
+    { _T("Prog browser screen"),     TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshProgrammesScreen },
+    { _T("General screen"),          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshGeneralScreen },
+    { _T("Statistics screen"),       FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshStatisticsScreen },
+    { _T("WSS decoding screen"),     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshWSSScreen },
+//  { _T("AR screen"),               FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshARScreen },
 #ifdef USE_PERFORMANCE_STATS
-    { "Developer screen",        FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshDeveloperScreen },
+    { _T("Developer screen"),        FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshDeveloperScreen },
 #endif
 };
 
@@ -184,12 +184,12 @@ static const char* OSD_szBackgroundNames[OSDB_LASTONE] =
 };
 
 
-static char TextLines[128][512];
+static TCHAR TextLines[128][512];
 
 
 //---------------------------------------------------------------------------
 // External: Displays the specified OSD text
-void OSD_ShowText(const string& Text, double dSize, BOOL bPersistent, BOOL bOverride)
+void OSD_ShowText(const tstring& Text, double dSize, BOOL bPersistent, BOOL bOverride)
 {
     if (bOverride)
     {
@@ -216,7 +216,7 @@ void OSD_ShowText(const string& Text, double dSize, BOOL bPersistent, BOOL bOver
 
     ULONG nDataLength = Text.length() + 1;
 
-    LPSTR pszText = (LPSTR)malloc(nDataLength);
+    LPTSTR pszText = (LPTSTR)malloc(nDataLength);
     memcpy(pszText, Text.c_str(), nDataLength);
 
     pOSDCommand->dwParam = (DWORD)pszText;
@@ -233,7 +233,7 @@ void OSD_ShowText(const string& Text, double dSize, BOOL bPersistent, BOOL bOver
 //---------------------------------------------------------------------------
 // External: Displayed specified OSD text without autohide timer.
 // External: Stays on screen until a new OSD message replaces current OSD message.
-void OSD_ShowTextPersistent(const string& Text, double dSize)
+void OSD_ShowTextPersistent(const tstring& Text, double dSize)
 {
     OSD_ShowText(Text, dSize, TRUE);
 }
@@ -244,7 +244,7 @@ void OSD_ShowTextPersistent(const string& Text, double dSize)
 // External: to override all other OSD text showings (done by the above functions).
 // External: This is useful for external programs to override DScaler's own OSD text
 // External: for its own controls.
-void OSD_ShowTextOverride(const string& Text, double dSize)
+void OSD_ShowTextOverride(const tstring& Text, double dSize)
 {
     OSD_ShowText(Text, dSize, FALSE, TRUE);
 }
@@ -263,7 +263,7 @@ void OSD_ShowSourceComments()
 
     if (pSource != NULL)
     {
-        LPSTR lpComments = pSource->GetComments();
+        LPCTSTR lpComments = pSource->GetComments();
 
         if (*lpComments != '\0')
         {
@@ -384,7 +384,7 @@ void OSD_ProcessDisplayUpdate(HDC hDC, LPRECT lpRect)
     {
     case OSDC_SHOW_TEXT:
         {
-            LPSTR pszText = (LPSTR)pOSDCommand->dwParam;
+            LPTSTR pszText = (LPTSTR)pOSDCommand->dwParam;
 
             OSD_ShowText(hDC, lpRect, pszText, pOSDCommand->dSize,
                 (pOSDCommand->uFlags & OSDF_PERSISTENT) != 0);
@@ -589,7 +589,7 @@ void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size)
     {
         QueryPerformanceFrequency(&Frequency);
         QueryPerformanceCounter(&SecondCount);
-        LOGD("OSD_RefreshInfosScreen in %ld ms\n", (int)(SecondCount.QuadPart -
+        LOGD(_T("OSD_RefreshInfosScreen in %ld ms\n"), (int)(SecondCount.QuadPart -
             FirstCount.QuadPart)/(Frequency.QuadPart/1000));
     }
 #endif
@@ -606,7 +606,7 @@ void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size)
 // Reserved: OSD Redrawing code.
 void OSD_Redraw(HDC hDC, LPRECT lpRect)
 {
-    CHAR        szCurrentFont[32];
+    tstring     szCurrentFont;
     HFONT       hOSDFont;
     HFONT       hOSDFontOutline;
     HFONT       hSaveFont;
@@ -635,26 +635,26 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
         // Set specified font
         if(OSD_szFontName)
         {
-            strcpy(szCurrentFont, OSD_szFontName);
-            hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, DEFAULT_PITCH | FF_DONTCARE, OSD_szFontName);
+            szCurrentFont = OSD_szFontName;
+            hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, DEFAULT_PITCH | FF_DONTCARE, szCurrentFont.c_str());
         }
         if (hOSDFont == NULL)
         {
             // Fallback to Arial
-            strcpy(szCurrentFont, "Arial");
-            hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont);
+            szCurrentFont = _T("Arial");
+            hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont.c_str());
             if (hOSDFont == NULL)
             {
                 // Otherwise, fallback to any available font
-                strcpy(szCurrentFont, "");
-                hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont);
+                szCurrentFont = _T("");
+                hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont.c_str());
             }
         }
         if (hOSDFont == NULL)
         {
-            ErrorBox("Failed To Create OSD Font");
+            ErrorBox(_T("Failed To Create OSD Font"));
         }
-        hOSDFontOutline = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, szCurrentFont);
+        hOSDFontOutline = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, szCurrentFont.c_str());
 
         if (hOSDFontOutline == NULL)
         {
@@ -664,7 +664,7 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
         hSaveFont = (HFONT)SelectObject(hDC, hOSDFontOutline);
         if (hSaveFont != NULL)
         {
-            GetTextExtentPoint32(hDC, OSD_Text[i].szText, strlen(OSD_Text[i].szText), &sizeText);
+            GetTextExtentPoint32(hDC, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText), &sizeText);
 
             switch (OSD_Text[i].TextXPos)
             {
@@ -731,14 +731,14 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
             {
                 // Draw OSD outline if required
                 SetTextColor(hDC, OSD_OutlineColor);
-                TextOut(hDC, lpRect->left+nXpos - 2, lpRect->top+ nYpos, OSD_Text[i].szText, strlen(OSD_Text[i].szText));
-                TextOut(hDC, lpRect->left+nXpos + 2, lpRect->top+ nYpos, OSD_Text[i].szText, strlen(OSD_Text[i].szText));
-                TextOut(hDC, lpRect->left+nXpos, lpRect->top+ nYpos - 2, OSD_Text[i].szText, strlen(OSD_Text[i].szText));
-                TextOut(hDC, lpRect->left+nXpos, lpRect->top+ nYpos + 2, OSD_Text[i].szText, strlen(OSD_Text[i].szText));
-                TextOut(hDC, lpRect->left+nXpos - 1, lpRect->top+ nYpos - 1, OSD_Text[i].szText, strlen(OSD_Text[i].szText));
-                TextOut(hDC, lpRect->left+nXpos + 1, lpRect->top+ nYpos - 1, OSD_Text[i].szText, strlen(OSD_Text[i].szText));
-                TextOut(hDC, lpRect->left+nXpos - 1, lpRect->top+ nYpos + 1, OSD_Text[i].szText, strlen(OSD_Text[i].szText));
-                TextOut(hDC, lpRect->left+nXpos + 1, lpRect->top+ nYpos + 1, OSD_Text[i].szText, strlen(OSD_Text[i].szText));
+                TextOut(hDC, lpRect->left+nXpos - 2, lpRect->top+ nYpos, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText));
+                TextOut(hDC, lpRect->left+nXpos + 2, lpRect->top+ nYpos, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText));
+                TextOut(hDC, lpRect->left+nXpos, lpRect->top+ nYpos - 2, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText));
+                TextOut(hDC, lpRect->left+nXpos, lpRect->top+ nYpos + 2, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText));
+                TextOut(hDC, lpRect->left+nXpos - 1, lpRect->top+ nYpos - 1, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText));
+                TextOut(hDC, lpRect->left+nXpos + 1, lpRect->top+ nYpos - 1, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText));
+                TextOut(hDC, lpRect->left+nXpos - 1, lpRect->top+ nYpos + 1, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText));
+                TextOut(hDC, lpRect->left+nXpos + 1, lpRect->top+ nYpos + 1, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText));
             }
 
             // Draw OSD text
@@ -746,12 +746,12 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
             {
                 SetTextColor(hDC, OSD_Text[i].TextColor);
                 SetBkColor(hDC, OSD_Text[i].BackgroundColor);
-                TextOut(hDC, lpRect->left+nXpos, lpRect->top+ nYpos, OSD_Text[i].szText, strlen(OSD_Text[i].szText));
+                TextOut(hDC, lpRect->left+nXpos, lpRect->top+ nYpos, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText));
 
                 // MRS 2-23-01 Calculate rectnagle for the entire OSD
                 // so we do not invalidate the entire window to remove it.
                 SIZE sz;
-                GetTextExtentExPoint(hDC, OSD_Text[i].szText, strlen(OSD_Text[i].szText),
+                GetTextExtentExPoint(hDC, OSD_Text[i].szText, _tcslen(OSD_Text[i].szText),
                     32000, NULL, NULL, &sz);
 
                 SetRect(&OSD_Text[i].CurrentRect,
@@ -832,7 +832,7 @@ void OSD_FreeCommand(TOSDCommand* pOSDCommand)
 {
     if (pOSDCommand->uCommand == OSDC_SHOW_TEXT)
     {
-        LPSTR pszText = (LPSTR)pOSDCommand->dwParam;
+        LPTSTR pszText = (LPTSTR)pOSDCommand->dwParam;
 
         if (pszText != NULL)
         {
@@ -882,27 +882,27 @@ static double OSD_GetLineYpos (int nLine, double dfMargin, double Size)
 }
 
 
-static void OSD_GetTextResult(int delta, char *text, long *color)
+static void OSD_GetTextResult(int delta, TCHAR* text, long *color)
 {
     if (delta <= 3)
     {
-        strcpy (text, "*****");
+        _tcscpy (text, _T("*****"));
     }
     else if (delta <= 9)
     {
-        strcpy (text, "****");
+        _tcscpy (text, _T("****"));
     }
     else if (delta <= 18)
     {
-        strcpy (text, "***");
+        _tcscpy (text, _T("***"));
     }
     else if (delta <= 30)
     {
-        strcpy (text, "**");
+        _tcscpy (text, _T("**"));
     }
     else
     {
-        strcpy (text, "*");
+        _tcscpy (text, _T("*"));
     }
     *color = -1;
 }
@@ -914,7 +914,7 @@ extern FILTER_METHOD* Filters[];
 static void OSD_RefreshGeneralScreen(double Size)
 {
     double  dfMargin = 0.02;    // 2% of screen height/width
-    char    szInfo[64];
+    TCHAR   szInfo[64];
     int     nLine;
     int     i;
     CSource* pSource = Providers_GetCurrentSource();
@@ -929,20 +929,20 @@ static void OSD_RefreshGeneralScreen(double Size)
     }
 
     // DScaler version
-    OSD_AddText(GetProductNameAndVersion(), Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+    OSD_AddText(GetProductNameAndVersion().c_str(), Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
     // Channel
     nLine = 3;
 
-    OSD_AddText("Source", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Source"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Video input
-    OSD_AddText(pSource != NULL ? pSource->GetStatus().c_str() : "", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(pSource != NULL ? pSource->GetStatus().c_str() : _T(""), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Audio mute
     if (Setting_GetValue(WM_AUDIO_GETVALUE, SYSTEMINMUTE) == TRUE)
     {
-        OSD_AddText("Volume Mute", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText(_T("Volume Mute"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     }
 
     // Source size
@@ -950,11 +950,11 @@ static void OSD_RefreshGeneralScreen(double Size)
     {
         if (pSource->GetWidth() != pSource->GetInitialWidth() || pSource->GetHeight() != pSource->GetInitialHeight())
         {
-            sprintf (szInfo, "Size %ux%u (%ux%u)", pSource->GetWidth(), pSource->GetHeight(), pSource->GetInitialWidth(), pSource->GetInitialHeight());
+            _stprintf (szInfo, _T("Size %ux%u (%ux%u)"), pSource->GetWidth(), pSource->GetHeight(), pSource->GetInitialWidth(), pSource->GetInitialHeight());
         }
         else
         {
-            sprintf (szInfo, "Size %ux%u", pSource->GetWidth(), pSource->GetHeight());
+            _stprintf (szInfo, _T("Size %ux%u"), pSource->GetWidth(), pSource->GetHeight());
         }
         OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     }
@@ -962,33 +962,33 @@ static void OSD_RefreshGeneralScreen(double Size)
     // Source ratio
     if (!AspectSettings.SquarePixels)
     {
-        sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(WM_ASPECT_GETVALUE, SOURCE_ASPECT) / 1000.0);
+        _stprintf(szInfo, _T("Ratio %.2f:1"), (double)Setting_GetValue(WM_ASPECT_GETVALUE, SOURCE_ASPECT) / 1000.0);
         if ( (Setting_GetValue(WM_ASPECT_GETVALUE, ASPECT_MODE)) == 1
           && (Setting_GetValue(WM_ASPECT_GETVALUE, SOURCE_ASPECT)) != 1333)
         {
-            strcat(szInfo, " Letterbox");
+            _tcscat(szInfo, _T(" Letterbox"));
         }
         else if (Setting_GetValue(WM_ASPECT_GETVALUE, ASPECT_MODE) == 2)
         {
-            strcat(szInfo, " Anamorphic");
+            _tcscat(szInfo, _T(" Anamorphic"));
         }
         if (Setting_GetValue(WM_ASPECT_GETVALUE, AUTODETECTASPECT))
         {
-            strcat(szInfo, " auto");
+            _tcscat(szInfo, _T(" auto"));
         }
         OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     }
 
     // Display ratio
     nLine++;
-    OSD_AddText("Display", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Display"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     if (Setting_GetValue(WM_ASPECT_GETVALUE, TARGET_ASPECT) == 0)
     {
-        strcpy(szInfo, "Ratio from current resolution");
+        _tcscpy(szInfo, _T("Ratio from current resolution"));
     }
     else
     {
-        sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(WM_ASPECT_GETVALUE, TARGET_ASPECT) / 1000.0);
+        _stprintf(szInfo, _T("Ratio %.2f:1"), (double)Setting_GetValue(WM_ASPECT_GETVALUE, TARGET_ASPECT) / 1000.0);
     }
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
@@ -1000,7 +1000,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYBRIGHTNESS);
     if(pSetting != NULL || UseOverlayCtrl)
     {
-        OSD_AddText("Brightness", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(_T("Brightness"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if (pSetting != NULL)
     {
@@ -1019,7 +1019,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYCONTRAST);
     if(pSetting != NULL || UseOverlayCtrl)
     {
-        OSD_AddText("Contrast", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(_T("Contrast"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if (pSetting != NULL)
     {
@@ -1038,7 +1038,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYHUE);
     if(pSetting != NULL || UseOverlayCtrl)
     {
-        OSD_AddText("Hue", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(_T("Hue"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if (pSetting != NULL)
     {
@@ -1057,7 +1057,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYSATURATION);
     if(pSetting != NULL || UseOverlayCtrl)
     {
-        OSD_AddText("Color", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(_T("Color"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
     if (pSetting != NULL)
     {
@@ -1075,7 +1075,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     pSetting = pSource != NULL ? pSource->GetSaturationU() : NULL;
     if(pSetting != NULL)
     {
-        OSD_AddText("Color U", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(_T("Color U"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         DisplayTitle = TRUE;
         nLine++;
@@ -1083,7 +1083,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     pSetting = pSource != NULL ? pSource->GetSaturationV() : NULL;
     if(pSetting != NULL)
     {
-        OSD_AddText("Color V", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(_T("Color V"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         DisplayTitle = TRUE;
         nLine++;
@@ -1091,7 +1091,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYGAMMA);
     if(UseOverlayCtrl)
     {
-        OSD_AddText("Gamma", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(_T("Gamma"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         DisplayTitle = TRUE;
         nLine++;
@@ -1099,7 +1099,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     OverlaySetting = Setting_GetValue(WM_OTHER_GETVALUE, OVERLAYSHARPNESS);
     if(UseOverlayCtrl)
     {
-        OSD_AddText("Sharpness", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(_T("Sharpness"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         OSD_AddText(pSetting->GetDisplayValue().c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
         DisplayTitle = TRUE;
         nLine++;
@@ -1108,11 +1108,11 @@ static void OSD_RefreshGeneralScreen(double Size)
     {
         if(UseOverlayCtrl)
         {
-            OSD_AddText("Video & Overlay settings", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+            OSD_AddText(_T("Video & Overlay settings"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
         }
         else
         {
-            OSD_AddText("Video settings", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+            OSD_AddText(_T("Video settings"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
         }
     }
 
@@ -1120,21 +1120,21 @@ static void OSD_RefreshGeneralScreen(double Size)
     nLine = -1;
     if (Setting_GetValue(WM_OUTTHREADS_GETVALUE, DOACCURATEFLIPS))
     {
-        OSD_AddText("Judder Terminator", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+        OSD_AddText(_T("Judder Terminator"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
     }
     if (!IsProgressiveMode())
     {
         if (Setting_GetValue(WM_FD60_GETVALUE, FALLBACKTOVIDEO))
         {
-            OSD_AddText("Fallback on Bad Pulldown", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+            OSD_AddText(_T("Fallback on Bad Pulldown"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         }
         if (Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT))
         {
-            OSD_AddText("Auto Pulldown Detect", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+            OSD_AddText(_T("Auto Pulldown Detect"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         }
     }
-    OSD_AddText(GetDeinterlaceModeName(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-    OSD_AddText("Deinterlacing", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    OSD_AddText(MBCSToTString(GetDeinterlaceModeName()).c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+    OSD_AddText(_T("Deinterlacing"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
 
     // Filters
     nLine = -1;
@@ -1143,13 +1143,13 @@ static void OSD_RefreshGeneralScreen(double Size)
     {
         if (Filters[i]->bActive)
         {
-            OSD_AddText(Filters[i]->szName, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+            OSD_AddText(MBCSToTString(Filters[i]->szName).c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
             DisplayTitle = TRUE;
         }
     }
     if (DisplayTitle)
     {
-        OSD_AddText("Filters", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        OSD_AddText(_T("Filters"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
 }
 
@@ -1157,7 +1157,7 @@ static void OSD_RefreshGeneralScreen(double Size)
 static void OSD_RefreshStatisticsScreen(double Size)
 {
     double              dfMargin = 0.02;    // 2% of screen height/width
-    char                szInfo[64];
+    TCHAR               szInfo[64];
     int                 nLine, nCol, nFirstLine;
     int                 i;
     long                Color;
@@ -1172,53 +1172,53 @@ static void OSD_RefreshStatisticsScreen(double Size)
     }
 
     // Title
-    OSD_AddText("Statistics", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+    OSD_AddText(_T("Statistics"), Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
     nLine = 1;
 
-    OSD_AddText("Dropped fields", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Dropped fields"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    sprintf (szInfo, "Number : %ld", pPerf->GetNumberDroppedFields());
+    _stprintf (szInfo, _T("Number : %ld"), pPerf->GetNumberDroppedFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Last second : %d", pPerf->GetDroppedFieldsLastSecond());
+    _stprintf (szInfo, _T("Last second : %d"), pPerf->GetDroppedFieldsLastSecond());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageDroppedFields());
-    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-    OSD_AddText("Not waited", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-    sprintf (szInfo, "Number : %ld", pPerf->GetNumberNotWaitedFields());
-    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Last second : %d", pPerf->GetNotWaitedFieldsLastSecond());
-    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageNotWaitedFields());
+    _stprintf (szInfo, _T("Average / s : %.1f"), pPerf->GetAverageDroppedFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    OSD_AddText("Processed late", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Not waited"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    sprintf (szInfo, "Number : %ld", pPerf->GetNumberLateFields());
+    _stprintf (szInfo, _T("Number : %ld"), pPerf->GetNumberNotWaitedFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Last second : %d", pPerf->GetLateFieldsLastSecond());
+    _stprintf (szInfo, _T("Last second : %d"), pPerf->GetNotWaitedFieldsLastSecond());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageLateFields());
+    _stprintf (szInfo, _T("Average / s : %.1f"), pPerf->GetAverageNotWaitedFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-//    OSD_AddText("Used fields", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Processed late"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    _stprintf (szInfo, _T("Number : %ld"), pPerf->GetNumberLateFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    _stprintf (szInfo, _T("Last second : %d"), pPerf->GetLateFieldsLastSecond());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    _stprintf (szInfo, _T("Average / s : %.1f"), pPerf->GetAverageLateFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+//    OSD_AddText(_T("Used fields"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 //
-//    sprintf (szInfo, "Last second : %d", pPerf->GetUsedFieldsLastSecond());
+//    _stprintf (szInfo, _T("Last second : %d"), pPerf->GetUsedFieldsLastSecond());
 //    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-//    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageUsedFields());
+//    _stprintf (szInfo, _T("Average / s : %.1f"), pPerf->GetAverageUsedFields());
 //    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     if (Setting_GetValue(WM_OUTTHREADS_GETVALUE, DOACCURATEFLIPS))
     {
-        OSD_AddText("No flip at time", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText(_T("No flip at time"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        sprintf (szInfo, "Number : %ld", pPerf->GetNumberNoFlipAtTime());
+        _stprintf (szInfo, _T("Number : %ld"), pPerf->GetNumberNoFlipAtTime());
         OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Last second : %d", pPerf->GetNoFlipAtTimeLastSecond());
+        _stprintf (szInfo, _T("Last second : %d"), pPerf->GetNoFlipAtTimeLastSecond());
         OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageNoFlipAtTime());
+        _stprintf (szInfo, _T("Average / s : %.1f"), pPerf->GetAverageNoFlipAtTime());
         OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     }
 
@@ -1226,11 +1226,11 @@ static void OSD_RefreshStatisticsScreen(double Size)
 
     CurrentTicks = GetTickCount();
 
-    OSD_AddText("Deinterlace Modes", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Deinterlace Modes"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    sprintf (szInfo, "Number of changes : %ld", nTotalDeintModeChanges);
+    _stprintf (szInfo, _T("Number of changes : %ld"), nTotalDeintModeChanges);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-//    OSD_AddText("changes - % of time - Mode", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+//    OSD_AddText(_T("changes - % of time - Mode"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     for (i = 0 ; i < PROGPULLDOWNMODES_LAST_ONE ; i++)
     {
         DeintMethod = GetProgressiveMethod(i);
@@ -1249,7 +1249,7 @@ static void OSD_RefreshStatisticsScreen(double Size)
                     Color = -1;
                     ticks = DeintMethod->ModeTicks;
                 }
-                sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
+                _stprintf (szInfo, _T("%03d - %05.1f %% - %s"), DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), MBCSToTString(DeintMethod->szName).c_str());
                 OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
                 nLine++;
             }
@@ -1273,7 +1273,7 @@ static void OSD_RefreshStatisticsScreen(double Size)
                     Color = -1;
                     ticks = DeintMethod->ModeTicks;
                 }
-                sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
+                _stprintf (szInfo, _T("%03d - %05.1f %% - %s"), DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), MBCSToTString(DeintMethod->szName).c_str());
                 OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
                 nLine++;
             }
@@ -1298,7 +1298,7 @@ static void OSD_RefreshStatisticsScreen(double Size)
                     Color = -1;
                     ticks = DeintMethod->ModeTicks;
                 }
-                sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
+                _stprintf (szInfo, _T("%03d - %05.1f %% - %s"), DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), MBCSToTString(DeintMethod->szName).c_str());
                 OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
                 nLine++;
             }
@@ -1313,11 +1313,11 @@ static void OSD_RefreshStatisticsScreen(double Size)
         nLine = 7;
     }
 
-    OSD_AddText("Aspect Ratios", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Aspect Ratios"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    sprintf (szInfo, "Number of changes : %d", nNbRatioSwitch);
+    _stprintf (szInfo, _T("Number of changes : %d"), nNbRatioSwitch);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-//    OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+//    OSD_AddText(_T("changes - % of time - Ratio"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     if (nNbRatioSwitch > 0)
     {
@@ -1337,7 +1337,7 @@ static void OSD_RefreshStatisticsScreen(double Size)
                     nLine = nFirstLine;
                     if (nCol <= 2)
                     {
-//                        OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, OSD_GetLineYpos (nFirstLine-1, dfMargin, Size));
+//                        OSD_AddText(_T("changes - % of time - Ratio"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, OSD_GetLineYpos (nFirstLine-1, dfMargin, Size));
                         pos = OSD_GetLineYpos (nLine, dfMargin, Size);
                     }
                 }
@@ -1353,7 +1353,7 @@ static void OSD_RefreshStatisticsScreen(double Size)
                         Color = -1;
                         ticks = RatioStatistics[i].ticks;
                     }
-                    sprintf (szInfo, "%03d - %05.1f %% - %.3f:1 %s", RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "A" : "");
+                    _stprintf (szInfo, _T("%03d - %05.1f %% - %.3f:1 %s"), RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? _T("A") : _T(""));
                     OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, pos);
                     nLine++;
                 }
@@ -1366,7 +1366,7 @@ static void OSD_RefreshStatisticsScreen(double Size)
 static void OSD_RefreshWSSScreen(double Size)
 {
     double      dfMargin = 0.02;    // 2% of screen height/width
-    char        szInfo[64];
+    TCHAR       szInfo[64];
     int         nLine;
 
     if (Size == 0)
@@ -1375,19 +1375,19 @@ static void OSD_RefreshWSSScreen(double Size)
     }
 
     // Title
-    OSD_AddText("WSS data decoding", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+    OSD_AddText(_T("WSS data decoding"), Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
     nLine = 3;
 
-    OSD_AddText("Status", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Status"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    sprintf (szInfo, "Errors : %d", WSS_CtrlData.NbDecodeErr);
+    _stprintf (szInfo, _T("Errors : %d"), WSS_CtrlData.NbDecodeErr);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Ok : %d", WSS_CtrlData.NbDecodeOk);
+    _stprintf (szInfo, _T("Ok : %d"), WSS_CtrlData.NbDecodeOk);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     if ((WSS_CtrlData.NbDecodeErr+WSS_CtrlData.NbDecodeOk) > 0)
     {
-        sprintf (szInfo, "Last : %s", (WSS_CtrlData.DecodeStatus == WSS_STATUS_OK) ? "OK" : "ERROR");
+        _stprintf (szInfo, _T("Last : %s"), (WSS_CtrlData.DecodeStatus == WSS_STATUS_OK) ? _T("OK") : _T("ERROR"));
         OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     }
 
@@ -1399,62 +1399,62 @@ static void OSD_RefreshWSSScreen(double Size)
         // Debug informations
         if (WSS_CtrlData.NbDecodeOk > 0)
         {
-            sprintf (szInfo, "Start position min / max : %d / %d", WSS_CtrlData.MinPos, WSS_CtrlData.MaxPos);
+            _stprintf (szInfo, _T("Start position min / max : %d / %d"), WSS_CtrlData.MinPos, WSS_CtrlData.MaxPos);
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         }
-        sprintf (szInfo, "Errors searching start position : %d", WSS_CtrlData.NbErrPos);
+        _stprintf (szInfo, _T("Errors searching start position : %d"), WSS_CtrlData.NbErrPos);
         OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-        OSD_AddText("Debug", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+        OSD_AddText(_T("Debug"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
 
         if (WSS_CtrlData.DecodeStatus != WSS_STATUS_ERROR)
         {
             nLine = 3;
 
-            OSD_AddText("Data", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+            OSD_AddText(_T("Data"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
             // WSS data
             if (WSS_Data.AspectRatio > 0)
             {
-                sprintf (szInfo, "Aspect ratio : %.3f", WSS_Data.AspectRatio / 1000.0);
+                _stprintf (szInfo, _T("Aspect ratio : %.3f"), WSS_Data.AspectRatio / 1000.0);
                 if (WSS_Data.AspectMode == 1)
-                    strcat (szInfo, " Letterboxed");
+                    _tcscat (szInfo, _T(" Letterboxed"));
                 else if (WSS_Data.AspectMode == 2)
-                    strcat (szInfo, " Anamorphic");
+                    _tcscat (szInfo, _T(" Anamorphic"));
             }
             else
             {
-                strcpy (szInfo, "Aspect ratio : undefined");
+                _tcscpy (szInfo, _T("Aspect ratio : undefined"));
             }
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Mode : %s", WSS_Data.FilmMode ? "film Mode" : "camera Mode");
+            _stprintf (szInfo, _T("Mode : %s"), WSS_Data.FilmMode ? _T("film Mode") : _T("camera Mode"));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Helper signals : %s", WSS_Data.HelperSignals ? "yes" : "no");
+            _stprintf (szInfo, _T("Helper signals : %s"), WSS_Data.HelperSignals ? _T("yes") : _T("no"));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Color encoding : %s", WSS_Data.ColorPlus ? "ColorPlus" : "normal");
+            _stprintf (szInfo, _T("Color encoding : %s"), WSS_Data.ColorPlus ? _T("ColorPlus") : _T("normal"));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Teletext subtitles : %s", WSS_Data.TeletextSubtitle ? "yes" : "no");
+            _stprintf (szInfo, _T("Teletext subtitles : %s"), WSS_Data.TeletextSubtitle ? _T("yes") : _T("no"));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             switch (WSS_Data.OpenSubtitles)
             {
             case WSS625_SUBTITLE_NO:
-                strcpy (szInfo, "Open subtitles : no");
+                _tcscpy (szInfo, _T("Open subtitles : no"));
                 break;
             case WSS625_SUBTITLE_INSIDE:
-                strcpy (szInfo, "Open subtitles : inside picture");
+                _tcscpy (szInfo, _T("Open subtitles : inside picture"));
                 break;
             case WSS625_SUBTITLE_OUTSIDE:
-                strcpy (szInfo, "Open subtitles : outside picture");
+                _tcscpy (szInfo, _T("Open subtitles : outside picture"));
                 break;
             default:
-                strcpy (szInfo, "Open subtitles : ???");
+                _tcscpy (szInfo, _T("Open subtitles : ???"));
                 break;
             }
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Surround sound : %s", WSS_Data.SurroundSound ? "yes" : "no");
+            _stprintf (szInfo, _T("Surround sound : %s"), WSS_Data.SurroundSound ? _T("yes") : _T("no"));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Copyright asserted : %s", WSS_Data.CopyrightAsserted ? "yes" : "no");
+            _stprintf (szInfo, _T("Copyright asserted : %s"), WSS_Data.CopyrightAsserted ? _T("yes") : _T("no"));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            sprintf (szInfo, "Copy protection : %s", WSS_Data.CopyProtection ? "yes" : "no");
+            _stprintf (szInfo, _T("Copy protection : %s"), WSS_Data.CopyProtection ? _T("yes") : _T("no"));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         }
     }
@@ -1464,7 +1464,7 @@ static void OSD_RefreshWSSScreen(double Size)
 static void OSD_RefreshARScreen(double Size)
 {
     double      dfMargin = 0.02;    // 2% of screen height/width
-    char        szInfo[64];
+    TCHAR       szInfo[64];
     int         nLine, nCol, nFirstLine;
     int         i;
     long        Color;
@@ -1478,13 +1478,13 @@ static void OSD_RefreshARScreen(double Size)
     }
 
     // Title
-    OSD_AddText("Aspect Ratio", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+    OSD_AddText(_T("Aspect Ratio"), Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
     nLine = 3;
 
-    sprintf (szInfo, "Number of changes : %d", nNbRatioSwitch);
+    _stprintf (szInfo, _T("Number of changes : %d"), nNbRatioSwitch);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("changes - % of time - Ratio"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     if (nNbRatioSwitch > 0)
     {
@@ -1504,7 +1504,7 @@ static void OSD_RefreshARScreen(double Size)
                     nLine = nFirstLine;
                     if (nCol <= 2)
                     {
-                        OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, OSD_GetLineYpos (4, dfMargin, Size));
+                        OSD_AddText(_T("changes - % of time - Ratio"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, OSD_GetLineYpos (4, dfMargin, Size));
                         pos = OSD_GetLineYpos (nLine, dfMargin, Size);
                     }
                 }
@@ -1520,7 +1520,7 @@ static void OSD_RefreshARScreen(double Size)
                         Color = -1;
                         ticks = RatioStatistics[i].ticks;
                     }
-                    sprintf (szInfo, "%03d - %05.1f %% - %.3f:1 %s", RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "A" : "");
+                    _stprintf (szInfo, _T("%03d - %05.1f %% - %.3f:1 %s"), RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? _T("A") : _T(""));
                     OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, pos);
                     nLine++;
                 }
@@ -1533,13 +1533,13 @@ static void OSD_RefreshARScreen(double Size)
 static void OSD_RefreshCalibrationScreen(double Size)
 {
     double          dfMargin = 0.02;    // 2% of screen height/width
-    char            szInfo[64];
+    TCHAR           szInfo[64];
     int             nLine;
     long            Color, BackColor;
     unsigned char   val1, val2, val3, val4, val5, val6;
     int             dif_val1, dif_val2, dif_val3;
     int             dif_total1, dif_total2;
-    char            szResult[16];
+    TCHAR           szResult[16];
     CTestPattern*   pTestPattern;
     CSubPattern*    pSubPattern;
     CSource*        pSource = Providers_GetCurrentSource();
@@ -1552,7 +1552,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
     }
 
     // Title
-    OSD_AddText("Card calibration", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+    OSD_AddText(_T("Card calibration"), Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
     // Video settings
     if (pSource != NULL)
@@ -1563,37 +1563,37 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSetting = pSource->GetBrightness();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Brightness : %+04d", pSetting->GetValue());
+                _stprintf (szInfo, _T("Brightness : %+04d"), pSetting->GetValue());
                 OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
             }
             pSetting = pSource->GetContrast();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
+                _stprintf (szInfo, _T("Contrast : %03u"), pSetting->GetValue());
                 OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
             }
             pSetting = pSource->GetHue();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Hue : %+04d", pSetting->GetValue());
+                _stprintf (szInfo, _T("Hue : %+04d"), pSetting->GetValue());
                 OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
             }
             pSetting = pSource->GetSaturation();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Color : %03u", pSetting->GetValue());
+                _stprintf (szInfo, _T("Color : %03u"), pSetting->GetValue());
                 OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
             }
             pSetting = pSource->GetSaturationU();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
+                _stprintf (szInfo, _T("Color U : %03u"), pSetting->GetValue());
                 OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
             }
             pSetting = pSource->GetSaturationV();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
+                _stprintf (szInfo, _T("Color V : %03u"), pSetting->GetValue());
                 OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
             }
         }
@@ -1605,7 +1605,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSetting = pSource->GetBrightness();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Brightness : %+04d", pSetting->GetValue());
+                _stprintf (szInfo, _T("Brightness : %+04d"), pSetting->GetValue());
                 if ( pCalibration->IsRunning()
                   && ( (pCalibration->GetCurrentStep() == 1)
                     || (pCalibration->GetCurrentStep() == 2)
@@ -1629,7 +1629,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSetting = pSource->GetContrast();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
+                _stprintf (szInfo, _T("Contrast : %03u"), pSetting->GetValue());
                 if ( pCalibration->IsRunning()
                   && ( (pCalibration->GetCurrentStep() == 5)
                     || (pCalibration->GetCurrentStep() == 6)
@@ -1653,7 +1653,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSetting = pSource->GetSaturation();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Color : %03u", pSetting->GetValue());
+                _stprintf (szInfo, _T("Color : %03u"), pSetting->GetValue());
                 if ( pCalibration->IsRunning()
                   && ( (pCalibration->GetCurrentStep() == 12)
                     || (pCalibration->GetCurrentStep() == 13)
@@ -1680,7 +1680,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSetting = pSource->GetSaturationU();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
+                _stprintf (szInfo, _T("Color U : %03u"), pSetting->GetValue());
                 if ( pCalibration->IsRunning()
                   && ( (pCalibration->GetCurrentStep() == 12)
                     || (pCalibration->GetCurrentStep() == 13)
@@ -1703,7 +1703,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSetting = pSource->GetSaturationV();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
+                _stprintf (szInfo, _T("Color V : %03u"), pSetting->GetValue());
                 if ( pCalibration->IsRunning()
                   && ( (pCalibration->GetCurrentStep() == 16)
                     || (pCalibration->GetCurrentStep() == 17)
@@ -1725,7 +1725,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSetting = pSource->GetHue();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Hue : %+04d", pSetting->GetValue());
+                _stprintf (szInfo, _T("Hue : %+04d"), pSetting->GetValue());
                 if ( pCalibration->IsRunning()
                   && ( (pCalibration->GetCurrentStep() == 20)
                     || (pCalibration->GetCurrentStep() == 21)
@@ -1758,23 +1758,23 @@ static void OSD_RefreshCalibrationScreen(double Size)
             switch (pCalibration->GetCurrentStep())
             {
             case -1:
-                strcpy(szInfo, "Calibration finished");
+                _tcscpy(szInfo, _T("Calibration finished"));
                 break;
             case 1:
             case 2:
             case 3:
             case 4:
-                strcpy(szInfo, "Adjusting Brightness ...");
+                _tcscpy(szInfo, _T("Adjusting Brightness ..."));
                 break;
             case 5:
             case 6:
             case 7:
             case 8:
-                strcpy(szInfo, "Adjusting Contrast ...");
+                _tcscpy(szInfo, _T("Adjusting Contrast ..."));
                 break;
             case 10:
             case 11:
-                strcpy(szInfo, "Fine tuning of brightness and contrast ...");
+                _tcscpy(szInfo, _T("Fine tuning of brightness and contrast ..."));
                 break;
             case 12:
             case 13:
@@ -1784,18 +1784,18 @@ static void OSD_RefreshCalibrationScreen(double Size)
             case 17:
             case 18:
             case 19:
-                strcpy(szInfo, "Adjusting Color ...");
+                _tcscpy(szInfo, _T("Adjusting Color ..."));
                 break;
               case 20:
             case 21:
-                strcpy(szInfo, "Adjusting Hue ...");
+                _tcscpy(szInfo, _T("Adjusting Hue ..."));
                 break;
             case 22:
             case 23:
-                strcpy(szInfo, "Fine tuning of color ...");
+                _tcscpy(szInfo, _T("Fine tuning of color ..."));
                 break;
             default:
-                strcpy(szInfo, "");
+                _tcscpy(szInfo, _T(""));
                 break;
             }
             OSD_AddText(szInfo, Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (5, dfMargin, Size));
@@ -1810,12 +1810,12 @@ static void OSD_RefreshCalibrationScreen(double Size)
             if ( Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_RGB_DELTA)
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
-                OSD_AddText("Delta RGB", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                OSD_AddText(_T("Delta RGB"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
             }
             if ( Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_YUV_DELTA)
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
-                OSD_AddText("Delta YUV", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                OSD_AddText(_T("Delta YUV"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
             }
             nLine++;
 
@@ -1831,11 +1831,11 @@ static void OSD_RefreshCalibrationScreen(double Size)
                         if ( (*it)->GetMinColor(&val1, &val2, &val3)
                           && (*it)->GetMaxColor(&val4, &val5, &val6) )
                         {
-                            sprintf (szInfo, "Y Range [%u,%u]", val1, val4);
+                            _stprintf (szInfo, _T("Y Range [%u,%u]"), val1, val4);
                             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                            sprintf (szInfo, "U Range [%u,%u]", val2, val5);
+                            _stprintf (szInfo, _T("U Range [%u,%u]"), val2, val5);
                             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                            sprintf (szInfo, "V Range [%u,%u]", val3, val6);
+                            _stprintf (szInfo, _T("V Range [%u,%u]"), val3, val6);
                             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
                         }
                     }
@@ -1849,7 +1849,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
                           && Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_RGB_DELTA)
                           && (pCalibration->GetType() == CAL_MANUAL) )
                         {
-                            sprintf (szInfo, "(%+d,%+d,%+d) (%d)", dif_val1, dif_val2, dif_val3, dif_total1);
+                            _stprintf (szInfo, _T("(%+d,%+d,%+d) (%d)"), dif_val1, dif_val2, dif_val3, dif_total1);
                             OSD_AddText(szInfo, Size, -1, BackColor, OSDB_SHADED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
                         }
                         avail2 = (*it)->GetDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
@@ -1857,7 +1857,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
                           && Setting_GetValue(WM_CALIBR_GETVALUE, SHOW_YUV_DELTA)
                           && (pCalibration->GetType() == CAL_MANUAL) )
                         {
-                            sprintf (szInfo, "(%d) (%+d,%+d,%+d)", dif_total2, dif_val1, dif_val2, dif_val3);
+                            _stprintf (szInfo, _T("(%d) (%+d,%+d,%+d)"), dif_total2, dif_val1, dif_val2, dif_val3);
                             OSD_AddText(szInfo, Size, -1, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
                         }
 
@@ -1886,7 +1886,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
                         else if (avail2)
                         {
                             OSD_GetTextResult(dif_total2, szResult, &Color);
-                            sprintf (szInfo, "%s (YUV %d)", szResult, dif_total2);
+                            _stprintf (szInfo, _T("%s (YUV %d)"), szResult, dif_total2);
                             OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                         }
                     }
@@ -1900,7 +1900,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
 static void OSD_RefreshDeveloperScreen(double Size)
 {
     double      dfMargin = 0.02;    // 2% of screen height/width
-    char        szInfo[64];
+    TCHAR       szInfo[64];
     int         nLine;
     int         i;
     double      pos;
@@ -1913,64 +1913,64 @@ static void OSD_RefreshDeveloperScreen(double Size)
     }
 
     // Title
-    OSD_AddText("Information for developers", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+    OSD_AddText(_T("Information for developers"), Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
     nLine = 3;
 
-    OSD_AddText("Dropped fields", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Dropped fields"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    sprintf (szInfo, "Number : %ld", pPerf->GetNumberDroppedFields());
+    _stprintf (szInfo, _T("Number : %ld"), pPerf->GetNumberDroppedFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Last second : %d", pPerf->GetDroppedFieldsLastSecond());
+    _stprintf (szInfo, _T("Last second : %d"), pPerf->GetDroppedFieldsLastSecond());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageDroppedFields());
-    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-    OSD_AddText("Not waited", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-    sprintf (szInfo, "Number : %ld", pPerf->GetNumberNotWaitedFields());
-    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Last second : %d", pPerf->GetNotWaitedFieldsLastSecond());
-    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageNotWaitedFields());
+    _stprintf (szInfo, _T("Average / s : %.1f"), pPerf->GetAverageDroppedFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    OSD_AddText("Processed late", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Not waited"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    sprintf (szInfo, "Number : %ld", pPerf->GetNumberLateFields());
+    _stprintf (szInfo, _T("Number : %ld"), pPerf->GetNumberNotWaitedFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Last second : %d", pPerf->GetLateFieldsLastSecond());
+    _stprintf (szInfo, _T("Last second : %d"), pPerf->GetNotWaitedFieldsLastSecond());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageLateFields());
+    _stprintf (szInfo, _T("Average / s : %.1f"), pPerf->GetAverageNotWaitedFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    OSD_AddText(_T("Processed late"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    _stprintf (szInfo, _T("Number : %ld"), pPerf->GetNumberLateFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    _stprintf (szInfo, _T("Last second : %d"), pPerf->GetLateFieldsLastSecond());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    _stprintf (szInfo, _T("Average / s : %.1f"), pPerf->GetAverageLateFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     nLine = 3;
 
-    OSD_AddText("Average Time per cycle (1/10 ms)", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(_T("Average Time per cycle (1/10 ms)"), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     for (i = 0 ; i < PERF_TYPE_LASTONE ; ++i)
     {
         if (pPerf->IsValid((ePerfType)i))
         {
             pos = OSD_GetLineYpos (nLine, dfMargin, Size);
-            sprintf(szInfo, "%s :", pPerf->GetName((ePerfType)i));
+            _stprintf(szInfo, _T("%s :"), pPerf->GetName((ePerfType)i));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
-            sprintf(szInfo, "%d", pPerf->GetAverageDuration((ePerfType)i));
+            _stprintf(szInfo, _T("%d"), pPerf->GetAverageDuration((ePerfType)i));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
             nLine++;
             Total += pPerf->GetAverageDuration((ePerfType)i);
         }
     }
     pos = OSD_GetLineYpos (nLine, dfMargin, Size);
-    sprintf(szInfo, "%s", "Total");
+    _stprintf(szInfo, _T("%s"), _T("Total"));
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
-    sprintf(szInfo, "%d", Total);
+    _stprintf(szInfo, _T("%d"), Total);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
     nLine += 2;
     pos = OSD_GetLineYpos (nLine, dfMargin, Size);
-    sprintf(szInfo, "%s", "Duration since start");
+    _stprintf(szInfo, _T("%s"), _T("Duration since start"));
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
     Cycles = pPerf->GetNbCycles(1);
-    sprintf(szInfo, "%d:%02d", Cycles/60, Cycles % 60);
+    _stprintf(szInfo, _T("%d:%02d"), Cycles/60, Cycles % 60);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
 
 }
@@ -1982,9 +1982,9 @@ static void OSD_DisplayProgrammeInfos(double Size)
 
     time_t StartTime;
     time_t EndTime;
-    string ChannelName;
-    string ProgrammeTitle;
-    string Category;
+    tstring ChannelName;
+    tstring ProgrammeTitle;
+    tstring Category;
 
     if (MyEPG.GetProgrammeMainData(-1, &StartTime, &EndTime, ChannelName, ProgrammeTitle, Category) == FALSE)
     {
@@ -1999,24 +1999,24 @@ static void OSD_DisplayProgrammeInfos(double Size)
     }
 
     struct tm *date_tm;
-    char   StartTimeStr[6];
-    char   EndTimeStr[6];
+    TCHAR  StartTimeStr[6];
+    TCHAR  EndTimeStr[6];
     date_tm = localtime(&StartTime);
-    sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+    _stprintf(StartTimeStr, _T("%02u:%02u"), date_tm->tm_hour, date_tm->tm_min);
     date_tm = localtime(&EndTime);
-    sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+    _stprintf(EndTimeStr, _T("%02u:%02u"), date_tm->tm_hour, date_tm->tm_min);
 
     double pos2 = OSD_GetLineYpos (2, dfMargin, OSD_DefaultSizePerc);
     double pos3 = pos2 + OSD_GetLineYpos (2, dfMargin, Size) - OSD_GetLineYpos (1, dfMargin, Size);
     double pos4 = pos3 + pos3 - pos2;
 
     OSD_AddText(ProgrammeTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
-    char   szInfo[16];
-    sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
+    TCHAR  szInfo[16];
+    _stprintf(szInfo, _T("%s - %s"), StartTimeStr, EndTimeStr);
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos3);
     time_t TimeNow;
     time(&TimeNow);
-    sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
+    _stprintf(szInfo, _T("%.1f %%"), (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos4);
 }
 
@@ -2035,44 +2035,44 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
     double pos1 = OSD_GetLineYpos (nLine++, dfMargin, Size);
     double pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
 
-    string Channel;
+    tstring Channel;
 
     if (   (MyEPG.SearchForProgramme(Channel) == FALSE)
         || (Channel.length() == 0) )
     {
-        OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+        OSD_AddText(_T("No EPG information"), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
         return;
     }
 
     time_t StartTime;
     time_t EndTime;
-    string ChannelName;
-    string ProgrammeTitle;
-    string SubTitle;
-    string Category;
-    string Description;
+    tstring ChannelName;
+    tstring ProgrammeTitle;
+    tstring SubTitle;
+    tstring Category;
+    tstring Description;
 
     MyEPG.GetProgrammeData(-1, &StartTime, &EndTime, ChannelName, ProgrammeTitle, SubTitle, Category, Description);
 
     struct tm *date_tm;
-    char   StartTimeStr[6];
-    char   EndTimeStr[6];
+    TCHAR  StartTimeStr[6];
+    TCHAR  EndTimeStr[6];
     date_tm = localtime(&StartTime);
-    sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+    _stprintf(StartTimeStr, _T("%02u:%02u"), date_tm->tm_hour, date_tm->tm_min);
     date_tm = localtime(&EndTime);
-    sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+    _stprintf(EndTimeStr, _T("%02u:%02u"), date_tm->tm_hour, date_tm->tm_min);
 
     OSD_AddText(ChannelName.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
-    char   szInfo[16];
+    TCHAR  szInfo[16];
     time_t TimeNow;
     time(&TimeNow);
     if (   (TimeNow >= StartTime)
         && (TimeNow < EndTime) )
     {
-        sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
+        _stprintf(szInfo, _T("%.1f %%"), (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
         OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
     }
-    sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
+    _stprintf(szInfo, _T("%s - %s"), StartTimeStr, EndTimeStr);
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
     OSD_AddText(ProgrammeTitle.c_str(), Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
     if (SubTitle.length() > 0)
@@ -2097,7 +2097,7 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 
         // Cut the description test on several lines and
         // determine the number of necessary lines
-        int nb2 = OSD_CutLines(Description.c_str(), Setting_GetValue(WM_EPG_GETVALUE, (EPG_MAXCHARSPERLINE)));
+        int nb2 = OSD_CutLines((LPTSTR)Description.c_str(), Setting_GetValue(WM_EPG_GETVALUE, (EPG_MAXCHARSPERLINE)));
 
         // Display the lines skipping first lines if required
         int IdxFirstLine;
@@ -2136,13 +2136,13 @@ static void OSD_RefreshProgrammesScreen(double Size)
 
     // Title
     double pos1 = OSD_GetLineYpos (1, dfMargin, Size*1.5);
-    char   szInfo[64];
+    TCHAR  szInfo[64];
     struct tm *Time_tm = localtime(&TimeMin);
-    sprintf(szInfo, "%02u/%02u", Time_tm->tm_mday, Time_tm->tm_mon+1);
+    _stprintf(szInfo, _T("%02u/%02u"), Time_tm->tm_mday, Time_tm->tm_mon+1);
     OSD_AddText(szInfo, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
-    sprintf(szInfo, "%02u:%02u/%02u:%02u", Time_tm->tm_hour, Time_tm->tm_min);
+    _stprintf(szInfo, _T("%02u:%02u/%02u:%02u"), Time_tm->tm_hour, Time_tm->tm_min);
     Time_tm = localtime(&TimeMax);
-    sprintf(&szInfo[5], " / %02u:%02u", Time_tm->tm_hour, Time_tm->tm_min);
+    _stprintf(&szInfo[5], _T(" / %02u:%02u"), Time_tm->tm_hour, Time_tm->tm_min);
     OSD_AddText(szInfo, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
 
     if (nb == 0)
@@ -2153,7 +2153,7 @@ static void OSD_RefreshProgrammesScreen(double Size)
     time_t TimeNow;
     time(&TimeNow);
 
-    string Channel;
+    tstring Channel;
     MyEPG.GetViewedChannelName(Channel);
 
     int IdxMin, IdxMax, IdxCur;
@@ -2206,21 +2206,21 @@ static void OSD_RefreshProgrammesScreen(double Size)
         long   Color;
         time_t StartTime;
         time_t EndTime;
-        char StartTimeStr[6];
-        char EndTimeStr[6];
-        string ChannelName;
-        string ProgrammeTitle;
-        string Category;
+        TCHAR StartTimeStr[6];
+        TCHAR EndTimeStr[6];
+        tstring ChannelName;
+        tstring ProgrammeTitle;
+        tstring Category;
 
         MyEPG.GetProgrammeMainData(i, &StartTime, &EndTime, ChannelName, ProgrammeTitle, Category);
         struct tm *date_tm;
         date_tm = localtime(&StartTime);
-        sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+        _stprintf(StartTimeStr, _T("%02u:%02u"), date_tm->tm_hour, date_tm->tm_min);
         date_tm = localtime(&EndTime);
-        sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
+        _stprintf(EndTimeStr, _T("%02u:%02u"), date_tm->tm_hour, date_tm->tm_min);
 
         if (   (Channel.length() > 0)
-            && !_stricmp(ChannelName.c_str(), Channel.c_str())
+            && !_tcsicmp(ChannelName.c_str(), Channel.c_str())
             && (TimeNow >= StartTime)
             && (TimeNow < EndTime) )
         {
@@ -2242,20 +2242,20 @@ static void OSD_RefreshProgrammesScreen(double Size)
         {
             OSD_AddText(Category.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
         }
-        sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
+        _stprintf(szInfo, _T("%s - %s"), StartTimeStr, EndTimeStr);
         OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
         OSD_AddText(ProgrammeTitle.c_str(), Size, (i == (IdxCur -1)) ? OSD_COLOR_CURRENT : -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos3);
         if (   (TimeNow >= StartTime)
             && (TimeNow < EndTime) )
         {
-            sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
+            _stprintf(szInfo, _T("%.1f %%"), (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
             OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos3);
         }
     }
 
     MyEPG.SetDisplayIndexes(IdxMin, IdxMax, IdxCur);
 
-    sprintf(szInfo, "%u-%u / %u", IdxMin, IdxMax, nb);
+    _stprintf(szInfo, _T("%u-%u / %u"), IdxMin, IdxMax, nb);
     OSD_AddText(szInfo, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
 }
 
@@ -2270,7 +2270,7 @@ void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long 
                            eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos,
                            double YPos)
 {
-    if ( (strlen(szText) == 0) || (OSD_nTextCount >= OSD_MAX_TEXT) )
+    if ( (_tcslen(szText) == 0) || (OSD_nTextCount >= OSD_MAX_TEXT) )
     {
         return;
     }
@@ -2326,7 +2326,7 @@ void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long 
     OSD_Text[OSD_nTextCount].TextXPos = TextXPos;
     OSD_Text[OSD_nTextCount].XPos = XPos;
     OSD_Text[OSD_nTextCount].YPos = YPos;
-    strncpy(OSD_Text[OSD_nTextCount].szText, szText, sizeof(OSD_Text[OSD_nTextCount].szText));
+    _tcsncpy(OSD_Text[OSD_nTextCount].szText, szText, sizeof(OSD_Text[OSD_nTextCount].szText));
 
     OSD_nTextCount++;
 }
@@ -2334,21 +2334,21 @@ void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long 
 
 //---------------------------------------------------------------------------
 // Internal: Add a new line of text to the list of texts for OSD.
-// Internal: "\n" and "\r\n" are supported for starting a new line.
+// Internal: _T("\n") and _T("\r\n") are supported for starting a new line.
 void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor,
                  eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos)
 {
-    char      SingleLine[512];
+    TCHAR     SingleLine[512];
     int       SingleLineIndex = 0;
-    const char *s;
+    const TCHAR* s;
 
-    // convert "\r\n" to "\n"
-    while(s = strstr(szText, "\r\n"))
+    // convert _T("\r\n") to _T("\n")
+    while(s = _tcsstr(szText, _T("\r\n")))
     {
-        strcpy((char*)&s[0], &s[1]);
+        _tcscpy((TCHAR*)&s[0], &s[1]);
     }
 
-    for(int i = 0; i < strlen(szText); i++)
+    for(int i = 0; i < _tcslen(szText); i++)
     {
         if(SingleLineIndex == 512)
         {
@@ -2384,20 +2384,20 @@ void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long Background
 //---------------------------------------------------------------------------
 // Same as OSD_AddText except that the text is cut on several lines
 // as soon as one line has more than a certain number of characters.
-int OSD_CutLines(LPCTSTR szText, long MaxCharsPerLine)
+int OSD_CutLines(LPTSTR szText, long MaxCharsPerLine)
 {
     int       IndexLine = 0;
     int       InLineIndex = 0;
-    const char      *cs;
+    const TCHAR     *cs;
     int       i;
 
-    // convert "\r\n" to "\n"
-    while(cs = strstr(szText, "\r\n"))
+    // convert _T("\r\n") to _T("\n")
+    while(cs = _tcsstr(szText, _T("\r\n")))
     {
-        strcpy((char *)&cs[0], &cs[1]);
+        _tcscpy((TCHAR* )&cs[0], &cs[1]);
     }
 
-    for(i = 0; i < strlen(szText); i++)
+    for(i = 0; i < _tcslen(szText); i++)
     {
         if(InLineIndex == 512)
         {
@@ -2438,7 +2438,7 @@ int OSD_CutLines(LPCTSTR szText, long MaxCharsPerLine)
                 else
                 {
                     // Search the last space in the buffered line
-                    char* s = strrchr(TextLines[IndexLine], ' ');
+                    TCHAR* s = _tcsrchr(TextLines[IndexLine], ' ');
                     if (s)
                     {
                         *s = 0x00;
@@ -2448,8 +2448,8 @@ int OSD_CutLines(LPCTSTR szText, long MaxCharsPerLine)
                             InLineIndex = 0;
                             break;
                         }
-                        strcpy(&TextLines[IndexLine][0], s+1);
-                        InLineIndex = strlen(TextLines[IndexLine]);
+                        _tcscpy(&TextLines[IndexLine][0], s+1);
+                        InLineIndex = _tcslen(TextLines[IndexLine]);
                     }
                     else
                     {
@@ -2529,7 +2529,7 @@ void OSD_SetMenu(HMENU hMenu)
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
     for (i=0 ; i < NbScreens ; i++)
     {
-        if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
+        if ((_tcslen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
 //            CheckMenuItemBool(hMenuOSD, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].active);
             EnableMenuItem(hMenuOSD, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].active ? MF_ENABLED : MF_GRAYED);
@@ -2669,7 +2669,7 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
         "OSD", "UseDeveloperScreen", NULL,
     },
     {
-        "Font Name", CHARSTRING, 0, OSD_szFontName.GetPointer(),
+        "Font Name", TCHARSTRING, 0, OSD_szFontName.GetPointer(),
          (long)"Arial", 0, 0, 0, 0,
          NULL,
         "OSD", "FontName", NULL,

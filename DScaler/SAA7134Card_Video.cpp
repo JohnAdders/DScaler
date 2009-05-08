@@ -572,7 +572,7 @@ BOOL CSAA7134Card::IsInterlacedSignalDetected()
 
 // Unused, might not need this for DScaler
 // SAA7134_H_SCALE_INC does the scaling we need
-// - This is "prescaling" as opposed to scaling.. don't know what that means
+// - This is _T("prescaling") as opposed to scaling.. don't know what that means
 void CSAA7134Card::SetHPrescale(eTaskID TaskID, WORD wSourceSize, WORD wScaleSize)
 {
     BYTE TaskMask = TaskID2TaskMask(TaskID);

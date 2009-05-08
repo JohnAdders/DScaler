@@ -51,7 +51,7 @@ bChildOrderChanged(TRUE)
     this->hWndParent = hWndParent;
 
     WNDCLASS wc;
-    if (!::GetClassInfo(hInst, "DSCALERTOOLBARWINDOW", &wc) )
+    if (!::GetClassInfo(hInst, _T("DSCALERTOOLBARWINDOW"), &wc) )
     {
         //wc.cbSize = sizeof(WNDCLASS);
         wc.style = CS_SAVEBITS | CS_HREDRAW | CS_VREDRAW;
@@ -63,7 +63,7 @@ bChildOrderChanged(TRUE)
         wc.hCursor = NULL;
         wc.hbrBackground = HBRUSH(NULL);
         wc.lpszMenuName = NULL;
-        wc.lpszClassName = "DSCALERTOOLBARWINDOW";
+        wc.lpszClassName = _T("DSCALERTOOLBARWINDOW");
 
         if (!RegisterClass(&wc))
         {
@@ -76,8 +76,8 @@ bChildOrderChanged(TRUE)
     mdic.lParam = (LPARAM)this;
 
     hWndToolbar = CreateWindow(
-      "DSCALERTOOLBARWINDOW",
-      "DSCALERTOOLBARWINDOW",
+      _T("DSCALERTOOLBARWINDOW"),
+      _T("DSCALERTOOLBARWINDOW"),
       (Child?WS_CHILD:WS_POPUP) | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
       0,         // starting x position
       50,         // starting y position
@@ -784,7 +784,7 @@ void CToolbarWindow::PaintChildBG(HWND hWndChild, HDC hDC, LPRECT lpRect)
     }
 }
 
-BOOL CToolbarWindow::LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results)
+BOOL CToolbarWindow::LoadSkin(const TCHAR* szSkinIniFile,  const TCHAR* szSection, vector<int> *Results)
 {
     bChildOrderChanged = TRUE;
     return CWindowBorder::LoadSkin(szSkinIniFile, szSection, Results);
@@ -831,7 +831,7 @@ LRESULT CALLBACK CToolbarWindow::ToolbarProc(HWND hWnd, UINT message, WPARAM wPa
             return TRUE;
         }
     case WM_ERASEBKGND:
-         //LOG(2,"Toolbar main: 0x%08x: erase bg",pThis->GethWnd());
+         //LOG(2,_T("Toolbar main: 0x%08x: erase bg"),pThis->GethWnd());
          return TRUE;
     case WM_PAINT:
         {
@@ -839,7 +839,7 @@ LRESULT CALLBACK CToolbarWindow::ToolbarProc(HWND hWnd, UINT message, WPARAM wPa
             {
                 PAINTSTRUCT ps;
                 ::BeginPaint(pThis->GethWnd(),&ps);
-                //LOG(2,"Toolbar main: 0x%08x: wm_paint: %d %d,%d,%d,%d",pThis->GethWnd(),ps.fErase,ps.rcPaint.left,ps.rcPaint.top,ps.rcPaint.right,ps.rcPaint.bottom);
+                //LOG(2,_T("Toolbar main: 0x%08x: wm_paint: %d %d,%d,%d,%d"),pThis->GethWnd(),ps.fErase,ps.rcPaint.left,ps.rcPaint.top,ps.rcPaint.right,ps.rcPaint.bottom);
                 if (ps.fErase)
                 {
                     pThis->PaintToolbar(pThis->GethWnd(),ps.hdc,NULL);
@@ -1033,69 +1033,69 @@ HWND CToolbarChild::CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst
 
 
 
-BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile)
+BOOL CToolbarChild::SkinWindow(HWND hWndItem, tstring sID, tstring sIniEntry, eBitmapAsButtonType ButtonType, tstring sSection, tstring sIniFile)
 {
-    vector<string>States;
+    vector<tstring>States;
     if (ButtonType == BITMAPASBUTTON_PUSH)
     {
         States.push_back(sIniEntry);
-        States.push_back(sIniEntry + "MouseOver");
-        States.push_back(sIniEntry + "Click");
+        States.push_back(sIniEntry + _T("MouseOver"));
+        States.push_back(sIniEntry + _T("Click"));
     }
     else if (ButtonType == BITMAPASBUTTON_CHECKBOX)
     {
         States.push_back(sIniEntry);
-        States.push_back(sIniEntry + "MouseOver");
-        States.push_back(sIniEntry + "Click");
-        States.push_back(sIniEntry + "Checked");
-        States.push_back(sIniEntry + "CheckedMouseOver");
-        States.push_back(sIniEntry + "CheckedClick");
+        States.push_back(sIniEntry + _T("MouseOver"));
+        States.push_back(sIniEntry + _T("Click"));
+        States.push_back(sIniEntry + _T("Checked"));
+        States.push_back(sIniEntry + _T("CheckedMouseOver"));
+        States.push_back(sIniEntry + _T("CheckedClick"));
     }
     else if (ButtonType == BITMAPASBUTTON_3STATE)
     {
         States.push_back(sIniEntry);
-        States.push_back(sIniEntry + "MouseOver");
-        States.push_back(sIniEntry + "Click");
-        States.push_back(sIniEntry + "1");
-        States.push_back(sIniEntry + "1MouseOver");
-        States.push_back(sIniEntry + "1Click");
-        States.push_back(sIniEntry + "2");
-        States.push_back(sIniEntry + "2MouseOver");
-        States.push_back(sIniEntry + "2Click");
+        States.push_back(sIniEntry + _T("MouseOver"));
+        States.push_back(sIniEntry + _T("Click"));
+        States.push_back(sIniEntry + _T("1"));
+        States.push_back(sIniEntry + _T("1MouseOver"));
+        States.push_back(sIniEntry + _T("1Click"));
+        States.push_back(sIniEntry + _T("2"));
+        States.push_back(sIniEntry + _T("2MouseOver"));
+        States.push_back(sIniEntry + _T("2Click"));
     }
     else if (ButtonType == BITMAPASBUTTON_4STATE)
     {
         States.push_back(sIniEntry);
-        States.push_back(sIniEntry + "MouseOver");
-        States.push_back(sIniEntry + "Click");
-        States.push_back(sIniEntry + "1");
-        States.push_back(sIniEntry + "1MouseOver");
-        States.push_back(sIniEntry + "1Click");
-        States.push_back(sIniEntry + "2");
-        States.push_back(sIniEntry + "2MouseOver");
-        States.push_back(sIniEntry + "2Click");
-        States.push_back(sIniEntry + "3");
-        States.push_back(sIniEntry + "3MouseOver");
-        States.push_back(sIniEntry + "3Click");
+        States.push_back(sIniEntry + _T("MouseOver"));
+        States.push_back(sIniEntry + _T("Click"));
+        States.push_back(sIniEntry + _T("1"));
+        States.push_back(sIniEntry + _T("1MouseOver"));
+        States.push_back(sIniEntry + _T("1Click"));
+        States.push_back(sIniEntry + _T("2"));
+        States.push_back(sIniEntry + _T("2MouseOver"));
+        States.push_back(sIniEntry + _T("2Click"));
+        States.push_back(sIniEntry + _T("3"));
+        States.push_back(sIniEntry + _T("3MouseOver"));
+        States.push_back(sIniEntry + _T("3Click"));
     }
     else if (ButtonType == BITMAPASBUTTON_SLIDER)
     {
         States.push_back(sIniEntry);
-        States.push_back(sIniEntry + "MouseOver");
-        States.push_back(sIniEntry + "Click");
-        States.push_back(sIniEntry + "Selected");
-        States.push_back(sIniEntry + "SelectedMouseOver");
-        States.push_back(sIniEntry + "SelectedClick");
-        States.push_back(sIniEntry + "Slider");
-        States.push_back(sIniEntry + "SliderMouseOver");
-        States.push_back(sIniEntry + "SliderClick");
+        States.push_back(sIniEntry + _T("MouseOver"));
+        States.push_back(sIniEntry + _T("Click"));
+        States.push_back(sIniEntry + _T("Selected"));
+        States.push_back(sIniEntry + _T("SelectedMouseOver"));
+        States.push_back(sIniEntry + _T("SelectedClick"));
+        States.push_back(sIniEntry + _T("Slider"));
+        States.push_back(sIniEntry + _T("SliderMouseOver"));
+        States.push_back(sIniEntry + _T("SliderClick"));
     }
 
     for (int i = 0 ; i < States.size(); i++)
     {
         BitmapsFromIniSection.Register(States[i]);
     }
-    BitmapsFromIniSection.Read(sIniFile, sSection, "Bitmap", "Mask");
+    BitmapsFromIniSection.Read(sIniFile, sSection, _T("Bitmap"), _T("Mask"));
 
     if ((hWndItem != NULL) && (BitmapsFromIniSection.Get(sIniEntry)))
     {
@@ -1138,7 +1138,7 @@ BOOL CToolbarChild::SkinWindow(HWND hWndItem, string sID, string sIniEntry, eBit
     return FALSE;
 }
 
-BOOL CToolbarChild::RemoveSkin(string sID)
+BOOL CToolbarChild::RemoveSkin(tstring sID)
 {
     vector<CBitmapAsButton*> NewList;
 
@@ -1162,29 +1162,29 @@ BOOL CToolbarChild::RemoveSkin(string sID)
     return TRUE;
 }
 
-BOOL CToolbarChild::SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile)
+BOOL CToolbarChild::SkinDlgItem(UINT uItemID, tstring sIniEntry, eBitmapAsButtonType ButtonType, tstring sSection, tstring sIniFile)
 {
     HWND hWndItem = GetDlgItem(hWnd, uItemID);
-    char szID[20];
-    sprintf_s(szID,20, "#%u", uItemID);
+    TCHAR szID[20];
+    _stprintf(szID, _T("#%u"), uItemID);
 
     return SkinWindow(hWndItem, szID, sIniEntry, ButtonType, sSection, sIniFile);
 }
 
 BOOL CToolbarChild::RemoveSkinDlgItem(UINT uItemID)
 {
-    char szID[20];
-    sprintf_s(szID,20, "#%u", uItemID);
+    TCHAR szID[20];
+    _stprintf(szID, _T("#%u"), uItemID);
 
     return RemoveSkin(szID);
 }
 
-LRESULT CToolbarChild::ButtonChildProc(string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CToolbarChild::ButtonChildProc(tstring sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    char *szID = (char*)sID.c_str();
+    TCHAR* szID = (TCHAR*)sID.c_str();
     if (szID[0]=='#')
     {
-        UINT winID = atoi(szID+1);
+        UINT winID = _ttoi(szID+1);
         if (winID!=0)
         {
             if (message == WM_LBUTTONUP)
@@ -1196,7 +1196,7 @@ LRESULT CToolbarChild::ButtonChildProc(string sID, HWND hWndParent, UINT MouseFl
     return FALSE;
 }
 
-void CToolbarChild::DrawItem(DRAWITEMSTRUCT* pDrawItem, HICON hIcon, LPCSTR szText, int Width, int Height, int Align)
+void CToolbarChild::DrawItem(DRAWITEMSTRUCT* pDrawItem, HICON hIcon, LPCTSTR szText, int Width, int Height, int Align)
 {
     if (pDrawItem == NULL)
     {
@@ -1288,7 +1288,7 @@ void CToolbarChild::DrawItem(DRAWITEMSTRUCT* pDrawItem, HICON hIcon, LPCSTR szTe
         int Y = pDrawItem->rcItem.top+1;
 
         SIZE Size;
-        if (GetTextExtentPoint(pDrawItem->hDC, szText, strlen(szText), &Size))
+        if (GetTextExtentPoint(pDrawItem->hDC, szText, _tcslen(szText), &Size))
         {
             if (Align & TOOLBARBUTTON_TEXT_HALIGN_RIGHT)
             {
@@ -1323,7 +1323,7 @@ void CToolbarChild::DrawItem(DRAWITEMSTRUCT* pDrawItem, HICON hIcon, LPCSTR szTe
         }
         else
         {
-            TextOut(pDrawItem->hDC, X, Y, szText, strlen(szText));
+            TextOut(pDrawItem->hDC, X, Y, szText, _tcslen(szText));
         }
         SetBkMode(pDrawItem->hDC, nMode);
     }
@@ -1375,7 +1375,7 @@ LRESULT CALLBACK CToolbarChild::StaticToolbarChildDialogProc(HWND hWnd, UINT mes
 }
 
 
-LRESULT CToolbarChild::StaticToolbarChildButtonProc(string sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CToolbarChild::StaticToolbarChildButtonProc(tstring sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     CToolbarChild* ToolbarChild = (CToolbarChild*)pThis;
 

@@ -32,7 +32,7 @@
 
 using namespace std;
 
-CChannel::CChannel(LPCSTR Name, LPCSTR EPGName, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active)
+CChannel::CChannel(LPCTSTR Name, LPCTSTR EPGName, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active)
 {
     m_Name = Name;
     m_EPGName = EPGName;
@@ -42,7 +42,7 @@ CChannel::CChannel(LPCSTR Name, LPCSTR EPGName, DWORD Freq, int ChannelNumber, e
     m_Active = Active;
 }
 
-CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active)
+CChannel::CChannel(LPCTSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active)
 {
     m_Name = Name;
     m_EPGName = m_Name;
@@ -52,12 +52,12 @@ CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Form
     m_Active = Active;
 }
 
-LPCSTR CChannel::GetName() const
+LPCTSTR CChannel::GetName() const
 {
     return m_Name.c_str();
 }
 
-LPCSTR CChannel::GetEPGName() const
+LPCTSTR CChannel::GetEPGName() const
 {
     return m_EPGName.c_str();
 }
@@ -289,7 +289,7 @@ CUserChannels::~CUserChannels()
 {
 }
 
-BOOL CUserChannels::WriteFile(LPCSTR szFilename) const
+BOOL CUserChannels::WriteFile(LPCTSTR szFilename) const
 {
     if (NULL == szFilename)
     {
@@ -297,7 +297,7 @@ BOOL CUserChannels::WriteFile(LPCSTR szFilename) const
     }
 
     BOOL success = FALSE;
-    FILE* file = fopen(szFilename, "w");
+    FILE* file = _tfopen(szFilename, _T("w"));
     if (NULL != file) {
         success = WriteASCIIImpl(file);
         success = (fclose(file) == 0) && success;
@@ -308,7 +308,7 @@ BOOL CUserChannels::WriteFile(LPCSTR szFilename) const
 }
 
 
-BOOL CUserChannels::ReadFile(LPCSTR szFilename)
+BOOL CUserChannels::ReadFile(LPCTSTR szFilename)
 {
     if (NULL == szFilename)
     {
@@ -316,7 +316,7 @@ BOOL CUserChannels::ReadFile(LPCSTR szFilename)
     }
 
     BOOL success = FALSE;
-    FILE* file = fopen(szFilename, "r");
+    FILE* file = _tfopen(szFilename, _T("r"));
     if (NULL != file) {
         success = ReadASCIIImpl(file);
         success = (fclose(file) == 0) && success;
@@ -329,24 +329,24 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
 {
     _ASSERTE(NULL != SettingFile);
 
-    char sbuf[256];
+    TCHAR sbuf[256];
     DWORD Frequency = -1;
     int Channel = 1;
     int Format = -1;
     BOOL Active = TRUE;
-    string Name;
-    string EPGName;
+    tstring Name;
+    tstring EPGName;
 
     while(!feof(SettingFile))
     {
         sbuf[0] = '\0';
 
-        fgets(sbuf, 255, SettingFile);
+        _fgetts(sbuf, 255, SettingFile);
 
-        char* eol_ptr = strstr(sbuf, ";");
+        TCHAR* eol_ptr = _tcsstr(sbuf, _T(";"));
         if (eol_ptr == NULL)
         {
-            eol_ptr = strstr(sbuf, "\n");
+            eol_ptr = _tcsstr(sbuf, _T("\n"));
         }
         if (eol_ptr != NULL)
         {
@@ -354,24 +354,24 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
         }
 
 
-        if(_strnicmp(sbuf, "Name:", 5) == 0)
+        if(_tcsnicmp(sbuf, _T("Name:"), 5) == 0)
         {
             if(Frequency != -1)
             {
                 AddChannel(new CChannel(Name.c_str(), EPGName.c_str(), Frequency, Channel, (eVideoFormat)Format, Active));
             }
 
-            // skip "Name:"
-            char* StartChar = sbuf + 5;
+            // skip _T("Name:")
+            TCHAR* StartChar = sbuf + 5;
 
             // skip any spaces
             while(iswspace(*StartChar))
             {
                 ++StartChar;
             }
-            if(strlen(StartChar) > 0)
+            if(_tcslen(StartChar) > 0)
             {
-                char* EndChar = StartChar + strlen(StartChar) - 1;
+                TCHAR* EndChar = StartChar + _tcslen(StartChar) - 1;
                 while(EndChar > StartChar && iswspace(*EndChar))
                 {
                     *EndChar = '\0';
@@ -381,7 +381,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
             }
             else
             {
-                Name = "Empty";
+                Name = _T("Empty");
             }
             EPGName = Name;
             Frequency = -1;
@@ -389,19 +389,19 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
             Format = -1;
             Active = TRUE;
         }
-        else if(_strnicmp(sbuf, "EPGName:", 8) == 0)
+        else if(_tcsnicmp(sbuf, _T("EPGName:"), 8) == 0)
         {
-            // skip "Name:"
-            char* StartChar = sbuf + 8;
+            // skip _T("Name:")
+            TCHAR* StartChar = sbuf + 8;
 
             // skip any spaces
             while(iswspace(*StartChar))
             {
                 ++StartChar;
             }
-            if(strlen(StartChar) > 0)
+            if(_tcslen(StartChar) > 0)
             {
-                char* EndChar = StartChar + strlen(StartChar) - 1;
+                TCHAR* EndChar = StartChar + _tcslen(StartChar) - 1;
                 while(EndChar > StartChar && iswspace(*EndChar))
                 {
                     *EndChar = '\0';
@@ -412,27 +412,27 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
         }
         // cope with old style frequencies
         // cope with old style frequencies
-        else if(_strnicmp(sbuf, "Freq:", 5) == 0)
+        else if(_tcsnicmp(sbuf, _T("Freq:"), 5) == 0)
         {
-            Frequency = atol(sbuf + 5);
+            Frequency = FromString<DWORD>(sbuf + 5);
             Frequency = Frequency * 1000;
         }
-        else if(_strnicmp(sbuf, "Freq2:", 6) == 0)
+        else if(_tcsnicmp(sbuf, _T("Freq2:"), 6) == 0)
         {
-            Frequency = atol(sbuf + 6);
+            Frequency = FromString<DWORD>(sbuf + 6);
             Frequency = MulDiv(Frequency, 1000000, 16);
         }
-        else if(_strnicmp(sbuf, "Chan:", 5) == 0)
+        else if(_tcsnicmp(sbuf, _T("Chan:"), 5) == 0)
         {
-            Channel = atoi(sbuf + 5);
+            Channel = FromString<int>(sbuf + 5);
         }
-        else if(_strnicmp(sbuf, "Form:", 5) == 0)
+        else if(_tcsnicmp(sbuf, _T("Form:"), 5) == 0)
         {
-            Format = atoi(sbuf + 5);
+            Format = FromString<int>(sbuf + 5);
         }
-        else if(_strnicmp(sbuf, "Active:", 7) == 0)
+        else if(_tcsnicmp(sbuf, _T("Active:"), 7) == 0)
         {
-            Active = (atoi(sbuf + 7) != 0);
+            Active = (FromString<int>(sbuf + 7) != 0);
         }
         else
         {
@@ -469,16 +469,16 @@ BOOL CUserChannels::WriteASCIIImpl(FILE* SettingFile)  const
 
     for(int i = 0; i < GetSize(); i++)
     {
-        fprintf(SettingFile, "Name: %s\n", GetChannel(i)->GetName());
-        if (strcmp(GetChannel(i)->GetName(), GetChannel(i)->GetEPGName()))
-            fprintf(SettingFile, "EPGName: %s\n", GetChannel(i)->GetEPGName());
-        //fprintf(SettingFile, "Freq2: %ld\n", MulDiv((*it)->GetFrequency(),16,1000000));
-        fprintf(SettingFile, "Freq: %ld\n", GetChannel(i)->GetFrequency()/1000);
-        fprintf(SettingFile, "Chan: %d\n", GetChannel(i)->GetChannelNumber());
-        fprintf(SettingFile, "Active: %d\n", GetChannel(i)->IsActive());
+        _ftprintf(SettingFile, _T("Name: %s\n"), GetChannel(i)->GetName());
+        if (_tcscmp(GetChannel(i)->GetName(), GetChannel(i)->GetEPGName()))
+            _ftprintf(SettingFile, _T("EPGName: %s\n"), GetChannel(i)->GetEPGName());
+        //_ftprintf(SettingFile, _T("Freq2: %ld\n"), MulDiv((*it)->GetFrequency(),16,1000000));
+        _ftprintf(SettingFile, _T("Freq: %ld\n"), GetChannel(i)->GetFrequency()/1000);
+        _ftprintf(SettingFile, _T("Chan: %d\n"), GetChannel(i)->GetChannelNumber());
+        _ftprintf(SettingFile, _T("Active: %d\n"), GetChannel(i)->IsActive());
         if(GetChannel(i)->GetFormat() != -1)
         {
-            fprintf(SettingFile, "Form: %d\n", GetChannel(i)->GetFormat());
+            _ftprintf(SettingFile, _T("Form: %d\n"), GetChannel(i)->GetFormat());
         }
     }
 
@@ -494,7 +494,7 @@ BOOL CUserChannels::WriteASCIIImpl(FILE* SettingFile)  const
 // --------------------------------------------
 
 
-CCountryChannels::CCountryChannels(LPCSTR szSomeIdentifierString, eVideoFormat eCountryVideoFormat) : CChannelList()
+CCountryChannels::CCountryChannels(LPCTSTR szSomeIdentifierString, eVideoFormat eCountryVideoFormat) : CChannelList()
 {
     m_szName = szSomeIdentifierString;
     m_Format = eCountryVideoFormat;
@@ -513,10 +513,10 @@ CCountryChannels::~CCountryChannels()
 {
 }
 
-const LPCSTR CCountryChannels::GetCountryName() const
+const LPCTSTR CCountryChannels::GetCountryName() const
 {
-    static char sbuf[256];
-    strncpy(sbuf, m_szName.c_str(), 255);
+    static TCHAR sbuf[256];
+    _tcsncpy(sbuf, m_szName.c_str(), 255);
     sbuf[255] = '\0';
     return sbuf;
 }
@@ -579,11 +579,11 @@ const CCountryChannels* CCountryList::GetChannels(int index)  const
 
 //That is an utility function that was in ProgramList.cpp
 //Used in Load_Country_Settings
-eVideoFormat StrToVideoFormat(char* pszFormat)
+eVideoFormat StrToVideoFormat(const tstring& Format)
 {
     for(int a = 0; a < VIDEOFORMAT_LAST_TV; ++a)
     {
-        if(!_stricmp(pszFormat, VideoFormatNames[a]))
+        if(AreEqualInsensitive(Format, MBCSToTString(VideoFormatNames[a])))
         {
             return (eVideoFormat)a;
         }
@@ -592,13 +592,13 @@ eVideoFormat StrToVideoFormat(char* pszFormat)
     return VIDEOFORMAT_LAST_TV;
 }
 
-BOOL CCountryList::ReadASCII(LPCSTR szFilename)
+BOOL CCountryList::ReadASCII(LPCTSTR szFilename)
 {
     if (NULL == szFilename) {
         return FALSE;
     }
 
-    FILE* file = fopen(szFilename, "r");
+    FILE* file = _tfopen(szFilename, _T("r"));
     if (NULL == file) {
         return FALSE;
     }
@@ -613,21 +613,21 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
 {
     _ASSERTE(NULL != CountryFile);
 
-    char      line[128];
-    char*     Pos;
-    char*     Pos1;
-    char*     eol_ptr;
-    string    channelName;
+    TCHAR      line[128];
+    TCHAR*     Pos;
+    TCHAR*     Pos1;
+    TCHAR*     eol_ptr;
+    tstring    channelName;
     SmartPtr<CCountryChannels> NewCountry;
     eVideoFormat Format = VIDEOFORMAT_LAST_TV;
     int channelCounter = 0;
 
-    while (fgets(line, sizeof(line), CountryFile) != NULL)
+    while (_fgetts(line, sizeof(line), CountryFile) != NULL)
     {
-        eol_ptr = strstr(line, ";");
+        eol_ptr = _tcsstr(line, _T(";"));
         if (eol_ptr == NULL)
         {
-            eol_ptr = strstr(line, "\n");
+            eol_ptr = _tcsstr(line, _T("\n"));
         }
         if(eol_ptr != NULL)
         {
@@ -639,7 +639,7 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
         {
             continue;
         }
-        if(((Pos = strchr(line, '[')) != 0) && ((Pos1 = strrchr(line, ']')) != 0) && Pos1 > Pos)
+        if(((Pos = _tcschr(line, '[')) != 0) && ((Pos1 = _tcsrchr(line, ']')) != 0) && Pos1 > Pos)
         {
             if(NewCountry)
             {
@@ -647,10 +647,10 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
             }
             Pos++;
 
-            char * dummy = Pos;
+            TCHAR*  dummy = Pos;
             dummy[Pos1-Pos] = '\0';
             channelCounter = 0;
-            NewCountry = new CCountryChannels((LPCSTR)dummy);
+            NewCountry = new CCountryChannels((LPCTSTR)dummy);
             Format = VIDEOFORMAT_LAST_TV;
         }
         else
@@ -660,17 +660,17 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
                 return FALSE;
             }
 
-            if ((Pos = strstr(line, "ChannelLow=")) != 0)
+            if ((Pos = _tcsstr(line, _T("ChannelLow="))) != 0)
             {
-                NewCountry->SetMinChannelNumber(atoi(Pos + strlen("ChannelLow=")));
+                NewCountry->SetMinChannelNumber(_ttoi(Pos + _tcslen(_T("ChannelLow="))));
             }
-            else if ((Pos = strstr(line, "ChannelHigh=")) != 0)
+            else if ((Pos = _tcsstr(line, _T("ChannelHigh="))) != 0)
             {
-                NewCountry->SetMaxChannelNumber(atoi(Pos + strlen("ChannelHigh=")));
+                NewCountry->SetMaxChannelNumber(_ttoi(Pos + _tcslen(_T("ChannelHigh="))));
             }
-            else if ((Pos = strstr(line, "Format=")) != 0)
+            else if ((Pos = _tcsstr(line, _T("Format="))) != 0)
             {
-                Format = StrToVideoFormat(Pos + strlen("Format="));
+                Format = StrToVideoFormat(Pos + _tcslen(_T("Format=")));
             }
             else
             {
@@ -682,16 +682,16 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
                         //increment channels for 0 freqs, so that you see gaps...
                         //but do not add the channel (that is the legacy behaviour)
                         int channelNumber = NewCountry->GetMinChannelNumber() + channelCounter;
-                        DWORD freq = (DWORD)atol(Pos);
+                        DWORD freq = (DWORD)_ttol(Pos);
                         if (freq > 0)
                         {
                             Trim(channelName);
-                            //eliminate the trailing ";" in name if it exists,
+                            //eliminate the trailing _T(";") in name if it exists,
                             //otherwise pickup a default name
                             SmartPtr<CChannel> NewChannel;
                             if (channelName.length() < 2)
                             {
-                                channelName = MakeString() << "Channel " << channelNumber;
+                                channelName = MakeString() << _T("Channel ") << channelNumber;
                                 NewChannel = new CChannel(channelName.c_str(), freq, channelNumber, Format, FALSE);
                             }
                             else 

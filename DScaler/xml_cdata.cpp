@@ -16,7 +16,7 @@
  *
  *    This helper module manages buffers for character data.  Buffers
  *    will automatically grow when new data is appended.  For efficiency
- *    applications should just "reset" the buffer inbetween use, which
+ *    applications should just _T("reset") the buffer inbetween use, which
  *    just marks the buffer empty but keeps the buffer allocated.
  *
  *  Author: Tom Zoerner
@@ -41,7 +41,7 @@
 #define DEFAULT_BUF_SIZE_STEP    2048
 
 // ----------------------------------------------------------------------------
-// Initialize a string buffer
+// Initialize a tstring buffer
 // - size hint is used as start size for the buffer when the first data is added
 // - this call is optional; the user may also initialize the buffer state
 //   by setting it to all zero
@@ -57,11 +57,11 @@ void XmlCdata_Init( XML_STR_BUF * pBuf, uint sizeHint )
       pBuf->sizeHint = sizeHint;
    }
    else
-      fatal0("XmlCdata-Init: illegal NULL ptr param");
+      fatal0(_T("XmlCdata-Init: illegal NULL ptr param"));
 }
 
 // ----------------------------------------------------------------------------
-// Discard data in string buffer
+// Discard data in tstring buffer
 // - note: buffer is not freed (for efficiency it's re-used)
 //
 #ifndef XML_CDATA_INLINE
@@ -80,12 +80,12 @@ void XmlCdata_Reset( XML_STR_BUF * pBuf )
       }
    }
    else
-      fatal0("XmlCdata-Reset: illegal NULL ptr param");
+      fatal0(_T("XmlCdata-Reset: illegal NULL ptr param"));
 }
 #endif
 
 // ----------------------------------------------------------------------------
-// Free resources allocated in string buffer
+// Free resources allocated in tstring buffer
 //
 void XmlCdata_Free( XML_STR_BUF * pBuf )
 {
@@ -101,7 +101,7 @@ void XmlCdata_Free( XML_STR_BUF * pBuf )
       }
    }
    else
-      fatal0("XmlCdata-Free: illegal NULL ptr param");
+      fatal0(_T("XmlCdata-Free: illegal NULL ptr param"));
 }
 
 // ----------------------------------------------------------------------------
@@ -109,13 +109,13 @@ void XmlCdata_Free( XML_STR_BUF * pBuf )
 //
 void XmlCdata_Grow( XML_STR_BUF * pBuf, uint len )
 {
-   char * pNewbuf;
+   TCHAR*  pNewbuf;
    uint newSize;
 
    assert((pBuf->pStrBuf == NULL) ? (pBuf->off == 0) : (pBuf->off + 1 <= pBuf->size));
    assert(pBuf->skip <= pBuf->off);
 
-   // size hint may be zero if the caller doesn't call "init" above, but instead just uses memset(0)
+   // size hint may be zero if the caller doesn't call _T("init") above, but instead just uses memset(0)
    if (pBuf->sizeHint == 0)
       pBuf->sizeHint = DEFAULT_BUF_SIZE_STEP;
 
@@ -123,7 +123,7 @@ void XmlCdata_Grow( XML_STR_BUF * pBuf, uint len )
    newSize = pBuf->size + pBuf->sizeHint;
    if (newSize < pBuf->off - pBuf->skip + len + 1)
    {
-      dprintf4("XmlCdata-Grow: buffer len increment %d-%d+%d exceeds size hint %d\n", pBuf->off, pBuf->skip, len, pBuf->sizeHint);
+      dprintf4(_T("XmlCdata-Grow: buffer len increment %d-%d+%d exceeds size hint %d\n"), pBuf->off, pBuf->skip, len, pBuf->sizeHint);
       newSize = pBuf->off - pBuf->skip + len + 1 + (pBuf->sizeHint / 2);
       pBuf->sizeHint = newSize;
    }
@@ -131,11 +131,11 @@ void XmlCdata_Grow( XML_STR_BUF * pBuf, uint len )
    // copy content into the new buffer and free the old one
    if ((pBuf->pStrBuf != NULL) && (pBuf->skip == 0))
    {
-      pNewbuf = (char*) xrealloc(pBuf->pStrBuf, newSize);
+      pNewbuf = (TCHAR*) xrealloc(pBuf->pStrBuf, newSize);
    }
    else
    {
-      pNewbuf = (char*) xmalloc(newSize);
+      pNewbuf = (TCHAR*) xmalloc(newSize);
       if (pBuf->pStrBuf != NULL)
       {
          memcpy(pNewbuf, pBuf->pStrBuf + pBuf->skip, pBuf->size - pBuf->skip);
@@ -153,7 +153,7 @@ void XmlCdata_Grow( XML_STR_BUF * pBuf, uint len )
 //   is defined) but it's also called via function pointer by the scanner when
 //   no transcoding is required
 //
-void XmlCdata_AppendRawNOINLINE( XML_STR_BUF * pBuf, const char * pStr, uint len )
+void XmlCdata_AppendRawNOINLINE( XML_STR_BUF * pBuf, const TCHAR*  pStr, uint len )
 {
    if ( (pBuf->pStrBuf == NULL) ||
         (pBuf->off + len + 1 > pBuf->size) )
@@ -167,9 +167,9 @@ void XmlCdata_AppendRawNOINLINE( XML_STR_BUF * pBuf, const char * pStr, uint len
 }
 
 #ifndef XML_CDATA_INLINE
-void XmlCdata_AppendString( XML_STR_BUF * pBuf, const char * pStr )
+void XmlCdata_AppendString( XML_STR_BUF * pBuf, const TCHAR*  pStr )
 {
-   XmlCdata_AppendRaw(pBuf, pStr, strlen(pStr));
+   XmlCdata_AppendRaw(pBuf, pStr, _tcslen(pStr));
 }
 #endif
 
@@ -179,7 +179,7 @@ void XmlCdata_AppendString( XML_STR_BUF * pBuf, const char * pStr )
 //
 void XmlCdata_Assign( XML_STR_BUF * pDestBuf, XML_STR_BUF * pSrcBuf )
 {
-   char * pTmp;
+   TCHAR*  pTmp;
    uint tmpSize;
 
    if ((pSrcBuf != NULL) && (pDestBuf != NULL))
@@ -207,7 +207,7 @@ void XmlCdata_Assign( XML_STR_BUF * pDestBuf, XML_STR_BUF * pSrcBuf )
       }
    }
    else
-      fatal0("XmlCdata-Assign: invalid NULL ptr param");
+      fatal0(_T("XmlCdata-Assign: invalid NULL ptr param"));
 }
 
 #ifndef XML_CDATA_INLINE
@@ -234,7 +234,7 @@ void XmlCdata_TrimWhitespace( XML_STR_BUF * pBuf )
 {
    uint len;
    uint toff;
-   char * p;
+   TCHAR*  p;
 
    if (pBuf != NULL)
    {
@@ -263,7 +263,7 @@ void XmlCdata_TrimWhitespace( XML_STR_BUF * pBuf )
       }
    }
    else
-      fatal0("XmlCdata-TrimWhitespace: invalid NULL ptr param");
+      fatal0(_T("XmlCdata-TrimWhitespace: invalid NULL ptr param"));
 }
 
 // ----------------------------------------------------------------------------
@@ -271,7 +271,7 @@ void XmlCdata_TrimWhitespace( XML_STR_BUF * pBuf )
 //
 void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, Bool insertTwo )
 {
-   // if string is empty, do nothing
+   // if tstring is empty, do nothing
    if (pBuf->off > 0)
    {
       if (insertTwo)
@@ -281,13 +281,13 @@ void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, Bool insertTwo )
             if ( (pBuf->off > 2) &&
                  (pBuf->pStrBuf[pBuf->off - 2] != '\n') )
             {
-               // single newline only (and string consists not of newline only) -> add one
-               XmlCdata_AppendRaw(pBuf, "\n", 1);
+               // single newline only (and tstring consists not of newline only) -> add one
+               XmlCdata_AppendRaw(pBuf, _T("\n"), 1);
             }
          }
          else
          {  // no newline at all at the end -> add double newline
-            XmlCdata_AppendRaw(pBuf, "\n\n", 2);
+            XmlCdata_AppendRaw(pBuf, _T("\n\n"), 2);
          }
       }
       else
@@ -295,7 +295,7 @@ void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, Bool insertTwo )
          if ( (pBuf->off > 1) &&
               (pBuf->pStrBuf[pBuf->off - 1] != '\n') )
          {
-            XmlCdata_AppendRaw(pBuf, "\n", 1);
+            XmlCdata_AppendRaw(pBuf, _T("\n"), 1);
          }
       }
    }
@@ -307,10 +307,10 @@ void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, Bool insertTwo )
 //   in ISO8859-1 and Unicode; so here we only change the single-byte Latin-1
 //   code into a 2-byte UTF-8 code
 //
-void XmlCdata_AppendLatin1ToUtf8( XML_STR_BUF * pBuf, const char * pStr, uint len )
+void XmlCdata_AppendLatin1ToUtf8( XML_STR_BUF * pBuf, const TCHAR*  pStr, uint len )
 {
-   char * pDest;
-   uchar code;
+   TCHAR*  pDest;
+   TCHAR code;
 
    // to save time, we allocate space for the worst case which is twice the original size
    // hence we don't have to keep track of the destination buffer size in the loop
@@ -346,12 +346,12 @@ void XmlCdata_AppendLatin1ToUtf8( XML_STR_BUF * pBuf, const char * pStr, uint le
 // ----------------------------------------------------------------------------
 // Append characters to a buffer while transcoding UTF-8 to Latin-1
 //
-void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const char * pStr, uint len )
+void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const TCHAR*  pStr, uint len )
 {
-   char * pDest;
+   TCHAR*  pDest;
    uint code;
-   uchar c1;
-   uchar c2;
+   TCHAR c1;
+   TCHAR c2;
 
    // Latin-1 encoding is guaranteed to be at most as long as UTF-8
    if ( (pBuf->pStrBuf == NULL) ||
@@ -387,7 +387,7 @@ void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const char * pStr, uint le
          }
          else
          {
-            dprintf1("XmlCdata-AppendUtf8ToLatin1: sequence error in input: string ends after 0x%02X\n", c1);
+            dprintf1(_T("XmlCdata-AppendUtf8ToLatin1: sequence error in input: tstring ends after 0x%02X\n"), c1);
             *(pDest++) = (char)0xA0;
          }
       }
@@ -396,7 +396,7 @@ void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const char * pStr, uint le
          // not a Latin-1 character, replace with Latin-1 'NBSP' (non-breaking space)
          *(pDest++) = (char)0xA0;
 
-         // skip the complete multi-byte code in the source string
+         // skip the complete multi-byte code in the source tstring
          while ( (len != 0) && ((*pStr & 0xC0) == 0x80) )
          {
             pStr++;
@@ -410,14 +410,14 @@ void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const char * pStr, uint le
 }
 
 // ----------------------------------------------------------------------------
-// Check if all characters in a Latin-1 encoded string are valid
+// Check if all characters in a Latin-1 encoded tstring are valid
 // - valid means in the range defined by XML 1.0 3rd ed., ch. 2.2
 // - note the character check functions are required because the scanner does
 //   not check for invalid control codes for performance reasons
 //
-Bool XmlCdata_CheckLatin1( const char * pStr )
+Bool XmlCdata_CheckLatin1( const TCHAR*  pStr )
 {
-   uchar code;
+   TCHAR code;
    Bool result = TRUE;
 
    if (pStr != NULL)
@@ -439,14 +439,14 @@ Bool XmlCdata_CheckLatin1( const char * pStr )
 }
 
 // ----------------------------------------------------------------------------
-// Check if all characters in a Latin-1 encoded string are letters
+// Check if all characters in a Latin-1 encoded tstring are letters
 // - valid range for letters is defined by XML 1.0 3rd ed., Annex B
 // - note the name check functions are required because the scanner just matches in
 //   the ASCII range; all codes >= 0x80 are treated as letters and passed through
 //
-Bool XmlCdata_CheckLatin1Name( const char * pStr, Bool isNmtoken )
+Bool XmlCdata_CheckLatin1Name( const TCHAR*  pStr, Bool isNmtoken )
 {
-   uchar code;
+   TCHAR code;
    Bool result = TRUE;
 
    if (pStr != NULL)
@@ -493,14 +493,14 @@ Bool XmlCdata_CheckLatin1Name( const char * pStr, Bool isNmtoken )
 }
 
 // ----------------------------------------------------------------------------
-// Check if a given string is valid UTF-8
+// Check if a given tstring is valid UTF-8
 // - to by valid it must firstly be syntactically correct, i.e. all sequence
 //   headers must be followed by the correct amount of trailing bytes
 // - secondly, all characters must be in the range allowed by XML 1.0, ed. 3
 //
-Bool XmlCdata_CheckUtf8( const char * pStr )
+Bool XmlCdata_CheckUtf8( const TCHAR*  pStr )
 {
-   uchar c1, c2, c3, c4;
+   TCHAR c1, c2, c3, c4;
    uint code;
    Bool result = TRUE;
 
@@ -514,7 +514,7 @@ Bool XmlCdata_CheckUtf8( const char * pStr )
             {
                if ((c1 != 0x09) && (c1 != 0x0A) && (c1 != 0x0D))
                {
-                  dprintf1("XmlCdata-CheckUtf8: invalid control code 0x%02X\n", c1);
+                  dprintf1(_T("XmlCdata-CheckUtf8: invalid control code 0x%02X\n"), c1);
                   result = FALSE;
                }
             }
@@ -533,7 +533,7 @@ Bool XmlCdata_CheckUtf8( const char * pStr )
                   }
                   else
                   {
-                     dprintf2("XmlCdata-CheckUtf8: sequence error in 2-byte code: 0x%02X,%02X\n", c1, c2);
+                     dprintf2(_T("XmlCdata-CheckUtf8: sequence error in 2-byte code: 0x%02X,%02X\n"), c1, c2);
                      result = FALSE;
                   }
                   break;
@@ -546,13 +546,13 @@ Bool XmlCdata_CheckUtf8( const char * pStr )
 
                      if ( ((code >= 0xD800) && (code < 0xE000)) || (code >= 0xFFFE) )
                      {
-                        dprintf4("XmlCdata-CheckUtf8: invalid code: 0x%X (3-byte 0x%02X,%02X,%02X)\n", code, c1, c2, c3);
+                        dprintf4(_T("XmlCdata-CheckUtf8: invalid code: 0x%X (3-byte 0x%02X,%02X,%02X)\n"), code, c1, c2, c3);
                         result = FALSE;
                      }
                   }
                   else
                   {
-                     dprintf2("XmlCdata-CheckUtf8: sequence error in 3-byte code: 0x%02X,%02X,...\n", c1, c2);
+                     dprintf2(_T("XmlCdata-CheckUtf8: sequence error in 3-byte code: 0x%02X,%02X,...\n"), c1, c2);
                      result = FALSE;
                   }
                   break;
@@ -569,19 +569,19 @@ Bool XmlCdata_CheckUtf8( const char * pStr )
 
                         if (code > 0x10FFFF)
                         {
-                           dprintf5("XmlCdata-CheckUtf8: invalid code: 0x%X (4-byte 0x%02X,%02X,%02X,%02X)\n", code, c1, c2, c3, c4);
+                           dprintf5(_T("XmlCdata-CheckUtf8: invalid code: 0x%X (4-byte 0x%02X,%02X,%02X,%02X)\n"), code, c1, c2, c3, c4);
                            result = FALSE;
                         }
                      }
                      else
                      {
-                        dprintf2("XmlCdata-CheckUtf8: sequence error in 4-byte code: 0x%02X,%02X,...\n", c1, c2);
+                        dprintf2(_T("XmlCdata-CheckUtf8: sequence error in 4-byte code: 0x%02X,%02X,...\n"), c1, c2);
                         result = FALSE;
                      }
                   }
                   else
                   {
-                     dprintf1("XmlCdata-CheckUtf8: >= 5-byte code: invalid in XML: 0x%02X\n", c1);
+                     dprintf1(_T("XmlCdata-CheckUtf8: >= 5-byte code: invalid in XML: 0x%02X\n"), c1);
                      result = FALSE;  // 5 or more bytes
                   }
                   break;
@@ -735,12 +735,12 @@ static Bool XmlCdata_SearchUtfCodeRange( uint code, const XML_CDATA_UTF_RANGE * 
 }
 
 // ----------------------------------------------------------------------------
-// Check if all characters in a UTF-8 encoded string are letters
+// Check if all characters in a UTF-8 encoded tstring are letters
 // - valid range for letters is defined by XML 1.0 3rd ed., Annex B
 //
-Bool XmlCdata_CheckUtf8Name( const char * pStr, Bool isNmtoken )
+Bool XmlCdata_CheckUtf8Name( const TCHAR*  pStr, Bool isNmtoken )
 {
-   uchar c1, c2, c3;
+   TCHAR c1, c2, c3;
    uint code;
    Bool result = TRUE;
 
@@ -754,7 +754,7 @@ Bool XmlCdata_CheckUtf8Name( const char * pStr, Bool isNmtoken )
             {
                if ((c1 != 0x09) && (c1 != 0x0A) && (c1 != 0x0D))
                {
-                  dprintf1("XmlCdata-CheckUtf8Name: invalid control code 0x%02X\n", c1);
+                  dprintf1(_T("XmlCdata-CheckUtf8Name: invalid control code 0x%02X\n"), c1);
                   result = FALSE;
                }
             }
@@ -774,13 +774,13 @@ Bool XmlCdata_CheckUtf8Name( const char * pStr, Bool isNmtoken )
                      if (  (XmlCdata_SearchUtfCodeRange(code, XmlCData_UtfLetterRange2, XML_UTF_LETTER_RANGE2_COUNT) == FALSE) &&
                           ((XmlCdata_SearchUtfCodeRange(code, XmlCData_UtfDigiCombExtRange2, XML_UTF_DIGICOMBEXT_RANGE2_COUNT) == FALSE) || (isNmtoken == FALSE)) )
                      {
-                        dprintf3("XmlCdata-CheckUtf8Name: not a letter: 0x%X (2-byte code: 0x%02X,%02X)\n", code, c1, c2);
+                        dprintf3(_T("XmlCdata-CheckUtf8Name: not a letter: 0x%X (2-byte code: 0x%02X,%02X)\n"), code, c1, c2);
                         result = FALSE;
                      }
                   }
                   else
                   {
-                     dprintf2("XmlCdata-CheckUtf8Name: sequence error in 2-byte code: 0x%02X,%02X\n", c1, c2);
+                     dprintf2(_T("XmlCdata-CheckUtf8Name: sequence error in 2-byte code: 0x%02X,%02X\n"), c1, c2);
                      result = FALSE;
                   }
                   break;
@@ -794,24 +794,24 @@ Bool XmlCdata_CheckUtf8Name( const char * pStr, Bool isNmtoken )
                      if (  (XmlCdata_SearchUtfCodeRange(code, XmlCData_UtfLetterRange3, XML_UTF_LETTER_RANGE3_COUNT) == FALSE) &&
                           ((XmlCdata_SearchUtfCodeRange(code, XmlCData_UtfDigiCombExtRange3, XML_UTF_DIGICOMBEXT_RANGE3_COUNT) == FALSE) || (isNmtoken == FALSE)) )
                      {
-                        dprintf4("XmlCdata-CheckUtf8Name: not a letter: 0x%X (3-byte code: 0x%02X,%02X,%02X)\n", code, c1, c2, c3);
+                        dprintf4(_T("XmlCdata-CheckUtf8Name: not a letter: 0x%X (3-byte code: 0x%02X,%02X,%02X)\n"), code, c1, c2, c3);
                         result = FALSE;
                      }
                   }
                   else
                   {
-                     dprintf2("XmlCdata-CheckUtf8Name: sequence error in 3-byte code: 0x%02X,%02X,...\n", c1, c2);
+                     dprintf2(_T("XmlCdata-CheckUtf8Name: sequence error in 3-byte code: 0x%02X,%02X,...\n"), c1, c2);
                      result = FALSE;
                   }
                   break;
 
                case 0xF:  // 4 or more byte: code >= 0x10000
-                  dprintf1("XmlCdata-CheckUtf8Name: 4-byte code: not a letter: 0x%02X\n", c1);
+                  dprintf1(_T("XmlCdata-CheckUtf8Name: 4-byte code: not a letter: 0x%02X\n"), c1);
                   result = FALSE;
                   break;
 
                default:
-                  dprintf1("XmlCdata-CheckUtf8Name: sequence error: unexpected trailing code 0x%02X\n", c1);
+                  dprintf1(_T("XmlCdata-CheckUtf8Name: sequence error: unexpected trailing code 0x%02X\n"), c1);
                   result = FALSE;
                   break;
             }

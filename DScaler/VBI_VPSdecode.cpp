@@ -83,12 +83,12 @@ void VPS_Clear_Data()
     ZeroMemory(VPS_Data.LabelCurr, 9);
 }
 
-string VPS_GetChannelNameFromCNI()
+tstring VPS_GetChannelNameFromCNI()
 {
-    string RetVal;
+    tstring RetVal;
     if (VPS_Data.CNI != 0)
     {
-        //LOG(1, "VPS CNI Code %x", VPS_Data.CNI);
+        //LOG(1, _T("VPS CNI Code %x"), VPS_Data.CNI);
         for (int i(0); i < iNbRegisteredCNICodes; i++)
         {
             if (RegisteredCNICodes[i].wCNI_VPS == VPS_Data.CNI)
@@ -117,8 +117,8 @@ BYTE ReverseBitOrder( BYTE b )
 }
 
 //
-// VPS Byte 3 and 4 are marked in datasheet as "not relevant for VPS"
-// but I do get any ASCII chars from Byte 3. I named it "Label" in hope it is ok.
+// VPS Byte 3 and 4 are marked in datasheet as _T("not relevant for VPS")
+// but I do get any ASCII chars from Byte 3. I named it _T("Label") in hope it is ok.
 //
 void VPS_DecodeLabel(BYTE b)
 {
@@ -128,12 +128,12 @@ void VPS_DecodeLabel(BYTE b)
 
         if(VPS_Data.LabelIndex == 8)
         {
-            if(strcmp(VPS_Data.LabelCurr, VPS_Data.LabelTemp) == 0)
+            if(_tcscmp(VPS_Data.LabelCurr, VPS_Data.LabelTemp) == 0)
             {
-                memcpy(VPS_Data.LabelLast, VPS_Data.LabelCurr, 9);
+                _tcsncpy(VPS_Data.LabelLast, VPS_Data.LabelCurr, 9);
             }
 
-            strcpy(VPS_Data.LabelTemp, VPS_Data.LabelCurr);
+            _tcscpy(VPS_Data.LabelTemp, VPS_Data.LabelCurr);
         }
 
         VPS_Data.LabelIndex = 0;
@@ -239,7 +239,7 @@ void VBI_DecodeLine_VPS(BYTE* VBI_Buffer)
 
 BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-    char buffer[50];
+    TCHAR buffer[50];
 
     switch (message)
     {
@@ -251,10 +251,10 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     case WM_TIMER:
         if(VPS_Data.Valid)
         {
-            string ChannelName(VPS_GetChannelNameFromCNI());
+            tstring ChannelName(VPS_GetChannelNameFromCNI());
             SetDlgItemText(hDlg, IDC_VPS_NAME, ChannelName.c_str());
 
-            sprintf(buffer, "0x%0x", VPS_Data.CNI);
+            _stprintf(buffer, _T("0x%0x"), VPS_Data.CNI);
             SetDlgItemText(hDlg, IDC_VPS_CNI, buffer);
 
             if(VPS_Data.Day == 0)
@@ -263,74 +263,74 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 switch(VPS_Data.Hour)
                 {
                 case 31:
-                    strcpy(buffer, "Timer Control");
+                    _tcscpy(buffer, _T("Timer Control"));
                     break;
                 case 30:
-                    strcpy(buffer, "Pause");
+                    _tcscpy(buffer, _T("Pause"));
                     break;
                 case 29:
-                    strcpy(buffer, "Interrupt");
+                    _tcscpy(buffer, _T("Interrupt"));
                     break;
                 case 28:
-                    strcpy(buffer, "Continue");
+                    _tcscpy(buffer, _T("Continue"));
                     break;
                 default:
-                    strcpy(buffer, "Unknown");
+                    _tcscpy(buffer, _T("Unknown"));
                     break;
                 }
 
                 SetDlgItemText(hDlg, IDC_VPS_SERVICE, buffer);
-                SetDlgItemText(hDlg, IDC_VPS_MONTH, "");
-                SetDlgItemText(hDlg, IDC_VPS_TIME,  "");
+                SetDlgItemText(hDlg, IDC_VPS_MONTH, _T(""));
+                SetDlgItemText(hDlg, IDC_VPS_TIME,  _T(""));
             }
 
             else
             {
-                SetDlgItemText(hDlg, IDC_VPS_SERVICE, "");
+                SetDlgItemText(hDlg, IDC_VPS_SERVICE, _T(""));
 
-                sprintf(buffer, "%02d.%02d", VPS_Data.Day, VPS_Data.Month);
+                _stprintf(buffer, _T("%02d.%02d"), VPS_Data.Day, VPS_Data.Month);
                 SetDlgItemText(hDlg, IDC_VPS_MONTH, buffer);
 
-                sprintf(buffer, "%02d:%02d", VPS_Data.Hour, VPS_Data.Minute);
+                _stprintf(buffer, _T("%02d:%02d"), VPS_Data.Hour, VPS_Data.Minute);
                 SetDlgItemText(hDlg, IDC_VPS_TIME, buffer);
             }
 
             switch(VPS_Data.Audio)
             {
             case VPSAUDIO_UNKNOWN:
-                strcpy(buffer, "Don't know");
+                _tcscpy(buffer, _T("Don't know"));
                 break;
             case VPSAUDIO_MONO:
-                strcpy(buffer, "Mono");
+                _tcscpy(buffer, _T("Mono"));
                 break;
             case VPSAUDIO_STEREO:
-                strcpy(buffer, "Stereo");
+                _tcscpy(buffer, _T("Stereo"));
                 break;
             case VPSAUDIO_DUAL:
-                strcpy(buffer, "Dual Sound");
+                _tcscpy(buffer, _T("Dual Sound"));
                 break;
             default:
-                strcpy(buffer, "Error");
+                _tcscpy(buffer, _T("Error"));
                 break;
             }
 
             SetDlgItemText(hDlg, IDC_VPS_AUDIO, buffer);
             SetDlgItemText(hDlg, IDC_VPS_LABEL, VPS_Data.LabelTemp);
 
-            sprintf(buffer, "0x%02x", VPS_Data.PTY);
+            _stprintf(buffer, _T("0x%02x"), VPS_Data.PTY);
             SetDlgItemText(hDlg, IDC_VPS_PTY, buffer);
         }
 
         else
         {
-            SetDlgItemText(hDlg, IDC_VPS_NAME,    "");
-            SetDlgItemText(hDlg, IDC_VPS_CNI,     "");
-            SetDlgItemText(hDlg, IDC_VPS_MONTH,   "");
-            SetDlgItemText(hDlg, IDC_VPS_TIME,    "");
-            SetDlgItemText(hDlg, IDC_VPS_AUDIO,   "");
-            SetDlgItemText(hDlg, IDC_VPS_SERVICE, "");
-            SetDlgItemText(hDlg, IDC_VPS_LABEL,   "");
-            SetDlgItemText(hDlg, IDC_VPS_PTY,     "");
+            SetDlgItemText(hDlg, IDC_VPS_NAME,    _T(""));
+            SetDlgItemText(hDlg, IDC_VPS_CNI,     _T(""));
+            SetDlgItemText(hDlg, IDC_VPS_MONTH,   _T(""));
+            SetDlgItemText(hDlg, IDC_VPS_TIME,    _T(""));
+            SetDlgItemText(hDlg, IDC_VPS_AUDIO,   _T(""));
+            SetDlgItemText(hDlg, IDC_VPS_SERVICE, _T(""));
+            SetDlgItemText(hDlg, IDC_VPS_LABEL,   _T(""));
+            SetDlgItemText(hDlg, IDC_VPS_PTY,     _T(""));
         }
 
         break;

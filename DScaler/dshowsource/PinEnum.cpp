@@ -81,7 +81,7 @@ CComPtr<IPin> CDShowPinEnum::next()
         hr=CDShowGenericEnum<IEnumPins,IPin>::next(&pin);
         if(FAILED(hr) || pin==NULL)
             return NULL;
-            //throw CExPinEnum("next() failed",hr);
+            //throw CExPinEnum(_T("next() failed"),hr);
     }
     else
     {
@@ -91,7 +91,7 @@ CComPtr<IPin> CDShowPinEnum::next()
             hr=CDShowGenericEnum<IEnumPins,IPin>::next(&pin);
             if(FAILED(hr) || pin==NULL)
                 return NULL;
-                //throw CExPinEnum("next() failed",hr);
+                //throw CExPinEnum(_T("next() failed"),hr);
 
             PIN_DIRECTION pinDir;
             hr=pin->QueryDirection(&pinDir);

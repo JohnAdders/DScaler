@@ -49,7 +49,7 @@ public:
 class CDShowCaptureDevice : public CDShowBaseSource
 {
 public:
-    CDShowCaptureDevice(IGraphBuilder *pGraph, std::string device, std::string deviceName,BOOL bConnectAudio);
+    CDShowCaptureDevice(IGraphBuilder *pGraph, tstring device, tstring deviceName,BOOL bConnectAudio);
     virtual ~CDShowCaptureDevice();
 
     eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_CAPTURE;}

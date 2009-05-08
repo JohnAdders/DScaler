@@ -427,7 +427,7 @@ void CEventCollector::ProcessEvents()
 
         if (ei.Event != EVENT_NONE)
         {
-            LOG(2,"Event: %d (%d,%d)",ei.Event,ei.OldValue,ei.NewValue);
+            LOG(2,_T("Event: %d (%d,%d)"),ei.Event,ei.OldValue,ei.NewValue);
             RaiseScheduledEvent(ei.pEventObject, ei.Event, ei.OldValue, ei.NewValue, ei.ComingUp);
             if (ei.ComingUp != NULL)
             {

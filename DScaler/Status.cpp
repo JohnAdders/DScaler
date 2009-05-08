@@ -36,7 +36,7 @@ HWND hwndStatusBar = NULL;
 
 BOOL StatusBar_Init()
 {
-    hwndStatusBar = CreateStatusWindow(WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, "Starting ...", GetMainWnd(), IDC_STATUSBAR);
+    hwndStatusBar = CreateStatusWindow(WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, _T("Starting ..."), GetMainWnd(), IDC_STATUSBAR);
 
     if (!hwndStatusBar)
     {
@@ -50,7 +50,7 @@ BOOL StatusBar_IsVisible()
     return IsWindowVisible(hwndStatusBar);
 }
 
-void StatusBar_ShowText(eStatusBarBox Box, const std::string& Text)
+void StatusBar_ShowText(eStatusBarBox Box, const tstring& Text)
 {
     //this function shoud not be called from the output thread, use Deinterlace_SetStatus instead
     ASSERTONOUTTHREAD;

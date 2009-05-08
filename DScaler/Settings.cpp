@@ -55,23 +55,23 @@
 
 using namespace std;
 
-char szIniFile[MAX_PATH] = "DScaler.ini";
+TCHAR szIniFile[MAX_PATH] = _T("DScaler.ini");
 
-void SetIniFileForSettings(LPSTR Name)
+void SetIniFileForSettings(LPTSTR Name)
 {
     GetCurrentDirectory(MAX_PATH, szIniFile);
     if (*Name == 0)         // add parm TRB 12/00
     {
-        strcat(szIniFile, "\\DScaler.ini");
+        _tcscat(szIniFile, _T("\\DScaler.ini"));
     }
     else
     {
-        strcat(szIniFile, "\\");
-        strcat(szIniFile, Name);
+        _tcscat(szIniFile, _T("\\"));
+        _tcscat(szIniFile, Name);
     }
 }
 
-LPCSTR GetIniFileForSettings()
+LPCTSTR GetIniFileForSettings()
 {
     return szIniFile;
 }
@@ -81,30 +81,30 @@ LPCSTR GetIniFileForSettings()
 LPTSTR CleanUpLine(LPTSTR lpString)
 {
     int i = 0;
-    char *string = lpString;
+    TCHAR* tstring = lpString;
 
-    if(string == NULL || string[0] == '\0')
+    if(tstring == NULL || tstring[0] == '\0')
     {
         return lpString;
     }
 
     // remove leading spaces and tabs
-    while(string[0] == ' ' || string[0] == '\t')
+    while(tstring[0] == ' ' || tstring[0] == '\t')
     {
-        string++;
+        tstring++;
     }
 
-    strcpy(lpString, string);
+    _tcscpy(lpString, tstring);
 
     // remove any comments
-    string = strchr(lpString, ';');
-    if(string != NULL)
+    tstring = _tcschr(lpString, ';');
+    if(tstring != NULL)
     {
-        *string = '\0';
+        *tstring = '\0';
     }
 
     // remove trailing spaces, tabs, newline and carriage return
-    i = strlen(lpString) - 1;
+    i = _tcslen(lpString) - 1;
     while(i >= 0 && (lpString[i] == ' ' || lpString[i] == '\t' || lpString[i] == '\r') ||
           lpString[i] == '\n')
     {
@@ -116,25 +116,25 @@ LPTSTR CleanUpLine(LPTSTR lpString)
 // this function returns TRUE if lpString contains a valid section name ('[blahblah]')
 BOOL IsSectionName(LPCTSTR lpString)
 {
-    char localcopy[2560];
+    TCHAR localcopy[2560];
 
     if(lpString == NULL)
     {
         return FALSE;
     }
 
-    strncpy(localcopy, lpString, sizeof(localcopy));
+    _tcsncpy(localcopy, lpString, sizeof(localcopy));
 
     CleanUpLine(localcopy);
 
-    if(strlen(localcopy) < 3)
+    if(_tcslen(localcopy) < 3)
     {
         return FALSE;
     }
-    return (localcopy[0] == '[' && localcopy[strlen(localcopy) - 1] == ']');
+    return (localcopy[0] == '[' && localcopy[_tcslen(localcopy) - 1] == ']');
 }
 
-#define TEMPFILENAME "ThisFileCanBeRemoved.tmp"
+#define TEMPFILENAME _T("ThisFileCanBeRemoved.tmp")
 
 // This function adds an empty line before each new section in the ini file to greatly
 // enhance readability.
@@ -142,38 +142,38 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
 {
     FILE* IniFile = NULL;
     FILE* TempFile = NULL;
-    char szTempFile[MAX_PATH] = "";
-    char buf[2560] = "";
-    char lastline[2560] = "";
+    TCHAR szTempFile[MAX_PATH] = _T("");
+    TCHAR buf[2560] = _T("");
+    TCHAR lastline[2560] = _T("");
     BOOL IOError = FALSE;
 
     buf[2550] = '\0';
 
     GetCurrentDirectory(MAX_PATH, szTempFile);
-    strcat(szTempFile, "\\");
-    strcat(szTempFile, TEMPFILENAME);
+    _tcscat(szTempFile, _T("\\"));
+    _tcscat(szTempFile, TEMPFILENAME);
 
-    TempFile = fopen(szTempFile, "w");
+    TempFile = _tfopen(szTempFile, _T("w"));
     if(TempFile == NULL)
     {
-        LOG(1, "BeautifyIniFile: Error opening temp file for writing.");
+        LOG(1, _T("BeautifyIniFile: Error opening temp file for writing."));
         return;
     }
     else
     {
-        IniFile = fopen(lpIniFileName, "r");
+        IniFile = _tfopen(lpIniFileName, _T("r"));
         if(IniFile == NULL)
         {
             fclose(TempFile);
-            remove(szTempFile);
-            LOG(1, "BeautifyIniFile: Error opening ini file for reading.");
+            _tremove(szTempFile);
+            LOG(1, _T("BeautifyIniFile: Error opening ini file for reading."));
             return;
         }
         else
         {
             while(!feof(IniFile))
             {
-                if(fgets(buf, 2550, IniFile) == NULL)
+                if(_fgetts(buf, 2550, IniFile) == NULL)
                 {
                     if(feof(IniFile))
                     {
@@ -182,37 +182,37 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
                     else
                     {
                         IOError = TRUE;
-                        LOG(1, "BeautifyIniFile: Error reading ini file.");
+                        LOG(1, _T("BeautifyIniFile: Error reading ini file."));
                     }
                 }
                 if(IsSectionName(buf) && lastline[0] != '\0')
                 {
-                    if(fputs("\n", TempFile) < 0)
+                    if(_fputts(_T("\n"), TempFile) < 0)
                     {
                         IOError = TRUE;
-                        LOG(1, "BeautifyIniFile: Error writing temp file (#1).");
+                        LOG(1, _T("BeautifyIniFile: Error writing temp file (#1)."));
                     }
                 }
-                if(fputs(buf, TempFile) < 0)
+                if(_fputts(buf, TempFile) < 0)
                 {
                     IOError = TRUE;
-                    LOG(1, "BeautifyIniFile: Error writing temp file (#2).");
+                    LOG(1, _T("BeautifyIniFile: Error writing temp file (#2)."));
                 }
                 if(IOError)
                 {
                     fclose(IniFile);
                     fclose(TempFile);
-                    remove(szTempFile);
+                    _tremove(szTempFile);
                     return;
                 }
-                strncpy(lastline, buf, sizeof(lastline));
+                _tcsncpy(lastline, buf, sizeof(lastline));
                 CleanUpLine(lastline);
             }
         }
         fclose(IniFile);
         fclose(TempFile);
     }
-    remove(lpIniFileName);
+    _tremove(lpIniFileName);
 
     // RM Sept 28 2006: The following while loop and Sleep statement should not be needed.
     // It was added because Antivir Personal Edition Classic was causing problems when
@@ -220,27 +220,27 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
     // Antivir causes a delay in removing the ini file which causes the rename to fail.
     //
     int i = 0;
-    while(rename(szTempFile, lpIniFileName) != 0)
+    while(_trename(szTempFile, lpIniFileName) != 0)
     {
         Sleep(1);
         if(i++ > 100)
         {
-            LOG(1, "BeautifyIniFile: rename failed.");
+            LOG(1, _T("BeautifyIniFile: rename failed."));
             break;
         }
     }
     if(i != 0)
     {
-        LOG(1, "BeautifyIniFile: Sleep needed %d time(s) before rename.", i);
+        LOG(1, _T("BeautifyIniFile: Sleep needed %d time(s) before rename."), i);
     }
 }
 
 void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, LPCTSTR lpFileName)
 {
-    char szValue[128];
-    sprintf(szValue, "%d", nValue);
+    TCHAR szValue[128];
+    _stprintf(szValue, _T("%d"), nValue);
     WritePrivateProfileString(lpAppName,  lpKeyName,  szValue, lpFileName);
-    LOG(2, " WritePrivateProfileInt %s %s Value %s", lpAppName, lpKeyName, szValue);
+    LOG(2, _T(" WritePrivateProfileInt %s %s Value %s"), lpAppName, lpKeyName, szValue);
 }
 
 

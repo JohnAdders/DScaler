@@ -91,7 +91,7 @@ void Audio_Mute(DWORD PostMuteDelay)
 
     LeaveCriticalSection(&AudioMuteCriticalSection);
 
-    LOG(2, " Mute Called Status on Exit %d", AudioMuteStatus);
+    LOG(2, _T(" Mute Called Status on Exit %d"), AudioMuteStatus);
 }
 
 
@@ -137,7 +137,7 @@ void Audio_Unmute(DWORD PreUnmuteDelay)
     }
 
     LeaveCriticalSection(&AudioMuteCriticalSection);
-    LOG(2, " UnMute Called Status on Exit %d", AudioMuteStatus);
+    LOG(2, _T(" UnMute Called Status on Exit %d"), AudioMuteStatus);
 }
 
 

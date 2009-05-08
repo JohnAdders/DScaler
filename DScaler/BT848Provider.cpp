@@ -33,7 +33,7 @@ typedef struct
 {
     WORD VendorId;
     WORD DeviceId;
-    char* szName;
+    TCHAR* szName;
 } TBT848Chip;
 
 TBT848Chip BT848Chips[4] =
@@ -41,28 +41,28 @@ TBT848Chip BT848Chips[4] =
     {
         0x109e,
         0x0350,
-        "BT848",
+        _T("BT848"),
     },
     {
         0x109e,
         0x0351,
-        "BT849",
+        _T("BT849"),
     },
     {
         0x109e,
         0x036e,
-        "BT878",
+        _T("BT878"),
     },
     {
         0x109e,
         0x036f,
-        "BT878A",
+        _T("BT878A"),
     },
 };
 
 CBT848Provider::CBT848Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
 {
-    char szSection[12];
+    TCHAR szSection[12];
     DWORD SubSystemId;
     BOOL IsMemoryInitialized = FALSE;
     int i;
@@ -88,7 +88,7 @@ CBT848Provider::CBT848Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
                 IsMemoryInitialized = TRUE;
             }
 
-            sprintf_s(szSection, 12, "%s%d", BT848Chips[i].szName, CardsFound + 1);
+            _stprintf_s(szSection, 12, _T("%s%d"), BT848Chips[i].szName, CardsFound + 1);
             SmartPtr<CBT848Source> pNewSource = CreateCorrectSource(
                                                                 pHardwareDriver,
                                                                 szSection,
@@ -108,7 +108,7 @@ CBT848Provider::CBT848Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
 }
 
 
-SmartPtr<CBT848Source> CBT848Provider::CreateCorrectSource(SmartPtr<CHardwareDriver> pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, char* ChipName)
+SmartPtr<CBT848Source> CBT848Provider::CreateCorrectSource(SmartPtr<CHardwareDriver> pHardwareDriver, LPCTSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, TCHAR* ChipName)
 {
     /// \todo use the subsystem id to create the correct specilized version of the card
     SmartPtr<CBT848Card> pNewCard = new CBT848Card(pHardwareDriver);
@@ -146,7 +146,7 @@ BOOL CBT848Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
     }
     catch(...)
     {
-        ErrorBox("Can't create RISC Memory");
+        ErrorBox(_T("Can't create RISC Memory"));
         return FALSE;
     }
 
@@ -159,7 +159,7 @@ BOOL CBT848Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
     }
     catch(...)
     {
-        ErrorBox("Can't create Display Memory");
+        ErrorBox(_T("Can't create Display Memory"));
         return FALSE;
     }
 
@@ -172,7 +172,7 @@ BOOL CBT848Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
     }
     catch(...)
     {
-        ErrorBox("Can't create Display Memory");
+        ErrorBox(_T("Can't create Display Memory"));
         return FALSE;
     }
 

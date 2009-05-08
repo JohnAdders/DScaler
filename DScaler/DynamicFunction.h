@@ -25,7 +25,7 @@ template<typename FUNCTYPE>
 class DynamicFunctionParent
 {
 public:
-    DynamicFunctionParent(const char* LibraryName, const char* FunctionName) :
+    DynamicFunctionParent(const TCHAR* LibraryName, const char* FunctionName) :
         m_pFunc(0)
     {
         HMODULE LibraryModule = LibraryCache::GetLibraryHandle(LibraryName);
@@ -48,8 +48,8 @@ template<typename RETVAL, typename PARAM1>
 class DynamicFunctionC1 : public DynamicFunctionParent< RETVAL (__cdecl *)(PARAM1) >
 {
 public:
-    DynamicFunctionC1(const char* LibraryName, const char* FunctionName) :
-        DynamicFunctionParent(LibraryName, FunctionName)
+    DynamicFunctionC1(const TCHAR* LibraryName, const char* FunctionName) :
+        DynamicFunctionParent< RETVAL (__cdecl *)(PARAM1) >(LibraryName, FunctionName)
     {
     }
 
@@ -65,8 +65,8 @@ template<typename RETVAL>
 class DynamicFunctionS0 : public DynamicFunctionParent< RETVAL (__stdcall *)() >
 {
 public:
-    DynamicFunctionS0(const char* LibraryName, const char* FunctionName) :
-        DynamicFunctionParent(LibraryName, FunctionName)
+    DynamicFunctionS0(const TCHAR* LibraryName, const char* FunctionName) :
+        DynamicFunctionParent< RETVAL (__stdcall *)() >(LibraryName, FunctionName)
     {
     }
 
@@ -81,8 +81,8 @@ template<typename RETVAL, typename PARAM1>
 class DynamicFunctionS1 : public DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1) >
 {
 public:
-    DynamicFunctionS1(const char* LibraryName, const char* FunctionName) :
-        DynamicFunctionParent(LibraryName, FunctionName)
+    DynamicFunctionS1(const TCHAR* LibraryName, const char* FunctionName) :
+        DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1) >(LibraryName, FunctionName)
     {
     }
 
@@ -97,8 +97,8 @@ template<typename RETVAL, typename PARAM1, typename PARAM2>
 class DynamicFunctionS2 : public DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2) >
 {
 public:
-    DynamicFunctionS2(const char* LibraryName, const char* FunctionName) :
-        DynamicFunctionParent(LibraryName, FunctionName)
+    DynamicFunctionS2(const TCHAR* LibraryName, const char* FunctionName) :
+        DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2) >(LibraryName, FunctionName)
     {
     }
 
@@ -113,8 +113,8 @@ template<typename RETVAL, typename PARAM1, typename PARAM2, typename PARAM3>
 class DynamicFunctionS3 : public DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2, PARAM3) >
 {
 public:
-    DynamicFunctionS3(const char* LibraryName, const char* FunctionName) :
-        DynamicFunctionParent(LibraryName, FunctionName)
+    DynamicFunctionS3(const TCHAR* LibraryName, const char* FunctionName) :
+        DynamicFunctionParent<RETVAL (__stdcall *)(PARAM1, PARAM2, PARAM3)>(LibraryName, FunctionName)
     {
     }
 
@@ -129,8 +129,8 @@ template<typename RETVAL, typename PARAM1, typename PARAM2, typename PARAM3, typ
 class DynamicFunctionS4 : public DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2, PARAM3, PARAM4) >
 {
 public:
-    DynamicFunctionS4(const char* LibraryName, const char* FunctionName) :
-        DynamicFunctionParent(LibraryName, FunctionName)
+    DynamicFunctionS4(const TCHAR* LibraryName, const char* FunctionName) :
+        DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2, PARAM3, PARAM4) >(LibraryName, FunctionName)
     {
     }
 
@@ -145,8 +145,8 @@ template<typename RETVAL, typename PARAM1, typename PARAM2, typename PARAM3, typ
 class DynamicFunctionS5 : public DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2, PARAM3, PARAM4, PARAM5) >
 {
 public:
-    DynamicFunctionS5(const char* LibraryName, const char* FunctionName) :
-        DynamicFunctionParent(LibraryName, FunctionName)
+    DynamicFunctionS5(const TCHAR* LibraryName, const char* FunctionName) :
+        DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2, PARAM3, PARAM4, PARAM5) >(LibraryName, FunctionName)
     {
     }
 
@@ -161,14 +161,30 @@ template<typename RETVAL, typename PARAM1, typename PARAM2, typename PARAM3, typ
 class DynamicFunctionS6 : public DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2, PARAM3, PARAM4, PARAM5, PARAM6) >
 {
 public:
-    DynamicFunctionS6(const char* LibraryName, const char* FunctionName) :
-        DynamicFunctionParent(LibraryName, FunctionName)
+    DynamicFunctionS6(const TCHAR* LibraryName, const char* FunctionName) :
+        DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2, PARAM3, PARAM4, PARAM5, PARAM6) >(LibraryName, FunctionName)
     {
     }
 
     RETVAL operator()(PARAM1 Param1, PARAM2 Param2, PARAM3 Param3, PARAM4 Param4, PARAM5 Param5, PARAM6 Param6) const
     {
         return m_pFunc?m_pFunc(Param1, Param2, Param3, Param4, Param5, Param6):0;
+    }
+};
+
+// Class for __stdcall functions taking seven parameter
+template<typename RETVAL, typename PARAM1, typename PARAM2, typename PARAM3, typename PARAM4, typename PARAM5, typename PARAM6, typename PARAM7>
+class DynamicFunctionS7 : public DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2, PARAM3, PARAM4, PARAM5, PARAM6, PARAM7) >
+{
+public:
+    DynamicFunctionS7(const TCHAR* LibraryName, const char* FunctionName) :
+        DynamicFunctionParent< RETVAL (__stdcall *)(PARAM1, PARAM2, PARAM3, PARAM4, PARAM5, PARAM6, PARAM7) >(LibraryName, FunctionName)
+    {
+    }
+
+    RETVAL operator()(PARAM1 Param1, PARAM2 Param2, PARAM3 Param3, PARAM4 Param4, PARAM5 Param5, PARAM6 Param6, PARAM7 Param7) const
+    {
+        return m_pFunc?m_pFunc(Param1, Param2, Param3, Param4, Param5, Param6, Param7):0;
     }
 };
 

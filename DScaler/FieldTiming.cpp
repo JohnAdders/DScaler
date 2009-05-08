@@ -66,7 +66,7 @@ void Timing_Setup()
 
     if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR)
     {
-        ErrorBox("Failed to get Timer Resolution");
+        ErrorBox(_T("Failed to get Timer Resolution"));
     }
 
     wTimerRes = min(max(tc.wPeriodMin, TARGET_RESOLUTION), tc.wPeriodMax);
@@ -80,7 +80,7 @@ void Timing_Setup()
     hTimerEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
     if(hTimerEvent == NULL)
     {
-        ErrorBox("Failed to create timing event");
+        ErrorBox(_T("Failed to create timing event"));
     }
     if(bIsPAL)
     {
@@ -132,13 +132,13 @@ void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo, int NumFields)
                 // especially that we don't need to keep a
                 // data history
                 RunningAverageCounterTicks = Weight * RecentTicks + (1.0 - Weight) * RunningAverageCounterTicks;
-                LOG(2, " Last %f", RecentTicks);
-                LOG(2, " Running Average %f", RunningAverageCounterTicks);
+                LOG(2, _T(" Last %f"), RecentTicks);
+                LOG(2, _T(" Running Average %f"), RunningAverageCounterTicks);
             }
             else
             {
-                LOG(2, " Last %f (IGNORED)", RecentTicks);
-                LOG(2, " Old Running Average %f", RunningAverageCounterTicks);
+                LOG(2, _T(" Last %f (IGNORED)"), RecentTicks);
+                LOG(2, _T(" Old Running Average %f"), RunningAverageCounterTicks);
             }
         }
         // save current Value for next time
@@ -225,7 +225,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
                         if(RepeatCount > FormatChangeThreshold)
                         {
                             Providers_GetCurrentSource()->SetFormat(FiftyHzFormat);
-                            LOG(1, "Went to 50Hz Mode - Last Ten Count %d", TenFieldTime);
+                            LOG(1, _T("Went to 50Hz Mode - Last Ten Count %d"), TenFieldTime);
                         }
                     }
                 }
@@ -240,7 +240,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
                         if(RepeatCount > FormatChangeThreshold)
                         {
                             Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
-                            LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
+                            LOG(1, _T("Went to 60Hz Mode - Last Ten Count %d"), TenFieldTime);
                         }
                     }
                 }
@@ -255,13 +255,13 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
                         if(RepeatCount > FormatChangeThreshold)
                         {
                             Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
-                            LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
+                            LOG(1, _T("Went to 60Hz Mode - Last Ten Count %d"), TenFieldTime);
                         }
                     }
                 }
                 else
                 {
-                    LOG(2, "Got unexpected Last Ten Count %d", TenFieldTime);
+                    LOG(2, _T("Got unexpected Last Ten Count %d"), TenFieldTime);
                     RepeatCount = 0;
                 }
             }
@@ -335,7 +335,7 @@ void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* Curre
                 QueryPerformanceCounter(&CurrentFlipTime);
                 if((CurrentFlipTime.QuadPart - LastFlipTime.QuadPart) > TicksToWait)
                 {
-                    LOG(1, " Too late back from mm timer - %d", (long)(CurrentFlipTime.QuadPart - LastFlipTime.QuadPart));
+                    LOG(1, _T(" Too late back from mm timer - %d"), (long)(CurrentFlipTime.QuadPart - LastFlipTime.QuadPart));
                 }
             }
 

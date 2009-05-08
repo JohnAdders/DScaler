@@ -51,7 +51,7 @@
 #define    xmalloc(SIZE)            malloc(SIZE)
 #define    xrealloc(PTR, SIZE)        realloc(PTR, SIZE)
 #define xfree(PTR)                free(PTR)
-#define xstrdup(PTR)            _strdup(PTR)
+#define xstrdup(PTR)            _tcsdup(PTR)
 
 
 #endif  /* not __XMLTV_DEBUG_H */

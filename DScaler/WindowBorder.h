@@ -81,15 +81,15 @@ protected:
 
 
     typedef struct {
-      std::string sID;
+      tstring sID;
       SmartPtr<CBitmapAsButton> Button;
       POINT Location;
       int   RelativePosition;
       POINT LastLocation;
 
-      std::string sIniEntryDefault;
-      std::string sIniEntryMouseOver;
-      std::string sIniEntryClick;
+      tstring sIniEntryDefault;
+      tstring sIniEntryMouseOver;
+      tstring sIniEntryClick;
     } TButtonInfo;
 
     std::vector<TButtonInfo> Buttons;
@@ -125,7 +125,7 @@ protected:
     int BorderWidth(int Position);
     int BorderHeight(int Position);
 
-    static const char* szBorderNames[];
+    static const TCHAR* szBorderNames[];
 public:
     CWindowBorder(HWND hWnd, HINSTANCE hInst, BOOL (*CustomGetClientRect)(HWND hWnd, LPRECT lpRect) = NULL);
     ~CWindowBorder();
@@ -138,9 +138,9 @@ public:
     HRGN MakeRegion(LPRECT lpRcExtra);
 
     BOOL SetBorderBitmap(eWindowBorderPosition Position, int State, SmartPtr<CBitmapState> BitmapState, int DrawMode);
-    BOOL SetButtonBitmap(std::string sID, int WhichBitmap, eWindowBorderPosition RelPos, int x, int y, SmartPtr<CBitmapState> BitmapState);
+    BOOL SetButtonBitmap(tstring sID, int WhichBitmap, eWindowBorderPosition RelPos, int x, int y, SmartPtr<CBitmapState> BitmapState);
 
-    BOOL RegisterButton(std::string sID, eBitmapAsButtonType ButtonType, std::string sIniEntryDefault, std::string sIniEntryMouseOver, std::string sIniEntryClick, BUTTONPROC *pfnButtonProc);
+    BOOL RegisterButton(tstring sID, eBitmapAsButtonType ButtonType, tstring sIniEntryDefault, tstring sIniEntryMouseOver, tstring sIniEntryClick, BUTTONPROC *pfnButtonProc);
 
     void Paint(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPShift = NULL);
 
@@ -148,7 +148,7 @@ public:
     BOOL Show() { IsBorderVisible=1; UpdateButtonLocations(); return TRUE; }
     BOOL Hide() { IsBorderVisible=0; UpdateButtonLocations(); return TRUE; }
 
-    virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, std::vector<int> *Results);
+    virtual BOOL LoadSkin(const TCHAR* szSkinIniFile,  const TCHAR* szSection, std::vector<int> *Results);
     virtual void ClearSkin();
     BOOL IsSkinned() { return m_IsSkinned; }
 };

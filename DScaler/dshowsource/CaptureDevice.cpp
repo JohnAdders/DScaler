@@ -37,7 +37,7 @@ using namespace std;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName,BOOL bConnectAudio)
+CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,tstring device,tstring deviceName,BOOL bConnectAudio)
 :CDShowBaseSource(pGraph),m_bIsConnected(FALSE),m_pCrossbar(NULL),m_pTVTuner(NULL),m_pTVAudio(NULL),m_bConnectAudio(bConnectAudio)
 {
     USES_CONVERSION;
@@ -54,7 +54,7 @@ CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,str
     }
 
     CDShowDevEnum::createDevice(device,IID_IBaseFilter,&m_vidDev);
-    hr=m_pGraph->AddFilter(m_vidDev,A2CW(deviceName.c_str()));
+    hr=m_pGraph->AddFilter(m_vidDev,TStringToUnicode(deviceName).c_str());
     if(FAILED(hr))
     {
         throw CDShowCaptureDeviceException("Failed to add video capture device to graph",hr);
@@ -70,9 +70,9 @@ CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,str
     {
         m_pVideoProcAmp=NULL;
     }
-    std::string tmp;
+    tstring tmp;
     DumpPreferredMediaTypes(m_vidDev,tmp);
-    LOG(3,"Preferred media types for device %s\n%s",deviceName.c_str(),tmp.c_str());
+    LOG(3,_T("Preferred media types for device %s\n%s"),deviceName.c_str(),tmp.c_str());
 }
 
 CDShowCaptureDevice::~CDShowCaptureDevice()
@@ -107,7 +107,7 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
     HRESULT hr=m_pBuilder->FindPin(m_vidDev,PINDIR_OUTPUT,&PIN_CATEGORY_VIDEOPORT,NULL,TRUE,0,&pVPPin);
     if(SUCCEEDED(hr))
     {
-        LOG(2,"Capture device has a VideoPort pin, trying to connect it...",hr);
+        LOG(2,_T("Capture device has a VideoPort pin, trying to connect it..."),hr);
         //render the vp pin
         hr=m_pGraph->Render(pVPPin);
         if(SUCCEEDED(hr))
@@ -121,24 +121,24 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
                 hr=pVWnd->put_AutoShow(OAFALSE);
                 if(FAILED(hr))
                 {
-                    vector<char> tmpstr(MAX_ERROR_TEXT_LEN);
+                    vector<TCHAR> tmpstr(MAX_ERROR_TEXT_LEN);
                     DWORD len=AMGetErrorText(hr,&tmpstr[0],MAX_ERROR_TEXT_LEN);
-                    LOG(2,"IVideoWindow::put_AutoShow failed. ErrorCode: 0x%x ErrorText: '%s'",hr,&tmpstr[0]);
+                    LOG(2,_T("IVideoWindow::put_AutoShow failed. ErrorCode: 0x%x ErrorText: '%s'"),hr,&tmpstr[0]);
                 }
                 hr=pVWnd->put_Visible(OAFALSE);
                 if(FAILED(hr))
                 {
-                    vector<char> tmpstr(MAX_ERROR_TEXT_LEN);
+                    vector<TCHAR> tmpstr(MAX_ERROR_TEXT_LEN);
                     DWORD len=AMGetErrorText(hr,&tmpstr[0],MAX_ERROR_TEXT_LEN);
-                    LOG(2,"IVideoWindow::put_Visible failed. ErrorCode: 0x%x ErrorText: '%s'",hr,&tmpstr[0]);
+                    LOG(2,_T("IVideoWindow::put_Visible failed. ErrorCode: 0x%x ErrorText: '%s'"),hr,&tmpstr[0]);
                 }
             }
         }
         else
         {
-            vector<char> tmpstr(MAX_ERROR_TEXT_LEN);
+            vector<TCHAR> tmpstr(MAX_ERROR_TEXT_LEN);
             DWORD len=AMGetErrorText(hr,&tmpstr[0],MAX_ERROR_TEXT_LEN);
-            LOG(1,"Failed to connect VideoPort pin. ErrorCode: 0x%x ErrorText: '%s'",hr,&tmpstr[0]);
+            LOG(1,_T("Failed to connect VideoPort pin. ErrorCode: 0x%x ErrorText: '%s'"),hr,&tmpstr[0]);
         }
     }
 
@@ -174,31 +174,31 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
         }
         if(bAudioRendered)
         {
-            LOG(2,"DShowCaptureDevice: %d Audio streams rendered",AudioStreamCount);
+            LOG(2,_T("DShowCaptureDevice: %d Audio streams rendered"),AudioStreamCount);
         }
         else
         {
-            LOG(2,"DShowCaptureDevice: Unsupported audio or no audio found, error code: 0x%x",hr);
+            LOG(2,_T("DShowCaptureDevice: Unsupported audio or no audio found, error code: 0x%x"),hr);
         }
 
     }
 
     /*if(driverSupportsIR())
     {
-        LOGD("Yes! driver supports ir\n");
+        LOGD(_T("Yes! driver supports ir\n"));
         if(isRemotePresent())
         {
-            LOGD("Remote is present\n");
+            LOGD(_T("Remote is present\n"));
             ULONG code=getRemoteCode();
             if(code&0x10000)
             {
                 code=code & ~0x10000;
-                LOGD("Remote code=0x%x\n",code);
+                LOGD(_T("Remote code=0x%x\n"),code);
             }
         }
         else
         {
-            LOGD("No remote\n");
+            LOGD(_T("No remote\n"));
         }
     }*/
 }
@@ -285,7 +285,7 @@ ULONG CDShowCaptureDevice::getRemoteCode()
         HRESULT hr=pPropSet->Get(PROPSETID_IR,KSPROPERTY_IR_GETCODE,&tmp,sizeof(KSPROPERTY_IR_GETCODE_S),&tmp,sizeof(KSPROPERTY_IR_GETCODE_S),&bytes);
         if(SUCCEEDED(hr))
         {
-            //LOGD("Got ircode: %lu\n",(tmp.Code & ~0x10000));
+            //LOGD(_T("Got ircode: %lu\n"),(tmp.Code & ~0x10000));
             return tmp.Code;
         }
     }
@@ -311,24 +311,24 @@ CDShowBaseCrossbar* CDShowCaptureDevice::getCrossbar()
 
 CDShowDirectTuner* CDShowCaptureDevice::GetTuner()
 {
-    LOG(2,"DShowCaptureDevice: GetTuner");
+    LOG(2,_T("DShowCaptureDevice: GetTuner"));
     if(m_pTVTuner==NULL)
     {
-        LOG(2,"DShowCaptureDevice: find Tuner");
+        LOG(2,_T("DShowCaptureDevice: find Tuner"));
 
         CComPtr<IAMTVTuner> pTVTuner;
         HRESULT hr=m_pBuilder->FindInterface(&LOOK_UPSTREAM_ONLY,NULL,m_vidDev,IID_IAMTVTuner,(void**)&pTVTuner);
         if(SUCCEEDED(hr))
         {
             m_pTVTuner=new CDShowDirectTuner(pTVTuner, m_pGraph);
-            LOG(2,"DShowCaptureDevice: GetTuner found");
+            LOG(2,_T("DShowCaptureDevice: GetTuner found"));
         }
         else
         {
-            LOG(2,"DShowCaptureDevice: GetTuner not found");
+            LOG(2,_T("DShowCaptureDevice: GetTuner not found"));
         }
     }
-    LOG(2,"DShowCaptureDevice: GetTuner (%s)",(m_pTVTuner==NULL)?"Failed":"Ok");
+    LOG(2,_T("DShowCaptureDevice: GetTuner (%s)"),(m_pTVTuner==NULL)?_T("Failed"):_T("Ok"));
     return m_pTVTuner;
 }
 

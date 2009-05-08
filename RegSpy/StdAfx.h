@@ -29,10 +29,6 @@
 #endif
 
 #define VC_EXTRALEAN
-//#include <afxwin.h>
-//#include <afxext.h>
-//#include <afxcmn.h>
-
 #include <atlbase.h>
 
 // Windows Header Files:
@@ -60,6 +56,7 @@
 #include <string>
 #include "HtmlHelp.H"
 
+#include "../DScaler/StringHelpers.h"
 #include "../DScaler/SmartPtr.h"
 #include "../DScaler/ErrorBox.h"
 #include "DSDrv.h"

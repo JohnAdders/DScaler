@@ -36,7 +36,7 @@ class COpenDlg : public CDSDialog
 public:
     COpenDlg();
 
-    const std::string& GetFileName() {return m_FileName;}
+    const tstring& GetFileName() {return m_FileName;}
 
 private:
     virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -44,7 +44,7 @@ private:
     void OnBrowse(HWND hDlg);
     void OnOK(HWND hDlg);
     void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
-    std::string m_FileName;
+    tstring m_FileName;
 };
 
 #endif

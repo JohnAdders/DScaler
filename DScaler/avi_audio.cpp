@@ -237,10 +237,10 @@ BOOL aviAudioBegin(AVI_FILE *file)
 
         if (result==WAVERR_BADFORMAT)
            aviSetError(file, AVI_ERROR_AUDIO_OPEN,
-                             "The recording format is not supported");
+                             _T("The recording format is not supported"));
            else
            aviSetError(file, AVI_ERROR_AUDIO_OPEN,
-                             "The waveIn device could not be opened");
+                             _T("The waveIn device could not be opened"));
 
         return FALSE;
     }
@@ -258,7 +258,7 @@ BOOL aviAudioBegin(AVI_FILE *file)
         file->audio.buffer[i] = malloc(bufferLength);
         if (!file->audio.buffer[i])
         {
-            aviSetError(file, AVI_ERROR_AUDIO_OPEN, "Out of memory");
+            aviSetError(file, AVI_ERROR_AUDIO_OPEN, _T("Out of memory"));
             return FALSE;
         }
 
@@ -272,7 +272,7 @@ BOOL aviAudioBegin(AVI_FILE *file)
                                 sizeof(WAVEHDR)) != MMSYSERR_NOERROR)
         {
             aviSetError(file, AVI_ERROR_AUDIO_OPEN,
-                              "waveInPrepareHeader failed");
+                              _T("waveInPrepareHeader failed"));
             return FALSE;
         }
 
@@ -280,7 +280,7 @@ BOOL aviAudioBegin(AVI_FILE *file)
         if (waveInAddBuffer(file->audio.hWaveIn, whdr,
                             sizeof(WAVEHDR)) != MMSYSERR_NOERROR)
         {
-            aviSetError(file, AVI_ERROR_AUDIO_OPEN, "waveInAddBuffer failed");
+            aviSetError(file, AVI_ERROR_AUDIO_OPEN, _T("waveInAddBuffer failed"));
             return FALSE;
         }
     }
@@ -315,7 +315,7 @@ void aviAudioEnd(AVI_FILE *file)
                                               sizeof(WAVEHDR)) != MMSYSERR_NOERROR)
                     {
                         #ifdef AVI_DEBUG
-                        cprintf("waveInUnprepareHeader error\n");
+                        cprintf(_T("waveInUnprepareHeader error\n"));
                         #endif
                     }
 

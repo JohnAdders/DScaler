@@ -61,22 +61,22 @@ LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 void MainWndOnCreate(HWND hWnd);
 void MainWndOnInitBT(HWND hWnd);
 void SaveWindowPos(HWND hWnd);
-void SaveActualPStripTiming(HWND hPSWnd);
+void SaveActualPstripTiming(HWND hPSWnd);
 void UpdateWindowState();
 void SetMenuAnalog();
 void CleanUpMemory();
 
 void Overlay_Stop(HWND hWnd);
 void Overlay_Start(HWND hWnd);
-void ShowText(HWND hWnd, const std::string& Text);
+void ShowText(HWND hWnd, const tstring& Text);
 
 BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar = FALSE);
 void InvalidateDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL bErase);
 void AddDisplayAreaRect(HWND hWnd, LPRECT lpRect);
 
-LPCSTR GetSkinDirectory();
+LPCTSTR GetSkinDirectory();
 
-HMENU GetSubMenuWithName(HMENU hMenu, int nPos, LPCSTR szMenuText);
+HMENU GetSubMenuWithName(HMENU hMenu, int nPos, LPCTSTR szMenuText);
 
 HMENU GetFiltersSubmenu();
 HMENU GetVideoDeinterlaceSubmenu();
@@ -91,7 +91,7 @@ void SetMixedModeMenu(HMENU hMenu, BOOL bShow);
 
 void RedrawMenuBar(HMENU hChangedMenu);
 
-void SetTrayTip(const std::string& ChannelName);
+void SetTrayTip(const tstring& ChannelName);
 
 #define TIMER_STATUS        1
 #define TIMER_STATUS_MS     2000

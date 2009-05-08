@@ -25,7 +25,7 @@ void LibraryCache::Unload(LibraryMap::value_type& MapValueToUnload)
     FreeLibrary(MapValueToUnload.second);
 }
 
-HMODULE LibraryCache::GetLibraryHandle(const char* LibaryName)
+HMODULE LibraryCache::GetLibraryHandle(const TCHAR* LibaryName)
 {
     return getInstance()->GetLibraryHandleInternal(LibaryName);
 }
@@ -44,7 +44,7 @@ LibraryCache::~LibraryCache()
     std::for_each(m_LibraryMap.begin(), m_LibraryMap.end(), Unload);
 }
 
-HMODULE LibraryCache::GetLibraryHandleInternal(const char* LibraryName)
+HMODULE LibraryCache::GetLibraryHandleInternal(const TCHAR* LibraryName)
 {
     LibraryMap::iterator it = m_LibraryMap.find(LibraryName);
     if(it == m_LibraryMap.end())

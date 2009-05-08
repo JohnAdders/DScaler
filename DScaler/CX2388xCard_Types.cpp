@@ -42,34 +42,34 @@ using namespace std;
 
 using namespace HCParser;
 
-static const char* k_CX2388xCardListFilename = "CX2388xCards.ini";
+static const TCHAR* k_CX2388xCardListFilename = _T("CX2388xCards.ini");
 
 const CCX2388xCard::TCardType CCX2388xCard::m_CX2388xUnknownCard =
 {
-    "*Unknown Card*",
+    _T("*Unknown Card*"),
     MODE_STANDARD,
     4,
     {
         {
-            "Tuner",
+            _T("Tuner"),
             INPUTTYPE_TUNER,
             0,
             { NULL },
         },
         {
-            "Composite",
+            _T("Composite"),
             INPUTTYPE_COMPOSITE,
             1,
             { NULL },
         },
         {
-            "S-Video",
+            _T("S-Video"),
             INPUTTYPE_SVIDEO,
             2,
             { NULL },
         },
         {
-            "Colour Bars",
+            _T("Colour Bars"),
             INPUTTYPE_COLOURBARS,
             0,
             { NULL },
@@ -87,18 +87,18 @@ std::vector<CCX2388xCard::CCardTypeEx> CCX2388xCard::m_CX2388xCards;
 //////////////////////////////////////////////////////////////////////////
 const CParseConstant CCX2388xCard::k_parseInputTypeConstants[] =
 {
-    PC( "TUNER",      INPUTTYPE_TUNER      ),
-    PC( "COMPOSITE",  INPUTTYPE_COMPOSITE  ),
-    PC( "SVIDEO",     INPUTTYPE_SVIDEO     ),
-    PC( "CCIR",       INPUTTYPE_CCIR       ),
-    PC( "COLOURBARS", INPUTTYPE_COLOURBARS ),
+    PC( _T("TUNER"),      INPUTTYPE_TUNER      ),
+    PC( _T("COMPOSITE"),  INPUTTYPE_COMPOSITE  ),
+    PC( _T("SVIDEO"),     INPUTTYPE_SVIDEO     ),
+    PC( _T("CCIR"),       INPUTTYPE_CCIR       ),
+    PC( _T("COLOURBARS"), INPUTTYPE_COLOURBARS ),
     PC( NULL )
 };
 
 const CParseConstant CCX2388xCard::k_parseCardModeConstants[] =
 {
-    PC( "STANDARD",   MODE_STANDARD ),
-    PC( "H3D",        MODE_H3D      ),
+    PC( _T("STANDARD"),   MODE_STANDARD ),
+    PC( _T("H3D"),        MODE_H3D      ),
     PC( NULL )
 };
 
@@ -107,45 +107,45 @@ const CParseConstant CCX2388xCard::k_parseCardModeConstants[] =
 //////////////////////////////////////////////////////////////////////////
 const CParseTag CCX2388xCard::k_parseCardGPIOSet[] =
 {
-    PT( "GPIO_0", PARSE_NUMERIC, 1, 16, NULL, ReadCardInputInfoProc ),
-    PT( "GPIO_1", PARSE_NUMERIC, 0, 16, NULL, ReadCardInputInfoProc ),
-    PT( "GPIO_2", PARSE_NUMERIC, 0, 16, NULL, ReadCardInputInfoProc ),
-    PT( "GPIO_3", PARSE_NUMERIC, 0, 16, NULL, ReadCardInputInfoProc ),
+    PT( _T("GPIO_0"), PARSE_NUMERIC, 1, 16, NULL, ReadCardInputInfoProc ),
+    PT( _T("GPIO_1"), PARSE_NUMERIC, 0, 16, NULL, ReadCardInputInfoProc ),
+    PT( _T("GPIO_2"), PARSE_NUMERIC, 0, 16, NULL, ReadCardInputInfoProc ),
+    PT( _T("GPIO_3"), PARSE_NUMERIC, 0, 16, NULL, ReadCardInputInfoProc ),
     PT( NULL )
 };
 
 const CParseTag CCX2388xCard::k_parseCardInput[] =
 {
-    PT( "Name",       PARSE_STRING,   1, 63, NULL,                      ReadCardInputInfoProc ),
-    PT( "Type",       PARSE_CONSTANT, 1, 16, k_parseInputTypeConstants, ReadCardInputInfoProc ),
-    PT( "MuxSelect",  PARSE_NUMERIC,  1,  1, NULL,                      ReadCardInputInfoProc ),
-    PT( "GPIOSet",    PARSE_CHILDREN, 0,  1, k_parseCardGPIOSet,        NULL ),
+    PT( _T("Name"),       PARSE_STRING,   1, 63, NULL,                      ReadCardInputInfoProc ),
+    PT( _T("Type"),       PARSE_CONSTANT, 1, 16, k_parseInputTypeConstants, ReadCardInputInfoProc ),
+    PT( _T("MuxSelect"),  PARSE_NUMERIC,  1,  1, NULL,                      ReadCardInputInfoProc ),
+    PT( _T("GPIOSet"),    PARSE_CHILDREN, 0,  1, k_parseCardGPIOSet,        NULL ),
     PT( NULL )
 };
 
 const CParseTag CCX2388xCard::k_parseCardAutoDetectID[] =
 {
-    PT( "0", PARSE_NUMERIC, 0, 16, NULL, ReadCardAutoDetectIDProc ),
-    PT( "1", PARSE_NUMERIC, 0, 16, NULL, ReadCardAutoDetectIDProc ),
-    PT( "2", PARSE_NUMERIC, 0, 16, NULL, ReadCardAutoDetectIDProc ),
+    PT( _T("0"), PARSE_NUMERIC, 0, 16, NULL, ReadCardAutoDetectIDProc ),
+    PT( _T("1"), PARSE_NUMERIC, 0, 16, NULL, ReadCardAutoDetectIDProc ),
+    PT( _T("2"), PARSE_NUMERIC, 0, 16, NULL, ReadCardAutoDetectIDProc ),
     PT( NULL )
 };
 
 const CParseTag CCX2388xCard::k_parseCard[] =
 {
-    PT( "Name",           PARSE_STRING,                 1, 127,                   NULL,                     ReadCardInfoProc         ),
-    PT( "CardMode",       PARSE_CONSTANT,               0, 32,                 k_parseCardModeConstants, ReadCardInfoProc         ),
-    PT( "DefaultTuner",   PARSE_CONSTANT|PARSE_NUMERIC, 0, 32,                 k_parseTunerConstants,    ReadCardDefaultTunerProc ),
-    PT( "AutoDetectID",   PARSE_CHILDREN,               0, 1,                   k_parseCardAutoDetectID,  NULL                     ),
-    PT( "Input",          PARSE_CHILDREN,               0, CX_INPUTS_PER_CARD, k_parseCardInput,         ReadCardInputProc        ),
-    PT( "Final",          PARSE_CHILDREN,               0, CX_INPUTS_PER_CARD, k_parseCardInput+2,       ReadCardInputProc        ),
-    PT( "UseTDA9887",     PARSE_CHILDREN,               0, 1,                   k_parseUseTDA9887,        ReadCardUseTDA9887Proc   ),
+    PT( _T("Name"),           PARSE_STRING,                 1, 127,                   NULL,                     ReadCardInfoProc         ),
+    PT( _T("CardMode"),       PARSE_CONSTANT,               0, 32,                 k_parseCardModeConstants, ReadCardInfoProc         ),
+    PT( _T("DefaultTuner"),   PARSE_CONSTANT|PARSE_NUMERIC, 0, 32,                 k_parseTunerConstants,    ReadCardDefaultTunerProc ),
+    PT( _T("AutoDetectID"),   PARSE_CHILDREN,               0, 1,                   k_parseCardAutoDetectID,  NULL                     ),
+    PT( _T("Input"),          PARSE_CHILDREN,               0, CX_INPUTS_PER_CARD, k_parseCardInput,         ReadCardInputProc        ),
+    PT( _T("Final"),          PARSE_CHILDREN,               0, CX_INPUTS_PER_CARD, k_parseCardInput+2,       ReadCardInputProc        ),
+    PT( _T("UseTDA9887"),     PARSE_CHILDREN,               0, 1,                   k_parseUseTDA9887,        ReadCardUseTDA9887Proc   ),
     PT( NULL )
 };
 
 const CParseTag CCX2388xCard::k_parseCardList[] =
 {
-    PT( "Card", PARSE_CHILDREN, 0, 1024, k_parseCard, ReadCardProc ),
+    PT( _T("Card"), PARSE_CHILDREN, 0, 1024, k_parseCard, ReadCardProc ),
     PT( NULL )
 };
 
@@ -167,7 +167,7 @@ void CCX2388xCard::ReadCardInputInfoProc(int report, const CParseTag* tag, unsig
         {
             throw std::exception("\"\" is not a valid name of an input");
         }
-        strcpy(input->szName, value->GetString());
+        _tcscpy(input->szName, value->GetString());
     }
 
     // Input Type
@@ -316,13 +316,13 @@ void CCX2388xCard::ReadCardInfoProc(int report, const CParseTag* tag, unsigned c
 
         for (size_t i = 0; i < parseInfo->nGoodCards; i++)
         {
-            if (_stricmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
+            if (_tcsicmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
             {
                 throw std::exception("A card was already specified with this name");
             }
         }
 
-        strcpy(parseInfo->pCurrentCard->szName, value->GetString());
+        _tcscpy(parseInfo->pCurrentCard->szName, value->GetString());
     }
 
     // Card Mode
@@ -348,7 +348,7 @@ void CCX2388xCard::ReadCardAutoDetectIDProc(int report, const CParseTag* tag, un
 
 void CCX2388xCard::ReadCardProc(int report, const CParseTag*, unsigned char, const CParseValue*, void* context)
 {
-    static TCardType cardDefault = { "", MODE_STANDARD, 0, { 0 }, TUNER_ABSENT, 0, FALSE };
+    static TCardType cardDefault = { _T(""), MODE_STANDARD, 0, { 0 }, TUNER_ABSENT, 0, FALSE };
     TParseCardInfo* parseInfo = (TParseCardInfo*)context;
 
     switch (report)
@@ -397,33 +397,26 @@ BOOL APIENTRY CCX2388xCard::ParseErrorProc(HWND hDlg, UINT message, UINT wParam,
     {
     case WM_INITDIALOG:
         {
-            SetWindowTextA(hDlg, "CX2388x Card List Parsing Error");
+            SetWindowText(hDlg, _T("CX2388x Card List Parsing Error"));
 
             HWND hItem;
             hItem = GetDlgItem(hDlg, IDC_ERROR_MESSAGE);
-            if (CHCParser::IsUnicodeOS())
-            {
-                SetWindowTextW(hItem, parseInfo->pHCParser->GetErrorUnicode().c_str());
-            }
-            else
-            {
-                SetWindowTextA(hItem, parseInfo->pHCParser->GetError().c_str());
-            }
+            SetWindowText(hItem, parseInfo->pHCParser->GetError().c_str());
 
-            ostringstream oss;
-            oss << "An error occured while reading CX2388x cards from 'CX2388xCards.ini':";
+            tostringstream oss;
+            oss << _T("An error occured while reading CX2388x cards from 'CX2388xCards.ini':");
 
             hItem = GetDlgItem(hDlg, IDC_TOP_STATIC);
-            SetWindowTextA(hItem, oss.str().c_str());
+            SetWindowText(hItem, oss.str().c_str());
 
-            oss.str("");
-            oss << (parseInfo->nGoodCards - 1) << " card(s) were successfully read before this "
-                "error.  Although this error is not fatal, if a previously selected CX2388x "
-                "card is not among those successfully read, and this error is ignored, a "
-                "different card will need to be selected.";
+            oss.str(_T(""));
+            oss << (parseInfo->nGoodCards - 1) << _T(" card(s) were successfully read before this ")
+                _T("error.  Although this error is not fatal, if a previously selected CX2388x ")
+                _T("card is not among those successfully read, and this error is ignored, a ")
+                _T("different card will need to be selected.");
 
             hItem = GetDlgItem(hDlg, IDC_BOTTOM_STATIC);
-            SetWindowTextA(hItem, oss.str().c_str());
+            SetWindowText(hItem, oss.str().c_str());
         }
         break;
 
@@ -462,14 +455,14 @@ BOOL CCX2388xCard::InitializeCX2388xCardList()
     // at the beginning.
     while (!hcParser.ParseFile(k_CX2388xCardListFilename, (void*)&parseInfo))
     {
-        LOG(0, "CX2388x cardlist: %s", hcParser.GetError().c_str());
+        LOG(0, _T("CX2388x cardlist: %s"), hcParser.GetError().c_str());
 
         INT_PTR iRetVal = DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_PARSE_ERROR),
             NULL, ParseErrorProc, (LPARAM)&parseInfo);
         if (iRetVal == -1)
         {
-            MessageBoxA(NULL, "DialogBoxParam(...) returned -1 for loading IDD_PARSE_ERROR.",
-                "Critical Error", MB_ICONEXCLAMATION|MB_OK);
+            MessageBox(NULL, _T("DialogBoxParam(...) returned -1 for loading IDD_PARSE_ERROR."),
+                _T("Critical Error"), MB_ICONEXCLAMATION|MB_OK);
             return FALSE;
         }
         if (iRetVal == IDIGNORE)
@@ -492,7 +485,7 @@ BOOL CCX2388xCard::InitializeCX2388xCardList()
         parseInfo.pCardList->resize(parseInfo.nGoodCards);
     }
 
-    LOG(1, "CX2388x cardlist: %lu card(s) read", parseInfo.nGoodCards);
+    LOG(1, _T("CX2388x cardlist: %lu card(s) read"), parseInfo.nGoodCards);
 
     return TRUE;
 }
@@ -511,12 +504,12 @@ int CCX2388xCard::GetMaxCards()
     return m_CX2388xCards.size();
 }
 
-int CCX2388xCard::GetCardByName(LPCSTR cardName)
+int CCX2388xCard::GetCardByName(LPCTSTR cardName)
 {
     int listSize = GetMaxCards();
     for (int i = 0; i < listSize; i++)
     {
-        if (_stricmp(m_CX2388xCards[i].szName, cardName) == 0)
+        if (_tcsicmp(m_CX2388xCards[i].szName, cardName) == 0)
         {
             return i;
         }
@@ -538,13 +531,13 @@ int CCX2388xCard::GetNumInputs()
     return m_CX2388xCards[m_CardType].NumInputs;
 }
 
-string CCX2388xCard::GetInputName(int nInput)
+tstring CCX2388xCard::GetInputName(int nInput)
 {
     if(nInput < m_CX2388xCards[m_CardType].NumInputs && nInput >= 0)
     {
         return m_CX2388xCards[m_CardType].Inputs[nInput].szName;
     }
-    return "Error";
+    return _T("Error");
 }
 
 int CCX2388xCard::GetFinalInputNumber()
@@ -604,7 +597,7 @@ eCX2388xCardId CCX2388xCard::AutoDetectCardType()
             {
                 if(m_CX2388xCards[i].AutoDetectId[j] == Id)
                 {
-                    LOG(0, "CX2388x: Autodetect found %s.", m_CX2388xCards[i].szName);
+                    LOG(0, _T("CX2388x: Autodetect found %s."), m_CX2388xCards[i].szName);
                     return (eCX2388xCardId)i;
                 }
             }
@@ -628,13 +621,13 @@ void CCX2388xCard::StandardInputSelect(int nInput)
 
     if(nInput >= m_CX2388xCards[m_CardType].NumInputs)
     {
-        LOG(1, "Input Select Called for invalid input");
+        LOG(1, _T("Input Select Called for invalid input"));
         nInput = m_CX2388xCards[m_CardType].NumInputs - 1;
     }
 
     if(nInput < 0)
     {
-        LOG(1, "Input Select Called for invalid input");
+        LOG(1, _T("Input Select Called for invalid input"));
         nInput = 0;
     }
 

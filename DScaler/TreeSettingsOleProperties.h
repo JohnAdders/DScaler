@@ -38,7 +38,7 @@ class CTreeSettingsOleProperties : public CTreeSettingsPage
 {
 // Construction
 public:
-    CTreeSettingsOleProperties(const std::string& name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid);
+    CTreeSettingsOleProperties(const tstring& name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid);
     virtual ~CTreeSettingsOleProperties();
 
 // Implementation

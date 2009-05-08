@@ -56,7 +56,7 @@ using namespace std;
 // for AUDIOSTANDARD_LASTONE IDs
 #define SAA7134MENU_AUDIOSTANDARD_START     IDM_DSVIDEO_STANDARD_0
 
-extern const char *TunerNames[TUNER_LASTONE];
+extern const TCHAR* TunerNames[TUNER_LASTONE];
 
 
 // SAA7134: This file still needs loads of work
@@ -66,9 +66,9 @@ void CSAA7134Source::InitializeUI()
 {
     MENUITEMINFO    MenuItemInfo;
     HMENU           hSubMenu;
-    LPSTR           pMenuName;
+    LPTSTR           pMenuName;
 
-    m_hSAA7134ResourceInst = LibraryCache::GetLibraryHandle("SAA7134Res.dll");
+    m_hSAA7134ResourceInst = LibraryCache::GetLibraryHandle(_T("SAA7134Res.dll"));
 
     if (m_pSAA7134Card->GetDeviceId() != 0x7130)
     {
@@ -84,22 +84,22 @@ void CSAA7134Source::InitializeUI()
         InsertMenuItem(hSubMenu, 0, TRUE, &MenuItemInfo);
         InsertMenuItem(hSubMenu, 0, TRUE, &MenuItemInfo);
 
-        pMenuName = "Custom Settings ...";
+        pMenuName = _T("Custom Settings ...");
         MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
         MenuItemInfo.fType = MFT_STRING;
         MenuItemInfo.dwTypeData = pMenuName;
-        MenuItemInfo.cch = strlen(pMenuName);
+        MenuItemInfo.cch = _tcslen(pMenuName);
         MenuItemInfo.wID = SAA7134MENU_AUDIOSTANDARD_START + AUDIOSTANDARD_LASTONE;
         InsertMenuItem(hSubMenu, 1, TRUE, &MenuItemInfo);
 
         for (int i(0); i < AUDIOSTANDARD_LASTONE; i++)
         {
-            pMenuName = (LPSTR) m_pSAA7134Card->GetAudioStandardName((eAudioStandard)i);
+            pMenuName = (LPTSTR) m_pSAA7134Card->GetAudioStandardName((eAudioStandard)i);
 
             MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
             MenuItemInfo.fType = MFT_STRING;
             MenuItemInfo.dwTypeData = pMenuName;
-            MenuItemInfo.cch = strlen(pMenuName);
+            MenuItemInfo.cch = _tcslen(pMenuName);
             MenuItemInfo.wID = SAA7134MENU_AUDIOSTANDARD_START + i;
 
             InsertMenuItem(hSubMenu, i, TRUE, &MenuItemInfo);
@@ -131,9 +131,9 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         {
 
             pThis = (CSAA7134Source*)lParam;
-            ostringstream oss;
-            oss << "Setup card " << pThis->GetDeviceIndex() + 1;
-            oss << " with chip " << pThis->GetChipName();
+            tostringstream oss;
+            oss << _T("Setup card ") << pThis->GetDeviceIndex() + 1;
+            oss << _T(" with chip ") << pThis->GetChipName();
             SetWindowText(hDlg, oss.str().c_str());
             Button_Enable(GetDlgItem(hDlg, IDCANCEL), pThis->m_bSelectCardCancelButton);
 
@@ -147,21 +147,21 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
 
             CSAA7134Card* pCard = pThis->GetCard();
             SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType().c_str());
-            char buf[10];
-            sprintf(buf,"%04X", pCard->GetVendorId());
+            TCHAR buf[10];
+            _stprintf(buf,_T("%04X"), pCard->GetVendorId());
             SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, buf);
-            sprintf(buf,"%04X", pCard->GetDeviceId());
+            _stprintf(buf,_T("%04X"), pCard->GetDeviceId());
             SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, buf);
 
             DWORD dwCardId = pCard->GetSubSystemId();
             if (dwCardId != 0x00001131)
             {
-                sprintf(buf, "%08X", dwCardId);
+                _stprintf(buf, _T("%08X"), dwCardId);
                 SetDlgItemText(hDlg, IDC_AUTODECTECTID, buf);
             }
             else
             {
-                SetDlgItemText(hDlg, IDC_AUTODECTECTID, "none");
+                SetDlgItemText(hDlg, IDC_AUTODECTECTID, _T("none"));
             }
         }
         break;
@@ -173,7 +173,7 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             if (pThis->m_CardType->GetValue() != s_CardType)
             {
                 pThis->m_CardType->SetValue(s_CardType);
-                // Update the string name value to reflect the newly selected card.
+                // Update the tstring name value to reflect the newly selected card.
                 pThis->m_CardName->SetValue(pThis->GetCard()->GetCardName((eSAA7134CardId)s_CardType).c_str());
             }
             SettingsMaster->SaveAllSettings(TRUE);
@@ -229,7 +229,7 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                     continue;
                 }
 
-                string pCardName = pThis->m_pSAA7134Card->GetCardName((eSAA7134CardId)i);
+                tstring pCardName = pThis->m_pSAA7134Card->GetCardName((eSAA7134CardId)i);
 
                 int j = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pCardName.c_str());
                 SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, j, i);
@@ -270,7 +270,7 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
 BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     int i;
-    char buf[128];
+    TCHAR buf[128];
     static CSAA7134Source* pThis;
     static DWORD dwAddress;
     static BOOL bDisableChanges = TRUE;
@@ -282,13 +282,13 @@ BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wPa
     {
     case WM_INITDIALOG:
         pThis = (CSAA7134Source*)lParam;
-        sprintf(buf, "Edit Register on %s chip", pThis->GetChipName());
+        _stprintf(buf, _T("Edit Register on %s chip"), pThis->GetChipName());
         SetWindowText(hDlg, buf);
         SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_RESETCONTENT, 0, 0);
         for(i = 0; i < 0x400; i++)
         {
             int nIndex;
-            sprintf(buf, "0x%03X", i);
+            _stprintf(buf, _T("0x%03X"), i);
             nIndex = SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_ADDSTRING, 0, (LONG)buf);
             SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_SETITEMDATA, nIndex, i);
             if (i == 0)
@@ -307,18 +307,18 @@ BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wPa
             if (!bUnsafeRead)
             {
                 Data = pThis->m_pSAA7134Card->DirectGetByte(dwAddress);
-                sprintf(buf, "%d", Data);
+                _stprintf(buf, _T("%d"), Data);
                 SetDlgItemText(hDlg, IDC_VALUE_DEC, buf);
-                sprintf(buf, "0x%02X", Data);
+                _stprintf(buf, _T("0x%02X"), Data);
                 SetDlgItemText(hDlg, IDC_VALUE_HEX, buf);
-                SetDlgItemText(hDlg, IDC_STATIC_BIT0, Data & (1<<0) ? "1" : "0");
-                SetDlgItemText(hDlg, IDC_STATIC_BIT1, Data & (1<<1) ? "1" : "0");
-                SetDlgItemText(hDlg, IDC_STATIC_BIT2, Data & (1<<2) ? "1" : "0");
-                SetDlgItemText(hDlg, IDC_STATIC_BIT3, Data & (1<<3) ? "1" : "0");
-                SetDlgItemText(hDlg, IDC_STATIC_BIT4, Data & (1<<4) ? "1" : "0");
-                SetDlgItemText(hDlg, IDC_STATIC_BIT5, Data & (1<<5) ? "1" : "0");
-                SetDlgItemText(hDlg, IDC_STATIC_BIT6, Data & (1<<6) ? "1" : "0");
-                SetDlgItemText(hDlg, IDC_STATIC_BIT7, Data & (1<<7) ? "1" : "0");
+                SetDlgItemText(hDlg, IDC_STATIC_BIT0, Data & (1<<0) ? _T("1") : _T("0"));
+                SetDlgItemText(hDlg, IDC_STATIC_BIT1, Data & (1<<1) ? _T("1") : _T("0"));
+                SetDlgItemText(hDlg, IDC_STATIC_BIT2, Data & (1<<2) ? _T("1") : _T("0"));
+                SetDlgItemText(hDlg, IDC_STATIC_BIT3, Data & (1<<3) ? _T("1") : _T("0"));
+                SetDlgItemText(hDlg, IDC_STATIC_BIT4, Data & (1<<4) ? _T("1") : _T("0"));
+                SetDlgItemText(hDlg, IDC_STATIC_BIT5, Data & (1<<5) ? _T("1") : _T("0"));
+                SetDlgItemText(hDlg, IDC_STATIC_BIT6, Data & (1<<6) ? _T("1") : _T("0"));
+                SetDlgItemText(hDlg, IDC_STATIC_BIT7, Data & (1<<7) ? _T("1") : _T("0"));
                 CheckDlgButton(hDlg, IDC_BIT0, Data & (1<<0));
                 CheckDlgButton(hDlg, IDC_BIT1, Data & (1<<1));
                 CheckDlgButton(hDlg, IDC_BIT2, Data & (1<<2));
@@ -403,10 +403,10 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
     static BOOL                 EditingCarrier2 = TRUE;
 
     BOOL    UpdateCustom = FALSE;
-    LPSTR   pString;
+    LPTSTR   pString;
     int     nIndex;
     int     Number;
-    char    buf[50];
+    TCHAR   buf[50];
     int     i;
 
     switch (message)
@@ -421,7 +421,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
         CustomCh1FMDeemph     = (eAudioFMDeemphasis)pThis->m_AudioCh1FMDeemph->GetValue();
         CustomCh2FMDeemph     = (eAudioFMDeemphasis)pThis->m_AudioCh2FMDeemph->GetValue();
 
-        // AUDIOSTANDARD_LASTONE is used as "Custom" only in
+        // AUDIOSTANDARD_LASTONE is used as _T("Custom") only in
         // CSAA7134SourceUI.cpp.  Here and in menu callback procs.
 
         if (pThis->m_CustomAudioStandard->GetValue())
@@ -452,16 +452,16 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
             ScreenCarrier2Mode = AUDIOCHANNELMODE_FM;
         }
 
-        // Audio standard list (Plus 1 for "Custom")
+        // Audio standard list (Plus 1 for _T("Custom"))
         for (i = 0; i < AUDIOSTANDARD_LASTONE+1; i++)
         {
             if (i == AUDIOSTANDARD_LASTONE)
             {
-                pString = "Custom";
+                pString = _T("Custom");
             }
             else
             {
-                pString = (LPSTR) pThis->m_pSAA7134Card->GetAudioStandardName((eAudioStandard)i);
+                pString = (LPTSTR) pThis->m_pSAA7134Card->GetAudioStandardName((eAudioStandard)i);
             }
             nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_ADDSTRING, 0, (LPARAM) pString);
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_SETITEMDATA, nIndex, (LPARAM) i);
@@ -476,7 +476,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
         Number = pThis->GetMaxAudioCarrierNames();
         for (i = 0; i < Number; i++)
         {
-            sprintf(buf, "%g", ((float)m_AudioCarrierList[i]*12.288)/(1<<24));
+            _stprintf(buf, _T("%g"), ((float)m_AudioCarrierList[i]*12.288)/(1<<24));
             nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)m_AudioCarrierList[i]);
 
@@ -500,7 +500,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
 
         if (EditingCarrier1)
         {
-            sprintf(buf, "%g", ((float)ScreenCarrier1*12.288)/(1<<24));
+            _stprintf(buf, _T("%g"), ((float)ScreenCarrier1*12.288)/(1<<24));
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, EditCarrierIndex, ScreenCarrier1);
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, EditCarrierIndex, 0);
@@ -508,7 +508,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
 
         if (EditingCarrier2)
         {
-            sprintf(buf, "%g", ((float)ScreenCarrier2*12.288)/(1<<24));
+            _stprintf(buf, _T("%g"), ((float)ScreenCarrier2*12.288)/(1<<24));
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, EditCarrierIndex, ScreenCarrier2);
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, EditCarrierIndex, 0);
@@ -638,14 +638,14 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
 
                 if (EditingCarrier1)
                 {
-                    sprintf(buf, "%g", ((float)ScreenCarrier1*12.288)/(1<<24));
+                    _stprintf(buf, _T("%g"), ((float)ScreenCarrier1*12.288)/(1<<24));
                     SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                     SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, EditCarrierIndex, ScreenCarrier1);
                     SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, EditCarrierIndex, 0);
                 }
                 if (EditingCarrier2)
                 {
-                    sprintf(buf, "%g", ((float)ScreenCarrier2*12.288)/(1<<24));
+                    _stprintf(buf, _T("%g"), ((float)ScreenCarrier2*12.288)/(1<<24));
                     SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                     SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, EditCarrierIndex, ScreenCarrier2);
                     SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, EditCarrierIndex, 0);
@@ -796,7 +796,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
                 }
                 EditingCarrier2 = TRUE;
 
-                sprintf(buf, "%g", ((float)ScreenCarrier2*12.288)/(1<<24));
+                _stprintf(buf, _T("%g"), ((float)ScreenCarrier2*12.288)/(1<<24));
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, EditCarrierIndex, ScreenCarrier2);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, EditCarrierIndex, 0);
@@ -857,7 +857,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
                 }
                 EditingCarrier1 = TRUE;
 
-                sprintf(buf, "%g", ((float)ScreenCarrier1*12.288)/(1<<24));
+                _stprintf(buf, _T("%g"), ((float)ScreenCarrier1*12.288)/(1<<24));
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, EditCarrierIndex, ScreenCarrier1);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, EditCarrierIndex, 0);
@@ -875,7 +875,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
                     }
                     EditingCarrier2 = TRUE;
 
-                    sprintf(buf, "%g", ((float)ScreenCarrier2*12.288)/(1<<24));
+                    _stprintf(buf, _T("%g"), ((float)ScreenCarrier2*12.288)/(1<<24));
                     SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                     SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, EditCarrierIndex, ScreenCarrier2);
                     SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, EditCarrierIndex, 0);
@@ -896,7 +896,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
                 }
                 EditingCarrier2 = TRUE;
 
-                sprintf(buf, "%g", ((float)ScreenCarrier2*12.288)/(1<<24));
+                _stprintf(buf, _T("%g"), ((float)ScreenCarrier2*12.288)/(1<<24));
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, EditCarrierIndex, ScreenCarrier2);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, EditCarrierIndex, 0);
@@ -1060,15 +1060,15 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
         MenuItemInfo.cbSize = sizeof(MenuItemInfo);
         MenuItemInfo.fMask = MIIM_TYPE;
 
-        // get the size of the string
+        // get the size of the tstring
         GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
 
-        ostringstream oss;
+        tostringstream oss;
         oss << m_pSAA7134Card->GetInputName(i);
-        oss << "\tCtrl+Alt+F" << i + 1;
-        string Buffer(oss.str());
+        oss << _T("\tCtrl+Alt+F") << i + 1;
+        tstring Buffer(oss.str());
         MenuItemInfo.cch = Buffer.length();
-        MenuItemInfo.dwTypeData = (LPSTR)Buffer.c_str();
+        MenuItemInfo.dwTypeData = (LPTSTR)Buffer.c_str();
 
         SetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
 
@@ -1138,7 +1138,7 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 
     BOOL bDACActive = m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC;
 
-    // Plus 1 for the "Custom Settings ..." menu item
+    // Plus 1 for the _T("Custom Settings ...") menu item
     for (i = 0; i < AUDIOSTANDARD_LASTONE+1; i++)
     {
         EnableMenuItemBool(m_hMenu, SAA7134MENU_AUDIOSTANDARD_START+i, bDACActive);
@@ -1230,15 +1230,15 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_BDELAY_PLUS:
-            ShowText(hWnd, "BDelay Plus - Unsupported");
+            ShowText(hWnd, _T("BDelay Plus - Unsupported"));
             break;
 
         case IDM_BDELAY_MINUS:
-            ShowText(hWnd, "BDelay Minus - Unsupported");
+            ShowText(hWnd, _T("BDelay Minus - Unsupported"));
             break;
 
         case IDM_BDELAY_CURRENT:
-            ShowText(hWnd, "BDelay Current - Unsupported");
+            ShowText(hWnd, _T("BDelay Current - Unsupported"));
             break;
 
         case IDM_HDELAY_PLUS:
@@ -1301,17 +1301,17 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_SAA7134_HPLLMODE0:
-            ShowText(hWnd, "TV Mode");
+            ShowText(hWnd, _T("TV Mode"));
             m_HPLLMode->SetValue(0);
             break;
 
         case IDM_SAA7134_HPLLMODE1:
-            ShowText(hWnd, "VCR Mode");
+            ShowText(hWnd, _T("VCR Mode"));
             m_HPLLMode->SetValue(1);
             break;
 
         case IDM_SAA7134_HPLLMODE2:
-            ShowText(hWnd, "Fast Tracking");
+            ShowText(hWnd, _T("Fast Tracking"));
             m_HPLLMode->SetValue(2);
             break;
 
@@ -1327,19 +1327,19 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             if (m_AdaptiveCombFilter->GetValue() != COMBFILTER_OFF)
             {
                 m_AdaptiveCombFilter->SetValue(COMBFILTER_OFF);
-                ShowText(hWnd, "Adaptive Comb Filter OFF");
+                ShowText(hWnd, _T("Adaptive Comb Filter OFF"));
             }
             else
             {
                 if (IsSECAMVideoFormat((eVideoFormat)m_VideoFormat->GetValue()))
                 {
                     m_AdaptiveCombFilter->SetValue(COMBFILTER_CHROMA_ONLY);
-                    ShowText(hWnd, "ACF ON - SECAM Mode");
+                    ShowText(hWnd, _T("ACF ON - SECAM Mode"));
                 }
                 else
                 {
                     m_AdaptiveCombFilter->SetValue(COMBFILTER_FULL);
-                    ShowText(hWnd, "Adaptive Comb Filter ON");
+                    ShowText(hWnd, _T("Adaptive Comb Filter ON"));
                 }
             }
             break;
@@ -1351,15 +1351,15 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             {
             case IDM_AUDIO_0:
                 m_AudioSource->SetValue(AUDIOINPUTSOURCE_DAC);
-                ShowText(hWnd, "Audio Input - Tuner");
+                ShowText(hWnd, _T("Audio Input - Tuner"));
                 break;
             case IDM_AUDIO_1:
                 m_AudioSource->SetValue(AUDIOINPUTSOURCE_LINE1);
-                ShowText(hWnd, "Audio Input - Line 1");
+                ShowText(hWnd, _T("Audio Input - Line 1"));
                 break;
             case IDM_AUDIO_2:
                 m_AudioSource->SetValue(AUDIOINPUTSOURCE_LINE2);
-                ShowText(hWnd, "Audio Input - Line 2");
+                ShowText(hWnd, _T("Audio Input - Line 2"));
                 break;
             }
             break;
@@ -1402,22 +1402,22 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_ADV_VIDEOSETTINGS:
             if (m_hSAA7134ResourceInst != NULL)
             {
-                DialogBoxParam(m_hSAA7134ResourceInst, "REGISTEREDIT", hWnd, RegisterEditProc, (LPARAM)this);
+                DialogBoxParam(m_hSAA7134ResourceInst, _T("REGISTEREDIT"), hWnd, RegisterEditProc, (LPARAM)this);
             }
             else
             {
-                ShowText(hWnd, "SAA7134Res.dll not loaded");
+                ShowText(hWnd, _T("SAA7134Res.dll not loaded"));
             }
             break;
 
         case IDM_AUDIOSETTINGS:
             if (m_hSAA7134ResourceInst != NULL)
             {
-                DialogBoxParam(m_hSAA7134ResourceInst, "OTHEREDIT", hWnd, OtherEditProc, (LPARAM)this);
+                DialogBoxParam(m_hSAA7134ResourceInst, _T("OTHEREDIT"), hWnd, OtherEditProc, (LPARAM)this);
             }
             else
             {
-                ShowText(hWnd, "SAA7134Res.dll not loaded");
+                ShowText(hWnd, _T("SAA7134Res.dll not loaded"));
             }
             break;
 
@@ -1502,7 +1502,7 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 }
 
 
-string CSAA7134Source::GetMenuLabel()
+tstring CSAA7134Source::GetMenuLabel()
 {
     return m_pSAA7134Card->GetCardName(m_pSAA7134Card->GetCardType());
 }
@@ -1553,7 +1553,7 @@ void CSAA7134Source::ChangeTVSettingsBasedOnTuner()
         }
         else
         {
-            LOG(1, " NULL Tuner in ChangeTVSettingsBasedOnTuner");
+            LOG(1, _T(" NULL Tuner in ChangeTVSettingsBasedOnTuner"));
         }
     }
 }

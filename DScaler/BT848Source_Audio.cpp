@@ -418,8 +418,8 @@ void CBT848Source::HandleTimerMessages(int TimerId)
 {
     if (TimerId == TIMER_MSP)
     {
-        string Text;
-        string szAudioStandard(".[");
+        tstring Text;
+        tstring szAudioStandard(_T(".["));
 
         if (m_AutoStereoSelect->GetValue() && (m_AutoStereoDetectInterval->GetValue() > 0) && (m_KeepDetectingStereo > 0))
         {
@@ -437,15 +437,15 @@ void CBT848Source::HandleTimerMessages(int TimerId)
         {
             if (m_DetectingAudioStandard)
             {
-                szAudioStandard += "Detecting...]";
+                szAudioStandard += _T("Detecting...]");
             }
             else
             {
-                char *s = (char*)m_pBT848Card->GetAudioStandardName(m_AudioStandardManual->GetValue());
+                const TCHAR* s = m_pBT848Card->GetAudioStandardName(m_AudioStandardManual->GetValue());
                 if (s != NULL)
                 {
                     szAudioStandard += s;
-                    szAudioStandard += "]";;
+                    szAudioStandard += _T("]");;
                 }
             }
         }
@@ -454,22 +454,22 @@ void CBT848Source::HandleTimerMessages(int TimerId)
         {
         case SOUNDCHANNEL_MONO:
             {
-                Text = "Mono" + szAudioStandard;
+                Text = _T("Mono") + szAudioStandard;
                 break;
             }
         case SOUNDCHANNEL_STEREO:
             {
-                Text = "Stereo" + szAudioStandard;
+                Text = _T("Stereo") + szAudioStandard;
                 break;
             }
         case SOUNDCHANNEL_LANGUAGE1:
             {
-                Text = "Language 1" + szAudioStandard;
+                Text = _T("Language 1") + szAudioStandard;
                 break;
             }
         case SOUNDCHANNEL_LANGUAGE2:
             {
-                Text = "Language 2" + szAudioStandard;
+                Text = _T("Language 2") + szAudioStandard;
                 break;
             }
         }

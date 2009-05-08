@@ -42,7 +42,7 @@ using namespace std;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice,BOOL bConnectAudio)
+CDShowGraph::CDShowGraph(tstring device,tstring deviceName,tstring AudioDevice,BOOL bConnectAudio)
 :m_pSource(NULL),m_GraphState(State_Stopped),m_pAudioControlls(NULL),m_pSeeking(NULL)
 {
     InitGraph();
@@ -57,7 +57,7 @@ CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice,BOOL
 //#endif
 }
 
-CDShowGraph::CDShowGraph(string filename,string AudioDevice)
+CDShowGraph::CDShowGraph(tstring filename,tstring AudioDevice)
 :m_pSource(NULL),m_GraphState(State_Stopped),m_pAudioControlls(NULL)
 {
     InitGraph();
@@ -130,7 +130,7 @@ void CDShowGraph::InitGraph()
     }
 
 #ifdef _DEBUG
-    /*m_hLogFile=CreateFile("DShowGraphLog.txt",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+    /*m_hLogFile=CreateFile(_T("DShowGraphLog.txt"),GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
     if(m_hLogFile!=INVALID_HANDLE_VALUE)
     {
         hr=m_pGraph->SetLogFile((DWORD_PTR)m_hLogFile);
@@ -189,10 +189,10 @@ BOOL CDShowGraph::GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &in
     HRESULT hr=m_DSRend->GetFields(ppFields,pcFields,&info,400,dwLateness);
     if(FAILED(hr))
     {
-        vector<char> tmpstr(MAX_ERROR_TEXT_LEN);
+        vector<TCHAR> tmpstr(MAX_ERROR_TEXT_LEN);
         DWORD len=AMGetErrorText(hr,&tmpstr[0],MAX_ERROR_TEXT_LEN);
-        LOG(3, "GetFields failed - Error Code: '0x%x' Error Text: '%s'", hr,&tmpstr[0]);
-        LOGD("GetFields failed - Error Code: '0x%x' Error Text: '%s'\n", hr,&tmpstr[0]);
+        LOG(3, _T("GetFields failed - Error Code: '0x%x' Error Text: '%s'"), hr,&tmpstr[0]);
+        LOGD(_T("GetFields failed - Error Code: '0x%x' Error Text: '%s'\n"), hr,&tmpstr[0]);
         return FALSE;
     }
     return TRUE;
@@ -217,9 +217,9 @@ void CDShowGraph::ConnectGraph()
         if(IsUnConnected || !m_pSource->IsConnected())
         {
             m_pSource->Connect(m_renderer);
-            std::string tmp;
+            tstring tmp;
             DumpGraph(m_pGraph,tmp);
-            LOG(2,"Initial FilterGraph:\n%s",tmp.c_str());
+            LOG(2,_T("Initial FilterGraph:\n%s"),tmp.c_str());
 
             //setup the audio controlls
             if(m_pAudioControlls!=NULL)
@@ -235,7 +235,7 @@ void CDShowGraph::ConnectGraph()
             }
             else
             {
-                LOG(3,"IBasicAudio interface not found, audio controlls might not work");
+                LOG(3,_T("IBasicAudio interface not found, audio controlls might not work"));
             }
             try
             {
@@ -336,9 +336,9 @@ void CDShowGraph::BuildFilterList()
     HRESULT hr=m_pGraph->EnumFilters(&filterEnum.m_pEnum);
     if(FAILED(hr))
     {
-        vector<char> tmpstr(MAX_ERROR_TEXT_LEN);
+        vector<TCHAR> tmpstr(MAX_ERROR_TEXT_LEN);
         DWORD len=AMGetErrorText(hr,&tmpstr[0],MAX_ERROR_TEXT_LEN);
-        LOG(1, "Failed to get filter enumerator!!! : Error Code: '0x%x' Error Text: '%s'",hr,&tmpstr[0]);
+        LOG(1, _T("Failed to get filter enumerator!!! : Error Code: '0x%x' Error Text: '%s'"),hr,&tmpstr[0]);
         return;
     }
     CComPtr<IBaseFilter> pFilter;
@@ -474,9 +474,9 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
     {
         throw CDShowException("Failed to get old mediatype",hr);
     }
-    std::string test;
+    tstring test;
     DumpMediaType(OldMt,test);
-    LOG(2,"CDShowGraph::ChangeRes: Old MediaType\n%s\n",test.c_str());
+    LOG(2,_T("CDShowGraph::ChangeRes: Old MediaType\n%s\n"),test.c_str());
 
     /*BOOL OldForceYUY2=FALSE;
     DSREND_FIELD_FORMAT OldFieldFormat=DSREND_FIELD_FORMAT_AUTO;
@@ -867,20 +867,20 @@ BOOL CDShowGraph::CVideoFormat::operator==(CVideoFormat &fmt)
     }
 }
 
-CDShowGraph::CVideoFormat::operator std::string()
+CDShowGraph::CVideoFormat::operator tstring()
 {
-    std::stringstream str;
-    str << m_Name << "#" << m_Width << "#" << m_Height << "#" << (m_bForceYUY2 ? 1 : 0) << "#" << m_FieldFmt;
-    std::string tmp=str.str();
+    tstringstream str;
+    str << m_Name << _T("#") << m_Width << _T("#") << m_Height << _T("#") << (m_bForceYUY2 ? 1 : 0) << _T("#") << m_FieldFmt;
+    tstring tmp=str.str();
     return tmp;
 }
 
-void CDShowGraph::CVideoFormat::operator=(std::string &str)
+void CDShowGraph::CVideoFormat::operator=(tstring &str)
 {
-    std::vector<std::string> strlist;
-    std::string::size_type LastPos=0;
-    std::string::size_type pos;
-    while(pos=str.find("#",LastPos),pos!=std::string::npos)
+    std::vector<tstring> strlist;
+    tstring::size_type LastPos=0;
+    tstring::size_type pos;
+    while(pos=str.find(_T("#"),LastPos),pos!=tstring::npos)
     {
         strlist.push_back(str.substr(LastPos,pos-LastPos));
         LastPos=pos+1;
@@ -892,9 +892,9 @@ void CDShowGraph::CVideoFormat::operator=(std::string &str)
 
     _ASSERTE(strlist.size()==5);
     m_Name=strlist[0];
-    m_Width=atol(strlist[1].c_str());
-    m_Height=atol(strlist[2].c_str());
-    m_bForceYUY2=atol(strlist[3].c_str())!=0;
-    m_FieldFmt=(DSREND_FIELD_FORMAT)atol(strlist[4].c_str());
+    m_Width=FromString<long>(strlist[1]);
+    m_Height=FromString<long>(strlist[2]);
+    m_bForceYUY2=FromString<long>(strlist[3])!=0;
+    m_FieldFmt=(DSREND_FIELD_FORMAT)FromString<long>(strlist[4]);
 }
 #endif

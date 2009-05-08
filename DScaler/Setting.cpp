@@ -35,14 +35,14 @@ using namespace std;
 /** Internal flags
 */
 
-string GetWindowClass(HWND hWnd)
+tstring GetWindowClass(HWND hWnd)
 {
-    vector<char> ClassName(256);
+    vector<TCHAR> ClassName(256);
     GetClassName(hWnd,&ClassName[0],255);
     return &ClassName[0];
 }
 
-BOOL IsWindowClass(HWND hWnd, const string& ClassName)
+BOOL IsWindowClass(HWND hWnd, const tstring& ClassName)
 {
     return AreEqualInsensitive(GetWindowClass(hWnd), ClassName);
 }
@@ -107,7 +107,7 @@ void ComboBoxControlSetup(HWND hWnd, long NumItems, const char** szList)
             //is there any text for this item?
             if ( (szList[i] != NULL) && (*szList[i] != '\0') )
             {
-                int Pos = ComboBox_AddString(hWnd, szList[i]);
+                int Pos = SendMessageA(hWnd, CB_ADDSTRING, 0, (LPARAM)szList[i]);
 
                 //store Value in itemdata
                 ComboBox_SetItemData(hWnd, Pos, i);
@@ -145,7 +145,7 @@ long ComboBoxGetValue(HWND hWnd)
     GUI info, static callback function, pointer for callback function
 
 */
-CSimpleSetting::CSimpleSetting(const string& DisplayName, const string& Section, const string& Entry, CSettingGroup* pGroup) :
+CSimpleSetting::CSimpleSetting(const tstring& DisplayName, const tstring& Section, const tstring& Entry, CSettingGroup* pGroup) :
     m_DisplayName(DisplayName),
     m_Section(Section),
     m_Entry(Entry),
@@ -175,27 +175,27 @@ void CSimpleSetting::DisableOnChange()
     m_EnableOnChange = FALSE;
 }
 
-void CSimpleSetting::SetSection(const string& NewValue)
+void CSimpleSetting::SetSection(const tstring& NewValue)
 {
     m_Section = NewValue;
 }
 
-const string& CSimpleSetting::GetDisplayName()
+const tstring& CSimpleSetting::GetDisplayName()
 {
     return m_DisplayName;
 }
 
-const string& CSimpleSetting::GetSection()
+const tstring& CSimpleSetting::GetSection()
 {
     return m_Section;
 }
 
-void CSimpleSetting::SetEntry(const string& NewValue)
+void CSimpleSetting::SetEntry(const tstring& NewValue)
 {
     m_Entry = NewValue;
 }
 
-const string& CSimpleSetting::GetEntry()
+const tstring& CSimpleSetting::GetEntry()
 {
     return m_Entry;
 }
@@ -207,18 +207,18 @@ const string& CSimpleSetting::GetEntry()
     @param pSettingFlags Override setting flags of current setting if not NULL
     @return TRUE if value was in .ini file
 */
-BOOL CSimpleSetting::ReadFromIniSubSection(const string& SubSection)
+BOOL CSimpleSetting::ReadFromIniSubSection(const tstring& SubSection)
 {
     BOOL IsSettingInIniFile = TRUE;
 
     if(!SubSection.empty())
     {
-        string sEntry;
+        tstring sEntry;
 
         if(SubSection != m_Section)
         {
             sEntry = m_Section;
-            sEntry += "_";
+            sEntry += _T("_");
             sEntry += m_Entry;
         }
         else
@@ -226,18 +226,18 @@ BOOL CSimpleSetting::ReadFromIniSubSection(const string& SubSection)
             sEntry = m_Entry;
         }
 
-        string szDefaultString;
-        vector<char> szBuffer(256);
+        tstring szDefaultString;
+        vector<TCHAR> szBuffer(256);
 
-        int Len = GetPrivateProfileString(SubSection.c_str(), sEntry.c_str(), "", &szBuffer[0], 255, GetIniFileForSettings());
-        LOG(2, " ReadFromIniSubSection %s %s Result %s", SubSection.c_str(), sEntry.c_str(), &szBuffer[0]);
+        int Len = GetPrivateProfileString(SubSection.c_str(), sEntry.c_str(), _T(""), &szBuffer[0], 255, GetIniFileForSettings());
+        LOG(2, _T(" ReadFromIniSubSection %s %s Result %s"), SubSection.c_str(), sEntry.c_str(), &szBuffer[0]);
 
         if (Len <= 0)
         {
             IsSettingInIniFile = FALSE;
             ChangeValueInternal(RESET_SILENT);
-            m_LastSavedValueIniSection.clear();
-            m_LastSavedValue.clear();
+            m_LastSavedValueIniSection = _T("");
+            m_LastSavedValue = _T("");
         }
         else
         {
@@ -249,8 +249,8 @@ BOOL CSimpleSetting::ReadFromIniSubSection(const string& SubSection)
     }
     else
     {
-        m_LastSavedValueIniSection.clear();
-        m_LastSavedValue.clear();
+        m_LastSavedValueIniSection = _T("");
+        m_LastSavedValue = _T("");
         IsSettingInIniFile = FALSE;
     }
     return IsSettingInIniFile;
@@ -266,16 +266,16 @@ BOOL CSimpleSetting::ReadFromIni()
 /** Write value to szSubsection in .ini file
     Override value and setting flags if Value and/or pSettingFlags is not NULL.
 */
-void CSimpleSetting::WriteToIniSubSection(const string& SubSection, BOOL bOptimizeFileAccess)
+void CSimpleSetting::WriteToIniSubSection(const tstring& SubSection, BOOL bOptimizeFileAccess)
 {
     if(!SubSection.empty())
     {
-        string sEntry;
+        tstring sEntry;
 
         if(SubSection != m_Section)
         {
             sEntry = m_Section;
-            sEntry += "_";
+            sEntry += _T("_");
             sEntry += m_Entry;
         }
         else
@@ -283,16 +283,16 @@ void CSimpleSetting::WriteToIniSubSection(const string& SubSection, BOOL bOptimi
             sEntry = m_Entry;
         }
 
-        string CurrentValue(GetValueAsString());
+        tstring CurrentValue(GetValueAsString());
 
         if(!bOptimizeFileAccess || m_LastSavedValue != CurrentValue || m_LastSavedValueIniSection != SubSection)
         {
             WritePrivateProfileString(SubSection.c_str(), sEntry.c_str(), CurrentValue.c_str(), GetIniFileForSettings());
-            LOG(2, " WriteToIniSubSection %s %s Value %s Was %s", SubSection.c_str(), sEntry.c_str(), CurrentValue.c_str(), m_LastSavedValue.c_str());
+            LOG(2, _T(" WriteToIniSubSection %s %s Value %s Was %s"), SubSection.c_str(), sEntry.c_str(), CurrentValue.c_str(), m_LastSavedValue.c_str());
         }
         else
         {
-            LOG(2, " WriteToIniSubSection Not Written %s %s Value %s", SubSection.c_str(), sEntry.c_str(), CurrentValue.c_str());
+            LOG(2, _T(" WriteToIniSubSection Not Written %s %s Value %s"), SubSection.c_str(), sEntry.c_str(), CurrentValue.c_str());
         }
 
         m_LastSavedValue = CurrentValue;
@@ -304,7 +304,7 @@ void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
 {
     if(!m_Section.empty())
     {
-        string CurrentValue(GetValueAsString());
+        tstring CurrentValue(GetValueAsString());
 
         // here we want all settings in the ini file
         // so we only optimize if the value and section
@@ -312,11 +312,11 @@ void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
         if(!bOptimizeFileAccess || CurrentValue != m_LastSavedValue || m_LastSavedValueIniSection != m_Section)
         {
             WritePrivateProfileString(m_Section.c_str(), m_Entry.c_str(), CurrentValue.c_str(), GetIniFileForSettings());
-            LOG(2, " WriteToIni %s %s Value %s Optimize %d Was %s", m_Section.c_str(), m_Entry.c_str(), CurrentValue.c_str(), bOptimizeFileAccess, m_LastSavedValue.c_str());
+            LOG(2, _T(" WriteToIni %s %s Value %s Optimize %d Was %s"), m_Section.c_str(), m_Entry.c_str(), CurrentValue.c_str(), bOptimizeFileAccess, m_LastSavedValue.c_str());
         }
         else
         {
-            LOG(2, " WriteToIni Not Written %s %s Value %s", m_Section.c_str(), m_Entry.c_str(), CurrentValue.c_str());
+            LOG(2, _T(" WriteToIni Not Written %s %s Value %s"), m_Section.c_str(), m_Entry.c_str(), CurrentValue.c_str());
         }
 
         m_LastSavedValue = CurrentValue;
@@ -326,7 +326,7 @@ void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
 
 void CSimpleSetting::OSDShow()
 {
-    string OSDText(MakeString() << m_DisplayName << " " << GetDisplayValue());
+    tstring OSDText(MakeString() << m_DisplayName << _T(" ") << GetDisplayValue());
 
     OSD_ShowText(OSDText, 0);
 
@@ -376,7 +376,7 @@ CSettingGroup* CSimpleSetting::GetGroup()
     for the rest of the parameters:
     @see CSimpleSetting
 */
-CListSetting::CListSetting(const string& DisplayName, long Default, long Max, const string& Section, const string& Entry, const char** pszList, CSettingGroup* pGroup) :
+CListSetting::CListSetting(const tstring& DisplayName, long Default, long Max, const tstring& Section, const tstring& Entry, const char** pszList, CSettingGroup* pGroup) :
     CSimpleSetting(DisplayName, Section, Entry, pGroup),
     m_Default(Default),
     m_Max(Max),
@@ -448,16 +448,16 @@ void CListSetting::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
     }
 }
 
-std::string CListSetting::GetValueAsString()
+tstring CListSetting::GetValueAsString()
 {
     return ToString(m_Value);
 }
 
-std::string CListSetting::GetDisplayValue()
+tstring CListSetting::GetDisplayValue()
 {
     if(m_List != NULL)
     {
-        return m_List[m_Value];
+        return MBCSToTString(m_List[m_Value]);
     }
     else
     {
@@ -465,7 +465,7 @@ std::string CListSetting::GetDisplayValue()
     }
 }
 
-void CListSetting::SetValueFromString(const string& NewValue)
+void CListSetting::SetValueFromString(const tstring& NewValue)
 {
     SetValue(FromString<long>(NewValue));
 }
@@ -483,7 +483,7 @@ void CListSetting::SetValueFromMessage(LPARAM LParam)
 
 void CListSetting::SetupControl(HWND hWnd)
 {
-    if(IsWindowClass(hWnd, "COMBOBOX"))
+    if(IsWindowClass(hWnd, _T("COMBOBOX")))
     {
         ComboBoxControlSetup(hWnd, m_Max + 1, m_List);
     }
@@ -491,7 +491,7 @@ void CListSetting::SetupControl(HWND hWnd)
 
 void CListSetting::SetControlValue(HWND hWnd)
 {
-    if(IsWindowClass(hWnd, "COMBOBOX"))
+    if(IsWindowClass(hWnd, _T("COMBOBOX")))
     {
         ComboBoxSetValue(hWnd, m_Value);
     }
@@ -499,7 +499,7 @@ void CListSetting::SetControlValue(HWND hWnd)
 
 void CListSetting::SetFromControl(HWND hWnd)
 {
-    if(IsWindowClass(hWnd, "COMBOBOX"))
+    if(IsWindowClass(hWnd, _T("COMBOBOX")))
     {
         SetValue(ComboBoxGetValue(hWnd));
     }
@@ -520,7 +520,7 @@ void CListSetting::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValu
     For the parameters:
     @see CSimpleSetting
 */
-CSliderSetting::CSliderSetting(const string& DisplayName, long Default, long Min, long Max, const string& Section, const string& Entry, CSettingGroup* pGroup) :
+CSliderSetting::CSliderSetting(const tstring& DisplayName, long Default, long Min, long Max, const tstring& Section, const tstring& Entry, CSettingGroup* pGroup) :
     CSimpleSetting(DisplayName, Section, Entry, pGroup),
     m_Default(Default),
     m_Min(Min),
@@ -582,17 +582,17 @@ void CSliderSetting::SetStepValue(long Step)
     m_StepValue = Step;
 }
 
-string CSliderSetting::GetValueAsString()
+tstring CSliderSetting::GetValueAsString()
 {
     return ToString(m_Value);
 }
 
-string CSliderSetting::GetDisplayValue()
+tstring CSliderSetting::GetDisplayValue()
 {
     return ToString(m_Value);
 }
 
-void CSliderSetting::SetValueFromString(const string& NewValue)
+void CSliderSetting::SetValueFromString(const tstring& NewValue)
 {
     SetValue(FromString<long>(NewValue));
 }
@@ -671,7 +671,7 @@ void CSliderSetting::SetControlValue(HWND hWnd)
     {
         SliderControlSetValue(hWnd, m_Value, m_Min, m_Max, m_Default);
     }
-    if(IsWindowClass(hWnd, "EDIT"))
+    if(IsWindowClass(hWnd, _T("EDIT")))
     {
         Edit_SetText(hWnd, ToString(m_Value).c_str());
     }
@@ -683,9 +683,9 @@ void CSliderSetting::SetFromControl(HWND hWnd)
     {
         SetValue(SliderControlGetValue(hWnd, m_Min, m_Max, m_StepValue));
     }
-    if(IsWindowClass(hWnd, "EDIT"))
+    if(IsWindowClass(hWnd, _T("EDIT")))
     {
-        vector<char> Buffer(256);
+        vector<TCHAR> Buffer(256);
         Edit_GetText(hWnd, &Buffer[0], 255);
         SetValueFromString(&Buffer[0]);
     }
@@ -698,7 +698,7 @@ void CSliderSetting::SetFromControl(HWND hWnd)
     For the rest of the parameters:
     @see CSimpleSetting
 */
-CYesNoSetting::CYesNoSetting(const string& DisplayName, BOOL Default, const string& Section, const string& Entry, CSettingGroup* pGroup) :
+CYesNoSetting::CYesNoSetting(const tstring& DisplayName, BOOL Default, const tstring& Section, const tstring& Entry, CSettingGroup* pGroup) :
     CSimpleSetting(DisplayName, Section, Entry, pGroup),
     m_Default(Default),
     m_Value(Default)
@@ -726,7 +726,7 @@ BOOL CYesNoSetting::GetValue()
 
 void CYesNoSetting::SetupControl(HWND hWnd)
 {
-    if(IsWindowClass(hWnd, "Button"))
+    if(IsWindowClass(hWnd, _T("Button")))
     {
         Button_SetText(hWnd, GetDisplayName().c_str());
     }
@@ -745,7 +745,7 @@ void CYesNoSetting::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetVal
 
 void CYesNoSetting::SetControlValue(HWND hWnd)
 {
-    if(IsWindowClass(hWnd, "Button"))
+    if(IsWindowClass(hWnd, _T("Button")))
     {
         Button_SetCheck(hWnd, m_Value?BST_CHECKED:BST_UNCHECKED);
     }
@@ -753,29 +753,29 @@ void CYesNoSetting::SetControlValue(HWND hWnd)
 
 void CYesNoSetting::SetFromControl(HWND hWnd)
 {
-    if(IsWindowClass(hWnd, "Button"))
+    if(IsWindowClass(hWnd, _T("Button")))
     {
         SetValue(Button_GetCheck(hWnd) == BST_CHECKED);
     }
 }
 
-std::string CYesNoSetting::GetDisplayValue()
+tstring CYesNoSetting::GetDisplayValue()
 {
-    return m_Value?"YES":"NO";
+    return m_Value?_T("YES"):_T("NO");
 }
 
-std::string CYesNoSetting::GetValueAsString()
+tstring CYesNoSetting::GetValueAsString()
 {
     return ToString(m_Value);
 }
 
-void CYesNoSetting::SetValueFromString(const string& NewValue)
+void CYesNoSetting::SetValueFromString(const tstring& NewValue)
 {
-    if(AreEqualInsensitive(NewValue, "YES") || AreEqualInsensitive(NewValue, "TRUE"))
+    if(AreEqualInsensitive(NewValue, _T("YES")) || AreEqualInsensitive(NewValue, _T("TRUE")))
     {
         SetValue(TRUE);
     }
-    else if(AreEqualInsensitive(NewValue, "NO") || AreEqualInsensitive(NewValue, "FALSE"))
+    else if(AreEqualInsensitive(NewValue, _T("NO")) || AreEqualInsensitive(NewValue, _T("FALSE")))
     {
         SetValue(FALSE);
     }
@@ -825,11 +825,11 @@ void CYesNoSetting::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
 }
 
 
-/** Character string setting.
+/** Character tstring setting.
     For the rest of the parameters:
     @see CSimpleSetting
 */
-CStringSetting::CStringSetting(const string& DisplayName, const string& Default, const string& Section, const string& Entry, CSettingGroup* pGroup) :
+CStringSetting::CStringSetting(const tstring& DisplayName, const tstring& Default, const tstring& Section, const tstring& Entry, CSettingGroup* pGroup) :
     CSimpleSetting(DisplayName, Section, Entry, pGroup),
     m_Value(Default),
     m_Default(Default)
@@ -841,36 +841,36 @@ CStringSetting::~CStringSetting()
 {
 }
 
-const char* CStringSetting::GetValue()
+const TCHAR* CStringSetting::GetValue()
 {
     return m_Value.c_str();
 }
 
-std::string CStringSetting::GetValueAsString()
+tstring CStringSetting::GetValueAsString()
 {
     return m_Value;
 }
 
-std::string CStringSetting::GetDisplayValue()
+tstring CStringSetting::GetDisplayValue()
 {
     return m_Value;
 }
 
 void CStringSetting::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue)
 {
-    throw logic_error("Can't change string defaults");
+    throw logic_error("Can't change tstring defaults");
 }
 
-void CStringSetting::SetValue(const char* NewValue, BOOL bSuppressOnChange)
+void CStringSetting::SetValue(const TCHAR* NewValue, BOOL bSuppressOnChange)
 {
-    string OldValue = m_Value;
+    tstring OldValue = m_Value;
     if(NewValue != 0)
     {
         m_Value = NewValue;
     }
     else
     {
-        m_Value.clear();
+        m_Value = _T("");
     }
     if (!bSuppressOnChange && IsOnChangeEnabled())
     {
@@ -878,7 +878,7 @@ void CStringSetting::SetValue(const char* NewValue, BOOL bSuppressOnChange)
     }
 }
 
-void CStringSetting::SetValueFromString(const string& NewValue)
+void CStringSetting::SetValueFromString(const tstring& NewValue)
 {
     SetValue(NewValue.c_str());
 }
@@ -890,7 +890,7 @@ LPARAM CStringSetting::GetValueAsMessage()
 
 void CStringSetting::SetValueFromMessage(LPARAM LParam)
 {
-    SetValue((const char*)LParam);
+    SetValue(MBCSToTString((const char*)LParam).c_str());
 }
 
 void CStringSetting::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
@@ -911,7 +911,7 @@ void CStringSetting::SetupControl(HWND hWnd)
 
 void CStringSetting::SetControlValue(HWND hWnd)
 {
-    if(IsWindowClass(hWnd, "EDIT"))
+    if(IsWindowClass(hWnd, _T("EDIT")))
     {
         Edit_SetText(hWnd, ToString(m_Value).c_str());
     }
@@ -919,21 +919,21 @@ void CStringSetting::SetControlValue(HWND hWnd)
 
 void CStringSetting::SetFromControl(HWND hWnd)
 {
-    if(IsWindowClass(hWnd, "EDIT"))
+    if(IsWindowClass(hWnd, _T("EDIT")))
     {
-        vector<char> Buffer(256);
+        vector<TCHAR> Buffer(256);
         Edit_GetText(hWnd, &Buffer[0], 255);
         SetValue(&Buffer[0]);
     }
 }
 
 CEmptySetting::CEmptySetting() :
-    CYesNoSetting("", FALSE, "", "")
+    CYesNoSetting(_T(""), FALSE, _T(""), _T(""))
 {
 }
 
 CSettingWrapper::CSettingWrapper(SETTING* pSetting, CSettingGroup* pGroup) :
-    CSimpleSetting(pSetting->szDisplayName, pSetting->szIniSection, pSetting->szIniEntry, pGroup),
+    CSimpleSetting(MBCSToTString(pSetting->szDisplayName), MBCSToTString(pSetting->szIniSection), MBCSToTString(pSetting->szIniEntry), pGroup),
     m_Setting(pSetting)
 {
 }
@@ -952,14 +952,14 @@ void CSettingWrapper::SetupControl(HWND hWnd)
     switch(m_Setting->Type)
     {
     case ITEMFROMLIST:
-        if(IsWindowClass(hWnd, "COMBOBOX"))
+        if(IsWindowClass(hWnd, _T("COMBOBOX")))
         {
             ComboBoxControlSetup(hWnd, m_Setting->MaxValue + 1, m_Setting->pszList);
         }
         break;
     case YESNO:
     case ONOFF:
-        if(IsWindowClass(hWnd, "Button"))
+        if(IsWindowClass(hWnd, _T("Button")))
         {
             Button_SetText(hWnd, GetDisplayName().c_str());
         }
@@ -981,14 +981,14 @@ void CSettingWrapper::SetControlValue(HWND hWnd)
     switch(m_Setting->Type)
     {
     case ITEMFROMLIST:
-        if(IsWindowClass(hWnd, "COMBOBOX"))
+        if(IsWindowClass(hWnd, _T("COMBOBOX")))
         {
             ComboBoxSetValue(hWnd, *m_Setting->pValue);
         }
         break;
     case YESNO:
     case ONOFF:
-        if(IsWindowClass(hWnd, "BUTTON"))
+        if(IsWindowClass(hWnd, _T("BUTTON")))
         {
             Button_SetCheck(hWnd, *(m_Setting->pValue)?BST_CHECKED:BST_UNCHECKED);
         }
@@ -998,15 +998,20 @@ void CSettingWrapper::SetControlValue(HWND hWnd)
         {
             SliderControlSetValue(hWnd, *m_Setting->pValue, m_Setting->MinValue, m_Setting->MaxValue, m_Setting->Default);
         }
-        if(IsWindowClass(hWnd, "EDIT"))
+        if(IsWindowClass(hWnd, _T("EDIT")))
         {
             Edit_SetText(hWnd, ToString(*m_Setting->pValue).c_str());
         }
         break;
     case CHARSTRING:
-        if(IsWindowClass(hWnd, "EDIT"))
+        if(IsWindowClass(hWnd, _T("EDIT")))
         {
-            Edit_SetText(hWnd, (LPCSTR)(*m_Setting->pValue));
+            SetWindowTextA(hWnd, (LPCSTR)(*m_Setting->pValue));
+        }
+    case WCHARSTRING:
+        if(IsWindowClass(hWnd, _T("EDIT")))
+        {
+            SetWindowTextW(hWnd, (LPCWSTR)(*m_Setting->pValue));
         }
     default:
         break;
@@ -1018,14 +1023,14 @@ void CSettingWrapper::SetFromControl(HWND hWnd)
     switch(m_Setting->Type)
     {
     case ITEMFROMLIST:
-        if(IsWindowClass(hWnd, "COMBOBOX"))
+        if(IsWindowClass(hWnd, _T("COMBOBOX")))
         {
             SetValue(ComboBoxGetValue(hWnd));
         }
         break;
     case YESNO:
     case ONOFF:
-        if(IsWindowClass(hWnd, "BUTTON"))
+        if(IsWindowClass(hWnd, _T("BUTTON")))
         {
             SetValue(Button_GetCheck(hWnd) == BST_CHECKED);
         }
@@ -1035,18 +1040,25 @@ void CSettingWrapper::SetFromControl(HWND hWnd)
         {
             SetValue(SliderControlGetValue(hWnd, m_Setting->MinValue, m_Setting->MaxValue, m_Setting->StepValue));
         }
-        if(IsWindowClass(hWnd, "EDIT"))
+        if(IsWindowClass(hWnd, _T("EDIT")))
         {
-            vector<char> Buffer(256);
+            vector<TCHAR> Buffer(256);
             Edit_GetText(hWnd, &Buffer[0], 255);
-            SetValue(atol(&Buffer[0]));
+            SetValue(_ttol(&Buffer[0]));
         }
         break;
     case CHARSTRING:
-        if(IsWindowClass(hWnd, "EDIT"))
+        if(IsWindowClass(hWnd, _T("EDIT")))
         {
             vector<char> Buffer(256);
-            Edit_GetText(hWnd, &Buffer[0], 255);
+            GetWindowTextA(hWnd, &Buffer[0], 255);
+            SetValue((long)&Buffer[0]);
+        }
+    case WCHARSTRING:
+        if(IsWindowClass(hWnd, _T("EDIT")))
+        {
+            vector<wchar_t> Buffer(256);
+            GetWindowTextW(hWnd, &Buffer[0], 255);
             SetValue((long)&Buffer[0]);
         }
     default:
@@ -1054,20 +1066,24 @@ void CSettingWrapper::SetFromControl(HWND hWnd)
     }
 }
 
-string CSettingWrapper::GetValueAsString()
+tstring CSettingWrapper::GetValueAsString()
 {
-    if(m_Setting->Type != CHARSTRING)
+    if(m_Setting->Type == CHARSTRING)
     {
-        return ToString(*(m_Setting->pValue));
+        return *m_Setting->pValue ? MBCSToTString((const char*)(*m_Setting->pValue)) : _T("");
+    }
+    else if(m_Setting->Type == WCHARSTRING)
+    {
+        return *m_Setting->pValue ? UnicodeToTString((const wchar_t*)(*m_Setting->pValue)) : _T("");
     }
     else
     {
-        return *m_Setting->pValue ? (const char*)(*m_Setting->pValue) : "";
+        return ToString(*(m_Setting->pValue));
     }
 }
 void CSettingWrapper::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue)
 {
-    if(m_Setting->Type != CHARSTRING)
+    if(m_Setting->Type != CHARSTRING && m_Setting->Type != WCHARSTRING)
     {
         m_Setting->Default = NewDefaultAsMessageType;
         if (!bDontSetValue)
@@ -1077,22 +1093,22 @@ void CSettingWrapper::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetV
     }
     else
     {
-        throw logic_error("Can't change string defaults");
+        throw logic_error("Can't change tstring defaults");
     }
 }
 
-string CSettingWrapper::GetDisplayValue()
+tstring CSettingWrapper::GetDisplayValue()
 {
     switch(m_Setting->Type)
     {
     case ITEMFROMLIST:
-        return m_Setting->pszList[*(m_Setting->pValue)];
+        return MBCSToTString(m_Setting->pszList[*(m_Setting->pValue)]);
         break;
     case YESNO:
-        return *(m_Setting->pValue)?"YES":"NO";
+        return *(m_Setting->pValue)?_T("YES"):_T("NO");
         break;
     case ONOFF:
-        return *(m_Setting->pValue)?"ON":"OFF";
+        return *(m_Setting->pValue)?_T("ON"):_T("OFF");
         break;
     case SLIDER:
         if(m_Setting->OSDDivider == 1)
@@ -1109,19 +1125,28 @@ string CSettingWrapper::GetDisplayValue()
         }
         break;
     case CHARSTRING:
-        *m_Setting->pValue ? (const char*)(*m_Setting->pValue) : "";
+        *m_Setting->pValue ? MBCSToTString((const char*)(*m_Setting->pValue)) : _T("");
+        break;
+    case WCHARSTRING:
+        *m_Setting->pValue ? UnicodeToTString((const wchar_t*)(*m_Setting->pValue)) : _T("");
         break;
     default:
         break;
     }
-    return "";
+    return _T("");
 }
 
-void CSettingWrapper::SetValueFromString(const string& NewValue)
+void CSettingWrapper::SetValueFromString(const tstring& NewValue)
 {
     if(m_Setting->Type == CHARSTRING)
     {
-        SetValue(reinterpret_cast<long>(NewValue.c_str()));
+        string ShortValue(TStringToMBCS(NewValue));
+        SetValue(reinterpret_cast<long>(ShortValue.c_str()));
+    }
+    else if(m_Setting->Type == WCHARSTRING)
+    {
+        wstring LongValue(TStringToUnicode(NewValue));
+        SetValue(reinterpret_cast<long>(LongValue.c_str()));
     }
     else
     {
@@ -1133,7 +1158,43 @@ void CSettingWrapper::SetValue(long NewValue)
 {
     long OldValue(*m_Setting->pValue);
 
-    if(m_Setting->Type != CHARSTRING)
+    if(m_Setting->Type == CHARSTRING)
+    {
+        if(*m_Setting->pValue)
+        {
+            delete [] (char* )(*m_Setting->pValue);
+        }
+        const char* NewString = (char*)NewValue;
+        size_t Len(strlen(NewString));
+        if(Len > 0)
+        {
+            *m_Setting->pValue = (long)new char[Len + 1];
+            strcpy((char*)(*m_Setting->pValue), NewString);
+        }
+        else
+        {
+            *m_Setting->pValue = 0;
+        }
+    }
+    else if(m_Setting->Type == WCHARSTRING)
+    {
+        if(*m_Setting->pValue)
+        {
+            delete [] (wchar_t* )(*m_Setting->pValue);
+        }
+        const wchar_t* NewString = (wchar_t*)NewValue;
+        size_t Len(wcslen(NewString));
+        if(Len > 0)
+        {
+            *m_Setting->pValue = (long)new wchar_t[Len + 1];
+            wcscpy((wchar_t*)(*m_Setting->pValue), NewString);
+        }
+        else
+        {
+            *m_Setting->pValue = 0;
+        }
+    }
+    else
     {
         if(NewValue < m_Setting->MinValue)
         {
@@ -1146,24 +1207,6 @@ void CSettingWrapper::SetValue(long NewValue)
         else
         {
             *m_Setting->pValue = NewValue;
-        }
-    }
-    else
-    {
-        if(*m_Setting->pValue)
-        {
-            delete [] (char *)(*m_Setting->pValue);
-        }
-        const char* NewString = (char*)NewValue;
-        size_t Len(strlen(NewString));
-        if(Len > 0)
-        {
-            *m_Setting->pValue = (long)new char[Len + 1];
-            strcpy((char *)(*m_Setting->pValue), NewString);
-        }
-        else
-        {
-            *m_Setting->pValue = 0;
         }
     }
     if(IsOnChangeEnabled() && m_Setting->pfnOnChange != NULL)
@@ -1192,7 +1235,7 @@ void CSettingWrapper::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
     switch(TypeOfChange)
     {
     case ADJUSTUP_SILENT:
-        if (m_Setting->Type != CHARSTRING)
+        if (m_Setting->Type != CHARSTRING && m_Setting->Type != WCHARSTRING)
         {
             if (*m_Setting->pValue < m_Setting->MaxValue)
             {
@@ -1201,7 +1244,7 @@ void CSettingWrapper::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
         }
         break;
     case ADJUSTDOWN_SILENT:
-        if (m_Setting->Type != CHARSTRING)
+        if (m_Setting->Type != CHARSTRING && m_Setting->Type != WCHARSTRING)
         {
             if (*m_Setting->pValue > m_Setting->MinValue)
             {
@@ -1210,13 +1253,13 @@ void CSettingWrapper::ChangeValueInternal(eCHANGEVALUE TypeOfChange)
         }
         break;
     case INCREMENT_SILENT:
-        if (m_Setting->Type != CHARSTRING)
+        if (m_Setting->Type != CHARSTRING && m_Setting->Type != WCHARSTRING)
         {
             SetValue(*m_Setting->pValue + m_Setting->StepValue);
         }
         break;
     case DECREMENT_SILENT:
-        if (m_Setting->Type != CHARSTRING)
+        if (m_Setting->Type != CHARSTRING && m_Setting->Type != WCHARSTRING)
         {
             SetValue(*m_Setting->pValue - m_Setting->StepValue);
         }
@@ -1245,9 +1288,16 @@ SettingStringValue::~SettingStringValue()
     clear();
 }
 
-SettingStringValue::operator LPSTR()
+SettingStringValue::operator LPCTSTR()
 {
-    return m_Value;
+    if(m_Value)
+    {
+        return m_Value;
+    }
+    else
+    {
+        return _T("");
+    }
 }
 
 SettingStringValue::operator bool()
@@ -1260,6 +1310,17 @@ long* SettingStringValue::GetPointer()
 {
     return (long*)&m_Value;
 }
+
+void SettingStringValue::SetValue(const tstring& NewValue)
+{
+    clear();
+    if(!NewValue.empty())
+    {
+        m_Value  = new TCHAR[NewValue.length() + 1];
+        _tcscpy(m_Value, NewValue.c_str());
+    }
+}
+
 
 void SettingStringValue::clear()
 {

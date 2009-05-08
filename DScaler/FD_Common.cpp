@@ -136,7 +136,7 @@ void PerformProgFilmDetectCalculations(TDeinterlaceInfo* pInfo)
     }
 
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, "Frame %d FD = %d", pInfo->CurrentFrame, pInfo->FieldDiff);
+    LOG(2, _T("Frame %d FD = %d"), pInfo->CurrentFrame, pInfo->FieldDiff);
 }
 
 
@@ -227,7 +227,7 @@ void CalcCombFactor(TDeinterlaceInfo* pInfo)
     }
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
-    LOG(2, "Frame %d %c CF = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->CombFactor);
+    LOG(2, _T("Frame %d %c CF = %d"), pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->CombFactor);
     return;
 }
 
@@ -278,7 +278,7 @@ void CalcCombFactorChroma(TDeinterlaceInfo* pInfo)
     }
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
-    LOG(2, "Frame %d %c CF = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->CombFactor);
+    LOG(2, _T("Frame %d %c CF = %d"), pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->CombFactor);
     return;
 }
 
@@ -329,7 +329,7 @@ void CalcDiffFactor(TDeinterlaceInfo* pInfo)
     }
 
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, "Frame %d %c FD = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff);
+    LOG(2, _T("Frame %d %c FD = %d"), pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -379,7 +379,7 @@ void CalcDiffFactorChroma(TDeinterlaceInfo* pInfo)
     }
 
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, "Frame %d %c FD = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff);
+    LOG(2, _T("Frame %d %c FD = %d"), pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff);
 }
 
 void DoBothCombAndDiff(TDeinterlaceInfo* pInfo)
@@ -448,7 +448,7 @@ void DoBothCombAndDiff(TDeinterlaceInfo* pInfo)
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, "Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
+    LOG(2, _T("Frame %d %c FD = %d \t CF = %d"), pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
 void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo)
@@ -517,7 +517,7 @@ void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo)
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, "Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
+    LOG(2, _T("Frame %d %c FD = %d \t CF = %d"), pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

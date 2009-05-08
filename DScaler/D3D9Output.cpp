@@ -161,7 +161,7 @@ BOOL CD3D9Output::Overlay_Create()
 
     if(FlipResult==D3DERR_DEVICELOST || FlipResult==D3DERR_DRIVERINTERNALERROR)
     {
-        LOG(1, "D3D Device lost .. trying reset");
+        LOG(1, _T("D3D Device lost .. trying reset"));
         // Device lost .. try to reset
         OffscreenHDC.ReleaseD3DBuffer();
         if(pDevice->TestCooperativeLevel()==D3DERR_DEVICENOTRESET)
@@ -188,7 +188,7 @@ BOOL CD3D9Output::Overlay_Create()
         &lpDDOverlay, NULL)))
     {
         LeaveCriticalSection(&hDDCritSect);
-        ErrorBox("CreateOffscreenPlainSurface failed");
+        ErrorBox(_T("CreateOffscreenPlainSurface failed"));
         return FALSE;
     }
 
@@ -197,18 +197,18 @@ BOOL CD3D9Output::Overlay_Create()
     if(FAILED(pDevice->CreateTexture(BUFFERWIDTH, BUFFERHEIGHT, 1, D3DUSAGE_RENDERTARGET ,D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_lpOsdTexture, NULL)))
     {
         LeaveCriticalSection(&hDDCritSect);
-        ErrorBox("Creating OSD texture failed");
+        ErrorBox(_T("Creating OSD texture failed"));
         return FALSE;
     }
 
     if(FAILED(m_lpOsdTexture->GetSurfaceLevel(0, &lpDDOSD)))
     {
         LeaveCriticalSection(&hDDCritSect);
-        ErrorBox("Getting surface from OSD texture failed");
+        ErrorBox(_T("Getting surface from OSD texture failed"));
         return FALSE;
     }
 
-    AddSplashTextLine("Using Direct3D output");
+    AddSplashTextLine(_T("Using Direct3D output"));
 
     // try to create a memory buffer
     // that we can use if any output filters are switched
@@ -219,7 +219,7 @@ BOOL CD3D9Output::Overlay_Create()
     {
        // if we can't do a system memory buffer it's not the end of the
        // world it just means that any output filters will run very slow
-       LOG(1, "Couldn't create additional buffer for output filters");
+       LOG(1, _T("Couldn't create additional buffer for output filters"));
        lpExtraMemoryForFilters = NULL;
     }
 
@@ -280,7 +280,7 @@ BOOL CD3D9Output::Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
 {
     if(lpExtraMemoryForFilters == NULL)
     {
-        LOG(1, "Extra Buffer has been deleted");
+        LOG(1, _T("Extra Buffer has been deleted"));
         return FALSE;
     }
 
@@ -311,7 +311,7 @@ BOOL CD3D9Output::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExt
     ddrval=lpDDOverlay->LockRect(&r, NULL, D3DLOCK_DISCARD);
     if(FAILED(ddrval))
     {
-        LOG(1, "Lock failed %8x", ddrval);
+        LOG(1, _T("Lock failed %8x"), ddrval);
         LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
@@ -344,7 +344,7 @@ BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
         &temp,
         NULL)))
     {
-        LOG(1, "Could not create Surface in Overlay_Lock");
+        LOG(1, _T("Could not create Surface in Overlay_Lock"));
         return FALSE;
     }
 
@@ -357,7 +357,7 @@ BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
         NULL)))
     {
         temp->Release();
-        LOG(1, "Could not create Surface in Overlay_Lock");
+        LOG(1, _T("Could not create Surface in Overlay_Lock"));
         return FALSE;
     }
 
@@ -366,7 +366,7 @@ BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
     HRESULT ddrval=pDevice->GetFrontBufferData(0, temp);
     if(FAILED(ddrval))
     {
-        LOG(1, "GetFrontBufferData failed %8x", ddrval);
+        LOG(1, _T("GetFrontBufferData failed %8x"), ddrval);
         temp->Release();
         lpDDFrontBuffer->Release();
         lpDDFrontBuffer=NULL;
@@ -377,7 +377,7 @@ BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
     ddrval=pDevice->StretchRect(temp, NULL, lpDDFrontBuffer, NULL, D3DTEXF_NONE);
     if(FAILED(ddrval))
     {
-        LOG(1, "Could not copy front buffer data %8x", ddrval);
+        LOG(1, _T("Could not copy front buffer data %8x"), ddrval);
         temp->Release();
         lpDDFrontBuffer->Release();
         lpDDFrontBuffer=NULL;
@@ -391,7 +391,7 @@ BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
     ddrval=lpDDFrontBuffer->LockRect(&lr, NULL, D3DLOCK_READONLY);
     if(FAILED(ddrval))
     {
-        LOG(1, "Lock failed %8x", ddrval);
+        LOG(1, _T("Lock failed %8x"), ddrval);
         LeaveCriticalSection(&hDDCritSect);
         lpDDFrontBuffer->Release();
         lpDDFrontBuffer=NULL;
@@ -416,7 +416,7 @@ BOOL CD3D9Output::Overlay_Unlock()
     }
     if(FAILED(lpDDFrontBuffer->UnlockRect()))
     {
-        LOG(1, "Unlock failed");
+        LOG(1, _T("Unlock failed"));
         LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
@@ -574,7 +574,7 @@ BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExt
 {
     if(lpDDOverlay == NULL)
     {
-        LOG(1, "D3DDevice has been deleted - trying to reset");
+        LOG(1, _T("D3DDevice has been deleted - trying to reset"));
         return FALSE;
     }
 
@@ -614,14 +614,14 @@ BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExt
 
 BOOL CD3D9Output::InitDD(HWND hWnd)
 {
-    DynamicFunctionS1<IDirect3D9*, UINT> create3D9("D3D9.dll", "Direct3DCreate9");
+    DynamicFunctionS1<IDirect3D9*, UINT> create3D9(_T("D3D9.dll"), "Direct3DCreate9");
     if(!create3D9)
     {
         return FALSE;
     }
     if( NULL == (g_pD3D = create3D9(D3D_SDK_VERSION)))
     {
-        ErrorBox("Direct3DCreate9 failed");
+        ErrorBox(_T("Direct3DCreate9 failed"));
         return FALSE;
     }
 
@@ -659,7 +659,7 @@ BOOL CD3D9Output::InitDD(HWND hWnd)
                                   D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_MULTITHREADED,
                                   &d3dpp, &pDevice ) ) )
     {
-        ErrorBox("D3D CreateDevice failed");
+        ErrorBox(_T("D3D CreateDevice failed"));
         return FALSE;
     }
 
@@ -679,6 +679,8 @@ BOOL CD3D9Output::Overlay_GetRGB()
 
 void CD3D9Output::ExitDD(void)
 {
+    Overlay_Destroy();
+
     EnterCriticalSection(&hDDCritSect);
     if(pDevice!=NULL)
     {
@@ -751,13 +753,13 @@ CSettingsHolder D3D9SettingsHolder;
 
 void D3D9_ReadSettingsFromIni()
 {
-    CSettingGroup *pD3D9Group = SettingsMaster->GetGroup("D3D9", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pD3D9Group = SettingsMaster->GetGroup(_T("D3D9"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
 #ifdef _DEBUG
     if (D3D9_SETTING_LASTONE != D3D9SettingsHolder.GetNumSettings())
     {
-        LOGD("Number of settings in D3D9 source is not equal to the number of settings in DS_Control.h");
-        LOGD("DS_Control.h or D3D9Output.cpp are probably not in sync with each other.");
+        LOGD(_T("Number of settings in D3D9 source is not equal to the number of settings in DS_Control.h"));
+        LOGD(_T("DS_Control.h or D3D9Output.cpp are probably not in sync with each other."));
     }
 #endif
 

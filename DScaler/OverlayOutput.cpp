@@ -58,14 +58,14 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
     {
         hMonitor = OverlayOutputInstance.m_lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
     }
-    LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
+    LOG(2, _T("Monitor %d %s %s"), hMonitor, pszDesc, pszDriverName);
 
     // and therefore test if we found again the same monitor !
     for (int i = 0; i < NbMonitors; i++)
     {
         if (Monitors[i].hMon == hMonitor)
         {
-            LOG(2, "Monitor alrady listed");
+            LOG(2, _T("Monitor alrady listed"));
             return DDENUMRET_OK;
         }
     }
@@ -78,7 +78,7 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
             Monitors[NbMonitors].hMon = hMonitor;
             Monitors[NbMonitors].lpDD = lpDD;
             NbMonitors++;
-            LOG(1, "Monitor %d (%d %d %d %d)", NbMonitors, MonInfo.rcMonitor.left, MonInfo.rcMonitor.right, MonInfo.rcMonitor.top, MonInfo.rcMonitor.bottom);
+            LOG(1, _T("Monitor %d (%d %d %d %d)"), NbMonitors, MonInfo.rcMonitor.left, MonInfo.rcMonitor.right, MonInfo.rcMonitor.top, MonInfo.rcMonitor.bottom);
         }
     }
 
@@ -88,7 +88,7 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
 //-----------------------------------------------------------------------------
 BOOL COverlayOutput::ListMonitors(HWND hWnd)
 {
-    static DynamicFunctionS3<HRESULT, LPDDENUMCALLBACKEXA, LPVOID, DWORD> lpDDEnumEx("ddraw.lib", "DirectDrawEnumerateExA");
+    static DynamicFunctionS3<HRESULT, LPDDENUMCALLBACKEX, LPVOID, DWORD> lpDDEnumEx(_T("ddraw.lib"), ADD_API_LETTER(DirectDrawEnumerateEx));
     BOOL RetVal = TRUE;
 
     // Retrieve the function from the DirectDraw DLL
@@ -116,7 +116,7 @@ LPDIRECTDRAW COverlayOutput::GetCurrentDD(HWND hWnd)
     {
         if (FAILED(m_lpDirectDrawCreate(NULL, &lpDD, NULL)))
         {
-            ErrorBox("DirectDrawCreate failed");
+            ErrorBox(_T("DirectDrawCreate failed"));
             return (FALSE);
         }
         return lpDD;
@@ -286,8 +286,8 @@ BOOL COverlayOutput::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwF
         {
             // 2001-01-06 John Adcock
             // Now show return code
-            char szErrorMsg[200];
-            sprintf(szErrorMsg, "Error %x calling UpdateOverlay (Hide)", ddrval);
+            TCHAR szErrorMsg[200];
+            _stprintf(szErrorMsg, _T("Error %x calling UpdateOverlay (Hide)"), ddrval);
             ErrorBox(szErrorMsg);
             LeaveCriticalSection(&hDDCritSect);
             return FALSE;
@@ -318,10 +318,10 @@ BOOL COverlayOutput::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwF
             DWORD dwPhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, overlayColour);
             if (dwPhysicalOverlayColor == 0 && overlayColour != 0)      // sometimes we glitch and can't get the Value
             {
-                LOG(3, "Physical overlay color is zero!  Retrying.");
+                LOG(3, _T("Physical overlay color is zero!  Retrying."));
                 dwPhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, overlayColour);
             }
-            LOG(3, "Physical overlay color is %x", dwPhysicalOverlayColor);
+            LOG(3, _T("Physical overlay color is %x"), dwPhysicalOverlayColor);
 
             VT_SetOverlayColour(overlayColour);
 
@@ -358,12 +358,12 @@ BOOL COverlayOutput::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwF
         {
             DDCOLORKEY ColorKey;
 
-            LOG(1, "Got unsupported error from Overlay Update");
+            LOG(1, _T("Got unsupported error from Overlay Update"));
             ddrval = lpDDOverlay->GetColorKey(DDCKEY_DESTOVERLAY, &ColorKey);
             if(SUCCEEDED(ddrval))
             {
                 g_OverlayColor = ColorKey.dwColorSpaceHighValue;
-                LOG(1, "Reset overlay color to %x", g_OverlayColor);
+                LOG(1, _T("Reset overlay color to %x"), g_OverlayColor);
             }
             dwFlags &= ~DDOVER_KEYDESTOVERRIDE;
             memset(&DDOverlayFX, 0x00, sizeof(DDOverlayFX));
@@ -390,8 +390,8 @@ BOOL COverlayOutput::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwF
                 // resizing the window smaller than the video size.
                 // 2001-01-06 John Adcock
                 // Now show return code
-                char szErrorMsg[200];
-                sprintf(szErrorMsg, "Error %x in UpdateOverlay", ddrval);
+                TCHAR szErrorMsg[200];
+                _stprintf(szErrorMsg, _T("Error %x in UpdateOverlay"), ddrval);
                 ErrorBox(szErrorMsg);
             }
             LeaveCriticalSection(&hDDCritSect);
@@ -423,8 +423,8 @@ void COverlayOutput::Overlay_ResetColorControls()
         // just carry on
         if(ddrval != DDERR_SURFACELOST && FAILED(ddrval))
         {
-            char szErrorMsg[200];
-            sprintf(szErrorMsg, "Error %x in SetColorControls()", ddrval);
+            TCHAR szErrorMsg[200];
+            _stprintf(szErrorMsg, _T("Error %x in SetColorControls()"), ddrval);
             ErrorBox(szErrorMsg);
         }
     }
@@ -487,8 +487,8 @@ void COverlayOutput::Overlay_SetColorControls()
                 HRESULT ddrval = pDDColorControl->SetColorControls(&sColorControl);
                 if (FAILED(ddrval))
                 {
-                    char szErrorMsg[200];
-                    sprintf(szErrorMsg, "Error %x in SetColorControls()", ddrval);
+                    TCHAR szErrorMsg[200];
+                    _stprintf(szErrorMsg, _T("Error %x in SetColorControls()"), ddrval);
                     ErrorBox(szErrorMsg);
                 }
             }
@@ -496,7 +496,7 @@ void COverlayOutput::Overlay_SetColorControls()
     }
     else
     {
-        ErrorBox("Cannot get color control");
+        ErrorBox(_T("Cannot get color control"));
     }
 }
 
@@ -510,7 +510,7 @@ BOOL COverlayOutput::Overlay_Create()
     HRESULT ddrval;
     DDSCAPS caps;
     int minBuffers, maxBuffers, numBuffers;
-    char msg[500];
+    TCHAR msg[500];
     int loopcounter = 0;
 
     if (lpDDOverlay)
@@ -540,7 +540,7 @@ BOOL COverlayOutput::Overlay_Create()
     }
     if (FAILED(ddrval))
     {
-        sprintf(msg, "Error creating primary surface: %x", ddrval);
+        _stprintf(msg, _T("Error creating primary surface: %x"), ddrval);
         RealErrorBox(msg);
         LeaveCriticalSection(&hDDCritSect);
         return (FALSE);
@@ -615,11 +615,11 @@ BOOL COverlayOutput::Overlay_Create()
         if (minBuffers == 0)
         {
             // We tried single-buffering and it didn't work.
-            RealErrorBox("Your video card doesn't have enough overlay\n"
-                     "memory for a TV picture.  Try lowering your\n"
-                     "color depth or screen resolution.  Rebooting\n"
-                     "may help in some cases if memory is being\n"
-                     "used by something else on your system.");
+            RealErrorBox(_T("Your video card doesn't have enough overlay\n")
+                     _T("memory for a TV picture.  Try lowering your\n")
+                     _T("color depth or screen resolution.  Rebooting\n")
+                     _T("may help in some cases if memory is being\n")
+                     _T("used by something else on your system."));
             LeaveCriticalSection(&hDDCritSect);
             return (FALSE);
         }
@@ -627,13 +627,13 @@ BOOL COverlayOutput::Overlay_Create()
         {
             // We didn't get down to single-buffering, meaning the user
             // specified a back buffer Count.
-            sprintf(msg, "Your video card doesn't have enough overlay\n"
-                         "memory for %d back buffers.  If you've used\n"
-                         "that many back buffers before, you may need\n"
-                         "to reboot.  Otherwise try lowering your screen\n"
-                         "resolution or color depth, or try setting\n"
-                         "BackBuffers=-1 in DScaler.ini to allow DScaler to\n"
-                         "decide how many back buffers it can allocate.",
+            _stprintf(msg, _T("Your video card doesn't have enough overlay\n")
+                         _T("memory for %d back buffers.  If you've used\n")
+                         _T("that many back buffers before, you may need\n")
+                         _T("to reboot.  Otherwise try lowering your screen\n")
+                         _T("resolution or color depth, or try setting\n")
+                         _T("BackBuffers=-1 in DScaler.ini to allow DScaler to\n")
+                         _T("decide how many back buffers it can allocate."),
                     BackBuffers);
             RealErrorBox(msg);
             LeaveCriticalSection(&hDDCritSect);
@@ -646,21 +646,21 @@ BOOL COverlayOutput::Overlay_Create()
         switch (ddrval)
         {
         case DDERR_NOOVERLAYHW:
-            RealErrorBox("Your video card doesn't appear to support\n"
-                     "overlays, which DScaler requires.");
+            RealErrorBox(_T("Your video card doesn't appear to support\n")
+                     _T("overlays, which DScaler requires."));
             LeaveCriticalSection(&hDDCritSect);
             return (FALSE);
 
             // Any other interesting error codes?
         }
 
-        sprintf(msg, "Can't create overlay surface: %x", ddrval);
+        _stprintf(msg, _T("Can't create overlay surface: %x"), ddrval);
         RealErrorBox(msg);
         LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
 
-    sprintf(msg, "%d Back Buffers", numBuffers);
+    _stprintf(msg, _T("%d Back Buffers"), numBuffers);
     AddSplashTextLine(msg);
 
     ddrval = lpDDOverlay->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
@@ -676,7 +676,7 @@ BOOL COverlayOutput::Overlay_Create()
         ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDOverlay, NULL);
         if (FAILED(ddrval))
         {
-            sprintf(msg, "Lost overlay surface and can't recreate it: %x", ddrval);
+            _stprintf(msg, _T("Lost overlay surface and can't recreate it: %x"), ddrval);
             RealErrorBox(msg);
             lpDDOverlay = NULL;
             LeaveCriticalSection(&hDDCritSect);
@@ -686,8 +686,8 @@ BOOL COverlayOutput::Overlay_Create()
     }
     if (FAILED(ddrval))
     {
-        char szErrorMsg[200];
-        sprintf(szErrorMsg, "Error %x in Lock Surface", ddrval);
+        TCHAR szErrorMsg[200];
+        _stprintf(szErrorMsg, _T("Error %x in Lock Surface"), ddrval);
         RealErrorBox(szErrorMsg);
         LeaveCriticalSection(&hDDCritSect);
         return (FALSE);
@@ -696,7 +696,7 @@ BOOL COverlayOutput::Overlay_Create()
     ddrval = lpDDOverlay->Unlock(SurfaceDesc.lpSurface);
     if (FAILED(ddrval))
     {
-        RealErrorBox("Can't Unlock Surface");
+        RealErrorBox(_T("Can't Unlock Surface"));
         LeaveCriticalSection(&hDDCritSect);
         return (FALSE);
     }
@@ -708,7 +708,7 @@ BOOL COverlayOutput::Overlay_Create()
         ddrval = lpDDOverlay->GetAttachedSurface(&caps, &lpDDOverlayBack);
         if (FAILED(ddrval))
         {
-            RealErrorBox("Can't create Overlay Back Surface");
+            RealErrorBox(_T("Can't create Overlay Back Surface"));
             lpDDOverlayBack = NULL;
             LeaveCriticalSection(&hDDCritSect);
             return (FALSE);
@@ -718,7 +718,7 @@ BOOL COverlayOutput::Overlay_Create()
             ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
             if (FAILED(ddrval))
             {
-                RealErrorBox("Can't Lock Back Surface");
+                RealErrorBox(_T("Can't Lock Back Surface"));
                 LeaveCriticalSection(&hDDCritSect);
                 return (FALSE);
             }
@@ -727,7 +727,7 @@ BOOL COverlayOutput::Overlay_Create()
             ddrval = lpDDOverlayBack->Unlock(SurfaceDesc.lpSurface);
             if (FAILED(ddrval))
             {
-                RealErrorBox("Can't Unlock Back Surface");
+                RealErrorBox(_T("Can't Unlock Back Surface"));
                 LeaveCriticalSection(&hDDCritSect);
                 return (FALSE);
             }
@@ -747,12 +747,12 @@ BOOL COverlayOutput::Overlay_Create()
         ddrval = pDDColorControl->GetColorControls(&OriginalColorControls);
         if(SUCCEEDED(ddrval))
         {
-            LOG(3, "OriginalColorControls %d Brightness %d", OriginalColorControls.dwFlags & DDCOLOR_BRIGHTNESS, OriginalColorControls.lBrightness);
-            LOG(3, "OriginalColorControls %d Contrast %d", OriginalColorControls.dwFlags & DDCOLOR_CONTRAST, OriginalColorControls.lContrast);
-            LOG(3, "OriginalColorControls %d Hue %d", OriginalColorControls.dwFlags & DDCOLOR_HUE, OriginalColorControls.lHue);
-            LOG(3, "OriginalColorControls %d Saturation %d", OriginalColorControls.dwFlags & DDCOLOR_SATURATION, OriginalColorControls.lSaturation);
-            LOG(3, "OriginalColorControls %d Gamma %d", OriginalColorControls.dwFlags & DDCOLOR_SHARPNESS, OriginalColorControls.lGamma);
-            LOG(3, "OriginalColorControls %d Sharpness %d", OriginalColorControls.dwFlags & DDCOLOR_GAMMA, OriginalColorControls.lSharpness);
+            LOG(3, _T("OriginalColorControls %d Brightness %d"), OriginalColorControls.dwFlags & DDCOLOR_BRIGHTNESS, OriginalColorControls.lBrightness);
+            LOG(3, _T("OriginalColorControls %d Contrast %d"), OriginalColorControls.dwFlags & DDCOLOR_CONTRAST, OriginalColorControls.lContrast);
+            LOG(3, _T("OriginalColorControls %d Hue %d"), OriginalColorControls.dwFlags & DDCOLOR_HUE, OriginalColorControls.lHue);
+            LOG(3, _T("OriginalColorControls %d Saturation %d"), OriginalColorControls.dwFlags & DDCOLOR_SATURATION, OriginalColorControls.lSaturation);
+            LOG(3, _T("OriginalColorControls %d Gamma %d"), OriginalColorControls.dwFlags & DDCOLOR_SHARPNESS, OriginalColorControls.lGamma);
+            LOG(3, _T("OriginalColorControls %d Sharpness %d"), OriginalColorControls.dwFlags & DDCOLOR_GAMMA, OriginalColorControls.lSharpness);
             if(bUseOverlayControls)
             {
                Overlay_SetColorControls();
@@ -779,7 +779,7 @@ BOOL COverlayOutput::Overlay_Create()
     {
        // if we can't do a system memory buffer it's not the end of the
        // world it just means that any output filters will run very slow
-       LOG(1, "Couldn't create additional buffer for output filters");
+       LOG(1, _T("Couldn't create additional buffer for output filters"));
        lpExtraMemoryForFilters = NULL;
     }
 
@@ -821,7 +821,7 @@ BOOL COverlayOutput::Overlay_Create()
 
     if(i == 5)
     {
-        LOG(1, "Trouble getting lock on Ticks per frame");
+        LOG(1, _T("Trouble getting lock on Ticks per frame"));
     }
 
 #endif
@@ -957,7 +957,7 @@ BOOL COverlayOutput::Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
 {
     if(lpExtraMemoryForFilters == NULL)
     {
-        LOG(1, "Extra Buffer has been deleted");
+        LOG(1, _T("Extra Buffer has been deleted"));
         return FALSE;
     }
 
@@ -984,7 +984,7 @@ BOOL COverlayOutput::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUse
     }
     if(lpDDOverlay == NULL || lpDDOverlayBack == NULL)
     {
-        LOG(1, "Overlay has been deleted");
+        LOG(1, _T("Overlay has been deleted"));
         return FALSE;
     }
 
@@ -999,7 +999,7 @@ BOOL COverlayOutput::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUse
         ddrval = lpDDOverlay->Flip(NULL, DDFLIP_DONOTWAIT);
         if(ddrval == DDERR_SURFACELOST)
         {
-            LOG(1, "Flip before lock failed");
+            LOG(1, _T("Flip before lock failed"));
             LeaveCriticalSection(&hDDCritSect);
             return FALSE;
         }
@@ -1027,13 +1027,13 @@ BOOL COverlayOutput::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUse
         {
             //remember for next time
             dwFlags = DDLOCK_WAIT;
-            LOG(1, "Switched to not using NOSYSLOCK");
+            LOG(1, _T("Switched to not using NOSYSLOCK"));
         }
     }
 
     if(FAILED(ddrval))
     {
-        LOG(1, "Lock failed %8x", ddrval);
+        LOG(1, _T("Lock failed %8x"), ddrval);
         LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
@@ -1054,7 +1054,7 @@ BOOL COverlayOutput::Overlay_Lock(TDeinterlaceInfo* pInfo)
 {
     if(lpDDOverlay == NULL || lpDDOverlayBack == NULL)
     {
-        LOG(1, "Overlay has been deleted");
+        LOG(1, _T("Overlay has been deleted"));
         return FALSE;
     }
 
@@ -1069,7 +1069,7 @@ BOOL COverlayOutput::Overlay_Lock(TDeinterlaceInfo* pInfo)
         ddrval = lpDDOverlay->Flip(NULL, DDFLIP_DONOTWAIT);
         if(ddrval == DDERR_SURFACELOST)
         {
-            LOG(1, "Flip before lock failed");
+            LOG(1, _T("Flip before lock failed"));
             LeaveCriticalSection(&hDDCritSect);
             return FALSE;
         }
@@ -1089,13 +1089,13 @@ BOOL COverlayOutput::Overlay_Lock(TDeinterlaceInfo* pInfo)
         {
             //remember for next time
             dwFlags = DDLOCK_WAIT;
-            LOG(1, "Switched to not using NOSYSLOCK");
+            LOG(1, _T("Switched to not using NOSYSLOCK"));
         }
     }
 
     if(FAILED(ddrval))
     {
-        LOG(1, "Lock failed %8x", ddrval);
+        LOG(1, _T("Lock failed %8x"), ddrval);
         LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
@@ -1122,7 +1122,7 @@ BOOL COverlayOutput::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
     // make sure we always release the critical section
     if(lpDDOverlayBack == NULL)
     {
-        LOG(1, "Overlay has been deleted");
+        LOG(1, _T("Overlay has been deleted"));
         LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
@@ -1134,7 +1134,7 @@ BOOL COverlayOutput::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
     {
         if(ddrval != DDERR_SURFACELOST)
         {
-            LOG(1, "Unexpected failure in Unlock %8x", ddrval);
+            LOG(1, _T("Unexpected failure in Unlock %8x"), ddrval);
         }
         RetVal = FALSE;
     }
@@ -1147,7 +1147,7 @@ BOOL COverlayOutput::Overlay_Unlock()
     // make sure we always leave the critical section
     if(lpDDOverlay == NULL)
     {
-        LOG(1, "Overlay has been deleted");
+        LOG(1, _T("Overlay has been deleted"));
         LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
@@ -1159,7 +1159,7 @@ BOOL COverlayOutput::Overlay_Unlock()
     {
         if(ddrval != DDERR_SURFACELOST)
         {
-            LOG(1, "Unexpected failure in Unlock %8x", ddrval);
+            LOG(1, _T("Unexpected failure in Unlock %8x"), ddrval);
         }
         RetVal = FALSE;
     }
@@ -1220,7 +1220,7 @@ BOOL COverlayOutput::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lp
 {
     if(lpDDOverlay == NULL)
     {
-        LOG(1, "Overlay has been deleted");
+        LOG(1, _T("Overlay has been deleted"));
         return FALSE;
     }
 
@@ -1258,7 +1258,7 @@ BOOL COverlayOutput::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lp
             FlipResult != DDERR_SURFACELOST &&
             FlipResult != DDERR_NOTFLIPPABLE)
         {
-            LOG(1, "Surface Flip failed %8x", FlipResult);
+            LOG(1, _T("Surface Flip failed %8x"), FlipResult);
         }
         // return OK if we get DDERR_WASSTILLDRAWING
         // we'll do the flip next time
@@ -1302,7 +1302,7 @@ BOOL COverlayOutput::InitDD(HWND hWnd)
         {
             if (!(DriverCaps.dwCaps & DDCAPS_OVERLAYSTRETCH))
             {
-                ErrorBox("Can't Strech Overlay");
+                ErrorBox(_T("Can't Strech Overlay"));
                 return FALSE;
             }
 
@@ -1330,7 +1330,7 @@ BOOL COverlayOutput::InitDD(HWND hWnd)
         }
         else
         {
-            ErrorBox("Can't Use Overlay");
+            ErrorBox(_T("Can't Use Overlay"));
             return (FALSE);
         }
     }
@@ -1339,7 +1339,7 @@ BOOL COverlayOutput::InitDD(HWND hWnd)
 
     if (FAILED(ddrval))
     {
-        ErrorBox("SetCooperativeLevel failed");
+        ErrorBox(_T("SetCooperativeLevel failed"));
         return (FALSE);
     }
 
@@ -1571,9 +1571,9 @@ void COverlayOutput::InitOtherSettings()
 }
 
 COverlayOutput::COverlayOutput(void) :
-    m_lpMonitorFromWindow("user32.dll", "MonitorFromWindow"),
-    m_lpGetMonitorInfoA("user32.dll", "GetMonitorInfoA"),
-    m_lpDirectDrawCreate("ddraw.dll", "DirectDrawCreate")
+    m_lpMonitorFromWindow(_T("user32.dll"), "MonitorFromWindow"),
+    m_lpGetMonitorInfoA(_T("user32.dll"), "GetMonitorInfoA"),
+    m_lpDirectDrawCreate(_T("ddraw.dll"), "DirectDrawCreate")
 {
     lpDD=NULL;
     lpDDSurface=NULL;
@@ -1627,7 +1627,7 @@ CSettingsHolder OverlaySettingsHolder;
 
 void Overlay_ReadSettingsFromIni()
 {
-    CSettingGroup *pOverlayGroup = SettingsMaster->GetGroup("Overlay", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pOverlayGroup = SettingsMaster->GetGroup(_T("Overlay"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
     OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYBRIGHTNESS], pOverlayGroup);
     OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYCONTRAST], pOverlayGroup);
@@ -1644,8 +1644,8 @@ void Overlay_ReadSettingsFromIni()
 #ifdef _DEBUG
     if (OTHER_SETTING_LASTONE != OverlaySettingsHolder.GetNumSettings())
     {
-        LOGD("Number of settings in Overlay source is not equal to the number of settings in DS_Control.h");
-        LOGD("DS_Control.h or Other.cpp are probably not in sync with each other.");
+        LOGD(_T("Number of settings in Overlay source is not equal to the number of settings in DS_Control.h"));
+        LOGD(_T("DS_Control.h or Other.cpp are probably not in sync with each other."));
     }
 #endif
 

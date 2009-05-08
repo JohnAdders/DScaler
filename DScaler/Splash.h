@@ -25,6 +25,6 @@
 
 void ShowSpashScreen();
 void HideSplashScreen();
-void AddSplashTextLine(const char* szText);
+void AddSplashTextLine(const TCHAR* szText);
 
 #endif

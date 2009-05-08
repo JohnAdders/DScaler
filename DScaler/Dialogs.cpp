@@ -42,27 +42,16 @@
 
 BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-    char    szResult[256];      // Temporary result string
 
     switch (message)
     {
     case WM_INITDIALOG:
-        lstrcpy(szResult, "DScaler Version ");
+        {
+            SetWindowText(GetDlgItem(hDlg, IDC_VERSION), GetProductNameAndVersionFull().c_str());
 
-        lstrcat(szResult, VERSTRING);
-        lstrcat(szResult, " Compiled ");
-        lstrcat(szResult, __DATE__);
-        lstrcat(szResult, " ");
-        lstrcat(szResult, __TIME__);
-
-        lstrcat(szResult, " Build (");
-        lstrcat(szResult, GetSVNBuildString());
-        lstrcat(szResult, ")");
-
-        SetWindowText (GetDlgItem(hDlg, IDC_VERSION), szResult);
-
-        SetClassLong(GetDlgItem(hDlg, IDC_LINK), GCL_HCURSOR, (long) hCursorHand);
-        return TRUE;
+            SetClassLong(GetDlgItem(hDlg, IDC_LINK), GCL_HCURSOR, (long) hCursorHand);
+            return TRUE;
+        }
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))
@@ -72,7 +61,7 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             EndDialog(hDlg, TRUE);
             break;
         case IDC_LINK:
-            ShellExecute(hDlg, "open", "http://www.dscaler.org/", NULL, NULL, SW_SHOWNORMAL);
+            ShellExecute(hDlg, _T("open"), _T("http://www.dscaler.org/"), NULL, NULL, SW_SHOWNORMAL);
             break;
         default:
             break;
@@ -84,7 +73,23 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 }
 
 
-LPCSTR GetProductNameAndVersion()
+tstring GetProductNameAndVersion()
 {
-    return "DScaler Version "  VERSTRING;
+    return MBCSToTString("DScaler Version " VERSTRING);
+}
+
+tstring GetProductNameAndVersionFull()
+{
+    std::string Result("DScaler Version ");
+
+    Result += VERSTRING;
+    Result += " Compiled ";
+    Result += __DATE__;
+    Result += " ";
+    Result += __TIME__;
+
+    Result += " Build (";
+    Result += GetSVNBuildString();
+    Result += ")";
+    return MBCSToTString(Result);
 }

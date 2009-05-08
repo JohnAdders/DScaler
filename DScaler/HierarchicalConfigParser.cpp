@@ -48,39 +48,13 @@ CHCParser::~CHCParser()
 {
 }
 
-BOOL CHCParser::ParseLocalFile(const char* filename, void* reportContext)
+BOOL CHCParser::ParseFile(const TCHAR* filename, void* reportContext)
 {
-    return ParseFile(filename, reportContext, TRUE);
-}
-
-BOOL CHCParser::ParseLocalFile(const wchar_t* filename, void* reportContext)
-{
-    return ParseFile(filename, reportContext, TRUE);
-}
-
-BOOL CHCParser::ParseFile(const char* filename, void* reportContext, BOOL localFile)
-{
-    FILE* fp = localFile ? OpenLocalFile(filename) : fopen(filename, "r");
+    FILE* fp = _tfopen(filename, _T("r"));
     if (fp == NULL)
     {
         m_parseError.clear();
-        SetParseError(FileError() << "Unable to open file '" << filename << "' for reading");
-        return FALSE;
-    }
-
-    BOOL success = ParseFile(fp, reportContext);
-    fclose(fp);
-
-    return success;
-}
-
-BOOL CHCParser::ParseFile(const wchar_t* filename, void* reportContext, BOOL localFile)
-{
-    FILE* fp = localFile ? OpenLocalFile(filename) : _wfopen(filename, L"r");
-    if (fp == NULL)
-    {
-        m_parseError.clear();
-        SetParseError(FileError() << "Unable to open file '" << filename << "' for reading");
+        SetParseError(FileError() << _T("Unable to open file '") << filename << _T("' for reading"));
         return FALSE;
     }
 
@@ -106,106 +80,25 @@ BOOL CHCParser::ParseFile(FILE* fp, void* reportContext)
     if (!success)
     {
 #ifdef _DEBUG
-        DebugOut(DEBUG_OUT_ERROR, "\n\n");
+        DebugOut(DEBUG_OUT_ERROR, _T("\n\n"));
         DebugOut(DEBUG_OUT_ERROR, m_parseError);
 #endif
     }
 
 #ifdef _DEBUG
-    DebugOut(DEBUG_OUT_ERROR, "\n");
+    DebugOut(DEBUG_OUT_ERROR, _T("\n"));
 #endif
     return success;
 }
 
-BOOL CHCParser::IsUnicodeOS()
-{
-    OSVERSIONINFOEX osvi;
-    DWORDLONG dwlConditionMask = 0;
-
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    osvi.dwMajorVersion = 3;
-
-    // Windows NT (major version 3) and newer supports unicode.
-    // however windows 98 doesn't support the VerfifyVersionInfo function
-    // so we call it via the indirect method
-    DynamicFunctionS3<BOOL, LPOSVERSIONINFOEXA, DWORD, DWORDLONG> lpVerifyVersionInfoA("kernel32.dll", "VerifyVersionInfoA");
-    BOOL result = FALSE;
-    if(lpVerifyVersionInfoA)
-    {
-        result = lpVerifyVersionInfoA(&osvi, VER_MAJORVERSION, dwlConditionMask) != 0;
-    }
-    return result;
-}
-
-FILE* CHCParser::OpenLocalFile(const char* filename)
-{
-    FILE* fp = fopen(filename, "r");
-    if (fp == NULL)
-    {
-        if (IsUnicodeOS())
-        {
-            // If the OS uses unicode filenames, GetModuleFileNameW() should be
-            // used so that path information is not lost.  Otherwise files with
-            // unicode characters in the path will fail to open.  On the other hand,
-            // GetModuleFileNameW() and _wfopen() will probably not work on OSes
-            // that do not support unicode (95/98/Me).
-            wchar_t wfilename[MAX_PATH];
-
-            if (MultiByteToWideChar(CP_ACP, 0, filename, -1, wfilename, MAX_PATH))
-            {
-                wchar_t* buffer = new wchar_t[MAX_PATH+wcslen(wfilename)];
-
-                GetModuleFileNameW(NULL, buffer, MAX_PATH);
-                wcscpy(wcsrchr(buffer, L'\\')+1, wfilename);
-
-                fp = _wfopen(buffer, L"r");
-                delete [] buffer;
-            }
-        }
-        else
-        {
-            char* buffer = new char[MAX_PATH+strlen(filename)];
-
-            GetModuleFileNameA(NULL, buffer, MAX_PATH);
-            strcpy(strrchr(buffer, '\\')+1, filename);
-
-            fp = fopen(buffer, "r");
-            delete [] buffer;
-        }
-    }
-    return fp;
-}
-
-FILE* CHCParser::OpenLocalFile(const wchar_t* filename)
-{
-    FILE* fp = _wfopen(filename, L"r");
-    if (fp == NULL)
-    {
-        wchar_t* buffer = new wchar_t[MAX_PATH+wcslen(filename)];
-
-        GetModuleFileNameW(NULL, buffer, MAX_PATH);
-        wcscpy(wcsrchr(buffer, L'\\')+1, filename);
-
-        fp = _wfopen(filename, L"r");
-        delete [] buffer;
-    }
-    return fp;
-}
-
-string CHCParser::GetError()
+tstring CHCParser::GetError()
 {
     return m_parseError.str();
 }
 
-wstring CHCParser::GetErrorUnicode()
+int CHCParser::Str2Int(const TCHAR* text)
 {
-    return m_parseError.wstr();
-}
-
-int CHCParser::Str2Int(const char* text)
-{
-    const char* c = text;
+    const TCHAR* c = text;
     int n = 0;
     BOOL negative = FALSE;
 
@@ -303,18 +196,18 @@ void CHCParser::SetParseError(ParseError& error)
 
     if (error.type() == PARSE_ERROR_LINE || error.type() == PARSE_ERROR_POINT)
     {
-        m_parseError << "Error on line " <<    m_lineNumber;
+        m_parseError << _T("Error on line ") <<    m_lineNumber;
         if (error.type() == PARSE_ERROR_POINT && m_linePoint != NULL)
         {
-            m_parseError << " character " << (long)(m_linePoint - m_lineBuffer)+1;
+            m_parseError << _T(" character ") << (long)(m_linePoint - m_lineBuffer)+1;
         }
     }
     else
     {
-        m_parseError << "Error";
+        m_parseError << _T("Error");
     }
 
-    m_parseError << ": " << error.wstr();
+    m_parseError << _T(": ") << error.str();
 }
 
 long CHCParser::ReadLineIntoBuffer(FILE* fp)
@@ -348,7 +241,7 @@ long CHCParser::ReadLineIntoBuffer(FILE* fp)
             }
             if (m_linePoint >= m_lineBuffer + MAX_LINE_LENGTH-1)
             {
-                SetParseError(LineError() << "Line is too long");
+                SetParseError(LineError() << _T("Line is too long"));
                 return -1;
             }
 
@@ -363,7 +256,7 @@ long CHCParser::ReadLineIntoBuffer(FILE* fp)
         m_bufferLength = fread(m_readBuffer, 1, MAX_READ_BUFFER, fp);
         if (m_bufferLength != MAX_READ_BUFFER && !feof(fp))
         {
-            SetParseError(FileError() << "File I/O error while reading");
+            SetParseError(FileError() << _T("File I/O error while reading"));
             return -1;
         }
 
@@ -420,11 +313,11 @@ BOOL CHCParser::ProcessStream(FILE* fp)
     {
         if (m_parseStates.front().expect & EXPECT_CLOSE_V)
         {
-            SetParseError(LineError() << "EOF while expecting ')'");
+            SetParseError(LineError() << _T("EOF while expecting ')'"));
         }
         else
         {
-            SetParseError(LineError() << "EOF while expecting '}'");
+            SetParseError(LineError() << _T("EOF while expecting '}'"));
         }
         return FALSE;
     }
@@ -448,24 +341,10 @@ BOOL CHCParser::ProcessStream(FILE* fp)
 void CHCParser::DebugOut(int level, ParseError& error, BOOL appendExpect)
 {
 #ifdef _DEBUG
-    if (level <= m_debugOutLevel)
-    {
-        ParseError pe;
-
-        pe << error.wstr();
-
-        if (appendExpect && m_debugOutLevel >= DEBUG_OUT_EXPECT)
-        {
-            pe << "[";
-            AddExpectLine(pe, TRUE);
-            pe << "]";
-        }
-        cout << pe.str();
-    }
 #endif
 }
 
-void CHCParser::DebugOut(int level, const char* message, BOOL appendExpect)
+void CHCParser::DebugOut(int level, const TCHAR* message, BOOL appendExpect)
 {
 #ifdef _DEBUG
     DebugOut(level, ParseError() << message, appendExpect);
@@ -556,18 +435,18 @@ BOOL CHCParser::ProcessLine()
             if (m_parseError.empty())
             {
                 PointError pe;
-                pe << "Given value not a valid";
+                pe << _T("Given value not a valid");
                 if (m_parseStates.front().parseTags->parseTypes & PARSE_STRING)
                 {
-                    pe << " string";
+                    pe << _T(" tstring");
                 }
                 if (m_parseStates.front().parseTags->parseTypes & PARSE_NUMERIC)
                 {
-                    pe << " numeric";
+                    pe << _T(" numeric");
                 }
                 if (m_parseStates.front().parseTags->parseTypes & PARSE_CONSTANT)
                 {
-                    pe << " constant";
+                    pe << _T(" constant");
                 }
                 SetParseError(pe);
                 return FALSE;
@@ -579,11 +458,11 @@ BOOL CHCParser::ProcessLine()
             PointError pe;
             if (*m_linePoint < 0x20)
             {
-                pe << "Unexpected character \\" << (int)*m_linePoint << " expecting ";
+                pe << _T("Unexpected character \\") << (int)*m_linePoint << _T(" expecting ");
             }
             else
             {
-                pe << "Unexpected character '" << *m_linePoint << "' expecting ";
+                pe << _T("Unexpected character '") << *m_linePoint << _T("' expecting ");
             }
 
             AddExpectLine(pe);
@@ -593,7 +472,7 @@ BOOL CHCParser::ProcessLine()
     }
 
 #ifdef _DEBUG
-    DebugOut(DEBUG_OUT_EXPECT, " EOL", TRUE);
+    DebugOut(DEBUG_OUT_EXPECT, _T(" EOL"), TRUE);
 #endif
     if (m_parseStates.front().expect & EXPECT_CLOSE_EOL)
     {
@@ -656,14 +535,14 @@ long CHCParser::GetNextIterateValuesIndex()
 
 void CHCParser::AddExpectLine(ParseError& pe, BOOL debugging)
 {
-    const char* namesReadable[EXPECT_MAX] = { "", "tag-name",
-        "value", "'='", "','", "'('", "')'", "'{'", "'}'", "EOL", "','" };
-    const char* namesDebug[EXPECT_MAX] = { "se", "ta", "va", "eq",
-        "co", "ov", "cv", "ol", "cl", "ec", "ce" };
+    const TCHAR* namesReadable[EXPECT_MAX] = { _T(""), _T("tag-name"),
+        _T("value"), _T("'='"), _T("','"), _T("'('"), _T("')'"), _T("'{'"), _T("'}'"), _T("EOL"), _T("','") };
+    const TCHAR* namesDebug[EXPECT_MAX] = { _T("se"), _T("ta"), _T("va"), _T("eq"),
+        _T("co"), _T("ov"), _T("cv"), _T("ol"), _T("cl"), _T("ec"), _T("ce") };
 
-    const char** names = debugging ? namesDebug : namesReadable;
-    const char* comma = debugging ? "," : ", ";
-    const char* lastComma = debugging ? "," : " or ";
+    const TCHAR** names = debugging ? namesDebug : namesReadable;
+    const TCHAR* comma = debugging ? _T(",") : _T(", ");
+    const TCHAR* lastComma = debugging ? _T(",") : _T(" or ");
 
     unsigned short expect = m_parseStates.front().expect;
     int last = -1;
@@ -695,7 +574,7 @@ void CHCParser::AddExpectLine(ParseError& pe, BOOL debugging)
     }
     else if (!debugging)
     {
-        pe << " end-of-file";
+        pe << _T(" end-of-file");
     }
 }
 
@@ -720,18 +599,18 @@ BOOL CHCParser::ProcessSection()
         return FALSE;
     }
 
-    char* parseStart = ++m_linePoint;
+    TCHAR* parseStart = ++m_linePoint;
     for ( ; *m_linePoint != '\0' && *m_linePoint != ']'; m_linePoint++) ;
 
     if (*m_linePoint == '\0')
     {
-        SetParseError(PointError() << "End of line before ']'");
+        SetParseError(PointError() << _T("End of line before ']'"));
         return FALSE;
     }
 
     while (*(m_linePoint+1) != '\0')
     {
-        char* lastPoint = m_linePoint;
+        TCHAR* lastPoint = m_linePoint;
         for (m_linePoint++; IsSpace(*m_linePoint); m_linePoint++) ;
 
         if (*m_linePoint == '\0')
@@ -744,7 +623,7 @@ BOOL CHCParser::ProcessSection()
 
         if (*m_linePoint == '\0')
         {
-            SetParseError(PointError() << "Trailing garbage after ']'");
+            SetParseError(PointError() << _T("Trailing garbage after ']'"));
             return FALSE;
         }
     }
@@ -774,7 +653,7 @@ BOOL CHCParser::ProcessSection()
 
 BOOL CHCParser::ProcessTag()
 {
-    char* parseStart = m_linePoint;
+    TCHAR* parseStart = m_linePoint;
     for (m_linePoint++; IsAlnum(*m_linePoint); m_linePoint++) ;
 
     if (!IsSpace(*m_linePoint) && !IsDelim(*m_linePoint) && *m_linePoint != '\0')
@@ -782,7 +661,7 @@ BOOL CHCParser::ProcessTag()
         return FALSE;
     }
 
-    char delim = *m_linePoint;
+    TCHAR delim = *m_linePoint;
     *m_linePoint = '\0';
 
     if (m_parseStates.front().paramIndex != -1)
@@ -800,7 +679,7 @@ BOOL CHCParser::ProcessTag()
         parseTag = m_parseStates.front().parseTags;
         for ( ; parseTag->tagName != NULL; parseTag++)
         {
-            if (_stricmp(parseTag->tagName, parseStart) == 0)
+            if (_tcsicmp(parseTag->tagName, parseStart) == 0)
             {
                 break;
             }
@@ -821,7 +700,7 @@ BOOL CHCParser::ProcessTag()
     if (parseTag->tagName == NULL)
     {
         // unrecognized tag
-        for (char* p = parseStart; *p != '\0'; p++)
+        for (TCHAR* p = parseStart; *p != '\0'; p++)
         {
             if (*p < 0x20)
             {
@@ -829,13 +708,13 @@ BOOL CHCParser::ProcessTag()
             }
         }
 
-        SetParseError(PointError() << "Unrecognized tag '" << parseStart << "'");
+        SetParseError(PointError() << _T("Unrecognized tag '") << parseStart << _T("'"));
         return FALSE;
     }
     *m_linePoint = delim;
 
 #ifdef _DEBUG
-    DebugOut(DEBUG_OUT_REPORT, "\n");
+    DebugOut(DEBUG_OUT_REPORT, _T("\n"));
 #endif
 
     if (!ReportTag(parseTag))
@@ -848,7 +727,7 @@ BOOL CHCParser::ProcessTag()
 BOOL CHCParser::ProcessOpenTagListBracket()
 {
 #ifdef _DEBUG
-    DebugOut(DEBUG_OUT_EXPECT, " {");
+    DebugOut(DEBUG_OUT_EXPECT, _T(" {"));
 #endif
     return OpenTagList(TRUE);
 }
@@ -856,7 +735,7 @@ BOOL CHCParser::ProcessOpenTagListBracket()
 BOOL CHCParser::ProcessCloseTagListBracket()
 {
 #ifdef _DEBUG
-    DebugOut(DEBUG_OUT_EXPECT, " }");
+    DebugOut(DEBUG_OUT_EXPECT, _T(" }"));
 #endif
     while (!m_parseStates.front().bracketOpened)
     {
@@ -870,13 +749,13 @@ BOOL CHCParser::ProcessCloseTagListBracket()
 
 BOOL CHCParser::ProcessOpenValueBracket()
 {
-    DebugOut(DEBUG_OUT_EXPECT, " (");
+    DebugOut(DEBUG_OUT_EXPECT, _T(" ("));
     return OpenValue(TRUE);
 }
 
 BOOL CHCParser::ProcessCloseValueBracket()
 {
-    DebugOut(DEBUG_OUT_EXPECT, " )");
+    DebugOut(DEBUG_OUT_EXPECT, _T(" )"));
     while (!m_parseStates.front().bracketOpened)
     {
         if (!CloseValue())
@@ -890,7 +769,7 @@ BOOL CHCParser::ProcessCloseValueBracket()
 
 BOOL CHCParser::ProcessComma()
 {
-    DebugOut(DEBUG_OUT_EXPECT, ",");
+    DebugOut(DEBUG_OUT_EXPECT, _T(","));
     while (1)
     {
         if (m_parseStates.front().paramIndex != -1)
@@ -923,7 +802,7 @@ BOOL CHCParser::ProcessComma()
 
 BOOL CHCParser::ProcessEqual()
 {
-    DebugOut(DEBUG_OUT_EXPECT, " =");
+    DebugOut(DEBUG_OUT_EXPECT, _T(" ="));
 
     if (m_parseStates.front().expect & EXPECT_OPEN_V)
     {
@@ -937,13 +816,13 @@ BOOL CHCParser::ProcessEqual()
 
     m_parseStates.front().expect &= ~EXPECT_EQUAL;
     m_parseStates.front().expect |= EXPECT_CLOSE_EOL|EXPECT_CLOSE_COMMA;
-    DebugOut(DEBUG_OUT_EXPECT, "", TRUE);
+    DebugOut(DEBUG_OUT_EXPECT, _T(""), TRUE);
     return TRUE;
 }
 
 BOOL CHCParser::ProcessValue()
 {
-    DebugOut(DEBUG_OUT_EXPECT, " Value");
+    DebugOut(DEBUG_OUT_EXPECT, _T(" Value"));
 
     if (m_parseStates.front().paramIndex != -1)
     {
@@ -963,12 +842,12 @@ BOOL CHCParser::ProcessValue()
     {
         if (m_parseStates.front().parseTags->parseTypes & PARSE_STRING)
         {
-            char* parseStart = ++m_linePoint;
+            TCHAR* parseStart = ++m_linePoint;
             for ( ; *m_linePoint != '\0' && *m_linePoint != '"'; m_linePoint++) ;
 
             if (*m_linePoint == '\0')
             {
-                SetParseError(PointError() << "End of line before closing '\"'");
+                SetParseError(PointError() << _T("End of line before closing '\"'"));
                 return FALSE;
             }
 
@@ -983,10 +862,10 @@ BOOL CHCParser::ProcessValue()
     {
         if (m_parseStates.front().parseTags->parseTypes & (PARSE_CONSTANT|PARSE_NUMERIC))
         {
-            char* parseStart = m_linePoint;
+            TCHAR* parseStart = m_linePoint;
             for ( ; IsAlnum(*m_linePoint); m_linePoint++) ;
 
-            char delim = *m_linePoint;
+            TCHAR delim = *m_linePoint;
             *m_linePoint = '\0';
 
             if (!AcceptValue(m_parseStates.front().parseTags,
@@ -1005,14 +884,14 @@ BOOL CHCParser::ProcessValue()
 }
 
 BOOL CHCParser::AcceptValue(const CParseTag* parseTag, unsigned char types,
-                                   char* value, unsigned long length)
+                                   TCHAR* value, unsigned long length)
 {
     _ASSERT(types & (PARSE_STRING|PARSE_CONSTANT|PARSE_NUMERIC));
 
     if (length > m_parseStates.front().parseTags->maxParseLength)
     {
-        SetParseError(PointError() << "Value length of '" << parseTag->tagName <<
-            "' " << length << " is longer than limit(" << parseTag->maxParseLength << ")");
+        SetParseError(PointError() << _T("Value length of '") << parseTag->tagName <<
+            _T("' ") << length << _T(" is longer than limit(") << parseTag->maxParseLength << _T(")"));
         return FALSE;
     }
 
@@ -1021,7 +900,7 @@ BOOL CHCParser::AcceptValue(const CParseTag* parseTag, unsigned char types,
         const CParseConstant* pc = parseTag->attributes.constants;
         for ( ; pc->constant != NULL; pc++)
         {
-            if (_stricmp(pc->constant, value) == 0)
+            if (_tcsicmp(pc->constant, value) == 0)
             {
                 break;
             }
@@ -1034,7 +913,7 @@ BOOL CHCParser::AcceptValue(const CParseTag* parseTag, unsigned char types,
     }
     if (types & PARSE_NUMERIC)
     {
-        char* c = value;
+        TCHAR* c = value;
         if (*c == '-')
         {
             c++;
@@ -1074,7 +953,7 @@ void CHCParser::InitializeParseState()
     m_parseStates.clear();
 
     memset(m_rootParent, 0, sizeof(m_rootParent));
-    m_rootParent[0].tagName                = "";
+    m_rootParent[0].tagName                = _T("");
     m_rootParent[0].parseTypes            = PARSE_CHILDREN;
     m_rootParent[0].maxParseLength        = 1;
     m_rootParent[0].attributes.subTags    = m_tagListEntry;
@@ -1136,7 +1015,7 @@ BOOL CHCParser::OpenTag(long tagIndex)
         m_parseStates.front().expect |= EXPECT_NEXT_COMMA;
     }
 
-    DebugOut(DEBUG_OUT_EXPECT, ":OT", TRUE);
+    DebugOut(DEBUG_OUT_EXPECT, _T(":OT"), TRUE);
     return TRUE;
 }
 
@@ -1156,8 +1035,8 @@ BOOL CHCParser::CloseTag(BOOL openNext)
             {
                 if (m_parseStates.front().openedTagParamCounts[i] < parseTag->attributes.subTags[i].minimumNumber)
                 {
-                    SetParseError(LineError() << "Number of '" << parseTag->attributes.subTags[i].tagName <<
-                        "' specified is less than limit(" << parseTag->attributes.subTags[i].minimumNumber << ")");
+                    SetParseError(LineError() << _T("Number of '") << parseTag->attributes.subTags[i].tagName <<
+                        _T("' specified is less than limit(") << parseTag->attributes.subTags[i].minimumNumber << _T(")"));
                     return FALSE;
                 }
             }
@@ -1184,7 +1063,7 @@ BOOL CHCParser::CloseTag(BOOL openNext)
         }
     }
 
-    DebugOut(DEBUG_OUT_EXPECT, ":CT", TRUE);
+    DebugOut(DEBUG_OUT_EXPECT, _T(":CT"), TRUE);
     return TRUE;
 }
 
@@ -1203,8 +1082,8 @@ BOOL CHCParser::OpenValue(BOOL withBracket)
 
     if (++(*m_parseStates.front().paramCounts)[paramIndex] > maxValuesCount)
     {
-        SetParseError(PointError() << "Number of values for '" <<
-            parseTag->tagName << "' has exceeded its limit(" << maxValuesCount << ")");
+        SetParseError(PointError() << _T("Number of values for '") <<
+            parseTag->tagName << _T("' has exceeded its limit(") << maxValuesCount << _T(")"));
         return FALSE;
     }
 
@@ -1238,7 +1117,7 @@ BOOL CHCParser::OpenValue(BOOL withBracket)
         parseState.iterateValues = TRUE;
         parseState.parseTags = parseTag->attributes.subTags;
         m_parseStates.push_front(parseState);
-        DebugOut(DEBUG_OUT_EXPECT, ":OV", TRUE);
+        DebugOut(DEBUG_OUT_EXPECT, _T(":OV"), TRUE);
 
         long firstIndex = GetNextIterateValuesIndex();
         if (firstIndex != -1)
@@ -1262,7 +1141,7 @@ BOOL CHCParser::OpenValue(BOOL withBracket)
         parseState.parseTags = parseTag;
         parseState.expect |= EXPECT_VALUE;
         m_parseStates.push_front(parseState);
-        DebugOut(DEBUG_OUT_EXPECT, ":OV", TRUE);
+        DebugOut(DEBUG_OUT_EXPECT, _T(":OV"), TRUE);
     }
     return TRUE;
 }
@@ -1280,8 +1159,8 @@ BOOL CHCParser::OpenTagList(BOOL withBracket)
         {
             if (++(*m_parseStates.front().paramCounts)[paramIndex] > parseTag->maxParseLength)
             {
-                SetParseError(PointError() << "Number of values for " <<
-                    parseTag->tagName << " has exceeded its limit(" << parseTag->maxParseLength << ")");
+                SetParseError(PointError() << _T("Number of values for ") <<
+                    parseTag->tagName << _T(" has exceeded its limit(") << parseTag->maxParseLength << _T(")"));
                 return FALSE;
             }
         }
@@ -1316,7 +1195,7 @@ BOOL CHCParser::OpenTagList(BOOL withBracket)
     parseState.expect |= EXPECT_TAG|(withBracket ? 0 : EXPECT_SECTION);
     m_parseStates.push_front(parseState);
 
-    DebugOut(DEBUG_OUT_EXPECT, ":OL", TRUE);
+    DebugOut(DEBUG_OUT_EXPECT, _T(":OL"), TRUE);
     return TRUE;
 }
 
@@ -1351,7 +1230,7 @@ BOOL CHCParser::CloseValue()
         }
     }
 
-    DebugOut(DEBUG_OUT_EXPECT, ":CV", TRUE);
+    DebugOut(DEBUG_OUT_EXPECT, _T(":CV"), TRUE);
     return TRUE;
 }
 
@@ -1365,7 +1244,7 @@ BOOL CHCParser::ReportOpen(const CParseTag* parseTag)
     if (*parseTag->tagName != '\0')
     {
 #ifdef _DEBUG
-        DebugOut(DEBUG_OUT_REPORT, ParseError() << parseTag->tagName << "<");
+        DebugOut(DEBUG_OUT_REPORT, ParseError() << parseTag->tagName << _T("<"));
 #endif
     }
     return ReportValue(parseTag, 0, NULL, REPORT_OPEN);
@@ -1375,7 +1254,7 @@ BOOL CHCParser::ReportClose(const CParseTag* parseTag)
 {
     if (*parseTag->tagName != '\0')
     {
-        DebugOut(DEBUG_OUT_REPORT, ">");
+        DebugOut(DEBUG_OUT_REPORT, _T(">"));
     }
     return ReportValue(parseTag, 0, NULL, REPORT_CLOSE);
 }
@@ -1388,18 +1267,18 @@ BOOL CHCParser::ReportValue(const CParseTag* parseTag, unsigned char type,
     {
         switch (type)
         {
-        case PARSE_CONSTANT: DebugOut(DEBUG_OUT_REPORT, "Constant"); break;
-        case PARSE_NUMERIC: DebugOut(DEBUG_OUT_REPORT, "Numeric"); break;
-        case PARSE_STRING: DebugOut(DEBUG_OUT_REPORT, "String"); break;
+        case PARSE_CONSTANT: DebugOut(DEBUG_OUT_REPORT, _T("Constant")); break;
+        case PARSE_NUMERIC: DebugOut(DEBUG_OUT_REPORT, _T("Numeric")); break;
+        case PARSE_STRING: DebugOut(DEBUG_OUT_REPORT, _T("String")); break;
         }
 
         if (value->GetString() != NULL)
         {
-            DebugOut(DEBUG_OUT_REPORT, ParseError() << "=" << value->GetString());
+            DebugOut(DEBUG_OUT_REPORT, ParseError() << _T("=") << value->GetString());
         }
         else
         {
-            DebugOut(DEBUG_OUT_REPORT, ParseError() << "=" << value->GetNumber());
+            DebugOut(DEBUG_OUT_REPORT, ParseError() << _T("=") << value->GetNumber());
         }
     }
 #endif
@@ -1430,11 +1309,7 @@ BOOL CHCParser::ReportValue(const CParseTag* parseTag, unsigned char type,
         try {
             (readProc)(report, parseTag, type, value, m_reportContext);
         }
-        catch (string error) {
-            SetParseError(PointError() << error.c_str());
-            return FALSE;
-        }
-        catch (wstring error) {
+        catch (tstring error) {
             SetParseError(PointError() << error.c_str());
             return FALSE;
         }
@@ -1453,7 +1328,7 @@ CParseValue::CParseValue() :
 {
 }
 
-CParseValue::CParseValue(const char* str) :
+CParseValue::CParseValue(const TCHAR* str) :
     m_string(str),
     m_number(0)
 {
@@ -1470,7 +1345,7 @@ CParseValue::~CParseValue()
 {
 }
 
-const char* CParseValue::GetString() const
+const TCHAR* CParseValue::GetString() const
 {
     return m_string;
 }
@@ -1489,7 +1364,7 @@ int CParseValue::GetNumber() const
 // CParseConstant
 //////////////////////////////////////////////////////////////////////////
 
-CParseConstant::CParseConstant(const char* constant, CParseValue value)
+CParseConstant::CParseConstant(const TCHAR* constant, CParseValue value)
 {
     this->constant    = constant;
     this->value        = value;
@@ -1500,7 +1375,7 @@ CParseConstant::CParseConstant(const char* constant, CParseValue value)
 // CParseTag
 //////////////////////////////////////////////////////////////////////////
 
-CParseTag::CParseTag(const char* tagName, unsigned char parseTypes,
+CParseTag::CParseTag(const TCHAR* tagName, unsigned char parseTypes,
                      unsigned char minimumNumber,unsigned long maxLength,
                      CAttributes attributes, ParseReadProc* readProc)
 {
@@ -1519,7 +1394,7 @@ CParseTag::CParseTag(const char* tagName, unsigned char parseTypes,
 
 void CHCParser::ParseError::clear()
 {
-    m_oss.str(L"");
+    m_oss.str(_T(""));
 }
 
 BOOL CHCParser::ParseError::empty()
@@ -1527,39 +1402,7 @@ BOOL CHCParser::ParseError::empty()
     return m_oss.str().size() == 0;
 }
 
-string CHCParser::ParseError::str()
-{
-    char buffer[512];
-
-    // Convert the wchar_t to ANSI characters
-    if (!WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS,
-        m_oss.str().c_str(), -1, buffer, sizeof(buffer), NULL, NULL))
-    {
-        // may fail on early OSes so fall back to some older behaviour
-        if (!WideCharToMultiByte(CP_ACP, WC_DEFAULTCHAR,
-            m_oss.str().c_str(), -1, buffer, sizeof(buffer), NULL, NULL))
-        {
-            return std::string("Unicode to multi-byte conversion error.");
-        }
-    }
-    return std::string(buffer);
-}
-
-wstring CHCParser::ParseError::wstr()
+tstring CHCParser::ParseError::str()
 {
     return m_oss.str();
-}
-
-CHCParser::ParseError& CHCParser::ParseError::operator << (const char* s)
-{
-    wchar_t wbuffer[512];
-
-    // Convert const char* to wchar_t*
-    if (!MultiByteToWideChar(CP_ACP, 0, s, -1, wbuffer, sizeof(wbuffer)))
-    {
-        m_oss << L"Multi-byte to unicode conversion error.";
-    }
-
-    m_oss << wbuffer;
-    return *this;
 }

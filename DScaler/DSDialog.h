@@ -29,7 +29,7 @@
 class CDSDialog
 {
 public:
-    CDSDialog(LPCSTR ResourceId);
+    CDSDialog(LPCTSTR ResourceId);
     virtual ~CDSDialog();
     INT_PTR DoModal(HWND hParent);
     HWND Create(HWND hParent);
@@ -38,11 +38,11 @@ public:
 private:
     virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) = 0;
     static BOOL CALLBACK MasterModalDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    LPCSTR m_ResourceId;
+    LPCTSTR m_ResourceId;
     int m_HelpID;
 };
 
-std::string GetDlgItemString(HWND hDlg, int id);
+tstring GetDlgItemString(HWND hDlg, int id);
 int GetDlgItemInt(HWND hDlg, int id);
 void SetDlgItemInt(HWND hDlg, int id, int Value);
 

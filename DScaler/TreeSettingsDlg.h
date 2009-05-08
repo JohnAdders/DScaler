@@ -45,7 +45,7 @@ class CTreeSettingsDlg : public CDSDialog
 {
 // Construction
 public:
-    CTreeSettingsDlg(const std::string& Caption);   // standard constructor
+    CTreeSettingsDlg(const tstring& Caption);   // standard constructor
     virtual ~CTreeSettingsDlg();
 
     /**
@@ -96,7 +96,7 @@ private:
     };
     ///vector of all pages
     std::vector<CPageInfo> m_pages;
-    std::string m_settingsDlgCaption;
+    tstring m_settingsDlgCaption;
     ///current page
     int m_iCurrentPage;
     ///start page

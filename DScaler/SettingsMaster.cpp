@@ -60,7 +60,7 @@
 
 using namespace std;
 
-CSettingsMaster::CSettingsMaster(LPCSTR szIniFile) :
+CSettingsMaster::CSettingsMaster(LPCTSTR szIniFile) :
     m_sIniFile(szIniFile)
 {
 }
@@ -120,7 +120,7 @@ void CSettingsMaster::AddSettings(long MessageIdRoot, GENERICGETSETTING GetSetti
 }
 void CSettingsMaster::LoadOneGroupedSetting(CSimpleSetting* pSetting)
 {
-    string SubSection("");
+    tstring SubSection(_T(""));
 
     CSettingGroup* pGroup = pSetting->GetGroup();
     if(pGroup != NULL)
@@ -143,7 +143,7 @@ void CSettingsMaster::WriteOneGroupedSetting(CSimpleSetting* pSetting)
     {
         if(pGroup->IsGroupActive())
         {
-            string SubSection;
+            tstring SubSection;
             MakeSubSection(SubSection, pGroup);
             if(SubSection.length() > 0)
             {
@@ -186,7 +186,7 @@ void CSettingsMaster::ParseAllSettings(BOOL IsLoad)
     ParseSettingHolder(Providers_GetCurrentSource(), IsLoad);
 }
 
-void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
+void CSettingsMaster::MakeSubSection(tstring& SubSection, CSettingGroup* pGroup)
 {
     static CSettingGroup* LastGroup = NULL;
     static DWORD LastFlags = -1;
@@ -195,7 +195,7 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
         return;
     }
 
-    SubSection = "";
+    SubSection = _T("");
 
     // if we are doing have an audio input check to see if
     // we have any settings by that
@@ -204,7 +204,7 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
         if(pGroup->IsSetByAudioInput() && (SettingsPerChannel_IsPerInput() || SettingsPerChannel_IsPerChannel() || SettingsPerChannel_IsPerFormat()))
         {
             SubSection = m_SourceName;
-            SubSection += "_";
+            SubSection += _T("_");
             SubSection += m_AudioInputName;
             return;
         }
@@ -218,7 +218,7 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
         if(pGroup->IsSetByChannel() && SettingsPerChannel_IsPerChannel())
         {
             SubSection = m_SourceName;
-            SubSection += "_";
+            SubSection += _T("_");
             for(int i(0); i < m_ChannelName.length(); ++i)
             {
                 if(m_ChannelName[i] != '[' && m_ChannelName[i] != ']')
@@ -231,8 +231,8 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
         if(pGroup->IsSetByInput() && SettingsPerChannel_IsPerInput())
         {
             SubSection = m_SourceName;
-            SubSection += "_";
-            SubSection += "Tuner";
+            SubSection += _T("_");
+            SubSection += _T("Tuner");
         }
         if(pGroup->IsSetByFormat() && SettingsPerChannel_IsPerFormat())
         {
@@ -240,7 +240,7 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
             {
                 SubSection = m_SourceName;
             }
-            SubSection += "_";
+            SubSection += _T("_");
             SubSection += m_VideoFormatName;
         }
         return;
@@ -251,7 +251,7 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
         if(pGroup->IsSetByInput() && SettingsPerChannel_IsPerInput())
         {
             SubSection = m_SourceName;
-            SubSection += "_";
+            SubSection += _T("_");
             SubSection += m_VideoInputName;
         }
     }
@@ -264,7 +264,7 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
             {
                 SubSection = m_SourceName;
             }
-            SubSection += "_";
+            SubSection += _T("_");
             SubSection += m_VideoFormatName;
         }
     }
@@ -272,22 +272,22 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
 
 void CSettingsMaster::LoadGroupedSettings()
 {
-//LOG(1, "LoadGroupedSettings m_SourceName %s", m_SourceName.c_str());
-//LOG(1, "LoadGroupedSettings m_VideoInputName %s", m_VideoInputName.c_str());
-//LOG(1, "LoadGroupedSettings m_AudioInputName %s", m_AudioInputName.c_str());
-//LOG(1, "LoadGroupedSettings m_VideoFormatName %s", m_VideoFormatName.c_str());
-//LOG(1, "LoadGroupedSettings m_ChannelName %s", m_ChannelName.c_str());
+//LOG(1, _T("LoadGroupedSettings m_SourceName %s"), m_SourceName.c_str());
+//LOG(1, _T("LoadGroupedSettings m_VideoInputName %s"), m_VideoInputName.c_str());
+//LOG(1, _T("LoadGroupedSettings m_AudioInputName %s"), m_AudioInputName.c_str());
+//LOG(1, _T("LoadGroupedSettings m_VideoFormatName %s"), m_VideoFormatName.c_str());
+//LOG(1, _T("LoadGroupedSettings m_ChannelName %s"), m_ChannelName.c_str());
     ParseAllSettings(TRUE);
 }
 
 
 void CSettingsMaster::SaveGroupedSettings()
 {
-//LOG(1, "SaveGroupedSettings m_SourceName %s", m_SourceName.c_str());
-//LOG(1, "SaveGroupedSettings m_VideoInputName %s", m_VideoInputName.c_str());
-//LOG(1, "SaveGroupedSettings m_AudioInputName %s", m_AudioInputName.c_str());
-//LOG(1, "SaveGroupedSettings m_VideoFormatName %s", m_VideoFormatName.c_str());
-//LOG(1, "SaveGroupedSettings m_ChannelName %s", m_ChannelName.c_str());
+//LOG(1, _T("SaveGroupedSettings m_SourceName %s"), m_SourceName.c_str());
+//LOG(1, _T("SaveGroupedSettings m_VideoInputName %s"), m_VideoInputName.c_str());
+//LOG(1, _T("SaveGroupedSettings m_AudioInputName %s"), m_AudioInputName.c_str());
+//LOG(1, _T("SaveGroupedSettings m_VideoFormatName %s"), m_VideoFormatName.c_str());
+//LOG(1, _T("SaveGroupedSettings m_ChannelName %s"), m_ChannelName.c_str());
     ParseAllSettings(FALSE);
 }
 
@@ -317,7 +317,7 @@ void CSettingsMaster::SetSource(CSource* pSource)
     }
     else
     {
-        m_SourceName = "";
+        m_SourceName = _T("");
     }
 }
 
@@ -329,7 +329,7 @@ void CSettingsMaster::SetChannelName(long NewValue)
     }
     else
     {
-        m_ChannelName = "";
+        m_ChannelName = _T("");
     }
 }
 
@@ -337,11 +337,11 @@ void CSettingsMaster::SetVideoInput(long NewValue)
 {
     if (NewValue>=0)
     {
-        m_VideoInputName = MakeString() << "VideoInput" << NewValue;
+        m_VideoInputName = MakeString() << _T("VideoInput") << NewValue;
     }
     else
     {
-        m_VideoInputName = "";
+        m_VideoInputName = _T("");
     }
 }
 
@@ -349,11 +349,11 @@ void CSettingsMaster::SetAudioInput(long NewValue)
 {
     if (NewValue>=0)
     {
-        m_AudioInputName = MakeString() << "AudioInput" << NewValue;
+        m_AudioInputName = MakeString() << _T("AudioInput") << NewValue;
     }
     else
     {
-        m_AudioInputName = "";
+        m_AudioInputName = _T("");
     }
 }
 
@@ -361,16 +361,16 @@ void CSettingsMaster::SetVideoFormat(long NewValue)
 {
     if (NewValue >= 0 && NewValue < VIDEOFORMAT_LASTONE)
     {
-        m_VideoFormatName = VideoFormatSaveNames[NewValue];
+        m_VideoFormatName = MBCSToTString(VideoFormatSaveNames[NewValue]);
     }
     else
     {
-        m_VideoFormatName = "";
+        m_VideoFormatName = _T("");
     }
-//LOG(1, "m_VideoFormatName %d (%d) ===> %s", NewValue, VIDEOFORMAT_LASTONE, m_VideoFormatName.c_str());
+//LOG(1, _T("m_VideoFormatName %d (%d) ===> %s"), NewValue, VIDEOFORMAT_LASTONE, m_VideoFormatName.c_str());
 }
 
-CSettingGroup* CSettingsMaster::GetGroup(LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)
+CSettingGroup* CSettingsMaster::GetGroup(LPCTSTR szName, DWORD Flags, BOOL IsActiveByDefault)
 {
     for (int i = 0; i < m_SettingsGroups.size(); i++)
     {

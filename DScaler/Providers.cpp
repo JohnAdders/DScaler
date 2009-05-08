@@ -47,7 +47,7 @@ using namespace std;
 
 typedef struct
 {
-    std::string Name;
+    tstring Name;
     SmartPtr<CSource> Object;
     BOOL DisplayInMenu;
 } TSource;
@@ -79,22 +79,22 @@ static long CurrentSource = 0;
 static long DefSourceIdx = -1;
 long InitSourceIdx = -1;
 
-extern char szIniFile[MAX_PATH];
+extern TCHAR szIniFile[MAX_PATH];
 
 void Providers_MixerSetup()
 {
     MessageBox(GetMainWnd(),
-        "The following dialog will allow you to configure how "
-        "DScaler uses the system mixer.  Configuring DScaler to use the "
-        "system mixer allows DScaler to change the volume level and the "
-        "mute state of your sound card by using the Windows mixer.  This is a "
-        "must for cards that do not support these functions in hardware. "
-        "You should specify the line into which your TV card's loopback "
-        "sound cable is attached.\n"
-        "\n"
-        "If you do not wish to let DScaler use the system mixer, leave "
-        "the \"Use the system mixer\" option unchecked.  If unsure, it "
-        "is recommended you use the system mixer.", "Next...", MB_OK);
+        _T("The following dialog will allow you to configure how ")
+        _T("DScaler uses the system mixer.  Configuring DScaler to use the ")
+        _T("system mixer allows DScaler to change the volume level and the ")
+        _T("mute state of your sound card by using the Windows mixer.  This is a ")
+        _T("must for cards that do not support these functions in hardware. ")
+        _T("You should specify the line into which your TV card's loopback ")
+        _T("sound cable is attached.\n")
+        _T("\n")
+        _T("If you do not wish to let DScaler use the system mixer, leave ")
+        _T("the \"Use the system mixer\" option unchecked.  If unsure, it ")
+        _T("is recommended you use the system mixer."), _T("Next..."), MB_OK);
 
     Mixer_SetupDlg(GetMainWnd());
 }
@@ -121,7 +121,7 @@ int Providers_Load(HMENU hMenu)
             Source = new TSource;
             if (BT848Provider->GetSource(i)->GetMenuLabel().empty())
             {
-                Source->Name = "BT848 Card";
+                Source->Name = _T("BT848 Card");
             }
             else
             {
@@ -152,22 +152,22 @@ int Providers_Load(HMENU hMenu)
         // hopefully this will be enought to get a new release out
         if(CX2388xProvider->GetNumberOfSources() > 0)
         {
-            int RegFlag = GetPrivateProfileInt("CX2388x", "UseDShow", -1, szIniFile);
+            int RegFlag = GetPrivateProfileInt(_T("CX2388x"), _T("UseDShow"), -1, szIniFile);
             if(RegFlag == -1)
             {
-                int Resp = MessageBox(GetMainWnd(), " You have a CX2388x card.  There have been several reported instability "
-                    "problems with these cards if we allow the drivers to run.  Beacuse of this you can either run with "
-                    "DScaler's own drivers or with the DShow drivers but not both.  Do you want to use DScaler's own driver?",
-                    "CX2388x Question", MB_YESNO | MB_ICONQUESTION);
+                int Resp = MessageBox(GetMainWnd(), _T(" You have a CX2388x card.  There have been several reported instability ")
+                    _T("problems with these cards if we allow the drivers to run.  Beacuse of this you can either run with ")
+                    _T("DScaler's own drivers or with the DShow drivers but not both.  Do you want to use DScaler's own driver?"),
+                    _T("CX2388x Question"), MB_YESNO | MB_ICONQUESTION);
                 if(Resp == IDYES)
                 {
                     AllowCx2388xDShow = FALSE;
-                    WritePrivateProfileInt("CX2388x", "UseDShow", 0, szIniFile);
+                    WritePrivateProfileInt(_T("CX2388x"), _T("UseDShow"), 0, szIniFile);
                 }
                 else
                 {
                     AllowCx2388xDShow = TRUE;
-                    WritePrivateProfileInt("CX2388x", "UseDShow", 1, szIniFile);
+                    WritePrivateProfileInt(_T("CX2388x"), _T("UseDShow"), 1, szIniFile);
                 }
             }
             else
@@ -181,7 +181,7 @@ int Providers_Load(HMENU hMenu)
             Source = new TSource;
             if (CX2388xProvider->GetSource(i)->GetMenuLabel().empty())
             {
-                Source->Name = "CX Card";
+                Source->Name = _T("CX Card");
             }
             else
             {
@@ -212,7 +212,7 @@ int Providers_Load(HMENU hMenu)
             Source = new TSource;
             if (SAA7134Provider->GetSource(i)->GetMenuLabel().empty())
             {
-                Source->Name = "SAA7134 Card";
+                Source->Name = _T("SAA7134 Card");
             }
             else
             {
@@ -245,7 +245,7 @@ int Providers_Load(HMENU hMenu)
     }
     else
     {
-        ErrorBox("Can't load Hardware Driver, possibly caused by corrupt installation.  Reboot and try again.");
+        ErrorBox(_T("Can't load Hardware Driver, possibly caused by corrupt installation.  Reboot and try again."));
         HardwareDriver = 0L;
     }
 
@@ -255,7 +255,7 @@ int Providers_Load(HMENU hMenu)
         Source = new TSource;
         if (StillProvider->GetSource(i)->GetMenuLabel().empty())
         {
-            Source->Name = "Still";
+            Source->Name = _T("Still");
         }
         else
         {
@@ -270,11 +270,11 @@ int Providers_Load(HMENU hMenu)
     DSProvider = new CDSProvider();
     for(i = 0; i < DSProvider->GetNumberOfSources(); ++i)
     {
-        if(AllowCx2388xDShow || DSProvider->GetSource(i)->IDString().find("VEN_14F1&DEV_88") == string::npos)
+        if(AllowCx2388xDShow || DSProvider->GetSource(i)->IDString().find(_T("VEN_14F1&DEV_88")) == tstring::npos)
         {
             Source = new TSource;
             Source->Name = DSProvider->GetSourceName(i);
-            Source->Name += " (DShow)";
+            Source->Name += _T(" (DShow)");
             Source->Object = DSProvider->GetSource(i);
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
@@ -296,7 +296,7 @@ int Providers_Load(HMENU hMenu)
     DefaultSource = Providers_GetIntroSource();
     if (!DefaultSource || !DefaultSource->IsAccessAllowed())
     {
-        ErrorBox("Can't load file DScaler.d3u or file defined in it");
+        ErrorBox(_T("Can't load file DScaler.d3u or file defined in it"));
 
         // We destroy the source if it exists
         DefSourceIdx = Providers_GetSourceIndex(DefaultSource);
@@ -341,8 +341,8 @@ int Providers_Load(HMENU hMenu)
             MenuItemInfo.cbSize = sizeof (MenuItemInfo);
             MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
             MenuItemInfo.fType = MFT_STRING;
-            MenuItemInfo.dwTypeData = (LPSTR) Sources[n]->Name.c_str();
-            MenuItemInfo.cch = strlen (Sources[n]->Name.c_str());
+            MenuItemInfo.dwTypeData = (LPTSTR) Sources[n]->Name.c_str();
+            MenuItemInfo.cch = _tcslen (Sources[n]->Name.c_str());
             MenuItemInfo.wID = IDM_SOURCE_FIRST + n;
             InsertMenuItem(hSubMenu, GetMenuItemCount(hSubMenu) - 4, TRUE, &MenuItemInfo);
         }
@@ -476,7 +476,7 @@ void Providers_UpdateMenu(HMENU hMenu)
     if(CurrentSource >= 0 && static_cast<size_t>(CurrentSource) < Sources.size())
     {
         // get The name of our menu
-        char Text[256];
+        TCHAR Text[256];
         HMENU hSubMenu = Sources[CurrentSource]->Object->GetSourceMenu();
         GetMenuString(hSubMenu, 0, Text, 256, MF_BYPOSITION);
         // Add the new menu
@@ -488,7 +488,7 @@ void Providers_UpdateMenu(HMENU hMenu)
     else
     {
         // Add an empty new menu
-        InsertMenu(hMenu, 1, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "No source");
+        InsertMenu(hMenu, 1, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), _T("No source"));
     }
 
     RedrawMenuBar(hMenu);
@@ -539,7 +539,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 }
             }
             Start_Capture();
-            MessageBox(hWnd, "Unsupported File Type", "DScaler Warning", MB_OK);
+            MessageBox(hWnd, _T("Unsupported File Type"), _T("DScaler Warning"), MB_OK);
             return TRUE;
         }
     }

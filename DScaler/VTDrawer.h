@@ -125,7 +125,7 @@ private:
     double      m_dAvgHeight;
 
     static COLORREF     m_ColourTable[8];
-    static const char   m_szFontName[32];
+    static const TCHAR  m_szFontName[32];
 };
 
 #endif
@@ -177,7 +177,7 @@ private:
  *
  *    Return type: WORD
  *
- *  Get a string of three number at a screen coordinate.  Return the
+ *  Get a tstring of three number at a screen coordinate.  Return the
  *  number as a hexidecimal page number (mask 0xFFF).
  *  - FindPageNumberAtPoint(TVTPage* pPage, LPRECT lpDisplayRect,
  *                           LPPOINT lpDisplayPoint);
@@ -189,7 +189,7 @@ private:
  *
  *    Return type: WORD
  *
- *  Get a string of three number at a specific row and column.  Return
+ *  Get a tstring of three number at a specific row and column.  Return
  *  the number as a hexidecimal page number (mask 0xFFF).
  *  - FindPageNumberAtRowCol(TVTPage* pPage, WORD wSearchRowCol);
  *

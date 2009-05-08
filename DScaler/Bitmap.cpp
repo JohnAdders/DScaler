@@ -185,7 +185,7 @@ BOOL CBitmapHolder::BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, vector<REC
         // Scan each bitmap pixel from left to right
         for (int x = 0; x < bm.bmWidth; x++)
         {
-            // Search for a continuous range of "non transparent pixels"
+            // Search for a continuous range of _T("non transparent pixels")
             int x0 = x;
             while (x < bm.bmWidth)
             {
@@ -310,10 +310,10 @@ void CBitmapHolder::BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *b
             if ((x+z)>w) {
                 z=w-x;
                 BitBlt(hDC, r->left + x, r->top + y, z, drawy, memdc, startx, startbmy, SRCCOPY);
-                //LOG(2,"DrawBM: (%d,%d,%dx%d) (bm: %d,%d)",r->left+x,r->top+y,z,by,startx,startbmy);
+                //LOG(2,_T("DrawBM: (%d,%d,%dx%d) (bm: %d,%d)"),r->left+x,r->top+y,z,by,startx,startbmy);
             } else {
                 BitBlt(hDC, r->left + x, r->top + y, z, drawy, memdc, startx, startbmy, SRCCOPY);
-                //LOG(2,"DrawBM: (%d,%d,%dx%d) (bm: %d,%d)",r->left+x,r->top+y,z,by,startx,startbmy);
+                //LOG(2,_T("DrawBM: (%d,%d,%dx%d) (bm: %d,%d)"),r->left+x,r->top+y,z,by,startx,startbmy);
             }
             startx = 0;
         }
@@ -330,7 +330,7 @@ void CBitmapHolder::BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *b
 
 void CBitmapHolder::BitmapDraw(HDC hDC, SmartHandle<HBITMAP> hbmp, SmartHandle<HBITMAP> hmask, POINT * bmstart, LPRECT r, int DrawMode)
 {
-    //LOG(2,"DrawBM: to (%d,%d,%dx%d) mode %d",r->left,r->top,r->right-r->left,r->bottom-r->top,DrawMode);
+    //LOG(2,_T("DrawBM: to (%d,%d,%dx%d) mode %d"),r->left,r->top,r->right-r->left,r->bottom-r->top,DrawMode);
     hmask=NULL;
 
     //    DrawMode: 0=Normal; 1=stretch; 2=tiled fill
@@ -390,7 +390,7 @@ void CBitmapHolder::BitmapDraw(HDC hDC, SmartHandle<HBITMAP> hbmp, SmartHandle<H
 
         ::DeleteDC(dcMask);
     } else {
-        //LOG(2,"DrawBM: to (%d,%d,%dx%d) (bm %d,%d)",r->left,r->top,cx,cy,startbmx,startbmy);
+        //LOG(2,_T("DrawBM: to (%d,%d,%dx%d) (bm %d,%d)"),r->left,r->top,cx,cy,startbmx,startbmy);
         if(!DrawMode){
             BitBlt(hDC, r->left,r->top,cx,cy,dcBmp,startbmx,startbmy,SRCCOPY);
         } else {
@@ -424,7 +424,7 @@ SmartHandle<HBITMAP> CBitmapHolder::BitmapCopyPieceRGB(HDC hdestDC, HDC hsrcDC, 
 
 ///\todo: Doesn't work? fix it
 // load *.bmp, *.jpg, *.gif, *.ico, *.emf, or *.wmf files
-SmartHandle<HBITMAP> CBitmapHolder::BitmapLoadFromFile(const char *szFile)
+SmartHandle<HBITMAP> CBitmapHolder::BitmapLoadFromFile(const TCHAR* szFile)
 {
     HBITMAP ret = NULL;
 
@@ -490,7 +490,7 @@ SmartHandle<HBITMAP> CBitmapHolder::BitmapLoadFromFile(const char *szFile)
 ////////////////////////////////////////////////////////////////////////////////
 // Cache for bitmaps from disk /////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-SmartHandle<HBITMAP> CBitmapCache::Read(LPCSTR szFileName)
+SmartHandle<HBITMAP> CBitmapCache::Read(LPCTSTR szFileName)
 {
     if(m_CacheList.find(szFileName) == m_CacheList.end())
     {
@@ -508,7 +508,7 @@ SmartHandle<HBITMAP> CBitmapCache::Read(LPCSTR szFileName)
     }
 }
 
-CBitmapIniInfo::CBitmapIniInfo(string sName) :
+CBitmapIniInfo::CBitmapIniInfo(tstring sName) :
     m_sName(sName),
     m_Result(1)
 {
@@ -525,12 +525,12 @@ CBitmapsFromIniSection::CBitmapsFromIniSection() :
 }
 
 
-void CBitmapsFromIniSection::Register(string sName)
+void CBitmapsFromIniSection::Register(tstring sName)
 {
     m_StateMap[sName] = 0L;
 }
 
-SmartPtr<CBitmapState> CBitmapsFromIniSection::Get(string sName)
+SmartPtr<CBitmapState> CBitmapsFromIniSection::Get(tstring sName)
 {
     return m_StateMap[sName];
 }
@@ -545,17 +545,17 @@ SmartPtr<CBitmapState> CBitmapsFromIniSection::Get(string sName)
      1: at least one item was not found in the ini file
      0: all ok
 */
-int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitmapName, string sBitmapMaskName)
+int CBitmapsFromIniSection::Read(tstring sIniFile, tstring sSection, tstring sBitmapName, tstring sBitmapMaskName)
 {
-    char szBitmapName[100];
-    char szBitmapMaskName[100];
+    TCHAR szBitmapName[100];
+    TCHAR szBitmapMaskName[100];
 
     SmartHandle<HBITMAP> hMainBmp;
     SmartHandle<HBITMAP> hMainBmpMask;
 
     // Load main bitmap
-    GetPrivateProfileString(sSection.c_str(),sBitmapName.c_str(),"",szBitmapName,100-1,sIniFile.c_str());
-    GetPrivateProfileString(sSection.c_str(),sBitmapMaskName.c_str(),"",szBitmapMaskName,100-1,sIniFile.c_str());
+    GetPrivateProfileString(sSection.c_str(),sBitmapName.c_str(),_T(""),szBitmapName,100-1,sIniFile.c_str());
+    GetPrivateProfileString(sSection.c_str(),sBitmapMaskName.c_str(),_T(""),szBitmapMaskName,100-1,sIniFile.c_str());
 
     if (szBitmapName[0] == 0)
     {
@@ -563,11 +563,11 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
         return -1;
     }
 
-    string sFileName;
-    string sPath;
+    tstring sFileName;
+    tstring sPath;
 
-    char szPath[MAX_PATH+1];
-    char *s = NULL;
+    TCHAR szPath[MAX_PATH+1];
+    TCHAR* s = NULL;
     int len = GetFullPathName(sIniFile.c_str(), MAX_PATH, szPath, &s);
     if ((len > 0) && (s!=NULL))
     {
@@ -619,9 +619,9 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
     int Result = -1;
     // Extract bitmaps
 
-    char szVal[200];
-    char szVal2[200];
-    char szExtra[200];
+    TCHAR szVal[200];
+    TCHAR szVal2[200];
+    TCHAR szExtra[200];
     int left,top,right,bottom, x,y;
 
     HDC hsrcDC =  ::CreateCompatibleDC(NULL);
@@ -632,12 +632,12 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
 
     for (StateMap::iterator it = m_StateMap.begin(); it != m_StateMap.end(); ++it)
     {
-        GetPrivateProfileString(sSection.c_str(), it->first.c_str(),"",szVal,200-1,sIniFile.c_str());
-        char *pSrc = szVal;
-        char *pDst = szVal2;
+        GetPrivateProfileString(sSection.c_str(), it->first.c_str(),_T(""),szVal,200-1,sIniFile.c_str());
+        TCHAR* pSrc = szVal;
+        TCHAR* pDst = szVal2;
         while (*pSrc!=0) { if ((*pSrc == ' ') || (*pSrc=='\t')) { pSrc++; } else { *pDst++=*pSrc++; } }
         *pDst = 0;
-        if (szVal2[0]!=0)  //Analyze string
+        if (szVal2[0]!=0)  //Analyze tstring
         {
             SmartHandle<HBITMAP> hBmp;
             SmartHandle<HBITMAP> hBmpMask;
@@ -645,7 +645,7 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
             szExtra[0] = 0;
             x = 0;
             y = 0;
-            if (sscanf_s(szVal2,"%d,%d,%d,%d,%s",&left,&top,&right,&bottom,szExtra) >= 4)
+            if (_stscanf(szVal2,_T("%d,%d,%d,%d,%s"),&left,&top,&right,&bottom,szExtra) >= 4)
             {
                 if ((left>=0) && (top>=0) && (right<=bm.bmWidth) && (bottom<=bm.bmHeight)
                     && (right>left) && (bottom>top))
@@ -660,7 +660,7 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
                         hBmpMask = CBitmapHolder::BitmapCopyPieceRGB(hdestDC, hsrcDC, &rc);
                     }
 
-                    SmartPtr<CBitmapState>& BitmapState(it->second);
+                    SmartPtr<CBitmapState>& BitmapState( (*it).second );
                     BitmapState = new CBitmapState(hBmp, hBmpMask);
                     BitmapState->m_ExtraInfo = szExtra;
                     Result = 0;
@@ -673,7 +673,7 @@ int CBitmapsFromIniSection::Read(string sIniFile, string sSection, string sBitma
             }
             else
             {
-                //LOG(1,"Error in Ini entry '%s' in section '%s' of '%s'",BIList[i].sName.c_str(),sSection.c_str(),sIniFile.c_str());
+                //LOG(1,_T("Error in Ini entry '%s' in section '%s' of '%s'"),BIList[i].sName.c_str(),sSection.c_str(),sIniFile.c_str());
                 //Syntax error
                 Result = -2;
             }

@@ -29,14 +29,15 @@
 SETTING* Debug_GetSetting(DEBUG_SETTING Setting);
 
 #if !defined(NOLOGGING)
+void LOG(int DebugLevel, LPCWSTR format, ...);
 void LOG(int DebugLevel, LPCSTR format, ...);
 #else
 #define LOG
 #endif
 
-// LOGD outputs a string to the debug screen while debugging
+// LOGD outputs a tstring to the debug screen while debugging
 #if defined(_DEBUG)
-void LOGD(LPCSTR format, ...);
+void LOGD(LPCTSTR format, ...);
 #else
 #define LOGD
 #endif

@@ -35,7 +35,7 @@
 
 
 /// The name of the font used to draw
-const char CVTDrawer::m_szFontName[32] = "Arial";
+const TCHAR CVTDrawer::m_szFontName[32] = _T("Arial");
 
 /// The definition of constant colours
 COLORREF CVTDrawer::m_ColourTable[8] =
@@ -819,16 +819,16 @@ HFONT CVTDrawer::MakeFont(HDC hDC, double iSize, double iWidth, LPCTSTR szFaceNa
     HGDIOBJ hSave = SelectObject(hDC, hFont);
 
     SIZE Size;
-    GetTextExtentPoint32(hDC, "W", 1, &Size);
+    GetTextExtentPoint32(hDC, _T("W"), 1, &Size);
     if (bWiden)
     {
         SIZE SizeSmall;
-        GetTextExtentPoint32(hDC, "X", 1, &SizeSmall);
+        GetTextExtentPoint32(hDC, _T("X"), 1, &SizeSmall);
         Size.cx = (Size.cx + 2 * SizeSmall.cx) / 3;
     }
     iWidth = iWidth * 96 / Size.cx;
 
-    GetTextExtentPoint32(hDC, "Wy", 1, &Size);
+    GetTextExtentPoint32(hDC, _T("Wy"), 1, &Size);
     iSize = iSize * 96 / Size.cy;
 
     SelectObject(hDC, hSave);

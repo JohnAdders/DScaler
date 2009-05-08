@@ -74,7 +74,7 @@ CBitmapAsButton::~CBitmapAsButton()
 }
 
 // Create window
-BOOL CBitmapAsButton::Create(string sID, HWND hWndParent, int x, int y, HINSTANCE hInst)
+BOOL CBitmapAsButton::Create(tstring sID, HWND hWndParent, int x, int y, HINSTANCE hInst)
 {
     bFailed = TRUE; //assume the worst
 
@@ -142,7 +142,7 @@ BOOL CBitmapAsButton::Create(string sID, HWND hWndParent, int x, int y, HINSTANC
 }
 
 // Take over the processing/drawing of dialog control
-BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, string sID, HWND hWndParent )
+BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, tstring sID, HWND hWndParent )
 {
     //Restore first if it was already taken over
     RestoreBack(hTakeOver);
@@ -527,7 +527,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         {
             PAINTSTRUCT ps;
             ::BeginPaint(hDlg,&ps);
-            //LOG(2,"BitmapButton: 0x%08x: [%s] wm_paint: %d %d,%d,%d,%d",hDlg,sID.c_str(),ps.fErase,ps.rcPaint.left,ps.rcPaint.top,ps.rcPaint.right,ps.rcPaint.bottom);
+            //LOG(2,_T("BitmapButton: 0x%08x: [%s] wm_paint: %d %d,%d,%d,%d"),hDlg,sID.c_str(),ps.fErase,ps.rcPaint.left,ps.rcPaint.top,ps.rcPaint.right,ps.rcPaint.bottom);
             if (ps.fErase)
             {
                 Draw(ps.hdc,NULL);
@@ -541,7 +541,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         return TRUE;
         break;
     case WM_ERASEBKGND:
-        //LOG(2,"BitmapButton: 0x%08x: [%s] erase bg",hDlg,sID.c_str());
+        //LOG(2,_T("BitmapButton: 0x%08x: [%s] erase bg"),hDlg,sID.c_str());
         return TRUE;
     /////////////////////// Checkbox //////////////////////////////
     /////////////////////// 3/4state //////////////////////////////

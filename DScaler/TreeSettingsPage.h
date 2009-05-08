@@ -44,8 +44,8 @@ public:
      * @param name name used in the tree
      * @param nIDTemplate dialog template id
      */
-    CTreeSettingsPage(const std::string& name,UINT nIDTemplate);   // standard constructor
-    CTreeSettingsPage(const std::string& TreeName,const std::string& HeaderName,UINT nIDTemplate);
+    CTreeSettingsPage(const tstring& name,UINT nIDTemplate);   // standard constructor
+    CTreeSettingsPage(const tstring& TreeName,const tstring& HeaderName,UINT nIDTemplate);
     virtual ~CTreeSettingsPage();
 
     virtual BOOL OnSetActive(HWND hDlg);
@@ -66,12 +66,12 @@ public:
     void GetMinSize(HWND hWnd, int& width, int& height);
 
     /// @return name of this page
-    const std::string& GetName() {return m_name;};
-    const std::string& GetHeaderName() {return m_HeaderName;};
+    const tstring& GetName() {return m_name;};
+    const tstring& GetHeaderName() {return m_HeaderName;};
 
 protected:
-    std::string m_name;
-    std::string m_HeaderName;
+    tstring m_name;
+    tstring m_HeaderName;
     UINT m_dlgID;
 
     int m_minWidth;

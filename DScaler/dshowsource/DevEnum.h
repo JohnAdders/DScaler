@@ -66,23 +66,23 @@ public:
      * @param szName Name of property to get, for example "FriendlyName" for devicename or "CLSID"
      * @return value of property
      */
-    std::string getProperty(std::string szName);
+    tstring getProperty(tstring szName);
 
     /**
-     * @return string representation of current device. Can be used to create a device with createDevice member
+     * @return tstring representation of current device. Can be used to create a device with createDevice member
      */
-    std::string getDisplayName() {return std::string(m_DisplayName);};
+    tstring getDisplayName() {return tstring(m_DisplayName);};
 
     //name of device
-    //string getFriendlyName() {return getProperty("FriendlyName");};
+    //tstring getFriendlyName() {return getProperty("FriendlyName");};
 
     /**
-     * Creates a device from given string.
+     * Creates a device from given tstring.
      * @param displayName name of device (not friendlyname)
      * @param interf interface to return from the device
      * @param device pointer to device
      */
-    static void createDevice(std::string displayName,REFIID interf, void *device);
+    static void createDevice(tstring displayName,REFIID interf, void *device);
 
     /**
      * Default constructor.
@@ -105,7 +105,7 @@ private:
     CComPtr<ICreateDevEnum> m_pSysDevEnum;
     CComPtr<IPropertyBag> m_pPropBag;
 
-    std::string m_DisplayName;
+    tstring m_DisplayName;
 };
 
 #endif // !defined(AFX_DEVENUM_H__480881D3_9016_422D_8B1C_44D23FED26FE__INCLUDED_)

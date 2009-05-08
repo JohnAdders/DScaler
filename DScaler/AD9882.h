@@ -37,7 +37,7 @@ public:
     CAD9882();
 
     BYTE GetVersion();
-    void DumpSettings(LPCSTR Filename);
+    void DumpSettings(LPCTSTR Filename);
 
     void SetRegister(BYTE Register, BYTE Value);
     BYTE GetRegister(BYTE Register);

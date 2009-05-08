@@ -33,10 +33,66 @@ using namespace std;
 static FILE* debugLog = NULL;
 SettingStringValue DebugLogFilename;
 BOOL DebugLogEnabled = FALSE;
+BOOL StampEnabled = FALSE;
 long gDebugLogLevel = 1;
 BOOL FlushAfterEachWrite = FALSE;
 
 #if !defined(NOLOGGING)
+
+void LOG(int DebugLevel, LPCWSTR Format, ...)
+{
+    DWORD SysTime;
+    struct _timeb TimeB;
+    struct tm* Time;
+    wchar_t Stamp[100];
+    va_list Args;
+
+    if (DebugLogEnabled == FALSE && DebugLevel > 0)
+    {
+        return;
+    }
+
+    if (DebugLevel > gDebugLogLevel)
+    {
+        return;
+    }
+
+    if (debugLog == NULL && DebugLogFilename)
+    {
+        tstring FileName(DebugLogFilename);
+        debugLog = _tfopen(FileName.c_str(), _T("w"));
+    }
+
+    if (debugLog == NULL)
+    {
+        return;
+    }
+
+    if(StampEnabled)
+    {
+        SysTime = timeGetTime();
+
+        _ftime(&TimeB);
+        Time = localtime(&TimeB.time);
+        wcsftime(Stamp, 100, L"%y%m%d %H%M%S", Time);
+        fwprintf(debugLog, L"%s.%03d(%03d)", Stamp, TimeB.millitm, SysTime % 1000);
+    }
+
+    for(int i(0); i < DebugLevel + 1; ++i)
+    {
+        fputwc(' ', debugLog);
+    }
+
+    va_start(Args, Format);
+    vfwprintf(debugLog, Format, Args);
+    va_end(Args);
+
+    fputwc('\n', debugLog);
+    if(FlushAfterEachWrite || DebugLevel == 0)
+    {
+        fflush(debugLog);
+    }
+}
 
 void LOG(int DebugLevel, LPCSTR Format, ...)
 {
@@ -58,7 +114,8 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
 
     if (debugLog == NULL && DebugLogFilename)
     {
-        debugLog = fopen(DebugLogFilename, "w");
+        tstring FileName(DebugLogFilename);
+        debugLog = _tfopen(FileName.c_str(), _T("w"));
     }
 
     if (debugLog == NULL)
@@ -66,12 +123,15 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
         return;
     }
 
-    SysTime = timeGetTime();
+    if(StampEnabled)
+    {
+        SysTime = timeGetTime();
 
-    _ftime(&TimeB);
-    Time = localtime(&TimeB.time);
-    strftime(Stamp, sizeof(Stamp), "%y%m%d %H%M%S", Time);
-    fprintf(debugLog, "%s.%03d(%03d)", Stamp, TimeB.millitm, SysTime % 1000);
+        _ftime(&TimeB);
+        Time = localtime(&TimeB.time);
+        strftime(Stamp, 100, "%y%m%d %H%M%S", Time);
+        fprintf(debugLog, "%s.%03d(%03d)", Stamp, TimeB.millitm, SysTime % 1000);
+    }
 
     for(int i(0); i < DebugLevel + 1; ++i)
     {
@@ -88,20 +148,21 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
         fflush(debugLog);
     }
 }
+
 #endif
 
 #ifdef _DEBUG
-void LOGD(LPCSTR Format, ...)
+void LOGD(LPCTSTR Format, ...)
 {
-    char szMessage[2048];
+    TCHAR szMessage[2048];
     va_list Args;
 
     va_start(Args, Format);
-    int result=_vsnprintf(szMessage,2048, Format, Args);
+    int result=_vsntprintf(szMessage,2048, Format, Args);
     va_end(Args);
     if(result==-1)
     {
-        OutputDebugString("DebugString too long, truncated!!\n");
+        OutputDebugString(_T("DebugString too long, truncated!!\n"));
     }
     OutputDebugString(szMessage);
 }
@@ -141,10 +202,16 @@ SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
         "Files", "FlushAfterEachWrite", FlushAfterEachWrite_OnChange,
     },
     {
-        "Debug Log File", CHARSTRING, 0, DebugLogFilename.GetPointer(),
+        "Debug Log File", TCHARSTRING, 0, DebugLogFilename.GetPointer(),
         (long)DEBUGLOGFILENAME, 0, 0, 0, 0,
         NULL,
         "Files", "DebugLogFilename", NULL,
+    },
+    {
+        "Put Time Stamp in Log", ONOFF, 0, (long*)&StampEnabled,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "Files", "StampEnabled", NULL,
     },
 };
 

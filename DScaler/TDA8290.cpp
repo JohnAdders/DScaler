@@ -20,7 +20,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 //
-// Sections in this code were ported from video4linux project's "tda8290c"
+// Sections in this code were ported from video4linux project's _T("tda8290c")
 // file.  Copyright is unspecified.  List of contributers, as reported by
 // CVS accounts follows: kraxel (revision 1.6)
 //
@@ -60,7 +60,7 @@ void CTDA8290::Init(BOOL bPreInit, eVideoFormat videoFormat)
     if (bPreInit)
     {
         /* Write the default value into the CLEAR register. Sets soft reset and
-           standby to the "normal operation" setting. There's no video or audio
+           standby to the _T("normal operation") setting. There's no video or audio
            without this. */
         WriteToSubAddress(TDA8290_CLEAR, 0x1);
 
@@ -93,12 +93,12 @@ void CTDA8290::TunerSet(BOOL bPreSet, eVideoFormat videoFormat)
         // Set video system standard.
         SetVideoSystemStandard(standard);
 
-        // "1.1 Set input ADC register" (data-sheet)
+        // _T("1.1 Set input ADC register") (data-sheet)
         WriteToSubAddress(TDA8290_ADC, 0x14);
-        // "1.2 Increasing IF AGC speed" (data-sheet)
+        // _T("1.2 Increasing IF AGC speed") (data-sheet)
         // This is the register's default value.
         WriteToSubAddress(TDA8290_IF_AGC_SET, 0x88);
-        // "1.3 Set ADC headroom (TDA8290) to nominal" (data-sheet)
+        // _T("1.3 Set ADC headroom (TDA8290) to nominal") (data-sheet)
         if (standard == TDA8290_STANDARD_L || standard == TDA8290_STANDARD_L2)
         {
             // 9dB ADC headroom if standard is L or L'
@@ -183,11 +183,11 @@ BOOL CTDA8290::Detect()
     // too, and maybe it's necessary to perform read tests on other registers.
     if (!ReadFromSubAddress(TDA8290_IDENTITY, &readBuffer, 1))
     {
-        LOG(1, "TDA8290: not detected");
+        LOG(1, _T("TDA8290: not detected"));
         return FALSE;
     }
 
-    LOG(1, "TDA8290: $1F = 02x", readBuffer);
+    LOG(1, _T("TDA8290: $1F = 02x"), readBuffer);
     return TRUE;
 }
 

@@ -94,11 +94,11 @@ BYTE CSAA7118::GetRegister(BYTE Register)
     return Result;
 }
 
-void CSAA7118::DumpSettings(LPCSTR Filename)
+void CSAA7118::DumpSettings(LPCTSTR Filename)
 {
     FILE* hFile;
 
-    hFile = fopen(Filename, "w");
+    hFile = _tfopen(Filename, _T("w"));
     if(!hFile)
     {
         return;
@@ -107,17 +107,17 @@ void CSAA7118::DumpSettings(LPCSTR Filename)
     int i;
     for(i = 0; i < 0x2d; ++i)
     {
-        fprintf(hFile, "%02x\t%02x\n", i, GetRegister(i));
+        _ftprintf(hFile, _T("%02x\t%02x\n"), i, GetRegister(i));
     }
 
     for(i = 0x40; i <= 0x62; ++i)
     {
-        fprintf(hFile, "%02x\t%02x\n", i, GetRegister(i));
+        _ftprintf(hFile, _T("%02x\t%02x\n"), i, GetRegister(i));
     }
 
     for(i = 0x80; i <= 0xBF; ++i)
     {
-        fprintf(hFile, "%02x\t%02x\n", i, GetRegister(i));
+        _ftprintf(hFile, _T("%02x\t%02x\n"), i, GetRegister(i));
     }
 
     fclose(hFile);

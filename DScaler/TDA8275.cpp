@@ -20,7 +20,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 //
-// Sections in this code were ported from video4linux project's "tda8290c"
+// Sections in this code were ported from video4linux project's _T("tda8290c")
 // file.  Copyright is unspecified.  List of contributers, as reported by
 // CVS accounts follows: kraxel (revision 1.6)
 //
@@ -236,17 +236,17 @@ BOOL CTDA8275::IsTDA8275A()
     {
         if ((Result & 0x3C) == 0x08)
         {
-            LOG(1, "TDA8275: TDA8275A revision found.");
+            LOG(1, _T("TDA8275: TDA8275A revision found."));
             return TRUE;
         }
         else
         {
-            LOG(1, "TDA8275: Found.");
+            LOG(1, _T("TDA8275: Found."));
             return FALSE;
         }
     }
 
-    LOG(0, "TDA8275: Error while detecting chip revision.");
+    LOG(0, _T("TDA8275: Error while detecting chip revision."));
     return FALSE;
 }
 
@@ -274,7 +274,7 @@ void CTDA8275::WriteTDA8275Initialization()
         WriteToSubAddress(TDA8275A_CB3, 0x3B);
 
         /*
-        // These values come from the "2/ TDA8275A Initialization"
+        // These values come from the _T("2/ TDA8275A Initialization")
         // code in the data-sheet.  Those that weren't specified
         // there were substituted with default values from the
         // default column of the data-sheet.
@@ -302,7 +302,7 @@ void CTDA8275::WriteTDA8275Initialization()
         WriteToSubAddress(TDA8275_SDB4, 0x40);
 
         /*
-        // These values come from the "2/ TDA827x Initialization"
+        // These values come from the _T("2/ TDA827x Initialization")
         // code in the data-sheet.  Those that weren't specified
         // there were substituted with default values from the
         // default column of the data-sheet.

@@ -34,8 +34,8 @@ class CDSAudioDevicePage : public CTreeSettingsPage
 {
 // Construction
 public:
-    CDSAudioDevicePage(const std::string& name, SmartPtr<CStringSetting> AudioDeviceSetting);   // standard constructor
-    CDSAudioDevicePage(const std::string& name, SmartPtr<CStringSetting> AudioDeviceSetting, BOOL *bConnectAudio);
+    CDSAudioDevicePage(const tstring& name, SmartPtr<CStringSetting> AudioDeviceSetting);   // standard constructor
+    CDSAudioDevicePage(const tstring& name, SmartPtr<CStringSetting> AudioDeviceSetting, BOOL *bConnectAudio);
     ~CDSAudioDevicePage() {};
 
 // Implementation
@@ -50,7 +50,7 @@ private:
     void OnClickedUseDefault(HWND hDlg);
     void OnClickedConnectAudio(HWND hDlg);
 
-    std::vector<std::string> m_DeviceList;
+    std::vector<tstring> m_DeviceList;
     SmartPtr<CStringSetting> m_AudioDeviceSetting;
     BOOL *m_bConnectAudio;
 };

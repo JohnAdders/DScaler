@@ -28,7 +28,7 @@ using namespace std;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CTreeSettingsOleProperties::CTreeSettingsOleProperties(const string& name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid) :
+CTreeSettingsOleProperties::CTreeSettingsOleProperties(const tstring& name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid) :
     CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE),
     m_tabCtrl(NULL)
 {
@@ -199,7 +199,7 @@ LRESULT CTreeSettingsOleProperties::OnSelchangingTreesettingsTab(HWND hDlg, NMHD
     int cursel=TabCtrl_GetCurSel(m_tabCtrl);
     if(!m_pages[cursel]->m_bActivated)
     {
-        ErrorBox("This page can not be activated");
+        ErrorBox(_T("This page can not be activated"));
         return TRUE;
     }
     else

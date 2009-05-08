@@ -142,7 +142,7 @@ void CTDA9887::TunerSet(BOOL bPreSet, eVideoFormat VideoFormat)
 
    if (tda9887set != NULL)
    {
-      LOG(2,"TDA9885/6/7: 0x%02x 0x%02x 0x%02x", tda9887set[2],tda9887set[3],tda9887set[4]);
+      LOG(2,_T("TDA9885/6/7: 0x%02x 0x%02x 0x%02x"), tda9887set[2],tda9887set[3],tda9887set[4]);
       m_I2CBus->Write(tda9887set, 5);
    }
 }
@@ -405,7 +405,7 @@ void CTDA9887Pinnacle::TunerSet(BOOL bPreSet, eVideoFormat videoFormat)
         bData[2] &= ~TDA9887_OutputPort2Inactive;
     }
 
-    LOG(2,"TDA9885/6/7 Pinnacle: 0x%02x 0x%02x 0x%02x", bData[2],bData[3],bData[4]);
+    LOG(2,_T("TDA9885/6/7 Pinnacle: 0x%02x 0x%02x 0x%02x"), bData[2],bData[3],bData[4]);
 
     m_I2CBus->Write(bData, 5);
 }
@@ -499,7 +499,7 @@ void CTDA9887Ex::TunerSet(IN BOOL bPreSet, IN eVideoFormat format)
     eTDA9887Format tdaFormat = VideoFormat2TDA9887Format(format);
     if (tdaFormat == TDA9887_FORMAT_NONE)
     {
-        LOG(2,"CTDA9887Ex: Unsupported video format: %u", format);
+        LOG(2,_T("CTDA9887Ex: Unsupported video format: %u"), format);
     }
     else
     {
@@ -521,7 +521,7 @@ void CTDA9887Ex::TunerSet(IN BOOL bPreSet, IN eTDA9887Format format)
     writeBytes[3] = m_TDASettings[format].c;
     writeBytes[4] = m_TDASettings[format].e;
 
-    LOG(2,"CTDA9887Ex: 0x%02x 0x%02x 0x%02x", writeBytes[2], writeBytes[3], writeBytes[4]);
+    LOG(2,_T("CTDA9887Ex: 0x%02x 0x%02x 0x%02x"), writeBytes[2], writeBytes[3], writeBytes[4]);
     m_I2CBus->Write(writeBytes, 5);
 }
 

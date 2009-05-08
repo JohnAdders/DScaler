@@ -215,6 +215,6 @@ const eTunerId m_TunerHauppaugeAnalog[]=
     TUNER_LG_PAL_TAPE,                  //"LG PAL (TAPE Series)"
 };
 
-extern const char *TunerNames[TUNER_LASTONE];
+extern const TCHAR* TunerNames[TUNER_LASTONE];
 
 #endif // !defined(__TUNERID_H__)

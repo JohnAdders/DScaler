@@ -57,7 +57,7 @@ void IOutput::GetMonitorRect(HWND hWnd, RECT* rect)
 
     GetMonitorInfo(hMonitor, &MonInfo);
     memcpy(rect, &MonInfo.rcMonitor, sizeof(RECT));
-    LOG(2, "GetMonitorRect %d %d %d %d", rect->left, rect->right, rect->top, rect->bottom);
+    LOG(2, _T("GetMonitorRect %d %d %d %d"), rect->left, rect->right, rect->top, rect->bottom);
 }
 
 SETTING* IOutput::GetOtherSettings()

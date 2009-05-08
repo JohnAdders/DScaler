@@ -88,7 +88,7 @@ private:
     typedef struct
     {
         /// Name of the input
-        LPCSTR szName;
+        LPCTSTR szName;
         /// Type of the input
         eInputType InputType;
         /// Which mux on the card is to be used
@@ -98,7 +98,7 @@ private:
     /// Defines the specific settings for a given card
     typedef struct
     {
-        LPCSTR szName;
+        LPCTSTR szName;
         int NumInputs;
         TInputType Inputs[BT_INPUTS_PER_CARD];
         ePLLFreq PLLFreq;
@@ -140,7 +140,7 @@ private:
     {
         DWORD ID;
         eTVCardId CardId;
-        char* szName;
+        TCHAR* szName;
     } TAutoDectect878;
 
 public:
@@ -181,8 +181,8 @@ public:
     void SetColorBars(BOOL ColorBars);
     void SetGammaCorrection(BOOL GammaCorrection);
 
-    std::string GetChipType();
-    std::string GetTunerType();
+    tstring GetChipType();
+    tstring GetTunerType();
 
     void RestartRISCCode(DWORD RiscBasePhysical);
     void SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay);
@@ -231,7 +231,7 @@ public:
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
     void SetAudioStandard(long Standard, eVideoFormat videoformat);
     long GetAudioStandardCurrent();
-    const char* GetAudioStandardName(long Standard);
+    const TCHAR* GetAudioStandardName(long Standard);
     int GetNumAudioStandards();
     long GetAudioStandard(int nIndex);
     long GetAudioStandardMajorCarrier(long Standard);
@@ -245,12 +245,12 @@ public:
     BOOL AutoDetectMSP3400();
 
     BOOL InitTuner(eTunerId tunerId);
-    std::string GetInputName(int nVideoSource);
-    std::string GetCardName(eTVCardId CardId);
+    tstring GetInputName(int nVideoSource);
+    tstring GetCardName(eTVCardId CardId);
     int GetNumInputs();
     BOOL IsInputATuner(int nInput);
     eAudioInput GetAudioInput();
-    LPCSTR GetAudioInputName(eAudioInput nInput);
+    LPCTSTR GetAudioInputName(eAudioInput nInput);
     int GetNumAudioInputs();
 
     BOOL GetHasUseInputPin1();
@@ -319,8 +319,8 @@ private:
 
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
-    std::string m_AudioDecoderType;
-    std::string m_TunerType;
+    tstring m_AudioDecoderType;
+    tstring m_TunerType;
 
     eTVCardId m_CardType;
 

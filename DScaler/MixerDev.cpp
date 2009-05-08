@@ -74,7 +74,7 @@ static void     Mixer_StoreRestoreInputs(long nDestinationIndex, long* pIndexes,
 
 static void     Mixer_DoSettingsTransition(tSyncChangesCallback* pSyncfunc, void* pContext);
 
-static long     Mixer_NameToIndex(char* szName);
+static long     Mixer_NameToIndex(const tstring& szName);
 
 BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
@@ -256,7 +256,7 @@ void Mixer_SetupDlg(HWND hWndParent)
     CSource* source = Providers_GetCurrentSource();
     if ((source == NULL) || !source->IsAudioMixerAccessAllowed())
     {
-        MessageBox(GetMainWnd(), "No audio mixer setup needed for the current source", "DScaler Warning", MB_OK);
+        MessageBox(GetMainWnd(), _T("No audio mixer setup needed for the current source"), _T("DScaler Warning"), MB_OK);
     }
     else
     {
@@ -265,10 +265,10 @@ void Mixer_SetupDlg(HWND hWndParent)
             BOOL bWasInvalidSection = g_bMixerDevInvalidSection;
 
             // This Mixer_SetupDlg(...) function can be called in the early stages of
-            // configuration, before a "current source" is properly set from a raised
+            // configuration, before a _T("current source") is properly set from a raised
             // EVENT_SOURCE_CHANGE event.  As such, g_bMixerDevInvalidSection can be
-            // TRUE to indicate that this file is working with a "null-source".  If
-            // this is the case, temporary set the "current source" based on the return
+            // TRUE to indicate that this file is working with a _T("null-source").  If
+            // this is the case, temporary set the _T("current source") based on the return
             // value of 'source = Providers_GetCurrentSource()'.  (Because there is no
             // point for the user to configure the null-source.)
             if (bWasInvalidSection)
@@ -296,7 +296,7 @@ void Mixer_SetupDlg(HWND hWndParent)
         }
         else
         {
-            MessageBox(GetMainWnd(), "No mixer hardware found", "DScaler Error", MB_OK);
+            MessageBox(GetMainWnd(), _T("No mixer hardware found"), _T("DScaler Error"), MB_OK);
         }
     }
 }
@@ -308,7 +308,7 @@ void Mixer_SetupDlg(HWND hWndParent)
 
 static void Mixer_SetCurrentMixerFromName()
 {
-    Mixer_SetCurrentMixer(Mixer_NameToIndex(g_pMixerName));
+    Mixer_SetCurrentMixer(Mixer_NameToIndex((LPCTSTR)g_pMixerName));
 }
 
 
@@ -459,7 +459,7 @@ static IMixer* LoadSourceSettingsCallback(void* pContext)
 
     if (g_bUseMixer)
     {
-        long nMixerIndex = Mixer_NameToIndex(g_pMixerName);
+        long nMixerIndex = Mixer_NameToIndex((LPCTSTR)g_pMixerName);
 
         if (g_pCurrentMixer != NULL &&
             g_pCurrentMixer->GetIndex() == nMixerIndex)
@@ -568,59 +568,59 @@ static void Mixer_StoreRestoreInputs(long nDestinationIndex, long* pIndexes, lon
 
 // This function handles what happens when audio line selections change.
 //
-// Background: A "Source" in DScaler is CSource object.  One instance of CSource
+// Background: A _T("Source") in DScaler is CSource object.  One instance of CSource
 // is used for each one of these:
 //   - TV card interfaced by DScaler's BT8x8, SAA713x or CX233x bridges.
 //   - TV card or other hardware interfaced using DirectShow (WDM)
 //   - One of the miscellaneous sources such as Patterns of video playback.
 //
-// To avoid confusion, these type of "Sources" will be referred from here as "CSources".
+// To avoid confusion, these type of _T("Sources") will be referred from here as _T("CSources").
 //
-// Example: If I have a "FlyVideo SAA7134" card and a "Medion SAA7134" card,
+// Example: If I have a _T("FlyVideo SAA7134") card and a _T("Medion SAA7134") card,
 // I may have all up five CSources:
-//   - An SAA7134 object for the "FlyVideo SAA7134" card.
-//   - An SAA7134 object for the "Medion SAA7134" card.
-//   - A DirectShow object for the "FlyVideo SAA7134" card.
-//   - A DirectShow object for the "Medion SAA7134" card.
+//   - An SAA7134 object for the _T("FlyVideo SAA7134") card.
+//   - An SAA7134 object for the _T("Medion SAA7134") card.
+//   - A DirectShow object for the _T("FlyVideo SAA7134") card.
+//   - A DirectShow object for the _T("Medion SAA7134") card.
 //   - A Patterns object for display pictures.
 //
-// Each one of the CSources has its own "Audio Mixer" setting.  An audio mixer
+// Each one of the CSources has its own _T("Audio Mixer") setting.  An audio mixer
 // setting consists of:
 //   - Whether it is used or not.
 //   - Which sound device to use for incoming audio.
-//   - Which sound device "destination" to use for incoming audio.
+//   - Which sound device _T("destination") to use for incoming audio.
 //   - Which Audio Lines (aka Audio Source) to use for incoming audio.
-//   - Whether or not to "disable the use of hardware mute".
-//   - Whether to "reset mixer settings on exit".
+//   - Whether or not to _T("disable the use of hardware mute").
+//   - Whether to _T("reset mixer settings on exit").
 //
-// The "Audio Line" are lines such as "Line-In", "Microphone", "CD Audio",
+// The _T("Audio Line") are lines such as _T("Line-In"), _T("Microphone"), _T("CD Audio"),
 // that are provided by the system for each sound device -> destination.
 //
-// Each sound device (a.k.a "mixer") its own set of "destinations" (incoming
-// audio is also considered a "destination") and each "destination" has its
+// Each sound device (a.k.a _T("mixer")) its own set of _T("destinations") (incoming
+// audio is also considered a _T("destination")) and each _T("destination") has its
 // own set of audio lines:
 //
 // Sound Device (CMixer)
-//   -> Destination ("Playback" / "Recording")
-//     -> Audio Lines ("Line In", "Microphone", etc).
+//   -> Destination (_T("Playback") / _T("Recording"))
+//     -> Audio Lines (_T("Line In"), _T("Microphone"), etc).
 //
 // Description:
-// The purpose of this function is so that when the "Audio Mixer" setting
+// The purpose of this function is so that when the _T("Audio Mixer") setting
 // changes (either because CSource changed or because the user reconfigured),
 // all newly required Audio Lines are prepared, and all no longer needed
 // Audio Lines are closed.
 //
-// Example: If my FlyVideo SAA7134 card is configured to use "Line-In" of
-// mixer_1 and my Medion SAA7134 card is configured to use "Auxiliary" of
+// Example: If my FlyVideo SAA7134 card is configured to use _T("Line-In") of
+// mixer_1 and my Medion SAA7134 card is configured to use _T("Auxiliary") of
 // mixer_1, and the current CSource changes from the FlyVideo to Medion,
-// this function needs to close the "Line-In" line and prepare the
-// "Auxiliary" line.
+// this function needs to close the _T("Line-In") line and prepare the
+// _T("Auxiliary") line.
 //
 // If on the other hand, the Medion card is configured to use the same
-// "Line-In" line on mixer_1, no preparation or closing is done.
+// _T("Line-In") line on mixer_1, no preparation or closing is done.
 //
-// An Audio Line is "prepared" by creating the necessary programming objects.
-// It is "closed" by either muting the line, or, if "restore mixer settings
+// An Audio Line is _T("prepared") by creating the necessary programming objects.
+// It is _T("closed") by either muting the line, or, if "restore mixer settings
 // on exit" is set, restoring the mute state to the previous state, then
 // releasing the line's resources.
 //
@@ -684,11 +684,11 @@ static void Mixer_DoSettingsTransition(tSyncChangesCallback* pSyncfunc, void* pC
 }
 
 
-static long Mixer_NameToIndex(char* szName)
+static long Mixer_NameToIndex(const tstring& szName)
 {
     long nMixerIndex = -1;
 
-    if (szName != NULL)
+    if (!szName.empty())
     {
         nMixerIndex = CMixerList::getInstance()->FindMixer(szName);
     }
@@ -919,7 +919,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 static void InitAndNameActiveInputs(HWND hDlg)
 {
     int     nInputCount = 0;
-    string  sInputName;
+    tstring  sInputName;
     CSource* pSource;
     int     i;
 
@@ -935,10 +935,10 @@ static void InitAndNameActiveInputs(HWND hDlg)
     // Set the source line names
     for (i = 0; i < nInputCount; i++)
     {
-        string pName = pSource->GetInputName(VIDEOINPUT, i);
+        tstring pName = pSource->GetInputName(VIDEOINPUT, i);
         if (pName.empty())
         {
-            sInputName = "Input ";
+            sInputName = _T("Input ");
             sInputName += i;
         }
         else
@@ -1075,7 +1075,7 @@ static void RefillMixerDeviceBox(HWND hDlg, long nSelectIndex)
 
     for (int i = 0; i < mixerCount; i++)
     {
-        const char* name = CMixerList::getInstance()->GetMixer(i)->GetName();
+        const TCHAR* name = CMixerList::getInstance()->GetMixer(i)->GetName();
 
         index = ComboBox_AddString(hMixerControl, name);
         ComboBox_SetItemData(hMixerControl, index, i);
@@ -1108,7 +1108,7 @@ static void RefillDestinationBox(HWND hDlg, long nSelectIndex)
     int destinationCount = g_pDlgActiveMixer->GetDestinationCount();
     int recordingLines = 0;
 
-    const char* pValidName = "";
+    const TCHAR* pValidName = _T("");
     int bSelected = FALSE;
     int index;
 
@@ -1174,7 +1174,7 @@ static void RefillSourceBox(HWND hDlg, long nSourceControlId, long nSelectIndex)
         int sourceCount = 0;
         int index;
 
-        index = ComboBox_AddString(hSourceControl, "<None>");
+        index = ComboBox_AddString(hSourceControl, _T("<None>"));
         ComboBox_SetItemData(hSourceControl, index, -1);
 
         ComboBox_SetCurSel(hSourceControl, index);
@@ -1188,9 +1188,9 @@ static void RefillSourceBox(HWND hDlg, long nSourceControlId, long nSelectIndex)
 
         for (int i = 0; i < sourceCount; i++)
         {
-            const char* pName = pLineDst->GetSourceLine(i)->GetName();
+            const TCHAR* pName = pLineDst->GetSourceLine(i)->GetName();
 
-            if (pName == NULL || strcmp(pName, "Error") == 0)
+            if (pName == NULL || _tcscmp(pName, _T("Error")) == 0)
             {
                 continue;
             }
@@ -1222,7 +1222,7 @@ static IMixer* SynchronizeDlgChangesCallback(void* pContext)
     }
     else
     {
-        Setting_SetValue(WM_MIXERDEV_GETVALUE, MIXERNAME, (long)(const char*)"");
+        Setting_SetValue(WM_MIXERDEV_GETVALUE, MIXERNAME, (long)(const char*)_T(""));
         g_nDestinationIndex = -1;
     }
 
@@ -1407,7 +1407,7 @@ static void LongArrayDivide(long* dividend, long *dividendSize,
         }
     }
 
-    // The resulting array was created "in place" over the 'dividend'
+    // The resulting array was created _T("in place") over the 'dividend'
     // array.  Update the correct size of 'dividend' before returning.
     *dividendSize = resultCount;
 }
@@ -1473,7 +1473,7 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
         "Mixer", "Input6Index", NULL,
     },
     {
-        "Mixer Name", CHARSTRING, 0, g_pMixerName.GetPointer(),
+        "Mixer Name", TCHARSTRING, 0, g_pMixerName.GetPointer(),
         (long)"", 0, 0, 0, 0,
         NULL,
         "Mixer", "MixerName", NULL,
@@ -1503,7 +1503,7 @@ void MixerDev_UpdateSettings(CSource* pSource)
     else
     {
         MixerSettings = new CSettingsHolder(WM_MIXERDEV_GETVALUE);
-        string MixerDev_Section(MakeString() << "MixerInput_" << pSource->IDString());
+        tstring MixerDev_Section(MakeString() << _T("MixerInput_") << pSource->IDString());
         g_bMixerDevInvalidSection = FALSE;
 
         for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)

@@ -195,30 +195,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "DSDrv95"=..\Driver\DSDrv95\DSDrv95.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "DSDrvNT"=..\Driver\DSDrvNT\DSDrvNT.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "DSRend"=..\..\DSRend\DSRend.dsp - Package Owner=<4>
 
 Package=<5>
@@ -367,18 +343,6 @@ Package=<4>
 ###############################################################################
 
 Project: "DScalerRes"=..\DScalerRes\DScalerRes.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "Disasm"=..\Disasm\Disasm.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -594,18 +558,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Mapconv"=..\Mapconv\Mapconv.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "PlugTest"=..\PlugTest\PlugTest.dsp - Package Owner=<4>
 
 Package=<5>
@@ -715,18 +667,6 @@ Package=<4>
 ###############################################################################
 
 Project: "SendMsg"=..\SendMsg\SendMsg.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "Verinc"=..\Verinc\Verinc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

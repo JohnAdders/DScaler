@@ -38,7 +38,7 @@ BOOL IsTEA5767PresentAtC0(IN CI2CBus* i2cBus)
     // Sub addresses are not supported so read all five bytes.
     if (!i2cBus->Read(&addr, sizeof(addr), buffer, sizeof(buffer)))
     {
-        LOG(2, "TEA5767: No I2C device at 0xC0.");
+        LOG(2, _T("TEA5767: No I2C device at 0xC0."));
         return FALSE;
     }
 
@@ -48,7 +48,7 @@ BOOL IsTEA5767PresentAtC0(IN CI2CBus* i2cBus)
         buffer[0] == buffer[3] &&
         buffer[0] == buffer[4])
     {
-        LOG(2, "TEA5767: Not Found. All bytes are equal.");
+        LOG(2, _T("TEA5767: Not Found. All bytes are equal."));
         return FALSE;
     }
 
@@ -58,18 +58,18 @@ BOOL IsTEA5767PresentAtC0(IN CI2CBus* i2cBus)
     // Byte 5: bit 7:0 : == 0
     if (((buffer[3] & 0x0f) != 0x00) || (buffer[4] != 0x00))
     {
-        LOG(2, "TEA5767: Not Found. Chip ID is not zero.");
+        LOG(2, _T("TEA5767: Not Found. Chip ID is not zero."));
         return FALSE;
     }
 
     // It seems that tea5767 returns 0xff after the 5th byte
     if ((buffer[5] != 0xff) || (buffer[6] != 0xff))
     {
-        LOG(2, "TEA5767: Not Found. Returned more than 5 bytes.");
+        LOG(2, _T("TEA5767: Not Found. Returned more than 5 bytes."));
         return FALSE;
     }
 
-    LOG(1, "TEA5767: Found. 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
+    LOG(1, _T("TEA5767: Found. 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X"),
         buffer[0], buffer[1], buffer[2], buffer[3], buffer[4]);
 
     return TRUE;

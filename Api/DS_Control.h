@@ -59,7 +59,7 @@
 #ifndef __DS_CONTROL_H___
 #define __DS_CONTROL_H___
 
-#define DSCALER_APPNAME "DScaler"
+#define DSCALER_APPNAME _T("DScaler")
 
 /////////////////////////////////////////////////////////////////////////////
 // Control Messages passed using WM_COMMAND
@@ -830,6 +830,7 @@ typedef enum
     DEBUGLEVEL,
     DEBUGFLUSHAFTERWRITE,
     DEBUGLOGFILE,
+    DEBUGLOGDOSTAMP,
     DEBUG_SETTING_LASTONE,
 } DEBUG_SETTING;
 

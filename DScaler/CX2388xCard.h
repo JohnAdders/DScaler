@@ -106,7 +106,7 @@ private:
 
     typedef struct             // Defines each input on a card
     {
-        char       szName[64]; // Name of the input
+        TCHAR      szName[64]; // Name of the input
         eInputType InputType;  // Type of the input
         BYTE       MuxSelect;  // Which mux on the card is to be used
         TGPIOSet   GPIOSet;    // Which GPIO's on the card is to be used
@@ -120,7 +120,7 @@ private:
 
     typedef struct            // Defines the specific settings for a given card
     {
-        char        szName[128];
+        TCHAR       szName[128];
         eCardMode   CardMode;
         int         NumInputs;
         TInputType  Inputs[CX_INPUTS_PER_CARD];
@@ -156,8 +156,8 @@ public:
     eCX2388xCardId GetCardType();
     eCX2388xCardId AutoDetectCardType();
     int    GetMaxCards();
-    std::string GetCardName(eCX2388xCardId CardId);
-    int    GetCardByName(LPCSTR cardName);
+    tstring GetCardName(eCX2388xCardId CardId);
+    int    GetCardByName(LPCTSTR cardName);
 
     void HandleTimerMessages(int TimerId);
 
@@ -180,8 +180,8 @@ public:
     /// Turn on the card and set state to off
     void ResetChip();
 
-    std::string   GetInputName(int nVideoSource);
-    std::string   GetTunerType();
+    tstring   GetInputName(int nVideoSource);
+    tstring   GetTunerType();
 
     int      GetNumInputs();
     int      GetFinalInputNumber();
@@ -237,7 +237,7 @@ public:
     eCX2388xStereoType GetCurrentStereoType();
 
     void ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst);
-    void DumpChipStatus(const char* CardName);
+    void DumpChipStatus(const TCHAR* CardName);
     HMENU GetCardSpecificMenu();
 
 protected:
@@ -307,7 +307,7 @@ private:
     BOOL            m_RISCIsRunning;
     SmartPtr<CAudioDecoder>  m_AudioDecoder;
     SmartPtr<CAudioControls> m_AudioControls;
-    std::string     m_TunerType;
+    tstring     m_TunerType;
     int             m_CurrentInput;
     DWORD           m_FilterDefault;
     DWORD           m_2HCombDefault;

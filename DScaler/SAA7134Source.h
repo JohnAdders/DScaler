@@ -45,7 +45,7 @@ class CSAA7134Source : public CSource,
 {
     //DECLARE_CLASS_SETTINGS(CSAA7134Source);
 public:
-    CSAA7134Source(SmartPtr<CSAA7134Card> pSAA7134Card, SmartPtr<CContigMemory> PagelistDMAMem[kMAX_PAGETABLES], SmartPtr<CUserMemory> DisplayDMAMem[kMAX_FRAMEBUFFERS], SmartPtr<CUserMemory> VBIDMAMem[kMAX_FRAMEBUFFERS], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
+    CSAA7134Source(SmartPtr<CSAA7134Card> pSAA7134Card, SmartPtr<CContigMemory> PagelistDMAMem[kMAX_PAGETABLES], SmartPtr<CUserMemory> DisplayDMAMem[kMAX_FRAMEBUFFERS], SmartPtr<CUserMemory> VBIDMAMem[kMAX_FRAMEBUFFERS], LPCTSTR IniSection, LPCTSTR ChipName, int DeviceIndex);
     ~CSAA7134Source();
 
     void Start();
@@ -62,7 +62,7 @@ public:
 
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
 
-    std::string GetStatus();
+    tstring GetStatus();
     BOOL IsInTunerMode();
     BOOL IsVideoPresent();
 
@@ -81,13 +81,13 @@ public:
     void SetWidth(int w);
 
     int GetDeviceIndex();
-    std::string GetChipName();
-    std::string IDString() { return m_IDString; }
+    tstring GetChipName();
+    tstring IDString() { return m_IDString; }
 
     int NumInputs(eSourceInputType InputType);
     BOOL SetInput(eSourceInputType InputType, int Nr);
     int GetInput(eSourceInputType InputType);
-    std::string GetInputName(eSourceInputType InputType, int Nr);
+    tstring GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
     CSliderSetting* GetVolume();
@@ -107,7 +107,7 @@ public:
     CSliderSetting* GetHDelay();
     CSliderSetting* GetVDelay();
 
-    std::string GetMenuLabel();
+    tstring GetMenuLabel();
     void SetMenu(HMENU hMenu);
     void UpdateMenu() {return;};
 
@@ -118,7 +118,7 @@ public:
 
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
 
-    BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList) {return FALSE;};
+    BOOL OpenMediaFile(const tstring& FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
     BOOL HasSquarePixels() {return FALSE;};
 
@@ -136,7 +136,7 @@ public:
     BOOL IsInitialSetup() {return m_InitialSetup;};
 
 private:
-    virtual void CreateSettings(LPCSTR IniSection);
+    virtual void CreateSettings(LPCTSTR IniSection);
 
     void SetupCard();
 
@@ -193,12 +193,12 @@ private:
     long            m_CurrentY;
     long            m_CurrentVBILines;
     BOOL            m_InSaturationUpdate;
-    std::string     m_ChannelSubSection;
-    std::string     m_ChipName;
+    tstring     m_ChannelSubSection;
+    tstring     m_ChipName;
     int             m_DeviceIndex;
 
-    std::string     m_Section;
-    std::string     m_IDString;
+    tstring     m_Section;
+    tstring     m_IDString;
 
     eAudioChannel   m_DetectedAudioChannel;
 

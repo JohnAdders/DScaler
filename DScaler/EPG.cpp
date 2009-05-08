@@ -32,20 +32,22 @@
 
 using namespace std;
 
-void XmltvParser_Start( const char * pFilename );
+void XmltvParser_Start( const TCHAR*  pFilename );
 
 
 #define    ONE_DAY                86400
 #define    ONE_HOUR            3600
 #define    PRELOADING_EARLIER    (4 * ONE_HOUR)
 #define    PRELOADING_LATER    (6 * ONE_HOUR)
-#define    DEFAULT_OUTPUT_FILE    "DScalerEPG.xml"
+#define    DEFAULT_OUTPUT_FILE    _T("DScalerEPG.xml")
 
 
 CEPG MyEPG;
+SettingStringValue NextviewEPGExePath;
+SettingStringValue NextviewEPGProvider;
 
 
-CProgramme::CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description)
+CProgramme::CProgramme(time_t StartTime, time_t EndTime, LPCTSTR Title, LPCTSTR ChannelName, LPCTSTR ChannelEPGName, int ChannelNumber, LPCTSTR SubTitle, LPCTSTR Category, LPCTSTR Description)
 {
     m_StartTime = StartTime;
     m_EndTime = EndTime;
@@ -69,11 +71,11 @@ CProgramme::~CProgramme()
 // Check whether the programme matchs the channel (if provided)
 // and overlaps the period of time defined by DateMin and DateMax
 //
-BOOL CProgramme::IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Channel)
+BOOL CProgramme::IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCTSTR Channel)
 {
     if (   ( (DateMax == 0) || (DateMax >= m_StartTime) )
         && ( (DateMin == 0) || (DateMin < m_EndTime) )
-        && ( (Channel == NULL) || !_stricmp(Channel, m_ChannelName.c_str()) )
+        && ( (Channel == NULL) || !_tcsicmp(Channel, m_ChannelName.c_str()) )
        )
        return TRUE;
 
@@ -92,7 +94,7 @@ void CProgramme::GetProgrammeDates(time_t *StartTime, time_t *EndTime)
 //
 // Get the channel data : DScaler name + EPG name + number
 //
-void CProgramme::GetProgrammeChannelData(string &ChannelName, string &ChannelEPGName, int *ChannelNumber)
+void CProgramme::GetProgrammeChannelData(tstring &ChannelName, tstring &ChannelEPGName, int *ChannelNumber)
 {
     ChannelName = m_ChannelName;
     ChannelEPGName = m_ChannelEPGName;
@@ -103,7 +105,7 @@ void CProgramme::GetProgrammeChannelData(string &ChannelName, string &ChannelEPG
 //
 // Get the programme main data : start and end time + title
 //
-void CProgramme::GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category)
+void CProgramme::GetProgrammeMainData(time_t *StartTime, time_t *EndTime, tstring &Channel, tstring &Title, tstring &Category)
 {
     *StartTime = m_StartTime;
     *EndTime = m_EndTime;
@@ -116,7 +118,7 @@ void CProgramme::GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string
 //
 // Get all the programme data
 //
-void CProgramme::GetProgrammeData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description)
+void CProgramme::GetProgrammeData(time_t *StartTime, time_t *EndTime, tstring &Channel, tstring &Title, tstring &SubTitle, tstring &Category, tstring &Description)
 {
     *StartTime = m_StartTime;
     *EndTime = m_EndTime;
@@ -133,39 +135,39 @@ void CProgramme::GetProgrammeData(time_t *StartTime, time_t *EndTime, string &Ch
 //
 void CProgramme::DumpProgrammeMainData()
 {
-    char Date1[17];
-    char Date2[17];
+    TCHAR Date1[17];
+    TCHAR Date2[17];
     struct tm *date_tm;
     date_tm = localtime(&m_StartTime);
-    sprintf_s(Date1, 17,
-            "%04u/%02u/%02u %02u:%02u",
+    _sntprintf(Date1, 17,
+            _T("%04u/%02u/%02u %02u:%02u"),
             date_tm->tm_year+1900, date_tm->tm_mon+1, date_tm->tm_mday, date_tm->tm_hour, date_tm->tm_min);
     date_tm = localtime(&m_EndTime);
-    sprintf_s(Date2, 17,
-            "%04u/%02u/%02u %02u:%02u",
+    _sntprintf(Date2, 17,
+            _T("%04u/%02u/%02u %02u:%02u"),
             date_tm->tm_year+1900, date_tm->tm_mon+1, date_tm->tm_mday, date_tm->tm_hour, date_tm->tm_min);
-    LOG(1, "%s - %s : %s : %s",
+    LOG(1, _T("%s - %s : %s : %s"),
         Date1, Date2, m_ChannelName.c_str(), m_Title.c_str());
 }
 
 
 CEPG::CEPG()
 {
-    char *windir = getenv("windir");
+    TCHAR* windir = _tgetenv(_T("windir"));
     if (!windir)
     {
-        m_CMDExe = "cmd.exe";
+        m_CMDExe = _T("cmd.exe");
     }
     else
     {
         struct _stat buf;
         int result;
         m_CMDExe = windir;
-        m_CMDExe += "\\system32\\cmd.exe";
-        result = _stat(m_CMDExe.c_str(), &buf);
+        m_CMDExe += _T("\\system32\\cmd.exe");
+        result = _tstat(m_CMDExe.c_str(), &buf);
         if (result != 0)
         {
-            m_CMDExe = "cmd.exe";
+            m_CMDExe = _T("cmd.exe");
         }
     }
 
@@ -202,7 +204,7 @@ CEPG::~CEPG()
 //
 // Execute a command using the Windows command interpreter
 //
-int CEPG::ExecuteCommand(string command)
+int CEPG::ExecuteCommand(tstring command)
 {
     STARTUPINFO si;
     ZeroMemory(&si, sizeof(si));
@@ -218,7 +220,7 @@ int CEPG::ExecuteCommand(string command)
     // and I am even not sure what could happen when Judder Terminator is activated
     // and DScaler is using 100% of CPU
     if (!CreateProcess(NULL,
-                       (char*)(command.c_str()),
+                       (TCHAR*)(command.c_str()),
                        (LPSECURITY_ATTRIBUTES) NULL,    // No security
                        (LPSECURITY_ATTRIBUTES) NULL,    // No security
                        FALSE,
@@ -245,14 +247,14 @@ int CEPG::ExecuteCommand(string command)
 // Import the NextviewEPG database
 // Put the result in DScalerEPG.xml
 //
-void CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
+void CEPG::ImportNxtvepgEPGDB(LPCTSTR Provider)
 {
-    string Exe = (char*)Setting_GetValue(WM_EPG_GETVALUE, EPG_NXTVEPGPATH);
-    string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
-    string command = "\"" + m_CMDExe + "\" /C echo NextviewEPG database export ... && \""
-        + Exe + "\" -dump xml5 -provider " + Provider + " > \"" + OutputFile + "\"";
+    tstring Exe = NextviewEPGExePath;
+    tstring OutputFile = m_FilesDir + _T("\\") + DEFAULT_OUTPUT_FILE;
+    tstring command = _T("\"") + m_CMDExe + _T(")\" /C echo NextviewEPG database export ... && \")")
+        + Exe + _T("\" -dump xml5 -provider ") + Provider + _T(") > \"") + OutputFile + _T("\"");
 
-    LOG(2, "NextviewEPG database import ... (%s)", command.c_str());
+    LOG(2, _T("NextviewEPG database import ... (%s)"), command.c_str());
     ExecuteCommand(command);
 
     ReloadEPGData();
@@ -262,14 +264,14 @@ void CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 //
 // Copy the input file in DScalerEPG.xml
 //
-void CEPG::ImportXMLTVFile(LPCSTR file)
+void CEPG::ImportXMLTVFile(LPCTSTR file)
 {
-    string InputFile = file;
-    string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
+    tstring InputFile = file;
+    tstring OutputFile = m_FilesDir + _T("\\") + DEFAULT_OUTPUT_FILE;
 
-    if (strcmp(InputFile.c_str(), OutputFile.c_str()))
+    if (_tcscmp(InputFile.c_str(), OutputFile.c_str()))
     {
-        LOG(2, "Copy file %s in %s ...", InputFile.c_str(), OutputFile.c_str());
+        LOG(2, _T("Copy file %s in %s ..."), InputFile.c_str(), OutputFile.c_str());
         CopyFile(InputFile.c_str(), OutputFile.c_str());
 
         ReloadEPGData();
@@ -300,7 +302,7 @@ void CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
     m_LoadedTimeMin = DateMin;
     m_LoadedTimeMax = DateMax;
 
-    string InputXMLFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
+    tstring InputXMLFile = m_FilesDir + _T("\\") + DEFAULT_OUTPUT_FILE;
     XmltvParser_Start(InputXMLFile.c_str());
 }
 
@@ -336,7 +338,7 @@ BOOL CEPG::LoadEPGDataIfNeeded(time_t TimeMin, time_t TimeMax, int DeltaEarlier,
 }
 
 
-int CEPG::GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax)
+int CEPG::GetSearchContext(LPCTSTR *ChannelName, time_t *TimeMin, time_t *TimeMax)
 {
     if (ChannelName)
         *ChannelName = m_SearchChannel;
@@ -346,10 +348,10 @@ int CEPG::GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax
 }
 
 
-BOOL CEPG::SearchForProgramme(string &Channel)
+BOOL CEPG::SearchForProgramme(tstring &Channel)
 {
     BOOL resu = FALSE;
-    Channel = "";
+    Channel = _T("");
     if (m_UseProgFronBrowser == FALSE)
     {
         GetViewedChannelName(Channel);
@@ -380,7 +382,7 @@ BOOL CEPG::SearchForProgramme(string &Channel)
     {
         if (m_ProgrammeSelected)
         {
-            string ChannelEPG;
+            tstring ChannelEPG;
             int    Number;
             m_ProgrammeSelected->GetProgrammeChannelData(Channel, ChannelEPG, &Number);
             resu = TRUE;
@@ -391,7 +393,7 @@ BOOL CEPG::SearchForProgramme(string &Channel)
 }
 
 
-BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime)
+BOOL CEPG::SearchForProgramme(LPCTSTR ChannelName, time_t ThatTime)
 {
     SearchForProgrammes(ChannelName);
     m_ProgrammeSelected = NULL;
@@ -412,7 +414,7 @@ BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime)
 }
 
 
-int CEPG::SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax)
+int CEPG::SearchForProgrammes(LPCTSTR ChannelName, time_t TimeMin, time_t TimeMax)
 {
     m_SearchChannel = ChannelName;
     m_SearchTimeMin = TimeMin;
@@ -470,7 +472,7 @@ int CEPG::GetDisplayLineShift(int NbLines)
 }
 
 
-BOOL CEPG::GetProgrammeChannelData(int Index, string &ChannelName, string &ChannelEPGName, int *ChannelNumber)
+BOOL CEPG::GetProgrammeChannelData(int Index, tstring &ChannelName, tstring &ChannelEPGName, int *ChannelNumber)
 {
     if ( (Index < 0) && (m_ProgrammeSelected == NULL))
         return FALSE;
@@ -491,7 +493,7 @@ BOOL CEPG::GetProgrammeChannelData(int Index, string &ChannelName, string &Chann
 }
 
 
-BOOL CEPG::GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category)
+BOOL CEPG::GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, tstring &Channel, tstring &Title, tstring &Category)
 {
     if ( (Index < 0) && (m_ProgrammeSelected == NULL))
         return FALSE;
@@ -512,7 +514,7 @@ BOOL CEPG::GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, s
 }
 
 
-BOOL CEPG::GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description)
+BOOL CEPG::GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, tstring &Channel, tstring &Title, tstring &SubTitle, tstring &Category, tstring &Description)
 {
     if ( (Index < 0) && (m_ProgrammeSelected == NULL))
         return FALSE;
@@ -536,26 +538,25 @@ BOOL CEPG::GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, strin
 BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
     OPENFILENAME OpenFileInfo;
-    char FilePath[MAX_PATH];
-    char* FileFilters;
+    TCHAR FilePath[MAX_PATH];
+    TCHAR* FileFilters;
     time_t TimeNow;
     time_t TimeMin;
     time_t TimeMax;
     struct tm *datetime_tm;
     int sec, min, hour;
-    string Title;
-    string ChannelName;
-    string ChannelEPGName;
+    tstring Title;
+    tstring ChannelName;
+    tstring ChannelEPGName;
     int ChannelNumber;
-    char* Exe;
-    struct stat st;
+    struct _stat st;
     int n;
-    LPCSTR Provider = NULL;
+    LPCTSTR Provider = NULL;
 
     switch(LOWORD(wParam))
     {
     case IDM_IMPORT_XMLTV:
-        FileFilters = "XML Files\0*.xml\0";
+        FileFilters = _T("XML Files\0*.xml\0");
         FilePath[0] = 0;
         ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
         OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
@@ -578,40 +579,46 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         break;
 
     case IDM_IMPORT_NEXTVIEW:
-        Exe = (char*)Setting_GetValue(WM_EPG_GETVALUE, (EPG_NXTVEPGPATH));
-        if ((Exe == NULL) || stat(Exe, &st))
         {
-            MessageBox(hWnd, "NextviewEPG application not found.\nPlease go to the advanced settings to update its location.", "DScaler Warning", MB_ICONWARNING | MB_OK);
-            return TRUE;
-        }
-
-        n = GetNextviewEPGProviders();
-        if (n == 0)
-        {
-            MessageBox(hWnd, "No NextviewEPG database found.", "DScaler Warning", MB_ICONWARNING | MB_OK);
-        }
-        else if (n == 1)
-        {
-            Provider = m_NextviewProviders[0]->c_str();
-        }
-        else
-        {
-            for (int i=0; i<n ; i++)
+            tstring Exe(NextviewEPGExePath);
+            if(Exe.empty())
             {
-                char MsgTxt[128];
-                sprintf_s(MsgTxt, 128, "Do you want to import the database\ncorresponding to the provider %s ?", m_NextviewProviders[i]->c_str());
-                if (MessageBox(hWnd, MsgTxt, "DScaler - NextviewEPG Provider", MB_YESNO | MB_ICONQUESTION /*| MB_APPLMODAL*/) == IDYES)
+                Exe = GetInstallationPath() + _T("\\nxtvepg.exe");
+            }
+            if (_tstat(Exe.c_str(), &st))
+            {
+                MessageBox(hWnd, _T("NextviewEPG application not found.\nPlease go to the advanced settings to update its location."), _T("DScaler Warning"), MB_ICONWARNING | MB_OK);
+                return TRUE;
+            }
+
+            n = GetNextviewEPGProviders();
+            if (n == 0)
+            {
+                MessageBox(hWnd, _T("No NextviewEPG database found."), _T("DScaler Warning"), MB_ICONWARNING | MB_OK);
+            }
+            else if (n == 1)
+            {
+                Provider = m_NextviewProviders[0]->c_str();
+            }
+            else
+            {
+                for (int i=0; i<n ; i++)
                 {
-                    Provider = m_NextviewProviders[i]->c_str();
-                    break;
+                    TCHAR MsgTxt[128];
+                    _stprintf_s(MsgTxt, 128, _T("Do you want to import the database\ncorresponding to the provider %s ?"), m_NextviewProviders[i]->c_str());
+                    if (MessageBox(hWnd, MsgTxt, _T("DScaler - NextviewEPG Provider"), MB_YESNO | MB_ICONQUESTION /*| MB_APPLMODAL*/) == IDYES)
+                    {
+                        Provider = m_NextviewProviders[i]->c_str();
+                        break;
+                    }
                 }
             }
+            if (Provider != NULL)
+            {
+                ImportNxtvepgEPGDB(Provider);
+            }
+            return TRUE;
         }
-        if (Provider != NULL)
-        {
-            ImportNxtvepgEPGDB(Provider);
-        }
-        return TRUE;
         break;
 
     case IDM_DISPLAY_EPG:
@@ -986,7 +993,7 @@ void CEPG::ShowOSD()
     if (   (m_Programmes.size() > 0)
         && (m_UseProgFronBrowser == FALSE) )
     {
-        string Channel;
+        tstring Channel;
         GetViewedChannelName(Channel);
         if (Channel.length() > 0)
         {
@@ -1026,10 +1033,10 @@ void CEPG::HideOSD()
 }
 
 
-void CEPG::GetViewedChannelName(string &Channel)
+void CEPG::GetViewedChannelName(tstring &Channel)
 {
-    Channel = "";
-    static string LastChannel = "";
+    Channel = _T("");
+    static tstring LastChannel = _T("");
     static time_t LastTime = 0;
     CSource *CurrentSource = Providers_GetCurrentSource();
     if (CurrentSource)
@@ -1043,7 +1050,7 @@ void CEPG::GetViewedChannelName(string &Channel)
             time_t CurrentTime;
             time(&CurrentTime);
 
-            string pChannel = Channel_GetVBIName();
+            tstring pChannel = Channel_GetVBIName();
             if (!pChannel.empty())
             {
                 Channel = pChannel;
@@ -1092,7 +1099,7 @@ void CEPG::ClearProgrammes()
 }
 
 
-int CEPG::CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCSTR ChannelName)
+int CEPG::CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCTSTR ChannelName)
 {
     if (   (Setting_GetValue(WM_EPG_GETVALUE, (EPG_CHANNELFILTERING)) == TRUE)
         && !IsValidChannelName(ChannelName))
@@ -1118,10 +1125,10 @@ void CEPG::InsertProgramme(CProgramme* NewProg, int Sorting)
 
     if (Sorting == 1)
     {
-        string    NewChannel;
-        string    NewChannelEPG;
-        string    Channel;
-        string    ChannelEPG;
+        tstring    NewChannel;
+        tstring    NewChannelEPG;
+        tstring    Channel;
+        tstring    ChannelEPG;
         int        NewNumber, Number;
         BOOL    bTime = FALSE;
 
@@ -1135,7 +1142,7 @@ void CEPG::InsertProgramme(CProgramme* NewProg, int Sorting)
             if (bTime == TRUE)
             {
                 if (   ( (NewNumber != -1) && (NewNumber != Number) )
-                    || ( (NewNumber == -1) && _stricmp(NewChannel.c_str(), Channel.c_str()) )
+                    || ( (NewNumber == -1) && _tcsicmp(NewChannel.c_str(), Channel.c_str()) )
                    )
                 {
                     m_ProgrammesSelection.insert(it, NewProg);
@@ -1177,7 +1184,7 @@ void CEPG::InsertProgramme(CProgramme* NewProg, int Sorting)
                 else
                 {
                     if (   (Number == -1)
-                        && !_stricmp(NewChannel.c_str(), Channel.c_str())
+                        && !_tcsicmp(NewChannel.c_str(), Channel.c_str())
                        )
                     {
                         bTime = TRUE;
@@ -1243,17 +1250,17 @@ void CEPG::InsertProgramme(CProgramme* NewProg, int Sorting)
 }
 
 
-void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber)
+void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCTSTR Title, LPCTSTR ChannelName, LPCTSTR ChannelEPGName, int ChannelNumber)
 {
     if ( (EndTime > m_LoadedTimeMin) && (StartTime <= m_LoadedTimeMax) )
     {
-        CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, "", "", "");
+        CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, _T(""), _T(""), _T(""));
         m_Programmes.push_back(newProgramme);
     }
 }
 
 
-void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description)
+void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCTSTR Title, LPCTSTR ChannelName, LPCTSTR ChannelEPGName, int ChannelNumber, LPCTSTR SubTitle, LPCTSTR Category, LPCTSTR Description)
 {
     if ( (EndTime > m_LoadedTimeMin) && (StartTime <= m_LoadedTimeMax) )
     {
@@ -1263,9 +1270,9 @@ void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR C
 }
 
 
-void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelEPGName, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description)
+void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCTSTR Title, LPCTSTR ChannelEPGName, LPCTSTR SubTitle, LPCTSTR Category, LPCTSTR Description)
 {
-    LPCSTR ChannelName;
+    LPCTSTR ChannelName;
     int  ChannelNumber;
 
     if (IsValidChannelName(ChannelEPGName, &ChannelName, &ChannelNumber))
@@ -1283,7 +1290,7 @@ void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR C
 // Check whether a channel name belongs to the list of channels
 // defined in DScaler
 //
-BOOL CEPG::IsValidChannelName(LPCSTR EPGName, LPCSTR *Name, int *Number)
+BOOL CEPG::IsValidChannelName(LPCTSTR EPGName, LPCTSTR *Name, int *Number)
 {
     if (Name)
     {
@@ -1295,7 +1302,7 @@ BOOL CEPG::IsValidChannelName(LPCSTR EPGName, LPCSTR *Name, int *Number)
     }
     for (int i=0; (i < MyChannels.GetSize()); i++)
     {
-        if (!_stricmp(EPGName, MyChannels.GetChannel(i)->GetEPGName()))
+        if (!_tcsicmp(EPGName, MyChannels.GetChannel(i)->GetEPGName()))
         {
             if (Name)
             {
@@ -1315,17 +1322,17 @@ BOOL CEPG::IsValidChannelName(LPCSTR EPGName, LPCSTR *Name, int *Number)
 //
 // Copy a file
 //
-BOOL CEPG::CopyFile(LPCSTR InPath, LPCSTR OutPath)
+BOOL CEPG::CopyFile(LPCTSTR InPath, LPCTSTR OutPath)
 {
     FILE *InStream;
     FILE *OutStream;
 
-    InStream = fopen(InPath, "r");
+    InStream = _tfopen(InPath, _T("r"));
     if (InStream == NULL)
     {
         return FALSE;
     }
-    OutStream = fopen(OutPath, "w");
+    OutStream = _tfopen(OutPath, _T("w"));
     if (OutStream == NULL)
     {
         fclose(InStream);
@@ -1334,7 +1341,7 @@ BOOL CEPG::CopyFile(LPCSTR InPath, LPCSTR OutPath)
 
     while (feof(InStream) == 0)
     {
-        char buffer[512];
+        BYTE buffer[512];
         int n = fread(buffer, 1, 512, InStream);
         fwrite(buffer, 1, n, OutStream);
     }
@@ -1362,79 +1369,79 @@ int CEPG::GetNextviewEPGProviders()
 {
     ClearNextviewEPGProviders();
 
-    struct stat st;
-    char* Exe = (char*)Setting_GetValue(WM_EPG_GETVALUE, (EPG_NXTVEPGPATH));
-    if ((Exe == NULL) || stat(Exe, &st))
+    struct _stat st;
+    tstring Exe(NextviewEPGExePath);
+    if (Exe.empty() || _tstat(Exe.c_str(), &st))
     {
         return m_NextviewProviders.size();
     }
 
     WIN32_FIND_DATA FindFileData;
     HANDLE hFindFile;
-    char SearchFiles[MAX_PATH];
+    TCHAR SearchFiles[MAX_PATH];
     BOOL RetVal;
-    char Provider[5];
-    string* newProvider;
-    char* c;
+    TCHAR Provider[5];
+    tstring* newProvider;
+    TCHAR* c;
 
-    char* DefaultProvider = (char*)Setting_GetValue(WM_EPG_GETVALUE, (EPG_NXTVEPGPROVIDER));
-    if (strlen(DefaultProvider) > 0)
+    if (NextviewEPGProvider)
     {
-        if (!strcmp(DefaultProvider, "merged"))
+        tstring DefaultProvider = NextviewEPGProvider;
+        if (DefaultProvider == _T("merged"))
         {
-            newProvider = new string(DefaultProvider);
+            newProvider = new tstring(DefaultProvider);
             m_NextviewProviders.push_back(newProvider);
             return m_NextviewProviders.size();
         }
 
-        strcpy(SearchFiles, Exe);
-        c = strrchr(SearchFiles, '\\');
+        _tcscpy(SearchFiles, Exe.c_str());
+        c = _tcsrchr(SearchFiles, '\\');
         if (c)
         {
-            sprintf(c+1, "nxtv%s.epg", DefaultProvider);
+            _stprintf(c+1, _T("nxtv%s.epg"), DefaultProvider);
         }
         else
         {
-            sprintf(SearchFiles, "nxtv%s.epg", DefaultProvider);
+            _stprintf(SearchFiles, _T("nxtv%s.epg"), DefaultProvider);
         }
-        if (!stat(SearchFiles, &st))
+        if (!_tstat(SearchFiles, &st))
         {
-            strncpy(Provider, &SearchFiles[strlen(SearchFiles)-8], 4);
+            _tcsncpy(Provider, &SearchFiles[_tcslen(SearchFiles)-8], 4);
             Provider[4] = '\0';
-            newProvider = new string(Provider);
+            newProvider = new tstring(Provider);
             m_NextviewProviders.push_back(newProvider);
             return m_NextviewProviders.size();
         }
 
-        strcpy(SearchFiles, Exe);
-        c = strrchr(SearchFiles, '\\');
+        _tcscpy(SearchFiles, Exe.c_str());
+        c = _tcsrchr(SearchFiles, '\\');
         if (c)
         {
-            sprintf(c+1, "nxtvdb-%s", DefaultProvider);
+            _stprintf(c+1, _T("nxtvdb-%s"), DefaultProvider);
         }
         else
         {
-            sprintf(SearchFiles, "nxtvdb-%s", DefaultProvider);
+            _stprintf(SearchFiles, _T("nxtvdb-%s"), DefaultProvider);
         }
-        if (!stat(SearchFiles, &st))
+        if (!_tstat(SearchFiles, &st))
         {
-            strncpy(Provider, &SearchFiles[strlen(SearchFiles)-4], 4);
+            _tcsncpy(Provider, &SearchFiles[_tcslen(SearchFiles)-4], 4);
             Provider[4] = '\0';
-            newProvider = new string(Provider);
+            newProvider = new tstring(Provider);
             m_NextviewProviders.push_back(newProvider);
             return m_NextviewProviders.size();
         }
     }
 
-    strcpy(SearchFiles, Exe);
-    c = strrchr(SearchFiles, '\\');
+    _tcscpy(SearchFiles, Exe.c_str());
+    c = _tcsrchr(SearchFiles, '\\');
     if (c)
     {
-        strcpy(c+1, "nxtv*.epg");
+        _tcscpy(c+1, _T("nxtv*.epg"));
     }
     else
     {
-        strcpy(SearchFiles, "nxtv*.epg");
+        _tcscpy(SearchFiles, _T("nxtv*.epg"));
     }
 
     hFindFile = FindFirstFile(SearchFiles, &FindFileData);
@@ -1446,12 +1453,12 @@ int CEPG::GetNextviewEPGProviders()
         {
             // check to see if the extension is .epg
             // and * matchs 4 characters
-            if(   (_stricmp(".epg", &FindFileData.cFileName[strlen(FindFileData.cFileName)-4]) == 0)
-               && (strlen(&FindFileData.cFileName[0]) == 12) )
+            if(   (_tcsicmp(_T(".epg"), &FindFileData.cFileName[_tcslen(FindFileData.cFileName)-4]) == 0)
+               && (_tcslen(&FindFileData.cFileName[0]) == 12) )
             {
-                strncpy(Provider, &FindFileData.cFileName[strlen(FindFileData.cFileName)-8], 4);
+                _tcsncpy(Provider, &FindFileData.cFileName[_tcslen(FindFileData.cFileName)-8], 4);
                 Provider[4] = '\0';
-                newProvider = new string(Provider);
+                newProvider = new tstring(Provider);
                 m_NextviewProviders.push_back(newProvider);
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
@@ -1459,15 +1466,15 @@ int CEPG::GetNextviewEPGProviders()
         FindClose(hFindFile);
     }
 
-    strcpy(SearchFiles, Exe);
-    c = strrchr(SearchFiles, '\\');
+    _tcscpy(SearchFiles, Exe.c_str());
+    c = _tcsrchr(SearchFiles, '\\');
     if (c)
     {
-        strcpy(c+1, "nxtvdb-*");
+        _tcscpy(c+1, _T("nxtvdb-*"));
     }
     else
     {
-        strcpy(SearchFiles, "nxtvdb-*");
+        _tcscpy(SearchFiles, _T("nxtvdb-*"));
     }
 
     hFindFile = FindFirstFile(SearchFiles, &FindFileData);
@@ -1478,11 +1485,11 @@ int CEPG::GetNextviewEPGProviders()
         while(RetVal != 0)
         {
             // check * matchs 4 characters
-            if(strlen(&FindFileData.cFileName[0]) == 11)
+            if(_tcslen(&FindFileData.cFileName[0]) == 11)
             {
-                strncpy(Provider, &FindFileData.cFileName[strlen(FindFileData.cFileName)-4], 4);
+                _tcsncpy(Provider, &FindFileData.cFileName[_tcslen(FindFileData.cFileName)-4], 4);
                 Provider[4] = '\0';
-                newProvider = new string(Provider);
+                newProvider = new tstring(Provider);
                 m_NextviewProviders.push_back(newProvider);
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
@@ -1499,7 +1506,7 @@ void CEPG::SetMenu(HMENU hMenu)
     static time_t    LastDay = 0;
     time_t            Day;
     struct tm        *datetime_tm;
-    char            *week_days[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+    TCHAR            *week_days[] = { _T("Sunday"), _T("Monday"), _T("Tuesday"), _T("Wednesday"), _T("Thursday"), _T("Friday"), _T("Saturday") };
 
     time(&Day);
     datetime_tm = localtime(&Day);
@@ -1565,9 +1572,6 @@ void CEPG::SetMenu(HMENU hMenu)
 // ---------------------- Settings ---------------------
 
 
-const string ExePath(GetInstallationPath() + "\\nxtvepg.exe");
-SettingStringValue NextviewEPGExePath;
-SettingStringValue NextviewEPGProvider;
 static long        EPG_DefaultSizePerc = 5;
 static long        EPG_FrameDuration = 1;
 static BOOL        EPG_ChannelFiltering = FALSE;
@@ -1612,8 +1616,8 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
         "EPG", "TimeFrameDuration", NULL,
     },
     {
-        "nxtvepg.exe file path", CHARSTRING, 0, NextviewEPGExePath.GetPointer(),
-         (long)ExePath.c_str(), 0, 0, 0, 0,
+        "nxtvepg.exe file path", TCHARSTRING, 0, NextviewEPGExePath.GetPointer(),
+         (long)"", 0, 0, 0, 0,
          NULL,
         "EPG", "nxtvepg.exe", NULL,
     },
@@ -1630,7 +1634,7 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
         "EPG", "MaxCharsPerLine", NULL,
     },
     {
-        "NextviewEPG default provider", CHARSTRING, 0, NextviewEPGProvider.GetPointer(),
+        "NextviewEPG default provider", TCHARSTRING, 0, NextviewEPGProvider.GetPointer(),
          (long)"", 0, 0, 0, 0,
          NULL,
         "EPG", "NextviewProvider", NULL,
@@ -1665,12 +1669,12 @@ SETTING* EPG_GetSetting(EPG_SETTING Setting)
 // -----------------------------------------------------
 
 
-int CheckProgrammeValidity(time_t StartTime, time_t EndTime, char * ChannelName)
+int CheckProgrammeValidity(time_t StartTime, time_t EndTime, TCHAR*  ChannelName)
 {
     return     MyEPG.CheckProgrammeValidity(StartTime, EndTime, ChannelName);
 }
 
-void AddProgramme(time_t StartTime, time_t EndTime, char * Title, char * ChannelName, char * SubTitle, char * Category, char * Description)
+void AddProgramme(time_t StartTime, time_t EndTime, TCHAR*  Title, TCHAR*  ChannelName, TCHAR*  SubTitle, TCHAR*  Category, TCHAR*  Description)
 {
     MyEPG.AddProgramme(StartTime, EndTime, Title, ChannelName, SubTitle, Category, Description);
 }

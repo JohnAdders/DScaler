@@ -26,8 +26,8 @@
 
 
 // NOTE: Be sure you have defined your bitmaps by assigning them a resource
-//       id of a quoted string (i.e. "BITMAP1" instead of ID_BITMAP1) since
-//       you will be designating the bitmaps by their quoted resource string
+//       id of a quoted tstring (i.e. _T("BITMAP1") instead of ID_BITMAP1) since
+//       you will be designating the bitmaps by their quoted resource tstring
 //       in this file.
 
 
@@ -81,117 +81,117 @@ using namespace std;
 #define NORMAL_TEXT                '\f'
 #define DISPLAY_BITMAP            '\b'
 
-// Enter the text and bitmap resource string identifiers which are to
-// appear in the scrolling list. Append each non-empty string entry with
+// Enter the text and bitmap resource tstring identifiers which are to
+// appear in the scrolling list. Append each non-empty tstring entry with
 // an escape character corresponding to the desired font effect. Empty
 // strings do not get a font assignment.
 // (see #defines above)
 
-char *ArrCredits[] = {  "DScaler\n",
-                        "",
-                        "Copyright © 2009\f",
-                        "DScaler Team\f",
-                        "All Rights Reserved\f",
-                        "",
-                        "SMALLLOGO\b",
-                        "",
-                        "",
-                        "Project Lead\t",
-                        "",
-                        "John Adcock\f",
-                        "",
-                        "",
-                        "Current Active Developers\t",
-                        "",
-                        "Torbjörn Jansson\f",
-                        "Atsushi Nakagawa\f",
-                        "Torsten Seeboth\f",
-                        "",
-                        "",
-                        "Other Developers\t",
-                        "",
-                        "Tom Barry\f",
-                        "Denis Balazuc\f",
-                        "Muljadi Budiman\f",
-                        "Lindsey Dubb\f",
-                        "Michael Eskin\f",
-                        "Laurent Garnier\f",
-                        "Steve Grimm\f",
-                        "Jeroen Kooiman\f",
-                        "Rob Muller\f",
-                        "Mark Rejhon\f",
-                        "Michael Samblanet\f",
-                        "Eric Schmidt\f",
-                        "Ivan Tarnavsky\f",
-                        "Jochen Trenner\f",
-                        "Mike Temperton\f",
-                        "",
-                        "",
-                        "Documentation \t",
-                        "",
-                        "Yvon Quere\f",
-                        "",
-                        "",
-                        "Web Sites & Forums\t",
-                        "",
-                        "Dan Schmelzer\f",
-                        "",
-                        "",
-                        "Graphics\t",
-                        "",
-                        "Erik Språng\f",
-                        "Robin Zalek\f",
-                        "",
-                        "",
-                        "Patches From\t",
-                        "",
-                        "Olivier Borca\f",
-                        "Billy Chang\f",
-                        "Tom Fojta\f",
-                        "Péter Gulyás\f",
-                        "John Isar\f",
-                        "Piet Orye\f",
-                        "Kevin Radke\f",
-                        "Eduardo José Tagle\f",
-                        "Kristian Trenskow\f",
-                        "Arjan Zipp\f",
-                        "Tom Zoerner\f",
-                        "",
-                        "",
-                        "Projects we've borrowed from\t",
-                        "",
-                        "bttv - Copyright © Ralph Metzler & Marcus Metzler\f",
-                        "Credits screen - Copyright © Mark Findlay\f",
-                        "FreeTV Driver - Copyright © Mathias Ellinger\f",
-                        "I2C Interface - Copyright © Gerd Knorr\f",
-                        "MultiDec - Copyright © Espresso\f",
-                        "saa713x - Copyright © Gerd Knorr\f",
-                        "VirtualDub - Copyright © Avery Lee\f",
-                        "LinuxTV - www.linuxtv.org \f",
-                        "",
-                        "",
-                        "Libraries we use\t",
-                        "",
-                        "LibJpeg - A work of the Independent JPEG Group\f",
-                        "LibTiff - Copyright © Sam Leffler & Silicon Graphics\f",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
+TCHAR* ArrCredits[] = {  _T("DScaler\n"),
+                        _T(""),
+                        _T("Copyright © 2009\f"),
+                        _T("DScaler Team\f"),
+                        _T("All Rights Reserved\f"),
+                        _T(""),
+                        _T("SMALLLOGO\b"),
+                        _T(""),
+                        _T(""),
+                        _T("Project Lead\t"),
+                        _T(""),
+                        _T("John Adcock\f"),
+                        _T(""),
+                        _T(""),
+                        _T("Current Active Developers\t"),
+                        _T(""),
+                        _T("Torbjörn Jansson\f"),
+                        _T("Atsushi Nakagawa\f"),
+                        _T("Torsten Seeboth\f"),
+                        _T(""),
+                        _T(""),
+                        _T("Other Developers\t"),
+                        _T(""),
+                        _T("Tom Barry\f"),
+                        _T("Denis Balazuc\f"),
+                        _T("Muljadi Budiman\f"),
+                        _T("Lindsey Dubb\f"),
+                        _T("Michael Eskin\f"),
+                        _T("Laurent Garnier\f"),
+                        _T("Steve Grimm\f"),
+                        _T("Jeroen Kooiman\f"),
+                        _T("Rob Muller\f"),
+                        _T("Mark Rejhon\f"),
+                        _T("Michael Samblanet\f"),
+                        _T("Eric Schmidt\f"),
+                        _T("Ivan Tarnavsky\f"),
+                        _T("Jochen Trenner\f"),
+                        _T("Mike Temperton\f"),
+                        _T(""),
+                        _T(""),
+                        _T("Documentation \t"),
+                        _T(""),
+                        _T("Yvon Quere\f"),
+                        _T(""),
+                        _T(""),
+                        _T("Web Sites & Forums\t"),
+                        _T(""),
+                        _T("Dan Schmelzer\f"),
+                        _T(""),
+                        _T(""),
+                        _T("Graphics\t"),
+                        _T(""),
+                        _T("Erik Språng\f"),
+                        _T("Robin Zalek\f"),
+                        _T(""),
+                        _T(""),
+                        _T("Patches From\t"),
+                        _T(""),
+                        _T("Olivier Borca\f"),
+                        _T("Billy Chang\f"),
+                        _T("Tom Fojta\f"),
+                        _T("Péter Gulyás\f"),
+                        _T("John Isar\f"),
+                        _T("Piet Orye\f"),
+                        _T("Kevin Radke\f"),
+                        _T("Eduardo José Tagle\f"),
+                        _T("Kristian Trenskow\f"),
+                        _T("Arjan Zipp\f"),
+                        _T("Tom Zoerner\f"),
+                        _T(""),
+                        _T(""),
+                        _T("Projects we've borrowed from\t"),
+                        _T(""),
+                        _T("bttv - Copyright © Ralph Metzler & Marcus Metzler\f"),
+                        _T("Credits screen - Copyright © Mark Findlay\f"),
+                        _T("FreeTV Driver - Copyright © Mathias Ellinger\f"),
+                        _T("I2C Interface - Copyright © Gerd Knorr\f"),
+                        _T("MultiDec - Copyright © Espresso\f"),
+                        _T("saa713x - Copyright © Gerd Knorr\f"),
+                        _T("VirtualDub - Copyright © Avery Lee\f"),
+                        _T("LinuxTV - www.linuxtv.org \f"),
+                        _T(""),
+                        _T(""),
+                        _T("Libraries we use\t"),
+                        _T(""),
+                        _T("LibJpeg - A work of the Independent JPEG Group\f"),
+                        _T("LibTiff - Copyright © Sam Leffler & Silicon Graphics\f"),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
+                        _T(""),
                         };
 
 #define ARRAYCOUNT        (sizeof(ArrCredits)/sizeof(char*))
@@ -231,7 +231,7 @@ void CCredits::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             DeleteObject(m_BmpWork);
         }
         DeleteDC(m_dcMem);
-        RemoveProp(m_pDisplayFrame, "DSSubClass");
+        RemoveProp(m_pDisplayFrame, _T("DSSubClass"));
         EndDialog(hDlg, id);
         break;
     }
@@ -239,7 +239,7 @@ void CCredits::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 
 BOOL CALLBACK CCredits::StaticWndProc(HWND hStatic, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    CCredits* myDialogObject = (CCredits*)GetProp(hStatic, "DSSubClass");
+    CCredits* myDialogObject = (CCredits*)GetProp(hStatic, _T("DSSubClass"));
     if(myDialogObject)
     {
         if(message != WM_PAINT)
@@ -288,7 +288,7 @@ BOOL CCredits::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     nRet = SetTimer(hDlg, DISPLAY_TIMER_ID, DISPLAY_SPEED, NULL);
     _ASSERTE(nRet != 0);
 
-    SetProp(m_pDisplayFrame, "DSSubClass", (HANDLE)this);
+    SetProp(m_pDisplayFrame, _T("DSSubClass"), (HANDLE)this);
     m_OldWndProc = (WNDPROC)SetWindowLongPtr (m_pDisplayFrame, GWLP_WNDPROC, (LONG_PTR)StaticWndProc);
 
     return TRUE;  // return TRUE unless you set the focus to a control
@@ -299,9 +299,9 @@ BOOL CCredits::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 //     OnTimer
 //
 //         On each of the display timers, scroll the window 1 unit. Each 20
-//      units, fetch the next array element and load into work string. Call
+//      units, fetch the next array element and load into work tstring. Call
 //      Invalidate and UpdateWindow to invoke the OnPaint which will paint
-//      the contents of the newly updated work string.
+//      the contents of the newly updated work tstring.
 //************************************************************************
 void CCredits::OnTimer(HWND hDlg, UINT nIDEvent)
 {
@@ -337,13 +337,13 @@ HFONT CreateCreditsFont(int Height, BOOL Bold, BOOL Underline)
                        CLIP_DEFAULT_PRECIS,
                        PROOF_QUALITY,
                        VARIABLE_PITCH | 0x04 | FF_DONTCARE,
-                       "Arial");
+                       _T("Arial"));
 }
 
 //************************************************************************
 //     OnPaint
 //
-//     Send the newly updated work string to the display rect.
+//     Send the newly updated work tstring to the display rect.
 //************************************************************************
 void CCredits::OnPaint(HWND hDlg)
 {
@@ -398,13 +398,13 @@ void CCredits::OnPaint(HWND hDlg)
             if (!m_bProcessingBitmap)
             {
                 BITMAP bmpInfo;
-                string szBitmap = m_szWork.substr(0, m_szWork.length()-1);
+                tstring szBitmap = m_szWork.substr(0, m_szWork.length()-1);
                 m_BmpWork = LoadBitmap(hResourceInst, szBitmap.c_str());
                 if(m_BmpWork == NULL)
                 {
-                    string str(MakeString() << "Could not find bitmap resource " << 
-                                            szBitmap << ". " << 
-                                            "Be sure to assign the bitmap a QUOTED resource name");
+                    tstring str(MakeString() << _T("Could not find bitmap resource ") << 
+                                            szBitmap << _T(". ") << 
+                                            _T("Be sure to assign the bitmap a QUOTED resource name"));
                     KillTimer(hDlg, DISPLAY_TIMER_ID);
                     ErrorBox(str.c_str());
                     return;
@@ -469,7 +469,7 @@ void CCredits::OnPaint(HWND hDlg)
             DeleteObject(m_BmpWork);
             m_bProcessingBitmap = FALSE;
             m_nClip=0;
-            m_szWork.clear();
+            m_szWork = _T("");
             m_nCounter=1;
         }
     }

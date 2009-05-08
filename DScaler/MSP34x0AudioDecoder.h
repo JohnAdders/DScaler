@@ -58,7 +58,7 @@ public:
     // Standard
     void SetAudioStandard(long Standard, eVideoFormat videoformat);
     long GetAudioStandardCurrent();
-    const char* GetAudioStandardName(long Standard);
+    const TCHAR* GetAudioStandardName(long Standard);
     int GetNumAudioStandards();
     long GetAudioStandard(int nIndex);
     long GetAudioStandardMajorCarrier(long Standard);
@@ -152,7 +152,7 @@ private:
 
     typedef struct
     {
-        char*           Name;
+        TCHAR*           Name;
         eStandard       Standard;
         eCarrier        MajorCarrier;
         eCarrier        MinorCarrier;

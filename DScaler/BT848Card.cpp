@@ -103,8 +103,8 @@ CBT848Card::CBT848Card(SmartPtr<CHardwareDriver> pDriver) :
     CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
     m_CurrentInput(0),
-    m_TunerType("n/a"),
-    m_AudioDecoderType("n/a"),
+    m_TunerType(_T("n/a")),
+    m_AudioDecoderType(_T("n/a")),
     m_I2CInitialized(FALSE),
     m_I2CBus(new CI2CBusForLineInterface(this)),
     m_AudioControls(new CAudioControls()),
@@ -244,7 +244,7 @@ eTVCardId CBT848Card::GetCardType()
     return m_CardType;
 }
 
-string CBT848Card::GetCardName(eTVCardId CardId)
+tstring CBT848Card::GetCardName(eTVCardId CardId)
 {
     return m_TVCards[CardId].szName;
 }
@@ -318,23 +318,23 @@ void CBT848Card::SetBDelay(BYTE BDelay)
     WriteByte(BT848_BDELAY, BDelay);
 }
 
-string CBT848Card::GetChipType()
+tstring CBT848Card::GetChipType()
 {
     switch (m_DeviceId)
     {
     case 0x0350:
-        return "Bt848";
+        return _T("Bt848");
     case 0x0351:
-        return "Bt849";
+        return _T("Bt849");
     case 0x036E:
-        return "Bt878";
+        return _T("Bt878");
     case 0x036F:
-        return "Bt878a";
+        return _T("Bt878a");
     }
-    return "n/a";
+    return _T("n/a");
 }
 
-string CBT848Card::GetTunerType()
+tstring CBT848Card::GetTunerType()
 {
     return m_TunerType;
 }
@@ -809,9 +809,9 @@ BOOL CBT848Card::IsVideoPresent()
 {
     if (IsSPISource(m_CurrentInput))
     {
-        DWORD stat = ReadDword(BT848_INT_STAT);
+        DWORD _tstat = ReadDword(BT848_INT_STAT);
         WriteDword(BT848_INT_STAT, BT848_INT_HSYNC);
-        return (stat & BT848_INT_HSYNC);
+        return (_tstat & BT848_INT_HSYNC);
     }
     else
     {
@@ -859,22 +859,22 @@ void CBT848Card::StartCapture(BOOL bCaptureVBI)
 }
 
 
-string CBT848Card::GetInputName(int nInput)
+tstring CBT848Card::GetInputName(int nInput)
 {
     if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
     {
         return m_TVCards[m_CardType].Inputs[nInput].szName;
     }
-    return "Error";
+    return _T("Error");
 }
 
 
 BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     CBT848Card* pThis = NULL;
-    char szCardId[9] = "n/a     ";
-    char szVendorId[9] = "n/a ";
-    char szDeviceId[9] = "n/a ";
+    TCHAR szCardId[9] = _T("n/a     ");
+    TCHAR szVendorId[9] = _T("n/a ");
+    TCHAR szDeviceId[9] = _T("n/a ");
     DWORD dwCardId(0);
 
     switch (message)
@@ -882,16 +882,16 @@ BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, 
     case WM_INITDIALOG:
         pThis = (CBT848Card*)lParam;
         SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType().c_str());
-        sprintf_s(szVendorId, 9, "%04X", pThis->GetVendorId());
+        _stprintf_s(szVendorId, 9, _T("%04X"), pThis->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
-        sprintf_s(szDeviceId, 9, "%04X", pThis->GetDeviceId());
+        _stprintf_s(szDeviceId, 9, _T("%04X"), pThis->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
         SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType().c_str());
-        SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, ""); // FIXME pThis->GetAudioDecoderType());
+        SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, _T("")); // FIXME pThis->GetAudioDecoderType());
         dwCardId = pThis->GetSubSystemId();
         if(dwCardId != 0 && dwCardId != 0xffffffff)
         {
-            sprintf_s(szCardId, 9, "%8X", dwCardId);
+            _stprintf_s(szCardId, 9, _T("%8X"), dwCardId);
         }
         SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         return TRUE;
@@ -957,12 +957,12 @@ void CBT848Card::SetSDA(BOOL value)
     }
     if (value)
     {
-        LOG(3, (m_I2CRegister & BT848_I2C_SDA) ? "BT848 SetSDA - d^" : "BT848 SetSDA - d/");
+        LOG(3, (m_I2CRegister & BT848_I2C_SDA) ? _T("BT848 SetSDA - d^") : _T("BT848 SetSDA - d/"));
         m_I2CRegister |= BT848_I2C_SDA;
     }
     else
     {
-        LOG(3, (m_I2CRegister & BT848_I2C_SDA) ? "BT848 SetSDA - d\\" : "BT848 SetSDA - d_");
+        LOG(3, (m_I2CRegister & BT848_I2C_SDA) ? _T("BT848 SetSDA - d\\") : _T("BT848 SetSDA - d_"));
         m_I2CRegister &= ~BT848_I2C_SDA;
     }
     WriteDword(BT848_I2C, m_I2CRegister);
@@ -976,12 +976,12 @@ void CBT848Card::SetSCL(BOOL value)
     }
     if (value)
     {
-        LOG(3, (m_I2CRegister & BT848_I2C_SCL) ? "BT848 SetSCL - c^" : "BT848 SetSCL - c/");
+        LOG(3, (m_I2CRegister & BT848_I2C_SCL) ? _T("BT848 SetSCL - c^") : _T("BT848 SetSCL - c/"));
         m_I2CRegister |= BT848_I2C_SCL;
     }
     else
     {
-        LOG(3, (m_I2CRegister & BT848_I2C_SCL) ? "BT848 SetSCL - c\\" : "BT848 SetSCL - c_");
+        LOG(3, (m_I2CRegister & BT848_I2C_SCL) ? _T("BT848 SetSCL - c\\") : _T("BT848 SetSCL - c_"));
         m_I2CRegister &= ~BT848_I2C_SCL;
     }
     WriteDword(BT848_I2C, m_I2CRegister);
@@ -994,7 +994,7 @@ BOOL CBT848Card::GetSDA()
         InitializeI2C();
     }
     BOOL state = ReadDword(BT848_I2C) & BT848_I2C_SDA ? TRUE : FALSE;
-    LOG(3, state ? "BT848 GetSDA - d^" : "BT848 GetSDA - d_");
+    LOG(3, state ? _T("BT848 GetSDA - d^") : _T("BT848 GetSDA - d_"));
     return state;
 }
 
@@ -1005,7 +1005,7 @@ BOOL CBT848Card::GetSCL()
         InitializeI2C();
     }
     BOOL state = ReadDword(BT848_I2C) & BT848_I2C_SCL ? TRUE : FALSE;
-    LOG(3, state ? "BT848 GetSCL - c^" : "BT848 GetSCL - c_");
+    LOG(3, state ? _T("BT848 GetSCL - c^") : _T("BT848 GetSCL - c_"));
     return state;
 }
 
@@ -1060,7 +1060,7 @@ void CBT848Card::ResetChip()
         // switch on allow master and respond to memory requests
         if((Command & 0x06) != 0x06)
         {
-            LOG(1, " CX2388x PCI Command was %d", Command);
+            LOG(1, _T(" CX2388x PCI Command was %d"), Command);
             Command |= 0x06;
             SetPCIConfigOffset(&Command, 0x04, m_BusNumber, m_SlotNumber);
             ::Sleep(500);
@@ -1072,7 +1072,7 @@ void CBT848Card::ResetChip()
 
 void CBT848Card::ShowRegisterSettingsDialog(HINSTANCE hBT8x8ResourceInst)
 {
-    DialogBoxParam(hBT8x8ResourceInst, "REGISTEREDIT", GetMainWnd(), RegisterEditProc, (LPARAM)this);
+    DialogBoxParam(hBT8x8ResourceInst, _T("REGISTEREDIT"), GetMainWnd(), RegisterEditProc, (LPARAM)this);
 }
 
 #define AddRegister(Reg) {long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), #Reg); ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, Reg);}
@@ -1157,8 +1157,8 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
         {
             for(int i(0); i < 0xFF; ++i)
             {
-                char RegName[20];
-                sprintf(RegName, "SAA7118_%02x",i);
+                TCHAR RegName[20];
+                _stprintf(RegName, _T("SAA7118_%02x"),i);
                 long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), RegName);
                 ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, i + 0x1000);
             }

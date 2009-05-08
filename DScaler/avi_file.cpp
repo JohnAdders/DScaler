@@ -53,7 +53,7 @@ BOOL __seek(AVI_FILE *file, int64 offset)
                        FILE_BEGIN)==INVALID_SET_FILE_POINTER &&
         GetLastError() != NO_ERROR)
     {
-        aviSetError(file, AVI_ERROR_FILE, "Seek failed");
+        aviSetError(file, AVI_ERROR_FILE, _T("Seek failed"));
         return FALSE;
     }
 
@@ -78,7 +78,7 @@ BOOL __tell(AVI_FILE *file, int64 *offset)
                                          FILE_CURRENT))==INVALID_SET_FILE_POINTER &&
         GetLastError() != NO_ERROR)
     {
-        aviSetError(file, AVI_ERROR_FILE, "Get file pointer falied");
+        aviSetError(file, AVI_ERROR_FILE, _T("Get file pointer falied"));
         return FALSE;
     }
 
@@ -101,7 +101,7 @@ BOOL __read(AVI_FILE *file, void *data, DWORD size)
 
     if (!ReadFile(file->async.f, data, size, &read, NULL))
     {
-        aviSetError(file, AVI_ERROR_FILE, "Read failed");
+        aviSetError(file, AVI_ERROR_FILE, _T("Read failed"));
         return FALSE;
     }
 
@@ -122,8 +122,8 @@ BOOL __write(AVI_FILE *file, void *data, DWORD size)
 
     if (!WriteFile(file->async.f, data, size, &written, NULL))
     {
-        aviSetError(file, AVI_ERROR_FILE, "Could not write to the file. "
-                                          "The disk is most likely full.");
+        aviSetError(file, AVI_ERROR_FILE, _T("Could not write to the file. ")
+                                          _T("The disk is most likely full."));
         return FALSE;
     }
 
@@ -380,7 +380,7 @@ BOOL fifoDumpBlock(FIFO *fifo, AVI_FILE *file)
     if (!size)
     {
         /* This shouldn't ever happen */
-        aviSetError(file, AVI_ERROR_FIFO, "Internal write error");
+        aviSetError(file, AVI_ERROR_FIFO, _T("Internal write error"));
         fifoError = TRUE;
     }
 
@@ -406,7 +406,7 @@ BOOL fifoDumpBlock(FIFO *fifo, AVI_FILE *file)
     if (fifoReadableSpace(fifo) < size + sizeof(ASYNC_DATA_HEADER))
     {
         /* This also shouldn't ever happen */
-        aviSetError(file, AVI_ERROR_FIFO, "Internal write error");
+        aviSetError(file, AVI_ERROR_FIFO, _T("Internal write error"));
         fifoError = TRUE;
     }
 
@@ -532,7 +532,7 @@ BOOL fileBuildStreamIndex(AVI_FILE *file, stream_t type)
                 /* Ran out of index entries to read. This is definitely an
                    error. */
                 aviSetError(file, AVI_ERROR_BUILD_INDEX,
-                                  "Ran out of super index entries");
+                                  _T("Ran out of super index entries"));
                 return FALSE;
             }
 
@@ -667,7 +667,7 @@ BOOL fileBuildIndex(AVI_FILE *file)
           result = FALSE;
     } else
     {
-        aviSetError(file, AVI_ERROR_BUILD_INDEX, "Seek to index chunk failed");
+        aviSetError(file, AVI_ERROR_BUILD_INDEX, _T("Seek to index chunk failed"));
         result = FALSE;
     }
 
@@ -795,7 +795,7 @@ DWORD WINAPI asyncThread(LPVOID vFile)
  * \retval FALSE The file could not be opened because of an error
  */
 
-BOOL fileOpen(AVI_FILE *file, char *fileName)
+BOOL fileOpen(AVI_FILE *file, TCHAR* fileName)
 {
     DWORD temp;
 
@@ -805,7 +805,7 @@ BOOL fileOpen(AVI_FILE *file, char *fileName)
     file->async.fifo = fifoCreate(ASYNC_MEM_LIMIT);
     if (!file->async.fifo)
     {
-        aviSetError(file, AVI_ERROR_FILE_OPEN, "Out of memory");
+        aviSetError(file, AVI_ERROR_FILE_OPEN, _T("Out of memory"));
         return FALSE;
     }
 
@@ -813,7 +813,7 @@ BOOL fileOpen(AVI_FILE *file, char *fileName)
     if (!file->async.hWriteEvent)
     {
         fileClose(file);
-        aviSetError(file, AVI_ERROR_FILE_OPEN, "Could not create an event");
+        aviSetError(file, AVI_ERROR_FILE_OPEN, _T("Could not create an event"));
         return FALSE;
     }
 
@@ -821,7 +821,7 @@ BOOL fileOpen(AVI_FILE *file, char *fileName)
     if (!file->async.hThreadKick)
     {
         fileClose(file);
-        aviSetError(file, AVI_ERROR_FILE_OPEN, "Could not create an event");
+        aviSetError(file, AVI_ERROR_FILE_OPEN, _T("Could not create an event"));
         return FALSE;
     }
 
@@ -829,7 +829,7 @@ BOOL fileOpen(AVI_FILE *file, char *fileName)
     if (!file->async.hExit)
     {
         fileClose(file);
-        aviSetError(file, AVI_ERROR_FILE_OPEN, "Could not create an event");
+        aviSetError(file, AVI_ERROR_FILE_OPEN, _T("Could not create an event"));
         return FALSE;
     }
 
@@ -842,7 +842,7 @@ BOOL fileOpen(AVI_FILE *file, char *fileName)
     {
         fileClose(file);
         aviSetError(file, AVI_ERROR_FILE_OPEN,
-                          "Failed to create the writing thread");
+                          _T("Failed to create the writing thread"));
         return FALSE;
     }
 
@@ -852,8 +852,8 @@ BOOL fileOpen(AVI_FILE *file, char *fileName)
     {
         fileClose(file);
         aviSetError(file, AVI_ERROR_FILE_OPEN,
-                          "Could not open the file for writing. An invalid "
-                          "path might have been used.");
+                          _T("Could not open the file for writing. An invalid ")
+                          _T("path might have been used."));
         return FALSE;
     }
 
@@ -894,7 +894,7 @@ void fileClose(AVI_FILE *file)
 
     #ifdef AVI_DEBUG
     if (file->async.fifo && fifoReadableSpace(file->async.fifo))
-       cprintf("Warning - The FIFO buffer isn't empty!\n");
+       cprintf(_T("Warning - The FIFO buffer isn't empty!\n"));
     #endif
 
     if (file->async.hWriteEvent)
@@ -974,8 +974,8 @@ BOOL fileWrite(AVI_FILE *file, void *data, DWORD size)
     if (size + sizeof(ASYNC_DATA_HEADER) > ASYNC_MEM_LIMIT)
     {
         aviSetError(file, AVI_ERROR_ASYNC,
-                          "Tried to write a block of data that was larger than"
-                          "the entire FIFO buffer");
+                          _T("Tried to write a block of data that was larger than")
+                          _T("the entire FIFO buffer"));
         return FALSE;
     }
 
@@ -992,7 +992,7 @@ BOOL fileWrite(AVI_FILE *file, void *data, DWORD size)
     while (!fifoWrite((FIFO*)file->async.fifo, &header, (BYTE*)data))
     {
         #ifdef AVI_DEBUG
-        cprintf("Mem limit reached\n");
+        cprintf(_T("Mem limit reached\n"));
         #endif
 
         WaitForSingleObject(file->async.hWriteEvent, INFINITE);

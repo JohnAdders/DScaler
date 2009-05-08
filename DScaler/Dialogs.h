@@ -35,7 +35,8 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 void SetHorSliderInt(HWND hDlgItem, int m_YPos, int Value, int nMin, int nMax);
 int GetHorSliderInt(int MouseX, int nMin, int nMax);
-LPCSTR GetProductNameAndVersion();
+tstring GetProductNameAndVersion();
+tstring GetProductNameAndVersionFull();
 
 
 #endif

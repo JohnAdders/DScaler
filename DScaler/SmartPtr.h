@@ -60,7 +60,7 @@ struct Counter
     unsigned count;
 };
 
-template <typename X>
+template <class X>
 class SmartPtr
 {
 
@@ -71,7 +71,9 @@ public:
         SmartPtr needs to be its own friend so SmartPtr< X > and SmartPtr< Y > can access
         each other's private data members
     */
-    template <class Y> friend class SmartPtr;
+	#if _MSC_VER > 1200
+		template <class Y> friend class SmartPtr;
+	#endif
     /*
         default constructor
             - don't create Counter
@@ -106,17 +108,18 @@ public:
     /*
         Copy constructor
     */
-    SmartPtr(const SmartPtr< X >& otherPtr)
-    {
-        acquire( otherPtr.counter );
-        rawPtr = otherPtr.rawPtr;
-    }
-    
-    template <typename Y>
+   
+    template <class Y>
     explicit SmartPtr(const SmartPtr< Y >& otherPtr) : rawPtr(0), counter(0)
     {
         acquire(otherPtr.counter);
         rawPtr = dynamic_cast<X*>( otherPtr.GetRawPointer());
+    }
+
+    SmartPtr(const SmartPtr< X >& otherPtr)
+    {
+        acquire( otherPtr.counter );
+        rawPtr = otherPtr.rawPtr;
     }
     
 
@@ -132,17 +135,6 @@ public:
     Assignment to another SmartPtr
 */
 
-SmartPtr& operator=(const SmartPtr< X >& otherPtr)
-{
-    if (this != &otherPtr)
-    {
-        release();
-        acquire(otherPtr.counter);
-        rawPtr = otherPtr.rawPtr;
-    }
-    return *this;
-}
-
 template <typename Y>
 SmartPtr& operator=(const SmartPtr< Y >& otherPtr)
 {
@@ -154,6 +146,18 @@ SmartPtr& operator=(const SmartPtr< Y >& otherPtr)
     }
     return *this;
 }
+
+SmartPtr& operator=(const SmartPtr< X >& otherPtr)
+{
+    if (this != &otherPtr)
+    {
+        release();
+        acquire(otherPtr.counter);
+        rawPtr = otherPtr.rawPtr;
+    }
+    return *this;
+}
+
 
 /*
     Assignment to raw pointers is really dangerous business.

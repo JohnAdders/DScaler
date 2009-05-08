@@ -57,10 +57,10 @@ class CSettingGroup
 {
 public:
 
-    CSettingGroup(const std::string& Name, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
+    CSettingGroup(const tstring& Name, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
     ~CSettingGroup();
 
-    const std::string& GetName();
+    const tstring& GetName();
 
     BOOL IsSetByChannel() { return ((m_Flags & SETTING_BY_CHANNEL) == SETTING_BY_CHANNEL);};
     BOOL IsSetByFormat() { return ((m_Flags & SETTING_BY_FORMAT) == SETTING_BY_FORMAT);};
@@ -73,7 +73,7 @@ public:
 
 protected:
     /// Name of the group
-    std::string m_Name;
+    tstring m_Name;
     DWORD m_Flags;
 
     SmartPtr<CYesNoSetting> m_IsActive;

@@ -36,22 +36,22 @@ CStillProvider::CStillProvider()
 {
     CStillSource* pStillSource;
 
-    pStillSource = new CStillSource("Still");
+    pStillSource = new CStillSource(_T("Still"));
     m_StillSources.push_back(pStillSource);
 
-    pStillSource = new CStillSource("Patterns");
+    pStillSource = new CStillSource(_T("Patterns"));
     m_StillSources.push_back(pStillSource);
-    string PlayList(GetInstallationPath());
-    PlayList += "\\patterns\\pj_calibr.d3u";
+    tstring PlayList(GetInstallationPath());
+    PlayList += _T("\\patterns\\pj_calibr.d3u");
     pStillSource->LoadPlayList(PlayList);
 
-    pStillSource = new CStillSource("Snapshots");
+    pStillSource = new CStillSource(_T("Snapshots"));
     m_StillSources.push_back(pStillSource);
 
-    pStillSource = new CStillSource("DScaler intro");
+    pStillSource = new CStillSource(_T("DScaler intro"));
     m_StillSources.push_back(pStillSource);
     PlayList = GetInstallationPath();
-    PlayList += "\\DScaler.d3u";
+    PlayList += _T("\\DScaler.d3u");
     pStillSource->OpenMediaFile(PlayList, TRUE);
     pStillSource->SetNavigOnly(TRUE);
 }

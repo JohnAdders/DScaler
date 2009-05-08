@@ -41,7 +41,7 @@
 #include "Audio.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
-#include "DScalerVersion.h"
+#include "Dialogs.h"
 
 using namespace std;
 
@@ -294,7 +294,7 @@ LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wPara
     case WM_DRAWITEM:
         {
             DRAWITEMSTRUCT *pDrawItem;
-            char szText[100];
+            TCHAR szText[100];
             HICON hIcon = NULL;
             int Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_CENTER|
                         TOOLBARBUTTON_TEXT_HALIGN_CENTER|TOOLBARBUTTON_TEXT_VALIGN_CENTER;
@@ -529,7 +529,7 @@ void CToolbarVolume::UpdateControls(HWND hWnd, BOOL bInitDialog)
     else
     {
         ShowWindow(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), SW_SHOW);
-        LOG(2,"Toolbar Volume: Update controls: volume = %d",m_Volume);
+        LOG(2,_T("Toolbar Volume: Update controls: volume = %d"),m_Volume);
         SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETPOS, TRUE, m_Volume-m_VolumeMin);
     }
 
@@ -641,7 +641,7 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
             HICON hIcon = NULL;
             int Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_CENTER|
                         TOOLBARBUTTON_TEXT_HALIGN_CENTER|TOOLBARBUTTON_TEXT_VALIGN_CENTER;
-            string szText;
+            tstring szText;
 
             pDrawItem = (DRAWITEMSTRUCT*)lParam;
 
@@ -651,19 +651,19 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
                 {
                 case SOUNDCHANNEL_STEREO:
                     hIcon = m_hIconStereo;
-                    szText = "Stereo";
+                    szText = _T("Stereo");
                     break;
                 case SOUNDCHANNEL_LANGUAGE1:
                     hIcon = m_hIconLang1;
-                    szText = "Lang 1";
+                    szText = _T("Lang 1");
                     break;
                 case SOUNDCHANNEL_LANGUAGE2:
                     hIcon = m_hIconLang2;
-                    szText = "Lang 2";
+                    szText = _T("Lang 2");
                     break;
                 default:
                     hIcon = m_hIconMono;
-                    szText = "Mono";
+                    szText = _T("Mono");
                     break;
                 }
                 Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_TOP|
@@ -800,8 +800,8 @@ void CToolbarMediaPlayer::UpdateControls(HWND hWnd, BOOL bInitDialog)
 
     SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_SETPOS, TRUE, m_Elapsed);
 
-    char text[16];
-    sprintf(text, "%u:%2.2u / %u:%2.2u", m_Elapsed / 600, (m_Elapsed % 600) / 10, m_Duration / 600, (m_Duration % 600) / 10);
+    TCHAR text[16];
+    _stprintf(text, _T("%u:%2.2u / %u:%2.2u"), m_Elapsed / 600, (m_Elapsed % 600) / 10, m_Duration / 600, (m_Duration % 600) / 10);
     SetDlgItemText(hWnd, IDC_TOOLBAR_MEDIAPLAYER_ELAPSED, text);
 
     SetFocus(m_pToolbar->GethWndParent());
@@ -853,41 +853,41 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
             switch (nScrollCode)
             {
             case SB_ENDSCROLL:
-                LOG(1, "WM_HSCROLL - SB_ENDSCROLL");
+                LOG(1, _T("WM_HSCROLL - SB_ENDSCROLL"));
                 break;
             case SB_LEFT:
-                LOG(1, "WM_HSCROLL - SB_LEFT");
+                LOG(1, _T("WM_HSCROLL - SB_LEFT"));
                 break;
             case SB_RIGHT:
-                LOG(1, "WM_HSCROLL - SB_RIGHT");
+                LOG(1, _T("WM_HSCROLL - SB_RIGHT"));
                 break;
             case SB_LINELEFT:
-                LOG(1, "WM_HSCROLL - SB_LINELEFT");
+                LOG(1, _T("WM_HSCROLL - SB_LINELEFT"));
                 break;
             case SB_LINERIGHT:
-                LOG(1, "WM_HSCROLL - SB_LINERIGHT");
+                LOG(1, _T("WM_HSCROLL - SB_LINERIGHT"));
                 break;
             case SB_PAGELEFT:
-                LOG(1, "WM_HSCROLL - SB_PAGELEFT");
+                LOG(1, _T("WM_HSCROLL - SB_PAGELEFT"));
                 break;
             case SB_PAGERIGHT:
-                LOG(1, "WM_HSCROLL - SB_PAGERIGHT");
+                LOG(1, _T("WM_HSCROLL - SB_PAGERIGHT"));
                 break;
             case SB_THUMBPOSITION:
-                LOG(1, "WM_HSCROLL - SB_THUMBPOSITION");
+                LOG(1, _T("WM_HSCROLL - SB_THUMBPOSITION"));
                 break;
             case SB_THUMBTRACK:
-                LOG(1, "WM_HSCROLL - SB_THUMBTRACK");
+                LOG(1, _T("WM_HSCROLL - SB_THUMBTRACK"));
                 break;
             default:
-                LOG(1, "WM_HSCROLL - ???");
+                LOG(1, _T("WM_HSCROLL - ???"));
                 break;
             }
             */
 
             int Position = SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_GETPOS, 0, 0);
 
-            //LOG(1, "Position %d", Position);
+            //LOG(1, _T("Position %d"), Position);
             if (Position != m_Elapsed)
             {
                 if ((Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
@@ -935,7 +935,7 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
             HICON hIcon = NULL;
             int Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_CENTER|
                         TOOLBARBUTTON_TEXT_HALIGN_CENTER|TOOLBARBUTTON_TEXT_VALIGN_CENTER;
-            string szText;
+            tstring szText;
 
             pDrawItem = (DRAWITEMSTRUCT*)lParam;
 
@@ -945,15 +945,15 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
                 {
                 case IDC_TOOLBAR_MEDIAPLAYER_PLAY:
                     hIcon = m_hIconPlay;
-                    szText = "Play";
+                    szText = _T("Play");
                     break;
                 case IDC_TOOLBAR_MEDIAPLAYER_PAUSE:
                     hIcon = m_hIconPause;
-                    szText = "Pause";
+                    szText = _T("Pause");
                     break;
                 case IDC_TOOLBAR_MEDIAPLAYER_STOP:
                     hIcon = m_hIconStop;
-                    szText = "Stop";
+                    szText = _T("Stop");
                     break;
                 default:
                     break;
@@ -965,7 +965,7 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
                 RECT rc;
                 GetClientRect(GetDlgItem(hDlg, pDrawItem->CtlID), &rc);
 
-                DrawItem(pDrawItem, hIcon, hIcon?"":szText.c_str(), rc.right-rc.left, rc.bottom-rc.top, Align);
+                DrawItem(pDrawItem, hIcon, hIcon?_T(""):szText.c_str(), rc.right-rc.left, rc.bottom-rc.top, Align);
             }
         }
         break;
@@ -1007,7 +1007,7 @@ HWND CToolbarLogo::CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst)
             OriginalLogoWidth = rc.right-rc.left;
             OriginalLogoHeight = rc.bottom-rc.top;
         }
-        SetWindowText(GetDlgItem(hWnd, IDC_TOOLBAR_LOGO_LOGO), "DScaler Version " VERSTRING);
+        SetWindowText(GetDlgItem(hWnd, IDC_TOOLBAR_LOGO_LOGO), GetProductNameAndVersion().c_str());
     }
     return hWnd;
 
@@ -1107,7 +1107,7 @@ CToolbar1Bar::~CToolbar1Bar()
     }
 }
 
-HWND CToolbar1Bar::Create(LPCSTR szClassName, HINSTANCE hResourceInst)
+HWND CToolbar1Bar::Create(LPCTSTR szClassName, HINSTANCE hResourceInst)
 {
     HWND hWnd = CToolbarChild::Create(szClassName, hResourceInst);
 
@@ -1115,8 +1115,8 @@ HWND CToolbar1Bar::Create(LPCSTR szClassName, HINSTANCE hResourceInst)
     {
         //Create picture window
         hWndPicture = CreateWindow(
-                          "Static",
-                          "",
+                          _T("Static"),
+                          _T(""),
                           SS_BITMAP | WS_CHILD | WS_VISIBLE,
                           LeftMargin,         // starting x position
                           0,         // starting y position

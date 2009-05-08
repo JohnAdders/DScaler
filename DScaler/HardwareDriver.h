@@ -67,7 +67,7 @@ private:
     HANDLE      m_hFile;
     BOOL        m_bWindows95;
     BOOL        m_WeStartedDriver;
-    char        m_NTDriverName[MAX_PATH];
+    TCHAR       m_NTDriverName[MAX_PATH];
 };
 
 

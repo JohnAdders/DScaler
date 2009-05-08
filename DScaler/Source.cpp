@@ -33,7 +33,7 @@
 CSource::CSource(long SetMessage, long MenuId) :
     CSettingsHolder(SetMessage),
     m_FieldFrequency(0),
-    m_Comments("")
+    m_Comments(_T(""))
 {
     m_hMenu = LoadMenu(hResourceInst, MAKEINTRESOURCE(MenuId));
 }
@@ -53,9 +53,9 @@ HMENU CSource::GetSourceMenu()
     return m_hMenu;
 }
 
-char* CSource::GetComments()
+const TCHAR* CSource::GetComments()
 {
-    return (char*)m_Comments.c_str();
+    return m_Comments.c_str();
 }
 
 void CSource::NotifySizeChange()
@@ -71,7 +71,7 @@ void CSource::NotifySquarePixelsCheck()
 {
     if (Providers_GetCurrentSource() == this)
     {
-        // Tell dscaler to check whether "square pixels" AR mode must be on or off
+        // Tell dscaler to check whether _T("square pixels") AR mode must be on or off
         // The real work will be done in the main message loop
         PostMessageToMainWindow(UWM_SQUAREPIXELS_CHECK,0,0);
     }

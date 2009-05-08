@@ -234,24 +234,24 @@ void CCX2388xSource::UpdateAudioStatus()
         SoundChannel = SOUNDCHANNEL_STEREO;
     }
 
-    char szSoundChannel[256] = "";
+    TCHAR szSoundChannel[256] = _T("");
 
     switch(SoundChannel)
     {
     case SOUNDCHANNEL_MONO:
-        strcpy(szSoundChannel,"Mono");
+        _tcscpy(szSoundChannel,_T("Mono"));
         break;
 
     case SOUNDCHANNEL_STEREO:
-        strcpy(szSoundChannel,"Stereo");
+        _tcscpy(szSoundChannel,_T("Stereo"));
         break;
 
     case SOUNDCHANNEL_LANGUAGE1:
-        strcpy(szSoundChannel,"Language 1");
+        _tcscpy(szSoundChannel,_T("Language 1"));
         break;
 
     case SOUNDCHANNEL_LANGUAGE2:
-        strcpy(szSoundChannel,"Language 2");
+        _tcscpy(szSoundChannel,_T("Language 2"));
         break;
     }
 

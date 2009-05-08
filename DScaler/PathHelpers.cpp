@@ -25,9 +25,9 @@
 
 using namespace std;
 
-string GetMainExeName()
+tstring GetMainExeName()
 {
-    vector<char> RetVal(MAX_PATH);
+    vector<TCHAR> RetVal(MAX_PATH);
     if(GetModuleFileName (NULL, &RetVal[0], MAX_PATH) == 0)
     {
         throw std::logic_error("GetModuleFileName failed");
@@ -35,38 +35,38 @@ string GetMainExeName()
     return &RetVal[0];
 }
 
-string GetInstallationPath()
+tstring GetInstallationPath()
 {
-    string ExePath(GetMainExeName());
+    tstring ExePath(GetMainExeName());
     size_t LastSlash(ExePath.rfind('\\'));
-    if(LastSlash != string::npos)
+    if(LastSlash != tstring::npos)
     {
         return ExePath.substr(0, LastSlash);
     }
     else
     {
-        return "";
+        return _T("");
     }
 }
 
-string GetExtension(const string& FileName)
+tstring GetExtension(const tstring& FileName)
 {
     size_t LastDot(FileName.rfind('.'));
-    if(LastDot != string::npos)
+    if(LastDot != tstring::npos)
     {
         return FileName.substr(LastDot + 1);
     }
     else
     {
-        return "";
+        return _T("");
     }
 }
 
-std::string StripPath(const std::string& FileName)
+tstring StripPath(const tstring& FileName)
 {
-    string RetVal;
+    tstring RetVal;
     size_t LastSlash(FileName.rfind('\\'));
-    if(LastSlash != string::npos)
+    if(LastSlash != tstring::npos)
     {
         return FileName.substr(LastSlash + 1);
     }

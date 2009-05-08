@@ -24,14 +24,14 @@
 #define __PATH_HELPERS_H___
 
 // returns the path location of the DScaler exe
-std::string GetInstallationPath();
+tstring GetInstallationPath();
 // returns the full path of the DScaler exe
-std::string GetMainExeName();
+tstring GetMainExeName();
 
 // gets the extension from a file name
-std::string GetExtension(const std::string& FileName);
+tstring GetExtension(const tstring& FileName);
 
 // strips the path from a file name
-std::string StripPath(const std::string& FileName);
+tstring StripPath(const tstring& FileName);
 
 #endif

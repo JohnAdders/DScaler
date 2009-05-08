@@ -19,8 +19,8 @@
 #ifndef __XMLTV_TIMESTAMP_H
 #define __XMLTV_TIMESTAMP_H
 
-time_t parse_xmltv_date_v5( const char *date, unsigned int len );
-time_t parse_xmltv_date_v6( const char *date, unsigned int len );
+time_t parse_xmltv_date_v5( const TCHAR* date, unsigned int len );
+time_t parse_xmltv_date_v6( const TCHAR* date, unsigned int len );
 
 #endif // __XMLTV_TIMESTAMP_H
 

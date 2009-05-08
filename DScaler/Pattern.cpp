@@ -162,7 +162,7 @@ eTypeDraw CColorBar::GetTypeDraw(int* pParam1Draw, int* pParam2Draw)
 
 // This methode returns the reference color
 // If parameter YUV is TRUE, it returns YUV values else RGB values
-void CColorBar::GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
+void CColorBar::GetRefColor(BOOL YUV, BYTE* pR_Y, BYTE* pG_U, BYTE* pB_V)
 {
     if (YUV)
     {
@@ -180,7 +180,7 @@ void CColorBar::GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, 
 
 // This methode returns the second reference color
 // If parameter YUV is TRUE, it returns YUV values else RGB values
-void CColorBar::GetRefColor2(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
+void CColorBar::GetRefColor2(BOOL YUV, BYTE* pR_Y, BYTE* pG_U, BYTE* pB_V)
 {
     if (YUV)
     {
@@ -198,7 +198,7 @@ void CColorBar::GetRefColor2(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U,
 
 // This methode returns the calculated average color
 // If parameter YUV is TRUE, it returns YUV values else RGB values
-BOOL CColorBar::GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
+BOOL CColorBar::GetCurrentAvgColor(BOOL YUV, BYTE* pR_Y, BYTE* pG_U, BYTE* pB_V)
 {
     if (YUV && !YUV_val_available && RGB_val_available)
     {
@@ -276,7 +276,7 @@ BOOL CColorBar::GetDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pT
 BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo)
 {
     int left, right, top, bottom, i, j, k;
-    unsigned char *pComponentVal[3];
+    BYTE* pComponentVal[3];
     unsigned int nb_val[3];
     unsigned char min[3];
     unsigned char max[3];
@@ -330,7 +330,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
         bottom = height - 1;
     }
 
-    LOG(5, "CalcAvgColor Zone %d %d %d %d", left, right, top, bottom);
+    LOG(5, _T("CalcAvgColor Zone %d %d %d %d"), left, right, top, bottom);
 
     // Sum separately Y, U and V in this rectangular zone
     // Each line is like this : YUYVYUYV...
@@ -388,8 +388,8 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     min_available = TRUE;
     max_available = TRUE;
 
-    LOG(5, "CalcAvgColor Min Y %d U %d V %d", component_min[2], component_min[0], component_min[1]);
-    LOG(5, "CalcAvgColor Max Y %d U %d V %d", component_max[2], component_max[0], component_max[1]);
+    LOG(5, _T("CalcAvgColor Min Y %d U %d V %d"), component_min[2], component_min[0], component_min[1]);
+    LOG(5, _T("CalcAvgColor Max Y %d U %d V %d"), component_max[2], component_max[0], component_max[1]);
 
     if (cpt_nb >= nb_calc_needed)
     {
@@ -416,7 +416,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
 
         YUV_val_available = TRUE;
 
-        LOG(5, "CalcAvgColor YUV %d %d %d %d %d %d %d %d %d", Y_val, U_val, V_val, left, right, top, bottom, height, width);
+        LOG(5, _T("CalcAvgColor YUV %d %d %d %d %d %d %d %d %d"), Y_val, U_val, V_val, left, right, top, bottom, height, width);
 
         return TRUE;
     }
@@ -426,7 +426,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     }
 }
 
-BOOL CColorBar::GetMinColor(unsigned char* pY, unsigned char* pU, unsigned char* pV)
+BOOL CColorBar::GetMinColor(BYTE* pY, BYTE* pU, BYTE* pV)
 {
     if (min_available)
     {
@@ -441,7 +441,7 @@ BOOL CColorBar::GetMinColor(unsigned char* pY, unsigned char* pU, unsigned char*
     }
 }
 
-BOOL CColorBar::GetMaxColor(unsigned char* pY, unsigned char* pU, unsigned char* pV)
+BOOL CColorBar::GetMaxColor(BYTE* pY, BYTE* pU, BYTE* pV)
 {
     if (max_available)
     {
@@ -649,7 +649,7 @@ void CColorBar::Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Oversca
 }
 
 // Convert RGB to YUV
-void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char* pY, unsigned char* pU, unsigned char* pV)
+void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, BYTE* pY, BYTE* pU, BYTE* pV)
 {
     unsigned int y, cr, cb;
 
@@ -670,7 +670,7 @@ void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsig
 }
 
 // Convert YUV to RGB
-void CColorBar::YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char* pR, unsigned char* pG, unsigned char* pB)
+void CColorBar::YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, BYTE* pR, BYTE* pG, BYTE* pB)
 {
     int y, cr, cb, r, g, b;
 
@@ -775,29 +775,29 @@ void CSubPattern::Draw(TDeinterlaceInfo* pInfo)
 /////////////////////////////////////////////////////////////////////////////
 // Class CTestPattern
 
-CTestPattern::CTestPattern(const string& name, int width, int height)
+CTestPattern::CTestPattern(const tstring& name, int width, int height)
 {
     m_PatternName = name;
     m_Width = width;
     m_Height = height;
 }
 
-CTestPattern::CTestPattern(const string& FileName)
+CTestPattern::CTestPattern(const tstring& FileName)
 {
     FILE* FilePat;
     CColorBar* color_bar;
     CSubPattern* sub_pattern;
-    char BufferLine[512];
-    char *Buffer;
+    TCHAR BufferLine[512];
+    TCHAR* Buffer;
     int i_val[16];
-    char s_val[64];
-    char s_val2[64];
+    TCHAR s_val[64];
+    TCHAR s_val2[64];
     int n;
     eTypeAdjust TypeAdjust;
     BOOL YUV;
     eTypeDraw TypeDraw;
 
-    FilePat = fopen(FileName.c_str(), "r");
+    FilePat = _tfopen(FileName.c_str(), _T("r"));
     if (!FilePat)
     {
         m_Width = 0;
@@ -815,44 +815,44 @@ CTestPattern::CTestPattern(const string& FileName)
 
     while(!feof(FilePat))
     {
-        if(fgets(BufferLine, 512, FilePat))
+        if(_fgetts(BufferLine, 512, FilePat))
         {
             BufferLine[511] = '\0';
             Buffer = BufferLine;
-            while(strlen(Buffer) > 0 && *Buffer <= ' ')
+            while(_tcslen(Buffer) > 0 && *Buffer <= ' ')
             {
                 Buffer++;
             }
-            if(strlen(Buffer) == 0 || *Buffer == '#' || *Buffer == ';')
+            if(_tcslen(Buffer) == 0 || *Buffer == '#' || *Buffer == ';')
             {
                 continue;
             }
-            while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
+            while(_tcslen(Buffer) > 0 && Buffer[_tcslen(Buffer) - 1] <= ' ')
             {
-                Buffer[strlen(Buffer) - 1] = '\0';
+                Buffer[_tcslen(Buffer) - 1] = '\0';
             }
-            if (strlen(Buffer) == 0)
+            if (_tcslen(Buffer) == 0)
             {
                 continue;
             }
-            if (sscanf(Buffer, "PAT %s", s_val) == 1)
+            if (_stscanf(Buffer, _T("PAT %s"), s_val) == 1)
             {
-                m_PatternName = strstr(&Buffer[4], s_val);
-                LOG(5,"PAT %s", m_PatternName);
+                m_PatternName = _tcsstr(&Buffer[4], s_val);
+                LOG(5,_T("PAT %s"), m_PatternName.c_str());
             }
-            else if (sscanf(Buffer, "SIZE %d %d", &i_val[0], &i_val[1]) == 2)
+            else if (_stscanf(Buffer, _T("SIZE %d %d"), &i_val[0], &i_val[1]) == 2)
             {
                 m_Width = i_val[0];
                 m_Height = i_val[1];
-                LOG(5,"SIZE %d %d", m_Width, m_Height);
+                LOG(5,_T("SIZE %d %d"), m_Width, m_Height);
             }
-            else if ((n = sscanf(Buffer, "RECT %d %d %d %d %s %d %d %d %d %d %d %s %d %d", &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], s_val2, &i_val[10])) >= 12)
+            else if ((n = _stscanf(Buffer, _T("RECT %d %d %d %d %s %d %d %d %d %d %d %s %d %d"), &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], s_val2, &i_val[10])) >= 12)
             {
-                if (!strcmp(s_val, "RGB"))
+                if (!_tcscmp(s_val, _T("RGB")))
                 {
                     YUV = FALSE;
                 }
-                else if (!strcmp(s_val, "YUV"))
+                else if (!_tcscmp(s_val, _T("YUV")))
                 {
                     YUV = TRUE;
                 }
@@ -860,19 +860,19 @@ CTestPattern::CTestPattern(const string& FileName)
                 {
                     continue;
                 }
-                if (!strcmp(s_val2, "BORDER"))
+                if (!_tcscmp(s_val2, _T("BORDER")))
                 {
                     TypeDraw = DRAW_BORDER;
                 }
-                else if (!strcmp(s_val2, "LINEH"))
+                else if (!_tcscmp(s_val2, _T("LINEH")))
                 {
                     TypeDraw = DRAW_LINEH;
                 }
-                else if (!strcmp(s_val2, "LINEV"))
+                else if (!_tcscmp(s_val2, _T("LINEV")))
                 {
                     TypeDraw = DRAW_LINEV;
                 }
-                else if (!strcmp(s_val2, "LINEX"))
+                else if (!_tcscmp(s_val2, _T("LINEX")))
                 {
                     TypeDraw = DRAW_LINEX;
                 }
@@ -884,17 +884,17 @@ CTestPattern::CTestPattern(const string& FileName)
                 {
                     i_val[10] = 1;
                 }
-                LOG(5,"RECT %s (%d) %s %d %d %d %d %d %d %d %d %d %d", s_val2, i_val[10], YUV?"YUV":"RGB", i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6], i_val[7], i_val[8], i_val[9]);
+                LOG(5,_T("RECT %s (%d) %s %d %d %d %d %d %d %d %d %d %d"), s_val2, i_val[10], YUV?_T("YUV"):_T("RGB"), i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6], i_val[7], i_val[8], i_val[9]);
                 color_bar = new CColorBar(i_val[0], i_val[1], i_val[2], i_val[3], TypeDraw, i_val[10], 0, YUV, i_val[4], i_val[5], i_val[6], i_val[7], i_val[8], i_val[9]);
                 m_ColorBars.push_back(color_bar);
             }
-            else if ((n = sscanf(Buffer, "RECT %d %d %d %d %s %d %d %d %s %d %d", &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6], s_val2, &i_val[7], &i_val[8])) >= 9)
+            else if ((n = _stscanf(Buffer, _T("RECT %d %d %d %d %s %d %d %d %s %d %d"), &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6], s_val2, &i_val[7], &i_val[8])) >= 9)
             {
-                if (!strcmp(s_val, "RGB"))
+                if (!_tcscmp(s_val, _T("RGB")))
                 {
                     YUV = FALSE;
                 }
-                else if (!strcmp(s_val, "YUV"))
+                else if (!_tcscmp(s_val, _T("YUV")))
                 {
                     YUV = TRUE;
                 }
@@ -902,28 +902,28 @@ CTestPattern::CTestPattern(const string& FileName)
                 {
                     continue;
                 }
-                if (!strcmp(s_val2, "FILLED") && n == 9)
+                if (!_tcscmp(s_val2, _T("FILLED")) && n == 9)
                 {
                     TypeDraw = DRAW_FILLED;
                     i_val[7] = 0;
                     i_val[8] = 0;
                 }
-                else if (!strcmp(s_val2, "BORDER") && n == 10)
+                else if (!_tcscmp(s_val2, _T("BORDER")) && n == 10)
                 {
                     TypeDraw = DRAW_BORDER;
                     i_val[8] = 0;
                 }
-                else if (!strcmp(s_val2, "BORDER") && n == 9)
+                else if (!_tcscmp(s_val2, _T("BORDER")) && n == 9)
                 {
                     TypeDraw = DRAW_BORDER;
                     i_val[7] = 1;
                     i_val[8] = 0;
                 }
-                else if (!strcmp(s_val2, "GRADH") && n == 11)
+                else if (!_tcscmp(s_val2, _T("GRADH")) && n == 11)
                 {
                     TypeDraw = DRAW_GRADATIONH;
                 }
-                else if (!strcmp(s_val2, "GRADV") && n == 11)
+                else if (!_tcscmp(s_val2, _T("GRADV")) && n == 11)
                 {
                     TypeDraw = DRAW_GRADATIONV;
                 }
@@ -931,38 +931,38 @@ CTestPattern::CTestPattern(const string& FileName)
                 {
                     continue;
                 }
-                LOG(5,"RECT %s (%d) %s %d %d %d %d %d %d %d", s_val2, i_val[7], YUV?"YUV":"RGB", i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6]);
+                LOG(5,_T("RECT %s (%d) %s %d %d %d %d %d %d %d"), s_val2, i_val[7], YUV?_T("YUV"):_T("RGB"), i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6]);
                 color_bar = new CColorBar(i_val[0], i_val[1], i_val[2], i_val[3], TypeDraw, i_val[7], i_val[8], YUV, i_val[4], i_val[5], i_val[6], i_val[4], i_val[5], i_val[6]);
                 m_ColorBars.push_back(color_bar);
             }
-            else if ((n = sscanf(Buffer, "GRP %s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", s_val, &i_val[0], &i_val[1], &i_val[2], &i_val[3], &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], &i_val[10], &i_val[11], &i_val[12], &i_val[13], &i_val[14], &i_val[15])) >= 2)
+            else if ((n = _stscanf(Buffer, _T("GRP %s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d"), s_val, &i_val[0], &i_val[1], &i_val[2], &i_val[3], &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], &i_val[10], &i_val[11], &i_val[12], &i_val[13], &i_val[14], &i_val[15])) >= 2)
             {
-                LOG(5,"GRP %s", s_val);
-                if (!strcmp(s_val, "BRIGHTNESS_CONTRAST"))
+                LOG(5,_T("GRP %s"), s_val);
+                if (!_tcscmp(s_val, _T("BRIGHTNESS_CONTRAST")))
                 {
                     TypeAdjust = ADJ_BRIGHTNESS_CONTRAST;
                 }
-                else if (!strcmp(s_val, "BRIGHTNESS"))
+                else if (!_tcscmp(s_val, _T("BRIGHTNESS")))
                 {
                     TypeAdjust = ADJ_BRIGHTNESS;
                 }
-                else if (!strcmp(s_val, "CONTRAST"))
+                else if (!_tcscmp(s_val, _T("CONTRAST")))
                 {
                     TypeAdjust = ADJ_CONTRAST;
                 }
-                else if (!strcmp(s_val, "COLOR"))
+                else if (!_tcscmp(s_val, _T("COLOR")))
                 {
                     TypeAdjust = ADJ_COLOR;
                 }
-                else if (!strcmp(s_val, "SATURATION_U"))
+                else if (!_tcscmp(s_val, _T("SATURATION_U")))
                 {
                     TypeAdjust = ADJ_SATURATION_U;
                 }
-                else if (!strcmp(s_val, "SATURATION_V"))
+                else if (!_tcscmp(s_val, _T("SATURATION_V")))
                 {
                     TypeAdjust = ADJ_SATURATION_V;
                 }
-                else if (!strcmp(s_val, "HUE"))
+                else if (!_tcscmp(s_val, _T("HUE")))
                 {
                     TypeAdjust = ADJ_HUE;
                 }
@@ -978,7 +978,7 @@ CTestPattern::CTestPattern(const string& FileName)
                     {
                         if (i_val[i] > 0 && i_val[i] <= m_ColorBars.size())
                         {
-                            LOG(5,"GRP %d", i_val[i]);
+                            LOG(5,_T("GRP %d"), i_val[i]);
                             sub_pattern->m_ColorBars.push_back(m_ColorBars[i_val[i]-1]);
                         }
                     }
@@ -1013,7 +1013,7 @@ CTestPattern::~CTestPattern()
 }
 
 // This method returns the name of the test pattern
-string CTestPattern::GetName()
+tstring CTestPattern::GetName()
 {
     return m_PatternName;
 }
@@ -1110,7 +1110,7 @@ void CTestPattern::Log()
     unsigned char R, G, B, Y, U, V;
     unsigned short int left, right, top, bottom;
 
-    LOG(3, "Pattern %s %dx%d", m_PatternName, m_Width, m_Height);
+    LOG(3, _T("Pattern %s %dx%d"), m_PatternName.c_str(), m_Width, m_Height);
     for(vector<CColorBar*>::iterator it2 = m_ColorBars.begin();
         it2 != m_ColorBars.end();
         ++it2)
@@ -1118,19 +1118,19 @@ void CTestPattern::Log()
         (*it2)->GetPosition(&left, &right, &top, &bottom);
         (*it2)->GetRefColor(FALSE, &R, &G, &B);
         (*it2)->GetRefColor(TRUE, &Y, &U, &V);
-        LOG(3, "   T %4d B %4d L %4d R %4d - RGB %3d %3d %3d YUV %3d %3d %3d", top, bottom, left, right, R, G, B, Y, U, V);
+        LOG(3, _T("   T %4d B %4d L %4d R %4d - RGB %3d %3d %3d YUV %3d %3d %3d"), top, bottom, left, right, R, G, B, Y, U, V);
     }
     for(vector<CSubPattern*>::iterator it = m_SubPatterns.begin();
         it != m_SubPatterns.end();
         ++it)
     {
-        LOG(3, "   Sub-pattern %d", (*it)->GetTypeAdjust());
+        LOG(3, _T("   Sub-pattern %d"), (*it)->GetTypeAdjust());
         for(vector<CColorBar*>::iterator it2 = (*it)->m_ColorBars.begin();
             it2 != (*it)->m_ColorBars.end();
             ++it2)
         {
             (*it2)->GetPosition(&left, &right, &top, &bottom);
-            LOG(3, "      T %4d B %4d L %4d R %4d", top, bottom, left, right);
+            LOG(3, _T("      T %4d B %4d L %4d R %4d"), top, bottom, left, right);
         }
     }
 }
@@ -1142,7 +1142,7 @@ CPatternHelper::CPatternHelper(CStillSource* pParent) :
 {
 }
 
-BOOL CPatternHelper::OpenMediaFile(const string& FileName)
+BOOL CPatternHelper::OpenMediaFile(const tstring& FileName)
 {
     CTestPattern pattern(FileName);
     BYTE* pFrameBuf;
@@ -1188,7 +1188,7 @@ BOOL CPatternHelper::OpenMediaFile(const string& FileName)
     return TRUE;
 }
 
-void CPatternHelper::SaveSnapshot(const string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const string& Context)
+void CPatternHelper::SaveSnapshot(const tstring& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const tstring& Context)
 {
     return;
 }

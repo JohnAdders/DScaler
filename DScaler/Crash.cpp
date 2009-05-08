@@ -39,18 +39,20 @@
 #include "resource.h"
 #include "crash.h"
 #include "DynamicFunction.h"
+#include "PathHelpers.h"
+#include "DbgHelp.h"
 
 unsigned long gBuildNum = 0;
 
 #ifdef _DEBUG
 
-void CheckFPUStack(const char *file, const int line) throw()
+void CheckFPUStack(const TCHAR* file, const int line) throw()
 {
-    static const char szFPUProblemCaption[]="FPU/MMX internal problem";
-    static const char szFPUProblemMessage[]="The FPU stack wasn't empty!  Tagword = %04x\nFile: %s, line %d";
+    static const TCHAR szFPUProblemCaption[]=_T("FPU/MMX internal problem");
+    static const TCHAR szFPUProblemMessage[]=_T("The FPU stack wasn't empty!  Tagword = %04x\nFile: %s, line %d");
     static BOOL seenmsg=FALSE;
 
-    char    buf[128];
+    char buf[128];
     unsigned short tagword;
 
     if (seenmsg)
@@ -64,8 +66,9 @@ void CheckFPUStack(const char *file, const int line) throw()
 
     if (tagword != 0xffff)
     {
-        wsprintf(buf, szFPUProblemMessage, tagword, file, line);
-        MessageBox(NULL, buf, szFPUProblemCaption, MB_OK);
+        TCHAR err[128];
+        wsprintf(err, szFPUProblemMessage, tagword, file, line);
+        MessageBox(NULL, err, szFPUProblemCaption, MB_OK);
         seenmsg=TRUE;
     }
 
@@ -78,19 +81,37 @@ SEHException::SEHException(const char* what) :
 {
 }
 
-
 void SETranslate(unsigned int u, EXCEPTION_POINTERS* pExp)
 {
+    DynamicFunctionS7<BOOL, HANDLE, DWORD, HANDLE, MINIDUMP_TYPE, CONST PMINIDUMP_EXCEPTION_INFORMATION, CONST PMINIDUMP_USER_STREAM_INFORMATION, CONST PMINIDUMP_CALLBACK_INFORMATION> WriteDump(_T("DbgHelp.dll"), "MiniDumpWriteDump");
+    if(WriteDump)
+    {
+        BOOL bMiniDumpSuccessful;
+        HANDLE hDumpFile;
+        MINIDUMP_EXCEPTION_INFORMATION ExpParam;
+
+        tstring FileName(GetInstallationPath() + _T("\\minidump.dmp"));
+
+        hDumpFile = CreateFile(FileName.c_str(), GENERIC_READ|GENERIC_WRITE, 
+                    FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
+
+        ExpParam.ThreadId = GetCurrentThreadId();
+        ExpParam.ExceptionPointers = pExp;
+        ExpParam.ClientPointers = TRUE;
+
+        bMiniDumpSuccessful = WriteDump(GetCurrentProcess(), GetCurrentProcessId(), hDumpFile, MiniDumpWithDataSegs, &ExpParam, NULL, NULL);
+    }
+
     throw SEHException("SEH Exception Occured");
 }
 
-DScalerThread::DScalerThread(const char* ThreadName) :
+DScalerThread::DScalerThread(const TCHAR* ThreadName) :
     m_Name(ThreadName)
 {
     m_OldTranslator = _set_se_translator(SETranslate);
 }
 
-const char* DScalerThread::GetName() const
+const TCHAR* DScalerThread::GetName() const
 {
     return m_Name.c_str();
 }

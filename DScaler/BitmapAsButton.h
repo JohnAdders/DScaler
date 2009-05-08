@@ -25,7 +25,7 @@
 
 #include "Bitmap.h"
 
-typedef LRESULT (__cdecl BUTTONPROC)(std::string sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+typedef LRESULT (__cdecl BUTTONPROC)(tstring sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 enum eBitmapAsButtonType
 {
@@ -76,7 +76,7 @@ enum eBitmapAsButtonType
 
 class CBitmapAsButton {
 protected:
-    std::string sID;
+    tstring sID;
 
     eBitmapAsButtonType  ButtonType;
     int  ButtonState;
@@ -123,7 +123,7 @@ public:
     HWND hWnd() { if (bFailed) return NULL; return hWndButton; }
     int Width() { return ButtonWidth; }
     int Height() { return ButtonHeight; }
-    std::string GetID() { return sID; }
+    tstring GetID() { return sID; }
 
     void AddBitmap(int State, SmartPtr<CBitmapState> BitmapState);
 
@@ -135,8 +135,8 @@ public:
         this->pfnButtonProc = pfnButtonProc;
     }
 
-    BOOL Create(std::string sID, HWND hWndParent, int x, int y, HINSTANCE hInst);
-    BOOL TakeOver(HWND hWnd, std::string sID, HWND hWndParent);
+    BOOL Create(tstring sID, HWND hWndParent, int x, int y, HINSTANCE hInst);
+    BOOL TakeOver(HWND hWnd, tstring sID, HWND hWndParent);
     BOOL RestoreBack(HWND hWnd = NULL);
 };
 

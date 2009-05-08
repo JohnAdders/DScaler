@@ -38,9 +38,9 @@ void OSD_Init();
 void OSD_Exit();
 
 // General use functions
-void OSD_ShowText(const std::string& szText, double dSize, BOOL bPersistent = FALSE, BOOL bOverride = FALSE);
-void OSD_ShowTextPersistent(const std::string& szText, double dSize);
-void OSD_ShowTextOverride(const std::string& szText, double dSize);
+void OSD_ShowText(const tstring& szText, double dSize, BOOL bPersistent = FALSE, BOOL bOverride = FALSE);
+void OSD_ShowTextPersistent(const tstring& szText, double dSize);
+void OSD_ShowTextOverride(const tstring& szText, double dSize);
 void OSD_ShowSourceComments();
 void OSD_Clear();
 

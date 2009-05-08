@@ -33,12 +33,12 @@ using namespace std;
 
 CDSProvider::CDSProvider()
 {
-    std::string ErrMsg;
+    tstring ErrMsg;
     if(!CanUseDShow(ErrMsg))
     {
         //the only reason for the extra \n is to avoid text on the osd being drawn outside the window
         //(== some text will not be visible)
-        ErrorBox(MakeString() << "Can't use DirectShow support because\n" << ErrMsg << "\nThe DirectShow input sources will be disabled");
+        ErrorBox(MakeString() << _T("Can't use DirectShow support because\n") << ErrMsg << _T("\nThe DirectShow input sources will be disabled"));
         return;
     }
 
@@ -50,7 +50,7 @@ CDSProvider::CDSProvider()
             //get all video capture devices
             while(devenum.getNext()==TRUE)
             {
-                string deviceName=devenum.getProperty("FriendlyName");
+                tstring deviceName=devenum.getProperty(_T("FriendlyName"));
                 CDSCaptureSource *tmpsrc=new CDSCaptureSource(devenum.getDisplayName(),deviceName);
                 m_DSSources.push_back(tmpsrc);
                 m_SourceNames[m_DSSources.size()-1]=deviceName;
@@ -64,7 +64,7 @@ CDSProvider::CDSProvider()
         //add one file source
         CDSFileSource *src=new CDSFileSource();
         m_DSSources.push_back(src);
-        m_SourceNames[m_DSSources.size()-1]="Media file";
+        m_SourceNames[m_DSSources.size()-1]=_T("Media file");
     }
     catch(std::exception& e)
     {
@@ -72,7 +72,7 @@ CDSProvider::CDSProvider()
     }
     catch(...)
     {
-        ErrorBox("Unexpected Error");
+        ErrorBox(_T("Unexpected Error"));
     }
 }
 
@@ -80,7 +80,7 @@ CDSProvider::~CDSProvider()
 {
 }
 
-string CDSProvider::GetSourceName(int SourceIndex)
+tstring CDSProvider::GetSourceName(int SourceIndex)
 {
     _ASSERTE(SourceIndex>=0 && SourceIndex<m_DSSources.size());
     return m_SourceNames[SourceIndex];
@@ -105,7 +105,7 @@ SmartPtr<CSource> CDSProvider::GetSource(int SourceIndex)
     }
 }
 
-BOOL CDSProvider::CanUseDShow(std::string &FailMsg)
+BOOL CDSProvider::CanUseDShow(tstring &FailMsg)
 {
     ///@todo add a check for directx version
 
@@ -115,14 +115,14 @@ BOOL CDSProvider::CanUseDShow(std::string &FailMsg)
     if(FAILED(hr))
     {
         ///@todo maybe try to register dsrend.dll and only return FALSE if it failed
-        FailMsg="the 'DScaler renderer filter' is not properly installed";
+        FailMsg=_T("the 'DScaler renderer filter' is not properly installed");
         return FALSE;
     }
     CComPtr<IDSRendFilter> DSRendIf;
     hr=filter.QueryInterface(&DSRendIf);
     if(FAILED(hr))
     {
-        FailMsg="the 'DScaler renderer filter' does not support the necessary interface\n(maybe the filter is of the wrong version)";
+        FailMsg=_T("the 'DScaler renderer filter' does not support the necessary interface\n(maybe the filter is of the wrong version)");
         return FALSE;
     }
     return TRUE;

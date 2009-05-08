@@ -44,7 +44,7 @@ class CCX2388xSource : public CSource
 {
     //DECLARE_CLASS_SETTINGS(CCX2388xSource);
 public:
-    CCX2388xSource(SmartPtr<CCX2388xCard> pCard, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCSTR IniSection);
+    CCX2388xSource(SmartPtr<CCX2388xCard> pCard, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCTSTR IniSection);
     ~CCX2388xSource();
     void Start();
     void Stop();
@@ -52,7 +52,7 @@ public:
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     SmartPtr<CCX2388xCard> GetCard();
-    std::string GetStatus();
+    tstring GetStatus();
     CSliderSetting* GetVolume() {return m_Volume;};
     CSliderSetting* GetBalance() {return m_Balance;};
     void Mute();
@@ -87,18 +87,18 @@ public:
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo);
-    std::string GetMenuLabel();
-    BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList) {return FALSE;};
+    tstring GetMenuLabel();
+    BOOL OpenMediaFile(const tstring& FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
     void SetAspectRatioData();
     BOOL HasSquarePixels() {return FALSE;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
-    std::string IDString() { return m_IDString; }
+    tstring IDString() { return m_IDString; }
 
     int  NumInputs(eSourceInputType InputType);
     BOOL SetInput(eSourceInputType InputType, int Nr);
     int GetInput(eSourceInputType InputType);
-    std::string GetInputName(eSourceInputType InputType, int Nr);
+    tstring GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
@@ -117,7 +117,7 @@ public:
     BOOL IsInitialSetup() {return m_InitialSetup;};
 
 private:
-    virtual void CreateSettings(LPCSTR IniSection);
+    virtual void CreateSettings(LPCTSTR IniSection);
 
     void CreateRiscCode(BOOL bCaptureVBI);
 
@@ -162,13 +162,13 @@ private:
     long         m_CurrentVBILines;
     BOOL         m_IsFieldOdd;
     BOOL         m_InSaturationUpdate;
-    std::string  m_ChannelSubSection;
+    tstring  m_ChannelSubSection;
     int          m_NumFields;
     HINSTANCE    m_hCX2388xResourceInst;
 
 
-    std::string  m_Section;
-    std::string  m_IDString;
+    tstring  m_Section;
+    tstring  m_IDString;
 
     CSliderSetting* m_CardType;
     CStringSetting* m_CardName;

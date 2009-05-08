@@ -35,26 +35,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 {
     // Card Number 0 - Unknown Card
     {
-        "*Unknown Card*",
+        _T("*Unknown Card*"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -75,31 +75,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 1 - MIRO PCTV
     {
-        "MIRO PCTV",
+        _T("MIRO PCTV"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -120,31 +120,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 2 - Hauppauge old
     {
-        "Hauppauge old",
+        _T("Hauppauge old"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -165,26 +165,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 3 - STB
     {
-        "STB",
+        _T("STB"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -205,21 +205,21 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 4 - Intel
     {
-        "Intel",
+        _T("Intel"),
         3,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -240,26 +240,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 5 - Diamond DTV2000
     {
-        "Diamond DTV2000",
+        _T("Diamond DTV2000"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -280,26 +280,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 6 - AVerMedia TVPhone
     {
-        "AVerMedia TVPhone",
+        _T("AVerMedia TVPhone"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -320,31 +320,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 7 - MATRIX-Vision MV-Delta
     {
-        "MATRIX-Vision MV-Delta",
+        _T("MATRIX-Vision MV-Delta"),
         5,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
@@ -365,26 +365,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 8 - Fly Video II
     {
-        "Fly Video II",
+        _T("Fly Video II"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -405,26 +405,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 9 - TurboTV
     {
-        "TurboTV",
+        _T("TurboTV"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -445,31 +445,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 10 - Standard BT878
     {
-        "Standard BT878 / Hauppauge BT878",
+        _T("Standard BT878 / Hauppauge BT878"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -490,26 +490,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 11 - MIRO PCTV pro
     {
-        "MIRO PCTV pro",
+        _T("MIRO PCTV pro"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -530,26 +530,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 12 - ADS Technologies Channel Surfer TV
     {
-        "ADS Technologies Channel Surfer TV",
+        _T("ADS Technologies Channel Surfer TV"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 1,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -570,26 +570,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 13 - AVerMedia TVCapture 98
     {
-        "AVerMedia TVCapture 98",
+        _T("AVerMedia TVCapture 98"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -610,26 +610,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 14 - Aimslab VHX
     {
-        "Aimslab VHX",
+        _T("Aimslab VHX"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -650,26 +650,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 15 - Zoltrix TV-Max
     {
-        "Zoltrix TV-Max",
+        _T("Zoltrix TV-Max"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -690,26 +690,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 16 - Pixelview PlayTV (bt878)
     {
-        "Pixelview PlayTV (bt878)",
+        _T("Pixelview PlayTV (bt878)"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -730,26 +730,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 17 - Leadtek WinView 601
     {
-        "Leadtek WinView 601",
+        _T("Leadtek WinView 601"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -770,26 +770,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 18 - AVEC Intercapture
     {
-        "AVEC Intercapture",
+        _T("AVEC Intercapture"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -810,21 +810,21 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 19 - LifeView FlyKit w/o Tuner
     {
-        "LifeView FlyKit w/o Tuner",
+        _T("LifeView FlyKit w/o Tuner"),
         3,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -845,26 +845,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 20 - CEI Raffles Card
     {
-        "CEI Raffles Card",
+        _T("CEI Raffles Card"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -885,26 +885,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 21 - Lucky Star Image World ConferenceTV
     {
-        "Lucky Star Image World ConferenceTV",
+        _T("Lucky Star Image World ConferenceTV"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -925,26 +925,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 22 - Phoebe Tv Master + FM
     {
-        "Phoebe Tv Master + FM",
+        _T("Phoebe Tv Master + FM"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -965,16 +965,16 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 23 - Modular Technology MM205 PCTV, bt878
     {
-        "Modular Technology MM205 PCTV, bt878",
+        _T("Modular Technology MM205 PCTV, bt878"),
         2,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
@@ -995,26 +995,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 24 - Askey/Typhoon/Anubis Magic TView CPH051/061 (bt878)
     {
-        "Askey/Typhoon/Anubis Magic TView CPH051/061 (bt878)",
+        _T("Askey/Typhoon/Anubis Magic TView CPH051/061 (bt878)"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1035,26 +1035,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 25 - Terratec/Vobis TV-Boostar
     {
-        "Terratec/Vobis TV-Boostar",
+        _T("Terratec/Vobis TV-Boostar"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1075,31 +1075,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 26 - Newer Hauppauge WinCam (bt878)
     {
-        "Newer Hauppauge WinCam (bt878)",
+        _T("Newer Hauppauge WinCam (bt878)"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1120,26 +1120,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 27 - MAXI TV Video PCI2
     {
-        "MAXI TV Video PCI2",
+        _T("MAXI TV Video PCI2"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1160,26 +1160,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 28 - Terratec TerraTV+
     {
-        "Terratec TerraTV+",
+        _T("Terratec TerraTV+"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1200,31 +1200,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 29 - Imagenation PXC200
     {
-        "Imagenation PXC200",
+        _T("Imagenation PXC200"),
         5,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
@@ -1245,26 +1245,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 30 - FlyVideo 98
     {
-        "FlyVideo 98",
+        _T("FlyVideo 98"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1285,26 +1285,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 31 - iProTV
     {
-        "iProTV",
+        _T("iProTV"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1325,31 +1325,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 32 - Intel Create and Share PCI
     {
-        "Intel Create and Share PCI",
+        _T("Intel Create and Share PCI"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1370,26 +1370,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 33 - Terratec TerraTValue
     {
-        "Terratec TerraTValue",
+        _T("Terratec TerraTValue"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1410,26 +1410,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 34 - Leadtek WinFast 2000
     {
-        "Leadtek WinFast 2000",
+        _T("Leadtek WinFast 2000"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1450,26 +1450,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 35 - Chronos Video Shuttle II
     {
-        "Chronos Video Shuttle II",
+        _T("Chronos Video Shuttle II"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1490,26 +1490,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 36 - Typhoon TView TV/FM Tuner
     {
-        "Typhoon TView TV/FM Tuner",
+        _T("Typhoon TView TV/FM Tuner"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1530,26 +1530,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 37 - PixelView PlayTV pro
     {
-        "PixelView PlayTV pro",
+        _T("PixelView PlayTV pro"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1570,26 +1570,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 38 - TView99 CPH063
     {
-        "TView99 CPH063",
+        _T("TView99 CPH063"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1610,26 +1610,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 39 - Pinnacle PCTV Rave
     {
-        "Pinnacle PCTV Rave",
+        _T("Pinnacle PCTV Rave"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1650,26 +1650,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 40 - STB2
     {
-        "STB2",
+        _T("STB2"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1690,26 +1690,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 41 - AVerMedia TVPhone 98
     {
-        "AVerMedia TVPhone 98",
+        _T("AVerMedia TVPhone 98"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1730,26 +1730,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 42 - ProVideo PV951
     {
-        "ProVideo PV951",
+        _T("ProVideo PV951"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1770,26 +1770,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 43 - Little OnAir TV
     {
-        "Little OnAir TV",
+        _T("Little OnAir TV"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1810,16 +1810,16 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 44 - Sigma TVII-FM
     {
-        "Sigma TVII-FM",
+        _T("Sigma TVII-FM"),
         2,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
@@ -1840,31 +1840,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 45 - MATRIX-Vision MV-Delta 2
     {
-        "MATRIX-Vision MV-Delta 2",
+        _T("MATRIX-Vision MV-Delta 2"),
         5,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
@@ -1885,26 +1885,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 46 - Zoltrix Genie TV
     {
-        "Zoltrix Genie TV",
+        _T("Zoltrix Genie TV"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1925,26 +1925,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 47 - Terratec TV/Radio+
     {
-        "Terratec TV/Radio+",
+        _T("Terratec TV/Radio+"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -1965,26 +1965,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 48 - Dynalink Magic TView
     {
-        "Dynalink Magic TView",
+        _T("Dynalink Magic TView"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2005,26 +2005,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 49 - Conexant Bt878 NTSC XEVK
     {
-        "Conexant Bt878 NTSC XEVK",
+        _T("Conexant Bt878 NTSC XEVK"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2045,26 +2045,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 50 - Rockwell Bt878 NTSC XEVK
     {
-        "Rockwell Bt878 NTSC XEVK",
+        _T("Rockwell Bt878 NTSC XEVK"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2085,26 +2085,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 51 - Conexant Foghorn NTSC/ATSC-A
     {
-        "Conexant Foghorn NTSC/ATSC-A",
+        _T("Conexant Foghorn NTSC/ATSC-A"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2125,26 +2125,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 52 - Conexant Foghorn NTSC/ATSC-B
     {
-        "Conexant Foghorn NTSC/ATSC-B",
+        _T("Conexant Foghorn NTSC/ATSC-B"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2165,26 +2165,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 53 - Conexant Foghorn NTSC/ATSC-C
     {
-        "Conexant Foghorn NTSC/ATSC-C",
+        _T("Conexant Foghorn NTSC/ATSC-C"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2205,41 +2205,41 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 54 - RS BT Card
     {
-        "RS BT Card",
+        _T("RS BT Card"),
         7,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
             {
-                "CCIR 1",
+                _T("CCIR 1"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "CCIR 2",
+                _T("CCIR 2"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "CCIR 3",
+                _T("CCIR 3"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "CCIR 4",
+                _T("CCIR 4"),
                 INPUTTYPE_CCIR,
                 0,
             },
@@ -2260,26 +2260,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 55 - Cybermail AV
     {
-        "Cybermail AV",
+        _T("Cybermail AV"),
         4,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2300,26 +2300,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 56 - Viewcast Osprey
     {
-        "Viewcast Osprey",
+        _T("Viewcast Osprey"),
         4,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2340,26 +2340,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 57 - ATI TV-Wonder
     {
-        "ATI TV-Wonder",
+        _T("ATI TV-Wonder"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2380,16 +2380,16 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 58 - ATI TV-Wonder VE
     {
-        "ATI TV-Wonder VE",
+        _T("ATI TV-Wonder VE"),
         2,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
@@ -2410,26 +2410,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 59 - GV-BCTV3
     {
-        "GV-BCTV3",
+        _T("GV-BCTV3"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
@@ -2450,31 +2450,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 60 - Prolink PV-BT878P+4E (PixelView PlayTV PAK)
     {
-        "Prolink PV-BT878P+4E (PixelView PlayTV PAK)",
+        _T("Prolink PV-BT878P+4E (PixelView PlayTV PAK)"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2495,31 +2495,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 61 - Eagle Wireless Capricorn2 (bt878A)
     {
-        "Eagle Wireless Capricorn2 (bt878A)",
+        _T("Eagle Wireless Capricorn2 (bt878A)"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2540,26 +2540,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 62 - Pinnacle PCTV Pro
     {
-        "Pinnacle PCTV Pro",
+        _T("Pinnacle PCTV Pro"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2580,26 +2580,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 63 - Typhoon TView RDS / FM Stereo
     {
-        "Typhoon TView RDS / FM Stereo",
+        _T("Typhoon TView RDS / FM Stereo"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2620,31 +2620,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 64 - Lifetec LT 9415 TV
     {
-        "Lifetec LT 9415 TV",
+        _T("Lifetec LT 9415 TV"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2665,31 +2665,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 65 - BESTBUY Easy TV
     {
-        "BESTBUY Easy TV",
+        _T("BESTBUY Easy TV"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2710,26 +2710,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 66 - FlyVideo '98/FM / 2000S
     {
-        "FlyVideo '98/FM / 2000S",
+        _T("FlyVideo '98/FM / 2000S"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
@@ -2750,21 +2750,21 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 67 - GrandTec 'Grand Video Capture'
     {
-        "GrandTec 'Grand Video Capture'",
+        _T("GrandTec 'Grand Video Capture'"),
         3,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2785,26 +2785,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 68 - Phoebe TV Master Only (No FM)
     {
-        "Phoebe TV Master Only (No FM)",
+        _T("Phoebe TV Master Only (No FM)"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2825,31 +2825,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 69 - TV Capturer
     {
-        "TV Capturer",
+        _T("TV Capturer"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2870,16 +2870,16 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 70 - MM100PCTV
     {
-        "MM100PCTV",
+        _T("MM100PCTV"),
         2,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
@@ -2900,21 +2900,21 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 71 - AG Electronics GMV1
     {
-        "AG Electronics GMV1",
+        _T("AG Electronics GMV1"),
         3,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 2,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
@@ -2935,26 +2935,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 72 - BESTBUY Easy TV (bt878)
     {
-        "BESTBUY Easy TV (bt878)",
+        _T("BESTBUY Easy TV (bt878)"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -2975,26 +2975,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 73 - Sasem 4-Channel Dev Board (S-Video Jumper)
     {
-        "Sasem 4-Channel Dev Board (S-Video Jumper)",
+        _T("Sasem 4-Channel Dev Board (S-Video Jumper)"),
         4,
         {
             {
-                "Composite 1",
+                _T("Composite 1"),
                 INPUTTYPE_COMPOSITE,
                 0x00,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0x01,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 0x03,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0xD2
             },
@@ -3015,21 +3015,21 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 74 - Pinnacle PCTV Sat
     {
-        "Pinnacle PCTV Sat",
+        _T("Pinnacle PCTV Sat"),
         3,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3050,26 +3050,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 75 - Aimslab VideoHighway Extreme (not 98)
     {
-        "Aimslab VideoHighway Extreme (not 98)",
+        _T("Aimslab VideoHighway Extreme (not 98)"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3090,26 +3090,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 76 - 3dfx `TV 200 (USA)
     {
-        "3dfx VoodooTV 200 (USA)",
+        _T("3dfx VoodooTV 200 (USA)"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-video",
+                _T("Composite over S-video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3130,26 +3130,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 77 - 3dfx VoodooTV FM (Europa)
     {
-        "3dfx VoodooTV FM (Europa)",
+        _T("3dfx VoodooTV FM (Europa)"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-video",
+                _T("Composite over S-video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3170,31 +3170,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 78 - Standard BT878 (No Init MSP)
     {
-        "Standard BT878 (No Init MSP)",
+        _T("Standard BT878 (No Init MSP)"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3215,26 +3215,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 79 - Terratec TValueRadio
     {
-        "Terratec TValueRadio",
+        _T("Terratec TValueRadio"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3255,31 +3255,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 80 - Flyvideo 98EZ (capture only)
     {
-        "Flyvideo 98EZ (capture only)",
+        _T("Flyvideo 98EZ (capture only)"),
         5,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3300,16 +3300,16 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 81 - Active Imaging AIMMS
     {
-        "Active Imaging AIMMS",
+        _T("Active Imaging AIMMS"),
         2,
         {
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 2,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
@@ -3330,26 +3330,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 82 - FlyVideo 2000S
     {
-        "FlyVideo 2000S",
+        _T("FlyVideo 2000S"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
@@ -3370,26 +3370,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 83 - GV-BCTV4/PCI
     {
-        "GV-BCTV4/PCI",
+        _T("GV-BCTV4/PCI"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
@@ -3410,31 +3410,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 84 - Prolink PV-BT878P+4E / PixelView PlayTV PAK / Lenco MXTV-9578 CP
     {
-        "Prolink PV-BT878P+4E / PixelView PlayTV PAK / Lenco MXTV-9578 CP",
+        _T("Prolink PV-BT878P+4E / PixelView PlayTV PAK / Lenco MXTV-9578 CP"),
         5,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3455,26 +3455,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 85 - Typhoon TView RDS + FM Stereo / KNC1 TV Station RDS
     {
-        "Typhoon TView RDS + FM Stereo / KNC1 TV Station RDS",
+        _T("Typhoon TView RDS + FM Stereo / KNC1 TV Station RDS"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3495,26 +3495,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 86 - Sasem 4-Channel Dev Board (C-Video Jumper)
     {
-        "Sasem 4-Channel Dev Board (C-Video Jumper)",
+        _T("Sasem 4-Channel Dev Board (C-Video Jumper)"),
         4,
         {
             {
-                "Composite 1",
+                _T("Composite 1"),
                 INPUTTYPE_COMPOSITE,
                 0x00,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0x01,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 0x02,
             },
             {
-                "Composite 4",
+                _T("Composite 4"),
                 INPUTTYPE_COMPOSITE,
                 0x03,
             },
@@ -3535,31 +3535,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 87 - SDI Silk 100 (S-Video Jumper)
     {
-        "SDI Silk 100 (S-Video Jumper)",
+        _T("SDI Silk 100 (S-Video Jumper)"),
         5,
         {
             {
-                "Composite 1",
+                _T("Composite 1"),
                 INPUTTYPE_COMPOSITE,
                 0x00,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0x01,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 0x03,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0xD2,
             },
             {
-                "SDI",
+                _T("SDI"),
                 INPUTTYPE_CCIR,
                 0x00,
             },
@@ -3580,31 +3580,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 88 - SDI Silk 100 (C-Video Jumper)
     {
-        "SDI Silk 100 (C-Video Jumper)",
+        _T("SDI Silk 100 (C-Video Jumper)"),
         5,
         {
             {
-                "Composite 1",
+                _T("Composite 1"),
                 INPUTTYPE_COMPOSITE,
                 0x00,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0x01,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 0x02,
             },
             {
-                "Composite 4",
+                _T("Composite 4"),
                 INPUTTYPE_COMPOSITE,
                 0x03,
             },
             {
-                "SDI",
+                _T("SDI"),
                 INPUTTYPE_CCIR,
                 0x00,
             },
@@ -3625,26 +3625,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 89 - Skywell Magic TV Card
     {
-        "Skywell Magic TV Card",
+        _T("Skywell Magic TV Card"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3665,41 +3665,41 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 90 - SDI Silk 200 (S-Video Jumper)
     {
-        "SDI Silk 200 (S-Video Jumper)",
+        _T("SDI Silk 200 (S-Video Jumper)"),
         7,
         {
             {
-                "Composite 1",
+                _T("Composite 1"),
                 INPUTTYPE_COMPOSITE,
                 0x00,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0x01,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 0x03,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0xD2,
             },
             {
-                "SDI 1",
+                _T("SDI 1"),
                 INPUTTYPE_CCIR,
                 0x00,
             },
             {
-                "SDI 2",
+                _T("SDI 2"),
                 INPUTTYPE_CCIR,
                 0x01,
             },
             {
-                "SDI 3",
+                _T("SDI 3"),
                 INPUTTYPE_CCIR,
                 0x02,
             },
@@ -3721,41 +3721,41 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 
     // Card Number 91 - SDI Silk 200 (C-Video Jumper)
     {
-        "SDI Silk 200 (C-Video Jumper)",
+        _T("SDI Silk 200 (C-Video Jumper)"),
         7,
         {
             {
-                "Composite 1",
+                _T("Composite 1"),
                 INPUTTYPE_COMPOSITE,
                 0x00,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 0x01,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 0x02,
             },
             {
-                "Composite 4",
+                _T("Composite 4"),
                 INPUTTYPE_COMPOSITE,
                 0x03,
             },
             {
-                "SDI 1",
+                _T("SDI 1"),
                 INPUTTYPE_CCIR,
                 0x00,
             },
             {
-                "SDI 2",
+                _T("SDI 2"),
                 INPUTTYPE_CCIR,
                 0x01,
             },
             {
-                "SDI 3",
+                _T("SDI 3"),
                 INPUTTYPE_CCIR,
                 0x02,
             },
@@ -3776,31 +3776,31 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Card Number 92 - Sensoray 311
     {
-        "Sensoray 311",
+        _T("Sensoray 311"),
     5,
         {
             {
-                "Composite 1",
+                _T("Composite 1"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "Composite 2",
+                _T("Composite 2"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 3",
+                _T("Composite 3"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 0,
             },
        {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
@@ -3821,26 +3821,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
   // Card Number 91 - Canopus WinDVR PCI (COMPAQ Presario 3524JP, 5112JP)
     {
-        "Canopus WinDVR PCI (COMPAQ Presario 3524JP, 5112JP)",
+        _T("Canopus WinDVR PCI (COMPAQ Presario 3524JP, 5112JP)"),
      4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
        {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3860,26 +3860,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         { 0, 1, 2, 3, 4, 0 }
     },
     {
-        /* szName */ "AVerMedia TVPhone (old)",
+        /* szName */ _T("AVerMedia TVPhone (old)"),
         /* NumInputs */ 4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3902,26 +3902,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // Patch thanks to Kevin Radke
     {
-        "KWorld MPEGTV RF Pro",
+        _T("KWorld MPEGTV RF Pro"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
        {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3942,26 +3942,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
     },
     // details provided by Nikola Maric
     {
-        "APAC Viewcomp BT878",
+        _T("APAC Viewcomp BT878"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -3981,11 +3981,11 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         {0x003ffff8, 0x003ffff0, 0x003ffff0, 0x003ffff0, 0x003ffff0, 0x003ffff0, }
     },
     {
-        "PMSVideo PDI",
+        _T("PMSVideo PDI"),
         1,
         {
             {
-                "PDI",
+                _T("PDI"),
                 INPUTTYPE_CCIR,
                 0x00,
             },
@@ -4005,11 +4005,11 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
     {
-        "PMSVideo SDI",
+        _T("PMSVideo SDI"),
         1,
         {
             {
-                "SDI",
+                _T("SDI"),
                 INPUTTYPE_CCIR,
                 0x00,
             },
@@ -4029,66 +4029,66 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
     {
-        "PMS PDI Deluxe",
+        _T("PMS PDI Deluxe"),
         12,
         {
             {
-                "Component",
+                _T("Component"),
                 INPUTTYPE_CCIR,
                 0
             },
             {
-                "S-Video 1",
+                _T("S-Video 1"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "S-Video 2",
+                _T("S-Video 2"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 1 (Red)",
+                _T("Composite 1 (Red)"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 2 (Green)",
+                _T("Composite 2 (Green)"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 3 (Blue)",
+                _T("Composite 3 (Blue)"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "PDI",
+                _T("PDI"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 1 over S-video 1",
+                _T("Composite 1 over S-video 1"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 2 over S-video 1",
+                _T("Composite 2 over S-video 1"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 1 over S-video 2",
+                _T("Composite 1 over S-video 2"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 2 over S-video 2",
+                _T("Composite 2 over S-video 2"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "RGBS / RGsB",
+                _T("RGBS / RGsB"),
                 INPUTTYPE_CCIR,
                 0,
             },
@@ -4108,11 +4108,11 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         {0, 0, 0, 0, 0, 0, }
     },
     {
-        "Nebula DigiTV (Analogue In)",
+        _T("Nebula DigiTV (Analogue In)"),
         1,
         {
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
@@ -4132,66 +4132,66 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
     {
-        "Sweetspot",
+        _T("Sweetspot"),
         12,
         {
             {
-                "Component",
+                _T("Component"),
                 INPUTTYPE_CCIR,
                 0
             },
             {
-                "S-Video 1",
+                _T("S-Video 1"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "S-Video 2",
+                _T("S-Video 2"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 1 (Red)",
+                _T("Composite 1 (Red)"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 2 (Green)",
+                _T("Composite 2 (Green)"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 3 (Blue)",
+                _T("Composite 3 (Blue)"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "PDI",
+                _T("PDI"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 1 over S-video 1",
+                _T("Composite 1 over S-video 1"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 2 over S-video 1",
+                _T("Composite 2 over S-video 1"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 1 over S-video 2",
+                _T("Composite 1 over S-video 2"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "Composite 2 over S-video 2",
+                _T("Composite 2 over S-video 2"),
                 INPUTTYPE_CCIR,
                 0,
             },
             {
-                "RGBS / RGsB",
+                _T("RGBS / RGsB"),
                 INPUTTYPE_CCIR,
                 0,
             },
@@ -4211,26 +4211,26 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         {0, 0, 0, 0, 0, 0, }
     },
     {
-        "Hercules Smart TV Stereo",
+        _T("Hercules Smart TV Stereo"),
         4,
         {
             {
-                "Tuner",
+                _T("Tuner"),
                 INPUTTYPE_TUNER,
                 2,
             },
             {
-                "Composite",
+                _T("Composite"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite over S-Video",
+                _T("Composite over S-Video"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
@@ -4251,41 +4251,41 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         {0, 0, 0, 0, 0, 0, }
     },
     {
-        "Curtiss-Wright Controls Atlas",
+        _T("Curtiss-Wright Controls Atlas"),
         7,
         {
             {
-                "S-Video",
+                _T("S-Video"),
                 INPUTTYPE_SVIDEO,
                 1,
             },
             {
-                "Composite 1 (HSIN)",
+                _T("Composite 1 (HSIN)"),
                 INPUTTYPE_COMPOSITE,
                 2,
             },
             {
-                "Composite 2 (Green)",
+                _T("Composite 2 (Green)"),
                 INPUTTYPE_COMPOSITE,
                 3,
             },
             {
-                "Composite 3 (Red)",
+                _T("Composite 3 (Red)"),
                 INPUTTYPE_COMPOSITE,
                 1,
             },
             {
-                "Composite 4 (Blue)",
+                _T("Composite 4 (Blue)"),
                 INPUTTYPE_COMPOSITE,
                 0,
             },
             {
-                "RGBS/DVI",
+                _T("RGBS/DVI"),
                 INPUTTYPE_SPI,
                 0,
             },
             {
-                "Hi-Res Composite",
+                _T("Hi-Res Composite"),
                 INPUTTYPE_SPI,
                 0,
             },
@@ -4308,64 +4308,64 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 
 const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
 {
-    { 0x00011002, TVCARD_ATI_TVWONDER,  "ATI TV Wonder" },
-    { 0x00011461, TVCARD_AVPHONE98,     "AVerMedia TVPhone98" },
-    { 0x00021461, TVCARD_AVERMEDIA98,   "Avermedia TVCapture 98" },
-    { 0x00031002, TVCARD_ATI_TVWONDERVE,"ATI TV Wonder/VE" },
-    { 0x00031461, TVCARD_AVPHONE98,     "AVerMedia TVPhone98" },
-    { 0x00041461, TVCARD_AVERMEDIA98,   "AVerMedia TVCapture 98" },
-    { 0x001211bd, TVCARD_PINNACLERAVE,  "Pinnacle PCTV" },
-    { 0x001c11bd, TVCARD_PINNACLESAT,   "Pinnacle PCTV Sat" },
-    { 0x10b42636, TVCARD_HAUPPAUGE878,  "STB ???" },
-    { 0x1118153b, TVCARD_TERRATVALUE,   "Terratec TV Value" },
-    { 0x1123153b, TVCARD_TERRATVRADIO,  "Terratec TV/Radio+" },
-    { 0x1200bd11, TVCARD_PINNACLERAVE,  "Pinnacle PCTV Rave" },
-    { 0x13eb0070, TVCARD_HAUPPAUGE878,  "Hauppauge WinTV" },
-    { 0x18501851, TVCARD_CHRONOS_VS2,   "Chronos Video Shuttle II" },
-    { 0x18521852, TVCARD_TYPHOON_TVIEW, "Typhoon TView TV/FM Tuner" },
-    { 0x217d6606, TVCARD_WINFAST2000,   "Leadtek WinFast TV 2000" },
-    { 0x263610b4, TVCARD_STB2,          "STB TV PCI FM, P/N 6000704" },
-    { 0x3000144f, TVCARD_MAGICTVIEW063, "TView 99 (CPH063)" },
-    { 0x300014ff, TVCARD_MAGICTVIEW061, "TView 99 (CPH061)" },
-    { 0x3002144f, TVCARD_MAGICTVIEW061, "Askey Magic TView" },
-    { 0x300214ff, TVCARD_PHOEBE_TVMAS,  "Phoebe TV Master" },
-    { 0x39000070, TVCARD_HAUPPAUGE878,  "Hauppauge WinTV-D" },
-    { 0x400a15b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV" },
-    { 0x400d15b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
-    { 0x401015b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
-    { 0x402010fc, TVCARD_GVBCTV3PCI,    "I-O Data Co. GV-BCV3/PCI" },
-    { 0x405010fc, TVCARD_GVBCTV4PCI,    "I-O Data Co. GV-BCV4/PCI" },
-    { 0x45000070, TVCARD_HAUPPAUGE878,  "Hauppauge WinTV/PVR" },
-    { 0xff000070, TVCARD_VIEWCAST,      "Osprey-100" },
-    { 0xff010070, TVCARD_VIEWCAST,      "Osprey-200" },
-    { 0x010115cb, TVCARD_GMV1,          "AG GMV1" },
-    { 0x14610002, TVCARD_AVERMEDIA98,   "Avermedia TVCapture 98" },
-    { 0x182214F1, TVCARD_CONEXANTNTSCXEVK,  "Conexant Bt878A NTSC XEVK" },
-    { 0x1322127A, TVCARD_ROCKWELLNTSCXEVK,  "Rockwell Bt878A NTSC XEVK" },
-    { 0x013214F1, TVCARD_CONEXANTFOGHORNREVA,  "Conexant Foghorn NTSC/ATSC-A" },
-    { 0x023214F1, TVCARD_CONEXANTFOGHORNREVB,  "Conexant Foghorn NTSC/ATSC-B" },
-    { 0x033214F1, TVCARD_CONEXANTFOGHORNREVC,  "Conexant Foghorn NTSC/ATSC-C" },
-    { 0x3000121A, TVCARD_VOODOOTV_200, "3dfx VoodooTV 200 (USA) / FM (Europa)"},
-    { 0x3100121A, TVCARD_VOODOOTV_200, "3dfx VoodooTV 200 (USA) / FM (Europa) (OEM)"},
-    // { 0x3060121A, TVCARD_VOODOOTV_100, "3dfx VoodooTV 100"},
-    { 0x010114c7, TVCARD_MODTEC_205,    "Modular Technology PCTV" },
-    { 0x1117153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
-    { 0x1119153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
-    { 0x111a153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
-    { 0x1127153b, TVCARD_TERRATV,       "Terratec TV+"    },
-    { 0x1134153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
-    { 0x1135153b, TVCARD_TERRATVALUER,  "Terratec TValue Radio" },
-    { 0x18511851, TVCARD_FLYVIDEO98EZ,  "Flyvideo 98EZ (LR51)/ CyberMail AV" },
-    { 0x3005144f, TVCARD_MAGICTVIEW061, "(Askey Magic/others) TView99 CPH061/06L (T1/LC)" },
-    { 0x401615b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
-    { 0x6606107d, TVCARD_WINFAST2000,   "Leadtek WinFast TV 2000" },
-    { 0x5018153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
-    { 0x03116000, TVCARD_SENSORAY311,   "Sensoray 311" },
-    { 0x00790e11, TVCARD_WINDVR,        "Canopus WinDVR PCI" },
-    { 0xa0fca1a0, TVCARD_ZOLTRIX,       "Face to Face Tvmax" },
-    { 0x31323334, TVCARD_GRANDTEC,      "GrandTec XCapture" },
-    { 0x109e306e, TVCARD_KWORLD_MPEGTV, "KWorld MPEGTV RF Pro" },
-    { 0xae40ccec, TVCARD_CWCEC_ATLAS,   "Curtiss-Wright Controls Atlas" },
+    { 0x00011002, TVCARD_ATI_TVWONDER,  _T("ATI TV Wonder") },
+    { 0x00011461, TVCARD_AVPHONE98,     _T("AVerMedia TVPhone98") },
+    { 0x00021461, TVCARD_AVERMEDIA98,   _T("Avermedia TVCapture 98") },
+    { 0x00031002, TVCARD_ATI_TVWONDERVE,_T("ATI TV Wonder/VE") },
+    { 0x00031461, TVCARD_AVPHONE98,     _T("AVerMedia TVPhone98") },
+    { 0x00041461, TVCARD_AVERMEDIA98,   _T("AVerMedia TVCapture 98") },
+    { 0x001211bd, TVCARD_PINNACLERAVE,  _T("Pinnacle PCTV") },
+    { 0x001c11bd, TVCARD_PINNACLESAT,   _T("Pinnacle PCTV Sat") },
+    { 0x10b42636, TVCARD_HAUPPAUGE878,  _T("STB ???") },
+    { 0x1118153b, TVCARD_TERRATVALUE,   _T("Terratec TV Value") },
+    { 0x1123153b, TVCARD_TERRATVRADIO,  _T("Terratec TV/Radio+") },
+    { 0x1200bd11, TVCARD_PINNACLERAVE,  _T("Pinnacle PCTV Rave") },
+    { 0x13eb0070, TVCARD_HAUPPAUGE878,  _T("Hauppauge WinTV") },
+    { 0x18501851, TVCARD_CHRONOS_VS2,   _T("Chronos Video Shuttle II") },
+    { 0x18521852, TVCARD_TYPHOON_TVIEW, _T("Typhoon TView TV/FM Tuner") },
+    { 0x217d6606, TVCARD_WINFAST2000,   _T("Leadtek WinFast TV 2000") },
+    { 0x263610b4, TVCARD_STB2,          _T("STB TV PCI FM, P/N 6000704") },
+    { 0x3000144f, TVCARD_MAGICTVIEW063, _T("TView 99 (CPH063)") },
+    { 0x300014ff, TVCARD_MAGICTVIEW061, _T("TView 99 (CPH061)") },
+    { 0x3002144f, TVCARD_MAGICTVIEW061, _T("Askey Magic TView") },
+    { 0x300214ff, TVCARD_PHOEBE_TVMAS,  _T("Phoebe TV Master") },
+    { 0x39000070, TVCARD_HAUPPAUGE878,  _T("Hauppauge WinTV-D") },
+    { 0x400a15b0, TVCARD_ZOLTRIX_GENIE, _T("Zoltrix Genie TV") },
+    { 0x400d15b0, TVCARD_ZOLTRIX_GENIE, _T("Zoltrix Genie TV / Radio") },
+    { 0x401015b0, TVCARD_ZOLTRIX_GENIE, _T("Zoltrix Genie TV / Radio") },
+    { 0x402010fc, TVCARD_GVBCTV3PCI,    _T("I-O Data Co. GV-BCV3/PCI") },
+    { 0x405010fc, TVCARD_GVBCTV4PCI,    _T("I-O Data Co. GV-BCV4/PCI") },
+    { 0x45000070, TVCARD_HAUPPAUGE878,  _T("Hauppauge WinTV/PVR") },
+    { 0xff000070, TVCARD_VIEWCAST,      _T("Osprey-100") },
+    { 0xff010070, TVCARD_VIEWCAST,      _T("Osprey-200") },
+    { 0x010115cb, TVCARD_GMV1,          _T("AG GMV1") },
+    { 0x14610002, TVCARD_AVERMEDIA98,   _T("Avermedia TVCapture 98") },
+    { 0x182214F1, TVCARD_CONEXANTNTSCXEVK,  _T("Conexant Bt878A NTSC XEVK") },
+    { 0x1322127A, TVCARD_ROCKWELLNTSCXEVK,  _T("Rockwell Bt878A NTSC XEVK") },
+    { 0x013214F1, TVCARD_CONEXANTFOGHORNREVA,  _T("Conexant Foghorn NTSC/ATSC-A") },
+    { 0x023214F1, TVCARD_CONEXANTFOGHORNREVB,  _T("Conexant Foghorn NTSC/ATSC-B") },
+    { 0x033214F1, TVCARD_CONEXANTFOGHORNREVC,  _T("Conexant Foghorn NTSC/ATSC-C") },
+    { 0x3000121A, TVCARD_VOODOOTV_200, _T("3dfx VoodooTV 200 (USA) / FM (Europa)")},
+    { 0x3100121A, TVCARD_VOODOOTV_200, _T("3dfx VoodooTV 200 (USA) / FM (Europa) (OEM)")},
+    // { 0x3060121A, TVCARD_VOODOOTV_100, _T("3dfx VoodooTV 100")},
+    { 0x010114c7, TVCARD_MODTEC_205,    _T("Modular Technology PCTV") },
+    { 0x1117153b, TVCARD_TERRATVALUE,   _T("Terratec TValue") },
+    { 0x1119153b, TVCARD_TERRATVALUE,   _T("Terratec TValue") },
+    { 0x111a153b, TVCARD_TERRATVALUE,   _T("Terratec TValue") },
+    { 0x1127153b, TVCARD_TERRATV,       _T("Terratec TV+")    },
+    { 0x1134153b, TVCARD_TERRATVALUE,   _T("Terratec TValue") },
+    { 0x1135153b, TVCARD_TERRATVALUER,  _T("Terratec TValue Radio") },
+    { 0x18511851, TVCARD_FLYVIDEO98EZ,  _T("Flyvideo 98EZ (LR51)/ CyberMail AV") },
+    { 0x3005144f, TVCARD_MAGICTVIEW061, _T("(Askey Magic/others) TView99 CPH061/06L (T1/LC)") },
+    { 0x401615b0, TVCARD_ZOLTRIX_GENIE, _T("Zoltrix Genie TV / Radio") },
+    { 0x6606107d, TVCARD_WINFAST2000,   _T("Leadtek WinFast TV 2000") },
+    { 0x5018153b, TVCARD_TERRATVALUE,   _T("Terratec TValue") },
+    { 0x03116000, TVCARD_SENSORAY311,   _T("Sensoray 311") },
+    { 0x00790e11, TVCARD_WINDVR,        _T("Canopus WinDVR PCI") },
+    { 0xa0fca1a0, TVCARD_ZOLTRIX,       _T("Face to Face Tvmax") },
+    { 0x31323334, TVCARD_GRANDTEC,      _T("GrandTec XCapture") },
+    { 0x109e306e, TVCARD_KWORLD_MPEGTV, _T("KWorld MPEGTV RF Pro") },
+    { 0xae40ccec, TVCARD_CWCEC_ATLAS,   _T("Curtiss-Wright Controls Atlas") },
     { 0, (eTVCardId)-1, NULL }
 };
 
@@ -4501,7 +4501,7 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                     DWORD id;
                     WriteDword(BT848_GPIO_OUT_EN,( 0x18e0 )&0x00FFFFFFL);
                 id = ReadDword(BT848_GPIO_DATA);
-                LOG(2, "AutoDetectTuner: Lifetec card. ID: %08x",id);
+                LOG(2, _T("AutoDetectTuner: Lifetec card. ID: %08x"),id);
                     if (id & 0x4000)
                     {
                         TVTunerDoesFM = TRUE;
@@ -4523,7 +4523,7 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                 //Id = ((Id >> 10) & 31) - 1;
                 Id = ((Id >> 10) & 63) - 1;
 
-                LOG(2, "AutoDetectTuner: Miro/Pinnacle card. ID: 0x%08X",Id);
+                LOG(2, _T("AutoDetectTuner: Miro/Pinnacle card. ID: 0x%08X"),Id);
 
                 if (Id < 32)
                 {
@@ -4533,7 +4533,7 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                     // Get additional data
                     Val = ReadDword(BT848_GPIO_DATA);
 
-                    LOG(2, "AutoDetectTuner: Miro/Pinnacle card. Val: 0x%08X",Val);
+                    LOG(2, _T("AutoDetectTuner: Miro/Pinnacle card. Val: 0x%08X"),Val);
 
                     if (Val & 0x20)
                     {
@@ -4597,7 +4597,7 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                 WriteDword(BT848_GPIO_OUT_EN,( Out )&0x00FFFFFFL);
                     // all cards provide GPIO info, some have an additional eeprom
 
-                LOG(2, "AutoDetectTuner: Flyvideo type card. Id: 0x%08X",Gpio);
+                LOG(2, _T("AutoDetectTuner: Flyvideo type card. Id: 0x%08X"),Gpio);
 
                 // lowest 3 bytes are remote control codes (no handshake needed)
                     TType = (Gpio & 0x0f0000)>>16;
@@ -4636,18 +4636,18 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                 if (Eeprom[0] != 0x84 || Eeprom[2] != 0)
                 {
                         //Hauppage EEPROM invalid
-                        LOG(2, "AutoDetectTuner: Hauppage card. EEPROM error");
+                        LOG(2, _T("AutoDetectTuner: Hauppage card. EEPROM error"));
                     break;
                 }
 
-                LOG(2, "AutoDetectTuner: Hauppage card. Id: 0x%02X",Eeprom[9]);
+                LOG(2, _T("AutoDetectTuner: Hauppage card. Id: 0x%02X"),Eeprom[9]);
 
                 if (Eeprom[9] < sizeof(m_TunerHauppaugeAnalog)/sizeof(m_TunerHauppaugeAnalog[0]))
                 {
                   Tuner = m_TunerHauppaugeAnalog[Eeprom[9]];
                 }
 
-                LOG(2, "AutoDetectTuner: Hauppage card. Block 2: 0x%02X at %d+3",Eeprom[ Eeprom[1]+3 ],Eeprom[1]);
+                LOG(2, _T("AutoDetectTuner: Hauppage card. Block 2: 0x%02X at %d+3"),Eeprom[ Eeprom[1]+3 ],Eeprom[1]);
 
                 /* Block 2 starts after len+3 bytes header */
                 int blk2 = Eeprom[1] + 3;
@@ -4682,7 +4682,7 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                   tuner_tv_fm  = (Eeprom[0x41] & 0x18) >> 3;
                     tuner_format = (Eeprom[0x42] & 0xf0) >> 4;
 
-                    LOG(2, "AutoDetectTuner: Avermedia card. Id: 0x%02X 0x%02X",Eeprom[0x41],Eeprom[0x42]);
+                    LOG(2, _T("AutoDetectTuner: Avermedia card. Id: 0x%02X 0x%02X"),Eeprom[0x41],Eeprom[0x42]);
 
                 if (tuner_make == 0 || tuner_make == 2)
                 {
@@ -4719,7 +4719,7 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                                 (UINT(Eeprom[254]) << 8)  |
                                 (UINT(Eeprom[255]));
 
-                LOG(2, "AutoDetectTuner: Magic TView card. Id: 0x%08X",Id);
+                LOG(2, _T("AutoDetectTuner: Magic TView card. Id: 0x%08X"),Id);
 
                 if (Id == 0x4002144f)
                 {
@@ -4933,12 +4933,12 @@ void CBT848Card::StandardBT848InputSelect(int nInput)
 {
     if(nInput >= m_TVCards[m_CardType].NumInputs)
     {
-        LOG(1, "Input Select Called for invalid input");
+        LOG(1, _T("Input Select Called for invalid input"));
         nInput = m_TVCards[m_CardType].NumInputs - 1;
     }
     if(nInput < 0)
     {
-        LOG(1, "Input Select Called for invalid input");
+        LOG(1, _T("Input Select Called for invalid input"));
         nInput = 0;
     }
 
@@ -4968,12 +4968,12 @@ void CBT848Card::Sasem4ChannelInputSelect(int nInput)
 {
     if(nInput >= m_TVCards[m_CardType].NumInputs)
     {
-        LOG(1, "Input Select Called for invalid input");
+        LOG(1, _T("Input Select Called for invalid input"));
         nInput = m_TVCards[m_CardType].NumInputs - 1;
     }
     if(nInput < 0)
     {
-        LOG(1, "Input Select Called for invalid input");
+        LOG(1, _T("Input Select Called for invalid input"));
         nInput = 0;
     }
 

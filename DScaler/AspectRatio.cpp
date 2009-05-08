@@ -141,8 +141,8 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
         // If source width or source height is null, we do nothing
         if (SourceWidth == 0 || SourceHeight == 0)
         {
-            LOG(2,"Zero height or width in WorkoutOverlaySize!");
-            LOGD("Zero height or width in WorkoutOverlaySize!\n");
+            LOG(2,_T("Zero height or width in WorkoutOverlaySize!"));
+            LOGD(_T("Zero height or width in WorkoutOverlaySize!\n"));
             return;
         }
 

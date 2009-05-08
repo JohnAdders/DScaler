@@ -112,7 +112,7 @@ void CMultiFrames::Enable()
         m_FrameFilled = (int*) malloc(m_NbFrames * sizeof(int));
         if (m_FrameFilled == NULL)
         {
-           LOG(1, "Couldn't allocate memory for multi frames output");
+           LOG(1, _T("Couldn't allocate memory for multi frames output"));
         }
     }
     m_Active = m_MemoryBuffer && m_FrameFilled;
@@ -548,7 +548,7 @@ void CMultiFrames::AllocateMemoryBuffer()
         m_MemoryBuffer = (BYTE*)malloc(m_Width * m_Height * 2 + 16);
         if (m_MemoryBuffer == NULL)
         {
-           LOG(1, "Couldn't create additional buffer for multiple frames output");
+           LOG(1, _T("Couldn't create additional buffer for multiple frames output"));
         }
     }
 }

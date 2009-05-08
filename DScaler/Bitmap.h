@@ -39,7 +39,7 @@ public:
     int m_BmpHeight;
     std::vector<RECT> m_RegionList;
     HRGN m_hRegion;
-    std::string m_ExtraInfo;
+    tstring m_ExtraInfo;
 };
 
 
@@ -71,7 +71,7 @@ public:
     static HRGN CreateWindowRegion(RECT& rcBound, std::vector<RECT>& RegionList, POINT* pPosition = NULL);
     static BOOL BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, std::vector<RECT>& RegionList);
 
-    static SmartHandle<HBITMAP> BitmapLoadFromFile(const char *szFile);
+    static SmartHandle<HBITMAP> BitmapLoadFromFile(const TCHAR* szFile);
     //static void BitmapLoad_Free(HBITMAP hBm);
 
 protected:
@@ -87,7 +87,7 @@ class CBitmapChangeInfo
 public:
     ~CBitmapChangeInfo();
     HBITMAP hBmp;
-    std::string sFileName;
+    tstring sFileName;
     BOOL bFreeOnDestroy;
 };
 
@@ -95,20 +95,20 @@ public:
 class CBitmapCache
 {
 public:
-    SmartHandle<HBITMAP> Read(LPCSTR szFileName);
+    SmartHandle<HBITMAP> Read(LPCTSTR szFileName);
 private:
-    std::map<std::string, SmartHandle<HBITMAP> > m_CacheList;
+    std::map<tstring, SmartHandle<HBITMAP> > m_CacheList;
 };
 
 
 class CBitmapIniInfo
 {
 public:
-    CBitmapIniInfo(std::string sName);
-    std::string m_sName;
+    CBitmapIniInfo(tstring sName);
+    tstring m_sName;
     SmartHandle<HBITMAP> m_hBmp;
     SmartHandle<HBITMAP> m_hBmpMask;
-    std::string m_sExtraInfo;
+    tstring m_sExtraInfo;
     int m_Result;
 };
 
@@ -119,17 +119,17 @@ class CBitmapsFromIniSection
 public:
     CBitmapsFromIniSection();
 
-    void Register(std::string sName);
+    void Register(tstring sName);
 
-    SmartPtr<CBitmapState> Get(std::string sName);
+    SmartPtr<CBitmapState> Get(tstring sName);
 
-    int Read(std::string sIniFile, std::string sSection, std::string sBitmapName, std::string sBitmapMaskName);
+    int Read(tstring sIniFile, tstring sSection, tstring sBitmapName, tstring sBitmapMaskName);
 
 protected:
-    typedef std::map<std::string, SmartPtr<CBitmapState> > StateMap;
+    typedef std::map<tstring, SmartPtr<CBitmapState> > StateMap;
     SmartPtr<CBitmapCache> m_pBitmapCache;
     StateMap m_StateMap;
-    std::string GetInfo(std::string sName);
+    tstring GetInfo(tstring sName);
 };
 
 

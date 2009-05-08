@@ -42,7 +42,7 @@ extern SettingStringValue PStrip480i;
 void OutReso_UpdateMenu(HMENU hMenu);
 void OutReso_SetMenu(HMENU hMenu);
 BOOL ProcessOutResoSelection(HWND hWnd, WORD wMenuID);
-void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCaptureRunning, LPSTR lTimingString, BOOL bApplyPStripTimingString);
+void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCaptureRunning, LPTSTR lTimingString, BOOL bApplyPStripTimingString);
 
 #endif
 

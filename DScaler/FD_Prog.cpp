@@ -62,7 +62,7 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
                 // Go back to video
                 SetVideoDeinterlaceMode(0);
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Gone back to video");
+                LOG(2, _T("Gone back to video"));
             }
         }
         else
@@ -92,7 +92,7 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
                 {
                     PatternSpots = 0;
                     FilmModeBeingDetected = GuessMode;
-                    LOG(2, "StartDetecting %d", GuessMode);
+                    LOG(2, _T("StartDetecting %d"), GuessMode);
                 }
                 else
                 {
@@ -100,11 +100,11 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
                     if(PatternSpots >= RepeatCount)
                     {
                         SetFilmDeinterlaceMode((eFilmPulldownMode)FilmModeBeingDetected);
-                        LOG(2, "Gone to film %d", FilmModeBeingDetected);
+                        LOG(2, _T("Gone to film %d"), FilmModeBeingDetected);
                     }
                     else
                     {
-                        LOG(2, "Found again %d", GuessMode);
+                        LOG(2, _T("Found again %d"), GuessMode);
                     }
                 }
             }
@@ -112,7 +112,7 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
             {
                 PatternSpots = 0;
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Reset bad pattern", GuessMode);
+                LOG(2, _T("Reset bad pattern"), GuessMode);
             }
         }
         ConsecutiveStills = 0;
@@ -129,7 +129,7 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
             {
                 PatternSpots = 0;
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Reset found still when expecting change");
+                LOG(2, _T("Reset found still when expecting change"));
             }
         }
     }
@@ -142,7 +142,7 @@ void UpdateProgPulldownModePAL(TDeinterlaceInfo* pInfo)
             ConsecutiveStills = 0;
             PatternSpots = 0;
             FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-            LOG(2, "Reset neither change nor still");
+            LOG(2, _T("Reset neither change nor still"));
         }
     }
 }
@@ -172,7 +172,7 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
                 // Go back to video
                 SetVideoDeinterlaceMode(0);
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Gone back to video");
+                LOG(2, _T("Gone back to video"));
             }
         }
         else
@@ -226,7 +226,7 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
                 {
                     PatternSpots = 0;
                     FilmModeBeingDetected = GuessMode;
-                    LOG(2, "StartDetecting %d", GuessMode);
+                    LOG(2, _T("StartDetecting %d"), GuessMode);
                 }
                 else
                 {
@@ -234,11 +234,11 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
                     if(PatternSpots >= RepeatCount && (ConsecutiveStills == 2))
                     {
                         SetFilmDeinterlaceMode((eFilmPulldownMode)FilmModeBeingDetected);
-                        LOG(2, "Gone to film %d", FilmModeBeingDetected);
+                        LOG(2, _T("Gone to film %d"), FilmModeBeingDetected);
                     }
                     else
                     {
-                        LOG(2, "Found again %d", GuessMode);
+                        LOG(2, _T("Found again %d"), GuessMode);
                     }
                 }
             }
@@ -246,7 +246,7 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
             {
                 PatternSpots = 0;
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Reset bad pattern", GuessMode);
+                LOG(2, _T("Reset bad pattern"), GuessMode);
             }
         }
         ConsecutiveStills = 0;
@@ -263,7 +263,7 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
             {
                 PatternSpots = 0;
                 FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-                LOG(2, "Reset found still when expecting change");
+                LOG(2, _T("Reset found still when expecting change"));
             }
         }
     }
@@ -276,7 +276,7 @@ void UpdateProgPulldownModeNTSC(TDeinterlaceInfo* pInfo)
             ConsecutiveStills = 0;
             PatternSpots = 0;
             FilmModeBeingDetected = NORMAL_PROGRESSIVE;
-            LOG(2, "Reset neither change nor still");
+            LOG(2, _T("Reset neither change nor still"));
         }
     }
 }

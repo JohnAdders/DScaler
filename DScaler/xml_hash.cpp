@@ -16,7 +16,7 @@
  *
  *    This helper module implements a hash array which is indexed by
  *    strings.  It associates a few bytes of payload data with each
- *    string which can be directly used to store data, or to store a
+ *    tstring which can be directly used to store data, or to store a
  *    pointer to a dynamically allocated buffer.  In the latter case
  *    a callback function must be provided during destruction of the
  *    array to free the buffers.
@@ -67,9 +67,9 @@
 
 typedef struct HASH_CHAIN_struct
 {
-   sint         nextIdx;                        // next string with the same key, or -1
-   char       * pStr;                           // pointer to malloc'ed copy of the string
-   char         payload[HASH_PAYLOAD_SIZE];     // data associated with the string
+   sint         nextIdx;                        // next tstring with the same key, or -1
+   TCHAR      * pStr;                           // pointer to malloc'ed copy of the tstring
+   TCHAR        payload[HASH_PAYLOAD_SIZE];     // data associated with the tstring
 } HASH_BUCKET;
 
 typedef struct
@@ -114,18 +114,18 @@ static void XmlHash_Statistics( XML_HASH_STATE * pHash )
       }
    }
 
-   printf("Hash: used buckets: %d of %d\n", pHash->bucketUsed, pHash->bucketCount);
-   printf("Hash: map entris: %d; max chain len: %d\n", usedMapEntry, maxChainLen);
+   _tprintf(_T("Hash: used buckets: %d of %d\n"), pHash->bucketUsed, pHash->bucketCount);
+   _tprintf(_T("Hash: map entris: %d; max chain len: %d\n"), usedMapEntry, maxChainLen);
 }
 #endif
 
 // ----------------------------------------------------------------------------
-// Generate hash key for a string
+// Generate hash key for a tstring
 //
-static uint XmlHash_GetKey( const char * pStr )
+static uint XmlHash_GetKey( const TCHAR*  pStr )
 {
    uint  key;
-   char  c;
+   TCHAR c;
 
    key = 0;
    while ( (c = *(pStr++)) != 0 )
@@ -146,7 +146,7 @@ static sint XmlHash_GetFreeBucket( XML_HASH_PTR pHashRef )
 
    if (pHash->bucketUsed >= pHash->bucketCount)
    {
-      dprintf1("XmlHash-GetFreeBucket: grow bucket list to %d entries\n", pHash->bucketCount * 2);
+      dprintf1(_T("XmlHash-GetFreeBucket: grow bucket list to %d entries\n"), pHash->bucketCount * 2);
       assert(pHash->bucketUsed == pHash->bucketCount);
 
       // all buckets are used -> allocate larger list
@@ -164,10 +164,10 @@ static sint XmlHash_GetFreeBucket( XML_HASH_PTR pHashRef )
 }
 
 // ----------------------------------------------------------------------------
-// Looks up the entry for a given string
-// - returns NULL if the string is not found
+// Looks up the entry for a given tstring
+// - returns NULL if the tstring is not found
 //
-XML_HASH_PAYLOAD XmlHash_SearchEntry( XML_HASH_PTR pHashRef, const char * pStr )
+XML_HASH_PAYLOAD XmlHash_SearchEntry( XML_HASH_PTR pHashRef, const TCHAR*  pStr )
 {
    XML_HASH_STATE * pHash = (XML_HASH_STATE*)pHashRef;
    sint  walkIdx;
@@ -182,7 +182,7 @@ XML_HASH_PAYLOAD XmlHash_SearchEntry( XML_HASH_PTR pHashRef, const char * pStr )
    {
       while (walkIdx != HASH_MAP_FREE)
       {
-         if (strcmp(pHash->pBuckets[walkIdx].pStr, pStr) == 0)
+         if (_tcscmp(pHash->pBuckets[walkIdx].pStr, pStr) == 0)
          {
             break;
          }
@@ -198,9 +198,9 @@ XML_HASH_PAYLOAD XmlHash_SearchEntry( XML_HASH_PTR pHashRef, const char * pStr )
 }
 
 // ----------------------------------------------------------------------------
-// Add a string to the hash
+// Add a tstring to the hash
 //
-XML_HASH_PAYLOAD XmlHash_CreateEntry( XML_HASH_PTR pHashRef, const char * pStr, Bool * pIsNew )
+XML_HASH_PAYLOAD XmlHash_CreateEntry( XML_HASH_PTR pHashRef, const TCHAR*  pStr, Bool * pIsNew )
 {
    XML_HASH_STATE * pHash = (XML_HASH_STATE*)pHashRef;
    sint  walkIdx;
@@ -215,7 +215,7 @@ XML_HASH_PAYLOAD XmlHash_CreateEntry( XML_HASH_PTR pHashRef, const char * pStr, 
    {
       while (walkIdx != HASH_MAP_FREE)
       {
-         if (strcmp(pHash->pBuckets[walkIdx].pStr, pStr) == 0)
+         if (_tcscmp(pHash->pBuckets[walkIdx].pStr, pStr) == 0)
          {
             break;
          }
@@ -226,7 +226,7 @@ XML_HASH_PAYLOAD XmlHash_CreateEntry( XML_HASH_PTR pHashRef, const char * pStr, 
 
    if (walkIdx == HASH_MAP_FREE)
    {
-      // string not found in hash
+      // tstring not found in hash
       *pIsNew = TRUE;
 
       walkIdx = XmlHash_GetFreeBucket(pHash);
@@ -235,12 +235,12 @@ XML_HASH_PAYLOAD XmlHash_CreateEntry( XML_HASH_PTR pHashRef, const char * pStr, 
 
       if (prevIdx == HASH_MAP_FREE)
       {  // allocate new key
-         dprintf3("XmlHash-CreateEntry: allocate map entry #%d: bucket #%d for '%s'\n", key, walkIdx, pStr);
+         dprintf3(_T("XmlHash-CreateEntry: allocate map entry #%d: bucket #%d for '%s'\n"), key, walkIdx, pStr);
          pHash->map[key] = walkIdx;
       }
       else
       {  // key already known -> append to existing bucket chain
-         dprintf3("XmlHash-CreateEntry: append tp map entry #%d: bucket #%d for '%s'\n", key, walkIdx, pStr);
+         dprintf3(_T("XmlHash-CreateEntry: append tp map entry #%d: bucket #%d for '%s'\n"), key, walkIdx, pStr);
          pHash->pBuckets[prevIdx].nextIdx = walkIdx;
       }
    }
@@ -284,7 +284,7 @@ void XmlHash_Destroy( XML_HASH_PTR pHashRef, XML_HASH_FREE_CB pCb )
       xfree(pHash);
    }
    else
-      fatal0("XmlHash-Destroy: invalid NULL ptr param");
+      fatal0(_T("XmlHash-Destroy: invalid NULL ptr param"));
 }
 
 // ----------------------------------------------------------------------------

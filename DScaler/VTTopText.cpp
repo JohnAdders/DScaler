@@ -668,7 +668,7 @@ BOOL CVTTopText::GetTopTextDetails(DWORD dwPageCode, TVTPage* pBuffer, BOOL bWai
     short   LinkPage;
     short   MissingPage;
     BYTE*   pLineInput;
-    LPSTR   pMessage;
+    char*   pMessage;
 
     if ((Page = PageHex2Page(LOWORD(dwPageCode))) == -1)
     {
@@ -726,7 +726,7 @@ BOOL CVTTopText::GetTopTextDetails(DWORD dwPageCode, TVTPage* pBuffer, BOOL bWai
     // See if a wait message is required instead
     if (bWaitMessage != FALSE)
     {
-        char    szBuffer[40];
+        char   szBuffer[40];
 
         // Invalidate the YELLOW and BLUE Flof keys
         pBuffer->EditorialLink[VTFLOF_YELLOW] = 0UL;
@@ -755,7 +755,7 @@ BOOL CVTTopText::GetTopTextDetails(DWORD dwPageCode, TVTPage* pBuffer, BOOL bWai
 
             if (m_MPTable[Page] != 0)
             {
-                sprintf_s(szBuffer, m_MultiMessage, m_MPTable[Page]);
+                sprintf(szBuffer, m_MultiMessage, m_MPTable[Page]);
                 pMessage = szBuffer;
             }
             else

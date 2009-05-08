@@ -43,12 +43,12 @@ private:
     ///  uses the subsystem id to determin the correct source to create
     SmartPtr<CBT848Source> CreateCorrectSource(
                                         SmartPtr<CHardwareDriver> pHardwareDriver,
-                                        LPCSTR szSection,
+                                        LPCTSTR szSection,
                                         WORD VendorID,
                                         WORD DeviceID,
                                         int DeviceIndex,
                                         DWORD SubSystemId,
-                                        char* ChipName);
+                                        TCHAR* ChipName);
     /// creates the system accesable memory to be used by all cards
     BOOL MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver);
     std::vector< SmartPtr<CBT848Source> > m_BT848Sources;

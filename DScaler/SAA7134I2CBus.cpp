@@ -81,7 +81,7 @@ BOOL CSAA7134I2CBus::Read(const BYTE *writeBuffer,
         // Send the address
         if (!I2CStart())
         {
-            LOGD("I2CBus::write(0x%x) returned TRUE for write address in CI2CBus::read\n", address & ~1);
+            LOGD(_T("I2CBus::write(0x%x) returned TRUE for write address in CI2CBus::read\n"), address & ~1);
             I2CStop();
             Unlock();
             return FALSE;
@@ -99,7 +99,7 @@ BOOL CSAA7134I2CBus::Read(const BYTE *writeBuffer,
         }
 
         // The last byte may also create a positive acknowledge, indicating, that
-        // the device is "full", which is not an error.
+        // the device is _T("full"), which is not an error.
         if (writeBufferSize >= 2)
         {
             SetData(writeBuffer[writeBufferSize - 1]);
@@ -112,7 +112,7 @@ BOOL CSAA7134I2CBus::Read(const BYTE *writeBuffer,
     // The read address requires a negative ack
     if (!I2CStart())
     {
-        LOGD("I2CBus::write(0x%x) returned FALSE for read address in CI2CBus::read\n", address | 1);
+        LOGD(_T("I2CBus::write(0x%x) returned FALSE for read address in CI2CBus::read\n"), address | 1);
         I2CStop();
         Unlock();
         return FALSE;

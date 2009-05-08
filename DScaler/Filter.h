@@ -30,7 +30,7 @@ class CSettingsHolder;
 BOOL LoadFilterPlugins();
 void UnloadFilterPlugins();
 BOOL ProcessFilterSelection(HWND hWnd, WORD wMenuID);
-void GetFilterSettings(std::vector< SmartPtr<CSettingsHolder> >& Holders,std::vector< std::string >& Names);
+void GetFilterSettings(std::vector< SmartPtr<CSettingsHolder> >& Holders,std::vector< tstring >& Names);
 void Filter_SetMenu(HMENU hMenu);
 BOOL Filter_WillWeDoOutput();
 

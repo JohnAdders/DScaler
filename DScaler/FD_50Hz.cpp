@@ -133,12 +133,12 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                     {
                         if((GetTickCount() - StartFilmTicks) < 100)
                         {
-                            LOG(2, "Upped RepeatCount %d Gap %d", RepeatCount, (GetTickCount() - StartFilmTicks));
+                            LOG(2, _T("Upped RepeatCount %d Gap %d"), RepeatCount, (GetTickCount() - StartFilmTicks));
                             RepeatCount++;
                         }
                         else
                         {
-                            LOG(2, "Reset RepeatCount - Gap %d Too long", (GetTickCount() - StartFilmTicks));
+                            LOG(2, _T("Reset RepeatCount - Gap %d Too long"), (GetTickCount() - StartFilmTicks));
                             RepeatCount = 1;
                         }
                     }
@@ -150,12 +150,12 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                         if(IsOdd == TRUE)
                         {
                             SetFilmDeinterlaceMode(FILM_22_PULLDOWN_ODD);
-                            LOG(2, "Gone to Odd");
+                            LOG(2, _T("Gone to Odd"));
                         }
                         if(IsOdd == FALSE)
                         {
                             SetFilmDeinterlaceMode(FILM_22_PULLDOWN_EVEN);
-                            LOG(2, "Gone to Even");
+                            LOG(2, _T("Gone to Even"));
                         }
                         PrivateRepeatCount = PALPulldownRepeatCount;
                         NotSureCount = 0;
@@ -167,7 +167,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
             {
                 LastPolarity = IsOdd;
                 RepeatCount = 1;
-                LOG(2, "Reset RepeatCount %d", RepeatCount);
+                LOG(2, _T("Reset RepeatCount %d"), RepeatCount);
             }
             StartFilmTicks = GetTickCount();
         }
@@ -188,7 +188,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
             if(bFallbackToVideo)
             {
                 SetVideoDeinterlaceIndex(PALFilmFallbackIndex);
-                LOG(2, "Gone back to video");
+                LOG(2, _T("Gone back to video"));
                 RepeatCount = 0;
             }
             else
@@ -198,7 +198,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                     SetVideoDeinterlaceIndex(PALFilmFallbackIndex);
                     FieldsSinceLastChange = 0;
                     PrivateRepeatCount = PALPulldownRepeatCount * 4;
-                    LOG(2, "Changes too fast go back to video and make it harder");
+                    LOG(2, _T("Changes too fast go back to video and make it harder"));
                     RepeatCount = 0;
                 }
                 else
@@ -206,7 +206,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                     // Reset the paramters of the Comb method
                     FilmModePALComb(NULL);
                     SetFilmDeinterlaceMode(FILM_22_PULLDOWN_COMB);
-                    LOG(2, "Gone to Comb Mode");
+                    LOG(2, _T("Gone to Comb Mode"));
                     RepeatCount = PrivateRepeatCount;
                     NeedToCheckComb = TRUE;
                 }
@@ -222,7 +222,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                     {
                         if(NotSureCount > 0)
                         {
-                            LOG(2, "Reset not sure Count");
+                            LOG(2, _T("Reset not sure Count"));
                             NotSureCount = 0;
                         }
                     }
@@ -231,7 +231,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                         if(NotSureCount > 0)
                         {
                             --NotSureCount;
-                            LOG(2, "Decreased not sure Count %d", NotSureCount);
+                            LOG(2, _T("Decreased not sure Count %d"), NotSureCount);
                         }
                     }
                 }
@@ -243,7 +243,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                         if(bFallbackToVideo)
                         {
                             SetVideoDeinterlaceIndex(PALFilmFallbackIndex);
-                            LOG(2, "Gone back to because we're not sure");
+                            LOG(2, _T("Gone back to because we're not sure"));
                             RepeatCount = 0;
                         }
                         else
@@ -253,7 +253,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                                 SetVideoDeinterlaceIndex(PALFilmFallbackIndex);
                                 FieldsSinceLastChange = 0;
                                 PrivateRepeatCount = PALPulldownRepeatCount * 4;
-                                LOG(2, "Changes too fast go back to video and make it harder because we're not sure");
+                                LOG(2, _T("Changes too fast go back to video and make it harder because we're not sure"));
                                 RepeatCount = 0;
                             }
                             else
@@ -261,7 +261,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                                 // Reset the paramters of the Comb method
                                 FilmModePALComb(NULL);
                                 SetFilmDeinterlaceMode(FILM_22_PULLDOWN_COMB);
-                                LOG(2, "Gone to Comb Mode because we're not sure");
+                                LOG(2, _T("Gone to Comb Mode because we're not sure"));
                                 RepeatCount = PrivateRepeatCount;
                                 NeedToCheckComb = TRUE;
                             }
@@ -269,7 +269,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                     }
                     else
                     {
-                        LOG(2, "Increased not sure Count %d", NotSureCount);
+                        LOG(2, _T("Increased not sure Count %d"), NotSureCount);
                     }
                 }
             }
@@ -315,7 +315,7 @@ BOOL FilmModePALComb(TDeinterlaceInfo* pInfo)
     if(NumCalls > MaxCallsToPALComb)
     {
         SetVideoDeinterlaceIndex(PALFilmFallbackIndex);
-        LOG(2, "Gone back to video from Comb Mode");
+        LOG(2, _T("Gone back to video from Comb Mode"));
     }
     DeintMethod = GetVideoDeintIndex(PALBadCadenceIndex);
     if(DeintMethod != NULL && DeintMethod->nMethodIndex == PALBadCadenceIndex)

@@ -295,7 +295,7 @@ void CSAA7134Card::ResetHardware()
     WriteByte(SAA7134_REGION_ENABLE, SAA7134_REGION_ENABLE_SWRST);
     WriteByte(SAA7134_REGION_ENABLE, 0x00);
 
-    // LOG(0, "Initial registery dump");
+    // LOG(0, _T("Initial registery dump"));
     // DumpRegisters();
 
     WriteWord(SAA7134_SOURCE_TIMING, SAA7134_SOURCE_TIMING_DVED);
@@ -835,7 +835,7 @@ void CSAA7134Card::CheckScalerError(BOOL bErrorOccurred, WORD ScalerStatus)
         }
         else if (CurrentTick > m_LastTriggerError + 1000)
         {
-            LOG(2, "SAA7134: Trying Trigger Error recovery");
+            LOG(2, _T("SAA7134: Trying Trigger Error recovery"));
             WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x00);
             WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x00);
             WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x0D);
@@ -854,19 +854,19 @@ void CSAA7134Card::CheckScalerError(BOOL bErrorOccurred, WORD ScalerStatus)
     }
 
     /*
-    LOG(0, "Scaler Status: %s%s%s%s%s%s%s%s%s%s%s%s",
-        (ScalerStatus & SAA7134_SCALER_STATUS_VID_A) ? "VID_A " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_VBI_A) ? "VBI_A " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_VID_B) ? "VID_B " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_VBI_B) ? "VBI_B " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_TRERR) ? "TRERR " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_CFERR) ? "CFERR " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_LDERR) ? "LDERR " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_WASRST) ? "WASRST " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_FIDSCI) ? "FIDSCI " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_FIDSCO) ? "FIDSCO " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_D6_D5) ? "D6_D5 " : "",
-        (ScalerStatus & SAA7134_SCALER_STATUS_TASK) ? "TASK " : ""
+    LOG(0, _T("Scaler Status: %s%s%s%s%s%s%s%s%s%s%s%s"),
+        (ScalerStatus & SAA7134_SCALER_STATUS_VID_A) ? _T("VID_A ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_VBI_A) ? _T("VBI_A ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_VID_B) ? _T("VID_B ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_VBI_B) ? _T("VBI_B ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_TRERR) ? _T("TRERR ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_CFERR) ? _T("CFERR ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_LDERR) ? _T("LDERR ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_WASRST) ? _T("WASRST ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_FIDSCI) ? _T("FIDSCI ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_FIDSCO) ? _T("FIDSCO ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_D6_D5) ? _T("D6_D5 ") : _T(""),
+        (ScalerStatus & SAA7134_SCALER_STATUS_TASK) ? _T("TASK ") : _T("")
     );
     */
 }
@@ -919,9 +919,9 @@ void CSAA7134Card::I2CUnlock()
 BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     CSAA7134Card* pThis = NULL;
-    char szCardId[9] = "none";
-    char szVendorId[9] = "none";
-    char szDeviceId[9] = "none";
+    TCHAR szCardId[9] = _T("none");
+    TCHAR szVendorId[9] = _T("none");
+    TCHAR szDeviceId[9] = _T("none");
     DWORD dwCardId(0);
 
     switch (message)
@@ -931,27 +931,27 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
 
         SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType().c_str());
 
-        sprintf(szVendorId,"%04X", pThis->GetVendorId());
+        _stprintf(szVendorId,_T("%04X"), pThis->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
 
-        sprintf(szDeviceId,"%04X", pThis->GetDeviceId());
+        _stprintf(szDeviceId,_T("%04X"), pThis->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
 
         SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType().c_str());
 
         if ((pThis->m_DeviceId == 0x7134) || pThis->m_DeviceId == 0x7133)
         {
-            SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "SAA713x OnChip");
+            SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, _T("SAA713x OnChip"));
         }
         else
         {
-            SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "n/a");
+            SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, _T("n/a"));
         }
 
         dwCardId = pThis->GetSubSystemId();
         if (dwCardId != 0x00001131)
         {
-            sprintf(szCardId, "%08X", dwCardId);
+            _stprintf(szCardId, _T("%08X"), dwCardId);
         }
         SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         return TRUE;
@@ -969,18 +969,18 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
 }
 
 
-string CSAA7134Card::GetChipType()
+tstring CSAA7134Card::GetChipType()
 {
     switch (m_DeviceId)
     {
     case 0x7130:
-        return "SAA7130";
+        return _T("SAA7130");
     case 0x7133:
-        return "SAA7133";
+        return _T("SAA7133");
     case 0x7134:
-        return "SAA7134";
+        return _T("SAA7134");
     }
-    return "n/a";
+    return _T("n/a");
 }
 
 
@@ -1069,29 +1069,29 @@ void CSAA7134Card::EnableCCIR656VideoOut()
 void CSAA7134Card::DumpRegisters()
 {
     DWORD   Data;
-    char    HexString[64];
+    TCHAR   HexString[64];
 
     for (int i = 0x000; i < 0x400; i += 16)
     {
         *HexString = '\0';
 
         Data = ReadDword(i);
-        sprintf(HexString, "%02x%02x %02x%02x",
+        _stprintf(HexString, _T("%02x%02x %02x%02x"),
             Data & 0xFF, (Data >> 8) & 0xFF, (Data >> 16) & 0xFF, (Data >> 24) & 0xFF);
 
         Data = ReadDword(i + 4);
-        sprintf(HexString, "%s %02x%02x %02x%02x", HexString,
+        _stprintf(HexString, _T("%s %02x%02x %02x%02x"), HexString,
             Data & 0xFF, (Data >> 8) & 0xFF, (Data >> 16) & 0xFF, (Data >> 24) & 0xFF);
 
         Data = ReadDword(i + 8);
-        sprintf(HexString, "%s|%02x%02x %02x%02x", HexString,
+        _stprintf(HexString, _T("%s|%02x%02x %02x%02x"), HexString,
             Data & 0xFF, (Data >> 8) & 0xFF, (Data >> 16) & 0xFF, (Data >> 24) & 0xFF);
 
         Data = ReadDword(i + 12);
-        sprintf(HexString, "%s %02x%02x %02x%02x", HexString,
+        _stprintf(HexString, _T("%s %02x%02x %02x%02x"), HexString,
             Data & 0xFF, (Data >> 8) & 0xFF, (Data >> 16) & 0xFF, (Data >> 24) & 0xFF);
 
-        LOG(0, "%03lX: %s", i, HexString);
+        LOG(0, _T("%03lX: %s"), i, HexString);
     }
 }
 
@@ -1106,7 +1106,7 @@ void CSAA7134Card::StatGPIO()
 
     DWORD Mode = ReadDword(SAA7134_GPIO_GPMODE) & 0x0EFFFFFF;
     DWORD Status = ReadDword(SAA7134_GPIO_GPSTATUS) & 0x0EFFFFFF;
-    LOG(0, "debug: gpio: mode=0x%07lx in=0x%07lx out=0x%07lx\n", Mode,
+    LOG(0, _T("debug: gpio: mode=0x%07lx in=0x%07lx out=0x%07lx\n"), Mode,
             (~Mode) & Status, Mode & Status);
 }
 
@@ -1130,46 +1130,46 @@ void CSAA7134Card::CheckRegisters(DWORD* AOdd, DWORD* AEven, DWORD* BOdd, DWORD*
     {
         OldAOdd = *AOdd;
 
-        LOG(0, "A Odd CHANGED");
+        LOG(0, _T("A Odd CHANGED"));
     }
 
     if (*BOdd != OldBOdd)
     {
         OldBOdd = *BOdd;
 
-        LOG(0, "B Odd CHANGED");
+        LOG(0, _T("B Odd CHANGED"));
     }
 
     if (*AEven != OldAEven)
     {
         OldAEven = *AEven;
 
-        LOG(0, "A Even CHANGED");
+        LOG(0, _T("A Even CHANGED"));
     }
 
     if (*BEven != OldBEven)
     {
         OldBEven = *BEven;
 
-        LOG(0, "B Even CHANGED");
+        LOG(0, _T("B Even CHANGED"));
     }
 
     if (DMAStatus != OldDMAStatus)
     {
         OldDMAStatus = DMAStatus;
 
-        LOG(0, "DMA Status: %02x", DMAStatus);
-        //LOG(0, "DMA Status: %x", (DMAStatus >> 20) & 0x0F);
+        LOG(0, _T("DMA Status: %02x"), DMAStatus);
+        //LOG(0, _T("DMA Status: %x"), (DMAStatus >> 20) & 0x0F);
     }
 
     if (IRQStatus != OldIRQStatus)
     {
         OldIRQStatus = IRQStatus;
 
-        LOG(0, "IRQ Status: %s,%s,%s,%ld",
-               (IRQStatus & 0x40) ? "vbi"  : "video",
-               (IRQStatus & 0x20) ? "b"    : "a",
-               (IRQStatus & 0x10) ? "odd"  : "even",
+        LOG(0, _T("IRQ Status: %s,%s,%s,%ld"),
+               (IRQStatus & 0x40) ? _T("vbi")  : _T("video"),
+               (IRQStatus & 0x20) ? _T("b")    : _T("a"),
+               (IRQStatus & 0x10) ? _T("odd")  : _T("even"),
                (IRQStatus & 0x0f));
     }
 
@@ -1177,19 +1177,19 @@ void CSAA7134Card::CheckRegisters(DWORD* AOdd, DWORD* AEven, DWORD* BOdd, DWORD*
     {
         OldScalerStatus = ScalerStatus;
 
-        LOG(0, "Scaler Status: %s%s%s%s%s%s%s%s%s%s%s%s",
-            (ScalerStatus & SAA7134_SCALER_STATUS_VID_A) ? "VID_A " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_VBI_A) ? "VBI_A " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_VID_B) ? "VID_B " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_VBI_B) ? "VBI_B " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_TRERR) ? "TRERR " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_CFERR) ? "CFERR " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_LDERR) ? "LDERR " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_WASRST) ? "WASRST " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_FIDSCI) ? "FIDSCI " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_FIDSCO) ? "FIDSCO " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_D6_D5) ? "D6_D5 " : "",
-            (ScalerStatus & SAA7134_SCALER_STATUS_TASK) ? "TASK " : ""
+        LOG(0, _T("Scaler Status: %s%s%s%s%s%s%s%s%s%s%s%s"),
+            (ScalerStatus & SAA7134_SCALER_STATUS_VID_A) ? _T("VID_A ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_VBI_A) ? _T("VBI_A ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_VID_B) ? _T("VID_B ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_VBI_B) ? _T("VBI_B ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_TRERR) ? _T("TRERR ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_CFERR) ? _T("CFERR ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_LDERR) ? _T("LDERR ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_WASRST) ? _T("WASRST ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_FIDSCI) ? _T("FIDSCI ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_FIDSCO) ? _T("FIDSCO ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_D6_D5) ? _T("D6_D5 ") : _T(""),
+            (ScalerStatus & SAA7134_SCALER_STATUS_TASK) ? _T("TASK ") : _T("")
             );
     }
 }
@@ -1232,23 +1232,23 @@ void CSAA7134Card::DirectSetBit(DWORD dwAddress, int nBit, BOOL bSet)
     if (Status != OldStatus)
     {
         OldStatus = Status;
-        LOG(0, "Video Status: %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-            (Status & SAA7134_STATUS_VIDEO_DCSTD0) ? "DCSTD0 " : "",
-            (Status & SAA7134_STATUS_VIDEO_DCSCT1) ? "DCSCT1 " : "",
-            (Status & SAA7134_STATUS_VIDEO_WIPA) ? "WIPA " : "",
-            (Status & SAA7134_STATUS_VIDEO_GLIMB) ? "GLIMB " : "",
-            (Status & SAA7134_STATUS_VIDEO_GLIMT) ? "GLIMT " : "",
-            (Status & SAA7134_STATUS_VIDEO_SLTCA) ? "SLTCA " : "",
-            (Status & SAA7134_STATUS_VIDEO_HLCK) ? "HLCK " : "",
-            (Status & SAA7134_STATUS_VIDEO_RDCAP) ? "RDCAP " : "",
-            (Status & SAA7134_STATUS_VIDEO_COPRO) ? "COPRO " : "",
-            (Status & SAA7134_STATUS_VIDEO_COLSTR) ? "COLSTR " : "",
-            (Status & SAA7134_STATUS_VIDEO_TYPE3) ? "TYPE3 " : "",
-            (Status & SAA7134_STATUS_VIDEO_FIDT) ? "FIDT " : "",
-            (Status & SAA7134_STATUS_VIDEO_HLVLN) ? "HLVLN " : "",
-            (Status & SAA7134_STATUS_VIDEO_INTL) ? "INTL " : "",
-            (Status & (1<<7)) ? "Unknown1 " : "",
-            (Status & (1<<12)) ? "Unknown2" : ""
+        LOG(0, _T("Video Status: %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s"),
+            (Status & SAA7134_STATUS_VIDEO_DCSTD0) ? _T("DCSTD0 ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_DCSCT1) ? _T("DCSCT1 ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_WIPA) ? _T("WIPA ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_GLIMB) ? _T("GLIMB ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_GLIMT) ? _T("GLIMT ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_SLTCA) ? _T("SLTCA ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_HLCK) ? _T("HLCK ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_RDCAP) ? _T("RDCAP ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_COPRO) ? _T("COPRO ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_COLSTR) ? _T("COLSTR ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_TYPE3) ? _T("TYPE3 ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_FIDT) ? _T("FIDT ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_HLVLN) ? _T("HLVLN ") : _T(""),
+            (Status & SAA7134_STATUS_VIDEO_INTL) ? _T("INTL ") : _T(""),
+            (Status & (1<<7)) ? _T("Unknown1 ") : _T(""),
+            (Status & (1<<12)) ? _T("Unknown2") : _T("")
             );
     }
 */
@@ -1259,19 +1259,19 @@ void CSAA7134Card::DirectSetBit(DWORD dwAddress, int nBit, BOOL bSet)
     if (Status != OldStatus)
     {
         OldStatus = Status;
-        LOG(0, "Scaler Status: %s%s%s%s%s%s%s%s%s%s%s%s",
-            (Status & SAA7134_SCALER_STATUS_VID_A) ? "VID_A " : "",
-            (Status & SAA7134_SCALER_STATUS_VBI_A) ? "VBI_A " : "",
-            (Status & SAA7134_SCALER_STATUS_VID_B) ? "VID_B " : "",
-            (Status & SAA7134_SCALER_STATUS_VBI_B) ? "VBI_B " : "",
-            (Status & SAA7134_SCALER_STATUS_TRERR) ? "TRERR " : "",
-            (Status & SAA7134_SCALER_STATUS_CFERR) ? "CFERR " : "",
-            (Status & SAA7134_SCALER_STATUS_LDERR) ? "LDERR " : "",
-            (Status & SAA7134_SCALER_STATUS_WASRST) ? "WASRST " : "",
-            (Status & SAA7134_SCALER_STATUS_FIDSCI) ? "FIDSCI " : "",
-            (Status & SAA7134_SCALER_STATUS_FIDSCO) ? "FIDSCO " : "",
-            (Status & SAA7134_SCALER_STATUS_D6_D5) ? "D6_D5 " : "",
-            (Status & SAA7134_SCALER_STATUS_TASK) ? "TASK " : ""
+        LOG(0, _T("Scaler Status: %s%s%s%s%s%s%s%s%s%s%s%s"),
+            (Status & SAA7134_SCALER_STATUS_VID_A) ? _T("VID_A ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_VBI_A) ? _T("VBI_A ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_VID_B) ? _T("VID_B ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_VBI_B) ? _T("VBI_B ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_TRERR) ? _T("TRERR ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_CFERR) ? _T("CFERR ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_LDERR) ? _T("LDERR ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_WASRST) ? _T("WASRST ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_FIDSCI) ? _T("FIDSCI ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_FIDSCO) ? _T("FIDSCO ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_D6_D5) ? _T("D6_D5 ") : _T(""),
+            (Status & SAA7134_SCALER_STATUS_TASK) ? _T("TASK ") : _T("")
             );
     }
 */

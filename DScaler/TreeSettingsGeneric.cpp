@@ -31,7 +31,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 // CTreeSettingsGeneric dialog
 
-CTreeSettingsGeneric::CTreeSettingsGeneric(const string& name,SmartPtr<CSettingsHolder> SettingHolder)
+CTreeSettingsGeneric::CTreeSettingsGeneric(const tstring& name,SmartPtr<CSettingsHolder> SettingHolder)
     :CTreeSettingsPage(name, IDD_TREESETTINGS_GENERIC),
     m_CurrentSetting(0),
     m_Settings(SettingHolder),
@@ -191,7 +191,7 @@ BOOL CTreeSettingsGeneric::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam
     //add relevant settings to listbox
     for(int i=0;i<m_SettingsCount;i++)
     {
-        CSimpleSetting* pSetting = m_Settings->GetSetting(i);
+        CSimpleSetting* pSetting = m_Settings->GetSetting(i).GetRawPointer();
         if ((pSetting != NULL) && !pSetting->GetDisplayName().empty() && (pSetting->GetType() != NOT_PRESENT))
         {
             int index=ListBox_AddString(m_ListBox, pSetting->GetDisplayName().c_str());
@@ -260,6 +260,7 @@ void CTreeSettingsGeneric::OnSelchangeList(HWND hDlg)
             break;
 
         case CHARSTRING:
+        case WCHARSTRING:
             ShowWindow(m_DefaultButton, SW_SHOWNA);
             ShowWindow(m_EditString, SW_SHOWNA);
             ShowWindow(m_CheckBox, SW_HIDE);
@@ -273,14 +274,14 @@ void CTreeSettingsGeneric::OnSelchangeList(HWND hDlg)
             break;
         }
 
-        string szName;
+        tstring szName;
         szName = m_Settings->GetSetting(m_CurrentSetting)->GetDisplayName();
         if (szName.empty())
         {
             szName = m_Settings->GetSetting(m_CurrentSetting)->GetEntry();
         }
 
-        SetWindowText(m_TopGroupBox, "");
+        SetWindowText(m_TopGroupBox, _T(""));
         SetWindowText(m_SavePerInfoBox, szName.c_str());
         ShowWindow(m_SavePerInfoBox, SW_HIDE);
 

@@ -46,7 +46,7 @@ private:
     ///  uses the subsystem id to determin the correct source to create
     SmartPtr<CCX2388xSource> CreateCorrectSource(
                                         CHardwareDriver* pHardwareDriver,
-                                        LPCSTR szSection,
+                                        LPCTSTR szSection,
                                         WORD VendorID,
                                         WORD DeviceID,
                                         int DeviceIndex,

@@ -62,15 +62,15 @@ CDSSourceBase::~CDSSourceBase()
     m_AudioDevice->WriteToIni(TRUE);
 }
 
-void CDSSourceBase::CreateSettings(LPCSTR IniSection)
+void CDSSourceBase::CreateSettings(LPCTSTR IniSection)
 {
-    m_Volume = new CVolumeSetting(this, "Volume", 0, LONG_MIN, LONG_MAX, IniSection);
+    m_Volume = new CVolumeSetting(this, _T("Volume"), 0, LONG_MIN, LONG_MAX, IniSection);
     m_Settings.push_back(m_Volume);
 
-    m_Balance = new CBalanceSetting(this, "Balance", 0, LONG_MIN, LONG_MAX, IniSection);
+    m_Balance = new CBalanceSetting(this, _T("Balance"), 0, LONG_MIN, LONG_MAX, IniSection);
     m_Settings.push_back(m_Balance);
 
-    m_AudioDevice = new CStringSetting("Audio Device", "", IniSection, "AudioDevice");
+    m_AudioDevice = new CStringSetting(_T("Audio Device"), _T(""), IniSection, _T("AudioDevice"));
 }
 
 int CDSSourceBase::GetWidth()
@@ -157,7 +157,7 @@ void CDSSourceBase::StopAndSeekToBeginning()
                     LONGLONG duration=pSeeking->GetDuration();
                     double pos1=pos/(double)10000000;
                     double duration1=duration/(double)10000000;
-                    LOGD("Current media position in seconds: %f / %f\n",pos1,duration1);
+                    LOGD(_T("Current media position in seconds: %f / %f\n"),pos1,duration1);
                 }
 
                 //atleast one of those flags must be set to be able to seek to the begining
@@ -170,7 +170,7 @@ void CDSSourceBase::StopAndSeekToBeginning()
         }
         catch(CDShowException &e)
         {
-            ErrorBox(MakeString() << "Stop failed\n\n"  << e.what());
+            ErrorBox(MakeString() << _T("Stop failed\n\n")  << e.what());
         }
     }
 }
@@ -186,7 +186,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     if(m_dwRendStartTime!=0)
     {
         dwLastDelay=timeGetTime()-m_dwRendStartTime;
-        //LOGD("Processing delay: %ld(ms)\n",dwLastDelay);
+        //LOGD(_T("Processing delay: %ld(ms)\n"),dwLastDelay);
         m_dwRendStartTime=0;
     }
     //info to return if we fail
@@ -311,9 +311,9 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             }
             catch(CDShowException &e)
             {
-                ErrorBox(MakeString() << "Play failed\n\n" << e.what());
+                ErrorBox(MakeString() << _T("Play failed\n\n") << e.what());
             }
-            OSD_ShowText("Play", 0);
+            OSD_ShowText(_T("Play"), 0);
         }
         return TRUE;
         break;
@@ -335,7 +335,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         {
             SendMessage(hWnd, WM_COMMAND, IDM_CAPTURE_PAUSE, 0);
         }
-        OSD_ShowText("Stop", 0);
+        OSD_ShowText(_T("Stop"), 0);
         return TRUE;
         break;
     case IDM_DSHOW_BACKWARD_5S:
@@ -388,8 +388,8 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         break;
     case IDM_DSHOW_FILTERS:
         {
-            CTreeSettingsDlg dlg("Filter properties");
-            CTreeSettingsPage rootPage("Filters",IDD_TREESETTINGS_EMPTY);
+            CTreeSettingsDlg dlg(_T("Filter properties"));
+            CTreeSettingsPage rootPage(_T("Filters"),IDD_TREESETTINGS_EMPTY);
             int root=dlg.AddPage(&rootPage);
 
             int filterIndex=0;
@@ -417,7 +417,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             }
             else
             {
-                ErrorBox("There is no filters to show properties for");
+                ErrorBox(_T("There is no filters to show properties for"));
             }
 
             return TRUE;
@@ -436,7 +436,7 @@ void CDSSourceBase::Mute()
     CDShowAudioControls *pControls=m_pDSGraph->GetAudioControls();
     if(pControls==NULL)
     {
-        LOG(3,"Failed to get audio controlls, mute will not work");
+        LOG(3,_T("Failed to get audio controlls, mute will not work"));
         return;
     }
 
@@ -467,7 +467,7 @@ void CDSSourceBase::UnMute()
     CDShowAudioControls *pControls=m_pDSGraph->GetAudioControls();
     if(pControls==NULL)
     {
-        LOG(3,"Failed to get audio controlls, mute will not work");
+        LOG(3,_T("Failed to get audio controlls, mute will not work"));
         return;
     }
 
@@ -495,7 +495,7 @@ CSliderSetting* CDSSourceBase::GetVolume()
     CDShowAudioControls *pControls=m_pDSGraph->GetAudioControls();
     if(pControls==NULL)
     {
-        LOG(3,"Failed to get audio controlls, volume will not work");
+        LOG(3,_T("Failed to get audio controlls, volume will not work"));
         return NULL;
     }
 
@@ -510,7 +510,7 @@ CSliderSetting* CDSSourceBase::GetVolume()
     }
     else
     {
-        LOG(3,"Audio controls don't support volume");
+        LOG(3,_T("Audio controls don't support volume"));
         return NULL;
     }
 }
@@ -524,7 +524,7 @@ CSliderSetting* CDSSourceBase::GetBalance()
     CDShowAudioControls *pControls=m_pDSGraph->GetAudioControls();
     if(pControls==NULL)
     {
-        LOG(3,"Failed to get audio controlls, balance will not work");
+        LOG(3,_T("Failed to get audio controlls, balance will not work"));
         return NULL;
     }
 
@@ -539,7 +539,7 @@ CSliderSetting* CDSSourceBase::GetBalance()
     }
     else
     {
-        LOG(3,"Audio controls don't support balance");
+        LOG(3,_T("Audio controls don't support balance"));
         return NULL;
     }
 }
@@ -548,13 +548,13 @@ void CDSSourceBase::VolumeOnChange(long NewValue, long OldValue)
 {
     if(m_pDSGraph==NULL)
     {
-        LOG(3,"Can't change volume because there is no filter graph");
+        LOG(3,_T("Can't change volume because there is no filter graph"));
         return;
     }
     CDShowAudioControls *pControlls=m_pDSGraph->GetAudioControls();
     if(pControlls==NULL)
     {
-        LOG(3,"Failed to get audio controlls");
+        LOG(3,_T("Failed to get audio controlls"));
         return;
     }
 
@@ -575,13 +575,13 @@ void CDSSourceBase::BalanceOnChange(long NewValue, long OldValue)
 {
     if(m_pDSGraph==NULL)
     {
-        LOG(3,"Can't change balance because there is no filter graph");
+        LOG(3,_T("Can't change balance because there is no filter graph"));
         return;
     }
     CDShowAudioControls *pControlls=m_pDSGraph->GetAudioControls();
     if(pControlls==NULL)
     {
-        LOG(3,"Failed to get audio controlls");
+        LOG(3,_T("Failed to get audio controlls"));
         return;
     }
 
@@ -596,7 +596,7 @@ void CDSSourceBase::BalanceOnChange(long NewValue, long OldValue)
     }
 }
 
-string CDSSourceBase::IDString()
+tstring CDSSourceBase::IDString()
 {
     return m_IDString;
 }
@@ -625,8 +625,8 @@ void CDSSourceBase::SetPos(int pos)
             pSeeking->SeekTo(RealPos);
 
             int pos1 = (int)(RealPos / 10000000);
-            char text[32];
-            sprintf_s(text, 32, "Jump to time %d:%2.2d", pos1 / 60, pos1 % 60);
+            TCHAR text[32];
+            _stprintf_s(text, 32, _T("Jump to time %d:%2.2d"), pos1 / 60, pos1 % 60);
             OSD_ShowText(text, 0);
         }
     }
@@ -669,8 +669,8 @@ void CDSSourceBase::ChangePos(int delta_sec)
                 pSeeking->SeekTo(newpos);
 
                 int pos1 = (int)(newpos / 10000000);
-                char text[32];
-                sprintf_s(text, 32, "Jump to time %d:%2.2d", pos1 / 60, pos1 % 60);
+                TCHAR text[32];
+                _stprintf_s(text, 32, _T("Jump to time %d:%2.2d"), pos1 / 60, pos1 % 60);
                 OSD_ShowText(text, 0);
             }
         }

@@ -39,7 +39,7 @@ class CBT848Source : public CSource
 {
     //DECLARE_CLASS_SETTINGS(CBT848Source);
 public:
-    CBT848Source(SmartPtr<CBT848Card> pBT848Card, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
+    CBT848Source(SmartPtr<CBT848Card> pBT848Card, SmartPtr<CContigMemory> RiscDMAMem, SmartPtr<CUserMemory> DisplayDMAMem[5], SmartPtr<CUserMemory> VBIDMAMem[5], LPCTSTR IniSection, LPCTSTR ChipName, int DeviceIndex);
     ~CBT848Source();
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
     void Start();
@@ -48,7 +48,7 @@ public:
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     SmartPtr<CBT848Card> GetBT848Card();
-    std::string GetStatus();
+    tstring GetStatus();
     CSliderSetting* GetVolume();
     CSliderSetting* GetBalance();
     void Mute();
@@ -84,20 +84,20 @@ public:
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo);
-    std::string GetMenuLabel();
-    BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList) {return FALSE;};
+    tstring GetMenuLabel();
+    BOOL OpenMediaFile(const tstring& FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
     void SetAspectRatioData();
     BOOL HasSquarePixels() {return FALSE;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
     void ChannelChange(int PreChange,int OldChannel,int NewChannel);
     int GetDeviceIndex();
-    std::string GetChipName();
-    std::string IDString() { return m_IDString; }
+    tstring GetChipName();
+    tstring IDString() { return m_IDString; }
     int  NumInputs(eSourceInputType InputType);
     BOOL SetInput(eSourceInputType InputType, int Nr);
     int GetInput(eSourceInputType InputType);
-    std::string GetInputName(eSourceInputType InputType, int Nr);
+    tstring GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
     SmartPtr<ITuner> GetTuner();
@@ -118,7 +118,7 @@ public:
     void InitializeUI();
 
 private:
-    virtual void CreateSettings(LPCSTR IniSection);
+    virtual void CreateSettings(LPCTSTR IniSection);
 
     void CreateRiscCode(BOOL bCaptureVBI);
     void CreateSPIRiscCode();
@@ -158,13 +158,13 @@ private:
      long m_CurrentVBILines;
      BOOL m_IsFieldOdd;
      BOOL m_InSaturationUpdate;
-     std::string m_ChannelSubSection;
-     std::string m_ChipName;
+     tstring m_ChannelSubSection;
+     tstring m_ChipName;
      int m_DeviceIndex;
      int m_NumFields;
 
-     std::string m_Section;
-     std::string m_IDString;
+     tstring m_Section;
+     tstring m_IDString;
      int m_DetectingAudioStandard;
      BOOL m_InitAudioControls;
      int m_KeepDetectingStereo;

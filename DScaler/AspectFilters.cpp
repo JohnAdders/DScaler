@@ -48,7 +48,7 @@ CPeriodBouncer::CPeriodBouncer(time_t period, double amplitude, double offset) :
     m_Amplitude(amplitude),
     m_Offset(offset)
 {
-    _time64(&m_StartTime);
+    time(&m_StartTime);
 }
 
     CPeriodBouncer::CPeriodBouncer(time_t startTime, time_t period, double amplitude, double offset) :
@@ -61,7 +61,7 @@ CPeriodBouncer::CPeriodBouncer(time_t period, double amplitude, double offset) :
 
 double CPeriodBouncer::position()
 {
-    double phase = fmod((((double)((_time64(NULL)-m_StartTime)%m_Period))/m_Period+0.25),1);
+    double phase = fmod((((double)((time(NULL)-m_StartTime)%m_Period))/m_Period+0.25),1);
     // We go from 0% to 100% over m_Period - but start 25% of the way into the phase.
     double val = phase*m_Amplitude*2.0;
     if (val > m_Amplitude)
@@ -76,15 +76,15 @@ double CPeriodBouncer::position()
 // Src rectangles refer to the rectangle of the source image being used
 //
 // Prev rectangles refer to the values from before this current filter run
-// Original rectangles refer to the initial values of "Current" passed into the filter chain
+// Original rectangles refer to the initial values of _T("Current") passed into the filter chain
 // Current rectangles are the Value being used and adjusted.
 //
 // ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
 
 void CAspectRectangles::DebugDump()
 {
-    m_CurrentOverlaySrcRect.DebugDump("SRC ");
-    m_CurrentOverlayDestRect.DebugDump("DEST");
+    m_CurrentOverlaySrcRect.DebugDump(_T("SRC "));
+    m_CurrentOverlayDestRect.DebugDump(_T("DEST"));
 }
 
 CAspectFilter::CAspectFilter()
@@ -118,14 +118,14 @@ void COverscanAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRer
     ar.m_CurrentOverlaySrcRect.shrink(m_LeftOverscan, m_RightOverscan, m_TopOverscan, m_BottomOverscan);
 }
 
-const char* COverscanAspectFilter::getFilterName()
+const TCHAR* COverscanAspectFilter::getFilterName()
 {
-    return "COverscanAspectFilter";
+    return _T("COverscanAspectFilter");
 }
 
 void COverscanAspectFilter::DebugDump()
 {
-    LOG(2,"Overscans (Top,Bottom,Left,Right) = (%d,%d,%d,%d)",m_TopOverscan, m_BottomOverscan, m_LeftOverscan, m_RightOverscan);
+    LOG(2,_T("Overscans (Top,Bottom,Left,Right) = (%d,%d,%d,%d)"),m_TopOverscan, m_BottomOverscan, m_LeftOverscan, m_RightOverscan);
 }
 
 CAnalogueBlankingFilter::CAnalogueBlankingFilter(int SourceWidth, int SourceHeight)
@@ -161,14 +161,14 @@ void CAnalogueBlankingFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestR
     ar.m_CurrentOverlaySrcRect.shrink(m_LeftShift, m_RightShift, m_TopShift, m_BottomShift);
 }
 
-const char* CAnalogueBlankingFilter::getFilterName()
+const TCHAR* CAnalogueBlankingFilter::getFilterName()
 {
-    return "CAnalogueBlankingFilter";
+    return _T("CAnalogueBlankingFilter");
 }
 
 void CAnalogueBlankingFilter::DebugDump()
 {
-    LOG(2,"AnalogueBlanking %d %d %d %d", m_TopShift, m_BottomShift, m_LeftShift, m_RightShift);
+    LOG(2,_T("AnalogueBlanking %d %d %d %d"), m_TopShift, m_BottomShift, m_LeftShift, m_RightShift);
 }
 
 
@@ -179,7 +179,7 @@ COrbitAspectFilter::COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY,
 {
     if (AspectSettings.BounceStartTime == 0)
     {
-        _time64(&AspectSettings.BounceStartTime);
+        time(&AspectSettings.BounceStartTime);
     }
     m_pXOrbitBouncer = new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodX,OrbitSize,-OrbitSize/2.0);
     m_pYOrbitBouncer = new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodY,OrbitSize,-OrbitSize/2.0);
@@ -191,21 +191,21 @@ void COrbitAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
                                 (int)m_pYOrbitBouncer->position());
 }
 
-const char* COrbitAspectFilter::getFilterName()
+const TCHAR* COrbitAspectFilter::getFilterName()
 {
-    return "COrbitAspectFilter";
+    return _T("COrbitAspectFilter");
 }
 
 void COrbitAspectFilter::DebugDump()
 {
-    LOG(2,"m_pXOrbitBouncer = %lf, m_pYOrbitBouncer = %lf",m_pXOrbitBouncer->position(), m_pYOrbitBouncer->position());
+    LOG(2,_T("m_pXOrbitBouncer = %lf, m_pYOrbitBouncer = %lf"),m_pXOrbitBouncer->position(), m_pYOrbitBouncer->position());
 }
 
 CBounceDestinationAspectFilter::CBounceDestinationAspectFilter(time_t period)
 {
     if (AspectSettings.BounceStartTime == 0)
     {
-        _time64(&AspectSettings.BounceStartTime);
+        time(&AspectSettings.BounceStartTime);
     }
     m_pBouncer = new CPeriodBouncer(
         AspectSettings.BounceStartTime, period,
@@ -226,14 +226,14 @@ void CBounceDestinationAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& R
                                  (int) (((oldDest.height()-ar.m_CurrentOverlayDestRect.height())*pos)/2));
 }
 
-const char* CBounceDestinationAspectFilter::getFilterName()
+const TCHAR* CBounceDestinationAspectFilter::getFilterName()
 {
-    return "CBounceDestinationAspectFilter";
+    return _T("CBounceDestinationAspectFilter");
 }
 
 void CBounceDestinationAspectFilter::DebugDump()
 {
-    LOG(2,"position = %lf",m_pBouncer->position());
+    LOG(2,_T("position = %lf"),m_pBouncer->position());
 }
 
 // Applys child filters than adjusts the position of the destination rectangle - this class fixed floating point positions
@@ -247,7 +247,7 @@ CPositionDestinationAspectFilter::CPositionDestinationAspectFilter(double x, dou
 void CPositionDestinationAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     #ifdef __ASPECTFILTER_DEBUG__
-        LOG(2,"PRE FILTER VALUES: %s",this->getFilterName());
+        LOG(2,_T("PRE FILTER VALUES: %s"),this->getFilterName());
         ar.DebugDump();
     #endif
 
@@ -259,25 +259,25 @@ void CPositionDestinationAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL&
                                  (int) (((oldDest.height()-ar.m_CurrentOverlayDestRect.height())*m_YPos)/2));
 
     #ifdef __ASPECTFILTER_DEBUG__
-        LOG(2,"POST FILTER VALUES: %s",this->getFilterName());
+        LOG(2,_T("POST FILTER VALUES: %s"),this->getFilterName());
         ar.DebugDump();
     #endif
 }
 
-const char* CPositionDestinationAspectFilter::getFilterName()
+const TCHAR* CPositionDestinationAspectFilter::getFilterName()
 {
-    return "CPositionDestinationAspectFilter";
+    return _T("CPositionDestinationAspectFilter");
 }
 
 void CPositionDestinationAspectFilter::DebugDump()
 {
-    LOG(2,"m_XPos = %lf, m_YPos = %lf",m_XPos,m_YPos);
+    LOG(2,_T("m_XPos = %lf, m_YPos = %lf"),m_XPos,m_YPos);
 }
 
 void CCropAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
 {
     #ifdef __ASPECTFILTER_DEBUG__
-        LOG(2,"PRE FILTER VALUES: %s",this->getFilterName());
+        LOG(2,_T("PRE FILTER VALUES: %s"),this->getFilterName());
         ar.DebugDump();
     #endif
 
@@ -303,14 +303,14 @@ void CCropAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
     ar.m_CurrentOverlayDestRect.adjustTargetAspectByShrink(MaterialAspect);
 
     #ifdef __ASPECTFILTER_DEBUG__
-        LOG(2,"POST FILTER VALUES: %s",this->getFilterName());
+        LOG(2,_T("POST FILTER VALUES: %s"),this->getFilterName());
         ar.DebugDump();
     #endif
 }
 
-const char* CCropAspectFilter::getFilterName()
+const TCHAR* CCropAspectFilter::getFilterName()
 {
-    return "CCropAspectFilter";
+    return _T("CCropAspectFilter");
 }
 
 // Applies the child filters and uncrops the source image to use all the area available in
@@ -352,9 +352,9 @@ void CUnCropAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun
     ar.m_CurrentOverlayDestRect.bottom -= (int)floor((lastSrc.bottom-ar.m_CurrentOverlaySrcRect.bottom)*vScale);
 }
 
-const char* CUnCropAspectFilter::getFilterName()
+const TCHAR* CUnCropAspectFilter::getFilterName()
 {
-    return "CUnCropAspectFilter";
+    return _T("CUnCropAspectFilter");
 }
 
 // Zooms in on the source image
@@ -495,13 +495,13 @@ void CPanAndZoomAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestR
     if (ar.m_CurrentOverlaySrcRect.bottom > rOriginalSrc.bottom) ar.m_CurrentOverlaySrcRect.bottom = rOriginalSrc.bottom;
 }
 
-const char* CPanAndZoomAspectFilter::getFilterName()
+const TCHAR* CPanAndZoomAspectFilter::getFilterName()
 {
-    return "CPanAndZoomAspectFilter";
+    return _T("CPanAndZoomAspectFilter");
 }
 void CPanAndZoomAspectFilter::DebugDump()
 {
-    LOG(2,"m_XPos = %lf, m_YPos = %lf, m_XZoom = %lf, m_YZoom = %lf",m_XPos,m_YPos,m_XZoom,m_YZoom);
+    LOG(2,_T("m_XPos = %lf, m_YPos = %lf, m_XZoom = %lf, m_YZoom = %lf"),m_XPos,m_YPos,m_XZoom,m_YZoom);
 }
 
 CScreenSanityAspectFilter::CScreenSanityAspectFilter(int SrcWidth, int SrcHeight)
@@ -558,9 +558,9 @@ void CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
     ar.m_CurrentOverlaySrcRect.enforceMinSize(1);
 }
 
-const char* CScreenSanityAspectFilter::getFilterName()
+const TCHAR* CScreenSanityAspectFilter::getFilterName()
 {
-    return "CScreenSanityAspectFilter";
+    return _T("CScreenSanityAspectFilter");
 }
 
 // Attemtps to resize the client window to match the aspect ratio
@@ -582,14 +582,14 @@ void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
     ClientToScreen(GetMainWnd(), (POINT*) &currentClientRect.right);
 
     #ifdef __ASPECTFILTER_DEBUG__
-        currentClientRect.DebugDump("Current Client Rect");
-        newRect.DebugDump("Target Client Rect");
+        currentClientRect.DebugDump(_T("Current Client Rect"));
+        newRect.DebugDump(_T("Target Client Rect"));
     #endif
 
     // Do we match????
     if (!currentClientRect.tolerantEquals(newRect,8))
     {
-        // Nope!  Scale the existing window using "smart" logic to grow or shrink the window as needed
+        // Nope!  Scale the existing window using _T("smart") logic to grow or shrink the window as needed
         RECT screenRect = {0,0,GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN) };
         //
         // Laurent's comment
@@ -601,7 +601,7 @@ void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
         currentClientRect.adjustSourceAspectSmart(newRect.sourceAspect(),screenRect);
 
         #ifdef __ASPECTFILTER_DEBUG__
-            currentClientRect.DebugDump("New Client Rect");
+            currentClientRect.DebugDump(_T("New Client Rect"));
         #endif
 
         // Add the status bar back in...
@@ -630,7 +630,7 @@ void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
         }
 
         #ifdef __ASPECTFILTER_DEBUG__
-            currentClientRect.DebugDump("New Window Pos");
+            currentClientRect.DebugDump(_T("New Window Pos"));
         #endif
 
         // Set the window...
@@ -643,7 +643,7 @@ void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
             {
                 currentClientRect.bottom -= StatusBar_Height();
             }
-            currentClientRect.DebugDump("Actual New Client  ");
+            currentClientRect.DebugDump(_T("Actual New Client  "));
         #endif
 
         // Recalculate the overlay
@@ -651,9 +651,9 @@ void CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& Reques
     }
 }
 
-const char* CResizeWindowAspectFilter::getFilterName()
+const TCHAR* CResizeWindowAspectFilter::getFilterName()
 {
-    return "CResizeWindowAspectFilter";
+    return _T("CResizeWindowAspectFilter");
 }
 
 CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
@@ -764,8 +764,8 @@ void CMasterFilterChain::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
     }
 }
 
-const char* CMasterFilterChain::getFilterName()
+const TCHAR* CMasterFilterChain::getFilterName()
 {
-    return "Master Filter Chain";
+    return _T("Master Filter Chain");
 }
 

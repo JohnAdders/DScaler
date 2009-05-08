@@ -56,10 +56,10 @@ public:
         {
         }
         BOOL operator==(CVideoFormat &fmt);
-        operator std::string();
-        void operator=(std::string &str);
+        operator tstring();
+        void operator=(tstring &str);
 
-        std::string m_Name;
+        tstring m_Name;
         ///Width
         long m_Width;
         ///Height
@@ -87,13 +87,13 @@ public:
      * Creates a filtergraph with a capture device as source.
      * @throws CDShowException
      */
-    CDShowGraph(std::string device, std::string deviceName, std::string AudioDevice, BOOL bConnectAudio);
+    CDShowGraph(tstring device, tstring deviceName, tstring AudioDevice, BOOL bConnectAudio);
 
     /**
      * Creates a filtergraph with a file as source
      * @throws CDShowException
      */
-    CDShowGraph(std::string filename, std::string AudioDevice);
+    CDShowGraph(tstring filename, tstring AudioDevice);
     ///Destructor
     virtual ~CDShowGraph();
 

@@ -52,27 +52,27 @@ class CSchedule
 {
 public:
     CSchedule(){};
-    CSchedule(const std::string& schedule_name, const std::string& program_name, int duration, int state, CTime time);
+    CSchedule(const tstring& schedule_name, const tstring& program_name, int duration, int state, SYSTEMTIME time);
     ~CSchedule(){};
 
-    const char* getName()           const   {return m_name.c_str();};
-    const char* getProgramName()    const   {return m_program_name.c_str();};
-    std::string getDateStr()        const;
-    std::string getTimeStr()        const;
+    const TCHAR* getName()           const   {return m_name.c_str();};
+    const TCHAR* getProgramName()    const   {return m_program_name.c_str();};
+    tstring getDateStr()        const;
+    tstring getTimeStr()        const;
     int getDuration()               const   {return m_duration;};
-    CTime getStartTime()            const   {return m_time_start;};
-    CTime getTimeEnd()              const   {return m_time_end;};
+    SYSTEMTIME getStartTime()            const   {return m_time_start;};
+    SYSTEMTIME getTimeEnd()              const   {return m_time_end;};
     int getState()                  const   {return m_state;};
 
-    void setTimeEnd(CTime time) {m_time_end = time;};
+    void setTimeEnd(SYSTEMTIME time) {m_time_end = time;};
     void setState(int state) {m_state = state;};
 
 private:
-    std::string m_name;
-    std::string m_program_name;
+    tstring m_name;
+    tstring m_program_name;
 
-    CTime m_time_start;
-    CTime m_time_end;
+    SYSTEMTIME m_time_start;
+    SYSTEMTIME m_time_end;
 
     int m_duration;
     int m_state;
@@ -91,20 +91,20 @@ public:
     void removeSchedule(HWND hDlg);
     void saveOnClose(HWND hDlg);
 
-    void getChannels(std::vector<std::string> &channels);
+    void getChannels(std::vector<tstring> &channels);
 
     BOOL run();
 
 private:
     void loadFromXml();
     void saveToXml(std::vector<CSchedule> schedules);
-    void setRecordState(const char* schedule_name, int state);
+    void setRecordState(const TCHAR* schedule_name, int state);
     int  getRecordsCount();
 
     BOOL IsEndOfRecording();
     BOOL processSchedules();
     void stopRecording(int state);
-    void startRecording(CSchedule recording_program, CTime time_start);
+    void startRecording(CSchedule recording_program, SYSTEMTIME time_start);
 
     BOOL m_bSchedulesUpdate;
     BOOL m_bExitThread;

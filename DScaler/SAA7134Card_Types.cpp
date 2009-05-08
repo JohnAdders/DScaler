@@ -46,7 +46,7 @@ using namespace std;
 
 using namespace HCParser;
 
-static const char* k_SAA713xCardListFilename = "SAA713xCards.ini";
+static const TCHAR* k_SAA713xCardListFilename = _T("SAA713xCards.ini");
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -55,30 +55,30 @@ static const char* k_SAA713xCardListFilename = "SAA713xCards.ini";
 const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134UnknownCard =
 {
     // SAA7134CARDID_UNKNOWN - Unknown Card
-    "*Unknown Card*",
+    _T("*Unknown Card*"),
     0x0000,
     4,
     {
         {
-            "Tuner",
+            _T("Tuner"),
             INPUTTYPE_TUNER,
             VIDEOINPUTSOURCE_PIN1,
             AUDIOINPUTSOURCE_DAC,
         },
         {
-            "Composite",
+            _T("Composite"),
             INPUTTYPE_COMPOSITE,
             VIDEOINPUTSOURCE_PIN3,
             AUDIOINPUTSOURCE_LINE1,
         },
         {
-            "S-Video",
+            _T("S-Video"),
             INPUTTYPE_SVIDEO,
             VIDEOINPUTSOURCE_PIN0,
             AUDIOINPUTSOURCE_LINE1,
         },
         {
-            "Composite over S-Video",
+            _T("Composite over S-Video"),
             INPUTTYPE_COMPOSITE,
             VIDEOINPUTSOURCE_PIN0,
             AUDIOINPUTSOURCE_LINE1,
@@ -97,32 +97,32 @@ std::vector<CSAA7134Card::CCardTypeEx> CSAA7134Card::m_SAA713xCards;
 //////////////////////////////////////////////////////////////////////////
 const CParseConstant CSAA7134Card::k_parseAudioPinConstants[] =
 {
-    PC(    "NONE",            AUDIOINPUTSOURCE_NONE    ),
-    PC(    "LINE1",        AUDIOINPUTSOURCE_LINE1    ),
-    PC(    "LINE2",        AUDIOINPUTSOURCE_LINE2    ),
-    PC(    "DAC",            AUDIOINPUTSOURCE_DAC    ),
+    PC(    _T("NONE"),            AUDIOINPUTSOURCE_NONE    ),
+    PC(    _T("LINE1"),        AUDIOINPUTSOURCE_LINE1    ),
+    PC(    _T("LINE2"),        AUDIOINPUTSOURCE_LINE2    ),
+    PC(    _T("DAC"),            AUDIOINPUTSOURCE_DAC    ),
     PC(    NULL )
 };
 
 const CParseConstant CSAA7134Card::k_parseInputTypeConstants[] =
 {
-    PC(    "COMPOSITE",    INPUTTYPE_COMPOSITE        ),
-    PC(    "SVIDEO",        INPUTTYPE_SVIDEO        ),
-    PC(    "TUNER",        INPUTTYPE_TUNER            ),
-    PC(    "CCIR",            INPUTTYPE_CCIR            ),
-    PC(    "RADIO",        INPUTTYPE_RADIO            ),
+    PC(    _T("COMPOSITE"),    INPUTTYPE_COMPOSITE        ),
+    PC(    _T("SVIDEO"),        INPUTTYPE_SVIDEO        ),
+    PC(    _T("TUNER"),        INPUTTYPE_TUNER            ),
+    PC(    _T("CCIR"),            INPUTTYPE_CCIR            ),
+    PC(    _T("RADIO"),        INPUTTYPE_RADIO            ),
 // MUTE    input was defined but not currently    used by    CSAA7134Card.
-//    PC(    "MUTE",            INPUTTYPE_MUTE            ),
+//    PC(    _T("MUTE"),            INPUTTYPE_MUTE            ),
 // FINAL isn't necessary because Final() does the same thing.
-//    PC(    "FINAL",        INPUTTYPE_FINAL        ),
+//    PC(    _T("FINAL"),        INPUTTYPE_FINAL        ),
     PC(    NULL )
 };
 
 const CParseConstant CSAA7134Card::k_parseAudioCrystalConstants[] =
 {
-    PC(    "NONE",            AUDIOCRYSTAL_NONE        ),
-    PC(    "32MHz",        AUDIOCRYSTAL_32110kHz    ),
-    PC(    "24MHz",        AUDIOCRYSTAL_24576kHz    ),
+    PC(    _T("NONE"),            AUDIOCRYSTAL_NONE        ),
+    PC(    _T("32MHz"),        AUDIOCRYSTAL_32110kHz    ),
+    PC(    _T("24MHz"),        AUDIOCRYSTAL_24576kHz    ),
     PC(    NULL )
 };
 
@@ -131,46 +131,46 @@ const CParseConstant CSAA7134Card::k_parseAudioCrystalConstants[] =
 //////////////////////////////////////////////////////////////////////////
 const CParseTag    CSAA7134Card::k_parseInputGPIOSet[]    =
 {
-    PT(    "Bits",                PARSE_NUMERIC,        1,    16,    NULL,                            ReadCardInputInfoProc        ),
-    PT(    "Mask",                PARSE_NUMERIC,        1,    16,    NULL,                            ReadCardInputInfoProc        ),
+    PT(    _T("Bits"),                PARSE_NUMERIC,        1,    16,    NULL,                            ReadCardInputInfoProc        ),
+    PT(    _T("Mask"),                PARSE_NUMERIC,        1,    16,    NULL,                            ReadCardInputInfoProc        ),
     PT(    NULL )
 };
 
 const CParseTag    CSAA7134Card::k_parseCardInput[] =
 {
-    PT(    "Name",                PARSE_STRING,        1, 63,    NULL,                            ReadCardInputInfoProc        ),
-    PT(    "Type",                PARSE_CONSTANT,        1, 16,    k_parseInputTypeConstants,        ReadCardInputInfoProc        ),
-    PT(    "VideoPin",            PARSE_NUMERIC,        0, 8,    NULL,                            ReadCardInputInfoProc        ),
-    PT(    "AudioPin",            PARSE_NUM_OR_CONST,    0, 8,    k_parseAudioPinConstants,        ReadCardInputInfoProc        ),
-    PT(    "GPIOSet",            PARSE_CHILDREN,        0, 1,    k_parseInputGPIOSet,            NULL                        ),
+    PT(    _T("Name"),                PARSE_STRING,        1, 63,    NULL,                            ReadCardInputInfoProc        ),
+    PT(    _T("Type"),                PARSE_CONSTANT,        1, 16,    k_parseInputTypeConstants,        ReadCardInputInfoProc        ),
+    PT(    _T("VideoPin"),            PARSE_NUMERIC,        0, 8,    NULL,                            ReadCardInputInfoProc        ),
+    PT(    _T("AudioPin"),            PARSE_NUM_OR_CONST,    0, 8,    k_parseAudioPinConstants,        ReadCardInputInfoProc        ),
+    PT(    _T("GPIOSet"),            PARSE_CHILDREN,        0, 1,    k_parseInputGPIOSet,            NULL                        ),
     PT(    NULL )
 };
 
 const CParseTag    CSAA7134Card::k_parseAutoDetectID[]    =
 {
-    PT(    "0",                PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardAutoDetectIDProc    ),
-    PT(    "1",                PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardAutoDetectIDProc    ),
-    PT(    "2",                PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardAutoDetectIDProc    ),
+    PT(    _T("0"),                PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardAutoDetectIDProc    ),
+    PT(    _T("1"),                PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardAutoDetectIDProc    ),
+    PT(    _T("2"),                PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardAutoDetectIDProc    ),
     PT(    NULL )
 };
 
 const CParseTag    CSAA7134Card::k_parseCard[]    =
 {
-    PT(    "Name",                PARSE_STRING,        1, 127,    NULL,                            ReadCardInfoProc            ),
-    PT(    "DeviceID",            PARSE_NUMERIC,        1, 8,    NULL,                            ReadCardInfoProc            ),
-    PT(    "DefaultTuner",        PARSE_NUM_OR_CONST,    0, 32,    k_parseTunerConstants,            ReadCardDefaultTunerProc    ),
-    PT(    "AudioCrystal",        PARSE_CONSTANT,        0, 8,    k_parseAudioCrystalConstants,    ReadCardInfoProc            ),
-    PT(    "GPIOMask",            PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardInfoProc            ),
-    PT(    "AutoDetectID",        PARSE_CHILDREN,        0, 1,    k_parseAutoDetectID,            NULL                        ),
-    PT(    "Input",            PARSE_CHILDREN,        0, 7,    k_parseCardInput,                ReadCardInputProc            ),
-    PT(    "Final",            PARSE_CHILDREN,        0, 7,    k_parseCardInput+2,                ReadCardInputProc            ),
-    PT(    "UseTDA9887",        PARSE_CHILDREN,        0, 1,    k_parseUseTDA9887,                ReadCardUseTDA9887Proc        ),
+    PT(    _T("Name"),                PARSE_STRING,        1, 127,    NULL,                            ReadCardInfoProc            ),
+    PT(    _T("DeviceID"),            PARSE_NUMERIC,        1, 8,    NULL,                            ReadCardInfoProc            ),
+    PT(    _T("DefaultTuner"),        PARSE_NUM_OR_CONST,    0, 32,    k_parseTunerConstants,            ReadCardDefaultTunerProc    ),
+    PT(    _T("AudioCrystal"),        PARSE_CONSTANT,        0, 8,    k_parseAudioCrystalConstants,    ReadCardInfoProc            ),
+    PT(    _T("GPIOMask"),            PARSE_NUMERIC,        0, 16,    NULL,                            ReadCardInfoProc            ),
+    PT(    _T("AutoDetectID"),        PARSE_CHILDREN,        0, 1,    k_parseAutoDetectID,            NULL                        ),
+    PT(    _T("Input"),            PARSE_CHILDREN,        0, 7,    k_parseCardInput,                ReadCardInputProc            ),
+    PT(    _T("Final"),            PARSE_CHILDREN,        0, 7,    k_parseCardInput+2,                ReadCardInputProc            ),
+    PT(    _T("UseTDA9887"),        PARSE_CHILDREN,        0, 1,    k_parseUseTDA9887,                ReadCardUseTDA9887Proc        ),
     PT(    NULL )
 };
 
 const CParseTag    CSAA7134Card::k_parseCardList[]    =
 {
-    PT(    "Card",                PARSE_CHILDREN,        0, 512,    k_parseCard,                    ReadCardProc                ),
+    PT(    _T("Card"),                PARSE_CHILDREN,        0, 512,    k_parseCard,                    ReadCardProc                ),
     PT(    NULL )
 };
 
@@ -191,14 +191,14 @@ BOOL CSAA7134Card::InitializeSAA713xCardList()
     // at the beginning.
     while (!hcParser.ParseFile(k_SAA713xCardListFilename, (void*)&parseInfo))
     {
-        LOG(0, "SAA713x cardlist: %s", hcParser.GetError().c_str());
+        LOG(0, _T("SAA713x cardlist: %s"), hcParser.GetError().c_str());
 
         INT_PTR iRetVal = DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_PARSE_ERROR),
             NULL, ParseErrorProc, (LPARAM)&parseInfo);
         if (iRetVal == -1)
         {
-            MessageBoxA(NULL, "DialogBoxParam(...) returned -1 for loading IDD_PARSE_ERROR.",
-                "Critical Error", MB_ICONEXCLAMATION|MB_OK);
+            MessageBox(NULL, _T("DialogBoxParam(...) returned -1 for loading IDD_PARSE_ERROR."),
+                _T("Critical Error"), MB_ICONEXCLAMATION|MB_OK);
             return FALSE;
         }
         if (iRetVal == IDIGNORE)
@@ -221,7 +221,7 @@ BOOL CSAA7134Card::InitializeSAA713xCardList()
         parseInfo.pCardList->resize(parseInfo.nGoodCards);
     }
 
-    LOG(1, "SAA713x cardlist: %lu card(s) read", parseInfo.nGoodCards);
+    LOG(1, _T("SAA713x cardlist: %lu card(s) read"), parseInfo.nGoodCards);
 
     return TRUE;
 }
@@ -254,7 +254,7 @@ void CSAA7134Card::ReadCardInputInfoProc(int report, const CParseTag* tag, unsig
         {
             throw std::exception("\"\" is not a valid name of an input");
         }
-        strcpy(input->szName, value->GetString());
+        _tcscpy(input->szName, value->GetString());
     }
     // Type
     else if (tag == k_parseCardInput + 1)
@@ -401,12 +401,12 @@ void CSAA7134Card::ReadCardInfoProc(int report, const CParseTag* tag, unsigned c
         }
         for (size_t i = 0; i < parseInfo->nGoodCards; i++)
         {
-            if (_stricmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
+            if (_tcsicmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
             {
                 throw std::exception("A card was already specified with this name");
             }
         }
-        strcpy(parseInfo->pCurrentCard->szName, value->GetString());
+        _tcscpy(parseInfo->pCurrentCard->szName, value->GetString());
     }
     // DeviceID
     else if (tag == k_parseCard + 1)
@@ -448,7 +448,7 @@ void CSAA7134Card::ReadCardAutoDetectIDProc(int report, const CParseTag* tag, un
 
 void CSAA7134Card::ReadCardProc(int report, const CParseTag*, unsigned char, const CParseValue*, void* context)
 {
-    static TCardType cardDefaults = { "", 0x0000, 0, { 0 }, TUNER_ABSENT, AUDIOCRYSTAL_NONE, 0, { 0, 0, 0 }, FALSE };
+    static TCardType cardDefaults = { _T(""), 0x0000, 0, { 0 }, TUNER_ABSENT, AUDIOCRYSTAL_NONE, 0, { 0, 0, 0 }, FALSE };
     TParseCardInfo* parseInfo = (TParseCardInfo*)context;
 
     switch (report)
@@ -504,33 +504,26 @@ BOOL APIENTRY CSAA7134Card::ParseErrorProc(HWND hDlg, UINT message, UINT wParam,
     {
     case WM_INITDIALOG:
         {
-            SetWindowTextA(hDlg, "SAA713x Card List Parsing Error");
+            SetWindowText(hDlg, _T("SAA713x Card List Parsing Error"));
 
             HWND hItem;
             hItem = GetDlgItem(hDlg, IDC_ERROR_MESSAGE);
-            if (CHCParser::IsUnicodeOS())
-            {
-                SetWindowTextW(hItem, parseInfo->pHCParser->GetErrorUnicode().c_str());
-            }
-            else
-            {
-                SetWindowTextA(hItem, parseInfo->pHCParser->GetError().c_str());
-            }
+            SetWindowText(hItem, parseInfo->pHCParser->GetError().c_str());
 
-            ostringstream oss;
-            oss << "An error occured while reading SAA713x cards from 'SAA713xCards.ini':";
+            tostringstream oss;
+            oss << _T("An error occured while reading SAA713x cards from 'SAA713xCards.ini':");
 
             hItem = GetDlgItem(hDlg, IDC_TOP_STATIC);
-            SetWindowTextA(hItem, oss.str().c_str());
+            SetWindowText(hItem, oss.str().c_str());
 
-            oss.str("");
-            oss << (parseInfo->nGoodCards - 1) << " card(s) were successfully read before this "
-                "error.  Although this error is not fatal, if a previously selected SAA713x "
-                "card is not among those successfully read, and this error is ignored, a "
-                "different card will need to be selected.";
+            oss.str(_T(""));
+            oss << (parseInfo->nGoodCards - 1) << _T(" card(s) were successfully read before this ")
+                _T("error.  Although this error is not fatal, if a previously selected SAA713x ")
+                _T("card is not among those successfully read, and this error is ignored, a ")
+                _T("different card will need to be selected.");
 
             hItem = GetDlgItem(hDlg, IDC_BOTTOM_STATIC);
-            SetWindowTextA(hItem, oss.str().c_str());
+            SetWindowText(hItem, oss.str().c_str());
         }
         break;
 
@@ -555,11 +548,11 @@ BOOL APIENTRY CSAA7134Card::ParseErrorProc(HWND hDlg, UINT message, UINT wParam,
 //
 // Notes:
 //
-// "Might req mode 6": S-Video is listed with VIDEOINPUTSOURCE_PIN0 but what
+// _T("Might req mode 6"): S-Video is listed with VIDEOINPUTSOURCE_PIN0 but what
 // is actually used is not mode 0 but mode 8.  --This is due to an old design
 // decision that I no longer remember why.  Mode 6 is exactly the same as mode
 // 8 except the C-channel gain control is set with a register instead of
-// automatic gain control that is linked to the Y-channel. "Might req mode 6"
+// automatic gain control that is linked to the Y-channel. _T("Might req mode 6")
 // has been placed beside entries where the RegSpy dump showed the
 // SAA7134_ANALOG_IN_CTRL1 register with xxxx0110(6) instead of xxxx1000(8).
 //
@@ -584,7 +577,7 @@ BOOL APIENTRY CSAA7134Card::ParseErrorProc(HWND hDlg, UINT message, UINT wParam,
 //   of.  This ID comes from the SAA7134 version of Chronos Video Shuttle II.
 // - All cards above have an identical video input pin configuration.  They also use
 //   the same 0x0018e700 GPIO mask.
-// - "Genius Video Wonder PRO III" also has the ID 0x01385168 and is 0x7134 but the
+// - _T("Genius Video Wonder PRO III") also has the ID 0x01385168 and is 0x7134 but the
 //   audio clock is different.
 //
 
@@ -596,12 +589,12 @@ int CSAA7134Card::GetMaxCards()
 }
 
 
-int CSAA7134Card::GetCardByName(LPCSTR cardName)
+int CSAA7134Card::GetCardByName(LPCTSTR cardName)
 {
     int listSize = GetMaxCards();
     for (int i = 0; i < listSize; i++)
     {
-        if (_stricmp(m_SAA713xCards[i].szName, cardName) == 0)
+        if (_tcsicmp(m_SAA713xCards[i].szName, cardName) == 0)
         {
             return i;
         }
@@ -619,7 +612,7 @@ CSAA7134Card::eSAA7134CardId CSAA7134Card::AutoDetectCardType()
 
     if (SubSystemId == 0x00001131)
     {
-       LOG(0, "SAA713x: Autodetect found [0x00001131] *Unknown Card*.");
+       LOG(0, _T("SAA713x: Autodetect found [0x00001131] *Unknown Card*."));
         return SAA7134CARDID_UNKNOWN;
     }
 
@@ -632,17 +625,17 @@ CSAA7134Card::eSAA7134CardId CSAA7134Card::AutoDetectCardType()
             if (m_SAA713xCards[i].DeviceId == DeviceId &&
                 m_SAA713xCards[i].AutoDetectId[j] == SubSystemId)
             {
-                LOG(0, "SAA713x: Autodetect found %s.", m_SAA713xCards[i].szName);
+                LOG(0, _T("SAA713x: Autodetect found %s."), m_SAA713xCards[i].szName);
                 return (eSAA7134CardId)i;
             }
         }
     }
 
-    LOG(0, "SAA713x: Autodetect found an unknown card with the following");
-    LOG(0, "SAA713x: properties.  Please email the author and quote the");
-    LOG(0, "SAA713x: following numbers, as well as which card you have,");
-    LOG(0, "SAA713x: so it can be added to the list:");
-    LOG(0, "SAA713x: DeviceId: 0x%04x, AutoDetectId: 0x%08x",
+    LOG(0, _T("SAA713x: Autodetect found an unknown card with the following"));
+    LOG(0, _T("SAA713x: properties.  Please email the author and quote the"));
+    LOG(0, _T("SAA713x: following numbers, as well as which card you have,"));
+    LOG(0, _T("SAA713x: so it can be added to the list:"));
+    LOG(0, _T("SAA713x: DeviceId: 0x%04x, AutoDetectId: 0x%08x"),
         DeviceId, SubSystemId);
 
     return SAA7134CARDID_UNKNOWN;
@@ -687,11 +680,11 @@ int CSAA7134Card::GetNumInputs()
 }
 
 
-string CSAA7134Card::GetInputName(int nInput)
+tstring CSAA7134Card::GetInputName(int nInput)
 {
     if (nInput >= m_SAA713xCards[m_CardType].NumInputs || nInput < 0)
     {
-        return "Error";
+        return _T("Error");
     }
     return m_SAA713xCards[m_CardType].Inputs[nInput].szName;
 }
@@ -723,7 +716,7 @@ BOOL CSAA7134Card::IsCCIRSource(int nInput)
 }
 
 
-string CSAA7134Card::GetCardName(eSAA7134CardId CardId)
+tstring CSAA7134Card::GetCardName(eSAA7134CardId CardId)
 {
     return m_SAA713xCards[CardId].szName;
 }
@@ -778,12 +771,12 @@ void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
 
     if (nInput >= m_SAA713xCards[m_CardType].NumInputs)
     {
-        LOG(1, "Input Select Called for invalid input");
+        LOG(1, _T("Input Select Called for invalid input"));
         nInput = m_SAA713xCards[m_CardType].NumInputs - 1;
     }
     if (nInput < 0)
     {
-        LOG(1, "Input Select Called for invalid input");
+        LOG(1, _T("Input Select Called for invalid input"));
         nInput = 0;
     }
 

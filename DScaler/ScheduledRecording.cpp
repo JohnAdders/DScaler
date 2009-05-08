@@ -35,6 +35,8 @@ HANDLE  gThreadId = NULL;
 
 enum STATE {READY,SUCCEED,CANCELED,RECORDING};
 
+const __int64 SystemTimeUnitsPerSec(10000000);
+
 /*****************************************
 *    Global initialization functions
 ******************************************/
@@ -46,13 +48,24 @@ void ShowSchedRecDlg()
 
 DWORD WINAPI RecordThreadProc(LPVOID lParam)
 {
-    DScalerThread("Scheduled Recording Thread");
+    DScalerThread thisThread(_T("Scheduled Recording Thread"));
     /// \todo proper thread control
     pSchRec = new CScheduledRecording();
-    while(pSchRec && pSchRec->run())
+    while(pSchRec.IsValid() && pSchRec->run())
     {}
 
     return 0;
+}
+
+// returns true if times are within 1 second of each other
+BOOL AreTimesClose(const SYSTEMTIME& lhs, const SYSTEMTIME& rhs)
+{
+    __int64 FileTimeLeft;
+    __int64 FileTimeRight;
+    SystemTimeToFileTime(&lhs, (LPFILETIME)&FileTimeLeft);
+    SystemTimeToFileTime(&rhs, (LPFILETIME)&FileTimeRight);
+    __int64 diff(FileTimeRight- FileTimeLeft);
+    return ((diff > -SystemTimeUnitsPerSec) && (diff < SystemTimeUnitsPerSec));
 }
 
 /*****************************************
@@ -153,19 +166,19 @@ void CScheduleDlg::OnDurationUpdate(HWND hDlg)
     if(!m_bCtrlsInit || GetFocus() != GetDlgItem(hDlg, IDC_SCHEDULE_EDIT_DURATION))
         return;
 
-    string str_dur(GetDlgItemString(hDlg, IDC_SCHEDULE_EDIT_DURATION));
+    tstring str_dur(GetDlgItemString(hDlg, IDC_SCHEDULE_EDIT_DURATION));
 
     SYSTEMTIME SysTime;
 
     DateTime_GetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_TIMEPICKER), &SysTime);
 
-    CTime new_time(SysTime);
+    __int64 FileTime;
+    SystemTimeToFileTime(&SysTime, (LPFILETIME)&FileTime);
 
-    CTimeSpan end_timespan(0, 0, FromString<long>(str_dur), 0);
+    FileTime += FromString<long>(str_dur) * 60 * SystemTimeUnitsPerSec;
 
-    new_time += end_timespan;
+    FileTimeToSystemTime((LPFILETIME)&FileTime, &SysTime);
 
-    new_time.GetAsSystemTime(SysTime);
     DateTime_SetSystemtime(GetDlgItem(hDlg, IDC_SCHEDULE_ENDTIMEPICKER), GDT_VALID, &SysTime);
 }
 
@@ -180,23 +193,26 @@ LRESULT CScheduleDlg::OnTimePickerChanged(HWND hDlg, NMHDR* nmhdr)
     DateTime_GetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_TIMEPICKER), &StartSysTime);
     DateTime_GetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_ENDTIMEPICKER), &EndSysTime);
 
-    CTime StartTime(StartSysTime);
-    CTime EndTime(EndSysTime);
+    __int64 StartFileTime;
+    __int64 EndFileTime;
 
-    if(EndTime < StartTime)
+    SystemTimeToFileTime(&StartSysTime, (LPFILETIME)&StartFileTime);
+    SystemTimeToFileTime(&EndSysTime, (LPFILETIME)&EndFileTime);
+
+    if(EndFileTime < StartFileTime)
     {
         SetDurationCtrl(hDlg, 0);
         return 0;
     }
 
-    CTimeSpan DurTimespan = EndTime - StartTime;
-    SetDurationCtrl(hDlg, (int)DurTimespan.GetTotalMinutes());
+    __int64 DurTimespan = (EndFileTime - StartFileTime) / (60 * SystemTimeUnitsPerSec);
+    SetDurationCtrl(hDlg, (int)DurTimespan);
     return 0;
 }
 
 void CScheduleDlg::SetDurationCtrl(HWND hDlg, int minutes)
 {
-    string chDur(ToString(minutes));
+    tstring chDur(ToString(minutes));
     SetDlgItemText(hDlg, IDC_SCHEDULE_EDIT_DURATION, chDur.c_str());
 }
 
@@ -211,11 +227,11 @@ void CScheduleDlg::OnOkClicked(HWND hDlg)
     EndDialog(hDlg, 0);
 }
 
-void ListView_MyInsertColumn(HWND hList, int ColumnIndex, LPCSTR ColumnHeading, int Width)
+void ListView_MyInsertColumn(HWND hList, int ColumnIndex, LPCTSTR ColumnHeading, int Width)
 {
     LVCOLUMN Column;
     Column.mask = LVCF_TEXT | LVCF_FMT | LVCF_WIDTH;
-    Column.pszText = (LPSTR)ColumnHeading;
+    Column.pszText = (LPTSTR)ColumnHeading;
     Column.fmt = 0;
     Column.cx = Width;
     ListView_InsertColumn(hList, ColumnIndex, &Column);
@@ -225,37 +241,38 @@ void CScheduleDlg::InitCtrls(HWND hDlg)
 {
     HWND hList = GetDlgItem(hDlg, IDC_SCHEDULE_LIST);
 
-    ListView_MyInsertColumn(hList, 0, "Name", 70);
-    ListView_MyInsertColumn(hList, 1, "Program", 70);
-    ListView_MyInsertColumn(hList, 2, "Date", 80);
-    ListView_MyInsertColumn(hList, 3, "Start", 60);
-    ListView_MyInsertColumn(hList, 4, "Duration(minutes)", 100);
-    ListView_MyInsertColumn(hList, 5, "State", 60);
+    ListView_MyInsertColumn(hList, 0, _T("Name"), 70);
+    ListView_MyInsertColumn(hList, 1, _T("Program"), 70);
+    ListView_MyInsertColumn(hList, 2, _T("Date"), 80);
+    ListView_MyInsertColumn(hList, 3, _T("Start"), 60);
+    ListView_MyInsertColumn(hList, 4, _T("Duration(minutes)"), 100);
+    ListView_MyInsertColumn(hList, 5, _T("State"), 60);
     SendMessage(hList, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
-    CTime time_now = CTime::GetCurrentTime();
-
-    SetDlgItemText(hDlg, IDC_SCHEDULE_EDIT_NAME, "Name");
-    SetDlgItemText(hDlg, IDC_SCHEDULE_EDIT_DURATION, "90");
     SYSTEMTIME SysTime;
-    time_now.GetAsSystemTime(SysTime);
+    GetLocalTime(&SysTime);
+
+    SetDlgItemText(hDlg, IDC_SCHEDULE_EDIT_NAME, _T("Name"));
+    SetDlgItemText(hDlg, IDC_SCHEDULE_EDIT_DURATION, _T("90"));
     DateTime_SetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_DATEPICKER), GDT_VALID, &SysTime);
     DateTime_SetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_TIMEPICKER), GDT_VALID, &SysTime);
 
-    CTimeSpan end_time_span(0,1,30,0);
-    time_now += end_time_span;
-    time_now.GetAsSystemTime(SysTime);
+    __int64 FileTime;
+    SystemTimeToFileTime(&SysTime, (LPFILETIME)&FileTime);
+    FileTime += 90 * SystemTimeUnitsPerSec;
+    FileTimeToSystemTime((LPFILETIME)&FileTime, &SysTime);
+
     DateTime_SetSystemtime(GetDlgItem(hDlg,IDC_SCHEDULE_ENDTIMEPICKER), GDT_VALID, &SysTime);
 
     SendMessage(GetDlgItem(hDlg,IDC_SCHEDULE_EDIT_NAME), EM_SETLIMITTEXT, 19, 0);
     SendMessage(GetDlgItem(hDlg,IDC_SCHEDULE_EDIT_DURATION), EM_SETLIMITTEXT, 3, 0);
 
-    std::vector<std::string> channels;
+    std::vector<tstring> channels;
     pSchRec->getChannels(channels);
 
     if(!channels.empty())
     {
-        for(std::vector<std::string>::iterator iter=channels.begin(); iter != channels.end(); iter++)
+        for(std::vector<tstring>::iterator iter=channels.begin(); iter != channels.end(); iter++)
         {
             ComboBox_AddString(GetDlgItem(hDlg, IDC_SCHEDULE_COMBO), iter->c_str());
         }
@@ -269,7 +286,7 @@ void CScheduleDlg::InitCtrls(HWND hDlg)
 /*****************************************
 *    CSchedule functions
 ******************************************/
-CSchedule::CSchedule(const string& name, const string& program_name, int duration, int state, CTime time) :
+CSchedule::CSchedule(const tstring& name, const tstring& program_name, int duration, int state, SYSTEMTIME time) :
     m_name(name),
     m_program_name(program_name),
     m_duration(duration),
@@ -278,14 +295,18 @@ CSchedule::CSchedule(const string& name, const string& program_name, int duratio
 {
 }
 
-string CSchedule::getDateStr() const
+tstring CSchedule::getDateStr() const
 {
-    return m_time_start.Format("%m.%d.%Y").GetBuffer(0);
-};
+    TCHAR Buffer[200];
+    _sntprintf(Buffer, 200, _T("%d.%d.%d"), m_time_start.wYear, m_time_start.wMonth, m_time_start.wDay);
+    return Buffer;
+}
 
-string CSchedule::getTimeStr() const
+tstring CSchedule::getTimeStr() const
 {
-    return m_time_start.Format("%H:%M").GetBuffer(0);
+    TCHAR Buffer[200];
+    _sntprintf(Buffer, 200, _T("%d:%d"), m_time_start.wHour, m_time_start.wMinute);
+    return Buffer;
 };
 
 /*****************************************
@@ -309,7 +330,7 @@ BOOL CScheduledRecording::run()
             return FALSE;
         else
         {
-            ShowText(GetMainWnd(), "Recording");
+            ShowText(GetMainWnd(), _T("Recording"));
             SleepEx(500,FALSE);
         }
     }
@@ -322,14 +343,14 @@ void CScheduledRecording::initScheduledRecordingThreadProc()
     gThreadId = CreateThread(NULL,0,RecordThreadProc,NULL,0,0);
 }
 
-void CScheduledRecording::getChannels(std::vector<std::string> &channels)
+void CScheduledRecording::getChannels(std::vector<tstring> &channels)
 {
     CUserChannels MyChannels;
     MyChannels.ReadFile(SZ_DEFAULT_PROGRAMS_FILENAME);
 
     int count = MyChannels.GetSize();
 
-    std::string channel_name;
+    tstring channel_name;
     CChannel* channel;
 
     for(int i=0;i<count;i++)
@@ -352,11 +373,11 @@ void CScheduledRecording::addSchedule(HWND hDlg)
     HWND hDateCtrl = GetDlgItem(hDlg, IDC_SCHEDULE_DATEPICKER);
     HWND hTimeCtrl = GetDlgItem(hDlg, IDC_SCHEDULE_TIMEPICKER);
 
-    string name(GetDlgItemString(hDlg, IDC_SCHEDULE_EDIT_NAME));
+    tstring name(GetDlgItemString(hDlg, IDC_SCHEDULE_EDIT_NAME));
     
     if(name.empty())
     {
-        MessageBox(GetMainWnd(), "Enter name for schedule", "Error", MB_OK);
+        MessageBox(GetMainWnd(), _T("Enter name for schedule"), _T("Error"), MB_OK);
         return;
     }
 
@@ -364,27 +385,27 @@ void CScheduledRecording::addSchedule(HWND hDlg)
     {
         if(iter->getName() == name)
         {
-            string err_text("Schedule name ");
+            tstring err_text(_T("Schedule name "));
 
             err_text += name;
-            err_text += "already used";
+            err_text += _T("already used");
 
-            MessageBox(GetMainWnd(),err_text.c_str(),"Error",MB_OK);
+            MessageBox(GetMainWnd(),err_text.c_str(),_T("Error"),MB_OK);
             return;
         }
     }
 
-    string strDuration(GetDlgItemString(hDlg, IDC_SCHEDULE_EDIT_DURATION));
+    tstring strDuration(GetDlgItemString(hDlg, IDC_SCHEDULE_EDIT_DURATION));
 
     if(strDuration.empty())
     {
-        MessageBox(GetMainWnd(),"Enter recording time in minutes","Error",MB_OK);
+        MessageBox(GetMainWnd(),_T("Enter recording time in minutes"),_T("Error"),MB_OK);
         return;
     }
 
     int duration(FromString<int>(strDuration));
 
-    string program(GetDlgItemString(hDlg, IDC_SCHEDULE_COMBO));
+    tstring program(GetDlgItemString(hDlg, IDC_SCHEDULE_COMBO));
 
     SYSTEMTIME date;
     SYSTEMTIME time;
@@ -392,7 +413,14 @@ void CScheduledRecording::addSchedule(HWND hDlg)
     DateTime_GetSystemtime(hDateCtrl, &date);
     DateTime_GetSystemtime(hTimeCtrl, &time);
 
-    CTime time_start(date.wYear,date.wMonth,date.wDay,time.wHour,time.wMinute,0);
+    SYSTEMTIME time_start;
+    time_start.wYear = date.wYear;
+    time_start.wMonth = date.wMonth;
+    time_start.wDay = date.wDay;
+    time_start.wHour = time.wHour;
+    time_start.wMinute = time.wMinute;
+    time_start.wSecond = 0;
+    time_start.wMilliseconds = 0;
 
     CSchedule schedule(name,program,duration,READY,time_start);
 
@@ -408,16 +436,16 @@ void CScheduledRecording::removeSchedule(HWND hDlg)
     {
         if(ListView_GetItemState(list, i, LVIS_SELECTED) == LVIS_SELECTED)
         {
-            vector<char> item_text(MAX_PATH);
+            vector<TCHAR> item_text(MAX_PATH);
             ListView_GetItemText(list, i, 0, &item_text[0], MAX_PATH);
 
             for(std::vector<CSchedule>::iterator iter = m_schedules.begin(); iter!=m_schedules.end(); ++iter)
             {
-                if(strcmp(iter->getName(), &item_text[0]) == 0)
+                if(_tcscmp(iter->getName(), &item_text[0]) == 0)
                 {
                     if(iter->getState() == RECORDING)
                     {
-                        MessageBox(GetMainWnd(),"Schedule is already recording...cannot be removed","Error",MB_OK);
+                        MessageBox(GetMainWnd(),_T("Schedule is already recording...cannot be removed"),_T("Error"),MB_OK);
                         return;
                     }
 
@@ -451,74 +479,56 @@ void CScheduledRecording::saveToXml(std::vector<CSchedule> schedules)
     for(std::vector<CSchedule>::iterator iter = schedules.begin();iter != schedules.end();iter++)
     {
         string chRecord_number("R");
-        char chBuff[10];
+        CHAR chBuff[10];
 
-        _itoa_s(r_pos++,chBuff,10,10);
-        chRecord_number += chBuff;
+        chRecord_number += _itoa(r_pos++,chBuff, 10);
 
         TiXmlElement* record = new TiXmlElement(chRecord_number);
         records_table->LinkEndChild(record);
 
         TiXmlElement* name = new TiXmlElement("Name");
-        name->LinkEndChild(new TiXmlText(iter->getName()));
+        name->LinkEndChild(new TiXmlText(TStringToMBCS(iter->getName())));
         record->LinkEndChild(name);
 
         TiXmlElement* program = new TiXmlElement("Program");
-        program->LinkEndChild(new TiXmlText(iter->getProgramName()));
+        program->LinkEndChild(new TiXmlText(TStringToMBCS(iter->getProgramName())));
         record->LinkEndChild(program);
 
-        CTime time_start;
-        time_start = iter->getStartTime();
+        SYSTEMTIME time_start = iter->getStartTime();
 
         TiXmlElement* year = new TiXmlElement("Year");
-        _itoa_s(time_start.GetYear(),chBuff,10,10);
-        year->LinkEndChild(new TiXmlText(chBuff));
+        year->LinkEndChild(new TiXmlText(ToMBCSString(time_start.wYear)));
         record->LinkEndChild(year);
 
         TiXmlElement* month = new TiXmlElement("Month");
-        memset(chBuff,0,sizeof(char)*10);
-        _itoa_s(time_start.GetMonth(),chBuff,10,10);
-        month->LinkEndChild(new TiXmlText(chBuff));
+        month->LinkEndChild(new TiXmlText(ToMBCSString(time_start.wMonth)));
         record->LinkEndChild(month);
 
         TiXmlElement* day = new TiXmlElement("Day");
-        memset(chBuff,0,sizeof(char)*10);
-        _itoa_s(time_start.GetDay(),chBuff,10,10);
-        day->LinkEndChild(new TiXmlText(chBuff));
+        day->LinkEndChild(new TiXmlText(ToMBCSString(time_start.wDay)));
         record->LinkEndChild(day);
 
         TiXmlElement* hour = new TiXmlElement("Hour");
-        memset(chBuff,0,sizeof(char)*10);
-        _itoa_s(time_start.GetHour(),chBuff,10,10);
-        hour->LinkEndChild(new TiXmlText(chBuff));
+        hour->LinkEndChild(new TiXmlText(ToMBCSString(time_start.wHour)));
         record->LinkEndChild(hour);
 
         TiXmlElement* minute = new TiXmlElement("Minute");
-        memset(chBuff,0,sizeof(char)*10);
-        _itoa_s(time_start.GetMinute(),chBuff,10,10);
-        minute->LinkEndChild(new TiXmlText(chBuff));
+        minute->LinkEndChild(new TiXmlText(ToMBCSString(time_start.wMinute)));
         record->LinkEndChild(minute);
 
         TiXmlElement* duration = new TiXmlElement("Duration");
-        memset(chBuff,0,sizeof(char)*10);
-        _itoa_s(iter->getDuration(), chBuff,10,10);
-        duration->LinkEndChild(new TiXmlText(chBuff));
+        duration->LinkEndChild(new TiXmlText(ToMBCSString(iter->getDuration())));
         record->LinkEndChild(duration);
 
         TiXmlElement* state = new TiXmlElement("State");
-        memset(chBuff,0,sizeof(char)*10);
-        _itoa_s(iter->getState(),chBuff,10,10);
-        state->LinkEndChild(new TiXmlText(chBuff));
+        state->LinkEndChild(new TiXmlText(ToMBCSString(iter->getState())));
         record->LinkEndChild(state);
     }
 
     TiXmlElement* records_count = new TiXmlElement("RecordsCount");
     records_table->LinkEndChild(records_count);
 
-    char chRecord_count[4];
-    _itoa_s(r_count,chRecord_count,4,10);
-
-    records_count->LinkEndChild(new TiXmlText((const char*)chRecord_count));
+    records_count->LinkEndChild(new TiXmlText(ToMBCSString(r_count)));
 
     doc.SaveFile();
 }
@@ -536,12 +546,9 @@ void CScheduledRecording::loadFromXml()
 
     for(int r_pos=0;r_pos<r_count;r_pos++)
     {
-        char chBuff[10];
         string chRecord_number("R");
 
-        _itoa_s(r_pos,chBuff,10,10);
-        chRecord_number[1] = 0;
-        chRecord_number += chBuff;
+        chRecord_number += ToMBCSString(r_pos);
 
         hRoot = hDoc.FirstChildElement("RecordsTable").FirstChildElement(chRecord_number).Element();
         hRecord = TiXmlHandle(hRoot);
@@ -555,13 +562,19 @@ void CScheduledRecording::loadFromXml()
         int hour = atoi(hRecord.FirstChildElement("Hour").Element()->GetText());
         int minute = atoi(hRecord.FirstChildElement("Minute").Element()->GetText());
 
-        CTime time_start(year,month,day,hour,minute,0);
+        SYSTEMTIME time_start = {year,month,-1, day,hour,minute,0, 0};
 
         int duration = atoi(hRecord.FirstChildElement("Duration").Element()->GetText());
         int state = atoi(hRecord.FirstChildElement("State").Element()->GetText());
 
 
-        CSchedule schedule(chName,chProgram,duration,state,time_start);
+        CSchedule schedule(
+                            MBCSToTString(chName),
+                            MBCSToTString(chProgram),
+                            duration,
+                            state,
+                            time_start
+                          );
         m_schedules.push_back(schedule);
 
     }
@@ -577,13 +590,14 @@ BOOL CScheduledRecording::processSchedules()
 
     m_bSchedulesUpdate = FALSE;
 
-    CTime time_now = CTime::GetCurrentTime();
+    SYSTEMTIME time_now;
+    GetLocalTime(&time_now);
 
     for(std::vector<CSchedule>::iterator iter = m_schedules.begin();iter != m_schedules.end();iter++)
     {
-        CTime time_schedule = iter->getStartTime();
+        SYSTEMTIME time_schedule = iter->getStartTime();
 
-        if(time_now == time_schedule && iter->getState() == READY)
+        if(AreTimesClose(time_now, time_schedule) && iter->getState() == READY)
         {
             startRecording(*iter,time_schedule);
             return TRUE;
@@ -602,38 +616,38 @@ void CScheduledRecording::showRecords(HWND hDlg)
 
     for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();iter++)
     {
-        char chBuff[4];
-        _itoa_s(iter->getDuration(),chBuff,4,10);
+        TCHAR chBuff[4];
+        _itot_s(iter->getDuration(),chBuff,4,10);
 
         LVITEM ListItem;
         memset(&ListItem, 0, sizeof(LVITEM));
         ListItem.mask = LVIF_TEXT;
         ListItem.iItem = 0;
-        ListItem.pszText = (char*)iter->getName();
+        ListItem.pszText = (TCHAR*)iter->getName();
         ListView_InsertItem(list, &ListItem);
-        ListView_SetItemText(list, 0, 1, (LPSTR)iter->getProgramName());
+        ListView_SetItemText(list, 0, 1, (LPTSTR)iter->getProgramName());
 
-        string chDate(iter->getDateStr());
-        ListView_SetItemText(list, 0, 2, (LPSTR)chDate.c_str());
+        tstring chDate(iter->getDateStr());
+        ListView_SetItemText(list, 0, 2, (LPTSTR)chDate.c_str());
 
-        string chTime(iter->getTimeStr());
-        ListView_SetItemText(list, 0, 3, (LPSTR)chTime.c_str());
+        tstring chTime(iter->getTimeStr());
+        ListView_SetItemText(list, 0, 3, (LPTSTR)chTime.c_str());
 
         ListView_SetItemText(list, 0, 4, chBuff);
 
         switch(iter->getState())
         {
         case CANCELED:
-            ListView_SetItemText(list, 0,5,"Canceled");
+            ListView_SetItemText(list, 0,5,_T("Canceled"));
             break;
         case READY:
-            ListView_SetItemText(list, 0,5,"Ready");
+            ListView_SetItemText(list, 0,5,_T("Ready"));
             break;
         case SUCCEED:
-            ListView_SetItemText(list, 0,5,"Succeed");
+            ListView_SetItemText(list, 0,5,_T("Succeed"));
             break;
         case RECORDING:
-            ListView_SetItemText(list, 0,5,"Recording");
+            ListView_SetItemText(list, 0,5,_T("Recording"));
             break;
         }
     }
@@ -658,11 +672,13 @@ int CScheduledRecording::getRecordsCount()
 }
 
 
-void CScheduledRecording::startRecording(CSchedule recording_program, CTime time_start)
+void CScheduledRecording::startRecording(CSchedule recording_program, SYSTEMTIME time_start)
 {
-    CTimeSpan time_duration(0,0,recording_program.getDuration(),0);
-    CTime time_end = time_start;
-    time_end += time_duration;
+    __int64 FileTime;
+    SystemTimeToFileTime(&time_start, (LPFILETIME)&FileTime);
+    FileTime += recording_program.getDuration() * 60 * SystemTimeUnitsPerSec;
+    SYSTEMTIME time_end;
+    FileTimeToSystemTime((LPFILETIME)&FileTime, &time_end);
     recording_program.setTimeEnd(time_end);
 
     recording_program.setState(RECORDING);
@@ -670,7 +686,7 @@ void CScheduledRecording::startRecording(CSchedule recording_program, CTime time
 
     setRecordState(m_recording_program.getName(),RECORDING);
 
-    string current_channel = Channel_GetName();
+    tstring current_channel = Channel_GetName();
 
     HMENU hMenu = LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_DSCALERMENU));
 
@@ -678,20 +694,20 @@ void CScheduledRecording::startRecording(CSchedule recording_program, CTime time
     {
         if(TimeShiftRecord())
         {
-            ShowText(GetMainWnd(), "Recording");
+            ShowText(GetMainWnd(), _T("Recording"));
             TimeShiftOnSetMenu(hMenu);
         }
     }
     else
     {
-        std::vector<std::string> channels;
+        std::vector<tstring> channels;
         int channel_index = 0;
 
         getChannels(channels);
 
-        for(std::vector<std::string>::iterator iter=channels.begin();iter != channels.end();iter++)
+        for(std::vector<tstring>::iterator iter=channels.begin();iter != channels.end();iter++)
         {
-            if(strcmp(iter->c_str(),m_recording_program.getProgramName()) == 0)
+            if(_tcscmp(iter->c_str(),m_recording_program.getProgramName()) == 0)
             {
                 CUserChannels MyChannels;
 
@@ -702,7 +718,7 @@ void CScheduledRecording::startRecording(CSchedule recording_program, CTime time
 
                 if(TimeShiftRecord())
                 {
-                    ShowText(GetMainWnd(), "Recording");
+                    ShowText(GetMainWnd(), _T("Recording"));
                     TimeShiftOnSetMenu(hMenu);
                     break;
                 }
@@ -714,16 +730,17 @@ void CScheduledRecording::startRecording(CSchedule recording_program, CTime time
 
 BOOL CScheduledRecording::IsEndOfRecording()
 {
-    CTime time_now = CTime::GetCurrentTime();
+    SYSTEMTIME time_now;
+    GetLocalTime(&time_now);
 
-    if(m_recording_program.getTimeEnd() != time_now && TimeShiftIsRunning())
+    if(!AreTimesClose(m_recording_program.getTimeEnd(), time_now) && TimeShiftIsRunning())
         return FALSE;
     else
     {
         if(!TimeShiftIsRunning())
             stopRecording(CANCELED);
 
-        if(m_recording_program.getTimeEnd() == time_now)
+        if(AreTimesClose(m_recording_program.getTimeEnd(), time_now))
             stopRecording(SUCCEED);
 
         return TRUE;
@@ -731,10 +748,10 @@ BOOL CScheduledRecording::IsEndOfRecording()
 
 }
 
-void CScheduledRecording::setRecordState(const char* schedule_name, int state)
+void CScheduledRecording::setRecordState(const TCHAR* schedule_name, int state)
 {
     for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();iter++)
-        if(strcmp(iter->getName(),schedule_name) == 0 )
+        if(_tcscmp(iter->getName(),schedule_name) == 0 )
             iter->setState(state);
 }
 void CScheduledRecording::stopRecording(int state)
@@ -774,7 +791,7 @@ void CScheduledRecording::exitScheduledRecording()
 
         if (dwResult != WAIT_OBJECT_0)
         {
-            LOG(3,"Timeout waiting for RecordingThread to exit, terminating it via TerminateThread()");
+            LOG(3,_T("Timeout waiting for RecordingThread to exit, terminating it via TerminateThread()"));
             TerminateThread(gThreadId, 0);
         }
 

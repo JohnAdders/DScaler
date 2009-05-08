@@ -39,7 +39,7 @@
 #define YYBISON 1
 
 /* Skeleton name.  */
-#define YYSKELETON_NAME "yacc.c"
+#define YYSKELETON_NAME _T("yacc.c")
 
 /* Pure parsers.  */
 #define YYPURE 0
@@ -172,7 +172,7 @@
 
 
 /* Copy the first part of user declarations.  */
-//#line 31 "xml_prolog.yy"
+//#line 31 _T("xml_prolog.yy")
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -187,7 +187,7 @@
 #include "xmltv_tags.h"
 
 extern int yylex( void );
-void yyerror( const char * p_msg );
+void yyerror( const TCHAR*  p_msg );
 
 #define YYDEBUG DEBUG_SWITCH_XMLTV
 
@@ -206,10 +206,10 @@ void yyerror( const char * p_msg );
 #endif
 
 #if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
-//#line 50 "xml_prolog.yy"
-typedef union YYSTYPE { char * str; } YYSTYPE;
+//#line 50 _T("xml_prolog.yy")
+typedef union YYSTYPE { TCHAR*  str; } YYSTYPE;
 /* Line 191 of yacc.c.  */
-//#line 210 "xml_prolog.tab.c"
+//#line 210 _T("xml_prolog.tab.c")
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
@@ -221,7 +221,7 @@ typedef union YYSTYPE { char * str; } YYSTYPE;
 
 
 /* Line 214 of yacc.c.  */
-//#line 222 "xml_prolog.tab.c"
+//#line 222 _T("xml_prolog.tab.c")
 
 #if ! defined (yyoverflow) || YYERROR_VERBOSE
 
@@ -472,41 +472,41 @@ static const unsigned char yyrline[] =
 #if YYDEBUG || YYERROR_VERBOSE
 /* YYTNME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals. */
-static const char *const yytname[] =
+static const TCHAR* const yytname[] =
 {
-  "$end", "error", "$undefined", "XMLTOK_NAME", "XMLTOK_ENCNAME",
-  "XMLTOK_ENCVERS", "XMLTOK_ATTVAL", "XMLTOK_NMTOKEN", "XMLTOK_TAGDOC",
-  "XMLTOK_TAGENC", "XMLTOK_TAGENT", "XMLTOK_TAGPI", "XMLTOK_TAGELEM",
-  "XMLTOK_TAGATT", "XMLTOK_TAGNOT", "XMLTOK_SYSLIT", "XMLTOK_PUBLIT",
-  "XMLTOK_ENTVAL", "XMLTOK_PICONTENT", "XMLTOK_CLOSE", "XMLTOK_SPACE",
-  "XMLTOK_CONTENT", "XMLTOK_CONTENT_END", "XMLTOK_ENCODING",
-  "XMLTOK_STANDALONE", "XMLTOK_YES", "XMLTOK_NO", "XMLTOK_CHR_PERCENT",
-  "XMLTOK_VERSION", "XMLTOK_NDATA", "XMLTOK_EQ", "XMLTOK_STR_PUBLIC",
-  "XMLTOK_STR_SYSTEM", "XMLTOK_DTD_OPEN", "XMLTOK_DTD_CLOSE",
-  "XMLTOK_STR_EMPTY", "XMLTOK_STR_ANY", "XMLTOK_STR_PCDATA",
-  "XMLTOK_CHR_OPBR", "XMLTOK_CHR_CLBR", "XMLTOK_CHR_ASTX",
-  "XMLTOK_CHR_PLUS", "XMLTOK_CHR_QUMK", "XMLTOK_CHR_PIPE",
-  "XMLTOK_CHR_COMA", "XMLTOK_STR_FIXED", "XMLTOK_STR_NOTATION",
-  "XMLTOK_STR_ENTITY", "XMLTOK_STR_ENTITIES", "XMLTOK_STR_REQUIRED",
-  "XMLTOK_STR_NMTOKEN", "XMLTOK_STR_CDATA", "XMLTOK_STR_IMPLIED",
-  "XMLTOK_STR_NMTOKENS", "XMLTOK_STR_ID", "XMLTOK_STR_IDREF",
-  "XMLTOK_STR_IDREFS", "XMLTOK_ERR_CLOSE", "$accept", "xml", "prolog",
-  "XMLDeclO", "XMLDecl", "XMLDecl2", "EncodingDecl", "SDDecl", "YesOrNo",
-  "VersionInfo", "Eq", "MiscL", "Misc", "PI", "PITarget", "doctypeMiscO",
-  "doctypedecl", "docExtIDIntO", "intSubsetDecl", "intSubsetL",
-  "intSubset", "markupdecl", "DeclSep", "markupdeclErr", "markupdeclErrE",
-  "errorL", "EntityDecl", "GEDecl", "PEDecl", "EntityDef", "PEDef",
-  "ExternalID", "NDataDeclO", "NDataDecl", "elementdecl", "contentspec",
-  "children", "cp", "choice", "choiceNextL1", "choiceNext", "seq",
-  "seqNextL", "seqNext", "Mixed", "MixedPipeL1", "MixedPipe",
-  "childReCharO", "childReChar", "AttlistDecl", "AttDefL", "AttDef",
-  "AttType", "StringType", "TokenizedType", "EnumeratedType",
-  "NotationType", "NotationNameL", "Enumeration", "EnumNmtokenL",
-  "DefaultDecl", "DefaultFixedO", "NotationDecl", "ExtOrPubID", "@1",
-  "@2", "content", "contentL", "contents", "SS", "SO", "EncName",
-  "VersionStr", "DocName", "GEName", "PEName", "EntityValue",
-  "NotationName", "PubidLiteral", "PIName", "PIContent", "Name",
-  "Nmtoken", "SystemLiteral", "AttValue", 0
+  _T("$end"), _T("error"), _T("$undefined"), _T("XMLTOK_NAME"), _T("XMLTOK_ENCNAME"),
+  _T("XMLTOK_ENCVERS"), _T("XMLTOK_ATTVAL"), _T("XMLTOK_NMTOKEN"), _T("XMLTOK_TAGDOC"),
+  _T("XMLTOK_TAGENC"), _T("XMLTOK_TAGENT"), _T("XMLTOK_TAGPI"), _T("XMLTOK_TAGELEM"),
+  _T("XMLTOK_TAGATT"), _T("XMLTOK_TAGNOT"), _T("XMLTOK_SYSLIT"), _T("XMLTOK_PUBLIT"),
+  _T("XMLTOK_ENTVAL"), _T("XMLTOK_PICONTENT"), _T("XMLTOK_CLOSE"), _T("XMLTOK_SPACE"),
+  _T("XMLTOK_CONTENT"), _T("XMLTOK_CONTENT_END"), _T("XMLTOK_ENCODING"),
+  _T("XMLTOK_STANDALONE"), _T("XMLTOK_YES"), _T("XMLTOK_NO"), _T("XMLTOK_CHR_PERCENT"),
+  _T("XMLTOK_VERSION"), _T("XMLTOK_NDATA"), _T("XMLTOK_EQ"), _T("XMLTOK_STR_PUBLIC"),
+  _T("XMLTOK_STR_SYSTEM"), _T("XMLTOK_DTD_OPEN"), _T("XMLTOK_DTD_CLOSE"),
+  _T("XMLTOK_STR_EMPTY"), _T("XMLTOK_STR_ANY"), _T("XMLTOK_STR_PCDATA"),
+  _T("XMLTOK_CHR_OPBR"), _T("XMLTOK_CHR_CLBR"), _T("XMLTOK_CHR_ASTX"),
+  _T("XMLTOK_CHR_PLUS"), _T("XMLTOK_CHR_QUMK"), _T("XMLTOK_CHR_PIPE"),
+  _T("XMLTOK_CHR_COMA"), _T("XMLTOK_STR_FIXED"), _T("XMLTOK_STR_NOTATION"),
+  _T("XMLTOK_STR_ENTITY"), _T("XMLTOK_STR_ENTITIES"), _T("XMLTOK_STR_REQUIRED"),
+  _T("XMLTOK_STR_NMTOKEN"), _T("XMLTOK_STR_CDATA"), _T("XMLTOK_STR_IMPLIED"),
+  _T("XMLTOK_STR_NMTOKENS"), _T("XMLTOK_STR_ID"), _T("XMLTOK_STR_IDREF"),
+  _T("XMLTOK_STR_IDREFS"), _T("XMLTOK_ERR_CLOSE"), _T("$accept"), _T("xml"), _T("prolog"),
+  _T("XMLDeclO"), _T("XMLDecl"), _T("XMLDecl2"), _T("EncodingDecl"), _T("SDDecl"), _T("YesOrNo"),
+  _T("VersionInfo"), _T("Eq"), _T("MiscL"), _T("Misc"), _T("PI"), _T("PITarget"), _T("doctypeMiscO"),
+  _T("doctypedecl"), _T("docExtIDIntO"), _T("intSubsetDecl"), _T("intSubsetL"),
+  _T("intSubset"), _T("markupdecl"), _T("DeclSep"), _T("markupdeclErr"), _T("markupdeclErrE"),
+  _T("errorL"), _T("EntityDecl"), _T("GEDecl"), _T("PEDecl"), _T("EntityDef"), _T("PEDef"),
+  _T("ExternalID"), _T("NDataDeclO"), _T("NDataDecl"), _T("elementdecl"), _T("contentspec"),
+  _T("children"), _T("cp"), _T("choice"), _T("choiceNextL1"), _T("choiceNext"), _T("seq"),
+  _T("seqNextL"), _T("seqNext"), _T("Mixed"), _T("MixedPipeL1"), _T("MixedPipe"),
+  _T("childReCharO"), _T("childReChar"), _T("AttlistDecl"), _T("AttDefL"), _T("AttDef"),
+  _T("AttType"), _T("StringType"), _T("TokenizedType"), _T("EnumeratedType"),
+  _T("NotationType"), _T("NotationNameL"), _T("Enumeration"), _T("EnumNmtokenL"),
+  _T("DefaultDecl"), _T("DefaultFixedO"), _T("NotationDecl"), _T("ExtOrPubID"), _T("@1"),
+  _T("@2"), _T("content"), _T("contentL"), _T("contents"), _T("SS"), _T("SO"), _T("EncName"),
+  _T("VersionStr"), _T("DocName"), _T("GEName"), _T("PEName"), _T("EntityValue"),
+  _T("NotationName"), _T("PubidLiteral"), _T("PIName"), _T("PIContent"), _T("Name"),
+  _T("Nmtoken"), _T("SystemLiteral"), _T("AttValue"), 0
 };
 #endif
 
@@ -816,7 +816,7 @@ do                                \
     }                                \
   else                                \
     {                                 \
-      yyerror ("syntax error: cannot back up");\
+      yyerror (_T("syntax error: cannot back up"));\
       YYERROR;                            \
     }                                \
 while (0)
@@ -848,7 +848,7 @@ while (0)
 
 # ifndef YYFPRINTF
 #  include <stdio.h> /* INFRINGES ON USER NAME SPACE */
-#  define YYFPRINTF fprintf
+#  define YYFPRINTF _ftprintf
 # endif
 
 # define YYDPRINTF(Args)            \
@@ -867,10 +867,10 @@ do {                        \
 do {                                \
   if (yydebug)                            \
     {                                \
-      YYFPRINTF (stderr, "%s ", Title);                \
+      YYFPRINTF (stderr, _T("%s "), Title);                \
       yysymprint (stderr,                     \
                   Token, Value);    \
-      YYFPRINTF (stderr, "\n");                    \
+      YYFPRINTF (stderr, _T("\n"));                    \
     }                                \
 } while (0)
 
@@ -889,10 +889,10 @@ yy_stack_print (bottom, top)
     short *top;
 #endif
 {
-  YYFPRINTF (stderr, "Stack now");
+  YYFPRINTF (stderr, _T("Stack now"));
   for (/* Nothing. */; bottom <= top; ++bottom)
-    YYFPRINTF (stderr, " %d", *bottom);
-  YYFPRINTF (stderr, "\n");
+    YYFPRINTF (stderr, _T(" %d"), *bottom);
+  YYFPRINTF (stderr, _T("\n"));
 }
 
 # define YY_STACK_PRINT(Bottom, Top)                \
@@ -917,12 +917,12 @@ yy_reduce_print (yyrule)
 {
   int yyi;
   unsigned int yylineno = yyrline[yyrule];
-  YYFPRINTF (stderr, "Reducing stack by rule %d (line %u), ",
+  YYFPRINTF (stderr, _T("Reducing stack by rule %d (line %u), "),
              yyrule - 1, yylineno);
   /* Print the symbols being reduced, and their result.  */
   for (yyi = yyprhs[yyrule]; 0 <= yyrhs[yyi]; yyi++)
-    YYFPRINTF (stderr, "%s ", yytname [yyrhs[yyi]]);
-  YYFPRINTF (stderr, "-> %s\n", yytname [yyr1[yyrule]]);
+    YYFPRINTF (stderr, _T("%s "), yytname [yyrhs[yyi]]);
+  YYFPRINTF (stderr, _T("-> %s\n"), yytname [yyr1[yyrule]]);
 }
 
 # define YY_REDUCE_PRINT(Rule)        \
@@ -969,18 +969,18 @@ int yydebug;
 
 # ifndef yystrlen
 #  if defined (__GLIBC__) && defined (_STRING_H)
-#   define yystrlen strlen
+#   define yystrlen _tcslen
 #  else
 /* Return the length of YYSTR.  */
 static YYSIZE_T
 #   if defined (__STDC__) || defined (__cplusplus)
-yystrlen (const char *yystr)
+yystrlen (const TCHAR* yystr)
 #   else
 yystrlen (yystr)
-     const char *yystr;
+     const TCHAR* yystr;
 #   endif
 {
-  register const char *yys = yystr;
+  register const TCHAR* yys = yystr;
 
   while (*yys++ != '\0')
     continue;
@@ -996,17 +996,17 @@ yystrlen (yystr)
 #  else
 /* Copy YYSRC to YYDEST, returning the address of the terminating '\0' in
    YYDEST.  */
-static char *
+static TCHAR* 
 #   if defined (__STDC__) || defined (__cplusplus)
-yystpcpy (char *yydest, const char *yysrc)
+yystpcpy (TCHAR* yydest, const TCHAR* yysrc)
 #   else
 yystpcpy (yydest, yysrc)
-     char *yydest;
-     const char *yysrc;
+     TCHAR* yydest;
+     const TCHAR* yysrc;
 #   endif
 {
-  register char *yyd = yydest;
-  register const char *yys = yysrc;
+  register TCHAR* yyd = yydest;
+  register const TCHAR* yys = yysrc;
 
   while ((*yyd++ = *yys++) != '\0')
     continue;
@@ -1041,20 +1041,20 @@ yysymprint (yyoutput, yytype, yyvaluep)
 
   if (yytype < YYNTOKENS)
     {
-      YYFPRINTF (yyoutput, "token %s (", yytname[yytype]);
+      YYFPRINTF (yyoutput, _T("token %s ("), yytname[yytype]);
 # ifdef YYPRINT
       YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
 # endif
     }
   else
-    YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
+    YYFPRINTF (yyoutput, _T("nterm %s ("), yytname[yytype]);
 
   switch (yytype)
     {
       default:
         break;
     }
-  YYFPRINTF (yyoutput, ")");
+  YYFPRINTF (yyoutput, _T(")"));
 }
 
 #endif /* ! YYDEBUG */
@@ -1171,7 +1171,7 @@ yyparse ()
      rule.  */
   int yylen;
 
-  YYDPRINTF ((stderr, "Starting parse\n"));
+  YYDPRINTF ((stderr, _T("Starting parse\n")));
 
   yystate = 0;
   yyerrstatus = 0;
@@ -1218,7 +1218,7 @@ yyparse ()
        data in use in that stack, in bytes.  This used to be a
        conditional around just the two extra args, but that might
        be undefined if yyoverflow is a macro.  */
-    yyoverflow ("parser stack overflow",
+    yyoverflow (_T("parser stack overflow"),
             &yyss1, yysize * sizeof (*yyssp),
             &yyvs1, yysize * sizeof (*yyvsp),
 
@@ -1258,14 +1258,14 @@ yyparse ()
       yyvsp = yyvs + yysize - 1;
 
 
-      YYDPRINTF ((stderr, "Stack size increased to %lu\n",
+      YYDPRINTF ((stderr, _T("Stack size increased to %lu\n"),
           (unsigned long int) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
     YYABORT;
     }
 
-  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
+  YYDPRINTF ((stderr, _T("Entering state %d\n"), yystate));
 
   goto yybackup;
 
@@ -1289,19 +1289,19 @@ yybackup:
   /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
   if (yychar == YYEMPTY)
     {
-      YYDPRINTF ((stderr, "Reading a token: "));
+      YYDPRINTF ((stderr, _T("Reading a token: ")));
       yychar = YYLEX;
     }
 
   if (yychar <= YYEOF)
     {
       yychar = yytoken = YYEOF;
-      YYDPRINTF ((stderr, "Now at end of input.\n"));
+      YYDPRINTF ((stderr, _T("Now at end of input.\n")));
     }
   else
     {
       yytoken = YYTRANSLATE (yychar);
-      YYDSYMPRINTF ("Next token is", yytoken, &yylval, &yylloc);
+      YYDSYMPRINTF (_T("Next token is"), yytoken, &yylval, &yylloc);
     }
 
   /* If the proper action on seeing token YYTOKEN is to reduce or to
@@ -1322,7 +1322,7 @@ yybackup:
     YYACCEPT;
 
   /* Shift the lookahead token.  */
-  YYDPRINTF ((stderr, "Shifting token %s, ", yytname[yytoken]));
+  YYDPRINTF ((stderr, _T("Shifting token %s, "), yytname[yytoken]));
 
   /* Discard the token being shifted unless it is eof.  */
   if (yychar != YYEOF)
@@ -1372,117 +1372,117 @@ yyreduce:
   switch (yyn)
     {
         case 24:
-//#line 94 "xml_prolog.yy"
+//#line 94 _T("xml_prolog.yy")
     { XmltvTags_PiContent(NULL); }
     break;
 
   case 31:
-//#line 102 "xml_prolog.yy"
+//#line 102 _T("xml_prolog.yy")
     {XmltvTags_DocIntDtdClose();}
     break;
 
   case 32:
-//#line 103 "xml_prolog.yy"
+//#line 103 _T("xml_prolog.yy")
     {XmltvTags_DocIntDtdClose();}
     break;
 
   case 45:
-//#line 122 "xml_prolog.yy"
+//#line 122 _T("xml_prolog.yy")
     {yyerrok;}
     break;
 
   case 46:
-//#line 123 "xml_prolog.yy"
+//#line 123 _T("xml_prolog.yy")
     {yyerrok;}
     break;
 
   case 121:
-//#line 189 "xml_prolog.yy"
+//#line 189 _T("xml_prolog.yy")
     {XmltvTags_Notation(1, yyvsp[-1].str);}
     break;
 
   case 122:
-//#line 190 "xml_prolog.yy"
+//#line 190 _T("xml_prolog.yy")
     {XmltvTags_Notation(2, yyvsp[-1].str);}
     break;
 
   case 123:
-//#line 190 "xml_prolog.yy"
+//#line 190 _T("xml_prolog.yy")
     {XmltvTags_Notation(4, yyvsp[0].str);}
     break;
 
   case 125:
-//#line 191 "xml_prolog.yy"
+//#line 191 _T("xml_prolog.yy")
     {XmltvTags_Notation(3, yyvsp[-1].str);}
     break;
 
   case 135:
-//#line 203 "xml_prolog.yy"
+//#line 203 _T("xml_prolog.yy")
     { XmltvTags_Encoding(yyvsp[0].str); }
     break;
 
   case 136:
-//#line 204 "xml_prolog.yy"
+//#line 204 _T("xml_prolog.yy")
     { XmltvTags_XmlVersion(yyvsp[0].str); }
     break;
 
   case 137:
-//#line 205 "xml_prolog.yy"
+//#line 205 _T("xml_prolog.yy")
     { XmltvTags_DocType(yyvsp[0].str); }
     break;
 
   case 138:
-//#line 206 "xml_prolog.yy"
+//#line 206 _T("xml_prolog.yy")
     { XmlScan_EntityDefName(yyvsp[0].str, 0); XmltvTags_CheckName(yyvsp[0].str); }
     break;
 
   case 139:
-//#line 207 "xml_prolog.yy"
+//#line 207 _T("xml_prolog.yy")
     { XmlScan_EntityDefName(yyvsp[0].str, 1); XmltvTags_CheckName(yyvsp[0].str); }
     break;
 
   case 140:
-//#line 208 "xml_prolog.yy"
+//#line 208 _T("xml_prolog.yy")
     { XmlScan_EntityDefValue(yyvsp[0].str); XmltvTags_CheckCharset(yyvsp[0].str); }
     break;
 
   case 141:
-//#line 210 "xml_prolog.yy"
+//#line 210 _T("xml_prolog.yy")
     { XmltvTags_Notation(0, yyvsp[0].str); }
     break;
 
   case 142:
-//#line 211 "xml_prolog.yy"
+//#line 211 _T("xml_prolog.yy")
     { }
     break;
 
   case 143:
-//#line 212 "xml_prolog.yy"
+//#line 212 _T("xml_prolog.yy")
     { XmltvTags_PiTarget(yyvsp[0].str); }
     break;
 
   case 144:
-//#line 213 "xml_prolog.yy"
+//#line 213 _T("xml_prolog.yy")
     { XmltvTags_PiContent(yyvsp[0].str); }
     break;
 
   case 145:
-//#line 215 "xml_prolog.yy"
+//#line 215 _T("xml_prolog.yy")
     { XmltvTags_CheckName(yyvsp[0].str); }
     break;
 
   case 146:
-//#line 216 "xml_prolog.yy"
+//#line 216 _T("xml_prolog.yy")
     { XmltvTags_CheckNmtoken(yyvsp[0].str); }
     break;
 
   case 147:
-//#line 217 "xml_prolog.yy"
+//#line 217 _T("xml_prolog.yy")
     { XmltvTags_CheckSystemLiteral(yyvsp[0].str); }
     break;
 
   case 148:
-//#line 218 "xml_prolog.yy"
+//#line 218 _T("xml_prolog.yy")
     { XmltvTags_CheckCharset(yyvsp[0].str); }
     break;
 
@@ -1490,7 +1490,7 @@ yyreduce:
     }
 
 /* Line 991 of yacc.c.  */
-//#line 1497 "xml_prolog.tab.c"
+//#line 1497 _T("xml_prolog.tab.c")
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -1531,33 +1531,33 @@ yyerrlab:
     {
       YYSIZE_T yysize = 0;
       int yytype = YYTRANSLATE (yychar);
-      char *yymsg;
+      TCHAR* yymsg;
       int yyx, yycount;
 
       yycount = 0;
       /* Start YYX at -YYN if negative to avoid negative indexes in
          YYCHECK.  */
       for (yyx = yyn < 0 ? -yyn : 0;
-           yyx < (int) (sizeof (yytname) / sizeof (char *)); yyx++)
+           yyx < (int) (sizeof (yytname) / sizeof (TCHAR* )); yyx++)
         if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
           yysize += yystrlen (yytname[yyx]) + 15, yycount++;
-      yysize += yystrlen ("syntax error, unexpected ") + 1;
+      yysize += yystrlen (_T("syntax error, unexpected ")) + 1;
       yysize += yystrlen (yytname[yytype]);
-      yymsg = (char *) YYSTACK_ALLOC (yysize);
+      yymsg = (TCHAR* ) YYSTACK_ALLOC (yysize);
       if (yymsg != 0)
         {
-          char *yyp = yystpcpy (yymsg, "syntax error, unexpected ");
+          TCHAR* yyp = yystpcpy (yymsg, _T("syntax error, unexpected "));
           yyp = yystpcpy (yyp, yytname[yytype]);
 
           if (yycount < 5)
         {
           yycount = 0;
           for (yyx = yyn < 0 ? -yyn : 0;
-               yyx < (int) (sizeof (yytname) / sizeof (char *));
+               yyx < (int) (sizeof (yytname) / sizeof (TCHAR* ));
                yyx++)
             if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
               {
-            const char *yyq = ! yycount ? ", expecting " : " or ";
+            const TCHAR* yyq = ! yycount ? _T(", expecting ") : _T(" or ");
             yyp = yystpcpy (yyp, yyq);
             yyp = yystpcpy (yyp, yytname[yyx]);
             yycount++;
@@ -1567,11 +1567,11 @@ yyerrlab:
           YYSTACK_FREE (yymsg);
         }
       else
-        yyerror ("syntax error; also virtual memory exhausted");
+        yyerror (_T("syntax error; also virtual memory exhausted"));
     }
       else
 #endif /* YYERROR_VERBOSE */
-    yyerror ("syntax error");
+    yyerror (_T("syntax error"));
     }
 
 
@@ -1589,14 +1589,14 @@ yyerrlab:
       /* Pop the rest of the stack.  */
       while (yyss < yyssp)
         {
-          YYDSYMPRINTF ("Error: popping", yystos[*yyssp], yyvsp, yylsp);
+          YYDSYMPRINTF (_T("Error: popping"), yystos[*yyssp], yyvsp, yylsp);
           yydestruct (yystos[*yyssp], yyvsp);
           YYPOPSTACK;
         }
       YYABORT;
         }
 
-      YYDSYMPRINTF ("Error: discarding", yytoken, &yylval, &yylloc);
+      YYDSYMPRINTF (_T("Error: discarding"), yytoken, &yylval, &yylloc);
       yydestruct (yytoken, &yylval);
       yychar = YYEMPTY;
 
@@ -1647,7 +1647,7 @@ yyerrlab2:
       if (yyssp == yyss)
     YYABORT;
 
-      YYDSYMPRINTF ("Error: popping", yystos[*yyssp], yyvsp, yylsp);
+      YYDSYMPRINTF (_T("Error: popping"), yystos[*yyssp], yyvsp, yylsp);
       yydestruct (yystos[yystate], yyvsp);
       yyvsp--;
       yystate = *--yyssp;
@@ -1658,7 +1658,7 @@ yyerrlab2:
   if (yyn == YYFINAL)
     YYACCEPT;
 
-  YYDPRINTF ((stderr, "Shifting error token, "));
+  YYDPRINTF ((stderr, _T("Shifting error token, ")));
 
   *++yyvsp = yylval;
 
@@ -1686,7 +1686,7 @@ yyabortlab:
 | yyoverflowlab -- parser overflow comes here.  |
 `----------------------------------------------*/
 yyoverflowlab:
-  yyerror ("parser stack overflow");
+  yyerror (_T("parser stack overflow"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1700,12 +1700,12 @@ yyreturn:
 }
 
 
-//#line 220 "xml_prolog.yy"
+//#line 220 _T("xml_prolog.yy")
 
 
-void yyerror( const char * p_msg )
+void yyerror( const TCHAR*  p_msg )
 {
-   Xmltv_SyntaxError("Prolog parse error", p_msg);
+   Xmltv_SyntaxError(_T("Prolog parse error"), p_msg);
 }
 
 

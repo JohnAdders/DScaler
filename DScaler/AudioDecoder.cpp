@@ -71,27 +71,27 @@ void CAudioDecoder::SetAudioInput(eAudioInput audioInput)
     m_AudioInput = audioInput;
 }
 
-const char* CAudioDecoder::GetAudioInputName(eAudioInput audioInput)
+const TCHAR* CAudioDecoder::GetAudioInputName(eAudioInput audioInput)
 {
     switch (audioInput)
     {
     case AUDIOINPUT_TUNER:
-        return "Tuner";
+        return _T("Tuner");
         break;
     case AUDIOINPUT_RADIO:
-        return "Radio";
+        return _T("Radio");
         break;
     case AUDIOINPUT_EXTERNAL:
-        return "External";
+        return _T("External");
         break;
     case AUDIOINPUT_INTERNAL:
-        return "Internal";
+        return _T("Internal");
         break;
     case AUDIOINPUT_MUTE:
-        return "Mute";
+        return _T("Mute");
         break;
     case AUDIOINPUT_STEREO:
-        return "Stereo";
+        return _T("Stereo");
         break;
     }
 
@@ -111,7 +111,7 @@ long CAudioDecoder::GetAudioStandardCurrent()
     return m_AudioStandard;
 }
 
-const char* CAudioDecoder::GetAudioStandardName(long Standard)
+const TCHAR* CAudioDecoder::GetAudioStandardName(long Standard)
 {
     return NULL;
 }

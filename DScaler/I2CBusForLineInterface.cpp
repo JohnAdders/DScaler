@@ -83,7 +83,7 @@ void CI2CBusForLineInterface::Start()
 {
     _ASSERTE(m_LineInterface != 0);
 
-    LOG(4, "I2C BusForLine Start");
+    LOG(4, _T("I2C BusForLine Start"));
     // I2C start: SDA 1 -> 0 with SCL = 1
     // SDA   ^^^\___
     // SCL ___/^^^\_____
@@ -99,7 +99,7 @@ void CI2CBusForLineInterface::Stop()
 {
     _ASSERTE(m_LineInterface != 0);
 
-    LOG(4, "I2C BusForLine Stop");
+    LOG(4, _T("I2C BusForLine Stop"));
     // I2C stop: SDA 0 -> 1 with SCL = 1
     // SDA    ___/^^^
     // SCL ____/^^^
@@ -120,7 +120,7 @@ BOOL CI2CBusForLineInterface::GetAcknowledge()
     BOOL result = m_LineInterface->GetSDA();
     SetSCLHi();
     SetSCLLo();
-    LOG(4, result ? "I2C BusForLine got NAK" : "I2C BusForLine got ACK");
+    LOG(4, result ? _T("I2C BusForLine got NAK") : _T("I2C BusForLine got ACK"));
     return !result;
 }
 
@@ -128,7 +128,7 @@ BOOL CI2CBusForLineInterface::Write(BYTE byte)
 {
     _ASSERTE(m_LineInterface != 0);
 
-    LOG(4, "I2C BusForLine NAK Write %02X", byte);
+    LOG(4, _T("I2C BusForLine NAK Write %02X"), byte);
     for(BYTE mask = 0x80; mask > 0; mask /= 2)
     {
         SetSCLLo();
@@ -161,7 +161,7 @@ unsigned char CI2CBusForLineInterface::Read(BOOL last)
             result |= mask;
         }
     }
-    LOG(4, "I2C BusForLine Read %02X", result);
+    LOG(4, _T("I2C BusForLine Read %02X"), result);
     if (last)
     {
         SendNAK();
@@ -177,7 +177,7 @@ void CI2CBusForLineInterface::SendNAK()
 {
     _ASSERTE(m_LineInterface != 0);
 
-    LOG(4, "I2C BusForLine send NAK");
+    LOG(4, _T("I2C BusForLine send NAK"));
     SetSCLLo();
     SetSDAHi();
     SetSCLHi();
@@ -189,7 +189,7 @@ void CI2CBusForLineInterface::SendACK()
 {
     _ASSERTE(m_LineInterface != 0);
 
-    LOG(4, "I2C BusForLine send ACK");
+    LOG(4, _T("I2C BusForLine send ACK"));
     SetSCLLo();
     SetSDALo();
     SetSCLHi();

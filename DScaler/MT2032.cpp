@@ -103,7 +103,7 @@ void CMT2032::Initialize()
 
     if (m_I2CBus->Read(wrbuf,2,rdbuf,21))
     {
-        LOG(1,"MT2032: Companycode=%02x%02x Part=%02x Revision=%02x",
+        LOG(1,_T("MT2032: Companycode=%02x%02x Part=%02x Revision=%02x"),
                     rdbuf[0x11],rdbuf[0x12],rdbuf[0x13],rdbuf[0x14]);
     }
 
@@ -376,7 +376,7 @@ int CMT2032::OptimizeVCO(int sel, int lock)
 
 void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoFormat videoFormat)
 {
-    unsigned char   buf[21];
+    unsigned char  buf[21];
     int             lint_try, ret, sel, lock = 0;
 
     ret = ComputeFreq(rfin, if1, if2, from, to, &buf[0], &sel, m_XOGC);

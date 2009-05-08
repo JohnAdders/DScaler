@@ -53,7 +53,7 @@ BOOL CALLBACK CDSDialog::MasterModalDialogProc(HWND hDlg, UINT message, WPARAM w
 }
 
 
-CDSDialog::CDSDialog(LPCSTR ResourceId) :
+CDSDialog::CDSDialog(LPCTSTR ResourceId) :
     m_ResourceId(ResourceId)
 {
 }
@@ -77,19 +77,19 @@ void CDSDialog::Destroy(HWND hDlg)
     DestroyWindow(hDlg);
 }
 
-string GetDlgItemString(HWND hDlg, int id)
+tstring GetDlgItemString(HWND hDlg, int id)
 {
     HWND hWnd = GetDlgItem(hDlg, id);
     int TextSize = GetWindowTextLength(hWnd);
     if(TextSize > 0)
     {
-        vector<char> Buffer(TextSize + 1);
+        vector<TCHAR> Buffer(TextSize + 1);
         GetWindowText(hWnd, &Buffer[0], TextSize + 1);
         return &Buffer[0];
     }
     else
     {
-        return "";
+        return _T("");
     }
 }
 
@@ -100,13 +100,13 @@ void CDSDialog::SetHelpID(int HelpID)
 
 int GetDlgItemInt(HWND hDlg, int id)
 {
-    string Value(GetDlgItemString(hDlg, id));
+    tstring Value(GetDlgItemString(hDlg, id));
     return FromString<int>(Value);
 }
 
 void SetDlgItemInt(HWND hDlg, int id, int Value)
 {
-    string ValueAsString(ToString(Value));
+    tstring ValueAsString(ToString(Value));
     SetWindowText(GetDlgItem(hDlg, id), ValueAsString.c_str());
 }
 

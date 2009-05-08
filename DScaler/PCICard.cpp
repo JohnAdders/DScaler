@@ -137,13 +137,13 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
         }
         else
         {
-            LOG(1, "MapMemory failed 0x%x", dwStatus);
+            LOG(1, _T("MapMemory failed 0x%x"), dwStatus);
         }
 
     }
     else
     {
-        LOG(1, "GetPCIInfo failed for %X %X failed 0x%x", VendorID, DeviceID, dwStatus);
+        LOG(1, _T("GetPCIInfo failed for %X %X failed 0x%x"), VendorID, DeviceID, dwStatus);
     }
 
 
@@ -174,7 +174,7 @@ void CPCICard::ClosePCICard()
 
         if (dwStatus != ERROR_SUCCESS)
         {
-            LOG(1, "UnmapMemory failed 0x%x", dwStatus);
+            LOG(1, _T("UnmapMemory failed 0x%x"), dwStatus);
         }
 
         m_bOpen = FALSE;
@@ -195,7 +195,7 @@ void CPCICard::WriteByte(DWORD Offset, BYTE Data)
 
     if (dwStatus != ERROR_SUCCESS)
     {
-        LOG(1, "WriteMemoryBYTE failed 0x%x", dwStatus);
+        LOG(1, _T("WriteMemoryBYTE failed 0x%x"), dwStatus);
     }
     UnlockCard();
 }
@@ -214,7 +214,7 @@ void CPCICard::WriteWord(DWORD Offset, WORD Data)
 
     if (dwStatus != ERROR_SUCCESS)
     {
-        LOG(1, "WriteMemoryWORD failed 0x%x", dwStatus);
+        LOG(1, _T("WriteMemoryWORD failed 0x%x"), dwStatus);
     }
     UnlockCard();
 }
@@ -233,7 +233,7 @@ void CPCICard::WriteDword(DWORD Offset, DWORD Data)
 
     if (dwStatus != ERROR_SUCCESS)
     {
-        LOG(1, "WriteMemoryDWORD failed 0x%x", dwStatus);
+        LOG(1, _T("WriteMemoryDWORD failed 0x%x"), dwStatus);
     }
     UnlockCard();
 }
@@ -255,7 +255,7 @@ BYTE CPCICard::ReadByte(DWORD Offset)
 
     if (dwStatus != ERROR_SUCCESS)
     {
-        LOG(1, "ReadMemoryBYTE failed 0x%x", dwStatus);
+        LOG(1, _T("ReadMemoryBYTE failed 0x%x"), dwStatus);
     }
     UnlockCard();
     return bValue;
@@ -278,7 +278,7 @@ WORD CPCICard::ReadWord(DWORD Offset)
 
     if (dwStatus != ERROR_SUCCESS)
     {
-        LOG(1, "ReadMemoryWORD failed 0x%x", dwStatus);
+        LOG(1, _T("ReadMemoryWORD failed 0x%x"), dwStatus);
     }
     UnlockCard();
     return wValue;
@@ -301,7 +301,7 @@ DWORD CPCICard::ReadDword(DWORD Offset)
 
     if (dwStatus != ERROR_SUCCESS)
     {
-        LOG(1, "ReadMemoryDWORD failed 0x%x", dwStatus);
+        LOG(1, _T("ReadMemoryDWORD failed 0x%x"), dwStatus);
     }
     UnlockCard();
     return dwValue;
@@ -525,7 +525,7 @@ BOOL CPCICard::GetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DW
 {
     if(pPCI_COMMON_CONFIG == NULL)
     {
-        LOG(1, "GetPCIConfig failed. pPCI_COMMON_CONFIG == NULL");
+        LOG(1, _T("GetPCIConfig failed. pPCI_COMMON_CONFIG == NULL"));
         return FALSE;
     }
 
@@ -545,7 +545,7 @@ BOOL CPCICard::GetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DW
 
     if(dwStatus != ERROR_SUCCESS)
     {
-        LOG(1, "GetPCIConfig failed for %X %X failed 0x%x", Bus, Slot, dwStatus);
+        LOG(1, _T("GetPCIConfig failed for %X %X failed 0x%x"), Bus, Slot, dwStatus);
         return FALSE;
     }
     return TRUE;
@@ -555,7 +555,7 @@ BOOL CPCICard::SetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DW
 {
     if(pPCI_COMMON_CONFIG == NULL)
     {
-        LOG(1, "SetPCIConfig failed. pPCI_COMMON_CONFIG == NULL");
+        LOG(1, _T("SetPCIConfig failed. pPCI_COMMON_CONFIG == NULL"));
         return FALSE;
     }
 
@@ -575,7 +575,7 @@ BOOL CPCICard::SetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DW
 
     if(dwStatus != ERROR_SUCCESS)
     {
-        LOG(1, "SetPCIConfig failed for %X %X failed 0x%x", Bus, Slot, dwStatus);
+        LOG(1, _T("SetPCIConfig failed for %X %X failed 0x%x"), Bus, Slot, dwStatus);
         return FALSE;
     }
     return TRUE;
@@ -585,7 +585,7 @@ BOOL CPCICard::GetPCIConfigOffset(BYTE* pbPCIConfig, DWORD Offset, DWORD Bus, DW
 {
     if(pbPCIConfig == NULL)
     {
-        LOG(1, "GetPCIConfigOffset failed. pbPCIConfig == NULL");
+        LOG(1, _T("GetPCIConfigOffset failed. pbPCIConfig == NULL"));
         return FALSE;
     }
 
@@ -606,7 +606,7 @@ BOOL CPCICard::GetPCIConfigOffset(BYTE* pbPCIConfig, DWORD Offset, DWORD Bus, DW
 
     if(dwStatus != ERROR_SUCCESS)
     {
-        LOG(1, "GetPCIConfigOffet failed for %X %X failed 0x%x", Bus, Slot, dwStatus);
+        LOG(1, _T("GetPCIConfigOffet failed for %X %X failed 0x%x"), Bus, Slot, dwStatus);
         return FALSE;
     }
     return TRUE;
@@ -616,7 +616,7 @@ BOOL CPCICard::SetPCIConfigOffset(BYTE* pbPCIConfig, DWORD Offset, DWORD Bus, DW
 {
     if(pbPCIConfig == NULL)
     {
-        LOG(1, "SetPCIConfigOffset failed. pbPCIConfig == NULL");
+        LOG(1, _T("SetPCIConfigOffset failed. pbPCIConfig == NULL"));
         return FALSE;
     }
 
@@ -637,7 +637,7 @@ BOOL CPCICard::SetPCIConfigOffset(BYTE* pbPCIConfig, DWORD Offset, DWORD Bus, DW
 
     if(dwStatus != ERROR_SUCCESS)
     {
-        LOG(1, "SetPCIConfigOffset failed for %X %X failed 0x%x", Bus, Slot, dwStatus);
+        LOG(1, _T("SetPCIConfigOffset failed for %X %X failed 0x%x"), Bus, Slot, dwStatus);
         return FALSE;
     }
     return TRUE;
@@ -646,18 +646,18 @@ BOOL CPCICard::SetPCIConfigOffset(BYTE* pbPCIConfig, DWORD Offset, DWORD Bus, DW
 
 void CPCICard::SaveState()
 {
-    char TempPath[MAX_PATH];
-    char TempFileName[MAX_PATH];
+    TCHAR TempPath[MAX_PATH];
+    TCHAR TempFileName[MAX_PATH];
 
     if(GetTempPath(MAX_PATH, TempPath) == 0)
     {
-        LOG(0, "Can't create Temp path for saving state");
+        LOG(0, _T("Can't create Temp path for saving state"));
         return;
     }
 
-    if(GetTempFileName(TempPath, "DS4", 0, TempFileName) == 0)
+    if(GetTempFileName(TempPath, _T("DS4"), 0, TempFileName) == 0)
     {
-        LOG(0, "Can't create Temp file name for saving state");
+        LOG(0, _T("Can't create Temp file name for saving state"));
         return;
     }
 
@@ -673,7 +673,7 @@ void CPCICard::SaveState()
 
     if(m_hStateFile == INVALID_HANDLE_VALUE)
     {
-        LOG(0, "Can't create Temp file for saving state");
+        LOG(0, _T("Can't create Temp file for saving state"));
         return;
     }
 
@@ -705,7 +705,7 @@ void CPCICard::RestoreState()
         }
         else
         {
-            LOG(0, "Inavlid version on state file");
+            LOG(0, _T("Inavlid version on state file"));
         }
 
         CloseHandle(m_hStateFile);
@@ -803,7 +803,7 @@ int CPCICard::GetACPIStatus()
     {
         ACPIStatus = ACPIStatus & 3;
 
-        LOG(1, "Bus %d Card %d ACPI status: D%d", m_BusNumber, m_SlotNumber, ACPIStatus);
+        LOG(1, _T("Bus %d Card %d ACPI status: D%d"), m_BusNumber, m_SlotNumber, ACPIStatus);
         return ACPIStatus;
     }
 
@@ -825,7 +825,7 @@ void CPCICard::SetACPIStatus(int ACPIStatus)
         ACPIStatusNew &= ~3;
         ACPIStatusNew |= ACPIStatus;
 
-        LOG(1, "Attempting to set Bus %d Card %d ACPI status to D%d", m_BusNumber, m_SlotNumber, ACPIStatusNew);
+        LOG(1, _T("Attempting to set Bus %d Card %d ACPI status to D%d"), m_BusNumber, m_SlotNumber, ACPIStatusNew);
 
         SetPCIConfigOffset(&ACPIStatusNew, 0x50, m_BusNumber, m_SlotNumber);
 
@@ -834,7 +834,7 @@ void CPCICard::SetACPIStatus(int ACPIStatus)
             ::Sleep(500);
             ResetChip();
         }
-        LOG(1, "Set ACPI status complete");
+        LOG(1, _T("Set ACPI status complete"));
     }
 }
 void CPCICard::LockCard()

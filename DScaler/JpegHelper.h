@@ -32,8 +32,8 @@ class CJpegHelper : public CStillSourceHelper
 {
 public:
     CJpegHelper(CStillSource* pParent);
-    BOOL OpenMediaFile(const std::string& FileName);
-    void SaveSnapshot(const std::string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const std::string& Context);
+    BOOL OpenMediaFile(const tstring& FileName);
+    void SaveSnapshot(const tstring& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const tstring& Context);
 };
 
 #endif

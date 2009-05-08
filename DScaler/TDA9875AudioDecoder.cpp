@@ -38,7 +38,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
 {
     //ANALOG 2-CARRIER SYSTEMS
     {
-        "M Analog (Mono) FM/NONE Mono",
+        _T("M Analog (Mono) FM/NONE Mono"),
         TDA9875_STANDARD_M_ANALOG_FM_NONE,
         TDA9875_CARRIER_4_5,
         TDA9875_CARRIER_4_5,
@@ -47,7 +47,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_75
     },
     {
-        "M Analog (A2+) FM/FM Stereo",
+        _T("M Analog (A2+) FM/FM Stereo"),
         TDA9875_STANDARD_M_ANALOG_FM_FM,
         TDA9875_CARRIER_4_5,
         TDA9875_CARRIER_4_724,
@@ -56,7 +56,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_75
     },
     {
-        "B/G Analog (A2) FM/FM Stereo",
+        _T("B/G Analog (A2) FM/FM Stereo"),
         TDA9875_STANDARD_BG_ANALOG_FM_FM,
         TDA9875_CARRIER_5_5,
         TDA9875_CARRIER_5_742,
@@ -65,7 +65,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_50
     },
     {
-        "I Analog (Mono) FM/NONE Mono",
+        _T("I Analog (Mono) FM/NONE Mono"),
         TDA9875_STANDARD_I_ANALOG_FM_NONE,
         TDA9875_CARRIER_6_0,
         TDA9875_CARRIER_6_0,
@@ -74,7 +74,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_50
     },
     {
-        "D/K1 Analog (A2) FM/FM Stereo",
+        _T("D/K1 Analog (A2) FM/FM Stereo"),
         TDA9875_STANDARD_DK1_ANALOG_FM_FM,
         TDA9875_CARRIER_6_5,
         TDA9875_CARRIER_6_742,
@@ -83,7 +83,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_50
     },
     {
-        "D/K2 Analog (A2*) FM/FM Stereo",
+        _T("D/K2 Analog (A2*) FM/FM Stereo"),
         TDA9875_STANDARD_DK2_ANALOG_FM_FM,
         TDA9875_CARRIER_6_5,
         TDA9875_CARRIER_6_26,
@@ -93,7 +93,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
     },
     //2-CARRIER SYSTEMS WITH NICAM
     {
-        "B/G Digital (NICAM) FM/NICAM Stereo",
+        _T("B/G Digital (NICAM) FM/NICAM Stereo"),
         TDA9875_STANDARD_BG_DIGITAL_FM_NICAM,
         TDA9875_CARRIER_5_5,
         TDA9875_CARRIER_5_85,
@@ -102,7 +102,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_J17
     },
     {
-        "I Digital (NICAM) FM/NICAM Stereo",
+        _T("I Digital (NICAM) FM/NICAM Stereo"),
         TDA9875_STANDARD_I_DIGITAL_FM_NICAM,
         TDA9875_CARRIER_6_0,
         TDA9875_CARRIER_6_552,
@@ -111,7 +111,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_J17
     },
     {
-        "D/K Digital (NICAM) FM/NICAM Stereo",
+        _T("D/K Digital (NICAM) FM/NICAM Stereo"),
         TDA9875_STANDARD_DK_DIGITAL_FM_NICAM,
         TDA9875_CARRIER_6_5,
         TDA9875_CARRIER_5_85,
@@ -120,7 +120,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_J17
     },
     {
-        "L Digital (NICAM) AM/NICAM Stereo",
+        _T("L Digital (NICAM) AM/NICAM Stereo"),
         TDA9875_STANDARD_L_DIGITAL_AM_NICAM,
         TDA9875_CARRIER_6_5,
         TDA9875_CARRIER_5_85,
@@ -130,7 +130,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
     },
     //2-CARRIER SATELLITE SYSTEMS
     {
-        "SAT (Main) FM/NONE Mono",
+        _T("SAT (Main) FM/NONE Mono"),
         TDA9875_STANDARD_SAT_FM_MONO,
         TDA9875_CARRIER_6_5,
         TDA9875_CARRIER_6_5,
@@ -139,7 +139,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_50
     },
     {
-        "SAT1 (Sub) FM/FM Stereo",
+        _T("SAT1 (Sub) FM/FM Stereo"),
         TDA9875_STANDARD_SAT1_FM_FM,
         TDA9875_CARRIER_7_02,
         TDA9875_CARRIER_7_20,
@@ -148,7 +148,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_ADAPTIVE
     },
     {
-        "SAT2 (Sub) FM/FM Stereo",
+        _T("SAT2 (Sub) FM/FM Stereo"),
         TDA9875_STANDARD_SAT2_FM_FM,
         TDA9875_CARRIER_7_38,
         TDA9875_CARRIER_7_56,
@@ -157,7 +157,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_ADAPTIVE
     },
     {
-        "SAT3 (Sub) FM/FM Stereo",
+        _T("SAT3 (Sub) FM/FM Stereo"),
         TDA9875_STANDARD_SAT3_FM_FM,
         TDA9875_CARRIER_7_74,
         TDA9875_CARRIER_7_92,
@@ -166,7 +166,7 @@ CTDA9875AudioDecoder::TStandardDefinition CTDA9875AudioDecoder::m_TDA9875Standar
         TDA9875_DE_EMPHASIS_ADAPTIVE
     },
     {
-        "SAT4 (Sub) FM/FM Stereo",
+        _T("SAT4 (Sub) FM/FM Stereo"),
         TDA9875_STANDARD_SAT4_FM_FM,
         TDA9875_CARRIER_8_10,
         TDA9875_CARRIER_8_28,
@@ -391,10 +391,10 @@ eAudioInput CTDA9875AudioDecoder::GetAudioInput()
 {
     return CAudioDecoder::GetAudioInput();
 }
-const char* CTDA9875AudioDecoder::GetAudioInputName(eAudioInput audioInput)
+const TCHAR* CTDA9875AudioDecoder::GetAudioInputName(eAudioInput audioInput)
 {
     if (audioInput == AUDIOINPUT_RADIO)
-        return "Radio not Available";
+        return _T("Radio not Available");
 
     return CAudioDecoder::GetAudioInputName(audioInput);
 }
@@ -499,15 +499,15 @@ long CTDA9875AudioDecoder::GetAudioStandardCurrent()
 {
     return CAudioDecoder::GetAudioStandardCurrent();
 }
-const char* CTDA9875AudioDecoder::GetAudioStandardName(long Standard)
+const TCHAR* CTDA9875AudioDecoder::GetAudioStandardName(long Standard)
 {
     if (Standard == TDA9875_STANDARD_NONE)
     {
-        return "<No standard>";
+        return _T("<No standard>");
     }
     if (Standard >= TDA9875_STANDARD_AUTODETECTION_IN_PROGRESS)
     {
-        return "Detecting...";
+        return _T("Detecting...");
     }
     int nIndex = 0;
     while (m_TDA9875Standards[nIndex].Name != NULL)
@@ -828,7 +828,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a = val;
         c = (-CARRIER_OFFSET_25KHZ)*val;
         d = CARRIER_OFFSET_25KHZ*CARRIER_OFFSET_25KHZ;
-        LOG(1,"TDA9875: Major carrier = %d Hz, 25KHz left = %d",CarrierDetectTable[nMajorIndex].Major,val);
+        LOG(1,_T("TDA9875: Major carrier = %d Hz, 25KHz left = %d"),CarrierDetectTable[nMajorIndex].Major,val);
 
         //15Khz left to the carrier
         SetAudioStandardCarriersTDA9875(
@@ -846,7 +846,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a += val;
         c += (-CARRIER_OFFSET_15KHZ)*val;
         d += CARRIER_OFFSET_15KHZ*CARRIER_OFFSET_15KHZ;
-        LOG(1,"TDA9875: Major carrier = %d Hz, 15KHz left = %d",CarrierDetectTable[nMajorIndex].Major,val);
+        LOG(1,_T("TDA9875: Major carrier = %d Hz, 15KHz left = %d"),CarrierDetectTable[nMajorIndex].Major,val);
 
         //5Khz left to the carrier
         SetAudioStandardCarriersTDA9875(
@@ -864,7 +864,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a += val;
         c += (-CARRIER_OFFSET_5KHZ)*val;
         d += CARRIER_OFFSET_5KHZ*CARRIER_OFFSET_5KHZ;
-        LOG(1,"TDA9875: Major carrier = %d Hz, 5KHz left = %d",CarrierDetectTable[nMajorIndex].Major,val);
+        LOG(1,_T("TDA9875: Major carrier = %d Hz, 5KHz left = %d"),CarrierDetectTable[nMajorIndex].Major,val);
 
         //5Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
@@ -882,7 +882,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a += val;
         c += CARRIER_OFFSET_5KHZ*val;
         d += CARRIER_OFFSET_5KHZ*CARRIER_OFFSET_5KHZ;
-        LOG(1,"TDA9875: Major carrier = %d Hz, 5KHz right = %d",CarrierDetectTable[nMajorIndex].Major,val);
+        LOG(1,_T("TDA9875: Major carrier = %d Hz, 5KHz right = %d"),CarrierDetectTable[nMajorIndex].Major,val);
 
         //15Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
@@ -900,7 +900,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a += val;
         c += CARRIER_OFFSET_15KHZ*val;
         d += CARRIER_OFFSET_15KHZ*CARRIER_OFFSET_15KHZ;
-        LOG(1,"TDA9875: Major carrier = %d Hz, 15KHz right = %d",CarrierDetectTable[nMajorIndex].Major,val);
+        LOG(1,_T("TDA9875: Major carrier = %d Hz, 15KHz right = %d"),CarrierDetectTable[nMajorIndex].Major,val);
 
         //25Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
@@ -918,7 +918,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a += val;
         c += CARRIER_OFFSET_25KHZ*val;
         d += CARRIER_OFFSET_25KHZ*CARRIER_OFFSET_25KHZ;
-        LOG(1,"TDA9875: Major carrier = %d Hz, 25KHz right = %d",CarrierDetectTable[nMajorIndex].Major,val);
+        LOG(1,_T("TDA9875: Major carrier = %d Hz, 25KHz right = %d"),CarrierDetectTable[nMajorIndex].Major,val);
 
         k0 = a/6.0;
         k1 = ((double)c)/d;
@@ -933,7 +933,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         if (condition1 && condition2) //found
         {
             //Setup
-            LOG(1,"TDA9875: Found Major carrier = %d Hz",CarrierDetectTable[nMajorIndex].Major);
+            LOG(1,_T("TDA9875: Found Major carrier = %d Hz"),CarrierDetectTable[nMajorIndex].Major);
             m_CarrierDetect_Phase = 8; // Detect minor carrier
 
             //Minor Carrier
@@ -974,7 +974,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a = val;
         c = (-CARRIER_OFFSET_25KHZ)*val;
         d = CARRIER_OFFSET_25KHZ*CARRIER_OFFSET_25KHZ;
-        LOG(1,"TDA9875: Minor carrier = %d Hz, 25KHz left = %d",CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
+        LOG(1,_T("TDA9875: Minor carrier = %d Hz, 25KHz left = %d"),CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
 
         //15Khz left to the carrier
         SetAudioStandardCarriersTDA9875(
@@ -992,7 +992,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a += val;
         c += (-CARRIER_OFFSET_15KHZ)*val;
         d += CARRIER_OFFSET_15KHZ*CARRIER_OFFSET_15KHZ;
-        LOG(1,"TDA9875: Minor carrier = %d Hz, 15KHz left = %d",CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
+        LOG(1,_T("TDA9875: Minor carrier = %d Hz, 15KHz left = %d"),CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
 
         //5Khz left to the carrier
         SetAudioStandardCarriersTDA9875(
@@ -1010,7 +1010,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a += val;
         c += (-CARRIER_OFFSET_5KHZ)*val;
         d += CARRIER_OFFSET_5KHZ*CARRIER_OFFSET_5KHZ;
-        LOG(1,"TDA9875: Minor carrier = %d Hz, 5KHz left = %d",CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
+        LOG(1,_T("TDA9875: Minor carrier = %d Hz, 5KHz left = %d"),CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
 
         //Right
         //5Khz right from the carrier
@@ -1028,7 +1028,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a += val;
         c += CARRIER_OFFSET_5KHZ*val;
         d += CARRIER_OFFSET_5KHZ*CARRIER_OFFSET_5KHZ;
-        LOG(1,"TDA9875: Minor carrier = %d Hz, 5KHz right = %d",CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
+        LOG(1,_T("TDA9875: Minor carrier = %d Hz, 5KHz right = %d"),CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
 
         //15Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
@@ -1046,7 +1046,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a += val;
         c += CARRIER_OFFSET_15KHZ*val;
         d += CARRIER_OFFSET_15KHZ*CARRIER_OFFSET_15KHZ;
-        LOG(1,"TDA9875: Minor carrier = %d Hz, 15KHz right = %d",CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
+        LOG(1,_T("TDA9875: Minor carrier = %d Hz, 15KHz right = %d"),CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
 
         //25Khz right from the carrier
         SetAudioStandardCarriersTDA9875(
@@ -1064,7 +1064,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
         a += val;
         c += CARRIER_OFFSET_25KHZ*val;
         d += CARRIER_OFFSET_25KHZ*CARRIER_OFFSET_25KHZ;
-        LOG(1,"TDA9875: Minor carrier = %d Hz, 25KHz right = %d",CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
+        LOG(1,_T("TDA9875: Minor carrier = %d Hz, 25KHz right = %d"),CarrierDetectTable[nMajorIndex].Minor[nMinorIndex],val);
 
         k0 = a/6.0;
         k1 = ((double)c)/d;
@@ -1078,7 +1078,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 
         if (condition1 && condition2) //found
         {
-            LOG(1,"TDA9875: Found Minor carrier = %d Hz",CarrierDetectTable[nMajorIndex].Minor[nMinorIndex]);
+            LOG(1,_T("TDA9875: Found Minor carrier = %d Hz"),CarrierDetectTable[nMajorIndex].Minor[nMinorIndex]);
             m_CarrierDetect_Phase = 15; // Find standard
         }
         else
@@ -1165,7 +1165,7 @@ int CTDA9875AudioDecoder::SetAudioDecoderValue(int What, long Val)
 
 DWORD WINAPI TDA9875ThreadProc(LPVOID lpThreadParameter)
 {
-    DScalerThread("TDA9875DetectThread");
+    DScalerThread thisThread(_T("TDA9875DetectThread"));
     if (lpThreadParameter != NULL)
     {
         int Result;
@@ -1264,7 +1264,7 @@ int CTDA9875AudioDecoder::DetectThread()
             EnterCriticalSection(&TDA9875CriticalSection);
             m_AutoDetecting = 0;
             LeaveCriticalSection(&TDA9875CriticalSection);
-            LOG(1, "TDA9875: Suspending thread");
+            LOG(1, _T("TDA9875: Suspending thread"));
             SuspendThread(m_TDA9875Thread);
         }
 

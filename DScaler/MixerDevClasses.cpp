@@ -54,7 +54,7 @@ CMixerLineSrc::CMixerLineSrc(HMIXER hMixer, DWORD nDstIndex, DWORD nSrcIndex)
     mmresult = mixerGetLineInfo((HMIXEROBJ)hMixer, &m_mxl, MIXER_GETLINEINFOF_SOURCE);
     if (mmresult != MMSYSERR_NOERROR || m_mxl.cControls == 0)
     {
-        strcpy(m_mxl.szName, "Error");
+        _tcscpy(m_mxl.szName, _T("Error"));
         return;
     }
 
@@ -95,7 +95,7 @@ CMixerLineSrc::~CMixerLineSrc()
 }
 
 
-const char* CMixerLineSrc::GetName()
+const TCHAR* CMixerLineSrc::GetName()
 {
     return m_mxl.szName;
 }
@@ -213,7 +213,7 @@ CMixerLineDst::CMixerLineDst(HMIXER hMixer, DWORD nDstIndex)
 
     if (mmresult != MMSYSERR_NOERROR || m_mxl.cConnections == 0)
     {
-        strcpy(m_mxl.szName, "Error");
+        _tcscpy(m_mxl.szName, _T("Error"));
         return;
     }
 
@@ -228,7 +228,7 @@ CMixerLineDst::~CMixerLineDst()
 {
 }
 
-const char* CMixerLineDst::GetName()
+const TCHAR* CMixerLineDst::GetName()
 {
     return m_mxl.szName;
 }
@@ -322,7 +322,7 @@ CMixer::~CMixer()
 }
 
 
-const char* CMixer::GetName()
+const TCHAR* CMixer::GetName()
 {
     return m_mxcaps.szPname;
 }
@@ -370,7 +370,7 @@ void CMixer::RestoreState()
 
 // get a name for the device
 // may not be very friendly, need to test
-string GetDeviceName(CComPtr<IMMDevice>& Device)
+tstring GetDeviceName(CComPtr<IMMDevice>& Device)
 {
     USES_CONVERSION;
     LPWSTR Id = NULL;
@@ -379,7 +379,7 @@ string GetDeviceName(CComPtr<IMMDevice>& Device)
     {
         throw logic_error("Can't get device name");
     }
-    string result(OLE2A(Id));
+    tstring result(OLE2T(Id));
     CoTaskMemFree(Id);
     return result;
 }
@@ -404,7 +404,7 @@ public:
     {
     }
 
-    const char* GetName()
+    const TCHAR* GetName()
     {
         return m_Name.c_str();
     }
@@ -449,7 +449,7 @@ private:
     CComPtr<IAudioEndpointVolume> m_AudioEndPointVolume;
     float m_StoredVolume;
     BOOL m_StoredMute;
-    std::string m_Name;
+    tstring m_Name;
 };
 
 //----------------------------------------------------------------------
@@ -495,7 +495,7 @@ public:
     {
     }
     
-    const char* GetName()
+    const TCHAR* GetName()
     {
         return m_Name.c_str();
     }
@@ -539,7 +539,7 @@ public:
 private:
     CComPtr<IMMDevice> m_Device;
     std::vector< SmartPtr<IMixerLineSrc> > m_SourceLines;
-    std::string m_Name;
+    tstring m_Name;
 };
 
 //----------------------------------------------------------------------
@@ -562,7 +562,7 @@ public:
     {
     }
 
-    const char* GetName()
+    const TCHAR* GetName()
     {
         return m_DestinationLine.GetName();
     }
@@ -662,11 +662,11 @@ IMixer* CMixerList::GetMixer(long nMixerIndex)
 	}
 }
 
-long CMixerList::FindMixer(const char* MixerName)
+long CMixerList::FindMixer(const tstring& MixerName)
 {
     for (size_t i(0); i < m_Mixers.size(); ++i)
     {
-        if (lstrcmp(m_Mixers[i]->GetName(), MixerName) == 0)
+        if (MixerName == m_Mixers[i]->GetName())
         {
             return i;
         }

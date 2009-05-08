@@ -38,27 +38,27 @@ ULONG GetAccurateTickCount()
     return (ULONG)ticks;
 }
 
-static const char* PerfNames[PERF_TYPE_LASTONE] =
+static const TCHAR* PerfNames[PERF_TYPE_LASTONE] =
 {
-    "Wait for next field",
+    _T("Wait for next field"),
 #ifdef USE_PERFORMANCE_STATS
-    "Input filters",
-    "Output filters",
-    "Pulldown detection",
-    "Deinterlacing",
-    "Aspect ratio detection",
-    "Calibration",
-    "Timeshifting",
-    "VBI data decoding",
-    "Overlay locking",
-    "Overlay unlocking",
-    "Overlay flipping",
+    _T("Input filters"),
+    _T("Output filters"),
+    _T("Pulldown detection"),
+    _T("Deinterlacing"),
+    _T("Aspect ratio detection"),
+    _T("Calibration"),
+    _T("Timeshifting"),
+    _T("VBI data decoding"),
+    _T("Overlay locking"),
+    _T("Overlay unlocking"),
+    _T("Overlay flipping"),
 #endif
 };
 
 SmartPtr<CPerf> pPerf = NULL;
 
-CPerfItem::CPerfItem(const char* Name)
+CPerfItem::CPerfItem(const TCHAR* Name)
 {
     m_Name = Name;
     m_LastDuration = 0;
@@ -134,7 +134,7 @@ void CPerfItem::Resume()
     m_SuspendCounter--;
 }
 
-const char* CPerfItem::GetName()
+const TCHAR* CPerfItem::GetName()
 {
     return m_Name;
 }
@@ -329,7 +329,7 @@ BOOL CPerf::IsValid(ePerfType PerfType)
     return (GetNbCounts(PerfType) > 0) ? TRUE : FALSE;
 }
 
-const char* CPerf::GetName(ePerfType PerfType)
+const TCHAR* CPerf::GetName(ePerfType PerfType)
 {
     return m_PerfItems[PerfType]->GetName();
 }

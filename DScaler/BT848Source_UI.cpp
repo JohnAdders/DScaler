@@ -41,7 +41,7 @@
 
 using namespace std;
 
-extern const char *TunerNames[TUNER_LASTONE];
+extern const TCHAR* TunerNames[TUNER_LASTONE];
 long EnableCancelButton = 1;
 
 
@@ -124,13 +124,13 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
 
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_RESETCONTENT, 0, 0);
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_RESETCONTENT, 0, 0);
-            char buf[20];
+            TCHAR buf[20];
             BOOL bMajorInList = FALSE;
             BOOL bMinorInList = FALSE;
 
             for (i = 0; i < vCarriers.size(); i++)
             {
-                sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
+                _stprintf(buf, _T("%g"), (double)vCarriers[i] / 1000000.0);
                 nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
 
@@ -153,9 +153,9 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
             if (!bMajorInList)
             {
                 int i = vCarriers.size();
-                char buf[30];
+                TCHAR buf[30];
                 vCarriers.push_back(pThis->m_pBT848Card->GetAudioStandardMajorCarrier(-1));
-                sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
+                _stprintf(buf, _T("%g"), (double)vCarriers[i] / 1000000.0);
                 int nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, nIndex, 0);
@@ -163,9 +163,9 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
             if (!bMinorInList)
             {
                 int i = vCarriers.size();
-                char buf[30];
+                TCHAR buf[30];
                 vCarriers.push_back(pThis->m_pBT848Card->GetAudioStandardMinorCarrier(-1));
-                sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
+                _stprintf(buf, _T("%g"), (double)vCarriers[i] / 1000000.0);
                 int nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
                 SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, nIndex, 0);
@@ -193,7 +193,7 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                 WasDetecting = pThis->m_DetectingAudioStandard;
                 if (WasDetecting)
                 {
-                    SetDlgItemText(hDlg, IDC_AUDIOSTANDARD_MANUAL_DETECTNOW, "Detecting...");
+                    SetDlgItemText(hDlg, IDC_AUDIOSTANDARD_MANUAL_DETECTNOW, _T("Detecting..."));
                     //disable
                     EnableWindow(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MANUAL_DETECTNOW), FALSE);
                     ListBox_SetCurSel(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), -1);
@@ -205,7 +205,7 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                 {
                     //enable
                     EnableWindow(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MANUAL_DETECTNOW), TRUE);
-                    SetDlgItemText(hDlg, IDC_AUDIOSTANDARD_MANUAL_DETECTNOW, "Detect");
+                    SetDlgItemText(hDlg, IDC_AUDIOSTANDARD_MANUAL_DETECTNOW, _T("Detect"));
                     EnableWindow(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), TRUE);
                     int Num = pThis->m_pBT848Card->GetNumAudioStandards();
                     int i;
@@ -242,9 +242,9 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                     if (!bMajorInList)
                     {
                         int i = vCarriers.size();
-                        char buf[30];
+                        TCHAR buf[30];
                         vCarriers.push_back(pThis->m_pBT848Card->GetAudioStandardMajorCarrier(-1));
-                        sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
+                        _stprintf(buf, _T("%g"), (double)vCarriers[i] / 1000000.0);
                         int nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                         SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
                         SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, nIndex, 0);
@@ -252,9 +252,9 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
                     if (!bMinorInList)
                     {
                         int i = vCarriers.size();
-                        char buf[30];
+                        TCHAR buf[30];
                         vCarriers.push_back(pThis->m_pBT848Card->GetAudioStandardMinorCarrier(-1));
-                        sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
+                        _stprintf(buf, _T("%g"), (double)vCarriers[i] / 1000000.0);
                         int nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
                         SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]);
                         SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, nIndex, 0);
@@ -541,8 +541,8 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND3_VAL),SW_SHOW);
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND5_VAL),SW_SHOW);
 
-                    SetDlgItemText(hDlg, IDC_BAND2_TEXT,"500 Hz");
-                    SetDlgItemText(hDlg, IDC_BAND4_TEXT,"5000 Hz");
+                    SetDlgItemText(hDlg, IDC_BAND2_TEXT,_T("500 Hz"));
+                    SetDlgItemText(hDlg, IDC_BAND4_TEXT,_T("5000 Hz"));
 
                     pThis->m_EqualizerBand1->SetupControl(GetDlgItem(hDlg, IDC_BAND1_SLIDER));
                     pThis->m_EqualizerBand2->SetupControl(GetDlgItem(hDlg, IDC_BAND2_SLIDER));
@@ -568,8 +568,8 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND3_VAL),SW_HIDE);
                     ShowWindow(GetDlgItem(hDlg, IDC_BAND5_VAL),SW_HIDE);
 
-                    SetDlgItemText(hDlg, IDC_BAND2_TEXT,"Bass");
-                    SetDlgItemText(hDlg, IDC_BAND4_TEXT,"Treble");
+                    SetDlgItemText(hDlg, IDC_BAND2_TEXT,_T("Bass"));
+                    SetDlgItemText(hDlg, IDC_BAND4_TEXT,_T("Treble"));
 
                     pThis->m_Bass->SetupControl(GetDlgItem(hDlg, IDC_BAND2_SLIDER));
                     pThis->m_Treble->SetupControl(GetDlgItem(hDlg, IDC_BAND4_SLIDER));
@@ -660,19 +660,19 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
 {
     int i;
     int nIndex;
-    char buf[128];
+    TCHAR buf[128];
     static CBT848Source* pThis;
     CBT848Card* pCard = NULL;
-    char szCardId[9] = "n/a     ";
-    char szVendorId[9] = "n/a ";
-    char szDeviceId[9] = "n/a ";
+    TCHAR szCardId[9] = _T("n/a     ");
+    TCHAR szVendorId[9] = _T("n/a ");
+    TCHAR szDeviceId[9] = _T("n/a ");
     DWORD dwCardId(0);
 
     switch (message)
     {
     case WM_INITDIALOG:
         pThis = (CBT848Source*)lParam;
-        sprintf(buf, "Setup card %u with chip %s", pThis->GetDeviceIndex() + 1, pThis->GetChipName());
+        _stprintf(buf, _T("Setup card %u with chip %s"), pThis->GetDeviceIndex() + 1, pThis->GetChipName().c_str());
         SetWindowText(hDlg, buf);
         Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCancelButton);
         SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
@@ -708,14 +708,14 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
 
         pCard = pThis->GetBT848Card();
         SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType().c_str());
-        sprintf(szVendorId,"%04X", pCard->GetVendorId());
+        _stprintf(szVendorId,_T("%04X"), pCard->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
-        sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
+        _stprintf(szDeviceId,_T("%04X"), pCard->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
         dwCardId = pCard->GetSubSystemId();
         if(dwCardId != 0 && dwCardId != 0xffffffff)
         {
-            sprintf(szCardId,"%8X", dwCardId);
+            _stprintf(szCardId,_T("%8X"), dwCardId);
         }
         SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
 
@@ -808,17 +808,17 @@ void CBT848Source::SetMenu(HMENU hMenu)
         MenuItemInfo.cbSize = sizeof(MenuItemInfo);
         MenuItemInfo.fMask = MIIM_TYPE;
 
-        // get the size of the string
+        // get the size of the tstring
         GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
-        // set the buffer and get the current string
+        // set the buffer and get the current tstring
         GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
-        // create the new string and correct the menu
-        ostringstream oss;
+        // create the new tstring and correct the menu
+        tostringstream oss;
         oss << m_pBT848Card->GetInputName(i);
-        oss << "\tCtrl+Alt+F" << i + 1;
-        string Buffer(oss.str());
+        oss << _T("\tCtrl+Alt+F") << i + 1;
+        tstring Buffer(oss.str());
         MenuItemInfo.cch = Buffer.length();
-        MenuItemInfo.dwTypeData = const_cast<char*>(Buffer.c_str());
+        MenuItemInfo.dwTypeData = const_cast<TCHAR*>(Buffer.c_str());
         SetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
 
         // enable the menu and check it appropriately
@@ -942,41 +942,41 @@ void CBT848Source::SetMenu(HMENU hMenu)
         MenuItemInfo.cbSize = sizeof(MenuItemInfo);
         MenuItemInfo.fMask = MIIM_TYPE;
 
-        // get the size of the string
+        // get the size of the tstring
         GetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
         ++MenuItemInfo.cch;
-        string Buffer;
+        tstring Buffer;
         Buffer.resize(MenuItemInfo.cch);
 
-        // get string into buffer
-        MenuItemInfo.dwTypeData = const_cast<char*>(Buffer.c_str());
+        // get tstring into buffer
+        MenuItemInfo.dwTypeData = const_cast<TCHAR*>(Buffer.c_str());
         GetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
 
-        char Buffer2[256];
+        TCHAR Buffer2[256];
         if (Buffer[0]=='[')
         {
-            strcpy(Buffer2, &Buffer[1]);
+            _tcscpy(Buffer2, &Buffer[1]);
         }
         else
         {
-            strcpy(Buffer2, &Buffer[0]);
+            _tcscpy(Buffer2, &Buffer[0]);
         }
-        int Len = strlen(Buffer2);
+        int Len = _tcslen(Buffer2);
         if (Buffer2[Len-1]==']') { Buffer2[Len-1]=0; }
 
 
         if (m_AutoStereoSelect->GetValue() && (AudioChannelNr!=m_pBT848Card->IsAudioChannelDetected((eSoundChannel)AudioChannelNr)))
         {
-            Buffer = "[";
+            Buffer = _T("[");
             Buffer += Buffer2;
-            Buffer += "]";
+            Buffer += _T("]");
             MenuItemInfo.dwTypeData = &Buffer[0];
             MenuItemInfo.cch = Buffer.length();
         }
         else
         {
             MenuItemInfo.dwTypeData = Buffer2;
-            MenuItemInfo.cch = strlen(Buffer2);
+            MenuItemInfo.cch = _tcslen(Buffer2);
         }
         SetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
 
@@ -1032,10 +1032,10 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_AUTODETECTPERCHANNEL, (m_AudioStandardDetect->GetValue() == 3));
     CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_MANUAL, (m_AudioStandardDetect->GetValue() == 4));
 
-    string Buffer("<No standard>");
+    tstring Buffer(_T("<No standard>"));
     if (m_pBT848Card->GetNumAudioStandards()>0)
     {
-        const char *szName = m_pBT848Card->GetAudioStandardName(m_pBT848Card->GetAudioStandardCurrent());
+        const TCHAR* szName = m_pBT848Card->GetAudioStandardName(m_pBT848Card->GetAudioStandardCurrent());
         if (szName != NULL)
         {
             Buffer = szName;
@@ -1150,22 +1150,22 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             switch (GetCurrentAudioSetting()->GetValue())
             {
             case AUDIOINPUT_TUNER:
-                ShowText(hWnd, "Audio Input - Tuner");
+                ShowText(hWnd, _T("Audio Input - Tuner"));
                 break;
             case AUDIOINPUT_RADIO:
-                ShowText(hWnd, "Audio Input - MSP/Radio");
+                ShowText(hWnd, _T("Audio Input - MSP/Radio"));
                 break;
             case AUDIOINPUT_EXTERNAL:
-                ShowText(hWnd, "Audio Input - External");
+                ShowText(hWnd, _T("Audio Input - External"));
                 break;
             case AUDIOINPUT_INTERNAL:
-                ShowText(hWnd, "Audio Input - Internal");
+                ShowText(hWnd, _T("Audio Input - Internal"));
                 break;
             case AUDIOINPUT_MUTE:
-                ShowText(hWnd, "Audio Input - Disabled");
+                ShowText(hWnd, _T("Audio Input - Disabled"));
                 break;
             case AUDIOINPUT_STEREO:
-                ShowText(hWnd, "Audio Input - Stereo");
+                ShowText(hWnd, _T("Audio Input - Stereo"));
                 break;
             }
             break;
@@ -1268,14 +1268,14 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_DSVIDEO_STANDARD_0:
-            // "Custom Settings ..." menu
+            // _T("Custom Settings ...") menu
             if (m_hBT8x8ResourceInst != NULL)
             {
                 m_pBT848Card->ShowRegisterSettingsDialog(m_hBT8x8ResourceInst);
             }
             else
             {
-                ShowText(hWnd, "BT8x8Res.dll not loaded");
+                ShowText(hWnd, _T("BT8x8Res.dll not loaded"));
             }
             break;
 
@@ -1344,7 +1344,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 {
                     m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 1, (eSoundChannel)m_AudioChannel->GetValue());
                 }
-                OSD_ShowText("Detect Audio Standard", 0);
+                OSD_ShowText(_T("Detect Audio Standard"), 0);
             }
             break;
 
@@ -1532,9 +1532,9 @@ void CBT848Source::InitializeUI()
 {
     MENUITEMINFO    MenuItemInfo;
     HMENU           hSubMenu;
-    LPSTR           pMenuName;
+    LPTSTR           pMenuName;
 
-    m_hBT8x8ResourceInst = LibraryCache::GetLibraryHandle("BT8x8Res.dll");
+    m_hBT8x8ResourceInst = LibraryCache::GetLibraryHandle(_T("BT8x8Res.dll"));
 
     if(m_hBT8x8ResourceInst != NULL)
     {
@@ -1546,11 +1546,11 @@ void CBT848Source::InitializeUI()
         MenuItemInfo.fMask = MIIM_TYPE;
         MenuItemInfo.fType = MFT_SEPARATOR;
 
-        pMenuName = "Custom Settings ...";
+        pMenuName = _T("Custom Settings ...");
         MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
         MenuItemInfo.fType = MFT_STRING;
         MenuItemInfo.dwTypeData = pMenuName;
-        MenuItemInfo.cch = strlen(pMenuName);
+        MenuItemInfo.cch = _tcslen(pMenuName);
         MenuItemInfo.wID = IDM_DSVIDEO_STANDARD_0;
         InsertMenuItem(hSubMenu, 3, TRUE, &MenuItemInfo);
     }

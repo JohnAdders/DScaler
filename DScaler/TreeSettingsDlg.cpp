@@ -67,7 +67,7 @@ CTreeSettingsDlg::CPageInfo::~CPageInfo()
     }
 }
 
-CTreeSettingsDlg::CTreeSettingsDlg(const string& Caption) : 
+CTreeSettingsDlg::CTreeSettingsDlg(const tstring& Caption) : 
     CDSDialog(MAKEINTRESOURCE(IDD_TREESETTING)),
     m_settingsDlgCaption(Caption),
     m_iCurrentPage(-1),
@@ -98,11 +98,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         mask = FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK;
     }
 
-    CTreeSettingsDlg dlg("DScaler settings");
+    CTreeSettingsDlg dlg(_T("DScaler settings"));
 
     long i;
 
-    SmartPtr<CTreeSettingsPage> RootPage(new CTreeSettingsPage("Filter settings", IDD_TREESETTINGS_EMPTY));
+    SmartPtr<CTreeSettingsPage> RootPage(new CTreeSettingsPage(_T("Filter settings"), IDD_TREESETTINGS_EMPTY));
 
     //the default help id is HID_BASE_RESOURCE+dialog template id
     //but we cant use that for empty pages and the generic property page
@@ -114,7 +114,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
     {
         int Root = dlg.AddPage(RootPage);
         vector< SmartPtr<CSettingsHolder> > Holders;
-        vector< string > Names;
+        vector< tstring > Names;
         GetFilterSettings(Holders, Names);
         for(i = 0; i < Holders.size(); i++)
         {
@@ -124,14 +124,14 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         }
     }
 
-    SmartPtr<CTreeSettingsPage> DeintRootPage(new CTreeSettingsPage("Video Methods", IDD_TREESETTINGS_EMPTY));
+    SmartPtr<CTreeSettingsPage> DeintRootPage(new CTreeSettingsPage(_T("Video Methods"), IDD_TREESETTINGS_EMPTY));
     DeintRootPage->SetHelpID(IDH_DEINTERLACE);
 
     if (mask & DEINTERLACE_SETTINGS_MASK)
     {
         int Root = dlg.AddPage(DeintRootPage);
         vector< SmartPtr<CSettingsHolder> > Holders;
-        vector< string > Names;
+        vector< tstring > Names;
         GetDeinterlaceSettings(Holders, Names);
         for(i = 0; i < Holders.size(); i++)
         {
@@ -141,7 +141,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         }
     }
 
-    SmartPtr<CTreeSettingsPage> AdvRootPage(new CTreeSettingsPage("Advanced Settings", IDD_TREESETTINGS_EMPTY));
+    SmartPtr<CTreeSettingsPage> AdvRootPage(new CTreeSettingsPage(_T("Advanced Settings"), IDD_TREESETTINGS_EMPTY));
     AdvRootPage->SetHelpID(IDH_ADVANCED);
 
     if (mask & ADVANCED_SETTINGS_MASK)
@@ -155,108 +155,108 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
             Holder = Providers_GetCurrentSource()->GetSettingsPage();
             if (Holder)
             {
-                string SettingsName(MakeString() << Providers_GetCurrentSource()->IDString() << " Advanced");
+                tstring SettingsName(MakeString() << Providers_GetCurrentSource()->IDString() << _T(" Advanced"));
                 pPage = new CTreeSettingsGeneric(SettingsName, Holder);
                 dlg.AddPage(pPage, Root);
             }
         }
 
         Holder = SettingsMaster->FindMsgHolder(WM_FD50_GETVALUE);
-        pPage = new CTreeSettingsGeneric("2:2 Pulldown Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("2:2 Pulldown Settings"), Holder);
         pPage->SetHelpID(IDH_22_PULLDOWN);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_FD60_GETVALUE);
-        pPage = new CTreeSettingsGeneric("3:2 Pulldown Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("3:2 Pulldown Settings"), Holder);
         pPage->SetHelpID(IDH_32_PULLDOWN);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_FD_COMMON_GETVALUE);
-        pPage = new CTreeSettingsGeneric("Pulldown Shared Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("Pulldown Shared Settings"), Holder);
         pPage->SetHelpID(IDH_PULLDOWN_SHARED);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_FDPROG_GETVALUE);
-        pPage = new CTreeSettingsGeneric("Progressive Pulldown Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("Progressive Pulldown Settings"), Holder);
         pPage->SetHelpID(IDH_PULLDOWN_SHARED);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_ASPECT_GETVALUE);
-        pPage = new CTreeSettingsGeneric("Aspect Ratio Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("Aspect Ratio Settings"), Holder);
         pPage->SetHelpID(IDH_ASPECT);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_TIMING_GETVALUE);
-        pPage = new CTreeSettingsGeneric("Field Timing Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("Field Timing Settings"), Holder);
         pPage->SetHelpID(IDH_TIMING);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_OUTTHREADS_GETVALUE);
-        pPage = new CTreeSettingsGeneric("Decoding / Output Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("Decoding / Output Settings"), Holder);
         pPage->SetHelpID(IDH_ADVANCED);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_ANTIPLOP_GETVALUE);
-        pPage = new CTreeSettingsGeneric("Anti Plop Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("Anti Plop Settings"), Holder);
         // \todo AntiPlop Help
         pPage->SetHelpID(IDH_ADVANCED);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_OSD_GETVALUE);
-        pPage = new CTreeSettingsGeneric("OSD Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("OSD Settings"), Holder);
         pPage->SetHelpID(IDH_ADVANCED);
         dlg.AddPage(pPage, Root);
 
-        pPage = new CTreeSettingsGeneric("Teletext Settings", VideoText_GetSettingsPage());
+        pPage = new CTreeSettingsGeneric(_T("Teletext Settings"), VideoText_GetSettingsPage());
         pPage->SetHelpID(IDH_TELETEXT);
         dlg.AddPage(pPage, Root);
 
-        pPage = new CTreeSettingsGeneric("Threads Priority Settings", DScaler_GetSettingsPage1());
+        pPage = new CTreeSettingsGeneric(_T("Threads Priority Settings"), DScaler_GetSettingsPage1());
         pPage->SetHelpID(IDH_ADVANCED);
         dlg.AddPage(pPage, Root);
 
-        pPage =  new CTreeSettingsGeneric("Activate Setting's Saving", SettingsMaster->GetSettingsPage());
+        pPage =  new CTreeSettingsGeneric(_T("Activate Setting's Saving"), SettingsMaster->GetSettingsPage());
         pPage->SetHelpID(IDH_SETTINGSBYCHANNEL);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_STILL_GETVALUE);
-        pPage = new CTreeSettingsGeneric("Still Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("Still Settings"), Holder);
         pPage->SetHelpID(IDH_STILL);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_CALIBR_GETVALUE);
-        pPage = new CTreeSettingsGeneric("Card Calibration Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("Card Calibration Settings"), Holder);
         pPage->SetHelpID(IDH_CALIBRATION);
         dlg.AddPage(pPage, Root);
 
-        pPage = new CTreeSettingsGeneric("Overlay Settings", Overlay_GetSettingsPage());
+        pPage = new CTreeSettingsGeneric(_T("Overlay Settings"), Overlay_GetSettingsPage());
         pPage->SetHelpID(IDH_OVERLAY);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_DEBUG_GETVALUE);
-        pPage = new CTreeSettingsGeneric("Logging Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("Logging Settings"), Holder);
         pPage->SetHelpID(IDH_LOGGING);
         dlg.AddPage(pPage, Root);
 
-        pPage = new CTreeSettingsGeneric("Channel Settings", DScaler_GetSettingsPage3());
+        pPage = new CTreeSettingsGeneric(_T("Channel Settings"), DScaler_GetSettingsPage3());
         pPage->SetHelpID(IDH_ADVANCED);
         dlg.AddPage(pPage, Root);
 
-        pPage = new CTreeSettingsGeneric("PowerStrip Settings", DScaler_GetSettingsPage4());
+        pPage = new CTreeSettingsGeneric(_T("PowerStrip Settings"), DScaler_GetSettingsPage4());
         pPage->SetHelpID(IDH_ADVANCED);
         dlg.AddPage(pPage, Root);
 
-        pPage = new CTreeSettingsGeneric("Other Settings", DScaler_GetSettingsPage2());
+        pPage = new CTreeSettingsGeneric(_T("Other Settings"), DScaler_GetSettingsPage2());
         pPage->SetHelpID(IDH_ADVANCED);
         dlg.AddPage(pPage, Root);
 
         Holder = SettingsMaster->FindMsgHolder(WM_EPG_GETVALUE);
-        pPage = new CTreeSettingsGeneric("EPG Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("EPG Settings"), Holder);
         pPage->SetHelpID(IDH_EPG);
         dlg.AddPage(pPage, Root);
 
         Holder = new CSettingsHolder;
-        pPage = new CTreeSettingsGeneric("Direct3D Settings", Holder);
+        pPage = new CTreeSettingsGeneric(_T("Direct3D Settings"), Holder);
         pPage->SetHelpID(IDH_D3D9);
         dlg.AddPage(pPage, Root);
     }
@@ -389,7 +389,7 @@ BOOL CTreeSettingsDlg::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
     SetWindowText(hDlg, m_settingsDlgCaption.c_str());
 
-    m_StaticFont = CreateFont(18,0,0,0,900,0,0,0,0,0,0,ANTIALIASED_QUALITY,0,"Arial");
+    m_StaticFont = CreateFont(18,0,0,0,900,0,0,0,0,0,0,ANTIALIASED_QUALITY,0,_T("Arial"));
     SetWindowFont(GetDlgItem(hDlg, IDC_TREESETTINGS_STATIC), m_StaticFont, TRUE);
 
     //don't know if m_PageHeader:s default colors looks good on all versions of windows
@@ -422,7 +422,7 @@ BOOL CTreeSettingsDlg::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
         }
         TVItem.hInsertAfter = TVI_LAST;
         TVItem.item.mask = TVIF_TEXT | TVIF_STATE | TVIF_PARAM;
-        TVItem.item.pszText = (LPSTR)m_pages[i].m_pPage->GetName().c_str();
+        TVItem.item.pszText = (LPTSTR)m_pages[i].m_pPage->GetName().c_str();
         TVItem.item.lParam = i;
         TVItem.item.state = (i==ExpandPage)?TVIS_EXPANDED:0;
         TVItem.item.stateMask = TVIS_EXPANDED;

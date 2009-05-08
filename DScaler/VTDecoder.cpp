@@ -438,14 +438,14 @@ void CVTDecoder::DecodeLine(BYTE* data)
                 VTCodePageX28 = ((c3 & 0x04) >> 2)|((c3 & 0x08) >> 2)|((c3 & 0x10) >> 2)|((c3 & 0x20) >> 2);
             }
             char xx[40];
-            LOG(1, xx, "TELETEXT CO 28 %X %X %X - %X %X %X %X", c1, c2, c3, DesignationCode, PageFunction, VTCodePageX28, C12C13C14);
+            LOG(1, xx, _T("TELETEXT CO 28 %X %X %X - %X %X %X %X"), c1, c2, c3, DesignationCode, PageFunction, VTCodePageX28, C12C13C14);
         }
         */
         break;
 
     case 29:
         /* don't see it; keep level 1 only
-        LOG(1, xx, "TELETEXT CO 29");
+        LOG(1, xx, _T("TELETEXT CO 29"));
         */
         break;
 
@@ -486,7 +486,7 @@ void CVTDecoder::DecodeLine(BYTE* data)
                 m_BroadcastServiceData.NetworkIDCode[1] = m_BroadcastServiceData.NetworkIDCode[0];
                 m_BroadcastServiceData.NetworkIDCode[0] = wNetworkIDCode;
                 /*
-                LOG(1, "m_BroadcastServiceData.NetworkIDCode[0] %x", m_BroadcastServiceData.NetworkIDCode[0]);
+                LOG(1, _T("m_BroadcastServiceData.NetworkIDCode[0] %x"), m_BroadcastServiceData.NetworkIDCode[0]);
                 */
 
                 // Time offset from UTC in half hour units
@@ -583,10 +583,10 @@ void CVTDecoder::DecodeLine(BYTE* data)
                     }
 
                     /*
-                    LOG(1, "LCI = %d, Country = %x, Network = %x", LCI, (m_PDC[LCI].CNI >> 8) & 0xFF, (m_PDC[LCI].CNI & 0xFF));
-                    LOG(1, "Day = %d, Month = %d, %d:%d", (m_PDC[LCI].PIL & 0x1F), (m_PDC[LCI].PIL >> 5) & 0x0F,
+                    LOG(1, _T("LCI = %d, Country = %x, Network = %x"), LCI, (m_PDC[LCI].CNI >> 8) & 0xFF, (m_PDC[LCI].CNI & 0xFF));
+                    LOG(1, _T("Day = %d, Month = %d, %d:%d"), (m_PDC[LCI].PIL & 0x1F), (m_PDC[LCI].PIL >> 5) & 0x0F,
                                                           (m_PDC[LCI].PIL >> 9) & 0x1F, (m_PDC[LCI].PIL >> 14) & 0x3F);
-                    LOG(1, "Program Type = %d", m_PDC[LCI].PTY);
+                    LOG(1, _T("Program Type = %d"), m_PDC[LCI].PTY);
                     */
 
                     NotifyDecoderEvent(DECODEREVENT_PDCUPDATE, 0);
@@ -1339,7 +1339,7 @@ DWORD CVTDecoder::GetNextDisplaySubPage(DWORD dwPageCode, TVTPage* pBuffer,
 
 
 DWORD CVTDecoder::FindInDisplayPage(DWORD dwFromPageCode, BOOL bInclusive,
-                                    LPSTR lpSearchString, TVTPage* pBuffer,
+                                    LPTSTR lpSearchString, TVTPage* pBuffer,
                                     BOOL bReverse)
 {
     WORD wPageHex = LOWORD(dwFromPageCode);
@@ -1448,7 +1448,7 @@ BOOL CVTDecoder::GetDisplayComment(DWORD dwPageCode, TVTPage* pBuffer)
 }
 
 
-BOOL CVTDecoder::SearchPage(TVTPage* pPage, LPSTR lpSearchString,
+BOOL CVTDecoder::SearchPage(TVTPage* pPage, LPTSTR lpSearchString,
                             BOOL bIncludeRow25)
 {
     WORD wFlags = PARSE_HASDATAONLY;
@@ -1468,7 +1468,7 @@ BOOL CVTDecoder::SearchPage(TVTPage* pPage, LPSTR lpSearchString,
 BYTE CVTDecoder::SearchPageProc(TVTPage*, WORD wPoint, LPWORD,
                                WORD, BYTE uChar, BYTE uMode, LPVOID lpParam)
 {
-    LPSTR lpSearchString    = (LPSTR)((LPVOID*)lpParam)[0];
+    LPTSTR lpSearchString    = (LPTSTR)((LPVOID*)lpParam)[0];
     LPINT pIndex            = (LPINT)&((LPVOID*)lpParam)[1];
 
     BYTE nRow               = LOBYTE(wPoint);
@@ -1500,9 +1500,9 @@ BYTE CVTDecoder::SearchPageProc(TVTPage*, WORD wPoint, LPWORD,
     }
     else
     {
-        BYTE nLength = strlen(&lpSearchString[*pIndex]);
+        BYTE nLength = _tcslen(&lpSearchString[*pIndex]);
 
-        // If the string has repetitive substrings, it is
+        // If the tstring has repetitive substrings, it is
         // necessary check if the shifting the starting point
         // to the start of the substrings will find a match.
         int j;
@@ -1515,11 +1515,11 @@ BYTE CVTDecoder::SearchPageProc(TVTPage*, WORD wPoint, LPWORD,
                 return PARSE_STOPLINE;
             }
 
-            if (_strnicmp(lpSearchString, &lpSearchString[j], *pIndex - j) == 0)
+            if (_tcsnicmp(lpSearchString, &lpSearchString[j], *pIndex - j) == 0)
             {
                 // We found a possible substring, try to match
                 // the failed character again.
-                if (toupper(uChar) == toupper(lpSearchString[*pIndex - j]))
+                if (_totupper(uChar) == _totupper(lpSearchString[*pIndex - j]))
                 {
                     *pIndex -= j;
                     if (lpSearchString[++*pIndex] == '\0')
@@ -1572,26 +1572,26 @@ void CVTDecoder::CreateTestDisplayPage(TVTPage* pBuffer)
         if (nRow == 0)
         {
             FillMemory(pBuffer->Frame[nRow], 8, 0x20);
-            CopyMemory(&pBuffer->Frame[nRow][8], " DScaler Charset Test  \x03", 24);
+            CopyMemory(&pBuffer->Frame[nRow][8], _T(" DScaler Charset Test  \x03"), 24);
             FillMemory(&pBuffer->Frame[nRow][32], 8, 0x20);
         }
         else if (nRow == 2)
         {
-            CopyMemory(pBuffer->Frame[nRow], "\x17 \x1es\x13\x10\x16\x10\x1f\x18\x04\x0d\x1d\x03""ENGINEERING\x1a\x12\x1c\x0c\x1es\x15\x0e\x11\x10\x14\x10\x07", 38);
+            CopyMemory(pBuffer->Frame[nRow], _T("\x17 \x1es\x13\x10\x16\x10\x1f\x18\x04\x0d\x1d\x03")_T("ENGINEERING\x1a\x12\x1c\x0c\x1es\x15\x0e\x11\x10\x14\x10\x07"), 38);
 
             pBuffer->Frame[nRow][38] = '0' + (nRow / 10);
             pBuffer->Frame[nRow][39] = '0' + (nRow % 10);
         }
         else if (nRow == 5)
         {
-            CopyMemory(pBuffer->Frame[nRow], "\x14\x1a\x1es\x11\x19\x15\x00\x15\x01\x01\x15\x0d\x1d\x02Test Page  \x1c\x0c\x1e\x12s\x16\x18\x13\x00\x17\x18\x01", 38);
+            CopyMemory(pBuffer->Frame[nRow], _T("\x14\x1a\x1es\x11\x19\x15\x00\x15\x01\x01\x15\x0d\x1d\x02Test Page  \x1c\x0c\x1e\x12s\x16\x18\x13\x00\x17\x18\x01"), 38);
 
             pBuffer->Frame[nRow][38] = '0' + (nRow / 10);
             pBuffer->Frame[nRow][39] = '0' + (nRow % 10);
         }
         else if (nRow == 7)
         {
-            CopyMemory(pBuffer->Frame[nRow], "\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x17\x1e,\x13\x10\x16\x10\x12\x1e,\x15\x10\x11\x10\x14\x10\x1f\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00", 38);
+            CopyMemory(pBuffer->Frame[nRow], _T("\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x17\x1e,\x13\x10\x16\x10\x12\x1e,\x15\x10\x11\x10\x14\x10\x1f\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00"), 38);
 
             pBuffer->Frame[nRow][38] = '0' + (nRow / 10);
             pBuffer->Frame[nRow][39] = '0' + (nRow % 10);
@@ -1615,7 +1615,7 @@ void CVTDecoder::CreateTestDisplayPage(TVTPage* pBuffer)
         }
         else if (nRow == 17)
         {
-            CopyMemory(pBuffer->Frame[nRow], "White\x03""Yellow\x06""Cyan\x02""Green\x05""Magenta\x01""Red\x04""Blue", 40);
+            CopyMemory(pBuffer->Frame[nRow], _T("White\x03")_T("Yellow\x06")_T("Cyan\x02")_T("Green\x05")_T("Magenta\x01")_T("Red\x04")_T("Blue"), 40);
         }
         else if (nRow == 18)
         {
@@ -1685,7 +1685,7 @@ void CVTDecoder::CreateTestDisplayPage(TVTPage* pBuffer)
         }
         else if (nRow == 23)
         {
-            CopyMemory(pBuffer->Frame[nRow], "\x03\x18""Conceal\x08""Flash\x03\x2a\x0b\x0b""Box\x09""Steady\x18""Gone\x0a\x0a?\x16^\x7f", 40);
+            CopyMemory(pBuffer->Frame[nRow], _T("\x03\x18")_T("Conceal\x08")_T("Flash\x03\x2a\x0b\x0b")_T("Box\x09")_T("Steady\x18")_T("Gone\x0a\x0a?\x16^\x7f"), 40);
         }
         else if (nRow == 24 || nRow == 25)
         {
@@ -1704,13 +1704,13 @@ void CVTDecoder::CreateTestDisplayPage(TVTPage* pBuffer)
 }
 
 
-string CVTDecoder::GetStatusDisplay()
+tstring CVTDecoder::GetStatusDisplay()
 {
-    vector<char> Buffer(sizeof(m_BroadcastServiceData.StatusDisplay) + 1);
+    vector<TCHAR> Buffer(sizeof(m_BroadcastServiceData.StatusDisplay) + 1);
     EnterCriticalSection(&m_ServiceDataStoreMutex);
-    memcpy(&Buffer[0], m_BroadcastServiceData.StatusDisplay, sizeof(m_BroadcastServiceData.StatusDisplay));
-    LeaveCriticalSection(&m_ServiceDataStoreMutex);
     CheckParity((BYTE*)&Buffer[0], sizeof(m_BroadcastServiceData.StatusDisplay), TRUE);
+    Buffer.assign(m_BroadcastServiceData.StatusDisplay, m_BroadcastServiceData.StatusDisplay + sizeof(m_BroadcastServiceData.StatusDisplay));
+    LeaveCriticalSection(&m_ServiceDataStoreMutex);
 
     int nLength(sizeof(m_BroadcastServiceData.StatusDisplay));
     while (nLength-- > 0 && Buffer[nLength] == 0x20)

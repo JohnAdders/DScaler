@@ -91,7 +91,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
 {
     // AUDIOSTANDARD_BG_DUAL_FM
     {
-        "B/G-Dual FM-Stereo",
+        _T("B/G-Dual FM-Stereo"),
         AUDIO_CARRIER_5_5,
         AUDIO_CARRIER_5_7421875,
         AUDIOCHANNELMODE_FM,
@@ -101,7 +101,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_DK1_DUAL_FM
     {
-        "D/K1-Dual FM-Stereo",
+        _T("D/K1-Dual FM-Stereo"),
         AUDIO_CARRIER_6_5,
         AUDIO_CARRIER_6_2578125,
         AUDIOCHANNELMODE_FM,
@@ -111,7 +111,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_DK2_DUAL_FM
     {
-        "D/K2-Dual FM-Stereo",
+        _T("D/K2-Dual FM-Stereo"),
         AUDIO_CARRIER_6_5,
         AUDIO_CARRIER_6_7421875,
         AUDIOCHANNELMODE_FM,
@@ -121,7 +121,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_DK_FM_MONO
     {
-        "D/K-FM-Mono with HDEV3",
+        _T("D/K-FM-Mono with HDEV3"),
         AUDIO_CARRIER_6_5,
         AUDIO_CARRIER_6_5,
         AUDIOCHANNELMODE_FM,
@@ -131,7 +131,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_DK3_DUAL_FM
     {
-        "D/K3-Dual FM-Stereo",
+        _T("D/K3-Dual FM-Stereo"),
         AUDIO_CARRIER_6_5,
         AUDIO_CARRIER_5_7421875,
         AUDIOCHANNELMODE_FM,
@@ -141,7 +141,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_M_DUAL_FM
     {
-        "M-Dual FM-Stereo",
+        _T("M-Dual FM-Stereo"),
         AUDIO_CARRIER_4_5,
         AUDIO_CARRIER_4_724212,
         AUDIOCHANNELMODE_FM,
@@ -151,7 +151,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_BG_NICAM_FM
     {
-        "B/G-NICAM-FM",
+        _T("B/G-NICAM-FM"),
         AUDIO_CARRIER_5_5,
         AUDIO_CARRIER_5_85,
         AUDIOCHANNELMODE_FM,
@@ -161,7 +161,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_L_NICAM_AM
     {
-        "L-NICAM-AM",
+        _T("L-NICAM-AM"),
         AUDIO_CARRIER_6_5,
         AUDIO_CARRIER_5_85,
         AUDIOCHANNELMODE_AM,
@@ -171,7 +171,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_I_NICAM_FM
     {
-        "I-NICAM-FM",
+        _T("I-NICAM-FM"),
         AUDIO_CARRIER_6_0,
         AUDIO_CARRIER_6_552,
         AUDIOCHANNELMODE_FM,
@@ -181,7 +181,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_DK_NICAM_FM
     {
-        "D/K-NICAM-FM",
+        _T("D/K-NICAM-FM"),
         AUDIO_CARRIER_6_5,
         AUDIO_CARRIER_5_85,
         AUDIOCHANNELMODE_FM,
@@ -191,7 +191,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_DK_NICAM_FM_HDEV2
     {
-        "D/K-NICAM-FM with HDEV2",
+        _T("D/K-NICAM-FM with HDEV2"),
         AUDIO_CARRIER_6_5,
         AUDIO_CARRIER_5_85,
         AUDIOCHANNELMODE_FM,
@@ -201,7 +201,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_DK_NICAM_FM_HDEV3
     {
-        "D/K-NICAM-FM with HDEV3",
+        _T("D/K-NICAM-FM with HDEV3"),
         AUDIO_CARRIER_6_5,
         AUDIO_CARRIER_5_85,
         AUDIOCHANNELMODE_FM,
@@ -211,7 +211,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_M_BTSC
     {
-        "M-BTSC-Stereo",
+        _T("M-BTSC-Stereo"),
         AUDIO_CARRIER_4_5,
         AUDIO_CARRIER_4_5,
         AUDIOCHANNELMODE_FM,
@@ -221,7 +221,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_M_BTSC_MONO
     {
-        "M-BTSC-Mono + SAP",
+        _T("M-BTSC-Mono + SAP"),
         AUDIO_CARRIER_4_5,
         AUDIO_CARRIER_4_5,
         AUDIOCHANNELMODE_FM,
@@ -231,7 +231,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_M_EIAJ
     {
-        "M-EIA-J Japan Stereo",
+        _T("M-EIA-J Japan Stereo"),
         AUDIO_CARRIER_4_5,
         AUDIO_CARRIER_4_5,
         AUDIOCHANNELMODE_FM,
@@ -241,7 +241,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_FM_RADIO
     {
-        "FM-Stereo Radio",
+        _T("FM-Stereo Radio"),
         AUDIO_CARRIER_10_7,
         AUDIO_CARRIER_10_7,
         AUDIOCHANNELMODE_FM,
@@ -251,7 +251,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_SAT
     {
-        "SAT-Stereo",
+        _T("SAT-Stereo"),
         AUDIO_CARRIER_7_02,
         AUDIO_CARRIER_7_20,
         AUDIOCHANNELMODE_FM,
@@ -261,7 +261,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_SAT_MONO
     {
-        "SAT-Mono",
+        _T("SAT-Mono"),
         AUDIO_CARRIER_6_5,
         AUDIO_CARRIER_6_5,
         AUDIOCHANNELMODE_FM,
@@ -271,7 +271,7 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
     },
     // AUDIOSTANDARD_SAT_ADR
     {
-        "SAT ASTRA Digital Radio",
+        _T("SAT ASTRA Digital Radio"),
         AUDIO_CARRIER_6_12,
         AUDIO_CARRIER_6_12,
         AUDIOCHANNELMODE_FM,

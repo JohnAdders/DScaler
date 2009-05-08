@@ -95,13 +95,13 @@ BOOL CCalSetting::Update()
 void CCalSetting::Save()
 {
     saved_value = current_value;
-    LOG(2, "Automatic Calibration - saved value = %d", saved_value);
+    LOG(2, _T("Automatic Calibration - saved value = %d"), saved_value);
 }
 
 void CCalSetting::Restore()
 {
     Adjust(saved_value);
-    LOG(2, "Automatic Calibration - restored value = %d", saved_value);
+    LOG(2, _T("Automatic Calibration - restored value = %d"), saved_value);
 }
 
 void CCalSetting::SetFullRange()
@@ -124,7 +124,7 @@ void CCalSetting::SetRange(int min_val, int max_val)
         j = i - min;
         mask_input[j/32] |= (1 << (j%32));
     }
-    LOG(3, "Automatic Calibration - range => min = %d max = %d", min_value, max_value);
+    LOG(3, _T("Automatic Calibration - range => min = %d max = %d"), min_value, max_value);
 }
 
 void CCalSetting::SetRange(int delta)
@@ -253,7 +253,7 @@ void CCalSetting::AdjustBest()
         // Set the setting to its default value
         AdjustDefault();
     }
-    LOG(2, "Automatic Calibration - finished - %d values between %d and %d => %d", nb_min, best_val_min, best_val_max, current_value);
+    LOG(2, _T("Automatic Calibration - finished - %d values between %d and %d => %d"), nb_min, best_val_min, best_val_max, current_value);
 }
 
 void CCalSetting::InitResult()
@@ -304,7 +304,7 @@ BOOL CCalSetting::UpdateResult(int diff, int threshold, BOOL only_one)
         end = TRUE;
         min_found = desc;
     }
-    LOG(3, "Automatic Calibration - value %d => result = %d min = %d", current_value, diff, min_diff);
+    LOG(3, _T("Automatic Calibration - value %d => result = %d min = %d"), current_value, diff, min_diff);
     return min_found;
 }
 
@@ -380,153 +380,153 @@ CCalibration::CCalibration()
     CColorBar* bar = m_TestPatterns[0]->m_ColorBars[0];
     r = 0, g = 0; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 255, g = 255; b = 255;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 255, g = 0; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 0, g = 255; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 0, g = 0; b = 255;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 191, g = 0; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 0, g = 191; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 0, g = 0; b = 191;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 191, g = 191; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 191, g = 0; b = 191;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 0, g = 191; b = 191;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     r = 191, g = 191; b = 191;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     y = 16, cb = 128; cr = 128;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     y = 235, cb = 128; cr = 128;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     y = 65, cb = 100; cr = 212;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     y = 112, cb = 72; cr = 58;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     y = 35, cb = 212; cr = 114;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     y = 162, cb = 44; cr = 142;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     y = 84, cb = 184; cr = 198;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     y = 131, cb = 156; cr = 44;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     y = 180, cb = 128; cr = 128;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
 
     r = 0, g = 0; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(0, 0, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(0, 0, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 255, g = 255; b = 255;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(255, 255, 255) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(255, 255, 255) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 255, g = 0; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(255, 0, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(255, 0, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 0, g = 255; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(0, 255, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(0, 255, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 0, g = 0; b = 255;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(0, 0, 255) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(0, 0, 255) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 191, g = 0; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(191, 0, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(191, 0, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 0, g = 191; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(0, 191, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(0, 191, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 0, g = 0; b = 191;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(0, 0, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(0, 0, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 191, g = 191; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(191, 191, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(191, 191, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 191, g = 0; b = 191;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(191, 0, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(191, 0, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 0, g = 191; b = 191;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(0, 191, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(0, 191, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
     r = 191, g = 191; b = 191;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
-    LOG(1, "RGB(191, 191, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    LOG(1, _T("RGB(191, 191, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)"), y, cb, cr, r, g, b);
 
     y = 16, cb = 128; cr = 128;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "YCbCr(16, 128, 128) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("YCbCr(16, 128, 128) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     y = 235, cb = 128; cr = 128;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "YCbCr(235, 128, 128) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("YCbCr(235, 128, 128) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     y = 65, cb = 100; cr = 212;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "YCbCr(65, 100, 212) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("YCbCr(65, 100, 212) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     y = 112, cb = 72; cr = 58;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "YCbCr(112, 72, 58) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("YCbCr(112, 72, 58) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     y = 35, cb = 212; cr = 114;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "YCbCr(35, 212, 114) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("YCbCr(35, 212, 114) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     y = 162, cb = 44; cr = 142;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "YCbCr(162, 44, 142) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("YCbCr(162, 44, 142) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     y = 84, cb = 184; cr = 198;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "YCbCr(84, 184, 198) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("YCbCr(84, 184, 198) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     y = 131, cb = 156; cr = 44;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "YCbCr(131, 156, 44) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("YCbCr(131, 156, 44) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
     y = 180, cb = 128; cr = 128;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
-    LOG(1, "YCbCr(180, 128, 128) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    LOG(1, _T("YCbCr(180, 128, 128) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)"), r, g, b, y, cb, cr);
 #endif
 }
 
@@ -550,44 +550,44 @@ CCalibration::~CCalibration()
 void CCalibration::LoadTestPatterns()
 {
     CTestPattern* pattern;
-    char BufferLine[512];
-    char *Buffer;
-    struct stat st;
+    TCHAR BufferLine[512];
+    TCHAR* Buffer;
+    struct _stat st;
     FILE* File;
-    string PaternPath(GetInstallationPath() + "\\patterns\\");
-    string FullPath;
+    tstring PaternPath(GetInstallationPath() + _T("\\patterns\\"));
+    tstring FullPath;
     CColorBar* color_bar;
 
-    FullPath = PaternPath + "card_calibr.d3u";
-    File = fopen(FullPath.c_str(), "r");
+    FullPath = PaternPath + _T("card_calibr.d3u");
+    File = _tfopen(FullPath.c_str(), _T("r"));
     if(File != NULL)
     {
         while(!feof(File))
         {
-            if(fgets(BufferLine, 512, File))
+            if(_fgetts(BufferLine, 512, File))
             {
                 BufferLine[511] = '\0';
                 Buffer = BufferLine;
-                while(strlen(Buffer) > 0 && *Buffer <= ' ')
+                while(_tcslen(Buffer) > 0 && *Buffer <= ' ')
                 {
                     Buffer++;
                 }
-                if(strlen(Buffer) == 0 || *Buffer == '#' || *Buffer == ';')
+                if(_tcslen(Buffer) == 0 || *Buffer == '#' || *Buffer == ';')
                 {
                     continue;
                 }
                 // take care of stuff that is at end of the line
-                while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
+                while(_tcslen(Buffer) > 0 && Buffer[_tcslen(Buffer) - 1] <= ' ')
                 {
-                    Buffer[strlen(Buffer) - 1] = '\0';
+                    Buffer[_tcslen(Buffer) - 1] = '\0';
                 }
-                if (strlen(Buffer) == 0 || strlen(Buffer) > 118)
+                if (_tcslen(Buffer) == 0 || _tcslen(Buffer) > 118)
                 {
                     continue;
                 }
-                if (!strncmp(&Buffer[1], ":\\", 2) || (Buffer[0] == '\\'))
+                if (!_tcsncmp(&Buffer[1], _T(":\\"), 2) || (Buffer[0] == '\\'))
                 {
-                    if (!stat(Buffer, &st))
+                    if (!_tstat(Buffer, &st))
                     {
                         pattern = new CTestPattern(Buffer);
                         if ((pattern->GetWidth() * pattern->GetHeight()) > 0)
@@ -599,7 +599,7 @@ void CCalibration::LoadTestPatterns()
                 else
                 {
                     FullPath = PaternPath + Buffer;
-                    if (!stat(FullPath.c_str(), &st))
+                    if (!_tstat(FullPath.c_str(), &st))
                     {
                         pattern = new CTestPattern(FullPath);
                         if ((pattern->GetWidth() * pattern->GetHeight()) > 0)
@@ -613,7 +613,7 @@ void CCalibration::LoadTestPatterns()
         fclose(File);
     }
 
-    m_YUVRangePat = new CTestPattern("Check YUV Range", 720, 480);
+    m_YUVRangePat = new CTestPattern(_T("Check YUV Range"), 720, 480);
     color_bar = new CColorBar(0, 10000, 0, 10000, DRAW_NO, 0, 0, FALSE, 0, 0, 0, 0, 0, 0);
     m_YUVRangePat->m_ColorBars.push_back(color_bar);
     m_YUVRangePat->CreateGlobalSubPattern();
@@ -658,7 +658,7 @@ void CCalibration::UpdateMenu(HMENU hMenu)
     HMENU           hMenuPatterns;
     MENUITEMINFO    MenuItemInfo;
     int             i;
-    string          name;
+    tstring          name;
 
     hMenuPatterns = GetPatternsSubmenu();
     if (hMenuPatterns == NULL) return;
@@ -960,7 +960,7 @@ void CCalibration::Stop()
     {
         OSD_ShowInfosScreen(0, 0);
         if ( (current_step != -1)
-          || (MessageBox(GetMainWnd(), "Do you want to keep the current settings ?", "DScaler Question", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1) == IDNO) )
+          || (MessageBox(GetMainWnd(), _T("Do you want to keep the current settings ?"), _T("DScaler Question"), MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1) == IDNO) )
         {
             if (m_Brightness != NULL)
                 m_Brightness->Restore();
@@ -1065,7 +1065,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         m_Brightness->SetRange((nb_tries == 0) ? 75 : 25);
         if (step_init(ADJ_BRIGHTNESS, m_Brightness, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
-            LOG(2, "Automatic Calibration - brightness - reduced range - try %d", nb_tries+1);
+            LOG(2, _T("Automatic Calibration - brightness - reduced range - try %d"), nb_tries+1);
             current_step++;
         }
         else
@@ -1086,7 +1086,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         m_Brightness->SetFullRange();
         if (step_init(ADJ_BRIGHTNESS, m_Brightness, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
-            LOG(2, "Automatic Calibration - brightness - full range - try %d", nb_tries+1);
+            LOG(2, _T("Automatic Calibration - brightness - full range - try %d"), nb_tries+1);
             current_step++;
         }
         else
@@ -1107,7 +1107,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         m_Contrast->SetRange((nb_tries == 0) ? 50 : 25);
         if (step_init(ADJ_CONTRAST, m_Contrast, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
-            LOG(2, "Automatic Calibration - contrast - reduced range - try %d", nb_tries+1);
+            LOG(2, _T("Automatic Calibration - contrast - reduced range - try %d"), nb_tries+1);
             current_step++;
         }
         else
@@ -1128,7 +1128,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         m_Contrast->SetFullRange();
         if (step_init(ADJ_CONTRAST, m_Contrast, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
-            LOG(2, "Automatic Calibration - contrast - full range - try %d", nb_tries+1);
+            LOG(2, _T("Automatic Calibration - contrast - full range - try %d"), nb_tries+1);
             current_step++;
         }
         else
@@ -1186,7 +1186,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         }
         if (step_init(ADJ_BRIGHTNESS_CONTRAST, m_Brightness, m_Contrast, (CCalSetting* )NULL))
         {
-            LOG(2, "Automatic Calibration - brightness + contrast - %d %d", nb1, nb2);
+            LOG(2, _T("Automatic Calibration - brightness + contrast - %d %d"), nb1, nb2);
             current_step++;
         }
         else
@@ -1206,7 +1206,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         m_Saturation_U->SetRange(75);
         if (step_init(ADJ_SATURATION_U, m_Saturation_U, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
-            LOG(2, "Automatic Calibration - saturation U - reduced range - try %d", nb_tries+1);
+            LOG(2, _T("Automatic Calibration - saturation U - reduced range - try %d"), nb_tries+1);
             current_step++;
         }
         else
@@ -1227,7 +1227,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         m_Saturation_U->SetFullRange();
         if (step_init(ADJ_SATURATION_U, m_Saturation_U, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
-            LOG(2, "Automatic Calibration - saturation U - full range - try %d", nb_tries+1);
+            LOG(2, _T("Automatic Calibration - saturation U - full range - try %d"), nb_tries+1);
             current_step++;
         }
         else
@@ -1253,7 +1253,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         m_Saturation_V->SetRange(75);
         if (step_init(ADJ_SATURATION_V, m_Saturation_V, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
-            LOG(2, "Automatic Calibration - saturation V - reduced range - try %d", nb_tries+1);
+            LOG(2, _T("Automatic Calibration - saturation V - reduced range - try %d"), nb_tries+1);
             current_step++;
         }
         else
@@ -1279,7 +1279,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         m_Saturation_V->SetFullRange();
         if (step_init(ADJ_SATURATION_V, m_Saturation_V, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
-            LOG(2, "Automatic Calibration - saturation V - full range - try %d", nb_tries+1);
+            LOG(2, _T("Automatic Calibration - saturation V - full range - try %d"), nb_tries+1);
             current_step++;
         }
         else
@@ -1305,7 +1305,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         m_Hue->SetRange(30);
         if (step_init(ADJ_HUE, m_Hue, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
-            LOG(2, "Automatic Calibration - hue - reduced range - try %d", nb_tries+1);
+            LOG(2, _T("Automatic Calibration - hue - reduced range - try %d"), nb_tries+1);
             current_step++;
         }
         else
@@ -1374,7 +1374,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         }
         if (step_init(ADJ_COLOR, m_Saturation_U, m_Saturation_V, m_Hue))
         {
-            LOG(2, "Automatic Calibration - saturation U + saturation V + hue - %d %d %d", nb1, nb2, nb3);
+            LOG(2, _T("Automatic Calibration - saturation U + saturation V + hue - %d %d %d"), nb1, nb2, nb3);
             current_step++;
         }
         else

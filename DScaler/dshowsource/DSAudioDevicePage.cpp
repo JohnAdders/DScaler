@@ -34,14 +34,14 @@ using namespace std;
 // CDSAudioDevicePage dialog
 
 
-CDSAudioDevicePage::CDSAudioDevicePage(const string& name, SmartPtr<CStringSetting> AudioDeviceSetting) :
+CDSAudioDevicePage::CDSAudioDevicePage(const tstring& name, SmartPtr<CStringSetting> AudioDeviceSetting) :
     CTreeSettingsPage(name, IDD_DSHOW_AUDIODEVICE),
     m_AudioDeviceSetting(AudioDeviceSetting),
     m_bConnectAudio(NULL)
 {
 }
 
-CDSAudioDevicePage::CDSAudioDevicePage(const string& name, SmartPtr<CStringSetting> AudioDeviceSetting, BOOL *bConnectAudio) :
+CDSAudioDevicePage::CDSAudioDevicePage(const tstring& name, SmartPtr<CStringSetting> AudioDeviceSetting, BOOL *bConnectAudio) :
     CTreeSettingsPage(name,IDD_DSHOW_AUDIODEVICE),
     m_AudioDeviceSetting(AudioDeviceSetting),
     m_bConnectAudio(bConnectAudio)
@@ -91,7 +91,7 @@ BOOL CDSAudioDevicePage::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
         CDShowDevEnum devenum(CLSID_AudioRendererCategory);
         while(devenum.getNext()==TRUE)
         {
-            string deviceName=devenum.getProperty("FriendlyName");
+            tstring deviceName=devenum.getProperty(_T("FriendlyName"));
             int pos = ComboBox_AddString(GetDlgItem(hDlg, IDC_DSHOW_AUDIODEVICE_DEVICE), deviceName.c_str());
             if(pos!=CB_ERR)
             {
@@ -143,7 +143,7 @@ void CDSAudioDevicePage::OnOK(HWND hDlg)
     }
     else
     {
-        m_AudioDeviceSetting->SetValue("");
+        m_AudioDeviceSetting->SetValue(_T(""));
     }
     if(m_bConnectAudio != NULL)
     {

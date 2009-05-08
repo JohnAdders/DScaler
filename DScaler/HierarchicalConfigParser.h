@@ -46,8 +46,8 @@ namespace HCParser
 //
 //  sub-tag-value-list := value[, sub-tag-value-list]
 //
-//  tag := string
-//  value := "string"|number|constant
+//  tag := tstring
+//  value := "tstring"|number|constant
 //
 //
 // Examples:
@@ -106,28 +106,26 @@ namespace HCParser
 // CHCParser.ParseLocalFile(filename, context);
 //
 // Parses the full content of the file given.  If the parsing encounters an error, FALSE is
-// returned and CHCParser.GetError() returns a std::string value indicating the error.
+// returned and CHCParser.GetError() returns a tstring value indicating the error.
 // 'filename' is the path to the filename that should be read.  'context' is an arbitrary
 // pointer that will be given to the read callback and it is not used by CHCParser for
 // any other purpose.  If 'filepointer' (FILE*) is specified instead, parsing starts at the
 // current position in the file and continues to the end of the file.  The file is not
 // closed afterwards.  ParseLocalFile() will look in the same directory as the program if
 // the file is not found in the working directory.  'filename' can be specified as const
-// char* or const wchar_t* for unicode file names.
+// TCHAR* 
 //
 //
 // CHCParser.GetError()
 // CHCParser.GetErrorUnicode()
 //
 // Only after CHCParser.ParseFile(...) returns FALSE, CHCParser.GetError() returns a valid
-// std::string variable containing the description of the error.  GetErrorUnicode() returns
-// a std::wstring type.  Since the error string is stored internally as unicode, a
-// conversion to multi-byte characters takes place if GetError() is used.
+// tstring.
 //
 //
 // CHCParser::Str2Int(text)
 //
-// Converts const char* to int.  Provided the specified text holds a number in a textual
+// Converts const TCHAR* to int.  Provided the specified text holds a number in a textual
 // representation, either in decimal (negative or positive) or hexadecimal with a leading
 // '0x', the return value is a int value of the number.  If the number cannot be parsed,
 // the return value is 0.
@@ -148,13 +146,13 @@ namespace HCParser
 // is the pointer passed in the second argument of CHCParser.Parse().
 //
 // The application can stop the CHCParser from continuing the parsing by throwing a type
-// std::string or std::wstring inside the callback.  In this case, the parsing will stop
+// tstring inside the callback.  In this case, the parsing will stop
 // immediately and CHCParser.ParseFile() will return with FALSE.  CHCParser.GetError()
 // will return an error message of format:
 //
 // "Error on line N character n: message"
 //
-// Where 'message' is the text in the std::string object that was thrown.  If any other
+// Where 'message' is the text in the tstring object that was thrown.  If any other
 // type is thrown in the callback, it will not be caught by CHCParser.
 //
 //
@@ -194,15 +192,15 @@ class CParseValue
 {
 public:
     CParseValue();
-    CParseValue(const char* str);
+    CParseValue(const TCHAR* str);
     CParseValue(int number);
     virtual ~CParseValue();
 
-    virtual const char* GetString() const;
+    virtual const TCHAR* GetString() const;
     virtual int GetNumber() const;
 
 protected:
-    const char*    m_string;
+    const TCHAR*    m_string;
     int            m_number;
 };
 
@@ -222,10 +220,10 @@ ParseReadProc PASS_TO_PARENT;
 class CParseConstant
 {
 public:
-    CParseConstant(const char* constant = NULL,
+    CParseConstant(const TCHAR* constant = NULL,
         CParseValue value = CParseValue());
 
-    const char*        constant;
+    const TCHAR*        constant;
     CParseValue        value;
 };
 
@@ -248,12 +246,12 @@ public:
           const CParseConstant*    constants;
     };
 
-    CParseTag(const char* tagName = NULL, unsigned char parseTypes = 0,
+    CParseTag(const TCHAR* tagName = NULL, unsigned char parseTypes = 0,
         unsigned char minimumNumber = 0, unsigned long maxParseLength = 0,
         CAttributes attributes = CAttributes(), ParseReadProc* readProc = NULL);
 
     // Name of the tag to be parsed.
-    const char*                tagName;
+    const TCHAR*                tagName;
     // Parsing mode for the tag.
     unsigned char            parseTypes;
     // Minimum number of the same type of tags that can be parsed.
@@ -278,21 +276,12 @@ public:
     CHCParser(const CParseTag* tagList);
     virtual ~CHCParser();
 
-    BOOL ParseLocalFile(const char* filename, void* reportContext = NULL);
-    BOOL ParseLocalFile(const wchar_t* filename, void* reportContext = NULL);
-
-    BOOL ParseFile(const char* filename, void* reportContext = NULL, BOOL localFile = FALSE);
-    BOOL ParseFile(const wchar_t* filename, void* reportContext = NULL, BOOL localFile = FALSE);
+    BOOL ParseFile(const TCHAR* filename, void* reportContext = NULL);
     BOOL ParseFile(FILE* fp, void* reportContext = NULL);
 
-    std::string GetError();
-    std::wstring GetErrorUnicode();
+    tstring GetError();
 
-    static int Str2Int(const char* text);
-
-    static BOOL IsUnicodeOS();
-    static FILE* OpenLocalFile(const char* filename);
-    static FILE* OpenLocalFile(const wchar_t* filename);
+    static int Str2Int(const TCHAR* text);
 
 public:
     enum
@@ -353,10 +342,7 @@ private:
         virtual void clear();
         virtual BOOL empty();
 
-        virtual std::string str();
-        virtual std::wstring wstr();
-
-        ParseError& operator<< (const char* s);
+        virtual tstring str();
 
         template <class T>
         ParseError& operator<< (const T& t)
@@ -366,7 +352,7 @@ private:
         }
 
     private:
-        std::wostringstream m_oss;
+        tostringstream m_oss;
     };
 
     class FileError : public ParseError
@@ -405,7 +391,7 @@ private:
     BOOL ProcessValue();
 
     BOOL AcceptValue(const CParseTag* parseTag, unsigned char types,
-        char* value, unsigned long length);
+        TCHAR* value, unsigned long length);
 
     BOOL OpenTag(long tagIndex);
     BOOL CloseTag(BOOL openNext = FALSE);
@@ -441,25 +427,25 @@ private:
         DEBUG_OUT_EXPECT    = 3,
     };
 
-    void DebugOut(int level, const char* message, BOOL appendExpect = FALSE);
+    void DebugOut(int level, const TCHAR* message, BOOL appendExpect = FALSE);
     void DebugOut(int level, ParseError& error, BOOL appendExpect = FALSE);
 
 private:
     char*                        m_readBuffer;
-    size_t                        m_bufferPosition;
-    size_t                        m_bufferLength;
-    char                        m_newlineChar;
+    size_t                       m_bufferPosition;
+    size_t                       m_bufferLength;
+    TCHAR                        m_newlineChar;
 
     unsigned long                m_lineNumber;
-    char                        m_lineBuffer[MAX_LINE_LENGTH];
-    char*                        m_linePoint;
+    TCHAR                        m_lineBuffer[MAX_LINE_LENGTH];
+    TCHAR*                       m_linePoint;
 
-    ParseError                    m_parseError;
-    BOOL                        m_parseErrorSet;
-    int                            m_debugOutLevel;
+    ParseError                   m_parseError;
+    BOOL                         m_parseErrorSet;
+    int                          m_debugOutLevel;
     void*                        m_reportContext;
 
-    const CParseTag*            m_tagListEntry;
+    const CParseTag*             m_tagListEntry;
     CParseTag                    m_rootParent[2];
     std::list<ParseState>        m_parseStates;
 };

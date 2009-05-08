@@ -323,11 +323,6 @@ SOURCE=.\Dialogs.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Disasm.cpp
-# ADD CPP /Yu
-# End Source File
-# Begin Source File
-
 SOURCE=.\dshowsource\DSAudioDevicePage.cpp
 # ADD CPP /I ".."
 # End Source File
@@ -338,10 +333,6 @@ SOURCE=.\DScaler.cpp
 # Begin Source File
 
 SOURCE=.\DScaler.rc
-# End Source File
-# Begin Source File
-
-SOURCE=.\DScalerApp.cpp
 # End Source File
 # Begin Source File
 
@@ -481,10 +472,6 @@ SOURCE=.\GenericTuner.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\GradientStatic.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\HardwareDriver.cpp
 # End Source File
 # Begin Source File
@@ -498,10 +485,6 @@ SOURCE=.\HardwareSettings.cpp
 # Begin Source File
 
 SOURCE=.\HierarchicalConfigParser.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\HSListBox.cpp
 # End Source File
 # Begin Source File
 
@@ -521,19 +504,11 @@ SOURCE=.\IOutput.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ISetting.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ITuner.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\JpegHelper.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\list.cpp
 # End Source File
 # Begin Source File
 
@@ -694,31 +669,11 @@ SOURCE=.\Setting.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SettingConfig.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\SettingGroup.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\SettingHolder.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SettingKey.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SettingLimiter.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SettingObject.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SettingRepository.cpp
 # End Source File
 # Begin Source File
 
@@ -731,10 +686,6 @@ SOURCE=.\SettingsMaster.cpp
 # Begin Source File
 
 SOURCE=.\SettingsPerChannel.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SettingValue.cpp
 # End Source File
 # Begin Source File
 
@@ -859,10 +810,6 @@ SOURCE=.\ToolbarWindow.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\TreeSettingsAssociations.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\TreeSettingsDlg.cpp
 # End Source File
 # Begin Source File
@@ -876,10 +823,6 @@ SOURCE=.\TreeSettingsOleProperties.cpp
 # Begin Source File
 
 SOURCE=.\TreeSettingsPage.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\TreeSettingsSettingConfig.cpp
 # End Source File
 # Begin Source File
 
@@ -916,37 +859,6 @@ SOURCE=.\VBI_VPSdecode.cpp
 # Begin Source File
 
 SOURCE=.\VBI_WSSdecode.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\verstub.asm
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
-# Begin Custom Build
-IntDir=.\Debug
-InputPath=.\verstub.asm
-InputName=verstub
-
-"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	ml /c /Zd /coff /nologo /Fo$(IntDir)\$(InputName).obj $(InputPath)
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
-# Begin Custom Build
-IntDir=.\Release
-InputPath=.\verstub.asm
-InputName=verstub
-
-"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	ml /c /coff /nologo /Fo$(IntDir)\$(InputName).obj $(InputPath)
-
-# End Custom Build
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
@@ -1207,6 +1119,10 @@ SOURCE=.\DScaler.H
 # Begin Source File
 
 SOURCE=.\DScalerApp.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DScalerUtils.h
 # End Source File
 # Begin Source File
 
@@ -1855,11 +1771,6 @@ SOURCE=..\Release\SAA713xCards.ini
 # End Group
 # End Target
 # End Project
-# Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
-# 	2:5:Class:CSlider
-# 	2:10:HeaderFile:slider.h
-# 	2:8:ImplFile:slider.cpp
-# End Section
 # Section DScaler : {7BF80981-BF32-101A-8BBB-00AA00300CAB}
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
@@ -1868,4 +1779,9 @@ SOURCE=..\Release\SAA713xCards.ini
 # Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
 # 	2:21:DefaultSinkHeaderFile:slider.h
 # 	2:16:DefaultSinkClass:CSlider
+# End Section
+# Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
+# 	2:5:Class:CSlider
+# 	2:10:HeaderFile:slider.h
+# 	2:8:ImplFile:slider.cpp
 # End Section

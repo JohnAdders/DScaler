@@ -29,7 +29,7 @@ typedef struct
     int        recHeight;  /**< Equal to a TS_* height constant */
     tsFormat_t format;     /**< A FORMAT_* constant */
     DWORD      sizeLimit;  /**< The maximum size of each recorded file (0 = no limit) */
-    char       path[MAX_PATH + 1];
+    TCHAR      path[MAX_PATH + 1];
     FOURCC     fcc;        /**< The FOURCC of the video codec to use */
 } TS_OPTIONS;
 

@@ -38,10 +38,10 @@ public:
     CDSFileSource();
     virtual ~CDSFileSource();
 
-    void CreateSettings(LPCSTR IniSection);
+    void CreateSettings(LPCTSTR IniSection);
 
     BOOL IsAccessAllowed();
-    BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList);
+    BOOL OpenMediaFile(const tstring& FileName, BOOL NewPlayList);
 
     CSliderSetting* GetBrightness(){return NULL;};
     CSliderSetting* GetContrast(){return NULL;};
@@ -58,7 +58,7 @@ public:
     CSliderSetting* GetVDelay() {return NULL;};
     void SetAspectRatioData();
 
-    std::string GetStatus();
+    tstring GetStatus();
     void HandleTimerMessages(int TimerId);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
@@ -74,12 +74,12 @@ public:
     int  NumInputs(eSourceInputType InputType) { return 0; };
     BOOL SetInput(eSourceInputType InputType, int Nr) { return FALSE; };
     int GetInput(eSourceInputType InputType) { return -1; };
-    std::string GetInputName(eSourceInputType InputType, int Nr) { return ""; };
+    tstring GetInputName(eSourceInputType InputType, int Nr) { return _T(""); };
     BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
 
     void UpdateMenu();
     void SetMenu(HMENU hMenu);
-    std::string GetMenuLabel();
+    tstring GetMenuLabel();
 
     void Start();
 
@@ -95,7 +95,7 @@ protected:
 
 private:
     ///the file this source uses
-    std::string m_filename;
+    tstring m_filename;
 };
 
 #endif // !defined(AFX_DSFILESOURCE_H__C14F892B_5440_4F47_9EEE_EA140CA9534A__INCLUDED_)

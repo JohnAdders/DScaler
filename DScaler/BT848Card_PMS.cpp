@@ -78,7 +78,7 @@ void CBT848Card::InitPMSDeluxe()
     #ifdef _DEBUG
     if(m_SAA7118->GetVersion() > 0)
     {
-        m_SAA7118->DumpSettings("SAA7118_PMS.txt");
+        m_SAA7118->DumpSettings(_T("SAA7118_PMS.txt"));
     }
     #endif
 

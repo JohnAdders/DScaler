@@ -61,35 +61,35 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     case TUNER_USER_SETUP:
     case TUNER_ABSENT:
         m_Tuner = new CNoTuner();
-        m_TunerType = "None ";
+        m_TunerType = _T("None ");
         // There is nothing more to do with this tuner.
         return TRUE;
 
     case TUNER_MT2032:
         m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M);
-        m_TunerType = "MT2032 ";
+        m_TunerType = _T("MT2032 ");
         break;
     case TUNER_MT2032_PAL:
         m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B);
-        m_TunerType = "MT2032 ";
+        m_TunerType = _T("MT2032 ");
         break;
     case TUNER_MT2050:
         m_Tuner = new CMT2050(VIDEOFORMAT_NTSC_M);
-        m_TunerType = "MT2050 ";
+        m_TunerType = _T("MT2050 ");
         break;
     case TUNER_MT2050_PAL:
         m_Tuner = new CMT2050(VIDEOFORMAT_PAL_B);
-        m_TunerType = "MT2050 ";
+        m_TunerType = _T("MT2050 ");
         break;
     case TUNER_TDA8275:
         m_Tuner = new CTDA8275();
-        m_TunerType = "TDA8275 ";
+        m_TunerType = _T("TDA8275 ");
         break;
 
     default:
         // The rest are handled by CGenericTuner.
         m_Tuner = new CGenericTuner(tunerId);
-        m_TunerType = "Generic ";
+        m_TunerType = _T("Generic ");
         break;
     }
 
@@ -150,11 +150,11 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
             if (m_Tuner->InitializeTuner())
             {
                 bFoundTuner = TRUE;
-                m_TunerType += "@ I2C address 0x";
-                ostringstream oss;
-                oss << hex << setw(2) << setfill('0') << test;
+                m_TunerType += _T("@ I2C address 0x");
+                tostringstream oss;
+                oss << hex << setw(2) << setfill((TCHAR)'0') << test;
                 m_TunerType += oss.str();
-                LOG(1,"Tuner: Found at I2C address 0x%02x", test);
+                LOG(1,_T("Tuner: Found at I2C address 0x%02x"), test);
                 break;
             }
         }
@@ -168,10 +168,10 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 
     if (!bFoundTuner)
     {
-        LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF");
+        LOG(1,_T("Tuner: No tuner found at I2C addresses 0xC0-0xCF"));
 
         m_Tuner = new CNoTuner();
-        m_TunerType = "None ";
+        m_TunerType = _T("None ");
     }
     return bFoundTuner;
 }
@@ -184,7 +184,7 @@ SmartPtr<ITuner> CSAA7134Card::GetTuner() const
 }
 
 
-string CSAA7134Card::GetTunerType()
+tstring CSAA7134Card::GetTunerType()
 {
     return m_TunerType;
 }

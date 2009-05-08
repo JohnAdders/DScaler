@@ -41,89 +41,89 @@ CDShowBaseCrossbar::~CDShowBaseCrossbar()
 
 }
 
-std::string CDShowBaseCrossbar::GetInputName(long Index)
+tstring CDShowBaseCrossbar::GetInputName(long Index)
 {
     long type=GetInputType(Index);
 
     switch(type)
     {
     case PhysConn_Video_Tuner:
-        return "Video Tuner";
+        return _T("Video Tuner");
         break;
     case PhysConn_Video_Composite:
-        return "Video Composite";
+        return _T("Video Composite");
         break;
     case PhysConn_Video_SVideo:
-        return "Video SVideo";
+        return _T("Video SVideo");
         break;
     case PhysConn_Video_RGB:
-        return "Video RGB";
+        return _T("Video RGB");
         break;
     case PhysConn_Video_YRYBY:
-        return "Video YRYBY";
+        return _T("Video YRYBY");
         break;
     case PhysConn_Video_SerialDigital:
-        return "Video SerialDigital";
+        return _T("Video SerialDigital");
         break;
     case PhysConn_Video_ParallelDigital:
-        return "Video ParallelDigital";
+        return _T("Video ParallelDigital");
         break;
     case PhysConn_Video_SCSI:
-        return "Video SCSI";
+        return _T("Video SCSI");
         break;
     case PhysConn_Video_AUX:
-        return "Video AUX";
+        return _T("Video AUX");
         break;
     case PhysConn_Video_1394:
-        return "Video 1394";
+        return _T("Video 1394");
         break;
     case PhysConn_Video_USB:
-        return "Video USB";
+        return _T("Video USB");
         break;
     case PhysConn_Video_VideoDecoder:
-        return "Video Decoder";
+        return _T("Video Decoder");
         break;
     case PhysConn_Video_VideoEncoder:
-        return "Video Encoder";
+        return _T("Video Encoder");
         break;
     case PhysConn_Video_SCART:
-        return "Video SCART";
+        return _T("Video SCART");
         break;
     case PhysConn_Video_Black:
-        return "Video Black"; //what is this ???
+        return _T("Video Black"); //what is this ???
 
     case PhysConn_Audio_Tuner:
-        return "Audio Tuner";
+        return _T("Audio Tuner");
         break;
     case PhysConn_Audio_Line:
-        return "Audio Line";
+        return _T("Audio Line");
         break;
     case PhysConn_Audio_Mic:
-        return "Audio Mic";
+        return _T("Audio Mic");
         break;
     case PhysConn_Audio_AESDigital:
-        return "Audio AESDigital";
+        return _T("Audio AESDigital");
         break;
     case PhysConn_Audio_SPDIFDigital:
-        return "Audio SPDIFDigital";
+        return _T("Audio SPDIFDigital");
         break;
     case PhysConn_Audio_SCSI:
-        return "Audio SCSI";
+        return _T("Audio SCSI");
         break;
     case PhysConn_Audio_AUX:
-        return "Audio AUX";
+        return _T("Audio AUX");
         break;
     case PhysConn_Audio_1394:
-        return "Audio 1394";
+        return _T("Audio 1394");
         break;
     case PhysConn_Audio_USB:
-        return "Audio USB";
+        return _T("Audio USB");
         break;
     case PhysConn_Audio_AudioDecoder:
-        return "Audio Decoder";
+        return _T("Audio Decoder");
         break;
     default:
-        return "Unknown";
+        return _T("Unknown");
         break;
     }
 }

@@ -25,13 +25,13 @@
 
 typedef void * XML_HASH_PTR;
 typedef void * XML_HASH_PAYLOAD;
-typedef void (* XML_HASH_FREE_CB)( XML_HASH_PTR pHash, char * pPayload );
+typedef void (* XML_HASH_FREE_CB)( XML_HASH_PTR pHash, TCHAR*  pPayload );
 
 // ----------------------------------------------------------------------------
 // Function interface
 
-XML_HASH_PAYLOAD XmlHash_SearchEntry( XML_HASH_PTR pHash, const char * pStr );
-XML_HASH_PAYLOAD XmlHash_CreateEntry( XML_HASH_PTR pHash, const char * pStr, Bool * pIsNew );
+XML_HASH_PAYLOAD XmlHash_SearchEntry( XML_HASH_PTR pHash, const TCHAR*  pStr );
+XML_HASH_PAYLOAD XmlHash_CreateEntry( XML_HASH_PTR pHash, const TCHAR*  pStr, Bool * pIsNew );
 
 void XmlHash_Destroy( XML_HASH_PTR pHash, XML_HASH_FREE_CB pCb );
 XML_HASH_PTR XmlHash_Init( void );

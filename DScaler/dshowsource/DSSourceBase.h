@@ -65,10 +65,10 @@ public:
     CSliderSetting* GetVolume();
     CSliderSetting* GetBalance();
 
-    std::string IDString();
+    tstring IDString();
 
     //from CSettingsHolder
-    void CreateSettings(LPCSTR IniSection);
+    void CreateSettings(LPCTSTR IniSection);
     void ChannelChange(int PreChange, int OldChannel, int NewChannel) {};
 
     SmartPtr<ITuner> GetTuner() {return NULL;}
@@ -107,7 +107,7 @@ protected:
     ///used for measuring how long it takes for dscaler to process one field
     DWORD m_dwRendStartTime;
 
-    std::string m_IDString;
+    tstring m_IDString;
 
     SmartPtr<CStringSetting> m_AudioDevice;
 

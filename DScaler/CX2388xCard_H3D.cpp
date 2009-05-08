@@ -56,10 +56,10 @@ void CCX2388xCard::InitH3D()
 
     if(m_SAA7118->GetVersion() > 0)
     {
-        m_SAA7118->DumpSettings("SAA7118_H3D.txt");
+        m_SAA7118->DumpSettings(_T("SAA7118_H3D.txt"));
     }
 
-    FILE* hFile = fopen("FPGA.txt", "w");
+    FILE* hFile = _tfopen(_T("FPGA.txt"), _T("w"));
     if(!hFile)
     {
         return;
@@ -68,11 +68,11 @@ void CCX2388xCard::InitH3D()
     DWORD i;
     for(i = 0x390000; i <= 0x39000F; ++i)
     {
-        fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
+        _ftprintf(hFile, _T("%06x\t%02x\n"), i, ReadByte(i));
     }
     for(i = 0x39000d; i <= 0x390FFd; i += 0x10)
     {
-        fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
+        _ftprintf(hFile, _T("%06x\t%02x\n"), i, ReadByte(i));
     }
 
     fclose(hFile);
@@ -351,7 +351,7 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
     m_SAA7118->SetRegister(0x88,0x00);
     m_SAA7118->SetRegister(0x88,0x20);
 
-    FILE* hFile = fopen("FPGA.txt", "w");
+    FILE* hFile = _tfopen(_T("FPGA.txt"), _T("w"));
     if(!hFile)
     {
         return;
@@ -359,7 +359,7 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
 
     for(DWORD i(0x390000); i <= 0x39000F; ++i)
     {
-        fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
+        _ftprintf(hFile, _T("%06x\t%02x\n"), i, ReadByte(i));
     }
 
     fclose(hFile);

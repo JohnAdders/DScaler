@@ -47,7 +47,7 @@ public:
 class CDShowFileSource : public CDShowBaseSource
 {
 public:
-    CDShowFileSource(IGraphBuilder *pGraph, std::string filename);
+    CDShowFileSource(IGraphBuilder *pGraph, tstring filename);
     virtual ~CDShowFileSource();
 
     eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_FILE;}
@@ -55,10 +55,10 @@ public:
     BOOL IsConnected() {return m_bIsConnected;};
     long GetNumDroppedFrames(){return 0;};
 
-    std::string getFileName() {return m_file;}
+    tstring getFileName() {return m_file;}
 
 private:
-    std::string m_file;
+    tstring m_file;
     CComPtr<IBaseFilter> m_pFileSource;
     CComPtr<ICaptureGraphBuilder2> m_pBuilder;
     BOOL m_bIsConnected;

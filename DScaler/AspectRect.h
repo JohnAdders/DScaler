@@ -410,9 +410,9 @@ public:
         }
     }
 
-    void DebugDump(LPCSTR Desc)
+    void DebugDump(LPCTSTR Desc)
     {
-        LOG(2, "%s: L:%04i R:%04i T:%04i B:%04i [SA: %.4lf TA: %.4lf Adj:%.4lf]\n",Desc, left,right,top,bottom,sourceAspect(),targetAspect(),m_OutputAdjustment);
+        LOG(2, _T("%s: L:%04i R:%04i T:%04i B:%04i [SA: %.4lf TA: %.4lf Adj:%.4lf]\n"),Desc, left,right,top,bottom,sourceAspect(),targetAspect(),m_OutputAdjustment);
     }
 
 protected:

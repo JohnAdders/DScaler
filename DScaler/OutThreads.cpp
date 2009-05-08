@@ -168,7 +168,7 @@ void Stop_Thread()
 
         if (dwResult != WAIT_OBJECT_0)
         {
-            LOG(3,"Timeout waiting for YUVOutThread to exit, terminating it via TerminateThread()");
+            LOG(3,_T("Timeout waiting for YUVOutThread to exit, terminating it via TerminateThread()"));
             TerminateThread(g_hOutThread, 0);
         }
 
@@ -185,9 +185,9 @@ void Stop_Thread()
             // http://sourceforge.net/mailarchive/message.php?msg_id=5703600
 
             MessageBox(GetMainWnd(),
-                "The video thread failed to exit in a timely manner and was forcefully "
-                "terminated.  You may experience further problems.",
-                "Unexpected Error", MB_OK);
+                _T("The video thread failed to exit in a timely manner and was forcefully ")
+                _T("terminated.  You may experience further problems."),
+                _T("Unexpected Error"), MB_OK);
         }
     }
 }
@@ -253,17 +253,16 @@ void Toggle_Vertical_Flip()
 // at and have the ability to recreate results
 void SaveStreamSnapshot(TDeinterlaceInfo* pInfo)
 {
-    FILE* file = 0;
-    char name[13];
+    TCHAR name[13];
     int n = 0;
     int i = 0;
     int j;
-    struct stat st;
+    struct _stat st;
 
     while (n < 100)
     {
-        sprintf_s(name, 13, "sn%06d.dtv",++n) ;
-        if (stat(name, &st))
+        _sntprintf(name, 13,  _T("sn%06d.dtv"),++n) ;
+        if (_tstat(name, &st))
         {
             break;
         }
@@ -271,14 +270,14 @@ void SaveStreamSnapshot(TDeinterlaceInfo* pInfo)
 
     if(n == 100)
     {
-        ErrorBox("Could not create a file.  You may have too many snapshots already.");
+        ErrorBox(_T("Could not create a file.  You may have too many snapshots already."));
         return;
     }
 
-    fopen_s(&file, name, "wb");
+    FILE* file = _tfopen(name, _T("wb"));
     if (!file)
     {
-        ErrorBox("Could not open file in SaveStreamSnapshot");
+        ErrorBox(_T("Could not open file in SaveStreamSnapshot"));
         return;
     }
 
@@ -456,7 +455,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     int MultiPitch = 0;
     BOOL IsFirstInSeriesFlag = TRUE;
 
-    DScalerThread("YUV Out Thread");
+    DScalerThread thisThread(_T("YUV Out Thread"));
 
 #ifdef WANT_DSHOW_SUPPORT
     //com init for this thread
@@ -595,13 +594,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
             if (Info.bMissedFrame || Info.bRunningLate)
             {
-                LOG(2, "    Info.bMissedFrame %d - Info.bRunningLate %d", Info.bMissedFrame, Info.bRunningLate);
+                LOG(2, _T("    Info.bMissedFrame %d - Info.bRunningLate %d"), Info.bMissedFrame, Info.bRunningLate);
 #ifdef USE_PERFORMANCE_STATS
                 for (int i = 0 ; i < PERF_TYPE_LASTONE ; ++i)
                 {
                     if (pPerf->IsValid((ePerfType)i) && (pPerf->GetDurationLastCycle((ePerfType)i) != -1))
                     {
-                        LOG(2, "    %s : %d (avg %d)",
+                        LOG(2, _T("    %s : %d (avg %d)"),
                             pPerf->GetName((ePerfType)i),
                             pPerf->GetDurationLastCycle((ePerfType)i) * 10,
                             pPerf->GetAverageDuration((ePerfType)i));
@@ -629,14 +628,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 // Add the memory needed for the new snapshot
                 MemUsed += Info.OverlayPitch * Info.FrameHeight;
-                LOG(2, "MemUsed %d Mo", MemUsed / 1048576);
+                LOG(2, _T("MemUsed %d Mo"), MemUsed / 1048576);
 
                 // Check that the max is not reached
                 if ((MemUsed / 1048576) >= Setting_GetValue(WM_STILL_GETVALUE, MAXMEMFORSTILLS))
                 {
-                    char text[128];
+                    TCHAR text[128];
                     pAllocBuf = NULL;
-                    sprintf_s(text, 128, "Max memory (%d Mo) reached\nChange the maximum value or\nclose some open stills", Setting_GetValue(WM_STILL_GETVALUE, MAXMEMFORSTILLS));
+                    _sntprintf(text, 128, _T("Max memory (%d Mo) reached\nChange the maximum value or\nclose some open stills"), Setting_GetValue(WM_STILL_GETVALUE, MAXMEMFORSTILLS));
                     OSD_ShowText(text, 0);
                 }
                 else
@@ -644,7 +643,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     pAllocBuf = (BYTE*)malloc(Info.OverlayPitch * Info.FrameHeight + 16);
                     Info.Overlay = START_ALIGNED16(pAllocBuf);
                 }
-                LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
+                LOG(2, _T("Alloc for still - start buf %d, start frame %d"), pAllocBuf, Info.Overlay);
                 if (pAllocBuf == NULL)
                 {
                     Request.type = REQ_NONE;
@@ -673,7 +672,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // Vertical flipping support
                 // Here we change all the valid history so that the top line is the bottom one
                 // and the pitch is negative
-                // Note that we don't "own" these pictures but we have them for the time being
+                // Note that we don't _T("own") these pictures but we have them for the time being
                 // so make sure that we change them back after we use them
                 // so just in case the setting gets changes while we are using it
                 // we save the current value
@@ -876,7 +875,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             if(!GetActiveOutput()->Overlay_Lock_Back_Buffer(&Info, bUseExtraBuffer))
                             {
                                 Providers_GetCurrentSource()->Stop();
-                                LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
+                                LOG(1, _T("Falling out after Overlay_Lock_Back_Buffer"));
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_STOP, 0);
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_START, 0);
                                 return 1;
@@ -955,7 +954,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             if(!GetActiveOutput()->Overlay_Unlock_Back_Buffer(bUseExtraBuffer))
                             {
                                 Providers_GetCurrentSource()->Stop();
-                                LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
+                                LOG(1, _T("Falling out after Overlay_Unlock_Back_Buffer"));
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_STOP, 0);
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_START, 0);
                                 return 1;
@@ -1028,7 +1027,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             if(!GetActiveOutput()->Overlay_Flip(FlipFlag, bUseExtraBuffer, lpMultiBuffer, MultiPitch, &Info))
                             {
                                 Providers_GetCurrentSource()->Stop();
-                                LOG(1, "Falling out after Overlay_Flip");
+                                LOG(1, _T("Falling out after Overlay_Flip"));
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_STOP, 0);
                                 PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_START, 0);
                                 return 1;
@@ -1060,7 +1059,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
 #endif
                     }
-                    ErrorBox("Crash in output code. Restart DScaler.");
+                    ErrorBox(_T("Crash in output code. Restart DScaler."));
                     return 1;
                 }
 
@@ -1156,7 +1155,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 {
                     if (Request.param2 && Setting_GetValue(WM_STILL_GETVALUE, OSDFORSTILLS))
                     {
-                        OSD_ShowText("Still(s) in memory", 0);
+                        OSD_ShowText(_T("Still(s) in memory"), 0);
                     }
                     Request.type = REQ_NONE;
                 }
@@ -1205,7 +1204,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     catch(...)
     {
         Providers_GetCurrentSource()->Stop();
-        ErrorBox("Crash in OutThreads main loop. Restart DScaler.");
+        ErrorBox(_T("Crash in OutThreads main loop. Restart DScaler."));
         return 1;
     }
 
@@ -1217,7 +1216,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     // if there is any exception thrown then exit the thread
     catch(...)
     {
-        ErrorBox("Crash in in OutThreads Providers_GetCurrentSource()->Stop(). Restart DScaler.");
+        ErrorBox(_T("Crash in in OutThreads Providers_GetCurrentSource()->Stop(). Restart DScaler."));
         return 1;
     }
 

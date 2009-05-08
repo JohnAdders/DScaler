@@ -37,21 +37,21 @@
 #include "Providers.h"
 
 //XDSdecode
-char          Info[8][25][256];
-char          NewInfo[8][25][256];
-char*         pInfo = NewInfo[0][0];
+TCHAR         Info[8][25][256];
+TCHAR         NewInfo[8][25][256];
+TCHAR*         pInfo = NewInfo[0][0];
 int           Mode;
 int           Type;
 char          InfoCheckSum;
 
 //ccdecode
-char*         Ratings[] = {"(NOT RATED)","TV-Y","TV-Y7","TV-G","TV-PG","TV-14","TV-MA","(NOT RATED)"};
+TCHAR*         Ratings[] = {_T("(NOT RATED)"),_T("TV-Y"),_T("TV-Y7"),_T("TV-G"),_T("TV-PG"),_T("TV-14"),_T("TV-MA"),_T("(NOT RATED)")};
 int           RowData[] = {10,0,0,1,2,3,11,12,13,14,4,5,6,7,8,9};
-char*         SpecialChars[] = {"®","°","½","¿","™","¢","£","¶","à"," ","è","â","ê","î","ô","û"};
-char*         Modes[]={"current","future","channel","miscellanious","public service","reserved","invalid","invalid","invalid","invalid"};
+TCHAR*         SpecialChars[] = {_T("®"),_T("°"),_T("½"),_T("¿"),_T("™"),_T("¢"),_T("£"),_T("¶"),_T("à"),_T(" "),_T("è"),_T("â"),_T("ê"),_T("î"),_T("ô"),_T("û")};
+TCHAR*         Modes[]={_T("current"),_T("future"),_T("channel"),_T("miscellanious"),_T("public service"),_T("reserved"),_T("invalid"),_T("invalid"),_T("invalid"),_T("invalid")};
 int           LastCode;
 int           CCDisplayMode=1;       //cc1 or cc2
-char          CCBuf[3][256];      //cc is 32 columns per row, this allows for extra characters
+TCHAR         CCBuf[3][256];      //cc is 32 columns per row, this allows for extra characters
 
 int CC_Clock;
 int CC_Gap;
@@ -105,7 +105,7 @@ int parityok(int n) // check parity for 2 bytes packed in n
    return mask;
 }
 
-int decodebit(unsigned char* data, int threshold, int NumPixels)
+int decodebit(BYTE* data, int threshold, int NumPixels)
 {
     int i, sum = 0;
     for (i = 0; i < NumPixels; i++)
@@ -115,7 +115,7 @@ int decodebit(unsigned char* data, int threshold, int NumPixels)
     return (sum > threshold * NumPixels);
 }
 
-int FindClock(unsigned char* vbiline, int ClockPixels)
+int FindClock(BYTE* vbiline, int ClockPixels)
 {
     int i;
     DWORD MinTotal = 0;
@@ -149,7 +149,7 @@ int FindClock(unsigned char* vbiline, int ClockPixels)
     }
 }
 
-int decode(unsigned char* vbiline)
+int decode(BYTE* vbiline)
 {
     int i, tmp, packedbits = 0;
     int ClockMax = -1;
@@ -218,7 +218,7 @@ int XDSdecode(int data)
         InfoCheckSum = b1 + b2 + 15;
         if (Mode > 8 || Type > 20)
         {
-//          LOG(5, "%% Unsupported Mode %s(%d) [%d]\n",Modes[(Mode-1)>>1],Mode,Type);
+//          LOG(5, _T("%% Unsupported Mode %s(%d) [%d]\n"),Modes[(Mode-1)>>1],Mode,Type);
             Mode=0; Type=0;
         }
         pInfo = NewInfo[Mode][Type];
@@ -230,10 +230,10 @@ int XDSdecode(int data)
         {
             length=pInfo - NewInfo[0][0];
             pInfo[1]=0;
-            LOG(5, "LEN: %d\n",length);
+            LOG(5, _T("LEN: %d\n"),length);
             for (y=0;y<length;y++)
-                LOG(5, " %03d",NewInfo[0][0][y]);
-            LOG(5, " --- %s\n",NewInfo[0][0]);
+                LOG(5, _T(" %03d"),NewInfo[0][0][y]);
+            LOG(5, _T(" --- %s\n"),NewInfo[0][0]);
         }
 #endif
         if (Mode == 0) return 0;
@@ -243,48 +243,48 @@ int XDSdecode(int data)
 
         //don't bug the user with repeated data
         //only parse it if it's different
-        if (strncmp(Info[Mode][Type],NewInfo[Mode][Type],length-1))
+        if (_tcsncmp(Info[Mode][Type],NewInfo[Mode][Type],length-1))
         {
             pInfo = Info[Mode][Type];
             memcpy(Info[Mode][Type],NewInfo[Mode][Type],length+1);
-            LOG(5, "\33[33m%%");
+            LOG(5, _T("\33[33m%%"));
             switch ((Mode<<8) + Type)
             {
                 case 0x0101:
-                    LOG(5, "TIMECODE: %d/%02d %d:%02d",
+                    LOG(5, _T("TIMECODE: %d/%02d %d:%02d"),
                     pInfo[3]&0x0f,pInfo[2]&0x1f,pInfo[1]&0x1f,pInfo[0]&0x3f);
                 case 0x0102:
                     if ((pInfo[1]&0x3f)>5)
                         break;
-                    LOG(5, "LENGTH: %d:%02d:%02d of %d:%02d:00",
+                    LOG(5, _T("LENGTH: %d:%02d:%02d of %d:%02d:00"),
                     pInfo[3]&0x3f,pInfo[2]&0x3f,pInfo[4]&0x3f,pInfo[1]&0x3f,pInfo[0]&0x3f);
                     break;
                 case 0x0103:
                     pInfo[length] = 0;
-                    LOG(5, "TITLE: %s",pInfo);
+                    LOG(5, _T("TITLE: %s"),pInfo);
                     break;
                 case 0x0105:
-                    LOG(5, "RATING: %s (%d)",Ratings[pInfo[0]&0x07],pInfo[0]);
+                    LOG(5, _T("RATING: %s (%d)"),Ratings[pInfo[0]&0x07],pInfo[0]);
                     if ((pInfo[0]&0x07)>0)
                     {
-                        if (pInfo[0]&0x20) LOG(5, "VIOLENCE");
-                        if (pInfo[0]&0x10) LOG(5, "SEXUAL");
-                        if (pInfo[0]&0x08) LOG(5, "LANGUAGE");
+                        if (pInfo[0]&0x20) LOG(5, _T("VIOLENCE"));
+                        if (pInfo[0]&0x10) LOG(5, _T("SEXUAL"));
+                        if (pInfo[0]&0x08) LOG(5, _T("LANGUAGE"));
                     }
                     break;
                 case 0x0501:
                     pInfo[length] = 0;
-                    LOG(5, "NETWORK: %s",pInfo);
+                    LOG(5, _T("NETWORK: %s"),pInfo);
                     break;
                 case 0x0502:
                     pInfo[length] = 0;
-                    LOG(5, "CALL: %s",pInfo);
+                    LOG(5, _T("CALL: %s"),pInfo);
                     break;
                 case 0x0701:
-                    LOG(5, "CUR.TIME: %d:%02d %d/%02d/%04d UTC",pInfo[1]&0x1F,pInfo[0]&0x3f,pInfo[3]&0x0f,pInfo[2]&0x1f,(pInfo[5]&0x3f)+1990);
+                    LOG(5, _T("CUR.TIME: %d:%02d %d/%02d/%04d UTC"),pInfo[1]&0x1F,pInfo[0]&0x3f,pInfo[3]&0x0f,pInfo[2]&0x1f,(pInfo[5]&0x3f)+1990);
                     break;
                 case 0x0704: //timezone
-                    LOG(5, "TIMEZONE: UTC-%d",pInfo[0]&0x1f);
+                    LOG(5, _T("TIMEZONE: UTC-%d"),pInfo[0]&0x1f);
                     break;
                 case 0x0104: //program genere
                     break;
@@ -297,10 +297,10 @@ int XDSdecode(int data)
                 case 0x0116:
                 case 0x0117:
                     pInfo[length+1] = 0;
-                    LOG(5, "DESC: %s",pInfo);
+                    LOG(5, _T("DESC: %s"),pInfo);
                     break;
             }
-            LOG(5, "\33[0m\n");
+            LOG(5, _T("\33[0m\n"));
         }
         Mode = 0; Type = 0;
     }
@@ -313,12 +313,12 @@ int XDSdecode(int data)
     return 0;
 }
 
-void webtv_check(char* buf,int len)
+void webtv_check(TCHAR* buf,int len)
 {
     unsigned long   sum;
     unsigned long   nwords;
     unsigned short  csum=0;
-    char temp[9];
+    TCHAR temp[9];
     int nbytes=0;
 
     while (buf[0]!='<' && len > 6)  //search for the start
@@ -356,12 +356,12 @@ void webtv_check(char* buf,int len)
         sum = csum + (sum & 0xffff);
         csum = (unsigned short)(sum >> 16);
     }
-    sprintf(temp,"%04X\n",(int)~sum&0xffff);
+    _stprintf(temp,_T("%04X\n"),(int)~sum&0xffff);
     buf++;
-    if(!strncmp(buf,temp,4))
+    if(!_tcsncmp(buf,temp,4))
     {
         buf[5]=0;
-        LOG(5, "\33[35mWEBTV: %s\33[0m\n",buf-nbytes-1);
+        LOG(5, _T("\33[35mWEBTV: %s\33[0m\n"),buf-nbytes-1);
     }
 }
 
@@ -468,7 +468,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                 bCaptureText = FALSE;
                 return 0;
             }
-            len = strlen(CCBuf[CCDisplayMode]);
+            len = _tcslen(CCBuf[CCDisplayMode]);
 
             if (b2 & 0x40)  //preamble address code (row & indent)
             {
@@ -895,7 +895,7 @@ void CC_PaintChars(HWND hWnd, TCCChar* Char, wchar_t* szLine, HDC hDC, RECT* Pai
                                 0, 0, 0, 0,
                                 NONANTIALIASED_QUALITY,
                                 DEFAULT_PITCH | FF_DONTCARE,
-                                "Arial");
+                                _T("Arial"));
         if (!hOSDfont) return;
 
         hTmp = (HFONT)SelectObject(hDC, hOSDfont);

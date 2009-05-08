@@ -41,24 +41,24 @@ void RemoveFromRot(DWORD pdwRegister);
  * @param pGraph
  * @param text
  */
-void DumpGraph(IFilterGraph *pGraph,std::string &text);
+void DumpGraph(IFilterGraph *pGraph,tstring &text);
 
 /**
  * @param pFilter filter to dump
  * @param text textual description of filter
  */
-void DumpFilter(CComPtr<IBaseFilter> pFilter,std::string &text);
+void DumpFilter(CComPtr<IBaseFilter> pFilter,tstring &text);
 
 /**
  * Dumps the preferred mediatypes of all pins on a filter.
  * @param pFilter
  * @param text
  */
-void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,std::string &text);
+void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,tstring &text);
 
 /**
  * Decodes a AM_MEDIA_TYPE struct to text.
  * @param mt mediatype to dump
  * @param text textual description of the mediatype
  */
-void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text);
+void DumpMediaType(AM_MEDIA_TYPE *mt,tstring &text);

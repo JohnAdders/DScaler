@@ -36,7 +36,7 @@ class IMixerLineSrc
 {
 public:
     virtual ~IMixerLineSrc() {};
-    virtual const char* GetName() = 0;
+    virtual const TCHAR* GetName() = 0;
 
     virtual void        SetMute(BOOL bEnable) = 0;
     virtual BOOL        GetMute() = 0;
@@ -55,7 +55,7 @@ public:
     CMixerLineSrc(HMIXER hMixer, DWORD nDstIndex, DWORD nSrcIndex);
     virtual ~CMixerLineSrc();
 
-    const char* GetName();
+    const TCHAR* GetName();
 
     void        SetMute(BOOL bEnable);
     BOOL        GetMute();
@@ -91,7 +91,7 @@ class IMixerLineDst
 {
 public:
     virtual ~IMixerLineDst() {};
-    virtual const char*     GetName() = 0;
+    virtual const TCHAR*     GetName() = 0;
 
     virtual long            GetSourceCount() = 0;
     virtual IMixerLineSrc*  GetSourceLine(DWORD nIndex) = 0;
@@ -110,7 +110,7 @@ public:
     CMixerLineDst(HMIXER hMixer, DWORD nDstIndex);
     virtual ~CMixerLineDst();
 
-    const char*     GetName();
+    const TCHAR*     GetName();
 
     long            GetSourceCount();
     IMixerLineSrc*  GetSourceLine(DWORD nIndex);
@@ -133,7 +133,7 @@ class IMixer
 {
 public:
     virtual ~IMixer() {};
-    virtual const char*     GetName() = 0;
+    virtual const TCHAR*     GetName() = 0;
     virtual DWORD           GetIndex() = 0;
 
     virtual long            GetDestinationCount() = 0;
@@ -150,7 +150,7 @@ public:
     CMixer(DWORD nMixerIndex);
     virtual ~CMixer();
 
-    const char*     GetName();
+    const TCHAR*     GetName();
     DWORD           GetIndex();
 
     long            GetDestinationCount();
@@ -175,7 +175,7 @@ class CMixerList
 public:
     long GetMixerCount();
     IMixer* GetMixer(long nMixerIndex);
-    long FindMixer(const char* MixerName);
+    long FindMixer(const tstring& MixerName);
     static CMixerList* getInstance();
 private:
     CMixerList();

@@ -84,7 +84,7 @@ void CBT848Card::AtlasInputSelect(int nInput)
         StandardBT848InputSelect(nInput);
     }
     #ifdef _DEBUG
-    LOG(1, "AtlasInputSelect()");
+    LOG(1, _T("AtlasInputSelect()"));
     #endif
 }
 
@@ -119,7 +119,7 @@ void CBT848Card::SetAtlasFormat(int nInput, eVideoFormat TVFormat)
     #ifdef _DEBUG
     if(m_AD9882->GetVersion() > 0)
     {
-        m_AD9882->DumpSettings("AD9882_Atlas.txt");
+        m_AD9882->DumpSettings(_T("AD9882_Atlas.txt"));
     }
     #endif
     // configure Bt878 to pass through the data

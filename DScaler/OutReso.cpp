@@ -164,7 +164,7 @@ void OutReso_UpdateMenu(HMENU hMenu)
     int        lastWidth = 1;
     int        lastHeight = 1;
     int        lastDepth = 1;
-    char    szTmp[20] = "\0";
+    TCHAR   szTmp[20] = _T("\0");
 
     int        i, j, n, pixel = 2, depth = 0;
 
@@ -174,15 +174,15 @@ void OutReso_UpdateMenu(HMENU hMenu)
         return;
     }
 
-    // Add "Do nothing" and seperator
+    // Add _T("Do nothing") and seperator
 
-    AppendMenu(hMenuReso, MF_STRING, IDM_OUTPUTRESO, "Don't change");
+    AppendMenu(hMenuReso, MF_STRING, IDM_OUTPUTRESO, _T("Don't change"));
     AppendMenu(hMenuReso, MF_SEPARATOR, 0, NULL);
     j = 1;
 
-    // Add "Use PowerStrip resolution"
+    // Add _T("Use PowerStrip resolution")
 
-    AppendMenu(hMenuReso, MF_STRING, IDM_OUTPUTRESO + 1, "Use PowerStrip resolution");
+    AppendMenu(hMenuReso, MF_STRING, IDM_OUTPUTRESO + 1, _T("Use PowerStrip resolution"));
     resSettings[1].bSupported = TRUE;
     pixel++;
     j++;
@@ -217,7 +217,7 @@ void OutReso_UpdateMenu(HMENU hMenu)
 
             if (lastWidth != resSettings[i].intResWidth  ||  lastHeight != resSettings[i].intResHeight)
             {
-                sprintf(szTmp, "%dx%d", resSettings[i].intResWidth, resSettings[i].intResHeight);
+                _stprintf(szTmp, _T("%dx%d"), resSettings[i].intResWidth, resSettings[i].intResHeight);
                 hMenuPixel = CreateMenu();
                 InsertMenu(hMenuReso, -1, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT) hMenuPixel, szTmp);
                 pixel++;
@@ -227,13 +227,13 @@ void OutReso_UpdateMenu(HMENU hMenu)
 
             if (lastDepth != resSettings[i].intResDepth)
             {
-                sprintf(szTmp, "%d bit", resSettings[i].intResDepth);
+                _stprintf(szTmp, _T("%d bit"), resSettings[i].intResDepth);
                 hMenuDepth = CreateMenu();
                 InsertMenu(hMenuPixel, -1, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT) hMenuDepth, szTmp);
                 depth++;
             }
 
-            sprintf(szTmp, "%d Hz", resSettings[i].intResFreq);
+            _stprintf(szTmp, _T("%d Hz"), resSettings[i].intResFreq);
             AppendMenu(hMenuDepth, Flags, IDM_OUTPUTRESO + j, szTmp);
             j++;
 
@@ -252,7 +252,7 @@ void OutReso_UpdateMenu(HMENU hMenu)
         }
     }
 
-    // Update the value for the RESOFULLSCREEN setting to "none"
+    // Update the value for the RESOFULLSCREEN setting to _T("none")
     // if the current value is greater than the number of items in menu
     if (Setting_GetValue(WM_DSCALER_GETVALUE, RESOFULLSCREEN) > (j-1))
     {
@@ -315,7 +315,7 @@ BOOL ProcessOutResoSelection(HWND hWnd, WORD wMenuID)
     return FALSE;
 }
 
-void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCaptureRunning, LPSTR lTimingString, BOOL bApplyPStripTimingString)
+void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCaptureRunning, LPTSTR lTimingString, BOOL bApplyPStripTimingString)
 {
     if (OutputReso == 0)
         return;
@@ -330,16 +330,16 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
     {
         BOOL changeRes = FALSE;
 
-        // Get the actual PStrip timing string
-        ATOM pActualPStripTimingString = (ATOM)SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0);
-        LPSTR lActualPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];
-        GlobalGetAtomName(pActualPStripTimingString, lActualPStripTimingString, PSTRIP_TIMING_STRING_SIZE);
-        GlobalDeleteAtom(pActualPStripTimingString);
+        // Get the actual PStrip timing tstring
+        ATOM pActuaPstripTimingString = (ATOM)SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0);
+        LPTSTR lActuaPstripTimingString = new TCHAR[PSTRIP_TIMING_STRING_SIZE];
+        GlobalGetAtomName(pActuaPstripTimingString, lActuaPstripTimingString, PSTRIP_TIMING_STRING_SIZE);
+        GlobalDeleteAtom(pActuaPstripTimingString);
 
         ATOM aPStripTimingATOM = NULL;
         if((lTimingString != NULL) && (bApplyPStripTimingString))
         {
-            if(lTimingString != lActualPStripTimingString)
+            if(lTimingString != lActuaPstripTimingString)
             {
                 aPStripTimingATOM = GlobalAddAtom(lTimingString);
                 changeRes = TRUE;
@@ -355,18 +355,20 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
                 || (videoFormat == VIDEOFORMAT_PAL_I) || (videoFormat == VIDEOFORMAT_PAL_M) || (videoFormat == VIDEOFORMAT_PAL_N)
                 || (videoFormat == VIDEOFORMAT_PAL_60) || (videoFormat == VIDEOFORMAT_PAL_N_COMBO))
             {
-                if(PStrip576i && _stricmp(PStrip576i, lActualPStripTimingString) != 0)
+                if(PStrip576i && !AreEqualInsensitive((LPCTSTR)PStrip576i, lActuaPstripTimingString))
                 {
-                    aPStripTimingATOM = GlobalAddAtom(PStrip576i);
+                    tstring AtomString(PStrip576i);
+                    aPStripTimingATOM = GlobalAddAtom(AtomString.c_str());
                     changeRes = TRUE;
                 }
             }
             // 480i_50Hz and 480i_60Hz
             else if((videoFormat == VIDEOFORMAT_NTSC_M) || (videoFormat == VIDEOFORMAT_NTSC_M_Japan) || (videoFormat == VIDEOFORMAT_NTSC_50))
             {
-                if(PStrip480i && _stricmp(PStrip480i, lActualPStripTimingString) != 0)
+                if(PStrip480i && !AreEqualInsensitive((LPCTSTR)PStrip480i, lActuaPstripTimingString))
                 {
-                    aPStripTimingATOM = GlobalAddAtom(PStrip480i);
+                    tstring AtomString(PStrip480i);
+                    aPStripTimingATOM = GlobalAddAtom(AtomString.c_str());
                     changeRes = TRUE;
                 }
             }
@@ -389,7 +391,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
                 }
             }
 
-            // Apply the PowerStrip timing string
+            // Apply the PowerStrip timing tstring
             // If the PostMessage is successfull, the Atom is automatically deleted
             if(aPStripTimingATOM != NULL)
             {
@@ -412,7 +414,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
                 }
             }
         }
-        delete lActualPStripTimingString;
+        delete lActuaPstripTimingString;
     }
     else
     {

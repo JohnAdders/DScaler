@@ -105,7 +105,7 @@ BOOL Filter_WillWeDoOutput()
 }
 
 
-void LoadFilterPlugin(LPCSTR szFileName)
+void LoadFilterPlugin(LPCTSTR szFileName)
 {
     DynamicFunctionC1<FILTER_METHOD*, long> GetFilterPluginInfo(szFileName, "GetFilterPluginInfo");
     FILTER_METHOD* pMethod;
@@ -138,12 +138,12 @@ void LoadFilterPlugin(LPCSTR szFileName)
         }
         else
         {
-            LOG(1, "Plugin %s obsolete", szFileName);
+            LOG(1, _T("Plugin %s obsolete"), szFileName);
         }
     }
     else
     {
-        LOG(1, "Plugin %s not compatible with your CPU", szFileName);
+        LOG(1, _T("Plugin %s not compatible with your CPU"), szFileName);
     }
 }
 
@@ -172,11 +172,11 @@ void AddUIForFilterPlugin(HMENU hFilterMenu, FILTER_METHOD* FilterMethod, int Me
     }
     if(FilterMethod->szMenuName != NULL)
     {
-        AppendMenu(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szMenuName);
+        AppendMenuA(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szMenuName);
     }
     else
     {
-        AppendMenu(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szName);
+        AppendMenuA(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szName);
     }
 }
 
@@ -227,7 +227,7 @@ void SortFilterPlugins()
         }
     }
 
-    LOG(2, "Filter order:");
+    LOG(2, _T("Filter order:"));
     for(int i = 0; i < NumFilters; i++)
     {
         LOG(2, "  - %s", Filters[i]->szName);
@@ -240,7 +240,7 @@ BOOL LoadFilterPlugins()
     HANDLE hFindFile;
     int i;
 
-    hFindFile = FindFirstFile("FLT_*.dll", &FindFileData);
+    hFindFile = FindFirstFile(_T("FLT_*.dll"), &FindFileData);
 
     if (hFindFile != INVALID_HANDLE_VALUE)
     {
@@ -252,16 +252,16 @@ BOOL LoadFilterPlugins()
             // FLT_bogus.dllasdf will be found when searching for FLT_*.dll since it's short
             // file name is FLT_bo~1.dll
 
-            if(_stricmp(".dll", &FindFileData.cFileName[strlen(FindFileData.cFileName)-4]) == 0)
+            if(_tcsicmp(_T(".dll"), &FindFileData.cFileName[_tcslen(FindFileData.cFileName)-4]) == 0)
             {
                 try
                 {
-                    LOG(1, "Loading %s ...", FindFileData.cFileName);
+                    LOG(1, _T("Loading %s ..."), FindFileData.cFileName);
                     LoadFilterPlugin(FindFileData.cFileName);
                 }
                 catch(...)
                 {
-                    LOG(1, "Crash Loading %s", FindFileData.cFileName);
+                    LOG(1, _T("Crash Loading %s"), FindFileData.cFileName);
                 }
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
@@ -280,7 +280,7 @@ BOOL LoadFilterPlugins()
             return FALSE;
         }
 
-        AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, "             Input Filters");
+        AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, _T("             Input Filters"));
         for(i = 0; i < NumFilters; i++)
         {
             if(Filters[i]->bOnInput)
@@ -288,8 +288,8 @@ BOOL LoadFilterPlugins()
                 AddUIForFilterPlugin(hFilterMenu, Filters[i], 7000 + i);
             }
         }
-        AppendMenu(hFilterMenu, MF_SEPARATOR, 0, "");
-        AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, "             Output Filters");
+        AppendMenu(hFilterMenu, MF_SEPARATOR, 0, _T(""));
+        AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, _T("             Output Filters"));
         for(i = 0; i < NumFilters; i++)
         {
             if(!Filters[i]->bOnInput)
@@ -308,34 +308,34 @@ BOOL LoadFilterPlugins()
 BOOL ProcessFilterSelection(HWND hWnd, WORD wMenuID)
 {
     int i;
-    char szText[256];
     for(i = 0; i < NumFilters; i++)
     {
         if(wMenuID == Filters[i]->MenuId)
         {
+            tstring Text(MBCSToTString(Filters[i]->szName));
             Filters[i]->bActive = !Filters[i]->bActive;
             if(Filters[i]->bActive)
             {
-                sprintf(szText, "%s ON", Filters[i]->szName);
+                Text += _T(" ON");
             }
             else
             {
-                sprintf(szText, "%s OFF", Filters[i]->szName);
+                Text += _T(" OFF");
             }
-            OSD_ShowText(szText, 0);
+            OSD_ShowText(Text, 0);
             return TRUE;
         }
     }
     return FALSE;
 }
 
-void GetFilterSettings(vector< SmartPtr<CSettingsHolder> >& Holders, vector< string >& Names)
+void GetFilterSettings(vector< SmartPtr<CSettingsHolder> >& Holders, vector< tstring >& Names)
 {
     Holders = FilterHolders;
     Names.clear();
     for(int i(0); i < NumFilters; i++)
     {
-        Names.push_back(Filters[i]->szName);
+        Names.push_back(MBCSToTString(Filters[i]->szName));
     }
 }
 
@@ -354,17 +354,15 @@ void Filter_SetMenu(HMENU hMenu)
 
 void RegisterSettings(SmartPtr<CSettingsHolder> Holder, FILTER_METHOD* Filter)
 {
-    char szDescription[100];
-
-    sprintf(szDescription,"Flt On Off - %s",Filter->szName);
+    tstring szDescription(_T("Flt On Off - ") + MBCSToTString(Filter->szName));
 
     int iOnOffSetting = -1;
 
-    CSettingGroup* pOnOffGroup = SettingsMaster->GetGroup(szDescription, SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup* pOnOffGroup = SettingsMaster->GetGroup(szDescription.c_str(), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
-    sprintf(szDescription,"Flt Settings - %s",Filter->szName);
+    szDescription = _T("Flt Settings - ") + MBCSToTString(Filter->szName);
 
-    CSettingGroup* pSettingsGroup = SettingsMaster->GetGroup(szDescription, SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup* pSettingsGroup = SettingsMaster->GetGroup(szDescription.c_str(), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
     int i;
 

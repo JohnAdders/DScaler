@@ -28,7 +28,7 @@
 // CTreeSettingsPage dialog
 using namespace std;
 
-CTreeSettingsPage::CTreeSettingsPage(const string& TreeName, UINT nIDTemplate): 
+CTreeSettingsPage::CTreeSettingsPage(const tstring& TreeName, UINT nIDTemplate): 
     CDSDialog(MAKEINTRESOURCE(nIDTemplate)),
     m_name(TreeName),
     m_HeaderName(TreeName),
@@ -38,7 +38,7 @@ CTreeSettingsPage::CTreeSettingsPage(const string& TreeName, UINT nIDTemplate):
 {
 }
 
-CTreeSettingsPage::CTreeSettingsPage(const string& TreeName,const string& HeaderName,UINT nIDTemplate) :
+CTreeSettingsPage::CTreeSettingsPage(const tstring& TreeName,const tstring& HeaderName,UINT nIDTemplate) :
             CDSDialog(MAKEINTRESOURCE(nIDTemplate)),
             m_name(TreeName),
             m_HeaderName(HeaderName),

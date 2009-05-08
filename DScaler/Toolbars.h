@@ -139,9 +139,9 @@ private:
 public:
     CToolbar1Bar(CToolbarWindow *pToolbar);
     ~CToolbar1Bar();
-    HWND Create(LPCSTR lpClassName, HINSTANCE hResourceInst);
+    HWND Create(LPCTSTR lpClassName, HINSTANCE hResourceInst);
     LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    BOOL LoadSkin(const char *szSkinIniFile, const char *szSection, std::vector<int> *Results);
+    BOOL LoadSkin(const TCHAR* szSkinIniFile, const TCHAR* szSection, std::vector<int> *Results);
     void ClearSkin();
     void Reset();
     HWND GethWndPicture() { return hWndPicture; }
@@ -150,7 +150,7 @@ public:
 
 
 //Toolbar management
-void SetToolbars(HWND hWnd, LPCSTR szSkinName);
+void SetToolbars(HWND hWnd, LPCTSTR szSkinName);
 void UpdateToolbars(HWND hWnd, BOOL bRedraw);
 void Toolbars_UpdateMenu(HMENU hMenu);
 BOOL ProcessToolbar1Selection(HWND hWnd, UINT uItem);

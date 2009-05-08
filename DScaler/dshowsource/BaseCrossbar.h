@@ -67,7 +67,7 @@ public:
      * @param Index input number
      * @return Name of input
      */
-    virtual std::string GetInputName(long Index);
+    virtual tstring GetInputName(long Index);
 
     /**
      * Select input.

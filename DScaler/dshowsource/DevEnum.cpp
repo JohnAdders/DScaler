@@ -92,13 +92,13 @@ BOOL CDShowDevEnum::getNext()
         {
             USES_CONVERSION;
 
-            m_DisplayName = szDisplayName ? OLE2T(szDisplayName) : "";
+            m_DisplayName = szDisplayName ? OLE2T(szDisplayName) : _T("");
             CoTaskMemFree(szDisplayName);
         }
         else
         {
             //sätt den till en tom sträng om de blev fel
-            m_DisplayName="";
+            m_DisplayName=_T("");
         }
 
         return TRUE;
@@ -121,15 +121,8 @@ void CDShowDevEnum::createSysEnum()
     }
 }
 
-void CDShowDevEnum::createDevice(string displayName,REFIID interf, void *device)
+void CDShowDevEnum::createDevice(tstring displayName,REFIID interf, void *device)
 {
-    WCHAR *name;
-
-    //covert to wide char
-    int n=MultiByteToWideChar(CP_ACP, 0, displayName.c_str(), -1, NULL, 0);
-    name=new WCHAR[n];
-    MultiByteToWideChar(CP_ACP, 0, displayName.c_str(), -1, name, n);
-
     //try to create a moniker
     CComPtr<IBindCtx> pBC;
     CComPtr<IMoniker> pmDev;
@@ -137,44 +130,36 @@ void CDShowDevEnum::createDevice(string displayName,REFIID interf, void *device)
     if(SUCCEEDED(hr))
     {
         DWORD dwEaten;
-        hr = MkParseDisplayName(pBC, name, &dwEaten, &pmDev);
+        hr = MkParseDisplayName(pBC, TStringToUnicode(displayName).c_str(), &dwEaten, &pmDev);
 
         if(FAILED(hr))
         {
-            delete [] name;
             throw CDShowDevEnumException("createDevice: cant create moniker",hr);
         }
     }
     hr = pmDev->BindToObject(0, 0, interf, (void**)device);
     if(FAILED(hr))
     {
-        delete [] name;
         throw CDShowDevEnumException("createDevice: BindToObject failed",hr);
     }
-
-    delete [] name;
-
 }
 
-string CDShowDevEnum::getProperty(string szName)
+tstring CDShowDevEnum::getProperty(tstring szName)
 {
-    USES_CONVERSION;
-
     VARIANT varProperty;
     HRESULT hr;
-    LPCOLESTR oleProperty=T2OLE(szName.c_str());
     varProperty.vt = VT_BSTR;
-    hr = m_pPropBag->Read(oleProperty, &varProperty, 0);
+    hr = m_pPropBag->Read(TStringToUnicode(szName).c_str(), &varProperty, 0);
     if(SUCCEEDED(hr))
     {
-        string tmp(OLE2T(varProperty.bstrVal));
+        tstring tmp(UnicodeToTString(varProperty.bstrVal));
         SysFreeString(varProperty.bstrVal);
         return tmp;
     }
     else
     {
         //shoud probably use an exception insted
-        return "";
+        return _T("");
     }
 }
 

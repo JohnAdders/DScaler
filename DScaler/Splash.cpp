@@ -53,7 +53,7 @@ BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             int Width = ScreenRect.right  - ScreenRect.left;
             int Height = ScreenRect.bottom - ScreenRect.top;
             hSplashBm = (HBITMAP)LoadImage(hDScalerInst, MAKEINTRESOURCE(IDB_STARTUP), IMAGE_BITMAP, 0, 0, LR_VGACOLOR);
-            GetObject(hSplashBm, sizeof(BITMAP), (LPSTR) &bm);
+            GetObject(hSplashBm, sizeof(BITMAP), (LPTSTR) &bm);
 
             SetWindowPos(hDlg, HWND_TOPMOST,
                 ScreenRect.left + (Width - bm.bmWidth) / 2,
@@ -107,7 +107,7 @@ void HideSplashScreen()
 }
 
 
-void AddSplashTextLine(const char* szText)
+void AddSplashTextLine(const TCHAR* szText)
 {
     if(SplashWnd)
     {

@@ -404,7 +404,7 @@ CJpegHelper::CJpegHelper(CStillSource* pParent) :
 {
 }
 
-BOOL CJpegHelper::OpenMediaFile(const string& FileName)
+BOOL CJpegHelper::OpenMediaFile(const tstring& FileName)
 {
     int h, w, i, j;
     BYTE* pFrameBuf = NULL;
@@ -423,7 +423,7 @@ BOOL CJpegHelper::OpenMediaFile(const string& FileName)
     jmp_buf jmp_mark;
 
     // Open the input stream (file)
-    if ((infile = fopen(FileName.c_str(), "rb")) == NULL)
+    if ((infile = _tfopen(FileName.c_str(), _T("rb"))) == NULL)
     {
         return FALSE;
     }
@@ -462,25 +462,25 @@ BOOL CJpegHelper::OpenMediaFile(const string& FileName)
     // Call jpeg_read_header() to obtain image info
     (void)jpeg_read_header(&cinfo, TRUE);
 
-    LOG(2, "image_height %d - image_width %d", cinfo.image_height, cinfo.image_width);
-    LOG(2, "num_components %d", cinfo.num_components);
-    LOG(2, "jpeg_color_space %d", cinfo.jpeg_color_space);
-    LOG(2, "out_color_space %d", cinfo.out_color_space);
-    LOG(2, "scale_num %u", cinfo.scale_num);
-    LOG(2, "scale_denom %u", cinfo.scale_denom);
-    LOG(2, "output_gamma %f", cinfo.output_gamma);
+    LOG(2, _T("image_height %d - image_width %d"), cinfo.image_height, cinfo.image_width);
+    LOG(2, _T("num_components %d"), cinfo.num_components);
+    LOG(2, _T("jpeg_color_space %d"), cinfo.jpeg_color_space);
+    LOG(2, _T("out_color_space %d"), cinfo.out_color_space);
+    LOG(2, _T("scale_num %u"), cinfo.scale_num);
+    LOG(2, _T("scale_denom %u"), cinfo.scale_denom);
+    LOG(2, _T("output_gamma %f"), cinfo.output_gamma);
 
-    m_pParent->m_Comments = "";
+    m_pParent->m_Comments = _T("");
     pMarker = cinfo.marker_list;
     while (pMarker != NULL)
     {
-        LOG(2, "marker %d", pMarker->marker);
+        LOG(2, _T("marker %d"), pMarker->marker);
         // Check that the marker is a DScaler marker
         if (!strncmp((char*)pMarker->data, "DScaler", 7))
         {
             if (pMarker->marker == JPEG_APP0+1)
             {
-                m_pParent->m_Comments.assign((char*)pMarker->data, pMarker->data_length);
+                m_pParent->m_Comments.assign((char*)pMarker->data, (char*)pMarker->data + pMarker->data_length);
             }
             else if ( (pMarker->marker == JPEG_APP0+2)
               && ! strncmp((char*)pMarker->data, SQUARE_MODE_OFF, pMarker->data_length) )
@@ -503,10 +503,10 @@ BOOL CJpegHelper::OpenMediaFile(const string& FileName)
     // Start decompression
     (void)jpeg_start_decompress(&cinfo);
 
-    LOG(2, "output_height %d - output_width %d", cinfo.output_height, cinfo.output_width);
-    LOG(2, "out_color_components %d", cinfo.out_color_components);
-    LOG(2, "output_components %d", cinfo.output_components);
-    LOG(2, "rec_outbuf_height %d", cinfo.rec_outbuf_height);
+    LOG(2, _T("output_height %d - output_width %d"), cinfo.output_height, cinfo.output_width);
+    LOG(2, _T("out_color_components %d"), cinfo.out_color_components);
+    LOG(2, _T("output_components %d"), cinfo.output_components);
+    LOG(2, _T("rec_outbuf_height %d"), cinfo.rec_outbuf_height);
 
     buffer_height = cinfo.rec_outbuf_height;
     buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, cinfo.output_width * cinfo.output_components, buffer_height);
@@ -584,7 +584,7 @@ BOOL CJpegHelper::OpenMediaFile(const string& FileName)
 }
 
 
-void CJpegHelper::SaveSnapshot(const string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const string& Context)
+void CJpegHelper::SaveSnapshot(const tstring& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const tstring& Context)
 {
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -603,7 +603,7 @@ void CJpegHelper::SaveSnapshot(const string& FilePath, int Height, int Width, BY
     }
 
     // Open the output stream (file)
-    if ((outfile = fopen(FilePath.c_str(), "wb")) == NULL)
+    if ((outfile = _tfopen(FilePath.c_str(), _T("wb"))) == NULL)
     {
         free(pLineBuf);
         return;

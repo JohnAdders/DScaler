@@ -31,15 +31,15 @@
 CTDA9874AudioDecoder::ANInfo CTDA9874AudioDecoder::m_TDA9874Standards[] =
 {
     // First NICAM, because autodetection works better
-    {"NICAM I",        TDA9874_STANDARD_I_DIGITAL_FM_NICAM,    CFREQ(6.0),CFREQ(6.552),0x08,0x00,0x00,TRUE ,FALSE}, // Dematrix is Mono so NICAM reverts to Mono if BER is high
-    {"NICAM BG",    TDA9874_STANDARD_BG_DIGITAL_FM_NICAM,    CFREQ(5.5),CFREQ(5.85 ),0x08,0x00,0x00,TRUE ,FALSE},
-    {"NICAM DK",    TDA9874_STANDARD_DK_DIGITAL_FM_NICAM,    CFREQ(6.5),CFREQ(5.85 ),0x08,0x00,0x00,TRUE ,FALSE},
-    {"A2 M (Korea)",TDA9874_STANDARD_M_ANALOG_FM_FM,        CFREQ(4.5),CFREQ(4.724),0x20,0x22,0x05,FALSE,FALSE},
-    {"A2 BG",        TDA9874_STANDARD_BG_ANALOG_FM_FM,        CFREQ(5.5),CFREQ(5.742),0x00,0x00,0x04,FALSE,FALSE},
-    {"A2 DK (1)",    TDA9874_STANDARD_DK1_ANALOG_FM_FM,        CFREQ(6.5),CFREQ(6.258),0x00,0x00,0x04,FALSE,FALSE},
-    {"A2 DK (2)",    TDA9874_STANDARD_DK2_ANALOG_FM_FM,        CFREQ(6.5),CFREQ(6.742),0x00,0x00,0x04,FALSE,FALSE},
-    {"A2 DK (3)",    TDA9874_STANDARD_DK3_ANALOG_FM_FM,        CFREQ(6.5),CFREQ(5.742),0x00,0x00,0x04,FALSE,FALSE},
-    {"NICAM AM",    TDA9874_STANDARD_L_DIGITAL_AM_NICAM,    CFREQ(6.5),CFREQ(5.85 ),0x09,0x00,0x00,TRUE ,TRUE },
+    {_T("NICAM I"),        TDA9874_STANDARD_I_DIGITAL_FM_NICAM,    CFREQ(6.0),CFREQ(6.552),0x08,0x00,0x00,TRUE ,FALSE}, // Dematrix is Mono so NICAM reverts to Mono if BER is high
+    {_T("NICAM BG"),    TDA9874_STANDARD_BG_DIGITAL_FM_NICAM,    CFREQ(5.5),CFREQ(5.85 ),0x08,0x00,0x00,TRUE ,FALSE},
+    {_T("NICAM DK"),    TDA9874_STANDARD_DK_DIGITAL_FM_NICAM,    CFREQ(6.5),CFREQ(5.85 ),0x08,0x00,0x00,TRUE ,FALSE},
+    {_T("A2 M (Korea)"),TDA9874_STANDARD_M_ANALOG_FM_FM,        CFREQ(4.5),CFREQ(4.724),0x20,0x22,0x05,FALSE,FALSE},
+    {_T("A2 BG"),        TDA9874_STANDARD_BG_ANALOG_FM_FM,        CFREQ(5.5),CFREQ(5.742),0x00,0x00,0x04,FALSE,FALSE},
+    {_T("A2 DK (1)"),    TDA9874_STANDARD_DK1_ANALOG_FM_FM,        CFREQ(6.5),CFREQ(6.258),0x00,0x00,0x04,FALSE,FALSE},
+    {_T("A2 DK (2)"),    TDA9874_STANDARD_DK2_ANALOG_FM_FM,        CFREQ(6.5),CFREQ(6.742),0x00,0x00,0x04,FALSE,FALSE},
+    {_T("A2 DK (3)"),    TDA9874_STANDARD_DK3_ANALOG_FM_FM,        CFREQ(6.5),CFREQ(5.742),0x00,0x00,0x04,FALSE,FALSE},
+    {_T("NICAM AM"),    TDA9874_STANDARD_L_DIGITAL_AM_NICAM,    CFREQ(6.5),CFREQ(5.85 ),0x09,0x00,0x00,TRUE ,TRUE },
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ void CTDA9874AudioDecoder::SetChipStandard(BOOL FastCheck)
 // Function to change audio mode
 void CTDA9874AudioDecoder::SetChipMode(eSoundChannel audio)
 {
-    LOG(1, "SetChipMode audio=%d", (int)audio);
+    LOG(1, _T("SetChipMode audio=%d"), (int)audio);
 
     // FM settings
     WriteToSubAddress(TDA9874A_FMMR,
@@ -149,7 +149,7 @@ void CTDA9874AudioDecoder::SetSoundChannel(eSoundChannel SoundChannel)
 {
     CAudioDecoder::SetSoundChannel(SoundChannel);
     int audio = SoundChannel;
-    LOG(1, "TDA9874: SetSoundChannel:%d", SoundChannel);
+    LOG(1, _T("TDA9874: SetSoundChannel:%d"), SoundChannel);
 
     // FM settings
     WriteToSubAddress(TDA9874A_FMMR,
@@ -167,7 +167,7 @@ void CTDA9874AudioDecoder::SetSoundChannel(eSoundChannel SoundChannel)
 
 eSoundChannel CTDA9874AudioDecoder::IsAudioChannelDetected(eSoundChannel DesiredAudioChannel)
 {
-    LOG(1,"TDA9874: IsAudioChannelDetected:%d",DesiredAudioChannel);
+    LOG(1,_T("TDA9874: IsAudioChannelDetected:%d"),DesiredAudioChannel);
     eSoundChannel SoundChannel = SOUNDCHANNEL_MONO;
     switch (DesiredAudioChannel)
     {
@@ -190,7 +190,7 @@ eSoundChannel CTDA9874AudioDecoder::IsAudioChannelDetected(eSoundChannel Desired
 void CTDA9874AudioDecoder::SetAudioInput(eAudioInput AudioInput)
 {
     CAudioDecoder::SetAudioInput(AudioInput);
-    LOG(1, "TDA9874: SetAudioInput:%d", AudioInput);
+    LOG(1, _T("TDA9874: SetAudioInput:%d"), AudioInput);
 
     switch(AudioInput)
     {
@@ -210,19 +210,19 @@ void CTDA9874AudioDecoder::SetAudioInput(eAudioInput AudioInput)
 
 long CTDA9874AudioDecoder::GetAudioStandardMajorCarrier(long Standard)
 {
-    LOG(1,"getMajorCarrier, standard=%d",Standard);
+    LOG(1,_T("getMajorCarrier, standard=%d"),Standard);
     return m_TDA9874Standards[Standard].c1;
 }
 
 long CTDA9874AudioDecoder::GetAudioStandardMinorCarrier(long Standard)
 {
-    LOG(1,"getMinorCarrier, standard=%d",Standard);
+    LOG(1,_T("getMinorCarrier, standard=%d"),Standard);
     return m_TDA9874Standards[Standard].c2;
 }
 
 int CTDA9874AudioDecoder::Standard2Index(long Standard)
 {
-    LOG(1, "TDA9874: standard2index", Standard);
+    LOG(1, _T("TDA9874: standard2index"), Standard);
     for(int i = 0; i < GetNumAudioStandards(); ++i)
     {
         if(m_TDA9874Standards[i].Standard == Standard)
@@ -236,7 +236,7 @@ int CTDA9874AudioDecoder::Standard2Index(long Standard)
 
 void CTDA9874AudioDecoder::SetAudioStandard(long Standard, eVideoFormat VideoFormat)
 {
-    LOG(1, "TDA9874: SetAudioStandard", Standard);
+    LOG(1, _T("TDA9874: SetAudioStandard"), Standard);
     CAudioDecoder::SetAudioStandard(Standard, VideoFormat);
 
     int index = Standard2Index(Standard);
@@ -267,7 +267,7 @@ void CTDA9874AudioDecoder::SetAudioStandard(long Standard, eVideoFormat VideoFor
     CI2CDevice::WriteToSubAddress(TDA9874A_C2FRA, Buffer, sizeof(Buffer));
 }
 
-const char* CTDA9874AudioDecoder::GetAudioStandardName(long Standard)
+const TCHAR* CTDA9874AudioDecoder::GetAudioStandardName(long Standard)
 {
     int index = Standard2Index(Standard);
 
@@ -386,18 +386,18 @@ void CTDA9874AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     // Suspend thread if detecting
     if (m_AutoDetecting)
     {
-        LOGD("Abort1 TDA9874 detect loop");
+        LOGD(_T("Abort1 TDA9874 detect loop"));
         m_ThreadWait = TRUE;
         Sleep(10);
 
         if (m_AutoDetecting)
         {
-            LOGD("Abort2 TDA9874 detect loop");
+            LOGD(_T("Abort2 TDA9874 detect loop"));
             Sleep(50);
 
             if (m_AutoDetecting)
             {
-                LOGD("Abort3 TDA9874 detect loop");
+                LOGD(_T("Abort3 TDA9874 detect loop"));
                 StopThread();
             }
         }
@@ -421,7 +421,7 @@ DWORD WINAPI TDA9874ThreadProc(LPVOID lpThreadParameter)
 {
     int Result = 1;
 
-    DScalerThread("TDA9874DetectThread");
+    DScalerThread thisThread(_T("TDA9874DetectThread"));
     if (lpThreadParameter != NULL)
     {
         try
@@ -430,7 +430,7 @@ DWORD WINAPI TDA9874ThreadProc(LPVOID lpThreadParameter)
         }
         catch(...)
         {
-            LOG(1, "Crash in TDA9874 detect loop");
+            LOG(1, _T("Crash in TDA9874 detect loop"));
             return 1;
         }
     }
@@ -448,11 +448,11 @@ void CTDA9874AudioDecoder::StartThread()
         // Already started, resume
         if(ResumeThread(m_TDA9874Thread) == 0)
         {
-            LOG(1, "TDA9874 detect loop not waiting(1)");
+            LOG(1, _T("TDA9874 detect loop not waiting(1)"));
             Sleep(10);
             if(ResumeThread(m_TDA9874Thread) == 0)
             {
-                LOG(1, "TDA9874 detect loop not waiting(2)");
+                LOG(1, _T("TDA9874 detect loop not waiting(2)"));
             }
         }
         return;
@@ -481,7 +481,7 @@ void CTDA9874AudioDecoder::StopThread()
 
         if (dwResult != WAIT_OBJECT_0)
         {
-            LOG(1,"TDA9874 detect loop did not terminate gracefully: terminating!");
+            LOG(1,_T("TDA9874 detect loop did not terminate gracefully: terminating!"));
             TerminateThread(m_TDA9874Thread, 0);
         }
 
@@ -499,10 +499,10 @@ int CTDA9874AudioDecoder::DetectThread()
     {
         if (m_ThreadWait)
         {
-            LOGD("Waiting TDA9874 detect loop");
+            LOGD(_T("Waiting TDA9874 detect loop"));
             m_AutoDetecting = 0;
             SuspendThread(m_TDA9874Thread);
-            LOGD("Resuming TDA9874 detect loop");
+            LOGD(_T("Resuming TDA9874 detect loop"));
             DetectCounter = 1;
             m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_MONO;
         }
@@ -551,11 +551,11 @@ int CTDA9874AudioDecoder::DetectThread()
                 {
                     m_SupportedSoundChannels = Supported;
 
-                    LOG(1,"TDA9874: Detect stereo: Supported: %s%s%s%s",
-                        (Supported&SUPPORTEDSOUNDCHANNEL_MONO)?"Mono ":"",
-                        (Supported&SUPPORTEDSOUNDCHANNEL_STEREO)?"Stereo ":"",
-                        (Supported&SUPPORTEDSOUNDCHANNEL_LANG1)?"Lang1 ":"",
-                        (Supported&SUPPORTEDSOUNDCHANNEL_LANG2)?"Lang2 ":"");
+                    LOG(1,_T("TDA9874: Detect stereo: Supported: %s%s%s%s"),
+                        (Supported&SUPPORTEDSOUNDCHANNEL_MONO)?_T("Mono "):_T(""),
+                        (Supported&SUPPORTEDSOUNDCHANNEL_STEREO)?_T("Stereo "):_T(""),
+                        (Supported&SUPPORTEDSOUNDCHANNEL_LANG1)?_T("Lang1 "):_T(""),
+                        (Supported&SUPPORTEDSOUNDCHANNEL_LANG2)?_T("Lang2 "):_T(""));
 
                     SetSoundChannel(IsAudioChannelDetected(m_TargetSoundChannel));
 

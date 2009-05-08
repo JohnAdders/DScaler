@@ -53,7 +53,7 @@ public:
     virtual eDSObjectType getObjectType()=0;
 
     //name of object
-    //virtual char* getName()=0;
+    //virtual TCHAR* getName()=0;
 
     //virtual void configure(HWND hWnd)=0;
     //virtual BOOL canConfigure()=0;

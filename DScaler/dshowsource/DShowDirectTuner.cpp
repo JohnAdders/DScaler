@@ -58,14 +58,14 @@ void GetKSData(CComPtr<IKsPropertySet> pKSProp,KSPROPERTY_TUNER Property,DataTyp
         }
         else
         {
-            string Msg(MakeString() << "GetKSData<" << typeid(Data).name() << ">: Failed");
-            throw CDShowException(Msg.c_str(),hr);
+            tstring Msg(MakeString() << _T("GetKSData<") << typeid(Data).name() << _T(">: Failed"));
+            throw CDShowException(TStringToMBCS(Msg), hr);
         }
     }
     else
     {
-        string Msg(MakeString() << "GetKSData<" << typeid(Data).name() << ">: Property is not supported by tuner");
-        throw CDShowException(Msg,hr);
+        tstring Msg(MakeString() << _T("GetKSData<") << typeid(Data).name() << _T(">: Property is not supported by tuner"));
+        throw CDShowException(TStringToMBCS(Msg),hr);
     }
 }
 
@@ -151,12 +151,12 @@ void CDShowDirectTuner::SetFrequency(long Freq,AMTunerModeType Mode,AnalogVideoS
         }
         catch(CDShowException& e)
         {
-            LOG(1,"CDShowDirectTuner::SetFrequency: Exception from SetTVFormat - %s",e.what());
+            LOG(1, "CDShowDirectTuner::SetFrequency: Exception from SetTVFormat - %s",e.what());
         }
     }
     else
     {
-        LOG(1,"CDShowDirectTuner::SetFrequency: Specified video format is not supported (format: %d)",Format);
+        LOG(1,_T("CDShowDirectTuner::SetFrequency: Specified video format is not supported (format: %d)"),Format);
     }
 
     KSPROPERTY_TUNER_MODE_CAPS_S ModeCaps;

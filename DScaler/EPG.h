@@ -27,24 +27,24 @@
 class CProgramme
 {
 public:
-    CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description);
+    CProgramme(time_t StartTime, time_t EndTime, LPCTSTR Title, LPCTSTR ChannelName, LPCTSTR ChannelEPGName, int ChannelNumber, LPCTSTR SubTitle, LPCTSTR Category, LPCTSTR Description);
     ~CProgramme();
 
     // Check whether the programme matchs the channel
     // and overlaps the period of time defined by DateMin and DateMax
-    BOOL IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Channel);
+    BOOL IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCTSTR Channel);
 
     // Get the programme dates : start and end time
     void GetProgrammeDates(time_t *StartTime, time_t *EndTime);
 
     // Get the channel data : DScaler name + EPG name + number
-    void GetProgrammeChannelData(std::string &ChannelName, std::string &ChannelEPGName, int *ChannelNumber);
+    void GetProgrammeChannelData(tstring &ChannelName, tstring &ChannelEPGName, int *ChannelNumber);
 
     // Get the programme main data : start and end time + title
-    void GetProgrammeMainData(time_t *StartTime, time_t *EndTime, std::string &Channel, std::string &Title, std::string &Category);
+    void GetProgrammeMainData(time_t *StartTime, time_t *EndTime, tstring &Channel, tstring &Title, tstring &Category);
 
     // Get all the programme data
-    void GetProgrammeData(time_t *StartTime, time_t *EndTime, std::string &Channel, std::string &Title, std::string &SubTitle, std::string &Category, std::string &Description);
+    void GetProgrammeData(time_t *StartTime, time_t *EndTime, tstring &Channel, tstring &Title, tstring &SubTitle, tstring &Category, tstring &Description);
 
     // Dump the programme main data : start and end time + channel + title
     void DumpProgrammeMainData();
@@ -52,13 +52,13 @@ public:
 private:
     time_t          m_StartTime;
     time_t          m_EndTime;
-    std::string     m_ChannelName;
-    std::string     m_ChannelEPGName;
+    tstring     m_ChannelName;
+    tstring     m_ChannelEPGName;
     int             m_ChannelNumber;
-    std::string     m_Title;
-    std::string     m_SubTitle;
-    std::string     m_Category;
-    std::string     m_Description;
+    tstring     m_Title;
+    tstring     m_SubTitle;
+    tstring     m_Category;
+    tstring     m_Description;
     DWORD           m_Length;        // In minutes
 };
 
@@ -70,11 +70,11 @@ public:
     ~CEPG();
 
     // Copy the input file in DScalerEPG.xml
-    void ImportXMLTVFile(LPCSTR file);
+    void ImportXMLTVFile(LPCTSTR file);
 
     // Import the NextviewEPG database
     // Put the result in DScalerEPG.xml
-    void ImportNxtvepgEPGDB(LPCSTR Provider);
+    void ImportNxtvepgEPGDB(LPCTSTR Provider);
 
     // Load the DScaler EPG data for the programmes between two dates
     // If DateMin and DateMax are not set, load the EPG data for
@@ -82,13 +82,13 @@ public:
     void LoadEPGData(time_t DateMin=0, time_t DateMax=0);
     void ReloadEPGData();
 
-    int GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax);
-    BOOL SearchForProgramme(std::string &Channel);
-    BOOL SearchForProgramme(LPCSTR ChannelName, time_t ThatTime);
-    int SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin=0, time_t TimeMax=0);
-    BOOL GetProgrammeChannelData(int Index, std::string &ChannelName, std::string &ChannelEPGName, int *ChannelNumber);
-    BOOL GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, std::string &Channel, std::string &Title, std::string &Category);
-    BOOL GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, std::string &Channel, std::string &Title, std::string &SubTitle, std::string &Category, std::string &Description);
+    int GetSearchContext(LPCTSTR *ChannelName, time_t *TimeMin, time_t *TimeMax);
+    BOOL SearchForProgramme(tstring &Channel);
+    BOOL SearchForProgramme(LPCTSTR ChannelName, time_t ThatTime);
+    int SearchForProgrammes(LPCTSTR ChannelName, time_t TimeMin=0, time_t TimeMax=0);
+    BOOL GetProgrammeChannelData(int Index, tstring &ChannelName, tstring &ChannelEPGName, int *ChannelNumber);
+    BOOL GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, tstring &Channel, tstring &Title, tstring &Category);
+    BOOL GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, tstring &Channel, tstring &Title, tstring &SubTitle, tstring &Category, tstring &Description);
 
     void SetDisplayIndexes(int IdxMin, int IdxMax, int IdxCur);
     int GetDisplayIndexes(int *IdxMin, int *IdxMax, int *IdxCur);
@@ -99,32 +99,32 @@ public:
     void ShowOSD();
     void HideOSD();
 
-    void GetViewedChannelName(std::string &Channel);
+    void GetViewedChannelName(tstring &Channel);
 
     // Dump the EPG data
     void DumpEPGData();
 
     void ClearProgrammes();
-    int CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCSTR ChannelName);
-    void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber);
-    void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description);
-    void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelEPGName, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description);
+    int CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCTSTR ChannelName);
+    void AddProgramme(time_t StartTime, time_t EndTime, LPCTSTR Title, LPCTSTR ChannelName, LPCTSTR ChannelEPGName, int ChannelNumber);
+    void AddProgramme(time_t StartTime, time_t EndTime, LPCTSTR Title, LPCTSTR ChannelName, LPCTSTR ChannelEPGName, int ChannelNumber, LPCTSTR SubTitle, LPCTSTR Category, LPCTSTR Description);
+    void AddProgramme(time_t StartTime, time_t EndTime, LPCTSTR Title, LPCTSTR ChannelEPGName, LPCTSTR SubTitle, LPCTSTR Category, LPCTSTR Description);
 
     void SetMenu(HMENU hMenu);
 
 private:
     // Execute a command using the Windows command interpreter
-    int ExecuteCommand(std::string command);
+    int ExecuteCommand(tstring command);
 
     // Check if new EPG data have to be loaded
     BOOL LoadEPGDataIfNeeded(time_t TimeMin, time_t TimeMax, int DeltaEarlier, int DeltaLater);
 
     // Copy a file
-    BOOL CopyFile(LPCSTR InPath, LPCSTR OutPath);
+    BOOL CopyFile(LPCTSTR InPath, LPCTSTR OutPath);
 
     // Check whether a channel name belongs to the list of channels
     // defined in DScaler
-    BOOL IsValidChannelName(LPCSTR EPGName, LPCSTR *Name=NULL, int *Number=NULL);
+    BOOL IsValidChannelName(LPCTSTR EPGName, LPCTSTR *Name=NULL, int *Number=NULL);
 
     // Insert a new programme in the list keeping a certain order for the programmes
     void InsertProgramme(CProgramme* NewProg, int Sorting);
@@ -138,17 +138,17 @@ private:
     CProgrammes    m_ProgrammesSelection;
     CProgramme*    m_ProgrammeSelected;
 
-    typedef std::vector<std::string*> strings;
+    typedef std::vector<tstring*> strings;
 
     strings     m_NextviewProviders;
 
-    std::string m_CMDExe;
-    std::string m_FilesDir;
+    tstring m_CMDExe;
+    tstring m_FilesDir;
 
     time_t      m_LoadedTimeMin;
     time_t      m_LoadedTimeMax;
 
-    LPCSTR      m_SearchChannel;
+    LPCTSTR      m_SearchChannel;
     time_t      m_SearchTimeMin;
     time_t      m_SearchTimeMax;
     int         m_IdxShowSelectMin;

@@ -47,8 +47,8 @@ void Setting_Up(long GetValueMsg, long SettingIndex);
 void Setting_Down(long GetValueMsg, long SettingIndex);
 // End of new UI code header
 
-void SetIniFileForSettings(LPSTR Name);
-LPCSTR GetIniFileForSettings();
+void SetIniFileForSettings(LPTSTR Name);
+LPCTSTR GetIniFileForSettings();
 void WritePrivateProfileInt(LPCTSTR lpAppName, LPCTSTR lpKeyName, int nValue, LPCTSTR lpFileName);
 int GetCurrentAdjustmentStepCount(void* pSetting);
 

@@ -57,29 +57,29 @@ typedef uint XML_LANG_CODE;
 #define XML_LANG_UNKNOWN        0
 
 // Interface to lexigraphical scanner (callback functions)
-void XmltvTags_Open( const char * pTagName );
-Bool XmltvTags_Close( const char * pTagName );
+void XmltvTags_Open( const TCHAR*  pTagName );
+Bool XmltvTags_Close( const TCHAR*  pTagName );
 void XmltvTags_Data( XML_STR_BUF * pBuf );
-void XmltvTags_AttribIdentify( const char * pName );
+void XmltvTags_AttribIdentify( const TCHAR*  pName );
 void XmltvTags_AttribData( XML_STR_BUF * pBuf );
 Bool XmltvTags_AttribsComplete( void );
-void Xmltv_SyntaxError( const char * pMsg, const char * pStr );
-void Xmltv_ScanFatalError( const char * pMsg );
-void XmltvTags_ScanUnsupEncoding( const char * pName );
-const char * XmltvTags_TranslateErrorCode( XMLTV_DETECTION detection );
+void Xmltv_SyntaxError( const TCHAR*  pMsg, const TCHAR*  pStr );
+void Xmltv_ScanFatalError( const TCHAR*  pMsg );
+void XmltvTags_ScanUnsupEncoding( const TCHAR*  pName );
+const TCHAR*  XmltvTags_TranslateErrorCode( XMLTV_DETECTION detection );
 
 // Interface to prolog parser
-void XmltvTags_Encoding( const char * pName );
-void XmltvTags_XmlVersion( const char * pVersion );
-void XmltvTags_DocType( const char * pName );
+void XmltvTags_Encoding( const TCHAR*  pName );
+void XmltvTags_XmlVersion( const TCHAR*  pVersion );
+void XmltvTags_DocType( const TCHAR*  pName );
 void XmltvTags_DocIntDtdClose( void );
-void XmltvTags_PiTarget( const char * pName );
-void XmltvTags_PiContent( const char * pValue );
-void XmltvTags_Notation( int stepIdx, const char * pValue );
-void XmltvTags_CheckName( const char * pStr );
-void XmltvTags_CheckCharset( const char * pStr );
-void XmltvTags_CheckNmtoken( const char * pStr );
-void XmltvTags_CheckSystemLiteral( const char * pStr );
+void XmltvTags_PiTarget( const TCHAR*  pName );
+void XmltvTags_PiContent( const TCHAR*  pValue );
+void XmltvTags_Notation( int stepIdx, const TCHAR*  pValue );
+void XmltvTags_CheckName( const TCHAR*  pStr );
+void XmltvTags_CheckCharset( const TCHAR*  pStr );
+void XmltvTags_CheckNmtoken( const TCHAR*  pStr );
+void XmltvTags_CheckSystemLiteral( const TCHAR*  pStr );
 
 // Interface to main
 void XmltvTags_StartScan( FILE * fp, XMLTV_DTD_VERSION dtdVersion );
@@ -92,7 +92,7 @@ void XmlScan_Init( void );
 void XmlScan_Destroy( void );
 void XmlScan_Stop( void );
 Bool XmlScan_SetEncoding( XML_ENCODING encoding );
-void XmlScan_EntityDefName( const char * pName, int isParamEntity );
-void XmlScan_EntityDefValue( const char * pValue );
+void XmlScan_EntityDefName( const TCHAR*  pName, int isParamEntity );
+void XmlScan_EntityDefValue( const TCHAR*  pValue );
 
 #endif  // __XMLTV_TAGS_H

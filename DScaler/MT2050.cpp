@@ -101,7 +101,7 @@ void CMT2050::Initialize()
 
     if (m_I2CBus->Read(wrbuf,2,rdbuf,21))
     {
-        LOG(1,"MT2050: Companycode=%02x%02x Part=%02x Revision=%02x",
+        LOG(1,_T("MT2050: Companycode=%02x%02x Part=%02x Revision=%02x"),
                     rdbuf[0x11],rdbuf[0x12],rdbuf[0x13],rdbuf[0x14]);
     }
 
@@ -120,7 +120,7 @@ void CMT2050::Initialize()
     SRO = GetRegister(13);
     if ((SRO & 0x40) != 0)
     {
-        LOG(1, "MT2050: SRO Crystal problem - tuner will not function!");
+        LOG(1, _T("MT2050: SRO Crystal problem - tuner will not function!"));
     }
 
     if (m_ExternalIFDemodulator)
@@ -162,7 +162,7 @@ int CMT2050::SpurCheck(int flos1, int flos2, int fifbw, int fout)
 
 void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
 {
-    unsigned char   buf[5];
+    unsigned char  buf[5];
 
     long flo1, flo2;
 //3.1 Calculate LO frequencies
@@ -204,7 +204,7 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
         {
             flos1 = flo1;
             flos2 = flo2;
-            LOG(1, "No spur");
+            LOG(1, _T("No spur"));
             break;
         }
         n++;

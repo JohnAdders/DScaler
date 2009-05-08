@@ -95,7 +95,7 @@ using namespace std;
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
 HINSTANCE hDScalerInst = NULL;
-LPSTR lPStripTimingString = NULL;
+LPTSTR PstripTimingString = NULL;
 
 HWND hPSWnd = NULL;
 
@@ -114,7 +114,7 @@ HMENU   hSubMenuChannels = NULL;
 HMENU    hMenuTray;
 HACCEL  hAccel;
 
-char ChannelString[10] = "";
+TCHAR ChannelString[10] = _T("");
 
 int MainProcessor=0;
 int DecodeProcessor=0;
@@ -195,8 +195,8 @@ int SMPeriods[SMPeriodCount] =
 HRGN DScalerWindowRgn = NULL;
 
 SettingStringValue szSkinName;
-char szSkinDirectory[MAX_PATH+1];
-vector<string> vSkinNameList;
+TCHAR szSkinDirectory[MAX_PATH+1];
+vector<tstring> vSkinNameList;
 
 SmartPtr<CSettingsMaster> SettingsMaster;
 SmartPtr<CEventCollector> EventCollector;
@@ -214,7 +214,7 @@ void Cursor_SetVisibility(BOOL bVisible);
 int Cursor_SetType(int type);
 void Cursor_VTUpdate(int x = -1, int y = -1);
 void MainWndOnDestroy();
-int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
+int ProcessCommandLine(TCHAR* commandLine, TCHAR* argv[], int sizeArgv);
 void SetKeyboardLock(BOOL Enabled);
 BOOL bScreensaverDisabled = FALSE;
 BOOL bPoweroffDisabled = FALSE;
@@ -225,7 +225,7 @@ BOOL IsToolBarVisible();
 HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState);
 void SetWindowBorder(HWND hWnd, BOOL bShow);
 void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
-LPCSTR GetSkinDirectory();
+LPCTSTR GetSkinDirectory();
 LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam);
 LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam);
@@ -285,30 +285,30 @@ static HANDLE hMainWindowEvent = NULL;
 
 ///**************************************************************************
 //
-// FUNCTION: WinMain(HANDLE, HANDLE, LPSTR, int)
+// FUNCTION: WinMain(HANDLE, HANDLE, LPTSTR, int)
 //
 // PURPOSE: calls initialization function, processes message loop
 //
 ///**************************************************************************
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
     WNDCLASS wc;
     MSG msg;
     HWND hPrevWindow;
     ComInitialise SetupCOMForMainThread(COINIT_APARTMENTTHREADED);
     
-    DScalerThread("Main thread");
+    DScalerThread thisThread(_T("Main thread"));
 
     hDScalerInst = hInstance;
     hMainThread = GetCurrentThreadId();
 
     SetErrorMode(SEM_NOGPFAULTERRORBOX);
 
-    hResourceInst = LibraryCache::GetLibraryHandle("DScalerRes.dll");
+    hResourceInst = LibraryCache::GetLibraryHandle(_T("DScalerRes.dll"));
     if(hResourceInst == NULL)
     {
-        MessageBox(NULL, "DScaler can't find the resource library DScalerRes.dll", "Installation Error", MB_OK | MB_ICONSTOP);
+        MessageBox(NULL, _T("DScaler can't find the resource library DScalerRes.dll"), _T("Installation Error"), MB_OK | MB_ICONSTOP);
         return FALSE;
     }
 
@@ -316,19 +316,26 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     CPU_SetupFeatureFlag();
 
-    MsgOSDShow = RegisterWindowMessage("DScalerShowOSDMsgString");
-    MsgWheel = RegisterWindowMessage("MSWHEEL_ROLLMSG");
-    MsgTaskbarRestart = RegisterWindowMessage("TaskbarCreated");
+    MsgOSDShow = RegisterWindowMessage(_T("DScalerShowOSDMsgString"));
+    MsgWheel = RegisterWindowMessage(_T("MSWHEEL_ROLLMSG"));
+    MsgTaskbarRestart = RegisterWindowMessage(_T("TaskbarCreated"));
 
     // make a copy of the command line since ProcessCommandLine() will replace the spaces with \0
-    char OldCmdLine[1024];
-    strncpy(OldCmdLine, lpCmdLine, sizeof(OldCmdLine));
+    TCHAR OldCmdLine[1024];
+    if(lpCmdLine != 0)
+    {
+        _tcsncpy(OldCmdLine, lpCmdLine, 1024);
+    }
+    else
+    {
+        OldCmdLine[0] = 0;
+    }
 
-    char* ArgValues[20];
+    TCHAR* ArgValues[20];
     int ArgCount = ProcessCommandLine(lpCmdLine, ArgValues, sizeof(ArgValues) / sizeof(char*));
 
     // if we are already running then start up old version
-    hPrevWindow = FindWindow((LPCTSTR) DSCALER_APPNAME, NULL);
+    hPrevWindow = FindWindow(DSCALER_APPNAME, NULL);
     if (hPrevWindow != NULL)
     {
         if (IsIconic(hPrevWindow))
@@ -356,10 +363,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
             if((ArgValues[0][0] == '/' || ArgValues[0][0] == '-') && tolower(ArgValues[0][1]) == 'm')
             {
                 HANDLE hMapFile = NULL;
-                char* lpMsg = NULL;
+                TCHAR* lpMsg = NULL;
 
                 hMapFile = CreateFileMapping(INVALID_HANDLE_VALUE,  // Use the system page file
-                    NULL, PAGE_READWRITE, 0, 1024, "DScalerSendMessageFileMappingObject");
+                    NULL, PAGE_READWRITE, 0, 1024, _T("DScalerSendMessageFileMappingObject"));
 
                 if(hMapFile == NULL)
                 {
@@ -368,7 +375,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
                 }
                 else
                 {
-                    lpMsg = (char*)MapViewOfFile(hMapFile, FILE_MAP_WRITE, 0, 0, 1024);
+                    lpMsg = (TCHAR*)MapViewOfFile(hMapFile, FILE_MAP_WRITE, 0, 0, 1024);
 
                     if (lpMsg == NULL)
                     {
@@ -378,15 +385,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
                     else
                     {
                         // Find the command line after the /m or -m or /M or -M
-                        // a simple strstr(OldCmdLine, ArgValues[1]) will not work with a leading quote
-                        char* s;
-                        s = strstr(OldCmdLine, ArgValues[0]);   // s points to first parameter
-                        s = &s[strlen(ArgValues[0])];           // s points to char after first parm
-                        if(s[0] == ' ')                         // point s to string after the space
+                        // a simple _tcsstr(OldCmdLine, ArgValues[1]) will not work with a leading quote
+                        TCHAR* s;
+                        s = _tcsstr(OldCmdLine, ArgValues[0]);   // s points to first parameter
+                        s = &s[_tcslen(ArgValues[0])];           // s points to char after first parm
+                        if(s[0] == ' ')                         // point s to tstring after the space
                         {
                             s++;
                         }
-                        strncpy(lpMsg, s, 1024);
+                        _tcsncpy(lpMsg, s, 1024);
                         SendMessage(hPrevWindow, MsgOSDShow, ArgValues[0][1] == 'm' ? 0 : 1, 0);
                         UnmapViewOfFile(lpMsg);
                     }
@@ -398,7 +405,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     }
 
     // also used by the InnoSetup installer to prevent (un)installation when DScaler is running.
-    if(CreateMutex(NULL, FALSE, "DScaler"))
+    if(CreateMutex(NULL, FALSE, _T("DScaler")))
     {
         // RM oct 1 2006
         // Do not start if the mutex already exists.
@@ -420,7 +427,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     // Required to use slider control
     InitCommonControls();
 
-    SetIniFileForSettings("");
+    SetIniFileForSettings(_T(""));
 
     // Process the command line arguments.
     // The following arguments are supported
@@ -445,13 +452,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
             // At this time DScaler is not running so we can exit now.
             return 0;
         }
-        else if(strlen(ArgValues[i]) > 2)
+        else if(_tcslen(ArgValues[i]) > 2)
         {
-            char* szParameter = &ArgValues[i][2];
+            TCHAR* szParameter = &ArgValues[i][2];
             switch (tolower(ArgValues[i][1]))
             {
             case 'd':
-                if(strcmp(szParameter, "riverinstall") == 0)
+                if(_tcscmp(szParameter, _T("riverinstall")) == 0)
                 {
                     DWORD result = 0;
                     CHardwareDriver* HardwareDriver = NULL;
@@ -462,7 +469,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
                         // if access denied
                         if(GetLastError() == 5)
                         {
-                            RealErrorBox("You must have administrative rights to install the driver.");
+                            RealErrorBox(_T("You must have administrative rights to install the driver."));
                         }
                         result = 1;
                     }
@@ -471,7 +478,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
                     return result;
                 }
-                else if(strcmp(szParameter, "riveruninstall") == 0)
+                else if(_tcscmp(szParameter, _T("riveruninstall")) == 0)
                 {
                     DWORD result = 0;
                     CHardwareDriver* HardwareDriver = NULL;
@@ -482,7 +489,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
                         // if access denied
                         if(GetLastError() == 5)
                         {
-                            RealErrorBox("You must have administrative rights to uninstall the driver.");
+                            RealErrorBox(_T("You must have administrative rights to uninstall the driver."));
                         }
                         result = 1;
                     }
@@ -495,10 +502,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
                 SetIniFileForSettings(szParameter);
                 break;
             case 'c':
-                sscanf(szParameter, "%d", &InitialChannel);
+                _stscanf(szParameter, _T("%d"), &InitialChannel);
                 break;
             case 'p':
-                sscanf(szParameter, "%x", &InitialTextPage);
+                _stscanf(szParameter, _T("%x"), &InitialTextPage);
                 break;
             default:
                 // Unknown
@@ -605,7 +612,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     }
     hMenu = LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_DSCALERMENU));
 
-    hSubMenuChannels = GetSubMenuWithName(hMenu, 2, "&Channels");
+    hSubMenuChannels = GetSubMenuWithName(hMenu, 2, _T("&Channels"));
 
 
     // 2000-10-31 Added by Mark: Changed to WS_POPUP for more cosmetic direct-to-full-screen startup,
@@ -666,7 +673,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     PostMessage(hWnd, WM_SIZE, SIZENORMAL, MAKELONG(MainWndWidth, MainWndHeight));
     if ((hAccel = LoadAccelerators(hResourceInst, MAKEINTRESOURCE(IDA_DSCALER))) == NULL)
     {
-        ErrorBox("Accelerators not Loaded");
+        ErrorBox(_T("Accelerators not Loaded"));
     }
 
     // Initialize sleepmode
@@ -690,7 +697,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
         }
     }
 
-    LOG(1,"Program exit");
+    LOG(1,_T("Program exit"));
 
     return msg.wParam;
 }
@@ -699,14 +706,14 @@ LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
     try
     {
-        LOG(3, "Got Windows Message %d Params %d %d", message, wParam, lParam);
+        LOG(3, _T("Got Windows Message %d Params %d %d"), message, wParam, lParam);
         return MainWndProc(hWnd, message, wParam, lParam);
     }
     // if there is any exception thrown then exit the process
     catch(std::exception& e)
     {
-        LOG(1, "Crash in MainWndProc");
-        LOG(1, e.what());
+        LOG(1, _T("Crash in MainWndProc"));
+        LOG(1, MBCSToTString(e.what()).c_str());
         // try as best we can to unload everything
         // mostly we want to make sure that the driver is stopped
         // cleanly so that the machine doesn't blue screen
@@ -716,7 +723,7 @@ LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     }
     catch(...)
     {
-        LOG(1, "Crash in MainWndProc");
+        LOG(1, _T("Crash in MainWndProc"));
         // try as best we can to unload everything
         // mostly we want to make sure that the driver is stopped
         // cleanly so that the machine doesn't blue screen
@@ -738,19 +745,19 @@ HMENU CreateDScalerPopupMenu()
     {
         MENUITEMINFO MenuItemInfo;
         HMENU hSubMenu;
-        char string[128];
+        TCHAR tstring[128];
         int reduc1;
 
         // update the name of the source
-        if(GetMenuString(hMenu, 1, string, sizeof(string), MF_BYPOSITION) != 0)
+        if(GetMenuString(hMenu, 1, tstring, sizeof(tstring), MF_BYPOSITION) != 0)
         {
-            ModifyMenu(hMenuPopup, 1, MF_BYPOSITION | MF_STRING, IDM_POPUP_SOURCES, string);
+            ModifyMenu(hMenuPopup, 1, MF_BYPOSITION | MF_STRING, IDM_POPUP_SOURCES, tstring);
         }
 
         MenuItemInfo.cbSize = sizeof (MenuItemInfo);
         MenuItemInfo.fMask = MIIM_SUBMENU;
 
-        hSubMenu = GetSubMenuWithName(hMenu, 0, "&Sources");
+        hSubMenu = GetSubMenuWithName(hMenu, 0, _T("&Sources"));
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
@@ -772,11 +779,11 @@ HMENU CreateDScalerPopupMenu()
             SetMenuItemInfo(hMenuPopup,2, TRUE, &MenuItemInfo);
         }
 
-        string[0] = '\0';
-        GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
-        reduc1 = !strcmp(string, "&Channels") ? 0 : 1;
+        tstring[0] = '\0';
+        GetMenuString(hMenu, 2, tstring, sizeof(tstring), MF_BYPOSITION);
+        reduc1 = !_tcscmp(tstring, _T("&Channels")) ? 0 : 1;
 
-        hSubMenu = GetSubMenuWithName(hMenu, 3-reduc1, "&View");
+        hSubMenu = GetSubMenuWithName(hMenu, 3-reduc1, _T("&View"));
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
@@ -797,35 +804,35 @@ HMENU CreateDScalerPopupMenu()
             SetMenuItemInfo(hMenuPopup,5, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 6-reduc1, "&Aspect Ratio");
+        hSubMenu = GetSubMenuWithName(hMenu, 6-reduc1, _T("&Aspect Ratio"));
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,6, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 7-reduc1, "S&ettings");
+        hSubMenu = GetSubMenuWithName(hMenu, 7-reduc1, _T("S&ettings"));
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,7, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 8-reduc1, "Ac&tions");
+        hSubMenu = GetSubMenuWithName(hMenu, 8-reduc1, _T("Ac&tions"));
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,8, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 9-reduc1, "&Datacasting");
+        hSubMenu = GetSubMenuWithName(hMenu, 9-reduc1, _T("&Datacasting"));
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,9,TRUE,&MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 10-reduc1, "&Help");
+        hSubMenu = GetSubMenuWithName(hMenu, 10-reduc1, _T("&Help"));
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
@@ -944,8 +951,8 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
                     VT_ClearInput();
 
-                    // Get search string with a dialog if it's not search-next
-                    // or search-previous or if the search string doesn't exist.
+                    // Get search tstring with a dialog if it's not search-next
+                    // or search-previous or if the search tstring doesn't exist.
                     if (LOWORD(wParam) == IDM_VT_SEARCH || !VT_IsSearchStringValid())
                     {
                         if (!DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSEARCH),
@@ -1281,12 +1288,12 @@ void SetScreensaverMode(BOOL bScreensaverOff)
     }
 }
 
-string UpdateSleepMode(TSMState* SMState)
+tstring UpdateSleepMode(TSMState* SMState)
 {
     time_t curr = 0;
     struct tm* SMTime = NULL;
     UINT uiPeriod;
-    string RetVal;
+    tstring RetVal;
 
     switch( SMState->State )
     {
@@ -1299,17 +1306,17 @@ string UpdateSleepMode(TSMState* SMState)
         {
             KillTimer(hWnd, TIMER_SLEEPMODE);
             SMTime = localtime(&SMState->SleepAt);
-            RetVal = MakeString() << "Sleep  "
+            RetVal = MakeString() << _T("Sleep  ")
                                  << SMState->Period
-                                 << " ("
-                                 << setw(2) << setfill('0') << SMTime->tm_hour
-                                 << ":"
-                                 << setw(2) << setfill('0') << SMTime->tm_min
-                                 << ")";
+                                 << _T(" (")
+                                 << setw(2) << setfill((TCHAR)'0') << SMTime->tm_hour
+                                 << _T(":")
+                                 << setw(2) << setfill((TCHAR)'0') << SMTime->tm_min
+                                 << _T(")");
         }
         else
         {
-            RetVal = "Sleep OFF";
+            RetVal = _T("Sleep OFF");
         }
         // Set update window
         SetTimer(hWnd, TIMER_SLEEPMODE, TIMER_SLEEPMODE_MS, NULL);
@@ -1332,18 +1339,18 @@ string UpdateSleepMode(TSMState* SMState)
             curr = time(0);
             SMState->SleepAt = curr + SMState->Period * 60;
             SMTime = localtime(&SMState->SleepAt);
-            RetVal = MakeString() << "New sleep  "
+            RetVal = MakeString() << _T("New sleep  ")
                                  << SMState->Period
-                                 << " ("
-                                 << setw(2) << setfill('0') << SMTime->tm_hour
-                                 << ":"
-                                 << setw(2) << setfill('0') << SMTime->tm_min
-                                 << ")";
+                                 << _T(" (")
+                                 << setw(2) << setfill((TCHAR)'0') << SMTime->tm_hour
+                                 << _T(":")
+                                 << setw(2) << setfill((TCHAR)'0') << SMTime->tm_min
+                                 << _T(")");
         }
         else
         {
             SMState->SleepAt = 0;
-            RetVal = "New sleep OFF";
+            RetVal = _T("New sleep OFF");
         }
 
         // Restart change-mode timing
@@ -1478,9 +1485,9 @@ BOOL BorderGetClientRect(HWND hWnd, LPRECT lpRect)
     return result;
 }
 
-LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT BorderButtonProc(tstring sID, void* pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    if (sID=="BUTTON_CLOSE")
+    if (sID==_T("BUTTON_CLOSE"))
     {
         switch(message)
         {
@@ -1491,7 +1498,7 @@ LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFla
               return TRUE;
         }
     }
-    else if (sID=="BUTTON_MINIMIZE")
+    else if (sID==_T("BUTTON_MINIMIZE"))
     {
         switch(message)
         {
@@ -1502,7 +1509,7 @@ LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFla
               return TRUE;
         }
     }
-    else if (sID=="BUTTON_MAXIMIZE")
+    else if (sID==_T("BUTTON_MAXIMIZE"))
     {
         switch(message)
         {
@@ -1513,7 +1520,7 @@ LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFla
               return TRUE;
         }
     }
-    else if (sID=="BUTTON_SIZE")
+    else if (sID==_T("BUTTON_SIZE"))
     {
         switch(message)
         {
@@ -1538,7 +1545,7 @@ LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFla
             return TRUE;
         }
     }
-    else if (sID=="BUTTON_SIDEBAR")
+    else if (sID==_T("BUTTON_SIDEBAR"))
     {
         switch(message)
         {
@@ -1551,15 +1558,15 @@ LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFla
     return FALSE;
 }
 
-LPCSTR GetSkinDirectory()
+LPCTSTR GetSkinDirectory()
 {
     if (szSkinDirectory[0] != 0)
     {
         return szSkinDirectory;
     }
 
-    char szPath[MAX_PATH+1];
-    char* s = NULL;
+    TCHAR szPath[MAX_PATH+1];
+    TCHAR* s = NULL;
     int len = GetFullPathName(GetIniFileForSettings(), MAX_PATH, szPath, &s);
     if ((len > 0) && (s!=NULL))
     {
@@ -1568,10 +1575,10 @@ LPCSTR GetSkinDirectory()
     else
     {
         GetCurrentDirectory(MAX_PATH, szPath);
-        strcat(szPath,"\\");
+        _tcscat(szPath,_T("\\"));
     }
-    strcpy(szSkinDirectory,szPath);
-    strcat(szSkinDirectory,"Skins\\");
+    _tcscpy(szSkinDirectory,szPath);
+    _tcscat(szSkinDirectory,_T("Skins\\"));
 
     return szSkinDirectory;
 }
@@ -1595,21 +1602,20 @@ void SetWindowBorder(HWND hWnd, BOOL bShow)
 
     if (szSkinName)
     {
-        char szSkinIniFile[MAX_PATH*2];
-        strcpy(szSkinIniFile,GetSkinDirectory());
-        strcat(szSkinIniFile,szSkinName);
-        strcat(szSkinIniFile,"\\skin.ini");
+        tstring SkinIniFile(GetSkinDirectory());
+        SkinIniFile += szSkinName;
+        SkinIniFile += _T("\\skin.ini");
         ///\todo check if the ini file exists
 
         //Add border buttons
-        WindowBorder->RegisterButton("BUTTON_CLOSE",BITMAPASBUTTON_PUSH,"ButtonClose","ButtonCloseMouseOver","ButtonCloseClick", BorderButtonProc);
-        WindowBorder->RegisterButton("BUTTON_SIZE",BITMAPASBUTTON_PUSH,"ButtonSize","ButtonSizeMouseOver","ButtonSizeClick", BorderButtonProc);
-        WindowBorder->RegisterButton("BUTTON_MINIMIZE",BITMAPASBUTTON_PUSH,"ButtonMinimize","ButtonMinimizeMouseOver","ButtonMinimizeClick", BorderButtonProc);
-        WindowBorder->RegisterButton("BUTTON_MAXIMIZE",BITMAPASBUTTON_PUSH,"ButtonMaximize","ButtonMaximizeMouseOver","ButtonMaximizeClick", BorderButtonProc);
-        //WindowBorder->RegisterButton("BUTTON_SIDEBAR",BITMAPASBUTTON_PUSH,"ButtonSideBar","ButtonSideBarMouseOver","ButtonSideBarClick", BorderButtonProc);
+        WindowBorder->RegisterButton(_T("BUTTON_CLOSE"),BITMAPASBUTTON_PUSH,_T("ButtonClose"),_T("ButtonCloseMouseOver"),_T("ButtonCloseClick"), BorderButtonProc);
+        WindowBorder->RegisterButton(_T("BUTTON_SIZE"),BITMAPASBUTTON_PUSH,_T("ButtonSize"),_T("ButtonSizeMouseOver"),_T("ButtonSizeClick"), BorderButtonProc);
+        WindowBorder->RegisterButton(_T("BUTTON_MINIMIZE"),BITMAPASBUTTON_PUSH,_T("ButtonMinimize"),_T("ButtonMinimizeMouseOver"),_T("ButtonMinimizeClick"), BorderButtonProc);
+        WindowBorder->RegisterButton(_T("BUTTON_MAXIMIZE"),BITMAPASBUTTON_PUSH,_T("ButtonMaximize"),_T("ButtonMaximizeMouseOver"),_T("ButtonMaximizeClick"), BorderButtonProc);
+        //WindowBorder->RegisterButton(_T("BUTTON_SIDEBAR"),BITMAPASBUTTON_PUSH,_T("ButtonSideBar"),_T("ButtonSideBarMouseOver"),_T("ButtonSideBarClick"), BorderButtonProc);
 
         vector<int>Results;
-        WindowBorder->LoadSkin(szSkinIniFile,"Border",&Results);
+        WindowBorder->LoadSkin(SkinIniFile.c_str(),_T("Border"),&Results);
 
         ///\todo Process errors
     }
@@ -1633,25 +1639,25 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
         //Find sub directories with skin.ini files
         WIN32_FIND_DATA FindFileData;
         HANDLE hFind;
-        char szSearch[MAX_PATH+10];
+        TCHAR szSearch[MAX_PATH+10];
 
-        strcpy(szSearch,GetSkinDirectory());
-        strcat(szSearch,"*.*");
+        _tcscpy(szSearch,GetSkinDirectory());
+        _tcscat(szSearch,_T("*.*"));
         hFind = FindFirstFile(szSearch, &FindFileData);
         if (hFind != INVALID_HANDLE_VALUE)
         {
             do
             {
                 if ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-                    && strcmp(FindFileData.cFileName,".") && strcmp(FindFileData.cFileName,"..") )
+                    && _tcscmp(FindFileData.cFileName,_T(".")) && _tcscmp(FindFileData.cFileName,_T("..")) )
                 {
-                    char szSearchFile[MAX_PATH];
+                    TCHAR szSearchFile[MAX_PATH];
                     WIN32_FIND_DATA FindFileData2;
                     HANDLE hFind2;
 
-                    strcpy(szSearchFile,GetSkinDirectory());
-                    strcat(szSearchFile,FindFileData.cFileName);
-                    strcat(szSearchFile,"\\skin.ini");
+                    _tcscpy(szSearchFile,GetSkinDirectory());
+                    _tcscat(szSearchFile,FindFileData.cFileName);
+                    _tcscat(szSearchFile,_T("\\skin.ini"));
                     if ((hFind2=FindFirstFile(szSearchFile, &FindFileData2)) != INVALID_HANDLE_VALUE)
                     {
                         FindClose(hFind2);
@@ -1665,11 +1671,11 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
         //Make menu
 
         // Find submenu
-        char string[256];
-        string[0] = '\0';
-        GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
-        int reduc1 = !strcmp(string, "&Channels") ? 0 : 1;
-        HMENU hViewMenu = GetSubMenuWithName(hMenu, 3-reduc1, "&View");
+        TCHAR tstring[256];
+        tstring[0] = '\0';
+        GetMenuString(hMenu, 2, tstring, sizeof(tstring), MF_BYPOSITION);
+        int reduc1 = !_tcscmp(tstring, _T("&Channels")) ? 0 : 1;
+        HMENU hViewMenu = GetSubMenuWithName(hMenu, 3-reduc1, _T("&View"));
         HMENU hSkinMenu = NULL;
         for (int i = 0; i < GetMenuItemCount(hViewMenu); i++)
         {
@@ -1697,7 +1703,7 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
                 MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
                 MenuItemInfo.fType = MFT_STRING;
                 MenuItemInfo.cch = sizeof(vSkinNameList[i].c_str());
-                MenuItemInfo.dwTypeData = (LPSTR)vSkinNameList[i].c_str();
+                MenuItemInfo.dwTypeData = (LPTSTR)vSkinNameList[i].c_str();
                 MenuItemInfo.wID = IDM_SKIN_FIRST + i;
                 InsertMenuItem(hSkinMenu, i+2, TRUE, &MenuItemInfo);
             }
@@ -1711,7 +1717,7 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
     {
         for (size_t i = 0; i < vSkinNameList.size(); i++)
         {
-            if ((Found == 0) && (vSkinNameList[i] == (LPCSTR)szSkinName))
+            if ((Found == 0) && (vSkinNameList[i] == (tstring)szSkinName))
             {
                 Found = 1;
             }
@@ -1801,18 +1807,20 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         // show error message if an error occurred with the other instance of DScaler
         if(lParam != 0)
         {
-            sprintf(msg, "Error processing incoming message. (#%i 0x%x)", lParam, wParam);
-            LOG(0, msg);
-            OSD_ShowTextPersistent(msg, 5);
+            TCHAR err[1024];
+            _stprintf(err, _T("Error processing incoming message. (#%i 0x%x)"), lParam, wParam);
+            LOG(0, err);
+            OSD_ShowTextPersistent(err, 5);
         }
         else
         {
-            hMapFile = OpenFileMapping(FILE_MAP_READ, FALSE, "DScalerSendMessageFileMappingObject");
+            hMapFile = OpenFileMapping(FILE_MAP_READ, FALSE, _T("DScalerSendMessageFileMappingObject"));
 
             if(hMapFile == NULL)
             {
-                sprintf(msg, "Error processing incoming message. (#10 0x%x)", GetLastError());
-                LOG(0, msg);
+                TCHAR err[1024];
+                _stprintf(err, _T("Error processing incoming message. (#10 0x%x)"), GetLastError());
+                LOG(0, err);
             }
             else
             {
@@ -1820,8 +1828,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
                 if (lpMsg == NULL)
                 {
-                    sprintf(msg, "Error processing incoming message. (#11 0x%x)", GetLastError());
-                    LOG(0, msg);
+                    TCHAR err[1024];
+                    _stprintf(err, _T("Error processing incoming message. (#11 0x%x)"), GetLastError());
+                    LOG(0, err);
                 }
                 else
                 {
@@ -1830,7 +1839,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             // convert "\n" to newline characters
             char* s;
-            while((s = strstr(msg,"\\n")) != NULL)
+            while((s = strstr(msg, "\\n")) != NULL)
             {
                 s[0] = '\n';
                 strncpy(&s[1], &s[2], strlen(&s[1]));
@@ -1838,11 +1847,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
             if(wParam == 0 && hMapFile != NULL && lpMsg != NULL)
             {
-                OSD_ShowText(msg, 5);
+                OSD_ShowText(MBCSToTString(msg), 5);
             }
             else
             {
-                OSD_ShowTextPersistent(msg, 5);
+                OSD_ShowTextPersistent(MBCSToTString(msg), 5);
             }
 
             if(lpMsg != NULL)
@@ -1879,19 +1888,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
         case IDM_MUTE:
             Audio_SetUserMute(!Audio_GetUserMute());
-            ShowText(hWnd, Audio_GetUserMute() ? "MUTE" : "UNMUTE");
+            ShowText(hWnd, Audio_GetUserMute() ? _T("MUTE") : _T("UNMUTE"));
             break;
 
         case IDC_TOOLBAR_VOLUME_MUTE:
             Audio_SetUserMute(lParam);
-            ShowText(hWnd, lParam ? "MUTE" : "UNMUTE");
+            ShowText(hWnd, lParam ? _T("MUTE") : _T("UNMUTE"));
             break;
 
         case IDM_VOLUMEPLUS:
             if (Audio_GetUserMute() == TRUE)
             {
                 Audio_SetUserMute(FALSE);
-                ShowText(hWnd, "UNMUTE");
+                ShowText(hWnd, _T("UNMUTE"));
             }
             else
             {
@@ -1904,14 +1913,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     }
                     else
                     {
-                        ShowText(hWnd, "Volume not supported");
+                        ShowText(hWnd, _T("Volume not supported"));
                     }
                 }
                 else
                 {
                     Mixer_Volume_Up();
-                    ostringstream oss;
-                    oss << "Mixer-Volume " << Mixer_GetVolume();
+                    tostringstream oss;
+                    oss << _T("Mixer-Volume ") << Mixer_GetVolume();
                     ShowText(hWnd, oss.str());
                 }
             }
@@ -1921,7 +1930,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (Audio_GetUserMute() == TRUE)
             {
                 Audio_SetUserMute(FALSE);
-                ShowText(hWnd, "UNMUTE");
+                ShowText(hWnd, _T("UNMUTE"));
             }
             else
             {
@@ -1934,14 +1943,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     }
                     else
                     {
-                        ShowText(hWnd, "Volume not supported");
+                        ShowText(hWnd, _T("Volume not supported"));
                     }
                 }
                 else
                 {
                     Mixer_Volume_Down();
-                    ostringstream oss;
-                    oss << "Mixer-Volume " << Mixer_GetVolume();
+                    tostringstream oss;
+                    oss << _T("Mixer-Volume ") << Mixer_GetVolume();
                     ShowText(hWnd, oss.str());
                 }
             }
@@ -1961,7 +1970,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
                 else
                 {
-                    ShowText(hWnd, "Volume not supported");
+                    ShowText(hWnd, _T("Volume not supported"));
                 }
             }
             else
@@ -1969,8 +1978,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 extern void Mixer_SetVolume(long volume);
 
                 Mixer_SetVolume(lParam);
-                ostringstream oss;
-                oss << "Mixer-Volume " << Mixer_GetVolume();
+                tostringstream oss;
+                oss << _T("Mixer-Volume ") << Mixer_GetVolume();
                 ShowText(hWnd, oss.str());
             }
             break;
@@ -1978,12 +1987,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_AUTO_FORMAT:
             if(Setting_GetValue(WM_TIMING_GETVALUE, AUTOFORMATDETECT))
             {
-                ShowText(hWnd, "Auto Format Detection OFF");
+                ShowText(hWnd, _T("Auto Format Detection OFF"));
                 Setting_SetValue(WM_TIMING_GETVALUE, AUTOFORMATDETECT, FALSE);
             }
             else
             {
-                ShowText(hWnd, "Auto Format Detection ON");
+                ShowText(hWnd, _T("Auto Format Detection ON"));
                 Setting_SetValue(WM_TIMING_GETVALUE, AUTOFORMATDETECT, TRUE);
             }
             break;
@@ -2222,12 +2231,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             KillTimer(hWnd, TIMER_FINDPULL);
             if(Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT))
             {
-                ShowText(hWnd, "Auto Pulldown Detection OFF");
+                ShowText(hWnd, _T("Auto Pulldown Detection OFF"));
                 Setting_SetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT, FALSE);
             }
             else
             {
-                ShowText(hWnd, "Auto Pulldown Detection ON");
+                ShowText(hWnd, _T("Auto Pulldown Detection ON"));
                 Setting_SetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT, TRUE);
             }
             // Set Deinterlace Mode to film fallback in
@@ -2258,18 +2267,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 SetVideoDeinterlaceIndex(Setting_GetValue(WM_FD60_GETVALUE, NTSCFILMFALLBACKMODE));
             }
             SetTimer(hWnd, TIMER_FINDPULL, TIMER_FINDPULL_MS, NULL);
-//            ShowText(hWnd, "Searching Film mode ...");
+//            ShowText(hWnd, _T("Searching Film mode ..."));
             break;
 
         case IDM_FALLBACK:
             if(Setting_GetValue(WM_FD60_GETVALUE, FALLBACKTOVIDEO))
             {
-                ShowText(hWnd, "Fallback on Bad Pulldown OFF");
+                ShowText(hWnd, _T("Fallback on Bad Pulldown OFF"));
                 Setting_SetValue(WM_FD60_GETVALUE, FALLBACKTOVIDEO, FALSE);
             }
             else
             {
-                ShowText(hWnd, "Fallback on Bad Pulldown ON");
+                ShowText(hWnd, _T("Fallback on Bad Pulldown ON"));
                 Setting_SetValue(WM_FD60_GETVALUE, FALLBACKTOVIDEO, TRUE);
             }
             break;
@@ -2284,7 +2293,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             KillTimer(hWnd, TIMER_FINDPULL);
             Setting_SetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT, FALSE);
             SetFilmDeinterlaceMode((eFilmPulldownMode)(LOWORD(wParam) - IDM_22PULLODD));
-            ShowText(hWnd, GetDeinterlaceModeName());
+            ShowText(hWnd, MBCSToTString(GetDeinterlaceModeName()));
             break;
 
         case IDM_ABOUT:
@@ -2314,7 +2323,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                ShowText(hWnd, "No Brightness Control");
+                ShowText(hWnd, _T("No Brightness Control"));
             }
             break;
 
@@ -2341,7 +2350,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                ShowText(hWnd, "No Contrast Control");
+                ShowText(hWnd, _T("No Contrast Control"));
             }
             break;
 
@@ -2368,7 +2377,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                ShowText(hWnd, "No Saturation U Control");
+                ShowText(hWnd, _T("No Saturation U Control"));
             }
             break;
 
@@ -2395,7 +2404,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                ShowText(hWnd, "No Saturation V Control");
+                ShowText(hWnd, _T("No Saturation V Control"));
             }
             break;
 
@@ -2422,7 +2431,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                ShowText(hWnd, "No Saturation Control");
+                ShowText(hWnd, _T("No Saturation Control"));
             }
             break;
 
@@ -2449,7 +2458,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                ShowText(hWnd, "No Hue Control");
+                ShowText(hWnd, _T("No Hue Control"));
             }
             break;
 
@@ -2519,29 +2528,29 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             && Providers_GetCurrentSource()->GetLeftOverscan() == NULL
             && Providers_GetCurrentSource()->GetRightOverscan() == NULL)
             {
-                ShowText(hWnd, "No Overscan Control");
+                ShowText(hWnd, _T("No Overscan Control"));
             }
             else
             {
-                string Text("Overscan");
+                tstring Text(_T("Overscan"));
                 if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
                 {
-                    Text +=  "\nTop ";
+                    Text +=  _T("\nTop ");
                     Text += ToString(pSetting->GetValue());
                 }
                 if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
                 {
-                    Text +=  "\nBottom ";
+                    Text +=  _T("\nBottom ");
                     Text += ToString(pSetting->GetValue());
                 }
                 if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
                 {
-                    Text +=  "\nLeft ";
+                    Text +=  _T("\nLeft ");
                     Text += ToString(pSetting->GetValue());
                 }
                 if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
                 {
-                    Text +=  "\nRight ";
+                    Text +=  _T("\nRight ");
                     Text += ToString(pSetting->GetValue());
                 }
                 OSD_ShowText(Text, 0);
@@ -2560,9 +2569,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (((CStillSource*)Providers_GetSnapshotsSource())->IsOneItemInMemory())
             {
                 if (MessageBox(hWnd,
-                               "At least one of your snapshots is not yet saved in a file.\n"
-                               "Do you confirm that you want to exit without saving it?",
-                               "DScaler - Unsaved Snapshots",
+                               _T("At least one of your snapshots is not yet saved in a file.\n")
+                               _T("Do you confirm that you want to exit without saving it?"),
+                               _T("DScaler - Unsaved Snapshots"),
                                MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDNO)
                 {
                     break;
@@ -2647,7 +2656,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
                 if (NewState == VT_OFF)
                 {
-                    OSD_ShowText("Teletext OFF", 0);
+                    OSD_ShowText(_T("Teletext OFF"), 0);
                 }
                 else
                 {
@@ -2782,11 +2791,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             SetKeyboardLock(bKeyboardLock);
             if(bKeyboardLock)
             {
-                OSD_ShowText("Keyboard lock on", 0);
+                OSD_ShowText(_T("Keyboard lock on"), 0);
             }
             else
             {
-                OSD_ShowText("Keyboard lock off", 0);
+                OSD_ShowText(_T("Keyboard lock off"), 0);
             }
 
             break;
@@ -2809,7 +2818,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(!Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT))
             {
                 IncrementDeinterlaceMode();
-                ShowText(hWnd, GetDeinterlaceModeName());
+                ShowText(hWnd, MBCSToTString(GetDeinterlaceModeName()));
             }
             break;
 
@@ -2817,7 +2826,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (!Setting_GetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT))
             {
                 DecrementDeinterlaceMode();
-                ShowText(hWnd, GetDeinterlaceModeName());
+                ShowText(hWnd, MBCSToTString(GetDeinterlaceModeName()));
             }
             break;
 
@@ -2882,7 +2891,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             ResetARStats();
             pPerf->Reset();
             // don't show the message since it will hide the statistics.
-            //ShowText(hWnd, "Statistics reset");
+            //ShowText(hWnd, _T("Statistics reset"));
             break;
 
         case IDM_TSOPTIONS:
@@ -2896,7 +2905,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TSRECORD:
             if (TimeShiftRecord())
             {
-                ShowText(hWnd, "Recording");
+                ShowText(hWnd, _T("Recording"));
                 TimeShiftOnSetMenu(hMenu);
             }
             break;
@@ -2904,7 +2913,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TSSTOP:
             if (TimeShiftStop())
             {
-                ShowText(hWnd, "Stopped");
+                ShowText(hWnd, _T("Stopped"));
                 TimeShiftOnSetMenu(hMenu);
             }
             break;
@@ -2912,7 +2921,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TSPLAY:
 //            if (CTimeShift::OnPlay())
 //            {
-//                ShowText(hWnd, "Playing");
+//                ShowText(hWnd, _T("Playing"));
 //                CTimeShift::OnSetMenu(hMenu);
 //            }
             break;
@@ -2920,7 +2929,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TSPAUSE:
 //            if (CTimeShift::OnPause())
 //            {
-//                ShowText(hWnd, "Paused");
+//                ShowText(hWnd, _T("Paused"));
 //                CTimeShift::OnSetMenu(hMenu);
 //            }
             break;
@@ -2928,7 +2937,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TSFFWD:
 //            if (CTimeShift::OnFastForward())
 //            {
-//                ShowText(hWnd, "Scanning >>>");
+//                ShowText(hWnd, _T("Scanning >>>"));
 //                CTimeShift::OnSetMenu(hMenu);
 //            }
             break;
@@ -2936,7 +2945,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TSRWND:
 //            if (CTimeShift::OnFastBackward())
 //            {
-//                ShowText(hWnd, "Scanning <<<");
+//                ShowText(hWnd, _T("Scanning <<<"));
 //                CTimeShift::OnSetMenu(hMenu);
 //            }
             break;
@@ -2944,7 +2953,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TSNEXT:
 //            if (CTimeShift::OnGoNext())
 //            {
-//                ShowText(hWnd, "Next Clip");
+//                ShowText(hWnd, _T("Next Clip"));
 //                CTimeShift::OnSetMenu(hMenu);
 //            }
             break;
@@ -2952,7 +2961,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TSPREV:
 //            if (CTimeShift::OnGoPrev())
 //            {
-//                ShowText(hWnd, "Previous Clip");
+//                ShowText(hWnd, _T("Previous Clip"));
 //                CTimeShift::OnSetMenu(hMenu);
 //            }
             break;
@@ -2966,14 +2975,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             // Such as macros in software such as Girder, etc.
             if (lParam)
             {
-                vector<char> Buffer(512);
+                vector<TCHAR> Buffer(512);
                 GlobalGetAtomName((ATOM) lParam, &Buffer[0], 512);
                 OSD_ShowTextOverride(&Buffer[0], 0);
                 GlobalDeleteAtom((ATOM) lParam);
             }
             else
             {
-                OSD_ShowTextOverride("", 0);
+                OSD_ShowTextOverride(_T(""), 0);
             }
             break;
 
@@ -3008,8 +3017,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_OVERLAYSETTINGS:
             if(!GetActiveOutput()->CanDoOverlayColorControl())
             {
-                MessageBox(hWnd, "Overlay color control is not supported by your video card.",
-                           "DScaler", MB_OK);
+                MessageBox(hWnd, _T("Overlay color control is not supported by your video card."),
+                           _T("DScaler"), MB_OK);
             }
             else
             {
@@ -3059,27 +3068,27 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_HELP_HOMEPAGE:
-            ShellExecute(hWnd, "open", "http://www.dscaler.org/", NULL, NULL, SW_SHOWNORMAL);
+            ShellExecute(hWnd, _T("open"), _T("http://www.dscaler.org/"), NULL, NULL, SW_SHOWNORMAL);
             break;
 
         case IDM_HELP_FAQ:
-            HtmlHelp(hWnd, "DScaler.chm::/FAQ.htm", HH_DISPLAY_TOPIC, 0);
+            HtmlHelp(hWnd, _T("DScaler.chm::/FAQ.htm"), HH_DISPLAY_TOPIC, 0);
             break;
 
         case IDM_HELP_SUPPORT:
-            HtmlHelp(hWnd, "DScaler.chm::/user_support.htm", HH_DISPLAY_TOPIC, 0);
+            HtmlHelp(hWnd, _T("DScaler.chm::/user_support.htm"), HH_DISPLAY_TOPIC, 0);
             break;
 
         case IDM_HELP_KEYBOARD:
-            HtmlHelp(hWnd, "DScaler.chm::/keyboard.htm", HH_DISPLAY_TOPIC, 0);
+            HtmlHelp(hWnd, _T("DScaler.chm::/keyboard.htm"), HH_DISPLAY_TOPIC, 0);
             break;
 
         case IDM_HELP_GPL:
-            HtmlHelp(hWnd, "DScaler.chm::/COPYING.html", HH_DISPLAY_TOPIC, 0);
+            HtmlHelp(hWnd, _T("DScaler.chm::/COPYING.html"), HH_DISPLAY_TOPIC, 0);
             break;
 
         case IDM_HELP_README:
-            HtmlHelp(hWnd, "DScaler.chm::/Help.htm", HH_DISPLAY_TOPIC, 0);
+            HtmlHelp(hWnd, _T("DScaler.chm::/Help.htm"), HH_DISPLAY_TOPIC, 0);
             break;
 
         case IDM_CREDITS:
@@ -3199,7 +3208,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             SetWindowBorder(hWnd, FALSE);
             if (ToolbarControl)
             {
-                ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);
+                ToolbarControl->Set(hWnd, (LPCTSTR)szSkinName, bIsFullScreen?1:0);
             }
             UpdateWindowState();
             WorkoutOverlaySize(FALSE);
@@ -3245,13 +3254,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 size_t n = LOWORD(wParam)-IDM_SKIN_FIRST;
                 if (n < vSkinNameList.size())
                 {
-                    strcpy(szSkinName, vSkinNameList[n].c_str());
+                    szSkinName.SetValue(vSkinNameList[n]);
                 }
                 Skin_SetMenu(hMenu, TRUE);
                 SetWindowBorder(hWnd, TRUE);
                 if (ToolbarControl)
                 {
-                    ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);
+                    ToolbarControl->Set(hWnd, (LPCTSTR)szSkinName, bIsFullScreen?1:0);
                 }
                 UpdateWindowState();
                 WorkoutOverlaySize(FALSE);
@@ -3549,15 +3558,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if (Setting_GetValue(WM_AUDIO_GETVALUE, SYSTEMINMUTE) == TRUE)
                 {
-                    StatusBar_ShowText(STATUS_TEXT, "Volume Mute");
+                    StatusBar_ShowText(STATUS_TEXT, _T("Volume Mute"));
                 }
                 else if (!Providers_GetCurrentSource()->IsVideoPresent())
                 {
-                    StatusBar_ShowText(STATUS_TEXT, "No Video Signal Found");
+                    StatusBar_ShowText(STATUS_TEXT, _T("No Video Signal Found"));
                 }
                 else
                 {
-                    string Text(Providers_GetCurrentSource()->GetStatus());
+                    tstring Text(Providers_GetCurrentSource()->GetStatus());
                     if(Text.empty())
                     {
                         if(Providers_GetCurrentSource()->IsInTunerMode())
@@ -3568,10 +3577,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     StatusBar_ShowText(STATUS_TEXT, Text);
                 }
 
-                ostringstream strstream;
-                strstream << pPerf->GetDroppedFieldsLastSecond();
-                strstream << " DF/S";
-                StatusBar_ShowText(STATUS_FPS, strstream.str());
+                tostringstream _tcsstream;
+                _tcsstream << pPerf->GetDroppedFieldsLastSecond();
+                _tcsstream << _T(" DF/S");
+                StatusBar_ShowText(STATUS_FPS, _tcsstream.str());
             }
             break;
         //-------------------------------
@@ -3603,55 +3612,55 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         //-------------------------------
         case TIMER_KEYNUMBER:
             KillTimer(hWnd, TIMER_KEYNUMBER);
-            i = atoi(ChannelString);
+            i = _ttoi(ChannelString);
             // if only zero's are entered video input is switched.
             if(i == 0)
             {
-                if(strcmp(ChannelString, "0") == 0)
+                if(_tcscmp(ChannelString, _T("0")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
                 }
-                else if(strcmp(ChannelString, "00") == 0)
+                else if(_tcscmp(ChannelString, _T("00")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT2, 0);
                 }
-                else if(strcmp(ChannelString, "000") == 0)
+                else if(_tcscmp(ChannelString, _T("000")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT3, 0);
                 }
-                else if(strcmp(ChannelString, "0000") == 0)
+                else if(_tcscmp(ChannelString, _T("0000")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT4, 0);
                 }
-                else if(strcmp(ChannelString, "00000") == 0)
+                else if(_tcscmp(ChannelString, _T("00000")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT5, 0);
                 }
-                else if(strcmp(ChannelString, "000000") == 0)
+                else if(_tcscmp(ChannelString, _T("000000")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT6, 0);
                 }
-                else if(strcmp(ChannelString, "0000000") == 0)
+                else if(_tcscmp(ChannelString, _T("0000000")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT7, 0);
                 }
-                else if(strcmp(ChannelString, "00000000") == 0)
+                else if(_tcscmp(ChannelString, _T("00000000")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT8, 0);
                 }
-                else if(strcmp(ChannelString, "000000000") == 0)
+                else if(_tcscmp(ChannelString, _T("000000000")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT9, 0);
                 }
-                else if(strcmp(ChannelString, "0000000000") == 0)
+                else if(_tcscmp(ChannelString, _T("0000000000")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT10, 0);
                 }
-                else if(strcmp(ChannelString, "00000000000") == 0)
+                else if(_tcscmp(ChannelString, _T("00000000000")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT11, 0);
                 }
-                else if(strcmp(ChannelString, "000000000000") == 0)
+                else if(_tcscmp(ChannelString, _T("000000000000")) == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT12, 0);
                 }
@@ -3711,7 +3720,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 KillTimer(hWnd, TIMER_FINDPULL);
                 Setting_SetValue(WM_OUTTHREADS_GETVALUE, AUTODETECT, FALSE);
-                ShowText(hWnd, GetDeinterlaceModeName());
+                ShowText(hWnd, MBCSToTString(GetDeinterlaceModeName()));
             }
             break;
         //---------------------------------
@@ -3921,8 +3930,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     case UWM_DEINTERLACE_SETSTATUS:
         if(wParam!=NULL)
         {
-            StatusBar_ShowText(STATUS_MODE,(LPCSTR)wParam);
-            free((void*)wParam);
+            StatusBar_ShowText(STATUS_MODE,(LPCTSTR)wParam);
         }
         return 0;
         break;
@@ -4047,14 +4055,14 @@ void SaveWindowPos(HWND hWnd)
 
 
 //---------------------------------------------------------------------------
-void SaveActualPStripTiming(HWND hPSWnd)
+void SaveActualPstripTiming(HWND hPSWnd)
 {
     ATOM pStripTimingAtom = static_cast<ATOM>(SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0));
-    if(lPStripTimingString == NULL)
+    if(PstripTimingString == NULL)
     {
-        lPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];
+        PstripTimingString = new TCHAR[PSTRIP_TIMING_STRING_SIZE];
     }
-    GlobalGetAtomName(pStripTimingAtom, lPStripTimingString, PSTRIP_TIMING_STRING_SIZE);
+    GlobalGetAtomName(pStripTimingAtom, PstripTimingString, PSTRIP_TIMING_STRING_SIZE);
     GlobalDeleteAtom(pStripTimingAtom);
 }
 
@@ -4065,9 +4073,9 @@ void MainWndOnInitBT(HWND hWnd)
     BOOL bInitOK = FALSE;
 
     // Initialise the PowerStrip window handler
-    hPSWnd = FindWindow("TPShidden", NULL);
+    hPSWnd = FindWindow(_T("TPShidden"), NULL);
 
-    AddSplashTextLine("Hardware Init");
+    AddSplashTextLine(_T("Hardware Init"));
 
     if (ShowHWSetupBox)
     {
@@ -4109,9 +4117,9 @@ void MainWndOnInitBT(HWND hWnd)
             else
             {
                 if (MessageBox(hWnd,
-                               "The overlay couldn't be created.\n"
-                               "Do you want to try DirectX?",
-                               "DScaler - Overlay create Failed",
+                               _T("The overlay couldn't be created.\n")
+                               _T("Do you want to try DirectX?"),
+                               _T("DScaler - Overlay create Failed"),
                                MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDYES)
                 {
                     SetActiveOutput(IOutput::OUT_D3D);
@@ -4131,21 +4139,21 @@ void MainWndOnInitBT(HWND hWnd)
     }
     else
     {
-        AddSplashTextLine("");
-        AddSplashTextLine("No");
-        AddSplashTextLine("Suitable");
-        AddSplashTextLine("Hardware");
+        AddSplashTextLine(_T(""));
+        AddSplashTextLine(_T("No"));
+        AddSplashTextLine(_T("Suitable"));
+        AddSplashTextLine(_T("Hardware"));
     }
 
     if (bInitOK)
     {
-        AddSplashTextLine("Load Plugins");
+        AddSplashTextLine(_T("Load Plugins"));
         if(!LoadDeinterlacePlugins())
         {
-            AddSplashTextLine("");
-            AddSplashTextLine("No");
-            AddSplashTextLine("Plug-ins");
-            AddSplashTextLine("Found");
+            AddSplashTextLine(_T(""));
+            AddSplashTextLine(_T("No"));
+            AddSplashTextLine(_T("Plug-ins"));
+            AddSplashTextLine(_T("Found"));
             bInitOK = FALSE;
         }
         else
@@ -4156,7 +4164,7 @@ void MainWndOnInitBT(HWND hWnd)
 
     if (bInitOK)
     {
-        AddSplashTextLine("Position Window");
+        AddSplashTextLine(_T("Position Window"));
         WStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
         if (bAlwaysOnTop == FALSE)
         {
@@ -4177,21 +4185,21 @@ void MainWndOnInitBT(HWND hWnd)
             SendMessage(hWnd, WM_COMMAND, IDM_TOGGLE_MENU, 0);
         }
 
-        AddSplashTextLine("Load Toolbars");
+        AddSplashTextLine(_T("Load Toolbars"));
         if (!ToolbarControl)
         {
             ToolbarControl = new CToolbarControl(WM_TOOLBARS_GETVALUE);
-            ToolbarControl->Set(hWnd, NULL);
+            ToolbarControl->Set(hWnd, _T(""));
         }
 
         if (szSkinName)
         {
-            AddSplashTextLine("Load Skin");
+            AddSplashTextLine(_T("Load Skin"));
 
             SetWindowBorder(hWnd, (bool)szSkinName);
             if (ToolbarControl)
             {
-                ToolbarControl->Set(hWnd, szSkinName);
+                ToolbarControl->Set(hWnd, (LPCTSTR)szSkinName);
             }
         }
 
@@ -4200,12 +4208,12 @@ void MainWndOnInitBT(HWND hWnd)
         // and the second to hide the toolbar if in full scrren mode
         if (ToolbarControl)
         {
-            ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
+            ToolbarControl->Set(hWnd, _T(""), bIsFullScreen?1:0);
         }
 
-        AddSplashTextLine("Setup Mixer");
+        AddSplashTextLine(_T("Setup Mixer"));
 
-        AddSplashTextLine("Start Timers");
+        AddSplashTextLine(_T("Start Timers"));
         if(bIsFullScreen == FALSE && bDisplayStatusBar == TRUE)
         {
             SetTimer(hWnd, TIMER_STATUS, TIMER_STATUS_MS, NULL);
@@ -4218,13 +4226,13 @@ void MainWndOnInitBT(HWND hWnd)
 
         // do final setup routines for any files
         // basically where we need the hWnd to be set
-        AddSplashTextLine("Setup Aspect Ratio");
+        AddSplashTextLine(_T("Setup Aspect Ratio"));
         Aspect_FinalSetup();
 
         // OK we're ready to go
         WorkoutOverlaySize(FALSE);
 
-        AddSplashTextLine("Update Menu");
+        AddSplashTextLine(_T("Update Menu"));
         OSD_UpdateMenu(hMenu);
         pCalibration->UpdateMenu(hMenu);
         Channels_UpdateMenu(hMenu);
@@ -4241,8 +4249,8 @@ void MainWndOnInitBT(HWND hWnd)
         {
             if(hPSWnd)
             {
-                // Save the actual PowerStrip timing string in lPStripTimingString
-                SaveActualPStripTiming(hPSWnd);
+                // Save the actual PowerStrip timing tstring in PstripTimingString
+                SaveActualPstripTiming(hPSWnd);
             }
             OutReso_Change(hWnd, hPSWnd, FALSE, FALSE, NULL, FALSE);
             BypassChgResoInRestore = TRUE;
@@ -4279,7 +4287,7 @@ void MainWndOnInitBT(HWND hWnd)
 
         RemoteRegister();
 
-        AddSplashTextLine("Start Video");
+        AddSplashTextLine(_T("Start Video"));
         Start_Capture();
         GetActiveOutput()->SetCurrentMonitor(hWnd);
 
@@ -4294,27 +4302,27 @@ void MainWndOnInitBT(HWND hWnd)
 //---------------------------------------------------------------------------
 void MainWndOnCreate(HWND hWnd)
 {
-    char Text[128];
+    TCHAR Text[128];
     int i;
     int ProcessorMask;
     SYSTEM_INFO SysInfo;
 
-    LOG(1 , "DScaler Version %s Compiled %s %s Build %s", VERSTRING, __DATE__, __TIME__, GetSVNBuildString());
+    LOG(1 , GetProductNameAndVersionFull().c_str());
 
     OSVERSIONINFO ovi;
     ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
     if(GetVersionEx(&ovi))
     {
-        LOG(1, "Windows %d.%d (Win%s build %d) [%s]"
+        LOG(1, _T("Windows %d.%d (Win%s build %d) [%s]")
             ,ovi.dwMajorVersion
             ,ovi.dwMinorVersion
             ,ovi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS
-            ? (ovi.dwMinorVersion>0 ? (ovi.dwMinorVersion>10 ? "Me" : "98") : "95")
+            ? (ovi.dwMinorVersion>0 ? (ovi.dwMinorVersion>10 ? _T("Me") : _T("98")) : _T("95"))
                 : ovi.dwPlatformId == VER_PLATFORM_WIN32_NT
-                    ? (ovi.dwMajorVersion==5 &&ovi.dwMinorVersion==1 ? "XP" :
-                    (ovi.dwMajorVersion >= 5 ? "2000" : "NT"))
-                    : "?"
+                    ? (ovi.dwMajorVersion==5 &&ovi.dwMinorVersion==1 ? _T("XP") :
+                    (ovi.dwMajorVersion >= 5 ? _T("2000") : _T("NT")))
+                    : _T("?")
             ,ovi.dwBuildNumber & 0xffff
             ,ovi.szCSDVersion);
     }
@@ -4324,8 +4332,8 @@ void MainWndOnCreate(HWND hWnd)
     pPerf = new CPerf();
 
     GetSystemInfo(&SysInfo);
-    AddSplashTextLine("Table Build");
-    AddSplashTextLine("Teletext");
+    AddSplashTextLine(_T("Table Build"));
+    AddSplashTextLine(_T("Teletext"));
 
     VBI_Init();
     OSD_Init();
@@ -4333,11 +4341,11 @@ void MainWndOnCreate(HWND hWnd)
 
     Load_Program_List_ASCII();
 
-    AddSplashTextLine("System Analysis");
+    AddSplashTextLine(_T("System Analysis"));
 
-    sprintf(Text, "Processor %d ", SysInfo.dwProcessorType);
+    _stprintf(Text, _T("Processor %d "), SysInfo.dwProcessorType);
     AddSplashTextLine(Text);
-    sprintf(Text, "Number %d ", SysInfo.dwNumberOfProcessors);
+    _stprintf(Text, _T("Number %d "), SysInfo.dwNumberOfProcessors);
     AddSplashTextLine(Text);
 
     if (SysInfo.dwNumberOfProcessors > 1)
@@ -4361,10 +4369,10 @@ void MainWndOnCreate(HWND hWnd)
 
         }
 
-        AddSplashTextLine("Multi-Processor");
-        sprintf(Text, "Main-CPU %d ", MainProcessor);
+        AddSplashTextLine(_T("Multi-Processor"));
+        _stprintf(Text, _T("Main-CPU %d "), MainProcessor);
         AddSplashTextLine(Text);
-        sprintf(Text, "DECODE-CPU %d ", DecodeProcessor);
+        _stprintf(Text, _T("DECODE-CPU %d "), DecodeProcessor);
         AddSplashTextLine(Text);
     }
 
@@ -4408,75 +4416,75 @@ void MainWndOnDestroy()
     {
         KillTimers();
     }
-    catch(...) {LOG(1, "Kill Timers");}
+    catch(...) {LOG(1, _T("Kill Timers"));}
 
     // stop capture before stopping timneshift to avoid crash
     try
     {
-        LOG(1, "Try Stop_Capture");
+        LOG(1, _T("Try Stop_Capture"));
         Stop_Capture();
     }
-    catch(...) {LOG(1, "Error Stop_Capture");}
+    catch(...) {LOG(1, _T("Error Stop_Capture"));}
 
     try
     {
-        LOG(1, "Try CTimeShift::OnStop");
+        LOG(1, _T("Try CTimeShift::OnStop"));
 
         TimeShiftStop();
     }
-    catch(...) {LOG(1, "Error TimeShiftStop");}
+    catch(...) {LOG(1, _T("Error TimeShiftStop"));}
 
 
     // Kill timeshift before muting since it always exits unmuted on cleanup.
     try
     {
-        LOG(1, "Try TimeShiftShutdown");
+        LOG(1, _T("Try TimeShiftShutdown"));
 
         TimeShiftShutdown();
     }
-    catch(...) {LOG(1, "Error TimeShiftShutdown");}
+    catch(...) {LOG(1, _T("Error TimeShiftShutdown"));}
 
     try
     {
-        LOG(1, "Try CleanUpMemory");
+        LOG(1, _T("Try CleanUpMemory"));
         CleanUpMemory();
     }
-    catch(...) {LOG(1, "Error CleanUpMemory");}
+    catch(...) {LOG(1, _T("Error CleanUpMemory"));}
 
     try
     {
         if(bIsFullScreen == FALSE)
         {
-            LOG(1, "Try SaveWindowPos");
+            LOG(1, _T("Try SaveWindowPos"));
             if(hPSWnd)
             {
-                // Save the actual PowerStrip timing string in lPStripTimingString
-                SaveActualPStripTiming(hPSWnd);
+                // Save the actual PowerStrip timing tstring in PstripTimingString
+                SaveActualPstripTiming(hPSWnd);
             }
             SaveWindowPos(hWnd);
         }
     }
-    catch(...) {LOG(1, "Error SaveWindowPos");}
+    catch(...) {LOG(1, _T("Error SaveWindowPos"));}
 
     try
     {
-        LOG(1, "Try free skinned border");
+        LOG(1, _T("Try free skinned border"));
         if (WindowBorder)
         {
             WindowBorder = 0L;
         }
     }
-    catch(...) {LOG(1, "Error free skinned border");}
+    catch(...) {LOG(1, _T("Error free skinned border"));}
 
     try
     {
-        LOG(1, "Try free toolbars");
+        LOG(1, _T("Try free toolbars"));
         if (ToolbarControl)
         {
             ToolbarControl = 0L;
         }
     }
-    catch(...) {LOG(1, "Error free toolbars");}
+    catch(...) {LOG(1, _T("Error free toolbars"));}
 
     if(SettingsMaster)
     {
@@ -4484,62 +4492,73 @@ void MainWndOnDestroy()
         {
             // save settings per cahnnel/input ets
             // must be done before providers are unloaded
-            LOG(1, "SettingsMaster->SaveGroupedSettings");
+            LOG(1, _T("SettingsMaster->SaveGroupedSettings"));
             SettingsMaster->SaveGroupedSettings();
         }
-        catch(...) {LOG(1, "Error SettingsMaster->SaveGroupedSettings");}
+        catch(...) {LOG(1, _T("Error SettingsMaster->SaveGroupedSettings"));}
 
         try
         {
             // write out setting with optimize on
             // to avoid delay on flushing file
             // all the setting should be filled out anyway
-            LOG(1, "SettingsMaster->SaveAllSettings");
+            LOG(1, _T("SettingsMaster->SaveAllSettings"));
             SettingsMaster->SaveAllSettings(TRUE);
         }
-        catch(...) {LOG(1, "Error SettingsMaster->SaveAllSettings");}
+        catch(...) {LOG(1, _T("Error SettingsMaster->SaveAllSettings"));}
     }
 
     try
     {
-        LOG(1, "Try Providers_Unload");
+        LOG(1, _T("Try Providers_Unload"));
         Providers_Unload();
     }
-    catch(...) {LOG(1, "Error Providers_Unload");}
+    catch(...) {LOG(1, _T("Error Providers_Unload"));}
 
     try
     {
-        LOG(1, "Try StatusBar_Destroy");
+        LOG(1, _T("Try StatusBar_Destroy"));
         StatusBar_Destroy();
     }
-    catch(...) {LOG(1, "Error StatusBar_Destroy");}
+    catch(...) {LOG(1, _T("Error StatusBar_Destroy"));}
 
     try
     {
-        LOG(1, "Try SetTray(FALSE)");
+        LOG(1, _T("Try SetTray(FALSE)"));
         if (bIconOn)
             SetTray(FALSE);
     }
-    catch(...) {LOG(1, "Error SetTray(FALSE)");}
+    catch(...) {LOG(1, _T("Error SetTray(FALSE)"));}
 
     try
     {
-        LOG(1, "Try ExitDD");
+        LOG(1, _T("Try ExitDD"));
         GetActiveOutput()->ExitDD();
     }
-    catch(...) {LOG(1, "Error ExitDD");}
+    catch(...) {LOG(1, _T("Error ExitDD"));}
+
+    try
+    {
+        int* test = 0;
+        //*test += 100;
+    }
+    catch(SEHException& e)
+    {
+        LOG(1, MBCSToTString(e.what()).c_str());
+    }
+    catch(...) {LOG(1, _T("Deliberate Crash"));}
 
     try
     {
         if(bIsFullScreen == TRUE)
         {
             // Do this here after the ExitDD to be sure that the overlay is destroyed
-            LOG(1, "Try restore display resolution");
+            LOG(1, _T("Try restore display resolution"));
             BypassChgResoInRestore = TRUE;
-            OutReso_Change(hWnd, hPSWnd, TRUE, FALSE, lPStripTimingString, TRUE);
+            OutReso_Change(hWnd, hPSWnd, TRUE, FALSE, PstripTimingString, TRUE);
         }
     }
-    catch(...) {LOG(1, "Error restore display resolution");}
+    catch(...) {LOG(1, _T("Error restore display resolution"));}
 
     try
     {
@@ -4547,46 +4566,46 @@ void MainWndOnDestroy()
         UnloadDeinterlacePlugins();
         UnloadFilterPlugins();
     }
-    catch(...) {LOG(1, "Error Unload plug-ins");}
+    catch(...) {LOG(1, _T("Error Unload plug-ins"));}
 
     try
     {
         SetKeyboardLock(FALSE);
     }
-    catch(...) {LOG(1, "Error SetKeyboardLock(FALSE)");}
+    catch(...) {LOG(1, _T("Error SetKeyboardLock(FALSE)"));}
 
     try
     {
         Timing_CleanUp();
     }
-    catch(...) {LOG(1, "Error Timing_CleanUp()");}
+    catch(...) {LOG(1, _T("Error Timing_CleanUp()"));}
 
 }
 
 LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
-    char Text[128];
+    TCHAR Text[128];
     int i;
 
     if (((char) wParam >= '0') && ((char) wParam <= '9'))
     {
-        sprintf(Text, "%c", (char)wParam);
+        _stprintf(Text, _T("%c"), (char)wParam);
         // if something gets broken in the future
-        if(strlen(ChannelString) >= sizeof(ChannelString)/sizeof(char) - 1)
+        if(_tcslen(ChannelString) >= sizeof(ChannelString)/sizeof(char) - 1)
         {
 #ifdef _DEBUG
             // if this is a debug build show an error message
-            MessageBox(hWnd, "dscaler.cpp: ChannelString out of bounds.", "Error", MB_ICONERROR);
+            MessageBox(hWnd, _T("dscaler.cpp: ChannelString out of bounds."), _T("Error"), MB_ICONERROR);
 #endif
             ChannelString[0] = '\0';
             return 0;
         }
-        strcat(ChannelString, Text);
+        _tcscat(ChannelString, Text);
 
         // if the user is only typing zero's we are going to switch inputs
-        if(atoi(ChannelString) == 0 && (char) wParam == '0')
+        if(_ttoi(ChannelString) == 0 && (char) wParam == '0')
         {
-            int VideoInput = strlen(ChannelString) -1;
+            int VideoInput = _tcslen(ChannelString) -1;
 
             if(Providers_GetCurrentSource() != NULL)
             {
@@ -4599,7 +4618,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     OSD_ShowText(ChannelString, 0);
                 }
 
-                if (strlen(ChannelString) >= 7)
+                if (_tcslen(ChannelString) >= 7)
                 {
                     SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
                 }
@@ -4610,7 +4629,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                OSD_ShowText("No Source", 0);
+                OSD_ShowText(_T("No Source"), 0);
             }
         }
         // if in tuner mode or videotext mode
@@ -4618,7 +4637,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
             OSD_ShowText(ChannelString, 0);
 
-            if(strlen(ChannelString) >= 3)
+            if(_tcslen(ChannelString) >= 3)
             {
                 SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
             }
@@ -4627,10 +4646,10 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
             }
 
-            i = atoi(ChannelString);
+            i = _ttoi(ChannelString);
             if(i != 0)
             {
-                Channel_ChangeToNumber(i,(strlen(ChannelString)>1)?1:0);
+                Channel_ChangeToNumber(i,(_tcslen(ChannelString)>1)?1:0);
             }
         }
         // we don't know what to do with this keypress so we reset ChannelString
@@ -4675,7 +4694,7 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
             }
             if(bIsFullScreen)
             {
-                OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, TRUE);
+                OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, PstripTimingString, TRUE);
             }
             if (GetActiveOutput()->OverlayActive())
             {
@@ -4782,24 +4801,24 @@ void SetMenuAnalog()
 
 // This function checks the name of the menu item. A message box is shown with a debug build
 // if the name is not correct.
-HMENU GetSubMenuWithName(HMENU hMenu, int nPos, LPCSTR szMenuText)
+HMENU GetSubMenuWithName(HMENU hMenu, int nPos, LPCTSTR szMenuText)
 {
 #ifdef _DEBUG
-    char name[128] = "\0";
-    char msg[128] = "\0";
+    TCHAR name[128] = _T("\0");
+    TCHAR msg[128] = _T("\0");
 
     GetMenuString(hMenu, nPos, name, sizeof(name), MF_BYPOSITION);
 
-    if(strcmp(name, szMenuText) != 0)
+    if(_tcscmp(name, szMenuText) != 0)
     {
-        sprintf(msg, "GetSubMenuWithName() error: \'%s\' != \'%s\'", name, szMenuText);
-        MessageBox(hWnd, msg, "Error", MB_ICONERROR);
+        _stprintf(msg, _T("GetSubMenuWithName() error: \'%s\' != \'%s\'"), name, szMenuText);
+        MessageBox(hWnd, msg, _T("Error"), MB_ICONERROR);
     }
 #endif
     return GetSubMenu(hMenu, nPos);
 }
 
-HMENU GetOrCreateSubSubMenu(int SubId, int SubSubId, LPCSTR szMenuText)
+HMENU GetOrCreateSubSubMenu(int SubId, int SubSubId, LPCTSTR szMenuText)
 {
     if(hMenu != NULL)
     {
@@ -4834,7 +4853,7 @@ HMENU GetOrCreateSubSubMenu(int SubId, int SubSubId, LPCSTR szMenuText)
     }
 }
 
-HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCSTR szMenuText)
+HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCTSTR szMenuText)
 {
     if(hMenu != NULL)
     {
@@ -4879,13 +4898,13 @@ HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCSTR 
 
 HMENU GetFiltersSubmenu()
 {
-    char string[128] = "\0";
+    TCHAR tstring[128] = _T("\0");
     int reduc;
 
-    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
-    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+    GetMenuString(hMenu, 2, tstring, sizeof(tstring), MF_BYPOSITION);
+    reduc = !_tcscmp(tstring, _T("&Channels")) ? 0 : 1;
 
-    HMENU hmenu = GetSubMenuWithName(hMenu, 5-reduc, "&Filters");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 5-reduc, _T("&Filters"));
     _ASSERTE(hmenu != NULL);
 
     return hmenu;
@@ -4894,13 +4913,13 @@ HMENU GetFiltersSubmenu()
 
 HMENU GetVideoDeinterlaceSubmenu()
 {
-    char string[128] = "\0";
+    TCHAR tstring[128] = _T("\0");
     int reduc;
 
-    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
-    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+    GetMenuString(hMenu, 2, tstring, sizeof(tstring), MF_BYPOSITION);
+    reduc = !_tcscmp(tstring, _T("&Channels")) ? 0 : 1;
 
-    HMENU hmenu = GetSubMenuWithName(hMenu, 4-reduc, "Deinter&lace");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 4-reduc, _T("Deinter&lace"));
     _ASSERTE(hmenu != NULL);
 
     return hmenu;
@@ -4915,13 +4934,13 @@ HMENU GetChannelsSubmenu()
 
 HMENU GetOSDSubmenu()
 {
-    char string[128] = "\0";
+    TCHAR tstring[128] = _T("\0");
     int reduc;
 
-    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
-    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+    GetMenuString(hMenu, 2, tstring, sizeof(tstring), MF_BYPOSITION);
+    reduc = !_tcscmp(tstring, _T("&Channels")) ? 0 : 1;
 
-    HMENU hmenu = GetSubMenuWithName(hMenu, 3-reduc, "&View");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 3-reduc, _T("&View"));
     _ASSERTE(hmenu != NULL);
 
     return hmenu;
@@ -4929,13 +4948,13 @@ HMENU GetOSDSubmenu()
 
 HMENU GetPatternsSubmenu()
 {
-    char string[128] = "\0";
+    TCHAR tstring[128] = _T("\0");
     int reduc;
 
-    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
-    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+    GetMenuString(hMenu, 2, tstring, sizeof(tstring), MF_BYPOSITION);
+    reduc = !_tcscmp(tstring, _T("&Channels")) ? 0 : 1;
 
-    HMENU hmenu = GetOrCreateSubSubSubMenu(7-reduc, 2, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(7-reduc, 2, 0, _T("Test &Patterns"));
     _ASSERTE(hmenu != NULL);
 
     return hmenu;
@@ -4943,19 +4962,19 @@ HMENU GetPatternsSubmenu()
 
 HMENU GetVTCodepageSubmenu()
 {
-    char string[128] = "\0";
+    TCHAR tstring[128] = _T("\0");
     int reduc;
 
-    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
-    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+    GetMenuString(hMenu, 2, tstring, sizeof(tstring), MF_BYPOSITION);
+    reduc = !_tcscmp(tstring, _T("&Channels")) ? 0 : 1;
 
-    HMENU hmenu = GetSubMenuWithName(hMenu, 9-reduc, "&Datacasting");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 9-reduc, _T("&Datacasting"));
     _ASSERTE(hmenu != NULL);
 
-    GetMenuString(hmenu, 8, string, sizeof(string), MF_BYPOSITION);
-    reduc = !strcmp(string, "Toggle &Mixed Mode\tShift-T") ? 0 : 1;
+    GetMenuString(hmenu, 8, tstring, sizeof(tstring), MF_BYPOSITION);
+    reduc = !_tcscmp(tstring, _T("Toggle &Mixed Mode\tShift-T")) ? 0 : 1;
 
-    hmenu = GetSubMenuWithName(hmenu, 9-reduc, "Teletext Code Page");
+    hmenu = GetSubMenuWithName(hmenu, 9-reduc, _T("Teletext Code Page"));
     _ASSERTE(hmenu != NULL);
 
     return hmenu;
@@ -4963,13 +4982,13 @@ HMENU GetVTCodepageSubmenu()
 
 HMENU GetOutResoSubmenu()
 {
-    char string[128] = "\0";
+    TCHAR tstring[128] = _T("\0");
     int reduc;
 
-    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
-    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+    GetMenuString(hMenu, 2, tstring, sizeof(tstring), MF_BYPOSITION);
+    reduc = !_tcscmp(tstring, _T("&Channels")) ? 0 : 1;
 
-    HMENU hmenu = GetOrCreateSubSubMenu(3-reduc, 10, "Switch Resolution in F&ull Screen");
+    HMENU hmenu = GetOrCreateSubSubMenu(3-reduc, 10, _T("Switch Resolution in F&ull Screen"));
     _ASSERTE(hmenu != NULL);
 
     return hmenu;
@@ -4977,12 +4996,12 @@ HMENU GetOutResoSubmenu()
 
 HMENU GetEPGDaySubmenu()
 {
-    char string[128] = "\0";
+    TCHAR tstring[128] = _T("\0");
     int reduc;
 
-    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
-    reduc = !strcmp(string, "&Channels") ? 0 : 1;
-    HMENU hmenu = GetOrCreateSubSubSubMenu(8-reduc, 12, 15, "Day");
+    GetMenuString(hMenu, 2, tstring, sizeof(tstring), MF_BYPOSITION);
+    reduc = !_tcscmp(tstring, _T("&Channels")) ? 0 : 1;
+    HMENU hmenu = GetOrCreateSubSubSubMenu(8-reduc, 12, 15, _T("Day"));
     _ASSERTE(hmenu != NULL);
 
     return hmenu;
@@ -4991,9 +5010,9 @@ HMENU GetEPGDaySubmenu()
 void SetMixedModeMenu(HMENU hMenu, BOOL bShow)
 {
     static BOOL     bShown = TRUE;
-    static char     szMenuName[64] = "";
+    static TCHAR    szMenuName[64] = _T("");
     MENUITEMINFO    MenuItem;
-    char            Buffer[64];
+    TCHAR           Buffer[64];
 
     if (bShow == bShown)
     {
@@ -5014,7 +5033,7 @@ void SetMixedModeMenu(HMENU hMenu, BOOL bShow)
             if (MenuItem.fType == MFT_STRING)
             {
                 // Save the name so we can be put back
-                strcpy(szMenuName, Buffer);
+                _tcscpy(szMenuName, Buffer);
             }
 
             DeleteMenu(hMenu, IDM_VT_MIXEDMODE, MF_BYCOMMAND);
@@ -5034,7 +5053,7 @@ void SetMixedModeMenu(HMENU hMenu, BOOL bShow)
             MenuItem.fType      = MFT_STRING;
             MenuItem.wID        = IDM_VT_MIXEDMODE;
             MenuItem.dwTypeData = szMenuName;
-            MenuItem.cch        = strlen(szMenuName);
+            MenuItem.cch        = _tcslen(szMenuName);
 
             // Put the mixed mode menu item back
             InsertMenuItem(hMenu, IDM_CALL_VIDEOTEXT, FALSE, &MenuItem);
@@ -5043,7 +5062,7 @@ void SetMixedModeMenu(HMENU hMenu, BOOL bShow)
 
             MenuItem.wID        = IDM_CALL_VIDEOTEXT;
             MenuItem.dwTypeData = Buffer;
-            MenuItem.cch        = strlen(Buffer);
+            MenuItem.cch        = _tcslen(Buffer);
 
             InsertMenuItem(hMenu, IDM_VT_MIXEDMODE, FALSE, &MenuItem);
             bShown = TRUE;
@@ -5123,7 +5142,7 @@ void Overlay_Start(HWND hWnd)
 
 //---------------------------------------------------------------------------
 // Show text on both OSD and statusbar
-void ShowText(HWND hWnd, const string& Text)
+void ShowText(HWND hWnd, const tstring& Text)
 {
     StatusBar_ShowText(STATUS_TEXT, Text);
     OSD_ShowText(Text, 0);
@@ -5214,7 +5233,7 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
             {
                 SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             }
-            LOG(2,"DScaler: Set window region (0x%08x)",hRgn);
+            LOG(2,_T("DScaler: Set window region (0x%08x)"),hRgn);
             if (hRgn != DScalerWindowRgn)
             {
                 SetWindowRgn(hWnd,hRgn,TRUE);
@@ -5226,7 +5245,7 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
     {
         if (DScalerWindowRgn != NULL)
         {
-            LOG(2,"DScaler: Set window region (0x%08x)",NULL);
+            LOG(2,_T("DScaler: Set window region (0x%08x)"),NULL);
             if (DScalerWindowRgn != NULL)
             {
                 SetWindowRgn(hWnd,NULL,TRUE);
@@ -5476,12 +5495,12 @@ void Cursor_VTUpdate(int x, int y)
 /** Process command line parameters and return them
 
     Routine process the command line and returns them in argv/argc format.
-    Modifies the incoming string
+    Modifies the incoming tstring
 */
-int ProcessCommandLine(char* CommandLine, char* ArgValues[], int SizeArgv)
+int ProcessCommandLine(TCHAR* CommandLine, TCHAR* ArgValues[], int SizeArgv)
 {
    int ArgCount = 0;
-   char* pCurrentChar = CommandLine;
+   TCHAR* pCurrentChar = CommandLine;
 
    while (*pCurrentChar && ArgCount < SizeArgv)
    {
@@ -5534,7 +5553,7 @@ void SetTray(BOOL Way)
             nIcon.hIcon = LoadIcon(hResourceInst, MAKEINTRESOURCE(IDI_TRAYICON));
             nIcon.hWnd = hWnd;
             nIcon.uCallbackMessage = IDI_TRAYICON;
-            sprintf(nIcon.szTip, "DScaler");
+            _stprintf(nIcon.szTip, _T("DScaler"));
             nIcon.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
             Shell_NotifyIcon(NIM_ADD, &nIcon);
             bIconOn = TRUE;
@@ -5550,14 +5569,14 @@ void SetTray(BOOL Way)
     }
 }
 
-void SetTrayTip(const string& ChannelName)
+void SetTrayTip(const tstring& ChannelName)
 {
     if (bIconOn)
     {
-        string Tip("DScaler - ");
+        tstring Tip(_T("DScaler - "));
         Tip += ChannelName;
         nIcon.uFlags = NIF_TIP;
-        strncpy(nIcon.szTip, Tip.c_str(), 128);
+        _tcsncpy(nIcon.szTip, Tip.c_str(), 128);
         SetWindowText(nIcon.hWnd, nIcon.szTip);
         Shell_NotifyIcon(NIM_MODIFY, &nIcon);
     }
@@ -5645,13 +5664,13 @@ BOOL IsFullScreen_OnChange(long NewValue)
     {
         if(bIsFullScreen == FALSE)
         {
-            if(lPStripTimingString != NULL)
+            if(PstripTimingString != NULL)
             {
-                OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, TRUE);
+                OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, PstripTimingString, TRUE);
             }
             else
             {
-                OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, FALSE);
+                OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, PstripTimingString, FALSE);
             }
             SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
             if (bDisplayStatusBar == TRUE)
@@ -5663,8 +5682,8 @@ BOOL IsFullScreen_OnChange(long NewValue)
         {
             if(hPSWnd)
             {
-                // Save the actual PowerStrip timing string in lPStripTimingString
-                SaveActualPStripTiming(hPSWnd);
+                // Save the actual PowerStrip timing tstring in PstripTimingString
+                SaveActualPstripTiming(hPSWnd);
             }
             SaveWindowPos(hWnd);
             KillTimer(hWnd, TIMER_STATUS);
@@ -5676,7 +5695,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
             {
                 WindowBorder->Hide();
             }
-            else if (!bIsFullScreen && szSkinName[0]!=0)
+            else if (!bIsFullScreen && !szSkinName)
             {
                 WindowBorder->Show();
             }
@@ -6043,19 +6062,19 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "MainWindow", "ResoFullScreen", NULL,
     },
     {
-        "PowerStrip resolution for 576i sources", CHARSTRING, 0, PStrip576i.GetPointer(),
+        "PowerStrip resolution for 576i sources", TCHARSTRING, 0, PStrip576i.GetPointer(),
         (long)"", 0, 0, 0, 0,
         NULL,
         "PStripOutResolution", "576i", NULL,
     },
     {
-        "PowerStrip resolution for 480i sources", CHARSTRING, 0, PStrip480i.GetPointer(),
+        "PowerStrip resolution for 480i sources", TCHARSTRING, 0, PStrip480i.GetPointer(),
         (long)"", 0, 0, 0, 0,
         NULL,
         "PStripOutResolution", "480i", NULL,
     },
     {
-        "Skin name", CHARSTRING, 0, szSkinName.GetPointer(),
+        "Skin name", TCHARSTRING, 0, szSkinName.GetPointer(),
         (long)"", 0, 0, 0, 0,
         NULL,
         "MainWindow", "SkinName", NULL,
@@ -6149,7 +6168,7 @@ HWND GetMainWnd()
 {
     if(!IsMainWindowThread())
     {
-        LOG(1, "Window request from outside main thread");
+        LOG(1, _T("Window request from outside main thread"));
     }
     return hWnd;
 }
@@ -6170,7 +6189,7 @@ void WaitForMainWindowEvent()
     {
         if(WaitForSingleObject(hMainWindowEvent, 10) == WAIT_TIMEOUT)
         {
-            LOG(1, "Timed out waiting for window message to be processed");
+            LOG(1, _T("Timed out waiting for window message to be processed"));
         }
     }
 }
@@ -6190,12 +6209,12 @@ void ResetMainWindowEvent()
 void OnHelp(LPHELPINFO HelpInfo)
 {
     //try to open the help
-    if(::HtmlHelp(::GetMainWnd(), "DScaler.chm", HH_HELP_CONTEXT, HelpInfo->dwContextId)==NULL)
+    if(::HtmlHelp(::GetMainWnd(), _T("DScaler.chm"), HH_HELP_CONTEXT, HelpInfo->dwContextId)==NULL)
     {
         //didnt work, maybe wrong help id? try to open just the toc
-        if(::HtmlHelp(::GetMainWnd(), "DScaler.chm", HH_DISPLAY_TOC, NULL)==NULL)
+        if(::HtmlHelp(::GetMainWnd(), _T("DScaler.chm"), HH_DISPLAY_TOC, NULL)==NULL)
         {
-            ErrorBox("Failed to open help");
+            ErrorBox(_T("Failed to open help"));
         }
     }
 }

@@ -56,7 +56,7 @@
 
 /* tv tuner system standard selection for Philips FQ1216ME
    this value takes the low bits of control byte 2
-   from datasheet "1999 Nov 16" (supersedes "1999 Mar 23")
+   from datasheet _T("1999 Nov 16") (supersedes _T("1999 Mar 23"))
      standard         BG    DK    I    L    L`
      picture carrier    38.90    38.90    38.90    38.90    33.95
      colour        34.47    34.47    34.47    34.47    38.38
@@ -70,7 +70,7 @@
 #define PHILIPS_SET_PAL_L        0x0b
 
 /* system switching for Philips FI1216MF MK2
-   from datasheet "1996 Jul 09",
+   from datasheet _T("1996 Jul 09"),
  */
 #define PHILIPS_MF_SET_BG        0x01 /* Bit 2 must be zero, Bit 3 is system output */
 #define PHILIPS_MF_SET_PAL_L    0x03
@@ -570,7 +570,7 @@ BOOL CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
     }
     else
     {
-        LOG(1,"GenericTuner: Error setting frequency. No I2C bus.");
+        LOG(1,_T("GenericTuner: Error setting frequency. No I2C bus."));
         return FALSE;
     }
 }
@@ -634,7 +634,7 @@ BOOL CGenericTuner::SetRadioFrequency(long nFrequencyHz)
     }
     else
     {
-        LOG(1,"GenericTuner: Error setting frequency. No I2C bus.");
+        LOG(1,_T("GenericTuner: Error setting frequency. No I2C bus."));
         return FALSE;
     }
 }

@@ -44,7 +44,7 @@
 
 using namespace std;
 
-extern const char *TunerNames[TUNER_LASTONE];
+extern const TCHAR* TunerNames[TUNER_LASTONE];
 
 long EnableCxCancelButton = 1;
 
@@ -54,9 +54,9 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     int nIndex;
     static CCX2388xSource* pThis;
     CCX2388xCard* pCard = NULL;
-    char szCardId[9] = "n/a     ";
-    char szVendorId[9] = "n/a ";
-    char szDeviceId[9] = "n/a ";
+    TCHAR szCardId[9] = _T("n/a     ");
+    TCHAR szVendorId[9] = _T("n/a ");
+    TCHAR szDeviceId[9] = _T("n/a ");
     DWORD dwCardId(0);
 
     switch (message)
@@ -64,7 +64,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     case WM_INITDIALOG:
         {
             pThis = (CCX2388xSource*)lParam;
-            string buf("Setup card ");
+            tstring buf(_T("Setup card "));
             buf += pThis->IDString();
             SetWindowText(hDlg, buf.c_str());
             Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCxCancelButton);
@@ -101,16 +101,16 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             }
 
             pCard = pThis->GetCard();
-            SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, "CX2388x");
-            sprintf(szVendorId,"%04X", pCard->GetVendorId());
+            SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, _T("CX2388x"));
+            _stprintf(szVendorId,_T("%04X"), pCard->GetVendorId());
             SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
-            sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
+            _stprintf(szDeviceId,_T("%04X"), pCard->GetDeviceId());
             SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
 
             dwCardId = pCard->GetSubSystemId();
             if(dwCardId != 0 && dwCardId != 0xffffffff)
             {
-                sprintf(szCardId,"%8X", dwCardId);
+                _stprintf(szCardId,_T("%8X"), dwCardId);
             }
 
             SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
@@ -128,7 +128,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             i =  SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETCURSEL, 0, 0);
             pThis->m_CardType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i));
 
-            // Update the string name value to reflect the newly selected card.
+            // Update the tstring name value to reflect the newly selected card.
             i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
             pThis->m_CardName->SetValue(pThis->GetCard()->GetCardName((eCX2388xCardId) i ).c_str());
 
@@ -208,11 +208,11 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
         MenuItemInfo.cbSize = sizeof(MenuItemInfo);
         MenuItemInfo.fMask = MIIM_TYPE;
 
-        // get the size of the string
+        // get the size of the tstring
         GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
         GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
-        // create the new string and correct the menu
-        string Buffer(MakeString() << m_pCard->GetInputName(i) << "\tCtrl+Alt+F" << i + 1);
+        // create the new tstring and correct the menu
+        tstring Buffer(MakeString() << m_pCard->GetInputName(i) << _T("\tCtrl+Alt+F") << i + 1);
         MenuItemInfo.cch = Buffer.length();
         MenuItemInfo.dwTypeData = &Buffer[0];
         SetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
@@ -399,11 +399,11 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_IsVideoProgressive->SetValue(!m_IsVideoProgressive->GetValue());
             if(m_IsVideoProgressive->GetValue())
             {
-                ShowText(hWnd, "Using Faroudja Deinterlacing");
+                ShowText(hWnd, _T("Using Faroudja Deinterlacing"));
             }
             else
             {
-                ShowText(hWnd, "Using DScaler Deinterlacing");
+                ShowText(hWnd, _T("Using DScaler Deinterlacing"));
             }
             break;
 
@@ -411,11 +411,11 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_FLIFilmDetect->SetValue(!m_FLIFilmDetect->GetValue());
             if(m_FLIFilmDetect->GetValue())
             {
-                ShowText(hWnd, "FLI2200 Film Detection - On");
+                ShowText(hWnd, _T("FLI2200 Film Detection - On"));
             }
             else
             {
-                ShowText(hWnd, "FLI2200 Film Detection - Off");
+                ShowText(hWnd, _T("FLI2200 Film Detection - Off"));
             }
             break;
 
@@ -448,14 +448,14 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_DSVIDEO_STANDARD_0:
-            // "Custom Settings ..." menu
+            // _T("Custom Settings ...") menu
             if (m_hCX2388xResourceInst != NULL)
             {
                 m_pCard->ShowRegisterSettingsDialog(m_hCX2388xResourceInst);
             }
             else
             {
-                ShowText(hWnd, "CX2388xRes.dll not loaded");
+                ShowText(hWnd, _T("CX2388xRes.dll not loaded"));
             }
             break;
 
@@ -670,9 +670,9 @@ void CCX2388xSource::InitializeUI()
 {
     MENUITEMINFO    MenuItemInfo;
     HMENU           hSubMenu;
-    LPSTR           pMenuName;
+    LPTSTR           pMenuName;
 
-    m_hCX2388xResourceInst = LibraryCache::GetLibraryHandle("CX2388xRes.dll");
+    m_hCX2388xResourceInst = LibraryCache::GetLibraryHandle(_T("CX2388xRes.dll"));
 
     if(m_hCX2388xResourceInst != NULL)
     {
@@ -684,11 +684,11 @@ void CCX2388xSource::InitializeUI()
         MenuItemInfo.fMask = MIIM_TYPE;
         MenuItemInfo.fType = MFT_SEPARATOR;
 
-        pMenuName = "Custom Settings ...";
+        pMenuName = _T("Custom Settings ...");
         MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
         MenuItemInfo.fType = MFT_STRING;
         MenuItemInfo.dwTypeData = pMenuName;
-        MenuItemInfo.cch = strlen(pMenuName);
+        MenuItemInfo.cch = _tcslen(pMenuName);
         MenuItemInfo.wID = IDM_DSVIDEO_STANDARD_0;
         InsertMenuItem(hSubMenu, 5, TRUE, &MenuItemInfo);
     }

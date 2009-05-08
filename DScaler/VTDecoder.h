@@ -79,7 +79,7 @@ public:
     BYTE GetCharacterSubsetCode();
 
     // Get the status display in the broadcast service data
-    std::string GetStatusDisplay();
+    tstring GetStatusDisplay();
 
     // Get the network ID code from P8/30/1
     WORD GetNetworkIDFromP8301();
@@ -103,8 +103,8 @@ public:
     // Gets a copy of the next subpage following dwPageCode
     DWORD GetNextDisplaySubPage(DWORD dwPageCode, TVTPage* pBuffer, BOOL bReverse);
 
-    // Gets a copy of the next page that matches the search string
-    DWORD FindInDisplayPage(DWORD dwFromPageCode, BOOL bInclusive, LPSTR lpSearchString,
+    // Gets a copy of the next page that matches the search tstring
+    DWORD FindInDisplayPage(DWORD dwFromPageCode, BOOL bInclusive, LPTSTR lpSearchString,
                             TVTPage* pBuffer, BOOL bReverse = FALSE);
 
     BOOL GetDisplayComment(DWORD dwPageCode, TVTPage* pBuffer);
@@ -203,7 +203,7 @@ protected:
     TVTPage* FindSubPage(TVTPage* pPageList, DWORD dwPageCode);
     TVTPage* FindNextSubPage(TVTPage* pPageList, DWORD dwPageCode,  BOOL bReverse);
 
-    BOOL SearchPage(TVTPage* pPage, LPSTR lpSearchString, BOOL bIncludeRow25 = TRUE);
+    BOOL SearchPage(TVTPage* pPage, LPTSTR lpSearchString, BOOL bIncludeRow25 = TRUE);
 
     void NotifyDecoderEvent(BYTE uMsg, DWORD dwParam);
 

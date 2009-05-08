@@ -28,7 +28,7 @@
 //
 typedef struct
 {
-   char         * pStrBuf;      // pointer to malloc'ed text buffer
+   TCHAR        * pStrBuf;      // pointer to malloc'ed text buffer
    uint         sizeHint;       // hint for initial malloc size and later increments
    uint         size;           // max. text length, i.e. size of allocated buffer
    uint         skip;           // number of whitespace chars at text start
@@ -38,7 +38,7 @@ typedef struct
 
 #define XML_STR_BUF_GET_LEN(S)     ((S).off)
 #define XML_STR_BUF_GET_STR_LEN(S) ((S).off - (S).skip)
-#define XML_STR_BUF_GET_STR(S)     (((S).pStrBuf != NULL) ? ((S).pStrBuf + (S).skip) : "")
+#define XML_STR_BUF_GET_STR(S)     (((S).pStrBuf != NULL) ? ((S).pStrBuf + (S).skip) : _T(""))
 
 #define XML_STR_BUF_SET_LANG(S,L)  ((S).lang = (L))
 #define XML_STR_BUF_GET_LANG(S)    ((S).lang)
@@ -55,13 +55,13 @@ void XmlCdata_Grow( XML_STR_BUF * pBuf, uint len );
 void XmlCdata_Assign( XML_STR_BUF * pDestBuf, XML_STR_BUF * pSrcBuf );
 void XmlCdata_TrimWhitespace( XML_STR_BUF * pBuf );
 void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, Bool insertTwo );
-void XmlCdata_AppendRawNOINLINE( XML_STR_BUF * pBuf, const char * pStr, uint len );
-void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const char * pStr, uint len );
-void XmlCdata_AppendLatin1ToUtf8( XML_STR_BUF * pBuf, const char * pStr, uint len );
-Bool XmlCdata_CheckLatin1( const char * pStr );
-Bool XmlCdata_CheckLatin1Name( const char * pStr, Bool isNmToken );
-Bool XmlCdata_CheckUtf8( const char * pStr );
-Bool XmlCdata_CheckUtf8Name( const char * pStr, Bool isNmtoken );
+void XmlCdata_AppendRawNOINLINE( XML_STR_BUF * pBuf, const TCHAR*  pStr, uint len );
+void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const TCHAR*  pStr, uint len );
+void XmlCdata_AppendLatin1ToUtf8( XML_STR_BUF * pBuf, const TCHAR*  pStr, uint len );
+Bool XmlCdata_CheckLatin1( const TCHAR*  pStr );
+Bool XmlCdata_CheckLatin1Name( const TCHAR*  pStr, Bool isNmToken );
+Bool XmlCdata_CheckUtf8( const TCHAR*  pStr );
+Bool XmlCdata_CheckUtf8Name( const TCHAR*  pStr, Bool isNmtoken );
 
 #ifdef XML_CDATA_INLINE
 #define XmlCdata_AppendRaw(PBUF,PSTR,LEN) \
@@ -78,7 +78,7 @@ Bool XmlCdata_CheckUtf8Name( const char * pStr, Bool isNmtoken );
    } while(0)
 #define XmlCdata_AppendString(PBUF,PSTR) \
    do { \
-      uint tmp_len = strlen(PSTR); \
+      uint tmp_len = _tcslen(PSTR); \
       XmlCdata_AppendRaw((PBUF),(PSTR),tmp_len); \
    } while(0)
 #define XmlCdata_AssignOrAppend(DESTBUF,SRCBUF) \
@@ -104,7 +104,7 @@ Bool XmlCdata_CheckUtf8Name( const char * pStr, Bool isNmtoken );
    } while(0)
 #else
 #define XmlCdata_AppendRaw(B,S,L) XmlCdata_AppendRawNOINLINE((B),(S),(L))
-void XmlCdata_AppendString( XML_STR_BUF * pBuf, const char * pStr );
+void XmlCdata_AppendString( XML_STR_BUF * pBuf, const TCHAR*  pStr );
 void XmlCdata_AssignOrAppend( XML_STR_BUF * pDestBuf, XML_STR_BUF * pSrcBuf );
 void XmlCdata_Reset( XML_STR_BUF * pBuf );
 #endif // XML_CDATA_INLINE

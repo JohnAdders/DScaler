@@ -158,7 +158,7 @@ void SwitchToRatio(int nMode, int nRatio)
         AspectSettings.SourceAspect = nRatio;
     }
 
-    LOG(1, "Switching to ratio %d (%d)", AspectSettings.SourceAspect, AspectSettings.AspectMode);
+    LOG(1, _T("Switching to ratio %d (%d)"), AspectSettings.SourceAspect, AspectSettings.AspectMode);
 
     // Update the statistics for the new ratio
     if (k != -1)
@@ -185,7 +185,7 @@ void SwitchToRatio(int nMode, int nRatio)
 // The basic idea is that we find a bounding rectangle for the image (which
 // is assumed to be centered in the overlay buffer, an assumption the aspect
 // ratio code makes in general) by searching from the top down to find the first
-// scanline that isn't all black.  "All black" means that there aren't many
+// scanline that isn't all black.  _T("All black") means that there aren't many
 // pixels with luminance above a certain threshold.
 //
 // To support letterboxed movies shown on TV channels that put little channel
@@ -272,7 +272,7 @@ BlackLoop:
         emms
     }
 
-    // Add up the four totals (each in one word of the "totals" qword) to
+    // Add up the four totals (each in one word of the _T("totals") qword) to
     // get the total overall count.
     counts = (int)(totals & 0xffff) +
              (int)((totals >> 16) & 0xffff) +
@@ -283,7 +283,7 @@ BlackLoop:
     // Log the offending pixels
     if (counts > 0)
     {
-        LOG(3, "Count %d min %d max %d lumthresh %d", counts, chromaMin, chromaMax, threshold);
+        LOG(3, _T("Count %d min %d max %d lumthresh %d"), counts, chromaMin, chromaMax, threshold);
     }
 
 
@@ -328,7 +328,7 @@ int FindEdgeOfImage(TDeinterlaceInfo* pInfo, int direction)
         pixelCount = GetNonBlackCount(line, skipCount, pInfo->FrameWidth - skipCount * 2);
         if (pixelCount > 0)
         {
-            LOG(3, "FindEdgeOfImage line %d Count %d", y, pixelCount);
+            LOG(3, _T("FindEdgeOfImage line %d Count %d"), y, pixelCount);
         }
 
         if (pixelCount > AspectSettings.IgnoreNonBlackPixels)
@@ -336,7 +336,7 @@ int FindEdgeOfImage(TDeinterlaceInfo* pInfo, int direction)
 
         if (y < 0 || y >= pInfo->FrameHeight)
         {
-            LOG(2, "Sanity check failed; scanned past edge of screen");
+            LOG(2, _T("Sanity check failed; scanned past edge of screen"));
             y = (direction > 0) ? AspectSettings.InitialTopOverscan : pInfo->FrameHeight - 1 - AspectSettings.InitialBottomOverscan;
             break;
         }
@@ -354,7 +354,7 @@ int FindAspectRatio(TDeinterlaceInfo* pInfo)
     int topBorder, bottomBorder, border;
     int imageHeight = pInfo->FrameHeight - AspectSettings.InitialTopOverscan - AspectSettings.InitialBottomOverscan;
 
-    // If the aspect Mode is set to "use source", revert to assuming that the
+    // If the aspect Mode is set to _T("use source"), revert to assuming that the
     // source frame is 4:3.  We have to assume *some* source-frame aspect ratio
     // here or there aren't enough inputs to derive the material aspect ratio.
     if (AspectSettings.AspectMode == 0)
@@ -386,7 +386,7 @@ int FindAspectRatio(TDeinterlaceInfo* pInfo)
         // this will change depending on whether or not the image is anamorphic.
         ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
     }
-    LOG(2, "top %d bot %d bord %d rat %d", topBorder, bottomBorder, border, ratio);
+    LOG(2, _T("top %d bot %d bord %d rat %d"), topBorder, bottomBorder, border, ratio);
 
     return ratio;
 }
@@ -417,7 +417,7 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
         return;
     }
 
-    /** ADDED by Mark Rejhon: Eliminates the "tiny slit" problem in starry
+    /** ADDED by Mark Rejhon: Eliminates the _T("tiny slit") problem in starry
         scenes such as those in Star Wars or start of Toy Story 2,
         at least during full screen Mode.
         \todo Would be nice to access 'AdjustedWindowAspect' in WorkoutOverlaySize()

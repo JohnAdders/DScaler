@@ -10,8 +10,8 @@
 #include "DynamicFunction.h"
 
 #ifdef WM_INPUT
-DynamicFunctionS3<BOOL, PCRAWINPUTDEVICE, UINT, UINT> lpRegisterRawInputDevices("user32.dll", "RegisterRawInputDevices");
-DynamicFunctionS5<UINT, HRAWINPUT, UINT, LPVOID ,PUINT, UINT> lpGetRawInputData("user32.dll", "GetRawInputData");
+DynamicFunctionS3<BOOL, PCRAWINPUTDEVICE, UINT, UINT> lpRegisterRawInputDevices(_T("user32.dll"), "RegisterRawInputDevices");
+DynamicFunctionS5<UINT, HRAWINPUT, UINT, LPVOID ,PUINT, UINT> lpGetRawInputData(_T("user32.dll"), "GetRawInputData");
 #endif
 
 

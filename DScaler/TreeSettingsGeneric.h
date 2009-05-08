@@ -47,7 +47,7 @@ public:
      * @param name name used in the tree
      * @param SettingHolder Settings to display in Dialog
      */
-    CTreeSettingsGeneric(const std::string& name,SmartPtr<CSettingsHolder> SettingHolder);
+    CTreeSettingsGeneric(const tstring& name,SmartPtr<CSettingsHolder> SettingHolder);
     ~CTreeSettingsGeneric() {};
 
 public:

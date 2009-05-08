@@ -137,7 +137,7 @@ private:
 
     typedef struct
     {
-        char*           Name;
+        TCHAR*           Name;
         eStandard       Standard;
         eCarrier        MajorCarrier;
         eCarrier        MinorCarrier;
@@ -177,7 +177,7 @@ public:
     // Inputs
     virtual void SetAudioInput(eAudioInput audioInput);
     virtual eAudioInput GetAudioInput();
-    virtual const char* GetAudioInputName(eAudioInput audioInput);
+    virtual const TCHAR* GetAudioInputName(eAudioInput audioInput);
 
     BOOL GetUseInputPin1();
     void SetUseInputPin1(BOOL AValue);
@@ -186,7 +186,7 @@ public:
     // Standard
     virtual void SetAudioStandard(long Standard, eVideoFormat videoformat);
     virtual long GetAudioStandardCurrent();
-    virtual const char* GetAudioStandardName(long Standard);
+    virtual const TCHAR* GetAudioStandardName(long Standard);
     virtual int GetNumAudioStandards();
     virtual long GetAudioStandard(int nIndex);
     virtual long GetAudioStandardMajorCarrier(long Standard);

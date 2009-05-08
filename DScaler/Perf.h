@@ -57,12 +57,12 @@ class CPerfItem
 public:
     void Resume();
     void Suspend();
-    CPerfItem(const char* Name);
+    CPerfItem(const TCHAR* Name);
     ~CPerfItem();
     void Reset();
     void StartCount();
     void StopCount();
-    const char* GetName();
+    const TCHAR* GetName();
     DWORD GetLastDuration();
     unsigned int GetNbCounts();
     DWORD GetAverageDuration();
@@ -70,7 +70,7 @@ public:
     DWORD GetMaxDuration();
 
 protected:
-    const char*     m_Name;
+    const TCHAR*     m_Name;
     DWORD           m_LastDuration;
     DWORD           m_SumDuration;
     unsigned int    m_NbCounts;
@@ -97,7 +97,7 @@ public:
     int GetDurationLastCycle(ePerfType PerfType);
     unsigned int GetNbCycles(int NbFramesPerSec);
     BOOL IsValid(ePerfType PerfType);
-    const char* GetName(ePerfType PerfType);
+    const TCHAR* GetName(ePerfType PerfType);
     DWORD GetLastDuration(ePerfType PerfType);
     unsigned int GetNbCounts(ePerfType PerfType);
     DWORD GetAverageDuration(ePerfType PerfType);

@@ -38,24 +38,24 @@
  *    stored data can be post-processed (if necessary) and committed to
  *    the database.
  *
- *    The attribute "set" functions are called in the order in which
+ *    The attribute _T("set") functions are called in the order in which
  *    attribute assignments are found inside the tag in the XML file.
  *    (Note most of the attributes are declared optional in the XMLTV DTD,
  *    so the callbacks are not invoked for each tag; also the order of
  *    attributes inside a tag is undefined, i.e. depends on the generator
  *    of the XMLTV file; however an attribute may be defined at most once.)
  *
- *    The content data "add" function is called after all attributes have
+ *    The content data _T("add") function is called after all attributes have
  *    been processed. The parser already strips leading and trailing
  *    whitespace (for tags for which it's appropriate; in case of XMLTV
  *    that's all tags; trimming is enabled by a flag in the tables in
- *    xmltv_tags.c)  Also all escaped characters (&lt; for "<" etc.) are
+ *    xmltv_tags.c)  Also all escaped characters (&lt; for _T("<") etc.) are
  *    replaced.  Theoretically the data function could be called more than
- *    once if the content is interrupted by "child" tags; however the
+ *    once if the content is interrupted by _T("child") tags; however the
  *    XMLTV DTD does not include such so-called mixed elements, so this
  *    will not occur.
  *
- *    The "attributes complete" callback is called when the opening tag
+ *    The _T("attributes complete") callback is called when the opening tag
  *    is closed, i.e. inbetween processing attributes and content.  The
  *    callback function can return FALSE to indicate that the content and
  *    all child elements shuld be discarded at parser level. This feature
@@ -101,8 +101,8 @@
 #include "xmltv_tags.h"
 
 
-extern int CheckProgrammeValidity(time_t StartTime, time_t EndTime, char * ChannelName);
-extern void AddProgramme(time_t StartTime, time_t EndTime, char * Title, char * ChannelName, char * SubTitle, char * Category, char * Description);
+extern int CheckProgrammeValidity(time_t StartTime, time_t EndTime, TCHAR*  ChannelName);
+extern void AddProgramme(time_t StartTime, time_t EndTime, TCHAR*  Title, TCHAR*  ChannelName, TCHAR*  SubTitle, TCHAR*  Category, TCHAR*  Description);
 
 
 //#define ALL_CONTENT
@@ -110,7 +110,7 @@ extern void AddProgramme(time_t StartTime, time_t EndTime, char * Title, char * 
 
 typedef struct
 {
-   char       * p_disp_name;
+   TCHAR      * p_disp_name;
    time_t       pi_min_time;
    time_t       pi_max_time;
 } XMLTV_CHN;
@@ -149,7 +149,7 @@ typedef struct
    uint         chn_count;
    uint         chn_tab_size;
    Bool         chn_open;
-   char       * p_chn_id_tmp;
+   TCHAR      * p_chn_id_tmp;
    XMLTV_CHN  * p_chn_table;
    XML_HASH_PTR pChannelHash;
 
@@ -221,7 +221,7 @@ static PARSE_STATE xds;
 // ----------------------------------------------------------------------------
 // Parse timestamp
 //
-static time_t Xmltv_ParseTimestamp( char * pStr, uint len )
+static time_t Xmltv_ParseTimestamp( TCHAR*  pStr, uint len )
 {
    time_t  tval;
 
@@ -234,7 +234,7 @@ static time_t Xmltv_ParseTimestamp( char * pStr, uint len )
       tval = parse_xmltv_date_v5(pStr, len);
    }
 
-   ifdebug1(tval == 0, "Xmltv-ParseTimestamp: parse error '%s'", pStr);
+   ifdebug1(tval == 0, _T("Xmltv-ParseTimestamp: parse error '%s'"), pStr);
 
    return tval;
 }
@@ -245,7 +245,7 @@ static time_t Xmltv_ParseTimestamp( char * pStr, uint len )
 // - the value is in local time
 // - the difference to regular timestamps is the returned format
 //
-static uint Xmltv_ParseVpsPdc( const char * pStr )
+static uint Xmltv_ParseVpsPdc( const TCHAR*  pStr )
 {
    uint  month, mday, hour, minute;
    uint  pil;
@@ -257,25 +257,25 @@ static uint Xmltv_ParseVpsPdc( const char * pStr )
    {
       scan_pos = 0;
       // note: trailing 'Z' is omitted since VPS/PDC is localtime
-      nscan = sscanf(pStr, "%*4u-%2u-%2uT%2u:%2u:%*2u%n", &month, &mday, &hour, &minute, &scan_pos);
+      nscan = _stscanf(pStr, _T("%*4u-%2u-%2uT%2u:%2u:%*2u%n"), &month, &mday, &hour, &minute, &scan_pos);
       if ((nscan >= 4 /*6?*/) && (pStr[scan_pos] == 0))
       {
          pil = (mday << 15) | (month << 11) | (hour << 6) | minute;
       }
       else
-         debug3("Xmltv-ParseVpsPdc: parse error '%s' after %d tokens (around char #%d)", pStr, nscan, scan_pos);
+         debug3(_T("Xmltv-ParseVpsPdc: parse error '%s' after %d tokens (around char #%d)"), pStr, nscan, scan_pos);
    }
    else
    {
       scan_pos = 0;
       // note: ignoring timezone since VPS/PDC should always be localtime
-      nscan = sscanf(pStr, "%*4u%2u%2u%2u%2u%*2u%n", &month, &mday, &hour, &minute, &scan_pos);
+      nscan = _stscanf(pStr, _T("%*4u%2u%2u%2u%2u%*2u%n"), &month, &mday, &hour, &minute, &scan_pos);
       if ((nscan >= 4 /*6?*/) && ((pStr[scan_pos] == 0) || (pStr[scan_pos] == ' ')))
       {
          pil = (mday << 15) | (month << 11) | (hour << 6) | minute;
       }
       else
-         debug3("Xmltv-ParseVpsPdc: parse error '%s' after %d tokens (around char #%d)", pStr, nscan, scan_pos);
+         debug3(_T("Xmltv-ParseVpsPdc: parse error '%s' after %d tokens (around char #%d)"), pStr, nscan, scan_pos);
    }
    return pil;
 }
@@ -428,7 +428,7 @@ void Xmltv_ChannelClose( void )
          pChnIdx = (uint*)XmlHash_CreateEntry(xds.pChannelHash, xds.p_chn_id_tmp, &isNew);
          if (isNew)
          {
-            dprintf3("Xmltv-ChannelClose: add channel #%d '%s' (ID '%s')\n", xds.chn_count, xds.p_chn_table[xds.chn_count].p_disp_name, p_chn_id_tmp);
+            dprintf3(_T("Xmltv-ChannelClose: add channel #%d '%s' (ID '%s')\n"), xds.chn_count, xds.p_chn_table[xds.chn_count].p_disp_name, p_chn_id_tmp);
 
             xfree(xds.p_chn_id_tmp);
             xds.p_chn_id_tmp = NULL;
@@ -438,10 +438,10 @@ void Xmltv_ChannelClose( void )
             result = TRUE;
          }
          else
-            debug2("Xmltv-ChannelClose: ID is not unique: '%s', display name '%s'", xds.p_chn_id_tmp, xds.p_chn_table[xds.chn_count].p_disp_name);
+            debug2(_T("Xmltv-ChannelClose: ID is not unique: '%s', display name '%s'"), xds.p_chn_id_tmp, xds.p_chn_table[xds.chn_count].p_disp_name);
       }
       else
-         debug2("Xmltv-ChannelClose: no ID or no display name (%lx,%lx)", (long)xds.p_chn_id_tmp, (long)xds.p_chn_table[xds.chn_count].p_disp_name);
+         debug2(_T("Xmltv-ChannelClose: no ID or no display name (%lx,%lx)"), (long)xds.p_chn_id_tmp, (long)xds.p_chn_table[xds.chn_count].p_disp_name);
 
       if (result == FALSE)
       {
@@ -459,12 +459,12 @@ void Xmltv_ChannelClose( void )
       xds.chn_open = FALSE;
    }
    else
-      fatal0("Xmltv-ChannelClose: not inside channel definition");
+      fatal0(_T("Xmltv-ChannelClose: not inside channel definition"));
 }
 
 void Xmltv_ChannelSetId( XML_STR_BUF * pBuf )
 {
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
 
    assert(xds.chn_open);
 
@@ -475,7 +475,7 @@ void Xmltv_ChannelSetId( XML_STR_BUF * pBuf )
          xds.p_chn_id_tmp = xstrdup(pStr);
       }
       else
-         debug2("Xmltv-ChannelSetId: 2 channel IDs: %s and %s", xds.p_chn_id_tmp, pStr);
+         debug2(_T("Xmltv-ChannelSetId: 2 channel IDs: %s and %s"), xds.p_chn_id_tmp, pStr);
    }
 }
 
@@ -490,7 +490,7 @@ void Xmltv_ChannelAddName( XML_STR_BUF * pBuf )
          xds.p_chn_table[xds.chn_count].p_disp_name = xstrdup(XML_STR_BUF_GET_STR(*pBuf));
       }
       else
-         debug2("Xmltv-ChannelAddName: 2 channel IDs: %s and %s", xds.p_chn_table[xds.chn_count].p_disp_name, XML_STR_BUF_GET_STR(*pBuf));
+         debug2(_T("Xmltv-ChannelAddName: 2 channel IDs: %s and %s"), xds.p_chn_table[xds.chn_count].p_disp_name, XML_STR_BUF_GET_STR(*pBuf));
    }
 }
 
@@ -502,7 +502,7 @@ void Xmltv_ChannelAddUrl( XML_STR_BUF * pBuf )
 
 void Xmltv_TsOpen( void )
 {
-   dprintf0("Xmltv-TsOpen\n");
+   dprintf0(_T("Xmltv-TsOpen\n"));
    xds.pi_start_time = 0;
    xds.pi_stop_time = 0;
    xds.pi_netwop_no = xds.chn_count;
@@ -546,7 +546,7 @@ Bool Xmltv_TsFilter( void )
 
 void Xmltv_TsClose( void )
 {
-   dprintf0("Xmltv_TsClose\n");
+   dprintf0(_T("Xmltv_TsClose\n"));
 
 #ifdef ALL_CONTENT
    if (xds.pi_netwop_no < xds.chn_count)
@@ -563,13 +563,13 @@ void Xmltv_TsClose( void )
         (XML_STR_BUF_GET_STR_LEN(xds.pi_credits) > 0) )
    {
       XmlCdata_AppendParagraph(&xds.pi_desc, FALSE);
-      XmlCdata_AppendString(&xds.pi_desc, "Credits: ");
+      XmlCdata_AppendString(&xds.pi_desc, _T("Credits: "));
 
       if (XML_STR_BUF_GET_STR_LEN(xds.pi_credits) > 0)
       {
          XmlCdata_AppendRaw(&xds.pi_desc, XML_STR_BUF_GET_STR(xds.pi_credits), XML_STR_BUF_GET_STR_LEN(xds.pi_credits));
          if (XML_STR_BUF_GET_STR_LEN(xds.pi_actors) > 0)
-            XmlCdata_AppendRaw(&xds.pi_desc, "; ", 2);
+            XmlCdata_AppendRaw(&xds.pi_desc, _T("; "), 2);
       }
       if (XML_STR_BUF_GET_STR_LEN(xds.pi_actors) > 0)
          XmlCdata_AppendRaw(&xds.pi_desc, XML_STR_BUF_GET_STR(xds.pi_actors), XML_STR_BUF_GET_STR_LEN(xds.pi_actors));
@@ -582,15 +582,15 @@ void Xmltv_TsClose( void )
       XmlCdata_AppendParagraph(&xds.pi_desc, FALSE);
       if (XML_STR_BUF_GET_STR_LEN(xds.pi_code_sv) > 0)
       {
-         XmlCdata_AppendString(&xds.pi_desc, "SV-Code: ");
+         XmlCdata_AppendString(&xds.pi_desc, _T("SV-Code: "));
          XmlCdata_AppendRaw(&xds.pi_desc, XML_STR_BUF_GET_STR(xds.pi_code_sv), XML_STR_BUF_GET_STR_LEN(xds.pi_code_sv));
 
          if (XML_STR_BUF_GET_STR_LEN(xds.pi_code_vp) > 0)
-            XmlCdata_AppendRaw(&xds.pi_desc, "; ", 2);
+            XmlCdata_AppendRaw(&xds.pi_desc, _T("; "), 2);
       }
       if (XML_STR_BUF_GET_STR_LEN(xds.pi_code_vp) > 0)
       {
-         XmlCdata_AppendString(&xds.pi_desc, "V+ Code: ");
+         XmlCdata_AppendString(&xds.pi_desc, _T("V+ Code: "));
          XmlCdata_AppendRaw(&xds.pi_desc, XML_STR_BUF_GET_STR(xds.pi_code_vp), XML_STR_BUF_GET_STR_LEN(xds.pi_code_vp));
       }
    }
@@ -601,7 +601,7 @@ void Xmltv_TsClose( void )
 
 void Xmltv_TsSetChannel( XML_STR_BUF * pBuf )
 {
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
    uint * pChnIdx;
 
    pChnIdx = (uint*)XmlHash_SearchEntry(xds.pChannelHash, pStr);
@@ -612,37 +612,37 @@ void Xmltv_TsSetChannel( XML_STR_BUF * pBuf )
    else
    {
       // note: the PI will be dropped if the channel isn't defined BEFORE it's referenced
-      debug1("Xmltv-TsSetChannel: unknown channel ID '%s'", pStr);
+      debug1(_T("Xmltv-TsSetChannel: unknown channel ID '%s'"), pStr);
    }
 }
 
 void Xmltv_TsSetStartTime( XML_STR_BUF * pBuf )
 {
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
    uint len = XML_STR_BUF_GET_STR_LEN(*pBuf);
 
    xds.pi_start_time = Xmltv_ParseTimestamp(pStr, len);
 
-   dprintf2("Xmltv-TsSetStartTime: start time %s: %d\n", pStr, (int)xds.pi.start_time);
+   dprintf2(_T("Xmltv-TsSetStartTime: start time %s: %d\n"), pStr, (int)xds.pi.start_time);
 }
 
 void Xmltv_TsSetStopTime( XML_STR_BUF * pBuf )
 {
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
    uint len = XML_STR_BUF_GET_STR_LEN(*pBuf);
 
    xds.pi_stop_time = Xmltv_ParseTimestamp(pStr, len);
 
-   dprintf2("Xmltv-TsSetStopTime: stop time %s: %d\n", pStr, (int)xds.pi.stop_time);
+   dprintf2(_T("Xmltv-TsSetStopTime: stop time %s: %d\n"), pStr, (int)xds.pi.stop_time);
 }
 
 // liveness    (live | joined | prerecorded) #IMPLIED
 void Xmltv_TsSetFeatLive( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if (strcasecmp(pStr, "live") == 0)
+   if (strcasecmp(pStr, _T("live")) == 0)
    {
       xds.pi_feature_flags |= PI_FEATURE_LIVE;
    }
@@ -661,7 +661,7 @@ void Xmltv_TsSetFeatCrypt( XML_STR_BUF * pBuf )
 #ifdef ALL_CONTENT
 static void Xmltv_TsCodeTimeAssign( XMLTV_CODE_TIME_SYS system, XML_STR_BUF * pBuf )
 {
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
    uint len = XML_STR_BUF_GET_STR_LEN(*pBuf);
 
    switch (system)
@@ -750,18 +750,18 @@ void Xmltv_TsCodeTimeSetStart( XML_STR_BUF * pBuf )
 void Xmltv_TsCodeTimeSetSystem( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if (strcasecmp(pStr, "vps") == 0)
+   if (strcasecmp(pStr, _T("vps")) == 0)
       xds.pi_code_time_sys = XMLTV_CODE_VPS;
-   else if (strcasecmp(pStr, "pdc") == 0)
+   else if (strcasecmp(pStr, _T("pdc")) == 0)
       xds.pi_code_time_sys = XMLTV_CODE_PDC;
-   else if (strcasecmp(pStr, "showview") == 0)
+   else if (strcasecmp(pStr, _T("showview")) == 0)
       xds.pi_code_time_sys = XMLTV_CODE_SV;
-   else if (strcasecmp(pStr, "videoplus") == 0)
+   else if (strcasecmp(pStr, _T("videoplus")) == 0)
       xds.pi_code_time_sys = XMLTV_CODE_VP;
    else
-      debug1("Xmltv-TsCodeTimeSetSystem: unknown code-time systm '%s'", pStr);
+      debug1(_T("Xmltv-TsCodeTimeSetSystem: unknown code-time systm '%s'"), pStr);
 #endif
 }
 
@@ -774,13 +774,13 @@ void Xmltv_PiTitleAdd( XML_STR_BUF * pBuf )
 
 void Xmltv_PiEpisodeTitleAdd( XML_STR_BUF * pBuf )
 {
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
 
    if ( isalnum(*pStr) )
    {
-      XmlCdata_AppendRaw(&xds.pi_desc, "\"", 1);
+      XmlCdata_AppendRaw(&xds.pi_desc, _T("\""), 1);
       XmlCdata_AppendRaw(&xds.pi_desc, pStr, XML_STR_BUF_GET_STR_LEN(*pBuf));
-      XmlCdata_AppendRaw(&xds.pi_desc, "\"", 1);
+      XmlCdata_AppendRaw(&xds.pi_desc, _T("\""), 1);
    }
    else
       XmlCdata_AssignOrAppend(&xds.pi_desc, pBuf);
@@ -847,18 +847,18 @@ void Xmltv_PiVideoAspectClose( void )
 void Xmltv_PiVideoAspectSetX( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   xds.pi_aspect_x = atoi(pStr);
+   xds.pi_aspect_x = _ttoi(pStr);
 #endif
 }
 
 void Xmltv_PiVideoAspectSetY( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   xds.pi_aspect_y = atoi(pStr);
+   xds.pi_aspect_y = _ttoi(pStr);
 #endif
 }
 
@@ -866,30 +866,30 @@ void Xmltv_PiVideoAspectSetY( XML_STR_BUF * pBuf )
 void Xmltv_PiVideoAspectAddXY( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
    int scan_pos;
    int nscan;
    int asp_x, asp_y;
 
-   nscan = sscanf(pStr, "%u : %u%n", &asp_x, &asp_y, &scan_pos);
+   nscan = _stscanf(pStr, _T("%u : %u%n"), &asp_x, &asp_y, &scan_pos);
    if ((nscan >= 2) && (pStr[scan_pos] == 0))
    {
       xds.pi_aspect_x = asp_x;
       xds.pi_aspect_y = asp_y;
    }
    else
-      debug1("Xmltv-VideoAspectAddXY: parse error '%s'", pStr);
+      debug1(_T("Xmltv-VideoAspectAddXY: parse error '%s'"), pStr);
 #endif
 }
 
 void Xmltv_PiVideoQualityAdd( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if ( (strcasecmp(pStr, "PAL+") == 0) ||
-        (strcasecmp(pStr, "PALplus") == 0) ||
-        (strcasecmp(pStr, "PAL-plus") == 0) )
+   if ( (strcasecmp(pStr, _T("PAL+")) == 0) ||
+        (strcasecmp(pStr, _T("PALplus")) == 0) ||
+        (strcasecmp(pStr, _T("PAL-plus")) == 0) )
    {
       xds.pi_feature_flags |= PI_FEATURE_PAL_PLUS;
    }
@@ -905,7 +905,7 @@ void Xmltv_PiAudioClose( void )
 #ifdef ALL_CONTENT
    xds.audio_cnt += 1;
 
-   // two mono channels -> so-called "2-channel" (usually different languages)
+   // two mono channels -> so-called _T("2-channel") (usually different languages)
    if ( (xds.audio_cnt > 1) &&
         ((xds.pi_feature_flags & PI_FEATURE_SOUND_MASK) == PI_FEATURE_SOUND_MONO) )
    {
@@ -915,30 +915,30 @@ void Xmltv_PiAudioClose( void )
 #endif
 }
 
-// DTD 0.5 only: "stereo-ness" specified as free text
+// DTD 0.5 only: _T("stereo-ness") specified as free text
 void Xmltv_PiAudioStereoAdd( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if (strcasecmp(pStr, "mono") == 0)
+   if (strcasecmp(pStr, _T("mono")) == 0)
    {
       xds.pi_feature_flags &= ~PI_FEATURE_SOUND_MASK;
       xds.pi_feature_flags |= PI_FEATURE_SOUND_MONO;
    }
-   else if (strcasecmp(pStr, "stereo") == 0)
+   else if (strcasecmp(pStr, _T("stereo")) == 0)
    {
       xds.pi_feature_flags &= ~PI_FEATURE_SOUND_MASK;
       xds.pi_feature_flags |= PI_FEATURE_SOUND_STEREO;
    }
-   else if ( (strcasecmp(pStr, "surround") == 0) ||
-             (strncasecmp(pStr, "quad", 4) == 0) )
+   else if ( (strcasecmp(pStr, _T("surround")) == 0) ||
+             (strncasecmp(pStr, _T("quad"), 4) == 0) )
    {
       xds.pi_feature_flags &= ~PI_FEATURE_SOUND_MASK;
       xds.pi_feature_flags |= PI_FEATURE_SOUND_SURROUND;
    }
    else
-      debug1("Xmltv-PiAudioStereoAdd: unknown keyword '%s'", pStr);
+      debug1(_T("Xmltv-PiAudioStereoAdd: unknown keyword '%s'"), pStr);
 #endif
 }
 
@@ -971,15 +971,15 @@ void Xmltv_PiAudioSurrOpen( void )
 void Xmltv_PiSubtitlesSetType( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if ( (strcmp(pStr, "teletext") == 0) ||
-        (strcmp(pStr, "onscreen") == 0) )
+   if ( (_tcscmp(pStr, _T("teletext")) == 0) ||
+        (_tcscmp(pStr, _T("onscreen")) == 0) )
    {
       xds.pi_feature_flags |= PI_FEATURE_SUBTITLES;
    }
    else
-      debug1("Xmltv-PiSubtitlesSetType: unknown subtitles type '%s'", pStr);
+      debug1(_T("Xmltv-PiSubtitlesSetType: unknown subtitles type '%s'"), pStr);
 #endif
 }
 
@@ -1006,26 +1006,26 @@ void Xmltv_PiSubtitlesSetPage( XML_STR_BUF * pBuf )
 void Xmltv_PiRatingSetSystem( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   TCHAR*  pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if (strcasecmp(pStr, "age") == 0)
+   if (strcasecmp(pStr, _T("age")) == 0)
    {
       xds.pi_rating_sys = XMLTV_RATING_AGE;
    }
-   else if (strcasecmp(pStr, "FSK") == 0)
+   else if (strcasecmp(pStr, _T("FSK")) == 0)
    {
       xds.pi_rating_sys = XMLTV_RATING_FSK;
    }
-   else if (strcasecmp(pStr, "BBFC") == 0)
+   else if (strcasecmp(pStr, _T("BBFC")) == 0)
    {
       xds.pi_rating_sys = XMLTV_RATING_BBFC;
    }
-   else if (strcasecmp(pStr, "MPAA") == 0)
+   else if (strcasecmp(pStr, _T("MPAA")) == 0)
    {
       xds.pi_rating_sys = XMLTV_RATING_MPAA;
    }
    else
-      debug1("Xmltv-PiRatingSetSystem: unknown system '%s'", pStr);
+      debug1(_T("Xmltv-PiRatingSetSystem: unknown system '%s'"), pStr);
 #endif
 }
 
@@ -1033,7 +1033,7 @@ void Xmltv_PiRatingAddText( XML_STR_BUF * pBuf )
 {
 }
 
-// DTD 0.5 only: rating in format "n / m"
+// DTD 0.5 only: rating in format _T("n / m")
 void Xmltv_PiStarRatingAddText( XML_STR_BUF * pBuf )
 {
 }
@@ -1099,10 +1099,10 @@ void Xmltv_PiCreditsClose( void )
 }
 
 #ifdef ALL_CONTENT
-static void Xmltv_PiCreditsAppend( const char * pKind, XML_STR_BUF * pBuf )
+static void Xmltv_PiCreditsAppend( const TCHAR*  pKind, XML_STR_BUF * pBuf )
 {
    if (XML_STR_BUF_GET_STR_LEN(xds.pi_credits) > 0)
-      XmlCdata_AppendRaw(&xds.pi_credits, ", ", 2);
+      XmlCdata_AppendRaw(&xds.pi_credits, _T(", "), 2);
    XmlCdata_AppendString(&xds.pi_credits, pKind);
    XmlCdata_AssignOrAppend(&xds.pi_credits, pBuf);
 }
@@ -1111,7 +1111,7 @@ static void Xmltv_PiCreditsAppend( const char * pKind, XML_STR_BUF * pBuf )
 void Xmltv_PiCreditsAddDirector( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   Xmltv_PiCreditsAppend("directed by: ", pBuf);
+   Xmltv_PiCreditsAppend(_T("directed by: "), pBuf);
 #endif
 }
 
@@ -1119,9 +1119,9 @@ void Xmltv_PiCreditsAddActor( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
    if (XML_STR_BUF_GET_STR_LEN(xds.pi_actors) == 0)
-      XmlCdata_AppendString(&xds.pi_actors, "With: ");
+      XmlCdata_AppendString(&xds.pi_actors, _T("With: "));
    else
-      XmlCdata_AppendRaw(&xds.pi_actors, ", ", 2);
+      XmlCdata_AppendRaw(&xds.pi_actors, _T(", "), 2);
    XmlCdata_AppendRaw(&xds.pi_actors, XML_STR_BUF_GET_STR(*pBuf), XML_STR_BUF_GET_STR_LEN(*pBuf));
 #endif
 }
@@ -1129,63 +1129,63 @@ void Xmltv_PiCreditsAddActor( XML_STR_BUF * pBuf )
 void Xmltv_PiCreditsAddWriter( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   Xmltv_PiCreditsAppend("written by: ", pBuf);
+   Xmltv_PiCreditsAppend(_T("written by: "), pBuf);
 #endif
 }
 
 void Xmltv_PiCreditsAddAdapter( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   Xmltv_PiCreditsAppend("adapted by: ", pBuf);
+   Xmltv_PiCreditsAppend(_T("adapted by: "), pBuf);
 #endif
 }
 
 void Xmltv_PiCreditsAddProducer( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   Xmltv_PiCreditsAppend("produced by: ", pBuf);
+   Xmltv_PiCreditsAppend(_T("produced by: "), pBuf);
 #endif
 }
 
 void Xmltv_PiCreditsAddExecProducer( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   Xmltv_PiCreditsAppend("exec. producer: ", pBuf);
+   Xmltv_PiCreditsAppend(_T("exec. producer: "), pBuf);
 #endif
 }
 
 void Xmltv_PiCreditsAddPresenter( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   Xmltv_PiCreditsAppend("presented by: ", pBuf);
+   Xmltv_PiCreditsAppend(_T("presented by: "), pBuf);
 #endif
 }
 
 void Xmltv_PiCreditsAddCommentator( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   Xmltv_PiCreditsAppend("commentator: ", pBuf);
+   Xmltv_PiCreditsAppend(_T("commentator: "), pBuf);
 #endif
 }
 
 void Xmltv_PiCreditsAddNarrator( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   Xmltv_PiCreditsAppend("narrator: ", pBuf);
+   Xmltv_PiCreditsAppend(_T("narrator: "), pBuf);
 #endif
 }
 
 void Xmltv_PiCreditsAddCompany( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   Xmltv_PiCreditsAppend("producer: ", pBuf);
+   Xmltv_PiCreditsAppend(_T("producer: "), pBuf);
 #endif
 }
 
 void Xmltv_PiCreditsAddGuest( XML_STR_BUF * pBuf )
 {
 #ifdef ALL_CONTENT
-   Xmltv_PiCreditsAppend("guest: ", pBuf);
+   Xmltv_PiCreditsAppend(_T("guest: "), pBuf);
 #endif
 }
 
@@ -1247,7 +1247,7 @@ static void XmltvDb_Init( void )
    memset(&xds, 0, sizeof(xds));
    xds.pChannelHash = XmlHash_Init();
 
-   // set string buffer size hints
+   // set tstring buffer size hints
    XmlCdata_Init(&xds.pi_title, 256);
    XmlCdata_Init(&xds.pi_subtitle, 256);
    XmlCdata_Init(&xds.pi_category, 256);
@@ -1262,7 +1262,7 @@ static void XmltvDb_Init( void )
 // ----------------------------------------------------------------------------
 // Entry point
 //
-void XmltvParser_Start( const char * pFilename )
+void XmltvParser_Start( const TCHAR*  pFilename )
 {
    FILE * fp = 0;
    XMLTV_DETECTION detection;
@@ -1271,7 +1271,7 @@ void XmltvParser_Start( const char * pFilename )
    // initialize internal state
    memset(&xds, 0, sizeof(xds));
 
-   fopen_s(&fp, pFilename, "r");
+   fp =_tfopen(pFilename, _T("r"));
    if (fp != 0)
    {
      // start scanner in DTD version detection mode

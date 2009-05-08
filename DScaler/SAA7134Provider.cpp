@@ -38,7 +38,7 @@ typedef struct
 {
     WORD VendorId;
     WORD DeviceId;
-    char* szName;
+    TCHAR* szName;
 } TSAA7134Chip;
 
 TSAA7134Chip SAA7134Chips[] =
@@ -46,23 +46,23 @@ TSAA7134Chip SAA7134Chips[] =
     {
         0x1131,
         0x7130,
-        "SAA7130",
+        _T("SAA7130"),
     },
     {
         0x1131,
         0x7133,
-        "SAA7133",
+        _T("SAA7133"),
     },
     {
         0x1131,
         0x7134,
-        "SAA7134",
+        _T("SAA7134"),
     }
 };
 
 CSAA7134Provider::CSAA7134Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
 {
-    char szSection[12];
+    TCHAR szSection[12];
     DWORD SubSystemId;
     BOOL IsMemoryInitialized = FALSE;
     int i;
@@ -88,7 +88,7 @@ CSAA7134Provider::CSAA7134Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
                 IsMemoryInitialized = TRUE;
             }
 
-            sprintf(szSection, "%s%d", SAA7134Chips[i].szName, CardsFound + 1);
+            _stprintf(szSection, _T("%s%d"), SAA7134Chips[i].szName, CardsFound + 1);
             SmartPtr<CSAA7134Source> pNewSource = CreateCorrectSource(
                                                                 pHardwareDriver,
                                                                 szSection,
@@ -112,7 +112,7 @@ CSAA7134Provider::~CSAA7134Provider()
 }
 
 
-SmartPtr<CSAA7134Source> CSAA7134Provider::CreateCorrectSource(SmartPtr<CHardwareDriver> pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, char* ChipName)
+SmartPtr<CSAA7134Source> CSAA7134Provider::CreateCorrectSource(SmartPtr<CHardwareDriver> pHardwareDriver, LPCTSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, TCHAR* ChipName)
 {
     /// \todo use the subsystem id to create the correct specilized version of the card
     SmartPtr<CSAA7134Card> pNewCard = new CSAA7134Card(pHardwareDriver);
@@ -153,7 +153,7 @@ BOOL CSAA7134Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
     }
     catch(...)
     {
-        ErrorBox("Can't create PageTable Memory");
+        ErrorBox(_T("Can't create PageTable Memory"));
         return FALSE;
     }
 
@@ -168,7 +168,7 @@ BOOL CSAA7134Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
     }
     catch(...)
     {
-        ErrorBox("Can't create Display Memory");
+        ErrorBox(_T("Can't create Display Memory"));
         return FALSE;
     }
 
@@ -181,7 +181,7 @@ BOOL CSAA7134Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
     }
     catch(...)
     {
-        ErrorBox("Can't create Display Memory");
+        ErrorBox(_T("Can't create Display Memory"));
         return FALSE;
     }
 

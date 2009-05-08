@@ -126,42 +126,42 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
     case WM_INITDIALOG:
         EnableCancelButton = lParam;
         Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCancelButton);
-        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Below 300 MHz");
-        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"300 MHz - 500 MHz");
-        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"500 MHz - 1 GHz");
-        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Above 1 GHz");
+        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)_T("Below 300 MHz"));
+        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)_T("300 MHz - 500 MHz"));
+        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)_T("500 MHz - 1 GHz"));
+        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)_T("Above 1 GHz"));
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_SETCURSEL, Setting_GetValue(WM_DSCALER_GETVALUE, PROCESSORSPEED), 0);
-        SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)"Show all frames - Lowest judder");
-        SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)"Best picture quality");
+        SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)_T("Show all frames - Lowest judder"));
+        SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)_T("Best picture quality"));
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_SETCURSEL, Setting_GetValue(WM_DSCALER_GETVALUE, TRADEOFF), 0);
-        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"DScaler & other softwares - priority given to DScaler");
-        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"DScaler alone - best possible results");
-        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"DScaler & other softwares - priority given to other softwares");
+        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)_T("DScaler & other softwares - priority given to DScaler"));
+        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)_T("DScaler alone - best possible results"));
+        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)_T("DScaler & other softwares - priority given to other softwares"));
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_SETCURSEL, Setting_GetValue(WM_DSCALER_GETVALUE, FULLCPU), 0);
-        LPCSTR pCPUTypeString;
+        LPCTSTR pCPUTypeString;
         if (CpuFeatureFlags & FEATURE_SSE2)
         {
-            pCPUTypeString = "SSE2";
+            pCPUTypeString = _T("SSE2");
         }
         else if (CpuFeatureFlags & FEATURE_SSE)
         {
-            pCPUTypeString = "SSE";
+            pCPUTypeString = _T("SSE");
         }
         else if (CpuFeatureFlags & FEATURE_MMXEXT)
         {
-            pCPUTypeString = "MMXEXT";
+            pCPUTypeString = _T("MMXEXT");
         }
         else if (CpuFeatureFlags & FEATURE_3DNOWEXT)
         {
-            pCPUTypeString = "3DNOWEXT";
+            pCPUTypeString = _T("3DNOWEXT");
         }
         else if (CpuFeatureFlags & FEATURE_3DNOW)
         {
-            pCPUTypeString = "3DNOW";
+            pCPUTypeString = _T("3DNOW");
         }
         else
         {
-            pCPUTypeString = "MMX";
+            pCPUTypeString = _T("MMX");
         }
         SetDlgItemText(hDlg, IDC_CPU_TYPE, pCPUTypeString);
         return TRUE;

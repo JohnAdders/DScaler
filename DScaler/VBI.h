@@ -47,7 +47,7 @@ void VBI_Init();
 void VBI_Exit();
 void VBI_Init_data(double Frequency);
 void VBI_ChannelChange();
-void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd);
+void VBI_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd);
 void VBI_AGC(BYTE* Buffer, int start, int stop, int step);
 
 extern BYTE VBI_thresh;

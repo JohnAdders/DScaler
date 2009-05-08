@@ -40,8 +40,8 @@ enum eVTState
 
 
 typedef struct {
-    char*    sCountry;
-    char*    sNetwork;
+    TCHAR*    sCountry;
+    TCHAR*    sNetwork;
     WORD    wNI_P8301;
     BYTE    uC_P8302;
     BYTE    uNI_P8302;
@@ -81,14 +81,14 @@ BOOL VT_PerformSearch(HDC hDC, LPRECT lpRect, BOOL bInclusive, BOOL bReverse = F
 BOOL VT_ShowTestPage(HDC hDC, LPRECT lpRect);
 BOOL VT_PerformFlofKey(HDC hDC, LPRECT lpRect, BYTE nFlofKey);
 
-void VT_SetPageOSD(char OSD[3]);
-void VT_SetPageOSD(char OSD[3], BOOL bOSDModeOn);
-void VT_ShowHeader(HDC hDC, LPRECT lpRect, char OSD[3] = NULL);
+void VT_SetPageOSD(TCHAR OSD[3]);
+void VT_SetPageOSD(TCHAR OSD[3], BOOL bOSDModeOn);
+void VT_ShowHeader(HDC hDC, LPRECT lpRect, TCHAR OSD[3] = NULL);
 
 BOOL VT_IsSearchStringValid(BOOL bBeepOnCorrection = FALSE);
 BOOL VT_IsTransparencyInPage();
 
-BOOL VT_OnInput(HDC hDC, LPRECT lpRect, char cInput);
+BOOL VT_OnInput(HDC hDC, LPRECT lpRect, TCHAR cInput);
 void VT_ClearInput();
 void VT_OnInputTimer(HDC hDC, LPRECT lpRect);
 
@@ -109,9 +109,9 @@ BOOL VT_ClickAtPosition(HDC hDC, LPRECT lpRect, WORD xPos, WORD yPos);
 BOOL VT_IsPageNumberAtPosition(LPRECT lpRect, LPPOINT lpPoint);
 BOOL VT_IsPageNumberAtPosition(LPRECT lpRect, WORD xPos, WORD yPos);
 
-std::string VT_GetStationFromIDP8301();
-std::string VT_GetStationFromPDC();
-std::string VT_GetStation();
+tstring VT_GetStationFromIDP8301();
+tstring VT_GetStationFromPDC();
+tstring VT_GetStation();
 
 BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);

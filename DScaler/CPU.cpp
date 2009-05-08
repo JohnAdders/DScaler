@@ -17,14 +17,14 @@
  * @file CPU.cpp CPU Detection
  *  This file contains #define directives that control compilation of CPU-specific
  *  code, mostly deinterlacing functions.  Turning these directives on requires
- *  that you have Microsoft's "Processor Pack" patch installed on your build system.
+ *  that you have Microsoft's _T("Processor Pack") patch installed on your build system.
  *  The Processor Pack is available from Microsoft for free:
  *
  *  http://msdn.microsoft.com/vstudio/downloads/ppack/
  *
  *  Note that compiling the code to use a processor-specific feature is safe even
  *  if your PC doesn't have the feature in question; dTV detects processor types
- *  at startup and sets flags in the global "CpuFeatureFlags" (see cpu.h for
+ *  at startup and sets flags in the global _T("CpuFeatureFlags") (see cpu.h for
  *  the list of flags) which the code uses to determine whether or not to use
  *  each feature.
  */
@@ -70,7 +70,7 @@ UINT CpuFeatureFlags = 0;
 void CPU_SetupFeatureFlag(void)
 {
    UINT signature = 0;
-    char vendor[13]        = "UnknownVendr";  // Needs to be exactly 12 chars
+   char vendor[13]        = "UnknownVendr";  // Needs to be exactly 12 chars
 
    // Define known vendor strings here
 
@@ -80,7 +80,7 @@ void CPU_SetupFeatureFlag(void)
    // Step 1: Check if processor has CPUID support. Processor faults
    // with an illegal instruction exception if the instruction is not
    // supported. This step catches the exception and immediately returns
-   // with feature string bits with all 0s, if the exception occurs.
+   // with feature tstring bits with all 0s, if the exception occurs.
     __try
     {
         __asm xor    eax, eax
@@ -100,10 +100,10 @@ void CPU_SetupFeatureFlag(void)
     {
          // Step 2: Check if CPUID supports function 1 (signature/std features)
          xor     eax, eax                      // CPUID function #0
-         cpuid                                 // largest std func/vendor string
+         cpuid                                 // largest std func/vendor tstring
          mov     dword ptr [vendor], ebx       // save
          mov     dword ptr [vendor+4], edx     //  vendor
-         mov     dword ptr [vendor+8], ecx     //   string
+         mov     dword ptr [vendor+8], ecx     //   tstring
          test    eax, eax                      // largest standard function==0?
          jz      $no_standard_features         // yes, no standard features func
          or      [CpuFeatureFlags], FEATURE_STD_FEATURES// does have standard features
@@ -186,8 +186,8 @@ void CPU_SetupFeatureFlag(void)
          or      [CpuFeatureFlags], ecx                 // merge into feature flags
 
          // Step 8: Determine CPU vendor
-         lea     esi, vendorAMD                // AMD's vendor string
-         lea     edi, vendor                   // this CPU's vendor string
+         lea     esi, vendorAMD                // AMD's vendor tstring
+         lea     edi, vendor                   // this CPU's vendor tstring
          mov     ecx, 12                       // strings are 12 characters
          cld                                   // compare lowest to highest
          repe    cmpsb                         // current vendor str == AMD's ?

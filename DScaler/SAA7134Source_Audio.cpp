@@ -95,7 +95,7 @@ void CSAA7134Source::UpdateAudioStatus()
 
     if (AudioChannel != m_DetectedAudioChannel)
     {
-        char szAudioChannel[256] = "";
+        TCHAR szAudioChannel[256] = _T("");
 
         eSoundChannel BtSoundChannel;
 
@@ -104,25 +104,25 @@ void CSAA7134Source::UpdateAudioStatus()
         case AUDIOCHANNEL_MONO:
             {
                 BtSoundChannel = SOUNDCHANNEL_MONO;
-                sprintf(szAudioChannel,"Mono");
+                _stprintf(szAudioChannel,_T("Mono"));
                 break;
             }
         case AUDIOCHANNEL_STEREO:
             {
                 BtSoundChannel = SOUNDCHANNEL_STEREO;
-                sprintf(szAudioChannel,"Stereo");
+                _stprintf(szAudioChannel,_T("Stereo"));
                 break;
             }
         case AUDIOCHANNEL_LANGUAGE1:
             {
                 BtSoundChannel = SOUNDCHANNEL_LANGUAGE1;
-                sprintf(szAudioChannel,"Language 1");
+                _stprintf(szAudioChannel,_T("Language 1"));
                 break;
             }
         case AUDIOCHANNEL_LANGUAGE2:
             {
                 BtSoundChannel = SOUNDCHANNEL_LANGUAGE2;
-                sprintf(szAudioChannel,"Language 2");
+                _stprintf(szAudioChannel,_T("Language 2"));
                 break;
             }
         case AUDIOCHANNEL_EXTERNAL:
@@ -131,7 +131,7 @@ void CSAA7134Source::UpdateAudioStatus()
                 // or mono but we don't know because it comes
                 // from an external source.
                 BtSoundChannel = SOUNDCHANNEL_STEREO;
-                sprintf(szAudioChannel,"External");
+                _stprintf(szAudioChannel,_T("External"));
                 break;
             }
         }

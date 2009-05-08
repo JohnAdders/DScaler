@@ -82,7 +82,7 @@ void VBI_ChannelChange()
     VPS_ChannelChange();
 }
 
-void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
+void VBI_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd)
 {
     static eCCMode PrevCCMode = CCMODE_OFF;
 
@@ -121,7 +121,7 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
     // WSS information with source aspect ratio.
     if (DoWSS && !IsOdd && (line == TVFormat->WSS_Line))
     {
-//        LOG(1, "WSS VBI_thresh %d VBIOffset %d", VBI_thresh, VBIOffset);
+//        LOG(1, _T("WSS VBI_thresh %d VBIOffset %d"), VBI_thresh, VBIOffset);
         VBI_DecodeLine_WSS(VBI_Buffer);
     }
 
@@ -230,15 +230,15 @@ void VBI_ReadSettingsFromIni()
 {
     if(VBISettingsHolder.GetNumSettings() == 0)
     {
-        CSettingGroup *pCaptureGroup = SettingsMaster->GetGroup("VBI - Capture", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+        CSettingGroup *pCaptureGroup = SettingsMaster->GetGroup(_T("VBI - Capture"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
         VBISettingsHolder.AddSettings(VBISettings, VBI_SETTING_LASTONE, pCaptureGroup);
 
 #ifdef _DEBUG
         if (VBI_SETTING_LASTONE != VBISettingsHolder.GetNumSettings())
         {
-            LOGD("Number of settings in VBI source is not equal to the number of settings in DS_Control.h");
-            LOGD("DS_Control.h or VBI.cpp are probably not in sync with each other.");
+            LOGD(_T("Number of settings in VBI source is not equal to the number of settings in DS_Control.h"));
+            LOGD(_T("DS_Control.h or VBI.cpp are probably not in sync with each other."));
         }
 #endif
 

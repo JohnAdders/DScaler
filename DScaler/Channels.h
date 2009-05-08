@@ -30,17 +30,17 @@
 
 
 //TODO->We should at least use a StringTable resource
-const LPCSTR SZ_DEFAULT_CHANNELS_FILENAME  = "channel.txt"; //default channels per country file
-const LPCSTR SZ_DEFAULT_PROGRAMS_FILENAME  = "program.txt"; //default user channels file
+const LPCTSTR SZ_DEFAULT_CHANNELS_FILENAME  = _T("channel.txt"); //default channels per country file
+const LPCTSTR SZ_DEFAULT_PROGRAMS_FILENAME  = _T("program.txt"); //default user channels file
 
 class CChannel
 {
 public:
 
-    CChannel(LPCSTR Name, LPCSTR EPGName, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
-    CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
-    LPCSTR GetName() const;
-    LPCSTR GetEPGName() const;
+    CChannel(LPCTSTR Name, LPCTSTR EPGName, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
+    CChannel(LPCTSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
+    LPCTSTR GetName() const;
+    LPCTSTR GetEPGName() const;
     DWORD GetFrequency() const;
     void SetFrequency(DWORD newFrequency);
     int GetChannelNumber() const;
@@ -48,8 +48,8 @@ public:
     BOOL IsActive() const;
     void SetActive(BOOL Active);
 private:
-    std::string m_Name;
-    std::string m_EPGName;
+    tstring m_Name;
+    tstring m_EPGName;
     DWORD m_Freq;
     int m_Chan;
     eVideoFormat m_Format;
@@ -121,8 +121,8 @@ public:
     ~CUserChannels();
 
     //Read/Write using the legacy "program.txt" file format
-    BOOL WriteFile(LPCSTR szFilename) const;
-    BOOL ReadFile(LPCSTR szFilename);
+    BOOL WriteFile(LPCTSTR szFilename) const;
+    BOOL ReadFile(LPCTSTR szFilename);
 
 private :
     BOOL WriteASCIIImpl(FILE*) const;
@@ -136,18 +136,18 @@ class CCountryChannels : public CChannelList
     friend class CCountryList;
 
 public:
-    CCountryChannels(LPCSTR szSomeIdentifierString, eVideoFormat eCountryVideoFormat = VIDEOFORMAT_LAST_TV);
+    CCountryChannels(LPCTSTR szSomeIdentifierString, eVideoFormat eCountryVideoFormat = VIDEOFORMAT_LAST_TV);
     CCountryChannels(const CCountryChannels&);
 
     ~CCountryChannels();
 
-    const LPCSTR GetCountryName() const;
+    const LPCTSTR GetCountryName() const;
     const eVideoFormat GetCountryFormat() const;
 
 private:
     virtual BOOL WriteASCIIImpl(FILE*) const;
     virtual BOOL ReadASCIIImpl(FILE*);
-    std::string m_szName;
+    tstring m_szName;
     eVideoFormat m_Format;
 };
 
@@ -164,7 +164,7 @@ public :
 
     int GetSize(int index) const {return GetChannels(index)->GetSize();};
 
-    inline LPCSTR GetCountryName(int index) const {return GetChannels(index)->GetCountryName();};
+    inline LPCTSTR GetCountryName(int index) const {return GetChannels(index)->GetCountryName();};
 
     inline int GetMinChannelNumber(int index) const {return GetChannels(index)->GetMinChannelNumber();};
 
@@ -176,7 +176,7 @@ public :
 
     void Clear();
 
-    BOOL ReadASCII(LPCSTR);
+    BOOL ReadASCII(LPCTSTR);
 private:
     BOOL ReadASCIIImpl(FILE*);
 

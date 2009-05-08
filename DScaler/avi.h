@@ -181,7 +181,7 @@ typedef struct
     {
         CRITICAL_SECTION lock;
         aviError_t       type;          /**< The current type of error */
-        char             message[128];  /**< A message associated with the error */
+        TCHAR            message[128];  /**< A message associated with the error */
     } error;
 
     /** Async data */
@@ -305,9 +305,9 @@ typedef struct
 } AVI_FILE;
 
 /* From avi.c */
-void     aviDisplayError(AVI_FILE *file, HWND hWnd, char *post);
+void     aviDisplayError(AVI_FILE *file, HWND hWnd, TCHAR* post);
 AVI_FILE *aviFileCreate(void);
-BOOL     aviBeginWriting(AVI_FILE *file, char *fileName);
+BOOL     aviBeginWriting(AVI_FILE *file, TCHAR* fileName);
 void     aviEndWriting(AVI_FILE *file);
 void     aviFileDestroy(AVI_FILE *file);
 BOOL     aviFrameReady(AVI_FILE *file);

@@ -53,9 +53,9 @@ void Channel_Decrement();
 void Channel_SetCurrent();
 void Channel_Previous();
 void Channel_Reset();
-std::string Channel_GetName();
-std::string Channel_GetEPGName();
-std::string Channel_GetVBIName(BOOL bOnlyWithCodes=FALSE);
+tstring Channel_GetName();
+tstring Channel_GetEPGName();
+tstring Channel_GetVBIName(BOOL bOnlyWithCodes=FALSE);
 
 extern int PreSwitchMuteDelay;
 extern int PostSwitchMuteDelay;

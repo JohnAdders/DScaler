@@ -27,26 +27,22 @@
 #endif
 
 // need to try and remove need for this
-// shoudl be using STL or secure function
+// should be using STL or secure function
 #define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NON_CONFORMING_SWPRINTFS
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
 
 #define VC_EXTRALEAN
-//#include <afxwin.h>
-//#include <afxext.h>
-//#include <afxcmn.h>
-
 #include <atlbase.h>
-#include <atltime.h>
 
 //uncomment the folowing line if you want to try the experimental direct show support
 #ifdef WANT_DSHOW_SUPPORT
     // JA 7-Mar-2005 added to get compiled
     // want to remove the need for this
-    // but will require changing a lot of string functions
+    // but will require changing a lot of tstring functions
     #define NO_DSHOW_STRSAFE
     #include <dshow.h>
 #endif
@@ -54,6 +50,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
+#include <commdlg.h>
 
 #include <ddraw.h>
 #include <process.h>
@@ -73,8 +70,10 @@
 #include <math.h>
 #include <multimon.h>
 #include <time.h>
+#include <tchar.h>
 
 
+#include "StringHelpers.h"
 #include "ErrorBox.h"
 #include "DSDrv.h"
 #include "HtmlHelp.H"
@@ -89,7 +88,7 @@
 #endif
 
 
-// defien stuff that we try and use if they are available
+// define stuff that we try and use if they are available
 #define WC_NO_BEST_FIT_CHARS      0x00000400
 #define IDC_HAND MAKEINTRESOURCE(32649)
 

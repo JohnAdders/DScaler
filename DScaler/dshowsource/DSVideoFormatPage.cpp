@@ -36,7 +36,7 @@ using namespace std;
 // CDSVideoFormatPage dialog
 
 
-CDSVideoFormatPage::CDSVideoFormatPage(const string& name,vector<CDShowGraph::CVideoFormat>& fmts, CSliderSetting* pResolution) :
+CDSVideoFormatPage::CDSVideoFormatPage(const tstring& name,vector<CDShowGraph::CVideoFormat>& fmts, CSliderSetting* pResolution) :
     CTreeSettingsPage(name, IDD_DSHOW_VIDEOFMTS),
     m_RealVideoFmt(fmts),
     m_bInUpdateControlls(FALSE),
@@ -135,7 +135,7 @@ void CDSVideoFormatPage::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNot
 
 BOOL CDSVideoFormatPage::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
-    LOGD(_T("%s(%d) : CDSVideoFormatPage::OnInitDialog\n"),__FILE__,__LINE__);
+    LOGD(_T("%s(%d) : CDSVideoFormatPage::OnInitDialog\n"),_T(__FILE__),__LINE__);
 
     m_ListBox = GetDlgItem(hDlg, IDC_DSHOW_VIDEOFMTS_FMTLIST);
     m_SpinWidth = GetDlgItem(hDlg, IDC_DSHOW_VIDEOFMTS_WIDTH_SPIN);
@@ -163,7 +163,7 @@ BOOL CDSVideoFormatPage::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 
 void CDSVideoFormatPage::OnOK(HWND hDlg)
 {
-    LOGD(_T("%s(%d) : CDSVideoFormatPage::OnOK\n"),__FILE__,__LINE__);
+    LOGD(_T("%s(%d) : CDSVideoFormatPage::OnOK\n"),_T(__FILE__),__LINE__);
 
     //update the resoltion setting so it points to the right entry in the new vector
     long OldResolution=m_pResolutionSetting->GetValue();
@@ -259,35 +259,35 @@ void CDSVideoFormatPage::GenerateName(HWND hDlg, int pos)
     }
 
     LOGD(_T("%s(%d) : CDSVideoFormatPage::GenerateName\n"),__FILE__,__LINE__);
-    CString name;
-    name.Format("%ldx%ld",m_VideoFmt[pos].m_Width,m_VideoFmt[pos].m_Height);
+    
+    tstring name(MakeString() <<  m_VideoFmt[pos].m_Width << _T("x") << m_VideoFmt[pos].m_Height);
 
     if(m_VideoFmt[pos].m_bForceYUY2 || m_VideoFmt[pos].m_FieldFmt!=DSREND_FIELD_FORMAT_AUTO)
     {
-        name+=" (";
+        name+=_T(" (");
         if(m_VideoFmt[pos].m_bForceYUY2)
         {
-            name+="YUY2";
+            name+=_T("YUY2");
         }
 
         if(m_VideoFmt[pos].m_bForceYUY2 && m_VideoFmt[pos].m_FieldFmt!=DSREND_FIELD_FORMAT_AUTO)
         {
-            name+=",";
+            name+=_T(",");
         }
 
         if(m_VideoFmt[pos].m_FieldFmt==DSREND_FIELD_FORMAT_FRAME)
         {
-            name+="Frame";
+            name+=_T("Frame");
         }
         else if(m_VideoFmt[pos].m_FieldFmt==DSREND_FIELD_FORMAT_FIELD)
         {
-            name+="Field";
+            name+=_T("Field");
         }
 
-        name+=")";
+        name+=_T(")");
     }
 
-    SetDlgItemText(hDlg, IDC_DSHOW_VIDEOFMTS_NAME, name);
+    SetDlgItemText(hDlg, IDC_DSHOW_VIDEOFMTS_NAME, name.c_str());
 }
 
 LRESULT CDSVideoFormatPage::OnDeltaPosWidth(HWND hDlg, NMHDR* pNMHDR)
@@ -390,11 +390,11 @@ void CDSVideoFormatPage::OnChangeName(HWND hDlg)
     if(CurSel!=LB_ERR)
     {
         DWORD pos=ListBox_GetItemData(m_ListBox, CurSel);
-        string name = GetDlgItemString(hDlg, IDC_DSHOW_VIDEOFMTS_NAME);
+        tstring name = GetDlgItemString(hDlg, IDC_DSHOW_VIDEOFMTS_NAME);
 
         //make sure control characters can't be used
-        name = ReplaceCharWithString(name, '&',"");
-        name = ReplaceCharWithString(name, '#',"");
+        name = ReplaceCharWithString(name, '&',_T(""));
+        name = ReplaceCharWithString(name, '#',_T(""));
         SetDlgItemText(hDlg, IDC_DSHOW_VIDEOFMTS_NAME, name.c_str());
 
         m_VideoFmt[pos].m_Name=name;
@@ -466,7 +466,7 @@ void CDSVideoFormatPage::OnClickedNew(HWND hDlg)
     LOGD(_T("%s(%d) : CDSVideoFormatPage::OnClickedNew\n"),__FILE__,__LINE__);
 
     CDShowGraph::CVideoFormat NewFormat;
-    NewFormat.m_Name="<New Item>";
+    NewFormat.m_Name=_T("<New Item>");
     m_VideoFmt.push_back(NewFormat);
     int pos=ListBox_AddString(m_ListBox, NewFormat.m_Name.c_str());
     ListBox_SetItemData(m_ListBox, pos, m_VideoFmt.size()-1);

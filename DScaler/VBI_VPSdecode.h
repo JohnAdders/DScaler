@@ -41,9 +41,9 @@ typedef struct
 {
     BOOL Valid;
     WORD CNI;
-    char LabelTemp[9];
-    char LabelLast[9];
-    char LabelCurr[9];
+    TCHAR LabelTemp[9];
+    TCHAR LabelLast[9];
+    TCHAR LabelCurr[9];
     int  LabelIndex;
     int  Month;
     int  Day;
@@ -65,8 +65,8 @@ BYTE VBI_Scan(BYTE* VBI_Buffer, UINT step, UINT* scanPos);
 BYTE VPS_Scan(const BYTE* VBI_Buffer, UINT step, UINT* scanPos, BOOL* pError);
 
 void VPS_ChannelChange();
-std::string VPS_GetChannelName();
-std::string VPS_GetChannelNameFromCNI();
+tstring VPS_GetChannelName();
+tstring VPS_GetChannelNameFromCNI();
 
 BYTE ReverseBitOrder( BYTE b );
 

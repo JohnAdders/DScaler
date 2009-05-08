@@ -29,7 +29,7 @@
 
 // Get Hold of the Deinterlace.c file settings
 void Deinterlace_SetMenu(HMENU hMenu);
-void GetDeinterlaceSettings(std::vector< SmartPtr<CSettingsHolder> >& Holders,std::vector< std::string >& Names);
+void GetDeinterlaceSettings(std::vector< SmartPtr<CSettingsHolder> >& Holders,std::vector< tstring >& Names);
 
 
 

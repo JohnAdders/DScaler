@@ -99,7 +99,7 @@ BYTE CVTCommon::Parity(BYTE Byte)
 }
 
 
-/// Check the odd parity-ness of a string
+/// Check the odd parity-ness of a tstring
 BOOL CVTCommon::CheckParity(BYTE* Data, ULONG Length, BOOL bStripParityBits)
 {
     BOOL ErrorFree = TRUE;
@@ -388,7 +388,7 @@ eVTCodepage CVTCommon::GetRegionCodepage(eVTRegion VTRegion,
  *  supplied callback function for all the characters.  This
  *  function understands the exclusive control characters in
  *  Teletext pages and should be used rather than attempting
- *  to parse pages with normal string manipulation functions.
+ *  to parse pages with normal tstring manipulation functions.
  *
  *  These are the relavent uFlags:
  *

@@ -35,19 +35,27 @@ using namespace std;
 
 extern HWND hWnd;
 
-void _ErrorBoxOSD(HWND hwndParent, LPCSTR szFile, int Line, const string& Message)
+void _ErrorBoxOSD(HWND hwndParent, LPCTSTR szFile, int Line, const tstring& Message)
 {
 }
 
-
-void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, const string& Message)
+#ifdef _UNICODE
+void _ErrorBox(HWND hwndParent, LPCTSTR szFile, int Line, const std::string& Message)
 {
-    char szDispMessage[1024];
+    _ErrorBox(hwndParent, szFile, Line, MBCSToTString(Message));
+}
+#endif
+
+
+
+void _ErrorBox(HWND hwndParent, LPCTSTR szFile, int Line, const tstring& Message)
+{
+    TCHAR szDispMessage[1024];
     // variable used to prevent recusive error problems
     static BOOL AlreadyInErrorBox = FALSE;
 
     // put the message into the log for debugging
-    LOG(0, "ErrorBox File:%s line: %d Message: %s", szFile, Line, Message.c_str());
+    LOG(0, _T("ErrorBox File:%s line: %d Message: %s"), szFile, Line, Message.c_str());
 
 #ifndef _DEBUG
     if (hWnd != NULL && AlreadyInErrorBox == FALSE)
@@ -59,7 +67,7 @@ void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, const string& Message)
             // Show OSD text immediately and pause for 2 seconds.  OSD will
             // continue to show after the 2 seconds if there are no other
             // OSDs pending.
-            _snprintf(szDispMessage, sizeof(szDispMessage), "ERROR: %s\nFile %s Line %d", Message.c_str(), szFile, Line);
+            _sntprintf(szDispMessage, sizeof(szDispMessage), _T("ERROR: %s\nFile %s Line %d"), Message.c_str(), szFile, Line);
             OSD_ShowTextPersistent(szDispMessage, 4);
 
             RECT OSDDisplayRect;
@@ -75,33 +83,33 @@ void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, const string& Message)
         }
         else
         {
-            _snprintf(szDispMessage, sizeof(szDispMessage), "%s\nThe error occured in %s at line %d", Message.c_str(), szFile, Line);
+            _sntprintf(szDispMessage, sizeof(szDispMessage), _T("%s\nThe error occured in %s at line %d"), Message.c_str(), szFile, Line);
             RealErrorBox(szDispMessage);
         }
         AlreadyInErrorBox = FALSE;
     }
     else
     {
-        _snprintf(szDispMessage, sizeof(szDispMessage), "%s\nThe error occured in %s at line %d", Message.c_str(), szFile, Line);
+        _sntprintf(szDispMessage, sizeof(szDispMessage), _T("%s\nThe error occured in %s at line %d"), Message.c_str(), szFile, Line);
         RealErrorBox(szDispMessage);
     }
 #else
-    _snprintf(szDispMessage, sizeof(szDispMessage), "%s\nThe error occured in %s at line %d", Message.c_str(), szFile, Line);
+    _sntprintf(szDispMessage, sizeof(szDispMessage), _T("%s\nThe error occured in %s at line %d"), Message.c_str(), szFile, Line);
     if(hwndParent == NULL)
     {
-        MessageBox(hWnd, szDispMessage, "DScaler Error", MB_ICONSTOP | MB_OK);
+        MessageBox(hWnd, szDispMessage, _T("DScaler Error"), MB_ICONSTOP | MB_OK);
     }
     else
     {
-        MessageBox(hwndParent,szDispMessage, "DScaler Error", MB_ICONSTOP | MB_OK);
+        MessageBox(hwndParent,szDispMessage, _T("DScaler Error"), MB_ICONSTOP | MB_OK);
     }
 #endif
 }
 
-void _RealErrorBox(LPCSTR szFile, int Line, const string& Message)
+void _RealErrorBox(LPCTSTR szFile, int Line, const tstring& Message)
 {
-    LOG(0, "ErrorBox File:%s line: %d Message: %s", szFile, Line, Message.c_str());
+    LOG(0, _T("ErrorBox File:%s line: %d Message: %s"), szFile, Line, Message.c_str());
     HideSplashScreen();
-    MessageBox(hWnd, Message.c_str(), "DScaler Error", MB_ICONSTOP | MB_OK);
+    MessageBox(hWnd, Message.c_str(), _T("DScaler Error"), MB_ICONSTOP | MB_OK);
 }
 

@@ -48,7 +48,7 @@ CCX2388xCard::CCX2388xCard(SmartPtr<CHardwareDriver> pDriver) :
     m_CurrentInput(0),
     m_CurrentAudioStandard(AUDIO_STANDARD_AUTO),
     m_CurrentStereoType(STEREOTYPE_AUTO),
-    m_TunerType("n/a"),
+    m_TunerType(_T("n/a")),
     m_I2CInitialized(FALSE),
     m_I2CBus(new CI2CBusForLineInterface(this)),
     m_AudioControls(new CAudioControls()),
@@ -147,7 +147,7 @@ eCX2388xCardId CCX2388xCard::GetCardType()
     return m_CardType;
 }
 
-string CCX2388xCard::GetCardName(eCX2388xCardId CardId)
+tstring CCX2388xCard::GetCardName(eCX2388xCardId CardId)
 {
     return m_CX2388xCards[CardId].szName;
 }
@@ -1057,7 +1057,7 @@ BOOL CCX2388xCard::IsVideoPresent()
     DWORD dwval            = ReadDword(CX2388X_DEVICE_STATUS);
     DWORD dwUseVSync    = ReadDword(CX2388X_VIDEO_INPUT);
 
-    // "Vertical Sync Detection" in CX2388x Advanced Settings enabled?
+    // _T("Vertical Sync Detection") in CX2388x Advanced Settings enabled?
     if((dwUseVSync & CX2388X_VIDEO_INPUT_VERTEN) == CX2388X_VIDEO_INPUT_VERTEN)
     {
         // detection is much faster
@@ -1096,7 +1096,7 @@ void CCX2388xCard::ResetChip()
         // switch on allow master and respond to memory requests
         if((Command & 0x06) != 0x06)
         {
-            LOG(1, " CX2388x PCI Command was %d", Command);
+            LOG(1, _T(" CX2388x PCI Command was %d"), Command);
             Command |= 0x06;
             SetPCIConfigOffset(&Command, 0x04, m_BusNumber, m_SlotNumber);
             ::Sleep(500);
@@ -1108,7 +1108,7 @@ void CCX2388xCard::ResetChip()
         // switch on allow master and respond to memory requests
         if((Command & 0x01) == 0x01)
         {
-            LOG(1, " CX2388x eeprom write were enabled 0x40 Register was %d", Command);
+            LOG(1, _T(" CX2388x eeprom write were enabled 0x40 Register was %d"), Command);
             Command &= ~0x01;
             SetPCIConfigOffset(&Command, 0x40, m_BusNumber, m_SlotNumber);
         }
@@ -1171,7 +1171,7 @@ void CCX2388xCard::ResetHardware()
     // actually does fit, I'd hope this gets picked up in debug
     if(SRAM_NEXT > SRAM_MAX)
     {
-        ErrorBox("Too much to fit in SRAM")
+        ErrorBox(_T("Too much to fit in SRAM"))
     }
 
     /////////////////////////////////////////////////////////////////
@@ -1335,26 +1335,26 @@ void CCX2388xCard::ResetHardware()
 BOOL APIENTRY CCX2388xCard::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     CCX2388xCard* pThis = NULL;
-    char szCardId[9] = "n/a     ";
-    char szVendorId[9] = "n/a ";
-    char szDeviceId[9] = "n/a ";
+    TCHAR szCardId[9] = _T("n/a     ");
+    TCHAR szVendorId[9] = _T("n/a ");
+    TCHAR szDeviceId[9] = _T("n/a ");
     DWORD dwCardId(0);
 
     switch (message)
     {
     case WM_INITDIALOG:
         pThis = (CCX2388xCard*)lParam;
-        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, "CX2388x");
-        sprintf(szVendorId,"%04X", pThis->GetVendorId());
+        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, _T("CX2388x"));
+        _stprintf(szVendorId,_T("%04X"), pThis->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
-        sprintf(szDeviceId,"%04X", pThis->GetDeviceId());
+        _stprintf(szDeviceId,_T("%04X"), pThis->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
         SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType().c_str());
-        SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "");
+        SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, _T(""));
         dwCardId = pThis->GetSubSystemId();
         if(dwCardId != 0 && dwCardId != 0xffffffff)
         {
-            sprintf(szCardId,"%8X", dwCardId);
+            _stprintf(szCardId,_T("%8X"), dwCardId);
         }
         SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         return TRUE;
@@ -1512,7 +1512,7 @@ double CCX2388xCard::SetPLL(double PLLFreq)
         RegValue = 1 << 26;
         break;
     default:
-        LOG(0, "Invalid PLL Pre Scaler value %d", Prescaler);
+        LOG(0, _T("Invalid PLL Pre Scaler value %d"), Prescaler);
         break;
     }
 
@@ -1522,7 +1522,7 @@ double CCX2388xCard::SetPLL(double PLLFreq)
     // Check for illegal PLL values
     if( PLLInt < 14 || PLLInt > 63)
     {
-        LOG(0, "Invalid PLL value %f MHz", PLLFreq);
+        LOG(0, _T("Invalid PLL value %f MHz"), PLLFreq);
         return 0.0;
     }
 
@@ -1558,23 +1558,23 @@ void CCX2388xCard::SetRISCStartAddressVBI(DWORD RiscBasePhysical)
     AndDataDword( SRAM_CMDS_24 + 0x10, 0x7fffffff);
 }
 
-#define DumpRegister(Reg) fprintf(hFile, #Reg "\t%08x\n", ReadDword(Reg))
-#define DumpBRegister(Reg) fprintf(hFile, #Reg "\t%02x\n", ReadByte(Reg))
+#define DumpRegister(Reg) _ftprintf(hFile, _T(#Reg) _T("\t%08x\n"), ReadDword(Reg))
+#define DumpBRegister(Reg) _ftprintf(hFile,_T(#Reg) _T("\t%02x\n"), ReadByte(Reg))
 
-void CCX2388xCard::DumpChipStatus(const char* CardName)
+void CCX2388xCard::DumpChipStatus(const TCHAR* CardName)
 {
     FILE* hFile;
-    string Filename(CardName);
+    tstring Filename(CardName);
 
-    Filename += ".txt";
+    Filename += _T(".txt");
 
-    hFile = fopen(Filename.c_str(), "w");
+    hFile = _tfopen(Filename.c_str(), _T("w"));
     if(!hFile)
     {
         return;
     }
 
-    fprintf(hFile, "SubSystemId\t%08x\n", m_SubSystemId);
+    _ftprintf(hFile, _T("SubSystemId\t%08x\n"), m_SubSystemId);
 
     DumpRegister(CX2388X_DEVICE_STATUS);
     DumpRegister(CX2388X_VIDEO_INPUT);
@@ -1744,7 +1744,7 @@ void CCX2388xCard::DumpChipStatus(const char* CardName)
 
 void CCX2388xCard::ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst)
 {
-    DialogBoxParam(hCX2388xResourceInst, "REGISTEREDIT", GetMainWnd(), RegisterEditProc, (LPARAM)this);
+    DialogBoxParam(hCX2388xResourceInst, _T("REGISTEREDIT"), GetMainWnd(), RegisterEditProc, (LPARAM)this);
 }
 
 #define AddRegister(Reg) {long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), #Reg); ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, Reg);}

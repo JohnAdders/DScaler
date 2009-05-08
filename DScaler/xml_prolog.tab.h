@@ -147,7 +147,7 @@
 
 #if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
 #line 50 "xml_prolog.yy"
-typedef union YYSTYPE { char * str; } YYSTYPE;
+typedef union YYSTYPE { TCHAR*  str; } YYSTYPE;
 /* Line 1249 of yacc.c.  */
 #line 152 "xml_prolog.tab.h"
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

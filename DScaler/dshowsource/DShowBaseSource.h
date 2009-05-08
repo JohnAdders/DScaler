@@ -59,11 +59,11 @@ public:
 
 protected:
     friend class CDShowGraph;
-    void SetAudioDevice(std::string device);
+    void SetAudioDevice(tstring device);
     CComPtr<IBaseFilter> GetNewAudioRenderer();
 
 private:
-    std::string m_AudioDevice;
+    tstring m_AudioDevice;
 };
 
 #endif // !defined(AFX_DSHOWBASESOURCE_H__AB8F10EC_CF36_4398_8F9F_68144D830D0D__INCLUDED_)

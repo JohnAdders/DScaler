@@ -59,16 +59,15 @@ void RemoveFromRot(DWORD pdwRegister)
 //#endif
 
 ///@return name of the guid
-char* GetGUIDName(GUID &guid)
+TCHAR* GetGUIDName(GUID &guid)
 {
-    static char fourcc_buffer[20];
     struct TGUID2NAME
     {
-        char *szName;
+        TCHAR* szName;
         GUID guid;
     };
     #define OUR_GUID_ENTRY(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
-    { #name, { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } } },
+    { _T(#name), { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } } },
     TGUID2NAME names[] =
     {
         #include <uuids.h>
@@ -76,7 +75,7 @@ char* GetGUIDName(GUID &guid)
 
     if(guid==GUID_NULL)
     {
-        return "GUID_NULL";
+        return _T("GUID_NULL");
     }
     for(int i=0;i<(sizeof(names)/sizeof(names[0]));i++)
     {
@@ -87,30 +86,29 @@ char* GetGUIDName(GUID &guid)
     }
     if(guid.Data2==0 && guid.Data3==0x10 && ((DWORD *)guid.Data4)[0]==0xaa000080 && ((DWORD *)guid.Data4)[1]==0x719b3800)
     {
-        char tmp[sizeof(DWORD)+1];
-        memset(tmp,0,sizeof(DWORD)+1);
-        memcpy(tmp,&guid.Data1,sizeof(DWORD));
-        _snprintf(fourcc_buffer,20,"FOURCC '%s'",tmp);
+        static TCHAR fourcc_buffer[20];
+        BYTE* pCC = (BYTE*)&guid.Data1;
+        _stprintf(fourcc_buffer,_T("FOURCC '%c%c%c%c'"),pCC[3], pCC[2] ,pCC[1], pCC[0]);
         return fourcc_buffer;
     }
-    return "Unknown GUID";
+    return _T("Unknown GUID");
 }
 
-void DumpGraph(IFilterGraph *pGraph,std::string &text)
+void DumpGraph(IFilterGraph *pGraph,tstring &text)
 {
-    stringstream str;
+    tostringstream str;
     CDShowGenericEnum<IEnumFilters,IBaseFilter> Filters;
     HRESULT hr=pGraph->EnumFilters(&Filters.m_pEnum);
     if(FAILED(hr))
     {
-        str << "Failed to get filter enumerator!!!";
+        str << _T("Failed to get filter enumerator!!!");
         return;
     }
-    str << "---FilterGraph: 0x" << hex << pGraph << dec << "---" << endl;
+    str << _T("---FilterGraph: 0x") << hex << pGraph << dec << _T("---") << endl;
     CComPtr<IBaseFilter> pFilter;
     while(hr=Filters.next(&pFilter),hr==S_OK && pFilter!=NULL)
     {
-        std::string tmp;
+        tstring tmp;
         DumpFilter(pFilter,tmp);
         str << tmp << endl;
         pFilter.Release();
@@ -118,24 +116,24 @@ void DumpGraph(IFilterGraph *pGraph,std::string &text)
     text=str.str();
 }
 
-void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,std::string &text)
+void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,tstring &text)
 {
     USES_CONVERSION;
-    stringstream str;
+    tostringstream str;
     CDShowPinEnum pins(pFilter);
 
     FILTER_INFO FilterInfo;
     memset(&FilterInfo,0,sizeof(FILTER_INFO));
 
-    str << "---Preferred media types for filter: ";
+    str << _T("---Preferred media types for filter: ");
     HRESULT hr=pFilter->QueryFilterInfo(&FilterInfo);
     if(SUCCEEDED(hr))
     {
-        str << W2A(FilterInfo.achName) << "---" << endl;
+        str << W2A(FilterInfo.achName) << _T("---") << endl;
     }
     else
     {
-        str << "Unknown filter 0x" << hex << pFilter.p << dec << "---" << endl;
+        str << _T("Unknown filter 0x") << hex << pFilter.p << dec << _T("---") << endl;
     }
     if(FilterInfo.pGraph!=NULL)
     {
@@ -147,7 +145,7 @@ void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,std::string &text)
     CComPtr<IPin> pin;
     while(pin=pins.next(),pin!=NULL)
     {
-        str << " ---Pin: ";
+        str << _T(" ---Pin: ");
         PIN_INFO PinInfo;
         memset(&PinInfo,0,sizeof(PIN_INFO));
         hr=pin->QueryPinInfo(&PinInfo);
@@ -157,23 +155,23 @@ void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,std::string &text)
         }
         else
         {
-            str << "Unknown pin";
+            str << _T("Unknown pin");
         }
         if(PinInfo.pFilter!=NULL)
         {
             PinInfo.pFilter->Release();
             PinInfo.pFilter=NULL;
         }
-        str    << " (0x" << hex << pin.p << dec << ") ";
+        str    << _T(" (0x") << hex << pin.p << dec << _T(") ");
         if(PinInfo.dir==PINDIR_OUTPUT)
         {
-            str << "(Output)";
+            str << _T("(Output)");
         }
         else
         {
-            str << "(Input)";
+            str << _T("(Input)");
         }
-        str << "---" << endl;
+        str << _T("---") << endl;
 
 
 
@@ -181,15 +179,15 @@ void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,std::string &text)
         HRESULT hr=pin->EnumMediaTypes(&MediaTypes.m_pEnum);
         if(FAILED(hr))
         {
-            str << " Failed to get mediatype enumerator!!!";
+            str << _T(" Failed to get mediatype enumerator!!!");
             continue;
         }
         AM_MEDIA_TYPE *mt=NULL;
         while(hr=MediaTypes.next(&mt),hr==S_OK,mt!=NULL)
         {
-            std::string tmp;
+            tstring tmp;
             DumpMediaType(mt,tmp);
-            str << tmp << endl << " ---" << endl;
+            str << tmp << endl << _T(" ---") << endl;
             if(mt->pUnk!=NULL)
             {
                 mt->pUnk->Release();
@@ -207,10 +205,10 @@ void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,std::string &text)
     text=str.str();
 }
 
-void DumpFilter(CComPtr<IBaseFilter> pFilter,std::string &text)
+void DumpFilter(CComPtr<IBaseFilter> pFilter,tstring &text)
 {
     USES_CONVERSION;
-    stringstream str;
+    tostringstream str;
     CDShowPinEnum pins(pFilter);
     FILTER_INFO FilterInfo;
     memset(&FilterInfo,0,sizeof(FILTER_INFO));
@@ -218,11 +216,11 @@ void DumpFilter(CComPtr<IBaseFilter> pFilter,std::string &text)
     HRESULT hr=pFilter->QueryFilterInfo(&FilterInfo);
     if(SUCCEEDED(hr))
     {
-        str << "---" << W2A(FilterInfo.achName) << "---" << endl;
+        str << _T("---") << W2A(FilterInfo.achName) << _T("---") << endl;
     }
     else
     {
-        str << "---Unknown filter 0x" << hex << pFilter.p << dec << "---" << endl;
+        str << _T("---Unknown filter 0x") << hex << pFilter.p << dec << _T("---") << endl;
     }
     if(FilterInfo.pGraph!=NULL)
     {
@@ -238,41 +236,41 @@ void DumpFilter(CComPtr<IBaseFilter> pFilter,std::string &text)
         hr=pin->QueryPinInfo(&PinInfo);
         if(SUCCEEDED(hr))
         {
-            str << " ---" << W2A(PinInfo.achName);
+            str << _T(" ---") << W2A(PinInfo.achName);
         }
         else
         {
-            str << " ---Unknown pin";
+            str << _T(" ---Unknown pin");
         }
         if(PinInfo.pFilter!=NULL)
         {
             PinInfo.pFilter->Release();
             PinInfo.pFilter=NULL;
         }
-        str    << " (0x" << hex << pin.p << dec << ") ";
+        str    << _T(" (0x") << hex << pin.p << dec << _T(") ");
         if(PinInfo.dir==PINDIR_OUTPUT)
         {
-            str << "(Output)";
+            str << _T("(Output)");
         }
         else
         {
-            str << "(Input)";
+            str << _T("(Input)");
         }
-        str << "---" << endl;
+        str << _T("---") << endl;
 
         CComPtr<IPin> pConnectedTo;
         hr=pin->ConnectedTo(&pConnectedTo);
         if(SUCCEEDED(hr) && pConnectedTo!=NULL)
         {
-            str << " ConnectedTo: 0x" << hex << pConnectedTo.p << dec << endl;
+            str << _T(" ConnectedTo: 0x") << hex << pConnectedTo.p << dec << endl;
             AM_MEDIA_TYPE mt;
             memset(&mt,0,sizeof(AM_MEDIA_TYPE));
             hr=pin->ConnectionMediaType(&mt);
             if(SUCCEEDED(hr))
             {
-                std::string mttext;
+                tstring mttext;
                 DumpMediaType(&mt,mttext);
-                str << " ConnectionMediaType:" << endl << mttext << endl;
+                str << _T(" ConnectionMediaType:") << endl << mttext << endl;
                 if(mt.cbFormat>0 && mt.pbFormat!=NULL)
                 {
                     CoTaskMemFree(mt.pbFormat);
@@ -291,44 +289,44 @@ void DumpFilter(CComPtr<IBaseFilter> pFilter,std::string &text)
     text=str.str();
 }
 
-void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
+void DumpMediaType(AM_MEDIA_TYPE *mt,tstring &text)
 {
     struct TFlag2String
     {
         DWORD dwFlag;
-        char *szName;
+        TCHAR* szName;
     };
-    stringstream str;
+    tostringstream str;
     _ASSERTE(mt!=NULL);
-    str << " MajorType: " << GetGUIDName(mt->majortype) << endl;
-    str << " SubType: " << GetGUIDName(mt->subtype) << endl;
+    str << _T(" MajorType: ") << GetGUIDName(mt->majortype) << endl;
+    str << _T(" SubType: ") << GetGUIDName(mt->subtype) << endl;
 
     if(mt->bFixedSizeSamples)
     {
-        str << " SampleSize: " << mt->lSampleSize;
+        str << _T(" SampleSize: ") << mt->lSampleSize;
     }
     else
     {
-        str << " Variable size samples";
+        str << _T(" Variable size samples");
     }
     if(mt->bTemporalCompression)
     {
-        str << " Temporal compression";
+        str << _T(" Temporal compression");
     }
     else
     {
-        str << " No temporal compression";
+        str << _T(" No temporal compression");
     }
-    str << endl << " FormatType: " << GetGUIDName(mt->formattype) << endl;
+    str << endl << _T(" FormatType: ") << GetGUIDName(mt->formattype) << endl;
 
     if(mt->formattype==FORMAT_VideoInfo || mt->formattype==FORMAT_VideoInfo2)
     {
         //common parts for VIDEOINFOHEADER and VIDEOINFOHEADER2
         VIDEOINFOHEADER *pHeader=(VIDEOINFOHEADER *)mt->pbFormat;
-        str << " Source RECT: (L: " << pHeader->rcSource.left << " T: " << pHeader->rcSource.top << " R: " << pHeader->rcSource.right << " B: " << pHeader->rcSource.bottom << ")" << endl;
-        str << " Target RECT: (L: " << pHeader->rcTarget.left << " T: " << pHeader->rcTarget.top << " R: " << pHeader->rcTarget.right << " B: " << pHeader->rcTarget.bottom << ")" << endl;
-        str << " BitRate: " << pHeader->dwBitRate << " ErrorRate: " << pHeader->dwBitErrorRate << endl;
-        str    << " AvgTimePerFrame: " << 1/(pHeader->AvgTimePerFrame/(double)10000000) << " fps" << endl;
+        str << _T(" Source RECT: (L: ") << pHeader->rcSource.left << _T(" T: ") << pHeader->rcSource.top << _T(" R: ") << pHeader->rcSource.right << _T(" B: ") << pHeader->rcSource.bottom << _T(")") << endl;
+        str << _T(" Target RECT: (L: ") << pHeader->rcTarget.left << _T(" T: ") << pHeader->rcTarget.top << _T(" R: ") << pHeader->rcTarget.right << _T(" B: ") << pHeader->rcTarget.bottom << _T(")") << endl;
+        str << _T(" BitRate: ") << pHeader->dwBitRate << _T(" ErrorRate: ") << pHeader->dwBitErrorRate << endl;
+        str    << _T(" AvgTimePerFrame: ") << 1/(pHeader->AvgTimePerFrame/(double)10000000) << _T(" fps") << endl;
 
         BITMAPINFOHEADER *pmbi=NULL;
         if(mt->formattype==FORMAT_VideoInfo)
@@ -339,19 +337,19 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
         {
             VIDEOINFOHEADER2 *pHeader2=(VIDEOINFOHEADER2 *)mt->pbFormat;
             pmbi=&pHeader2->bmiHeader;
-            str << " InterlaceFlags: " << pHeader2->dwInterlaceFlags << " (";
+            str << _T(" InterlaceFlags: ") << pHeader2->dwInterlaceFlags << _T(" (");
 
             TFlag2String flags[]=
             {
-                {AMINTERLACE_IsInterlaced,"AMINTERLACE_IsInterlaced"},
-                {AMINTERLACE_1FieldPerSample,"AMINTERLACE_1FieldPerSample"},
-                {AMINTERLACE_Field1First,"AMINTERLACE_Field1First"},
-                {AMINTERLACE_FieldPatField1Only,"AMINTERLACE_FieldPatField1Only"},
-                {AMINTERLACE_FieldPatField2Only,"AMINTERLACE_FieldPatField2Only"},
-                {AMINTERLACE_FieldPatBothRegular,"AMINTERLACE_FieldPatBothRegular"},
-                {AMINTERLACE_DisplayModeBobOnly,"AMINTERLACE_DisplayModeBobOnly"},
-                {AMINTERLACE_DisplayModeWeaveOnly,"AMINTERLACE_DisplayModeWeaveOnly"},
-                {AMINTERLACE_DisplayModeBobOrWeave,"AMINTERLACE_DisplayModeBobOrWeave"}
+                {AMINTERLACE_IsInterlaced,_T("AMINTERLACE_IsInterlaced")},
+                {AMINTERLACE_1FieldPerSample,_T("AMINTERLACE_1FieldPerSample")},
+                {AMINTERLACE_Field1First,_T("AMINTERLACE_Field1First")},
+                {AMINTERLACE_FieldPatField1Only,_T("AMINTERLACE_FieldPatField1Only")},
+                {AMINTERLACE_FieldPatField2Only,_T("AMINTERLACE_FieldPatField2Only")},
+                {AMINTERLACE_FieldPatBothRegular,_T("AMINTERLACE_FieldPatBothRegular")},
+                {AMINTERLACE_DisplayModeBobOnly,_T("AMINTERLACE_DisplayModeBobOnly")},
+                {AMINTERLACE_DisplayModeWeaveOnly,_T("AMINTERLACE_DisplayModeWeaveOnly")},
+                {AMINTERLACE_DisplayModeBobOrWeave,_T("AMINTERLACE_DisplayModeBobOrWeave")}
             };
 
             for(int i=0;i<sizeof(flags)/sizeof(flags[0]);i++)
@@ -360,72 +358,72 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
                 {
                     if(i!=0)
                     {
-                        str << "|";
+                        str << _T("|");
                     }
                     str << flags[i].szName;
                 }
             }
-            str    << ")" << endl;
-            str << " AspectRatio: " << pHeader2->dwPictAspectRatioX << "x" << pHeader2->dwPictAspectRatioY << "(" << pHeader2->dwPictAspectRatioX/(double)pHeader2->dwPictAspectRatioY << ")" << endl;
+            str    << _T(")") << endl;
+            str << _T(" AspectRatio: ") << pHeader2->dwPictAspectRatioX << _T("x") << pHeader2->dwPictAspectRatioY << _T("(") << pHeader2->dwPictAspectRatioX/(double)pHeader2->dwPictAspectRatioY << _T(")") << endl;
             if(pHeader2->dwControlFlags&AMCONTROL_USED)
             {
-                str << " ControllFlags: ";
+                str << _T(" ControllFlags: ");
                 if(pHeader2->dwControlFlags&AMCONTROL_PAD_TO_4x3)
                 {
-                    str << "Pad to 4x3";
+                    str << _T("Pad to 4x3");
                 }
                 else if(pHeader2->dwControlFlags&AMCONTROL_PAD_TO_16x9)
                 {
-                    str << "Pad to 16x9";
+                    str << _T("Pad to 16x9");
                 }
                 else
                 {
-                    str << "Unknown ControllFlag " << pHeader2->dwControlFlags;
+                    str << _T("Unknown ControllFlag ") << pHeader2->dwControlFlags;
                 }
             }
         }
 
         //bitmapinfoheader
         _ASSERTE(pmbi!=NULL);
-        str << " " << pmbi->biWidth << "x" << pmbi->biHeight << " " << pmbi->biBitCount << " bits" << endl;
-        str << " biPlanes: " << pmbi->biPlanes << endl;
-        str << " biSizeImage: "<< pmbi->biSizeImage;
+        str << _T(" ") << pmbi->biWidth << _T("x") << pmbi->biHeight << _T(" ") << pmbi->biBitCount << _T(" bits") << endl;
+        str << _T(" biPlanes: ") << pmbi->biPlanes << endl;
+        str << _T(" biSizeImage: ")<< pmbi->biSizeImage;
 
     }
     else if(mt->formattype==FORMAT_WaveFormatEx)
     {
         WAVEFORMATEXTENSIBLE *pwfx=(WAVEFORMATEXTENSIBLE *)mt->pbFormat;
-        str << " wFormatTag: " << pwfx->Format.wFormatTag << endl;
-        str << " nChannels: " << pwfx->Format.nChannels << endl;
-        str << " nSamplesPerSec: " << pwfx->Format.nSamplesPerSec << endl;
-        str << " nAvgBytesPerSec: " << pwfx->Format.nAvgBytesPerSec << endl;
-        str << " nBlockAlign: " << pwfx->Format.nBlockAlign << endl;
-        str << " wBitsPerSample: " << pwfx->Format.wBitsPerSample << endl;
-        str << " cbSize: " << pwfx->Format.cbSize << endl;
+        str << _T(" wFormatTag: ") << pwfx->Format.wFormatTag << endl;
+        str << _T(" nChannels: ") << pwfx->Format.nChannels << endl;
+        str << _T(" nSamplesPerSec: ") << pwfx->Format.nSamplesPerSec << endl;
+        str << _T(" nAvgBytesPerSec: ") << pwfx->Format.nAvgBytesPerSec << endl;
+        str << _T(" nBlockAlign: ") << pwfx->Format.nBlockAlign << endl;
+        str << _T(" wBitsPerSample: ") << pwfx->Format.wBitsPerSample << endl;
+        str << _T(" cbSize: ") << pwfx->Format.cbSize << endl;
         if(pwfx->Format.wFormatTag==WAVE_FORMAT_EXTENSIBLE && pwfx->Format.cbSize>=22)
         {
-            str << " dwChannelMask: ";
+            str << _T(" dwChannelMask: ");
 
             TFlag2String flags[]=
             {
-                {SPEAKER_FRONT_LEFT ,"SPEAKER_FRONT_LEFT"},
-                {SPEAKER_FRONT_RIGHT,"SPEAKER_FRONT_RIGHT"},
-                {SPEAKER_FRONT_CENTER,"SPEAKER_FRONT_CENTER"},
-                {SPEAKER_LOW_FREQUENCY,"SPEAKER_LOW_FREQUENCY"},
-                {SPEAKER_BACK_LEFT,"SPEAKER_BACK_LEFT"},
-                {SPEAKER_BACK_RIGHT,"SPEAKER_BACK_RIGHT"},
-                {SPEAKER_FRONT_LEFT_OF_CENTER,"SPEAKER_FRONT_LEFT_OF_CENTER"},
-                {SPEAKER_FRONT_RIGHT_OF_CENTER,"SPEAKER_FRONT_RIGHT_OF_CENTER"},
-                {SPEAKER_BACK_CENTER,"SPEAKER_BACK_CENTER"},
-                {SPEAKER_SIDE_LEFT,"SPEAKER_SIDE_LEFT"},
-                {SPEAKER_SIDE_RIGHT,"SPEAKER_SIDE_RIGHT"},
-                {SPEAKER_TOP_CENTER,"SPEAKER_TOP_CENTER"},
-                {SPEAKER_TOP_FRONT_LEFT,"SPEAKER_TOP_FRONT_LEFT"},
-                {SPEAKER_TOP_FRONT_CENTER,"SPEAKER_TOP_FRONT_CENTER"},
-                {SPEAKER_TOP_FRONT_RIGHT,"SPEAKER_TOP_FRONT_RIGHT"},
-                {SPEAKER_TOP_BACK_LEFT,"SPEAKER_TOP_BACK_LEFT"},
-                {SPEAKER_TOP_BACK_CENTER,"SPEAKER_TOP_BACK_CENTER"},
-                {SPEAKER_TOP_BACK_RIGHT,"SPEAKER_TOP_BACK_RIGHT"}
+                {SPEAKER_FRONT_LEFT ,_T("SPEAKER_FRONT_LEFT")},
+                {SPEAKER_FRONT_RIGHT,_T("SPEAKER_FRONT_RIGHT")},
+                {SPEAKER_FRONT_CENTER,_T("SPEAKER_FRONT_CENTER")},
+                {SPEAKER_LOW_FREQUENCY,_T("SPEAKER_LOW_FREQUENCY")},
+                {SPEAKER_BACK_LEFT,_T("SPEAKER_BACK_LEFT")},
+                {SPEAKER_BACK_RIGHT,_T("SPEAKER_BACK_RIGHT")},
+                {SPEAKER_FRONT_LEFT_OF_CENTER,_T("SPEAKER_FRONT_LEFT_OF_CENTER")},
+                {SPEAKER_FRONT_RIGHT_OF_CENTER,_T("SPEAKER_FRONT_RIGHT_OF_CENTER")},
+                {SPEAKER_BACK_CENTER,_T("SPEAKER_BACK_CENTER")},
+                {SPEAKER_SIDE_LEFT,_T("SPEAKER_SIDE_LEFT")},
+                {SPEAKER_SIDE_RIGHT,_T("SPEAKER_SIDE_RIGHT")},
+                {SPEAKER_TOP_CENTER,_T("SPEAKER_TOP_CENTER")},
+                {SPEAKER_TOP_FRONT_LEFT,_T("SPEAKER_TOP_FRONT_LEFT")},
+                {SPEAKER_TOP_FRONT_CENTER,_T("SPEAKER_TOP_FRONT_CENTER")},
+                {SPEAKER_TOP_FRONT_RIGHT,_T("SPEAKER_TOP_FRONT_RIGHT")},
+                {SPEAKER_TOP_BACK_LEFT,_T("SPEAKER_TOP_BACK_LEFT")},
+                {SPEAKER_TOP_BACK_CENTER,_T("SPEAKER_TOP_BACK_CENTER")},
+                {SPEAKER_TOP_BACK_RIGHT,_T("SPEAKER_TOP_BACK_RIGHT")}
             };
 
             for(int i=0;i<sizeof(flags)/sizeof(flags[0]);i++)
@@ -434,12 +432,12 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
                 {
                     if(i!=0)
                     {
-                        str << "|";
+                        str << _T("|");
                     }
                     str << flags[i].szName;
                 }
             }
-            str << " SubFormat: " << GetGUIDName(pwfx->SubFormat) << endl;
+            str << _T(" SubFormat: ") << GetGUIDName(pwfx->SubFormat) << endl;
         }
 
     }

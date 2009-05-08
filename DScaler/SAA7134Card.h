@@ -111,7 +111,7 @@ private:
     typedef    struct
     {
         ///    Name of    the    input
-        char szName[64];
+        TCHAR szName[64];
         ///    Type of    the    input
         eInputType InputType;
         ///    Which video    pin    on the card    is to be used
@@ -125,7 +125,7 @@ private:
     ///    Defines    the    specific settings for a    given card
     typedef    struct
     {
-        char szName[128];
+        TCHAR szName[128];
         WORD DeviceId;
         int    NumInputs;
         TInputType Inputs[SA_INPUTS_PER_CARD];
@@ -197,8 +197,8 @@ public:
     /**    General    card setup
      */
     int        GetMaxCards();
-    int        GetCardByName(LPCSTR cardName);
-    std::string GetCardName(eSAA7134CardId CardId);
+    int        GetCardByName(LPCTSTR cardName);
+    tstring GetCardName(eSAA7134CardId CardId);
     WORD    GetCardDeviceId(eSAA7134CardId CardId);
 
     void            SetCardType(int    CardType);
@@ -207,12 +207,12 @@ public:
     eTunerId        AutoDetectTuner(eSAA7134CardId CardId);
     eSAA7134CardId    AutoDetectCardType();
 
-    std::string    GetChipType();
-    std::string    GetTunerType();
+    tstring    GetChipType();
+    tstring    GetTunerType();
     SmartPtr<ITuner>        GetTuner() const;
 
     int         GetNumInputs();
-    std::string GetInputName(int nVideoSource);
+    tstring GetInputName(int nVideoSource);
     BOOL    IsInputATuner(int nInput);
 
     int        GetFinalInputNumber();
@@ -298,7 +298,7 @@ public:
     void _SetIOSelectOCS(eAudioInputSource InputSource,    BOOL bStereoExternal);
 
     int    GetInputAudioLine(int nInput);
-    LPCSTR GetAudioStandardName(eAudioStandard AudioStandard);
+    LPCTSTR GetAudioStandardName(eAudioStandard AudioStandard);
     eAudioChannel GetAudioChannel();
 
     void SetAudioMute();
@@ -354,7 +354,7 @@ public:
      */
     void SetAudioLockToVideo(BOOL bLockAudio);
     BOOL IsAudioChannelDetected(eAudioChannel AudioChannel);
-    void GetAudioDecoderStatus(char* pBuffer, WORD nBufferSize);
+    void GetAudioDecoderStatus(TCHAR* pBuffer, WORD nBufferSize);
 
 
     /**    I2C
@@ -454,7 +454,7 @@ private:
     static const HCParser::CParseTag k_parseCardList[];
 
     eSAA7134CardId      m_CardType;
-    std::string         m_TunerType;
+    tstring         m_TunerType;
 
     SmartPtr<CI2CBus>   m_I2CBus;
     SmartPtr<II2CTuner> m_Tuner;

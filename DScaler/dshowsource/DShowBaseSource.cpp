@@ -39,7 +39,7 @@ CDShowBaseSource::~CDShowBaseSource()
 
 }
 
-void CDShowBaseSource::SetAudioDevice(std::string device)
+void CDShowBaseSource::SetAudioDevice(tstring device)
 {
     m_AudioDevice = device;
 }

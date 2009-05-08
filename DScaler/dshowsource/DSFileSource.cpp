@@ -37,8 +37,8 @@ using namespace std;
 CDSFileSource::CDSFileSource()
 :CDSSourceBase(0,IDC_DSHOW_FILESOURCE_MENU)
 {
-    m_IDString = std::string("DS_DShowFileInput");
-    CreateSettings("DShowFileInput");
+    m_IDString = tstring(_T("DS_DShowFileInput"));
+    CreateSettings(_T("DShowFileInput"));
 }
 
 CDSFileSource::~CDSFileSource()
@@ -46,7 +46,7 @@ CDSFileSource::~CDSFileSource()
 
 }
 
-void CDSFileSource::CreateSettings(LPCSTR IniSection)
+void CDSFileSource::CreateSettings(LPCTSTR IniSection)
 {
     CDSSourceBase::CreateSettings(IniSection);
 
@@ -61,8 +61,8 @@ BOOL CDSFileSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
     if(LOWORD(wParam)==IDM_DSHOW_SETTINGS)
     {
-        CTreeSettingsDlg dlg("DirectShow Settings");
-        CDSAudioDevicePage AudioDevice("Audio output",m_AudioDevice);
+        CTreeSettingsDlg dlg(_T("DirectShow Settings"));
+        CDSAudioDevicePage AudioDevice(_T("Audio output"),m_AudioDevice);
 
         dlg.AddPage(&AudioDevice);
         dlg.DoModal(hWnd);
@@ -81,7 +81,7 @@ BOOL CDSFileSource::IsAccessAllowed()
     return FALSE;
 }
 
-BOOL CDSFileSource::OpenMediaFile(const string& FileName, BOOL NewPlayList)
+BOOL CDSFileSource::OpenMediaFile(const tstring& FileName, BOOL NewPlayList)
 {
     //The output thread MUST be stoped when calling this function
     //or the output thread will probably crash.
@@ -98,7 +98,7 @@ BOOL CDSFileSource::OpenMediaFile(const string& FileName, BOOL NewPlayList)
         m_pDSGraph=NULL;
     }
 
-    m_filename="";
+    m_filename=_T("");
     try
     {
         m_pDSGraph=new CDShowGraph(FileName,m_AudioDevice->GetValue());
@@ -128,19 +128,19 @@ void CDSFileSource::SetAspectRatioData()
     AspectSettings.bAnalogueBlanking = FALSE;
 }
 
-string CDSFileSource::GetStatus()
+tstring CDSFileSource::GetStatus()
 {
     if(!m_filename.empty())
     {
-        string status=m_filename;
-        std::string::size_type pos=status.rfind('\\');
-        if(pos!=std::string::npos)
+        tstring status=m_filename;
+        tstring::size_type pos=status.rfind('\\');
+        if(pos!=tstring::npos)
         {
             status=status.substr(pos+1);
         }
         return status;
     }
-    return "No file loaded";
+    return _T("No file loaded");
 }
 
 
@@ -170,7 +170,7 @@ BOOL CDSFileSource::HasSquarePixels()
     return FALSE;
 }
 
-string CDSFileSource::GetMenuLabel()
+tstring CDSFileSource::GetMenuLabel()
 {
     ///@todo remove path from filename
     return m_filename;
@@ -227,9 +227,9 @@ void CDSFileSource::Pause()
         }
         catch(CDShowException &e)
         {
-            ErrorBox(MakeString() << "Pause failed\n\n" << e.what());
+            ErrorBox(MakeString() << _T("Pause failed\n\n") << e.what());
         }
-        OSD_ShowText("Pause", 0);
+        OSD_ShowText(_T("Pause"), 0);
     }
 }
 
@@ -244,9 +244,9 @@ void CDSFileSource::UnPause()
         }
         catch(CDShowException &e)
         {
-            ErrorBox(MakeString() << "Play failed\n\n" << e.what());
+            ErrorBox(MakeString() << _T("Play failed\n\n") << e.what());
         }
-        OSD_ShowText("Play", 0);
+        OSD_ShowText(_T("Play"), 0);
     }
 }
 

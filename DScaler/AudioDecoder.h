@@ -70,12 +70,12 @@ public:
     // Inputs
     virtual void SetAudioInput(eAudioInput audioInput);
     virtual eAudioInput GetAudioInput();
-    virtual const char* GetAudioInputName(eAudioInput audioInput);
+    virtual const TCHAR* GetAudioInputName(eAudioInput audioInput);
 
     // Standard
     virtual void SetAudioStandard(long Standard, eVideoFormat videoformat);
     virtual long GetAudioStandardCurrent();
-    virtual const char* GetAudioStandardName(long Standard);
+    virtual const TCHAR* GetAudioStandardName(long Standard);
     virtual int GetNumAudioStandards();
     virtual long GetAudioStandard(int nIndex);
     virtual long GetAudioStandardMajorCarrier(long Standard);

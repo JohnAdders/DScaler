@@ -32,8 +32,8 @@
 #define __CRASH_H__
 
 #ifdef _DEBUG
-    #define CHECK_FPU_STACK CheckFPUStack(__FILE__, __LINE__)
-    void CheckFPUStack(const char *, const int);
+    #define CHECK_FPU_STACK CheckFPUStack(_T(__FILE__), __LINE__)
+    void CheckFPUStack(const TCHAR* , const int);
 #else
     #define CHECK_FPU_STACK
 #endif
@@ -52,11 +52,11 @@ public:
 class DScalerThread
 {
 public:
-    DScalerThread(const char* ThreadName);
+    DScalerThread(const TCHAR* ThreadName);
     ~DScalerThread();
-    const char* GetName() const;
+    const TCHAR* GetName() const;
 private:
-    std::string m_Name;
+    tstring m_Name;
     _se_translator_function m_OldTranslator;
 
 };

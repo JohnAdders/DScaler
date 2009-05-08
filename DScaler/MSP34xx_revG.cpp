@@ -40,7 +40,7 @@
 
 eSupportedSoundChannels CMSP34x0AudioDecoder::DetectSoundChannelsRevG()
 {
-    LOG(2,"MSPrevG: DetectSoundChannelsRevG() enter");
+    LOG(2,_T("MSPrevG: DetectSoundChannelsRevG() enter"));
 
     int supported = SUPPORTEDSOUNDCHANNEL_MONO;
     int val = GetDEMRegister(DEM_RD_STATUS);
@@ -53,14 +53,14 @@ eSupportedSoundChannels CMSP34x0AudioDecoder::DetectSoundChannelsRevG()
         supported |= SUPPORTEDSOUNDCHANNEL_LANG1 | SUPPORTEDSOUNDCHANNEL_LANG2;
     }
 
-    LOG(2,"MSPrevG: DetectSoundChannelsRevG()=%d exit", supported);
+    LOG(2,_T("MSPrevG: DetectSoundChannelsRevG()=%d exit"), supported);
     return (eSupportedSoundChannels)supported;
 }
 
 
 CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevG()
 {
-    LOG(2,"MSPrevG: DetectStandardRevG() enter");
+    LOG(2,_T("MSPrevG: DetectStandardRevG() enter"));
 
     if(m_MSPVersion != MSPVersionG)
     {
@@ -72,13 +72,13 @@ CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevG()
         return MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS;
     }
 
-    LOG(2,"MSPrevG: DetectStandardRevG()=%d exit", Result);
+    LOG(2,_T("MSPrevG: DetectStandardRevG()=%d exit"), Result);
     return (eStandard)Result;
 }
 
 void CMSP34x0AudioDecoder::SetSoundChannelRevG(eSoundChannel soundChannel)
 {
-    LOG(2,"MSPrevG: SetSoundChannelRevG(%d) enter", soundChannel);
+    LOG(2,_T("MSPrevG: SetSoundChannelRevG(%d) enter"), soundChannel);
 
     //SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3000);
     SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
@@ -127,21 +127,21 @@ void CMSP34x0AudioDecoder::SetSoundChannelRevG(eSoundChannel soundChannel)
     SetDSPRegister(DSP_WR_SCART2_SOURCE, source);
     SetDSPRegister(DSP_WR_I2S_SOURCE, source);
 
-    LOG(2,"MSPrevG: SetSoundChannelRevG(%d) exit", soundChannel);
+    LOG(2,_T("MSPrevG: SetSoundChannelRevG(%d) exit"), soundChannel);
 }
 
 
 void CMSP34x0AudioDecoder::InitializeRevG()
 {
-    LOG(2,"MSPrevG: InitializeRevG() enter");
+    LOG(2,_T("MSPrevG: InitializeRevG() enter"));
     SetDSPRegister(DSP_WR_I2S1_PRESCALE, 0x1000);
     SetDSPRegister(DSP_WR_I2S2_PRESCALE, 0x1000);
-    LOG(2,"MSPrevG: InitializeRevG() exit");
+    LOG(2,_T("MSPrevG: InitializeRevG() exit"));
 }
 
 void CMSP34x0AudioDecoder::SetStandardRevG(eStandard standard, eVideoFormat videoformat, BOOL bWasDetected)
 {
-    LOG(2,"MSPrevG: SetStandardRevG(%d, %d, %d)", standard, videoformat, bWasDetected);
+    LOG(2,_T("MSPrevG: SetStandardRevG(%d, %d, %d)"), standard, videoformat, bWasDetected);
 
     WORD modus = 0;
 
@@ -255,7 +255,7 @@ void CMSP34x0AudioDecoder::SetStandardRevG(eStandard standard, eVideoFormat vide
         }
     }
 
-    LOG(2,"MSPrevG: SetStandardRevG(%d, %d, %d) exit", standard, videoformat, bWasDetected);
+    LOG(2,_T("MSPrevG: SetStandardRevG(%d, %d, %d) exit"), standard, videoformat, bWasDetected);
 }
 
 void CMSP34x0AudioDecoder::SetCarrierRevG(eCarrier MajorCarrier, eCarrier MinorCarrier)

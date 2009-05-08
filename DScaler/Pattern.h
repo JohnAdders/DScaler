@@ -81,13 +81,13 @@ public:
     eTypeDraw GetTypeDraw(int* pParam1Draw, int* pParam2Draw);
 
     /// This methode returns the reference color
-    void GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
+    void GetRefColor(BOOL YUV, BYTE* pR_Y, BYTE* pG_U, BYTE* pB_V);
 
     /// This methode returns the second reference color
-    void GetRefColor2(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
+    void GetRefColor2(BOOL YUV, BYTE* pR_Y, BYTE* pG_U, BYTE* pB_V);
 
     /// This methode returns the calculated average color
-    BOOL GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
+    BOOL GetCurrentAvgColor(BOOL YUV, BYTE* pR_Y, BYTE* pG_U, BYTE* pB_V);
 
     /// This methode returns the delta between reference color and calculated average color
     BOOL GetDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal);
@@ -97,18 +97,18 @@ public:
     */
     BOOL CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo);
 
-    BOOL GetMinColor(unsigned char* pY, unsigned char* pU, unsigned char* pV);
+    BOOL GetMinColor(BYTE* pY, BYTE* pU, BYTE* pV);
 
-    BOOL GetMaxColor(unsigned char* pY, unsigned char* pU, unsigned char* pV);
+    BOOL GetMaxColor(BYTE* pY, BYTE* pU, BYTE* pV);
 
     void Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Overscan, int LCrop, int RCrop);
 
 #ifdef TEST_CONV_COLORSPACE
     /// Convert RGB to YUV
-    void RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char* pY, unsigned char* pU, unsigned char* pV);
+    void RGB2YUV(unsigned char R, unsigned char G, unsigned char B, BYTE* pY, BYTE* pU, BYTE* pV);
 
     /// Convert YUV to RGB
-    void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char* pR, unsigned char* pG, unsigned char* pB);
+    void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, BYTE* pR, BYTE* pG, BYTE* pB);
 #endif
 
 protected:
@@ -202,10 +202,10 @@ protected:
 private:
 #ifndef TEST_CONV_COLORSPACE
     /// Convert RGB to YUV
-    void RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char* pY, unsigned char* pU, unsigned char* pV);
+    void RGB2YUV(unsigned char R, unsigned char G, unsigned char B, BYTE* pY, BYTE* pU, BYTE* pV);
 
     /// Convert YUV to RGB
-    void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char* pR, unsigned char* pG, unsigned char* pB);
+    void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, BYTE* pR, BYTE* pG, BYTE* pB);
 #endif
 
     unsigned int component_cpt[3];
@@ -258,12 +258,12 @@ protected:
 class CTestPattern
 {
 public:
-    CTestPattern(const std::string& name, int width, int height);
-    CTestPattern(const std::string& FileName);
+    CTestPattern(const tstring& name, int width, int height);
+    CTestPattern(const tstring& FileName);
     ~CTestPattern();
 
     /// This method returns the name of the test pattern
-    std::string GetName();
+    tstring GetName();
 
     int GetInitialWidth() {return GetWidth();};
     int GetInitialHeight() {return GetHeight();};
@@ -298,7 +298,7 @@ public:
 
 protected:
     /// Name of the test pattern
-    std::string m_PatternName;
+    tstring m_PatternName;
 
     /// Width of the test pattern
     int m_Width;
@@ -315,8 +315,8 @@ class CPatternHelper : public CStillSourceHelper
 {
 public:
     CPatternHelper(CStillSource* pParent);
-    BOOL OpenMediaFile(const std::string& FileName);
-    void SaveSnapshot(const std::string& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const std::string& Context);
+    BOOL OpenMediaFile(const tstring& FileName);
+    void SaveSnapshot(const tstring& FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, const tstring& Context);
 };
 
 

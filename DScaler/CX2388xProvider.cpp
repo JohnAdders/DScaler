@@ -36,7 +36,7 @@
 
 CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
 {
-    char szSection[12];
+    TCHAR szSection[12];
     BOOL IsMemoryInitialized = FALSE;
     DWORD SubSystemId;
     int CardsFound(0);
@@ -58,7 +58,7 @@ CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
             IsMemoryInitialized = TRUE;
         }
 
-        sprintf(szSection, "%s%d", "CX23880", CardsFound + 1);
+        _stprintf(szSection, _T("%s%d"), _T("CX23880"), CardsFound + 1);
         SmartPtr<CCX2388xSource> pNewSource = CreateCorrectSource(
                                                             pHardwareDriver,
                                                             szSection,
@@ -80,7 +80,7 @@ CCX2388xProvider::~CCX2388xProvider()
 }
 
 
-SmartPtr<CCX2388xSource> CCX2388xProvider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
+SmartPtr<CCX2388xSource> CCX2388xProvider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCTSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
 {
     // \todo use the subsystem id to create the correct specilized version of the card
     SmartPtr<CCX2388xCard> pNewCard = new CCX2388xCard(pHardwareDriver);
@@ -120,7 +120,7 @@ BOOL CCX2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        ErrorBox("Can't create RISC Memory");
+        ErrorBox(_T("Can't create RISC Memory"));
         return FALSE;
     }
 
@@ -133,7 +133,7 @@ BOOL CCX2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        ErrorBox("Can't create Display Memory");
+        ErrorBox(_T("Can't create Display Memory"));
         return FALSE;
     }
 
@@ -146,7 +146,7 @@ BOOL CCX2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
     }
     catch(...)
     {
-        ErrorBox("Can't create Display Memory");
+        ErrorBox(_T("Can't create Display Memory"));
         return FALSE;
     }
 

@@ -79,8 +79,8 @@ void AspectRatio_SetMenu(HMENU hMenu)
 
     if(AspectSettings.AutoDetectAspect == 1)
     {
-        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, "&Non Anamorphic");
-        ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, "Anamo&rphic");
+        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, _T("&Non Anamorphic"));
+        ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, _T("Anamo&rphic"));
         EnableMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_SASPECT_AUTO2_TOGGLE, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_GRAYED);
@@ -89,8 +89,8 @@ void AspectRatio_SetMenu(HMENU hMenu)
     }
     else if(AspectSettings.AutoDetectAspect == 2)
     {
-        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, "&Non Anamorphic");
-        ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, "Anamo&rphic");
+        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, _T("&Non Anamorphic"));
+        ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, _T("Anamo&rphic"));
         EnableMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_SASPECT_AUTO2_TOGGLE, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_GRAYED);
@@ -99,8 +99,8 @@ void AspectRatio_SetMenu(HMENU hMenu)
     }
     else
     {
-        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, "16:9 &Letterboxed");
-        ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, "&16:9 Anamorphic");
+        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, _T("16:9 &Letterboxed"));
+        ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, _T("&16:9 Anamorphic"));
         EnableMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_SASPECT_AUTO2_TOGGLE, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_ENABLED);
@@ -235,7 +235,7 @@ void AspectRatio_SetMenu(HMENU hMenu)
 // during aspect ratio control
 BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 {
-    char Text[32];
+    TCHAR Text[32];
     static BOOL WSSWasEnabled = FALSE;
     CSource* pSource;
 
@@ -250,17 +250,17 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             // This applies to both letterbox and 4:3
             SwitchToRatio(AR_NONANAMORPHIC, AspectSettings.SourceAspect);
-            ShowText(hWnd, "Nonanamorphic Signal");
+            ShowText(hWnd, _T("Nonanamorphic Signal"));
             AspectSettings.DetectAspectNow = TRUE;
         }
         else if (AspectSettings.AutoDetectAspect == 0)
         {
             SwitchToRatio(AR_NONANAMORPHIC, 1333);
-            ShowText(hWnd, "4:3 Fullscreen Signal");
+            ShowText(hWnd, _T("4:3 Fullscreen Signal"));
         }
         else
         {
-            ShowText(hWnd, "Command refused");
+            ShowText(hWnd, _T("Command refused"));
         }
         break;
     case IDM_ASPECT_LETTERBOX:
@@ -270,17 +270,17 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             // This applies to both letterbox and 4:3
             SwitchToRatio(AR_NONANAMORPHIC, AspectSettings.SourceAspect);
-            ShowText(hWnd, "Nonanamorphic Signal");
+            ShowText(hWnd, _T("Nonanamorphic Signal"));
             AspectSettings.DetectAspectNow = TRUE;
         }
         else if (AspectSettings.AutoDetectAspect == 0)
         {
             SwitchToRatio(AR_NONANAMORPHIC, 1778);
-            ShowText(hWnd, "1.78:1 Letterbox Signal");
+            ShowText(hWnd, _T("1.78:1 Letterbox Signal"));
         }
         else
         {
-            ShowText(hWnd, "Command refused");
+            ShowText(hWnd, _T("Command refused"));
         }
         break;
     case IDM_ASPECT_ANAMORPHIC:
@@ -289,17 +289,17 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             SwitchToRatio(AR_ANAMORPHIC, AspectSettings.SourceAspect);
-            ShowText(hWnd, "Anamorphic Signal");
+            ShowText(hWnd, _T("Anamorphic Signal"));
             AspectSettings.DetectAspectNow = TRUE;
         }
         else if (AspectSettings.AutoDetectAspect == 0)
         {
             SwitchToRatio(AR_ANAMORPHIC, 1778);
-            ShowText(hWnd, "1.78:1 Anamorphic Signal");
+            ShowText(hWnd, _T("1.78:1 Anamorphic Signal"));
         }
         else
         {
-            ShowText(hWnd, "Command refused");
+            ShowText(hWnd, _T("Command refused"));
         }
         break;
 
@@ -325,29 +325,29 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             pSource->GetAnalogueBlanking()->SetValue(!pSource->GetAnalogueBlanking()->GetValue());
             AspectSettings.bAnalogueBlanking = pSource->GetAnalogueBlanking()->GetValue();
-            ShowText(hWnd, AspectSettings.bAnalogueBlanking ? "Analogue Blanking ON" : "Analogue Blanking OFF");
+            ShowText(hWnd, AspectSettings.bAnalogueBlanking ? _T("Analogue Blanking ON") : _T("Analogue Blanking OFF"));
         }
         break;
 
 
     case IDM_SASPECT_CLIP:
         AspectSettings.AspectImageClipped = !AspectSettings.AspectImageClipped;
-        ShowText(hWnd, AspectSettings.AspectImageClipped ? "Image Clipping ON" : "Image Clipping OFF");
+        ShowText(hWnd, AspectSettings.AspectImageClipped ? _T("Image Clipping ON") : _T("Image Clipping OFF"));
         break;
 
     case IDM_WINPOS_BOUNCE:
         Bounce_OnChange(!AspectSettings.BounceEnabled);
-        ShowText(hWnd, AspectSettings.BounceEnabled ? "Image Bouncing ON" : "Image Bouncing OFF");
+        ShowText(hWnd, AspectSettings.BounceEnabled ? _T("Image Bouncing ON") : _T("Image Bouncing OFF"));
         break;
 
     case IDM_WINPOS_ORBIT:
         Orbit_OnChange(!AspectSettings.OrbitEnabled);
-        ShowText(hWnd, AspectSettings.OrbitEnabled ? "Orbit ON" : "Orbit OFF");
+        ShowText(hWnd, AspectSettings.OrbitEnabled ? _T("Orbit ON") : _T("Orbit OFF"));
         break;
 
     case IDM_WINPOS_AUTOSIZE:
         AspectSettings.AutoResizeWindow = !AspectSettings.AutoResizeWindow;
-        ShowText(hWnd, AspectSettings.AutoResizeWindow ? "Auto-Size Window ON" : "Auto-Size Window OFF");
+        ShowText(hWnd, AspectSettings.AutoResizeWindow ? _T("Auto-Size Window ON") : _T("Auto-Size Window OFF"));
         break;
 
     case IDM_ASPECT_DEFER_OVERLAY:
@@ -362,7 +362,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             UpdateSquarePixelsMode(FALSE);
             AspectSettings.AutoDetectAspect = 1;
-            ShowText(hWnd, "Auto Detect Black Bars ON");
+            ShowText(hWnd, _T("Auto Detect Black Bars ON"));
             if (AspectSettings.bUseWSS)
             {
                 if (!Setting_GetValue(WM_VBI_GETVALUE, DOWSS))
@@ -381,7 +381,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         if (AspectSettings.AutoDetectAspect == 1)
         {
             AspectSettings.AutoDetectAspect = 0;
-            ShowText(hWnd, "Auto Detect Black Bars OFF");
+            ShowText(hWnd, _T("Auto Detect Black Bars OFF"));
             if (AspectSettings.bUseWSS && WSSWasEnabled)
             {
                 if (Setting_GetValue(WM_VBI_GETVALUE, DOWSS))
@@ -396,13 +396,13 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         if (AspectSettings.AutoDetectAspect != 0)
         {
             AspectSettings.AutoDetectAspect = 0;
-            ShowText(hWnd, "Auto Detect Black Bars OFF");
+            ShowText(hWnd, _T("Auto Detect Black Bars OFF"));
         }
         else
         {
             UpdateSquarePixelsMode(FALSE);
             AspectSettings.AutoDetectAspect = 1;
-            ShowText(hWnd, "Auto Detect Black Bars ON");
+            ShowText(hWnd, _T("Auto Detect Black Bars ON"));
         }
         if (AspectSettings.AutoDetectAspect && AspectSettings.bUseWSS)
         {
@@ -429,13 +429,13 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         if (AspectSettings.AutoDetectAspect != 0)
         {
             AspectSettings.AutoDetectAspect = 0;
-            ShowText(hWnd, "Use Signal Aspect Data OFF");
+            ShowText(hWnd, _T("Use Signal Aspect Data OFF"));
         }
         else
         {
             UpdateSquarePixelsMode(FALSE);
             AspectSettings.AutoDetectAspect = 2;
-            ShowText(hWnd, "Use Signal Aspect Data ON");
+            ShowText(hWnd, _T("Use Signal Aspect Data ON"));
         }
         if (AspectSettings.AutoDetectAspect)
         {
@@ -462,11 +462,11 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         UpdateSquarePixelsMode(!AspectSettings.SquarePixels);
         if (AspectSettings.SquarePixels)
         {
-            ShowText(hWnd, "Square Pixels ON");
+            ShowText(hWnd, _T("Square Pixels ON"));
         }
         else
         {
-            ShowText(hWnd, "Square Pixels OFF");
+            ShowText(hWnd, _T("Square Pixels OFF"));
         }
         break;
 
@@ -475,35 +475,35 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     // Output Display Aspect Ratios
     case IDM_TASPECT_0:
         AspectSettings.TargetAspect = 0;
-        ShowText(hWnd, "Aspect Ratio From Current Resolution");
+        ShowText(hWnd, _T("Aspect Ratio From Current Resolution"));
         break;
     case IDM_TASPECT_133:
         AspectSettings.TargetAspect = 1333;
-        ShowText(hWnd, "1.33:1 Screen");
+        ShowText(hWnd, _T("1.33:1 Screen"));
         break;
     case IDM_TASPECT_166:
         AspectSettings.TargetAspect = 1667;
-        ShowText(hWnd, "1.66:1 Screen");
+        ShowText(hWnd, _T("1.66:1 Screen"));
         break;
     case IDM_TASPECT_178:
         AspectSettings.TargetAspect = 1778;
-        ShowText(hWnd, "1.78:1 Screen");
+        ShowText(hWnd, _T("1.78:1 Screen"));
         break;
     case IDM_TASPECT_185:
         AspectSettings.TargetAspect = 1850;
-        ShowText(hWnd, "1.85:1 Screen");
+        ShowText(hWnd, _T("1.85:1 Screen"));
         break;
     case IDM_TASPECT_200:
         AspectSettings.TargetAspect = 2000;
-        ShowText(hWnd, "2.00:1 Screen");
+        ShowText(hWnd, _T("2.00:1 Screen"));
         break;
     case IDM_TASPECT_235:
         AspectSettings.TargetAspect = 2350;
-        ShowText(hWnd, "2.35:1 Screen");
+        ShowText(hWnd, _T("2.35:1 Screen"));
         break;
     case IDM_TASPECT_CUSTOM:
         AspectSettings.TargetAspect = AspectSettings.custom_target_aspect;
-        ShowText(hWnd, "Custom Aspect Ratio Screen");
+        ShowText(hWnd, _T("Custom Aspect Ratio Screen"));
         break;
 
     // Manually-triggered one-time automatic detect of aspect ratio
@@ -527,11 +527,11 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         if ((AspectSettings.ZoomFactorX == 100) && (AspectSettings.ZoomFactorY == 100))
         {
-            ShowText(hWnd,"Zoom Off");
+            ShowText(hWnd,_T("Zoom Off"));
         }
         else
         {
-            sprintf_s(Text, 32, "Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
+            _stprintf(Text, _T("Zoom %.2fx"), (double)AspectSettings.ZoomFactorX / 100.0);
             ShowText(hWnd, Text);
         }
         break;
@@ -564,48 +564,48 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         if ((AspectSettings.ZoomFactorX == 100) && (AspectSettings.ZoomFactorY == 100))
         {
-            ShowText(hWnd,"Zoom Off");
+            ShowText(hWnd,_T("Zoom Off"));
         }
         else
         {
-            sprintf_s(Text, 32, "Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
+            _stprintf(Text, _T("Zoom %.2fx"), (double)AspectSettings.ZoomFactorX / 100.0);
             ShowText(hWnd, Text);
         }
         break;
 
     case IDM_ZOOM_10:
         AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 100;
-        ShowText(hWnd,"Zoom Off");
+        ShowText(hWnd,_T("Zoom Off"));
         break;
 
     case IDM_ZOOM_15:
         AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 150;
-        ShowText(hWnd,"Zoom 1.5x");
+        ShowText(hWnd,_T("Zoom 1.5x"));
         break;
 
     case IDM_ZOOM_20:
         AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 200;
-        ShowText(hWnd,"Zoom 2x");
+        ShowText(hWnd,_T("Zoom 2x"));
         break;
 
     case IDM_ZOOM_25:
         AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 250;
-        ShowText(hWnd,"Zoom 2.5x");
+        ShowText(hWnd,_T("Zoom 2.5x"));
         break;
 
     case IDM_ZOOM_30:
         AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 300;
-        ShowText(hWnd,"Zoom 3x");
+        ShowText(hWnd,_T("Zoom 3x"));
         break;
 
     case IDM_ZOOM_35:
         AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 350;
-        ShowText(hWnd,"Zoom 3.5x");
+        ShowText(hWnd,_T("Zoom 3.5x"));
         break;
 
     case IDM_ZOOM_40:
         AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 400;
-        ShowText(hWnd,"Zoom 4x");
+        ShowText(hWnd,_T("Zoom 4x"));
         break;
 
     case IDM_VT_PAGE_MINUS:
@@ -614,7 +614,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             AspectSettings.ZoomCenterX = -100;
         }
-        sprintf_s(Text, 32, "X Center %.2fx", (double)AspectSettings.ZoomCenterX / 100.0);
+        _stprintf(Text, _T("X Center %.2fx"), (double)AspectSettings.ZoomCenterX / 100.0);
         ShowText(hWnd, Text);
         break;
 
@@ -624,7 +624,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             AspectSettings.ZoomCenterX = 200;
         }
-        sprintf_s(Text, 32, "X Center %.2fx", (double)AspectSettings.ZoomCenterX / 100.0);
+        _stprintf(Text, _T("X Center %.2fx"), (double)AspectSettings.ZoomCenterX / 100.0);
         ShowText(hWnd, Text);
         break;
 
@@ -634,7 +634,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             AspectSettings.ZoomCenterY = 200;
         }
-        sprintf_s(Text, 32, "Y Center %.2fx", (double)AspectSettings.ZoomCenterY / 100.0);
+        _stprintf(Text, _T("Y Center %.2fx"), (double)AspectSettings.ZoomCenterY / 100.0);
         ShowText(hWnd, Text);
         break;
 
@@ -644,14 +644,14 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             AspectSettings.ZoomCenterY = 100;
         }
-        sprintf_s(Text, 32, "Y Center %.2fx", (double)AspectSettings.ZoomCenterY / 100.0);
+        _stprintf(Text, _T("Y Center %.2fx"), (double)AspectSettings.ZoomCenterY / 100.0);
         ShowText(hWnd, Text);
         break;
 
     //------------------------------------------------------------------
     default:
         // At this point, we want to reset the automatic aspect
-        // because the end user selected an "Advanced Source Aspect Ratio"
+        // because the end user selected an _T("Advanced Source Aspect Ratio")
         // In this case, turn off automatic aspect ratio detect.
         // Then restart the 'switch' statement.
 
@@ -663,91 +663,91 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_STRETCH, 0);
-            ShowText(hWnd, "Stretch Video");
+            ShowText(hWnd, _T("Stretch Video"));
             break;
         case IDM_SASPECT_133:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1333);
-            ShowText(hWnd, "4:3 Fullscreen Signal");
+            ShowText(hWnd, _T("4:3 Fullscreen Signal"));
             break;
         case IDM_SASPECT_144:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1444);
-            ShowText(hWnd, "1.44:1 Letterbox Signal");
+            ShowText(hWnd, _T("1.44:1 Letterbox Signal"));
             break;
         case IDM_SASPECT_155:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1555);
-            ShowText(hWnd, "1.55:1 Letterbox Signal");
+            ShowText(hWnd, _T("1.55:1 Letterbox Signal"));
             break;
         case IDM_SASPECT_166:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1667);
-            ShowText(hWnd, "1.66:1 Letterbox Signal");
+            ShowText(hWnd, _T("1.66:1 Letterbox Signal"));
             break;
         case IDM_SASPECT_178:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1778);
-            ShowText(hWnd, "1.78:1 Letterbox Signal");
+            ShowText(hWnd, _T("1.78:1 Letterbox Signal"));
             break;
         case IDM_SASPECT_185:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1850);
-            ShowText(hWnd, "1.85:1 Letterbox Signal");
+            ShowText(hWnd, _T("1.85:1 Letterbox Signal"));
             break;
         case IDM_SASPECT_200:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 2000);
-            ShowText(hWnd, "2.00:1 Letterbox Signal");
+            ShowText(hWnd, _T("2.00:1 Letterbox Signal"));
             break;
         case IDM_SASPECT_235:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 2350);
-            ShowText(hWnd, "2.35:1 Letterbox Signal");
+            ShowText(hWnd, _T("2.35:1 Letterbox Signal"));
             break;
         case IDM_SASPECT_166A:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 1667);
-            ShowText(hWnd, "1.66:1 Anamorphic Signal");
+            ShowText(hWnd, _T("1.66:1 Anamorphic Signal"));
             break;
         case IDM_SASPECT_178A:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 1778);
-            ShowText(hWnd, "1.78:1 Anamorphic Signal");
+            ShowText(hWnd, _T("1.78:1 Anamorphic Signal"));
             break;
         case IDM_SASPECT_185A:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 1850);
-            ShowText(hWnd, "1.85:1 Anamorphic Signal");
+            ShowText(hWnd, _T("1.85:1 Anamorphic Signal"));
             break;
         case IDM_SASPECT_200A:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 2000);
-            ShowText(hWnd, "2.00:1 Anamorphic Signal");
+            ShowText(hWnd, _T("2.00:1 Anamorphic Signal"));
             break;
         case IDM_SASPECT_235A:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 2350);
-            ShowText(hWnd, "2.35:1 Anamorphic Signal");
+            ShowText(hWnd, _T("2.35:1 Anamorphic Signal"));
             break;
         case IDM_SASPECT_CUSTOM:
             AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, AspectSettings.CustomSourceAspect);
-            ShowText(hWnd, "Custom Aspect Ratio Signal");
+            ShowText(hWnd, _T("Custom Aspect Ratio Signal"));
             break;
         default:
             // It's not an aspect ratio related menu selection
@@ -1251,16 +1251,16 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
 SmartPtr<CSettingsHolder> Aspect_GetSettingsHolder()
 {
     SmartPtr<CSettingsHolder> AspectSettingsHolder(new CSettingsHolder(WM_ASPECT_GETVALUE));
-    CSettingGroup *pRatioGroup = SettingsMaster->GetGroup("Aspect - Aspect Ratio", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-    CSettingGroup *pBounceGroup = SettingsMaster->GetGroup("View - Bounce", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-    CSettingGroup *pAutoSizeGroup = SettingsMaster->GetGroup("View - AutoSize", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-    CSettingGroup *pOrbitGroup = SettingsMaster->GetGroup("View - Orbit", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-    CSettingGroup *pImagePositionGroup = SettingsMaster->GetGroup("View - Image position", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-    CSettingGroup *pZoomGroup = SettingsMaster->GetGroup("View - Zoom", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-    CSettingGroup *pMiscGroup = SettingsMaster->GetGroup("Aspect - Misc", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pRatioGroup = SettingsMaster->GetGroup(_T("Aspect - Aspect Ratio"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pBounceGroup = SettingsMaster->GetGroup(_T("View - Bounce"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pAutoSizeGroup = SettingsMaster->GetGroup(_T("View - AutoSize"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pOrbitGroup = SettingsMaster->GetGroup(_T("View - Orbit"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pImagePositionGroup = SettingsMaster->GetGroup(_T("View - Image position"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pZoomGroup = SettingsMaster->GetGroup(_T("View - Zoom"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pMiscGroup = SettingsMaster->GetGroup(_T("Aspect - Misc"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
-    CSettingGroup *pAspectDetectGroup = SettingsMaster->GetGroup("Aspect Detect - AR Detect On Off", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-    CSettingGroup *pAspectDetectSettingsGroup = SettingsMaster->GetGroup("Aspect Detect - AR Detect Settings", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pAspectDetectGroup = SettingsMaster->GetGroup(_T("Aspect Detect - AR Detect On Off"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+    CSettingGroup *pAspectDetectSettingsGroup = SettingsMaster->GetGroup(_T("Aspect Detect - AR Detect Settings"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
     AspectSettingsHolder->AddSetting(&AspectGUISettings[SOURCE_ASPECT], pRatioGroup);
     AspectSettingsHolder->AddSetting(&AspectGUISettings[CUSTOM_SOURCE_ASPECT], pRatioGroup);
@@ -1312,8 +1312,8 @@ SmartPtr<CSettingsHolder> Aspect_GetSettingsHolder()
 #ifdef _DEBUG
     if (ASPECT_SETTING_LASTONE != AspectSettingsHolder->GetNumSettings())
     {
-        LOGD("Number of settings in Aspect source is not equal to the number of settings in DS_Control.h\n");
-        LOGD("DS_Control.h or AspectGui.cpp are probably not in sync with each other.\n");
+        LOGD(_T("Number of settings in Aspect source is not equal to the number of settings in DS_Control.h\n"));
+        LOGD(_T("DS_Control.h or AspectGui.cpp are probably not in sync with each other.\n"));
     }
 #endif
     return AspectSettingsHolder;

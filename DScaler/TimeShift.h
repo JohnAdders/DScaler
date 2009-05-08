@@ -52,7 +52,7 @@
 /** This is the default path that's used if some error happened. Make sure this
  * is kept short.
  */
-#define TS_DEFAULT_PATH "C:\\"
+#define TS_DEFAULT_PATH _T("C:\\")
 
 /** TimeShift modes */
 typedef enum
@@ -102,7 +102,7 @@ public:
     tsFormat_t       format;        /**< Recording format (color space) */
     int              recHeight;     /**< Recording height */
     FOURCC           fccHandler;    /**< Video compression codec FourCC */
-    char             savingPath[MAX_PATH + 1];  /**< Path to save files to */
+    TCHAR            savingPath[MAX_PATH + 1];  /**< Path to save files to */
     DWORD            sizeLimit;     /**< Size limit of each file in MiB (0 = no limit) */
 
     struct
@@ -112,8 +112,8 @@ public:
 
     HWND hWnd;
 
-    char waveInDevice[MAXPNAMELEN];     /**< Selected waveIn device name */
-    char waveOutDevice[MAXPNAMELEN];    /**< Selected waveOut device name */
+    TCHAR waveInDevice[MAXPNAMELEN];     /**< Selected waveIn device name */
+    TCHAR waveOutDevice[MAXPNAMELEN];    /**< Selected waveOut device name */
 
     BITMAPINFOHEADER bih;
     WAVEFORMATEX     waveFormat;
@@ -168,7 +168,7 @@ public:
 */
 
 /* From TimeShift.cpp */
-DWORD GetMaximumVolumeFileSize(const char *path);
+DWORD GetMaximumVolumeFileSize(const TCHAR* path);
 BOOL TimeShiftInit(HWND hWnd);
 void TimeShiftShutdown(void);
 BOOL TimeShiftPause(void);
@@ -178,30 +178,30 @@ BOOL TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo);
 BOOL TimeShiftIsRunning(void);
 BOOL TimeShiftWorkOnInputFrames(void);
 BOOL TimeShiftCancelSchedule(void);
-BOOL TimeShiftSetWaveInDevice(const char *pszDevice);
-BOOL TimeShiftSetWaveOutDevice(const char *pszDevice);
-BOOL TimeShiftSetSavingPath(char *newPath);
-BOOL TimeShiftIsPathValid(const char *path);
+BOOL TimeShiftSetWaveInDevice(const TCHAR* pszDevice);
+BOOL TimeShiftSetWaveOutDevice(const TCHAR* pszDevice);
+BOOL TimeShiftSetSavingPath(TCHAR* newPath);
+BOOL TimeShiftIsPathValid(const TCHAR* path);
 BOOL TimeShiftSetFileSizeLimit(DWORD sizeLimit);
 BOOL TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
                             tsFormat_t format);
-BOOL TimeShiftGetWaveInDevice(char **ppszDevice);
-BOOL TimeShiftGetWaveOutDevice(char **ppszDevice);
+BOOL TimeShiftGetWaveInDevice(TCHAR* *ppszDevice);
+BOOL TimeShiftGetWaveOutDevice(TCHAR* *ppszDevice);
 BOOL TimeShiftGetRecHeight(int *index);
 BOOL TimeShiftSetRecHeight(int index);
 BOOL TimeShiftGetRecFormat(tsFormat_t *format);
 BOOL TimeShiftSetRecFormat(tsFormat_t format);
 BOOL TimeShiftGetFourCC(FOURCC *fcc);
 BOOL TimeShiftSetFourCC(FOURCC fcc);
-BOOL TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
+BOOL TimeShiftGetVideoCompressionDesc(LPTSTR dest, DWORD length, int recHeight,
                                       tsFormat_t format);
-BOOL TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length);
+BOOL TimeShiftGetAudioCompressionDesc(LPTSTR dest, DWORD length);
 BOOL TimeShiftOnOptions(void);
 BOOL TimeShiftVideoCompressionOptions(HWND hWndParent, int recHeight,
                                       tsFormat_t format, FOURCC *fccHandler);
 BOOL TimeShiftOnSetMenu(HMENU hMenu);
 
-const char *TimeShiftGetSavingPath(void);
+const TCHAR* TimeShiftGetSavingPath(void);
 DWORD      TimeShiftGetFileSizeLimit(void);
 
 #endif // __TIMESHIFT_H___

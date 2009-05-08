@@ -54,7 +54,7 @@ BOOL COpenDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 BOOL COpenDlg::OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 {
     // setup auto complete
-    DynamicFunctionS2<HRESULT, HWND, DWORD> pSHAC("SHLWAPI.DLL", "SHAutoComplete");
+    DynamicFunctionS2<HRESULT, HWND, DWORD> pSHAC(_T("SHLWAPI.DLL"), "SHAutoComplete");
     HRESULT hr;
     if(pSHAC)
     {
@@ -95,22 +95,22 @@ void COpenDlg::OnOK(HWND hDlg)
 void COpenDlg::OnBrowse(HWND hDlg)
 {
     OPENFILENAME OpenFileInfo;
-    char FilePath[MAX_PATH];
-    char* FileFilters;
+    TCHAR FilePath[MAX_PATH];
+    TCHAR* FileFilters;
     FileFilters =
-                            "All Files\0*.*;\0"
+                            _T("All Files\0*.*;\0")
     #ifndef WANT_DSHOW_SUPPORT
-                            "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;\0"
+                            _T("All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;\0")
     #else
-                            "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv;*.grf\0"
+                            _T("All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv;*.grf\0")
     #endif
-                            "TIFF Files\0*.tif;*.tiff\0"
-                            "JPEG Files\0*.jpg;*.jpeg\0"
-                            "DScaler Playlists\0*.d3u\0"
-                            "DScaler Patterns\0*.pat\0"
+                            _T("TIFF Files\0*.tif;*.tiff\0")
+                            _T("JPEG Files\0*.jpg;*.jpeg\0")
+                            _T("DScaler Playlists\0*.d3u\0")
+                            _T("DScaler Patterns\0*.pat\0")
     #ifdef WANT_DSHOW_SUPPORT
-                            "Media Files (*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv)\0*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0"
-                            "GraphEdit Filter Graphs (*.grf)\0*.grf\0"
+                            _T("Media Files (*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv)\0*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0")
+                            _T("GraphEdit Filter Graphs (*.grf)\0*.grf\0")
     #endif
                             ;
 

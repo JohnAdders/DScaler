@@ -58,7 +58,7 @@ public:
 
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
-    void Set(HWND hWnd, LPCSTR SkinName, int ForceHide = 0, int ForceResize = 0);
+    void Set(HWND hWnd, const tstring& SkinName, int ForceHide = 0, int ForceResize = 0);
     void Adjust(HWND hWnd, BOOL bRedraw, BOOL ForceUpdate);
     void UpdateMenu(HMENU hMenu);
     void Free();
@@ -72,7 +72,7 @@ public:
     BOOL Visible() { return ((Toolbar1 != NULL) && Toolbar1->Visible()); }
 
 private:
-    void CreateSettings(LPCSTR IniSection);
+    void CreateSettings(LPCTSTR IniSection);
 
     DEFINE_YESNO_CALLBACK_SETTING(CToolbarControl, ShowToolbar1);
     DEFINE_SLIDER_CALLBACK_SETTING(CToolbarControl, Toolbar1Position);

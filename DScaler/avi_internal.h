@@ -8,7 +8,7 @@
 #endif
 
 /* From avi.c */
-void aviSetError(AVI_FILE *file, aviError_t type, char *message);
+void aviSetError(AVI_FILE *file, aviError_t type, TCHAR* message);
 BOOL aviHasError(AVI_FILE *file);
 extern __inline int64 aviGetBaseOffset(AVI_FILE *file, int type);
 
@@ -71,7 +71,7 @@ void aviAudioStartRecording(AVI_FILE *file);
 
 /* From avi_file.c */
 void  fileReserveLegacyIndex(AVI_FILE *file);
-BOOL  fileOpen(AVI_FILE *file, char *fileName);
+BOOL  fileOpen(AVI_FILE *file, TCHAR* fileName);
 void  fileClose(AVI_FILE *file);
 BOOL  fileSeek(AVI_FILE *file, int64 offset);
 int64 fileTell(AVI_FILE *file);

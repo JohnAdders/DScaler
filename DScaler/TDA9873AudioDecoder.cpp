@@ -38,27 +38,27 @@
 CTDA9873AudioDecoder::TStandardDefinition CTDA9873AudioDecoder::m_TDA9873Standards[] =
 {
     {
-        "B/G",
+        _T("B/G"),
         TDA9873ST_BG,
     },
     {
-        "M",
+        _T("M"),
         TDA9873ST_M,
     },
     {
-        "D/K (1)",
+        _T("D/K (1)"),
         TDA9873ST_DK1,
     },
     {
-        "D/K (2)",
+        _T("D/K (2)"),
         TDA9873ST_DK2,
     },
     {
-        "D/K (3)",
+        _T("D/K (3)"),
         TDA9873ST_DK3,
     },
     {
-        "I",
+        _T("I"),
         TDA9873ST_I,
     },
 };
@@ -264,7 +264,7 @@ void CTDA9873AudioDecoder::SetAudioStandard(long Standard, eVideoFormat VideoFor
     Write(TDA9873_REG_STANDARD, m_TDA9873Standards[index].Standard, TDA9873ST_STANDARDMASK);
 }
 
-const char* CTDA9873AudioDecoder::GetAudioStandardName(long Standard)
+const TCHAR* CTDA9873AudioDecoder::GetAudioStandardName(long Standard)
 {
     int index = Standard2Index(Standard);
 
@@ -352,18 +352,18 @@ void CTDA9873AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
     // Suspend thread if detecting
     if (m_AutoDetecting)
     {
-        LOGD("Abort1 TDA9873 detect loop");
+        LOGD(_T("Abort1 TDA9873 detect loop"));
         m_ThreadWait = TRUE;
         Sleep(10);
 
         if (m_AutoDetecting)
         {
-            LOGD("Abort2 TDA9873 detect loop");
+            LOGD(_T("Abort2 TDA9873 detect loop"));
             Sleep(50);
 
             if (m_AutoDetecting)
             {
-                LOGD("Abort3 TDA9873 detect loop");
+                LOGD(_T("Abort3 TDA9873 detect loop"));
                 StopThread();
             }
         }
@@ -387,7 +387,7 @@ DWORD WINAPI TDA9873ThreadProc(LPVOID lpThreadParameter)
 {
     int Result = 1;
 
-    DScalerThread("TDA9873DetectThread");
+    DScalerThread thisThread(_T("TDA9873DetectThread"));
     if (lpThreadParameter != NULL)
     {
         try
@@ -396,7 +396,7 @@ DWORD WINAPI TDA9873ThreadProc(LPVOID lpThreadParameter)
         }
         catch(...)
         {
-            LOG(1, "Crash in TDA9873 detect loop");
+            LOG(1, _T("Crash in TDA9873 detect loop"));
         }
     }
     return Result;
@@ -413,11 +413,11 @@ void CTDA9873AudioDecoder::StartThread()
         // Already started, resume
         if(ResumeThread(m_TDA9873Thread) == 0)
         {
-            LOG(1, "TDA9873 detect loop not waiting(1)");
+            LOG(1, _T("TDA9873 detect loop not waiting(1)"));
             Sleep(10);
             if(ResumeThread(m_TDA9873Thread) == 0)
             {
-                LOG(1, "TDA9873 detect loop not waiting(2)");
+                LOG(1, _T("TDA9873 detect loop not waiting(2)"));
             }
         }
         return;
@@ -446,7 +446,7 @@ void CTDA9873AudioDecoder::StopThread()
 
         if (dwResult != WAIT_OBJECT_0)
         {
-            LOG(1,"TDA9873 detect loop did not terminate gracefully: terminating!");
+            LOG(1,_T("TDA9873 detect loop did not terminate gracefully: terminating!"));
             TerminateThread(m_TDA9873Thread, 0);
         }
 
@@ -464,10 +464,10 @@ int CTDA9873AudioDecoder::DetectThread()
     {
         if (m_ThreadWait)
         {
-            LOGD("Waiting TDA9873 detect loop");
+            LOGD(_T("Waiting TDA9873 detect loop"));
             m_AutoDetecting = 0;
             SuspendThread(m_TDA9873Thread);
-            LOGD("Resuming TDA9873 detect loop");
+            LOGD(_T("Resuming TDA9873 detect loop"));
             DetectCounter = 1;
             m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_MONO;
         }
@@ -513,11 +513,11 @@ int CTDA9873AudioDecoder::DetectThread()
                 {
                     m_SupportedSoundChannels = Supported;
 
-                    LOG(2,"TDA9873: Detect stereo: Supported: %s%s%s%s",
-                        (Supported&SUPPORTEDSOUNDCHANNEL_MONO)?"Mono ":"",
-                        (Supported&SUPPORTEDSOUNDCHANNEL_STEREO)?"Stereo ":"",
-                        (Supported&SUPPORTEDSOUNDCHANNEL_LANG1)?"Lang1 ":"",
-                        (Supported&SUPPORTEDSOUNDCHANNEL_LANG2)?"Lang2 ":"");
+                    LOG(2,_T("TDA9873: Detect stereo: Supported: %s%s%s%s"),
+                        (Supported&SUPPORTEDSOUNDCHANNEL_MONO)?_T("Mono "):_T(""),
+                        (Supported&SUPPORTEDSOUNDCHANNEL_STEREO)?_T("Stereo "):_T(""),
+                        (Supported&SUPPORTEDSOUNDCHANNEL_LANG1)?_T("Lang1 "):_T(""),
+                        (Supported&SUPPORTEDSOUNDCHANNEL_LANG2)?_T("Lang2 "):_T(""));
 
                     SetSoundChannel(IsAudioChannelDetected(m_TargetSoundChannel));
 

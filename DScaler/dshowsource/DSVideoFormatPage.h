@@ -39,7 +39,7 @@ class CDSVideoFormatPage : public CTreeSettingsPage
 {
 // Construction
 public:
-    CDSVideoFormatPage(const std::string& name, std::vector<CDShowGraph::CVideoFormat>& fmts,CSliderSetting* pResolution);   // standard constructor
+    CDSVideoFormatPage(const tstring& name, std::vector<CDShowGraph::CVideoFormat>& fmts,CSliderSetting* pResolution);   // standard constructor
     ~CDSVideoFormatPage() {};
 
 // Implementation

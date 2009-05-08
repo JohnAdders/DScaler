@@ -64,8 +64,8 @@ public:
     virtual void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming) = 0;
     /// Returns TRUE is we process the command
     virtual BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam) = 0;
-    /// Returns a string to be displayed in the UI
-    virtual std::string GetStatus() = 0;
+    /// Returns a tstring to be displayed in the UI
+    virtual tstring GetStatus() = 0;
     /// Get the exact freqency of the input
     double GetFieldFrequency();
     /// Turn off any sound
@@ -150,10 +150,10 @@ public:
     virtual BOOL IsVideoPresent() = 0;
     /// If VBI data is being captured, decode it.
     virtual void DecodeVBI(TDeinterlaceInfo* pInfo) = 0;
-    /// Get string to display in source menu
-    virtual std::string GetMenuLabel() = 0;
+    /// Get tstring to display in source menu
+    virtual tstring GetMenuLabel() = 0;
     /// Open the following file, return TRUE if you understand the file
-    virtual BOOL OpenMediaFile(const std::string& FileName, BOOL NewPlayList) = 0;
+    virtual BOOL OpenMediaFile(const tstring& FileName, BOOL NewPlayList) = 0;
     /// Returns the Source specific menu to display when this source is selected
     HMENU GetSourceMenu();
     // Is access to this source allowed
@@ -161,13 +161,13 @@ public:
     virtual void SetAspectRatioData() = 0;
     virtual BOOL HasSquarePixels() = 0;
     virtual void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) = 0;
-    virtual std::string IDString() = 0;
-    char* GetComments();
+    virtual tstring IDString() = 0;
+    const TCHAR* GetComments();
 
     virtual int  NumInputs(eSourceInputType InputType) = 0;
     virtual BOOL SetInput(eSourceInputType InputType, int Nr) = 0;
     virtual int  GetInput(eSourceInputType InputType) = 0;
-    virtual std::string GetInputName(eSourceInputType InputType, int Nr) = 0;
+    virtual tstring GetInputName(eSourceInputType InputType, int Nr) = 0;
     virtual BOOL InputHasTuner(eSourceInputType InputType, int Nr) = 0;
 
     virtual SmartPtr<ITuner> GetTuner() = 0;
@@ -198,7 +198,7 @@ protected:
 
     double m_FieldFrequency;
     HMENU m_hMenu;
-    std::string m_Comments;
+    tstring m_Comments;
 
 protected:
 

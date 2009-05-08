@@ -73,8 +73,8 @@ using namespace std;
 #define P3_OR_BETTER (FEATURE_SSE | FEATURE_MMXEXT)
 #define BUG()\
 {\
-    string bugText(MakeString() << "Bug found in " << __FILE__ << " around line " << __LINE__);\
-    MessageBox(NULL, bugText.c_str(), "Error", MB_OK);\
+    tstring bugText(MakeString() << _T("Bug found in ") << __FILE__ << _T(" around line ") << __LINE__);\
+    MessageBox(NULL, bugText.c_str(), _T("Error"), MB_OK);\
 }
 
 /* This is just to ensure that the TimeShift data is handled properly */
@@ -105,7 +105,7 @@ __inline tsFormat_t makeFormatValid(tsFormat_t format)
  *                   Image processing functions                       *
  **********************************************************************/
 
-/** \todo Use this formula, it's our (BT and dScaler) "standard".
+/** \todo Use this formula, it's our (BT and dScaler) _T("standard").
 
     2.10.3 YCrCb to RGB Conversion
 
@@ -148,7 +148,7 @@ __inline tsFormat_t makeFormatValid(tsFormat_t format)
 
 /* YUV <--> RGB conversion
 
-  Start with assumed "exact" values for rgb-to-yuv conversion.
+  Start with assumed _T("exact") values for rgb-to-yuv conversion.
 
   Y = R *  .299 + G *  .587 + B *  .114;
   U = R * -.169 + G * -.332 + B *  .500 + 128.;
@@ -688,7 +688,7 @@ ULONGLONG GetFreeDiskSpace(void)
     OSVERSIONINFO VersionInfo;
     VersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     string strProcName;
-    char lpszDrivePath[4] = "c:\\";
+    TCHAR lpszDrivePath[4] = _T("c:\\");
 
     if (!timeShift)
        return totalbytes;
@@ -717,23 +717,18 @@ ULONGLONG GetFreeDiskSpace(void)
             DSKFREE        ProcAdd;
 
             #ifdef _UNICODE   // Unicode version of GetDiskFreeSpaceEx
-                strProcName = _T("GetDiskFreeSpaceExW");
+                strProcName = "GetDiskFreeSpaceExW";
             #else             // Standard version of GetDiskFreeSpaceEx
-                strProcName = _T("GetDiskFreeSpaceExA");
+                strProcName = "GetDiskFreeSpaceExA";
             #endif
 
             // Get ProcAddress for GetDiskFreeSpaceEx function
-            ProcAdd = (DSKFREE)GetProcAddress(GetModuleHandle("kernel32.dll"),
+            ProcAdd = (DSKFREE)GetProcAddress(GetModuleHandle(_T("kernel32.dll")),
                                               strProcName.c_str());
 
             if (!ProcAdd)
             {
-                string strErrMsg(MakeString() << "Could not get the address for " << strProcName);
-                ::MessageBox( NULL,
-                              strErrMsg.c_str(),
-                              NULL,
-                              MB_OK | MB_ICONERROR | MB_TASKMODAL
-                             );
+                ErrorBox(_T("Could not get the address for GetDiskFreeSpaceEx"));
                 return totalbytes;
             }
 
@@ -778,10 +773,10 @@ ULONGLONG GetFreeDiskSpace(void)
  *         in mebibytes for the volume in savingPath.
  */
 
-DWORD GetMaximumVolumeFileSize(const char *path)
+DWORD GetMaximumVolumeFileSize(const TCHAR* path)
 {
-    char  volume[] = "C:\\";
-    char  fileSystem[32];
+    TCHAR  volume[] = _T("C:\\");
+    TCHAR  fileSystem[32];
     DWORD result   = 0;
 
     if (!timeShift || !path)
@@ -793,14 +788,14 @@ DWORD GetMaximumVolumeFileSize(const char *path)
                               sizeof(fileSystem)))
        return result;
 
-    _strlwr(fileSystem);
-    if (strlen(fileSystem) >= 3)
+    _tcslwr(fileSystem);
+    if (_tcslen(fileSystem) >= 3)
     {
-        /* Check for a FAT file system. Look for the string fat([0-9][0-9])? */
-        if (strncmp(fileSystem, "fat", 3)==0)
+        /* Check for a FAT file system. Look for the tstring fat([0-9][0-9])? */
+        if (_tcsncmp(fileSystem, _T("fat"), 3)==0)
         {
-            if (strlen(fileSystem)==3 ||
-                (strlen(fileSystem)==5 &&
+            if (_tcslen(fileSystem)==3 ||
+                (_tcslen(fileSystem)==5 &&
                  fileSystem[3] >= '0' && fileSystem[3] <= '9' &&
                  fileSystem[4] >= '0' && fileSystem[4] <= '9'))
                result = AVI_4GiB_LIMIT; /* Use a limit that's a bit less than 4GiB */
@@ -816,7 +811,7 @@ DWORD GetMaximumVolumeFileSize(const char *path)
  * \return TRUE if a file name was found or FALSE if no file name is available
  */
 
-BOOL FindNextFileName(char *fileName, DWORD length)
+BOOL FindNextFileName(TCHAR* fileName, DWORD length)
 {
     int curFile = 0;
 
@@ -827,13 +822,13 @@ BOOL FindNextFileName(char *fileName, DWORD length)
     {
         if (curFile==1000)
         {
-            ErrorBox("Could not create a file.  "
-                     "Delete some of your video files and try again.");
+            ErrorBox(_T("Could not create a file.  ")
+                     _T("Delete some of your video files and try again."));
 
             return FALSE;
         }
 
-        if (_snprintf(fileName, length, "%sds%.3u.avi",
+        if (_sntprintf(fileName, length, _T("%sds%.3u.avi"),
                       timeShift->savingPath, curFile++) >= length)
         {
             BUG();
@@ -923,7 +918,7 @@ BOOL TimeShiftPause(void)
     {
         EnterCriticalSection(&timeShift->lock);
 
-        /* Only start "time shifing" if paused */
+        /* Only start _T("time shifing") if paused */
         if (timeShift->mode==MODE_PAUSED)
            result = TimeShiftRecord();
            else if (timeShift->mode==MODE_RECORDING ||
@@ -944,7 +939,7 @@ BOOL TimeShiftRecord(void)
 {
     int       deviceId;
     DWORD     rate, scale;
-    char      fileName[MAX_PATH + 1];
+    TCHAR     fileName[MAX_PATH + 1];
     BOOL      result = FALSE;
     ULONGLONG freeSpace;
     DWORD     limit;
@@ -957,9 +952,9 @@ BOOL TimeShiftRecord(void)
     if (freeSpace < 314572800)
     {
         MessageBox(timeShift->hWnd,
-                   "Sorry! You do not have enough\n"
-                   "disk space to record a video.",
-                   "Information",
+                   _T("Sorry! You do not have enough\n")
+                   _T("disk space to record a video."),
+                   _T("Information"),
                    MB_ICONEXCLAMATION | MB_OK);
 
         return FALSE;
@@ -1016,10 +1011,10 @@ BOOL TimeShiftRecord(void)
         {
             TimeShiftStop();
 
-            MessageBox(timeShift->hWnd, "Could not allocate a recording "
-                                        "buffer. Your system is too low on "
-                                        "memory.",
-                                        "Error",
+            MessageBox(timeShift->hWnd, _T("Could not allocate a recording ")
+                                        _T("buffer. Your system is too low on ")
+                                        _T("memory."),
+                                        _T("Error"),
                                         MB_OK | MB_ICONERROR);
 
             result = FALSE;
@@ -1033,10 +1028,10 @@ BOOL TimeShiftRecord(void)
             {
                 TimeShiftStop();
 
-                MessageBox(timeShift->hWnd, "Could not allocate memory for "
-                                            "the AVI recording data. Your "
-                                            "system is too low on memory",
-                                            "Error",
+                MessageBox(timeShift->hWnd, _T("Could not allocate memory for ")
+                                            _T("the AVI recording data. Your ")
+                                            _T("system is too low on memory"),
+                                            _T("Error"),
                                             MB_OK | MB_ICONERROR);
 
                 result = FALSE;
@@ -1323,8 +1318,8 @@ BOOL TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo)
         if (error)
         {
             aviDisplayError(timeShift->file, timeShift->hWnd,
-                            "Recording stopped. You can try and recover "
-                            "the data with VirtualDub.");
+                            _T("Recording stopped. You can try and recover ")
+                            _T("the data with VirtualDub."));
             TimeShiftStop();
         } else
         {
@@ -1408,7 +1403,7 @@ BOOL TimeShiftGetWaveInDeviceIndex(int *index)
 
         count  = waveInGetNumDevs();
         *index = 0;
-        if (strlen(timeShift->waveInDevice) && count)
+        if (_tcslen(timeShift->waveInDevice) && count)
         {
             for (i = 0; i < count && !result; i++)
             {
@@ -1430,7 +1425,7 @@ BOOL TimeShiftGetWaveInDeviceIndex(int *index)
     return result;
 }
 
-BOOL TimeShiftSetWaveInDevice(const char *pszDevice)
+BOOL TimeShiftSetWaveInDevice(const TCHAR* pszDevice)
 {
     BOOL result = FALSE;
 
@@ -1439,7 +1434,7 @@ BOOL TimeShiftSetWaveInDevice(const char *pszDevice)
         EnterCriticalSection(&timeShift->lock);
         if (timeShift->mode==MODE_STOPPED)
         {
-            strncpy(timeShift->waveInDevice, pszDevice,
+            _tcsncpy(timeShift->waveInDevice, pszDevice,
                     sizeof(timeShift->waveInDevice));
             result = TRUE;
         }
@@ -1463,7 +1458,7 @@ BOOL TimeShiftGetWaveOutDeviceIndex(int *index)
 
         count  = waveOutGetNumDevs();
         *index = 0;
-        if (strlen(timeShift->waveOutDevice) && count)
+        if (_tcslen(timeShift->waveOutDevice) && count)
         {
             for(i = 0; i < count && !result; i++)
             {
@@ -1485,7 +1480,7 @@ BOOL TimeShiftGetWaveOutDeviceIndex(int *index)
     return result;
 }
 
-BOOL TimeShiftSetWaveOutDevice(const char *pszDevice)
+BOOL TimeShiftSetWaveOutDevice(const TCHAR* pszDevice)
 {
     BOOL result = FALSE;
 
@@ -1494,7 +1489,7 @@ BOOL TimeShiftSetWaveOutDevice(const char *pszDevice)
         EnterCriticalSection(&timeShift->lock);
         if (timeShift->mode==MODE_STOPPED)
         {
-            strncpy(timeShift->waveOutDevice, pszDevice,
+            _tcsncpy(timeShift->waveOutDevice, pszDevice,
                     sizeof(timeShift->waveOutDevice));
             result = TRUE;
         }
@@ -1515,7 +1510,7 @@ BOOL TimeShiftVerifySavingPath(void)
 {
     BOOL  result;
     DWORD attr;
-    char  *subString;
+    TCHAR *subString;
 
     result = TRUE;
 
@@ -1527,12 +1522,12 @@ BOOL TimeShiftVerifySavingPath(void)
         {
             /* Might be a file. Try removing everything after the last back
                slash in the path. */
-            subString = strrchr(timeShift->savingPath, '\\');
+            subString = _tcsrchr(timeShift->savingPath, '\\');
             if (subString)
             {
                 /* This should be safe. Even if this points to the last
                    non-NULL character, there always needs to be one byte
-                   reserved for the NULL charater at the end of the string. */
+                   reserved for the NULL charater at the end of the tstring. */
                 subString[1] = '\0';
 
                 attr = GetFileAttributes(timeShift->savingPath);
@@ -1556,7 +1551,7 @@ BOOL TimeShiftVerifySavingPath(void)
  *         instead
  */
 
-BOOL TimeShiftSetSavingPath(char *path)
+BOOL TimeShiftSetSavingPath(TCHAR* path)
 {
     DWORD size;
     BOOL  failed = TRUE;
@@ -1577,12 +1572,12 @@ BOOL TimeShiftSetSavingPath(char *path)
         if (!failed)
         {
             /* Get a copy of the new path */
-            if (strlen(path) < sizeof(timeShift->savingPath) - 1)
+            if (_tcslen(path) < sizeof(timeShift->savingPath) - 1)
             {
-                strcpy(timeShift->savingPath, path);
+                _tcscpy(timeShift->savingPath, path);
 
                 /* Convert all forward slashes to back slashes */
-                for (i = strlen(timeShift->savingPath) - 1; i >= 0; i--)
+                for (i = _tcslen(timeShift->savingPath) - 1; i >= 0; i--)
                 {
                     if (timeShift->savingPath[i]=='/')
                        timeShift->savingPath[i] = '\\';
@@ -1604,19 +1599,19 @@ BOOL TimeShiftSetSavingPath(char *path)
         if (failed)
         {
             if (path)
-               LOG(1, "Bad path: %s. Using the default.", path);
+               LOG(1, _T("Bad path: %s. Using the default."), path);
 
             /* Use the default path */
             size = GetModuleFileName(NULL, timeShift->savingPath,
                                      sizeof(timeShift->savingPath));
             if (!size || size >= sizeof(timeShift->savingPath) ||
                 !TimeShiftVerifySavingPath())
-               strncpy(timeShift->savingPath, TS_DEFAULT_PATH,
+               _tcsncpy(timeShift->savingPath, TS_DEFAULT_PATH,
                        sizeof(timeShift->savingPath));
         }
 
         /* Make sure the path ends with a back slash */
-        i = strlen(timeShift->savingPath) - 1;
+        i = _tcslen(timeShift->savingPath) - 1;
         if (timeShift->savingPath[i] != '\\')
         {
             if (i + 2 < sizeof(timeShift->savingPath))
@@ -1624,7 +1619,7 @@ BOOL TimeShiftSetSavingPath(char *path)
                 timeShift->savingPath[i + 1] = '\\';
                 timeShift->savingPath[i + 2] = '\0';
             } else
-              strncpy(timeShift->savingPath, TS_DEFAULT_PATH,
+              _tcsncpy(timeShift->savingPath, TS_DEFAULT_PATH,
                       sizeof(timeShift->savingPath));
         }
     }
@@ -1634,7 +1629,7 @@ BOOL TimeShiftSetSavingPath(char *path)
     return failed ? FALSE : TRUE;
 }
 
-BOOL TimeShiftIsPathValid(const char *path)
+BOOL TimeShiftIsPathValid(const TCHAR* path)
 {
     DWORD attr = GetFileAttributes(path);
 
@@ -1665,7 +1660,7 @@ BOOL TimeShiftSetFileSizeLimit(DWORD sizeLimit)
     return result;
 }
 
-const char *TimeShiftGetSavingPath(void)
+const TCHAR* TimeShiftGetSavingPath(void)
 {
     return timeShift ? timeShift->savingPath : NULL;
 }
@@ -1692,26 +1687,26 @@ BOOL TimeShiftGetDimensions(int *w, int *h)
     return result;
 }
 
-BOOL TimeShiftGetWaveInDevice(char **ppszDevice)
+BOOL TimeShiftGetWaveInDevice(TCHAR* *ppszDevice)
 {
     BOOL result = FALSE;
 
     if (timeShift && ppszDevice)
     {
-        *ppszDevice = (char *)&timeShift->waveInDevice;
+        *ppszDevice = (TCHAR* )&timeShift->waveInDevice;
         result = TRUE;
     }
 
     return result;
 }
 
-BOOL TimeShiftGetWaveOutDevice(char **ppszDevice)
+BOOL TimeShiftGetWaveOutDevice(TCHAR* *ppszDevice)
 {
     BOOL result = FALSE;
 
     if (timeShift && ppszDevice)
     {
-        *ppszDevice = (char*)&timeShift->waveOutDevice;
+        *ppszDevice = (TCHAR*)&timeShift->waveOutDevice;
         result = TRUE;
     }
 
@@ -1833,7 +1828,7 @@ BOOL TimeShiftSetFourCC(FOURCC fcc)
  *         an error
  */
 
-BOOL TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
+BOOL TimeShiftGetVideoCompressionDesc(LPTSTR dest, DWORD length, int recHeight,
                                       tsFormat_t format)
 {
     BOOL             result = FALSE;
@@ -1843,11 +1838,11 @@ BOOL TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
     {
         if (TimeShiftGetDimensions(&bih, recHeight, format))
         {
-            if (_snprintf(dest, length, "%dx%dx%d (%s)",
+            if (_sntprintf(dest, length, _T("%dx%dx%d (%s)"),
                                 bih.biWidth,
                                 bih.biHeight,
                                 bih.biBitCount,
-                                format==FORMAT_YUY2 ? "YUY2" : "RGB") > 0)
+                                format==FORMAT_YUY2 ? _T("YUY2") : _T("RGB")) > 0)
                result = TRUE;
         }
     }
@@ -1862,7 +1857,7 @@ BOOL TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
  *         an error
  */
 
-BOOL TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length)
+BOOL TimeShiftGetAudioCompressionDesc(LPTSTR dest, DWORD length)
 {
     BOOL result = FALSE;
 
@@ -1870,11 +1865,11 @@ BOOL TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length)
     {
         EnterCriticalSection(&timeShift->lock);
 
-        if (_snprintf(dest, length, "%d Hz, %d bits, %s",
+        if (_sntprintf(dest, length, _T("%d Hz, %d bits, %s"),
                       timeShift->waveFormat.nSamplesPerSec,
                       timeShift->waveFormat.wBitsPerSample,
-                      timeShift->waveFormat.nChannels==2 ? "stereo" :
-                                                           "mono") > 0)
+                      timeShift->waveFormat.nChannels==2 ? _T("stereo") :
+                                                           _T("mono")) > 0)
            result = TRUE;
 
         LeaveCriticalSection(&timeShift->lock);
@@ -1907,8 +1902,8 @@ BOOL TimeShiftOnOptions(void)
             }
         } else
           MessageBox(timeShift->hWnd,
-                     "TimeShift options are only available during stop mode.",
-                     "Information",
+                     _T("TimeShift options are only available during stop mode."),
+                     _T("Information"),
                      MB_OK);
     }
 
@@ -2008,42 +2003,42 @@ BOOL TimeShiftOnSetMenu(HMENU hMenu)
 
 BOOL TimeShiftReadFromINI(void)
 {
-    extern char szIniFile[MAX_PATH];
-    char        path[MAX_PATH + 1];
-    BOOL        result = FALSE;
+    extern TCHAR szIniFile[MAX_PATH];
+    TCHAR        path[MAX_PATH + 1];
+    BOOL         result = FALSE;
 
     if (timeShift)
     {
-        GetPrivateProfileString("TimeShift", "WaveInDevice", "",
+        GetPrivateProfileString(_T("TimeShift"), _T("WaveInDevice"), _T(""),
                                 timeShift->waveInDevice, MAXPNAMELEN,
                                 szIniFile);
-        GetPrivateProfileString("TimeShift", "WaveOutDevice", "",
+        GetPrivateProfileString(_T("TimeShift"), _T("WaveOutDevice"), _T(""),
                                 timeShift->waveOutDevice, MAXPNAMELEN,
                                 szIniFile);
 
-        timeShift->recHeight = GetPrivateProfileInt("TimeShift", "RecHeight",
+        timeShift->recHeight = GetPrivateProfileInt(_T("TimeShift"), _T("RecHeight"),
                                                     timeShift->recHeight,
                                                     szIniFile);
 
-        timeShift->format = (tsFormat_t)GetPrivateProfileInt("TimeShift",
-                                                             "RecFormat",
+        timeShift->format = (tsFormat_t)GetPrivateProfileInt(_T("TimeShift"),
+                                                             _T("RecFormat"),
                                                              timeShift->format,
                                                              szIniFile);
 
         /* Make sure the format is valid */
         timeShift->format = makeFormatValid(timeShift->format);
 
-        GetPrivateProfileStruct("TimeShift", "VideoFCC",
+        GetPrivateProfileStruct(_T("TimeShift"), _T("VideoFCC"),
                                 &timeShift->fccHandler, sizeof(FOURCC),
                                 szIniFile);
 
-        GetPrivateProfileString("TimeShift", "SavingPath",
+        GetPrivateProfileString(_T("TimeShift"), _T("SavingPath"),
                                 timeShift->savingPath, path, sizeof(path),
                                 szIniFile);
         TimeShiftSetSavingPath(path);
 
-        TimeShiftSetFileSizeLimit(GetPrivateProfileInt("TimeShift",
-                                                       "AVIFileSizeLimit",
+        TimeShiftSetFileSizeLimit(GetPrivateProfileInt(_T("TimeShift"),
+                                                       _T("AVIFileSizeLimit"),
                                                        timeShift->sizeLimit,
                                                        szIniFile));
 
@@ -2055,31 +2050,31 @@ BOOL TimeShiftReadFromINI(void)
 
 BOOL TimeShiftWriteToINI(void)
 {
-    extern char szIniFile[MAX_PATH];
-    BOOL        result = FALSE;
-    TCHAR       temp[32];
+    extern TCHAR szIniFile[MAX_PATH];
+    BOOL         result = FALSE;
+    TCHAR        temp[32];
 
     if (timeShift)
     {
-        WritePrivateProfileString("TimeShift", "SavingPath",
+        WritePrivateProfileString(_T("TimeShift"), _T("SavingPath"),
                                   timeShift->savingPath, szIniFile);
 
-        _snprintf(temp, sizeof(temp), "%u", timeShift->sizeLimit);
-        WritePrivateProfileString("TimeShift", "AVIFileSizeLimit", temp,
+        _sntprintf(temp, sizeof(temp), _T("%u"), timeShift->sizeLimit);
+        WritePrivateProfileString(_T("TimeShift"), _T("AVIFileSizeLimit"), temp,
                                   szIniFile);
 
-        WritePrivateProfileString("TimeShift", "WaveInDevice",
+        WritePrivateProfileString(_T("TimeShift"), _T("WaveInDevice"),
                                   timeShift->waveInDevice, szIniFile);
-        WritePrivateProfileString("TimeShift", "WaveOutDevice",
+        WritePrivateProfileString(_T("TimeShift"), _T("WaveOutDevice"),
                                   timeShift->waveOutDevice, szIniFile);
 
-        _snprintf(temp, sizeof(temp), "%u", timeShift->recHeight);
-        WritePrivateProfileString("TimeShift", "RecHeight", temp, szIniFile);
+        _sntprintf(temp, sizeof(temp), _T("%u"), timeShift->recHeight);
+        WritePrivateProfileString(_T("TimeShift"), _T("RecHeight"), temp, szIniFile);
 
-        _snprintf(temp, sizeof(temp), "%u", timeShift->format);
-        WritePrivateProfileString("TimeShift", "RecFormat", temp, szIniFile);
+        _sntprintf(temp, sizeof(temp), _T("%u"), timeShift->format);
+        WritePrivateProfileString(_T("TimeShift"), _T("RecFormat"), temp, szIniFile);
 
-        WritePrivateProfileStruct("TimeShift", "VideoFCC",
+        WritePrivateProfileStruct(_T("TimeShift"), _T("VideoFCC"),
                                   &timeShift->fccHandler, sizeof(FOURCC),
                                   szIniFile);
 
@@ -2095,7 +2090,7 @@ BOOL CTimeShift::OnRecord(void)
     AssureCreated();
 
     BOOL result = FALSE;
-    extern char szIniFile[MAX_PATH];
+    extern TCHAR szIniFile[MAX_PATH];
 
     //////////////////////////////////////////
     // Simple single event scheduler.  It just
@@ -2106,7 +2101,7 @@ BOOL CTimeShift::OnRecord(void)
     // Get the scheduled record time from INI file
     m_Start = 0; // Initialize it first
     m_Start = (GetPrivateProfileInt(
-        "Schedule", "Start", m_Start, szIniFile));
+        _T("Schedule"), _T("Start"), m_Start, szIniFile));
 
     if (m_Start != 0) //has a schedule time been set (0 = not set)?
     {
@@ -2165,7 +2160,7 @@ BOOL CTimeShift::OnRecord(void)
 
         m_Start = 0; //reset the schedule start time
         WritePrivateProfileInt(
-        "Schedule", "Start", m_Start, szIniFile); // reset INI
+        _T("Schedule"), _T("Start"), m_Start, szIniFile); // reset INI
 
         // Do a timer messagebox to the start of the scheduled recording
         SchedMessageBox mbox(CWnd::FromHandle(hWnd));   // handle
@@ -2174,7 +2169,7 @@ BOOL CTimeShift::OnRecord(void)
         // irrelevant - hardcoded the icon
         SchedMessageBox::MBIcon mbicon = SchedMessageBox::MBIcon::MBICONINFORMATION;
         // call the timer messagebox
-        mbox.MessageBox("Message is hard coded! NULL", m_delay,
+        mbox.MessageBox(_T("Message is hard coded! NULL"), m_delay,
             m_close,(SchedMessageBox::MBIcon)mbicon);
 
         if (TRUE == CancelSched) // Was the scheduled recording cancelled
@@ -2201,7 +2196,7 @@ BOOL CTimeShift::OnRecord(void)
         // Get the Timed Recordng value from INI file
         m_Time = 0; // Initialise
         m_Time = (GetPrivateProfileInt(
-        "Schedule", "Time", m_Time, szIniFile));
+        _T("Schedule"), _T("Time"), m_Time, szIniFile));
 
         if (m_Time != 0) // Has the record timer been set
         {
@@ -2217,7 +2212,7 @@ BOOL CTimeShift::OnRecord(void)
             // Clear the INI file of the timed recording value
             m_Time = 0; // Reset the timer
             WritePrivateProfileInt(
-            "Schedule", "Time", m_Time, szIniFile);
+            _T("Schedule"), _T("Time"), m_Time, szIniFile);
         }
         else
         {
@@ -2254,26 +2249,26 @@ BOOL CTimeShift::OnRecord(void)
             if (RecordTimerF)
             {
                 MessageBox(hWnd,
-                    "Sorry! Recording stopped!\n"
-                    "\n"
-                    "You do not have enough\n"
-                    "disk space to continue.\n"
-                    "\n"
-                    "Your recording was saved.",
-                    "Information",
+                    _T("Sorry! Recording stopped!\n")
+                    _T("\n")
+                    _T("You do not have enough\n")
+                    _T("disk space to continue.\n")
+                    _T("\n")
+                    _T("Your recording was saved."),
+                    _T("Information"),
                     MB_ICONEXCLAMATION | MB_OK);
             }
             else
             {
                 MessageBox(hWnd,
-                    "Sorry! Timed recording stopped!\n"
-                    "\n"
-                    "You do not have enough\n"
-                    "disk space to continue.\n"
-                    "\n"
-                    "Only a part of your timed\n"
-                    "recording was saved.",
-                    "Information",
+                    _T("Sorry! Timed recording stopped!\n")
+                    _T("\n")
+                    _T("You do not have enough\n")
+                    _T("disk space to continue.\n")
+                    _T("\n")
+                    _T("Only a part of your timed\n")
+                    _T("recording was saved."),
+                    _T("Information"),
                     MB_ICONEXCLAMATION | MB_OK);
             }
             nofreespace = FALSE; // Reset the nofreespace flag
@@ -2295,15 +2290,15 @@ BOOL CTimeShift::OnRecord(void)
             if (ScheduleF) // Was it a scheduled recording?
             {
                 MessageBox(hWnd,
-                        "Your scheduled recording was saved.",
-                        "Recording Information",
+                        _T("Your scheduled recording was saved."),
+                        _T("Recording Information"),
                         MB_ICONEXCLAMATION | MB_OK);
             }
             else
             {
                 MessageBox(hWnd,
-                        "Your timed recording was saved.",
-                        "Recording Information",
+                        _T("Your timed recording was saved."),
+                        _T("Recording Information"),
                         MB_ICONEXCLAMATION | MB_OK);
             }
             // Initialise the flags for scheduled / timed recording

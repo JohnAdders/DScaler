@@ -279,7 +279,7 @@ protected:
     /// Used to store audio standard settings
     typedef struct
     {
-        char*               Name;
+        TCHAR*               Name;
         eAudioCarrier       Carrier1;
         eAudioCarrier       Carrier2;
         eAudioCarrierMode   Carrier1Mode;

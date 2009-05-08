@@ -25,15 +25,6 @@
 
 using namespace std;
 
-BOOL AreEqualInsensitive(const string& String1, const string& String2)
-{
-    return _stricmp(String1.c_str(), String2.c_str()) == 0;
-}
-
-void Trim(string& StringToTrim)
-{
-}
-
 void ScreenToClient(HWND hWnd, RECT& Rect)
 {
     ScreenToClient(hWnd, (LPPOINT)&Rect.left);
@@ -49,23 +40,4 @@ void ClientToScreen(HWND hWnd, RECT& Rect)
 void MoveWindow(HWND hWnd, RECT& Rect)
 {
     MoveWindow(hWnd, Rect.left, Rect.top, Rect.right - Rect.left, Rect.bottom - Rect.top, TRUE);
-}
-
-string ReplaceCharWithString(const string& InString, char CharToReplace, const string& StringToReplace)
-{
-    string Result;
-    const char * CurChar = InString.c_str();
-    while (*CurChar != '\0' )
-    {
-        if (*CurChar == CharToReplace )
-        {
-            Result += StringToReplace;
-        }
-        else
-        {
-            Result += *CurChar;
-        }
-        ++CurChar;
-    }
-    return Result;
 }

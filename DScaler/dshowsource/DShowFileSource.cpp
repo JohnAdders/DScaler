@@ -33,7 +33,7 @@
 
 using namespace std;
 
-CDShowFileSource::CDShowFileSource(IGraphBuilder *pGraph,string filename)
+CDShowFileSource::CDShowFileSource(IGraphBuilder *pGraph,tstring filename)
 :CDShowBaseSource(pGraph),m_file(filename),m_bIsConnected(FALSE)
 {
     USES_CONVERSION;
@@ -48,10 +48,10 @@ CDShowFileSource::CDShowFileSource(IGraphBuilder *pGraph,string filename)
         throw CDShowException("SetFiltergraph failed on capture graph builder",hr);
     }
 
-    string tmp = m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4));
-    if(!AreEqualInsensitive(tmp, ".grf"))
+    tstring tmp = m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4));
+    if(!AreEqualInsensitive(tmp, _T(".grf")))
     {
-        hr=m_pGraph->AddSourceFilter(A2W(filename.c_str()),NULL,&m_pFileSource);
+        hr=m_pGraph->AddSourceFilter(TStringToUnicode(filename).c_str(),NULL,&m_pFileSource);
         if(FAILED(hr))
         {
             throw CDShowException("Failed to add file",hr);
@@ -70,8 +70,8 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
     HRESULT hr;
 
     //is this a grf file? grf files needs special handling
-    string tmp = m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4)).c_str();
-    if(!AreEqualInsensitive(tmp, ".grf"))
+    tstring tmp = m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4)).c_str();
+    if(!AreEqualInsensitive(tmp, _T(".grf")))
     {
         //the simple case, RenderStream is able to properly connect the filters
         hr=m_pBuilder->RenderStream(NULL,NULL,m_pFileSource,NULL,VideoFilter);
@@ -134,16 +134,16 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
         }
         if(bAudioRendered)
         {
-            LOG(2,"DShowFileSource: %d Audio streams rendered",AudioStreamCount);
+            LOG(2,_T("DShowFileSource: %d Audio streams rendered"),AudioStreamCount);
         }
         else
         {
-            LOG(2,"DShowFileSource: Unsupported audio or no audio found, error code: 0x%x",hr);
+            LOG(2,_T("DShowFileSource: Unsupported audio or no audio found, error code: 0x%x"),hr);
         }
     }
     else
     {
-        hr=m_pGraph->RenderFile(A2W(m_file.c_str()),NULL);
+        hr=m_pGraph->RenderFile(TStringToUnicode(m_file).c_str(),NULL);
         if(FAILED(hr))
         {
             throw CDShowException("Faild to render grapedit .grf file",hr);
@@ -228,7 +228,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
                 GUID NewGUID;
                 if(FAILED(pPStrmOld->GetClassID(&OldGUID)) || FAILED(pPStrmNew->GetClassID(&NewGUID)))
                 {
-                    LOG(2,"DShowFileSource: Failed to get ClassID of new or old renderer filter");
+                    LOG(2,_T("DShowFileSource: Failed to get ClassID of new or old renderer filter"));
                 }
                 else
                 {
@@ -253,7 +253,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
                     }
                     else
                     {
-                        LOG(2,"DShowFileSource: Old and new renderer filter is not of the same type, will not copy setting");
+                        LOG(2,_T("DShowFileSource: Old and new renderer filter is not of the same type, will not copy setting"));
                     }
                 }
 

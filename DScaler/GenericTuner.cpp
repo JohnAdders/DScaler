@@ -554,14 +554,14 @@ BOOL CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
 
     if (m_I2CBus != NULL)
     {
-        if (m_ExternalIFDemodulator)
+        if (m_ExternalIFDemodulator.IsValid())
         {
             m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
         }
 
         BOOL result = m_I2CBus->Write(buffer, sizeof(buffer));
 
-        if (m_ExternalIFDemodulator)
+        if (m_ExternalIFDemodulator.IsValid())
         {
             m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
         }
@@ -675,7 +675,7 @@ eTunerAFCStatus CGenericTuner::GetAFCStatus(long &nFreqDeviation)
 {
     if (m_I2CBus != NULL)
     {
-        if (m_ExternalIFDemodulator)
+        if (m_ExternalIFDemodulator.IsValid())
         {
             eTunerAFCStatus AFCStatus = m_ExternalIFDemodulator->GetAFCStatus(nFreqDeviation);
             return AFCStatus;

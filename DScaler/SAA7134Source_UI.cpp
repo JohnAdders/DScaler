@@ -145,7 +145,7 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
 
             SetFocus(hDlg);
 
-            CSAA7134Card* pCard = pThis->GetCard();
+            CSAA7134Card* pCard = pThis->GetCard().GetRawPointer();
             SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType().c_str());
             TCHAR buf[10];
             _stprintf(buf,_T("%04X"), pCard->GetVendorId());
@@ -1396,7 +1396,7 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_HWINFO:
-            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CSAA7134Card::ChipSettingProc, (LPARAM)(CSAA7134Card*)m_pSAA7134Card);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CSAA7134Card::ChipSettingProc, (LPARAM)(CSAA7134Card*)m_pSAA7134Card.GetRawPointer());
             break;
 
         case IDM_ADV_VIDEOSETTINGS:
@@ -1546,7 +1546,7 @@ void CSAA7134Source::ChangeTVSettingsBasedOnTuner()
     {
         // be a bit defensive here to avoid a possible
         // crash
-        if(m_pSAA7134Card->GetTuner())
+        if(m_pSAA7134Card->GetTuner().IsValid())
         {
             eVideoFormat videoFormat = m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat();
             m_VideoFormat->ChangeDefault(videoFormat);

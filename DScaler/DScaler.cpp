@@ -1415,7 +1415,7 @@ BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar)
 
     if(bIsFullScreen == TRUE)
     {
-        if (WithToolbar == FALSE && ToolbarControl)
+        if (WithToolbar == FALSE && ToolbarControl.IsValid())
         {
             ToolbarControl->AdjustArea(lpRect, 1);
         }
@@ -1430,12 +1430,12 @@ BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar)
             lpRect->bottom -= StatusBar_Height();
         }
 
-        if (WindowBorder && WindowBorder->Visible())
+        if (WindowBorder.IsValid() && WindowBorder->Visible())
         {
             WindowBorder->AdjustArea(lpRect,1);
         }
 
-        if (ToolbarControl)
+        if (ToolbarControl.IsValid())
         {
             ToolbarControl->AdjustArea(lpRect, 1);
         }
@@ -1445,12 +1445,12 @@ BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar)
 
 void AddDisplayAreaRect(HWND hWnd, LPRECT lpRect)
 {
-    if (ToolbarControl)
+    if (ToolbarControl.IsValid())
     {
         ToolbarControl->AdjustArea(lpRect, 0);
     }
 
-    if ((WindowBorder) && WindowBorder->Visible())
+    if (WindowBorder.IsValid() && WindowBorder->Visible())
     {
        WindowBorder->AdjustArea(lpRect,0);
     }
@@ -1587,7 +1587,7 @@ void SetWindowBorder(HWND hWnd, BOOL bShow)
 {
     if (!WindowBorder)
     {
-        if (!szSkinName)
+        if (!szSkinName.IsValid())
         {
             //Don't make the windowborder unless it is necessary
             return;
@@ -1595,7 +1595,7 @@ void SetWindowBorder(HWND hWnd, BOOL bShow)
         WindowBorder = new CWindowBorder(hWnd, hDScalerInst, BorderGetClientRect);
     }
 
-    if (WindowBorder && !szSkinName)
+    if (WindowBorder.IsValid() && !szSkinName.IsValid())
     {
         WindowBorder->ClearSkin();
     }
@@ -1710,7 +1710,7 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
         }
     }
 
-    CheckMenuItemBool(hMenu, IDM_SKIN_NONE, ((vSkinNameList.size()==0) || !szSkinName));
+    CheckMenuItemBool(hMenu, IDM_SKIN_NONE, ((vSkinNameList.size()==0) || !szSkinName.IsValid()));
 
     int Found = 0;
     if(szSkinName)
@@ -3055,7 +3055,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
                 OSD_Redraw(hDC, &Rect);
 
-                if (!bIsFullScreen && (WindowBorder) && WindowBorder->Visible())
+                if (!bIsFullScreen && WindowBorder.IsValid() && WindowBorder->Visible())
                 {
                     WindowBorder->Paint(hWnd, hDC, &Rect);
                 }
@@ -3206,7 +3206,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             szSkinName.clear();
             Skin_SetMenu(hMenu, TRUE);
             SetWindowBorder(hWnd, FALSE);
-            if (ToolbarControl)
+            if (ToolbarControl.IsValid())
             {
                 ToolbarControl->Set(hWnd, (LPCTSTR)szSkinName, bIsFullScreen?1:0);
             }
@@ -3258,7 +3258,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
                 Skin_SetMenu(hMenu, TRUE);
                 SetWindowBorder(hWnd, TRUE);
-                if (ToolbarControl)
+                if (ToolbarControl.IsValid())
                 {
                     ToolbarControl->Set(hWnd, (LPCTSTR)szSkinName, bIsFullScreen?1:0);
                 }
@@ -3308,11 +3308,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 bDone = ProcessOutResoSelection(hWnd, LOWORD(wParam));
             }
-            if(!bDone && pCalibration)
+            if(!bDone && pCalibration.IsValid())
             {
                 bDone = pCalibration->ProcessSelection(hWnd, LOWORD(wParam));
             }
-            if(!bDone && ToolbarControl)
+            if(!bDone && ToolbarControl.IsValid())
             {
                 bDone = ToolbarControl->ProcessToolbar1Selection(hWnd, LOWORD(wParam));
                 if (bDone)
@@ -3343,7 +3343,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         // Updates the menu checkbox settings
         SetMenuAnalog();
-        if (ToolbarControl)
+        if (ToolbarControl.IsValid())
         {
             ToolbarControl->UpdateMenu(hMenu);
         }
@@ -3483,7 +3483,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     Cursor_VTUpdate(newx, newy);
                 }
-                if (bIsFullScreen && ToolbarControl)
+                if (bIsFullScreen && ToolbarControl.IsValid())
                 {
                     POINT Point;
                     Point.x = x;
@@ -3693,7 +3693,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (Cursor_IsOurs() != FALSE)
             {
                 KillTimer(hWnd, TIMER_HIDECURSOR);
-                if (ToolbarControl)
+                if (ToolbarControl.IsValid())
                 {
                     POINT Point;
                     GetCursorPos(&Point);
@@ -3885,7 +3885,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
             OffscreenHDC.EndPaint();
 
-            if (!bIsFullScreen && (WindowBorder) && WindowBorder->Visible())
+            if (!bIsFullScreen && WindowBorder.IsValid() && WindowBorder->Visible())
             {
                 WindowBorder->Paint(hWnd, sPaint.hdc, &sPaint.rcPaint);
             }
@@ -3936,7 +3936,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case UWM_EVENTADDEDTOQUEUE:
-        if (EventCollector)
+        if (EventCollector.IsValid())
         {
             EventCollector->ProcessEvents();
         }
@@ -4196,8 +4196,8 @@ void MainWndOnInitBT(HWND hWnd)
         {
             AddSplashTextLine(_T("Load Skin"));
 
-            SetWindowBorder(hWnd, (bool)szSkinName);
-            if (ToolbarControl)
+            SetWindowBorder(hWnd, szSkinName.IsValid());
+            if (ToolbarControl.IsValid())
             {
                 ToolbarControl->Set(hWnd, (LPCTSTR)szSkinName);
             }
@@ -4206,7 +4206,7 @@ void MainWndOnInitBT(HWND hWnd)
         // We must do two calls, the first one displaying the toolbar
         // in order to have the correct toolbar rectangle initialized,
         // and the second to hide the toolbar if in full scrren mode
-        if (ToolbarControl)
+        if (ToolbarControl.IsValid())
         {
             ToolbarControl->Set(hWnd, _T(""), bIsFullScreen?1:0);
         }
@@ -4239,7 +4239,7 @@ void MainWndOnInitBT(HWND hWnd)
         VT_UpdateMenu(hMenu);
         OutReso_UpdateMenu(hMenu);
         SetMenuAnalog();
-        if (ToolbarControl)
+        if (ToolbarControl.IsValid())
         {
             ToolbarControl->UpdateMenu(hMenu);
         }
@@ -4469,7 +4469,7 @@ void MainWndOnDestroy()
     try
     {
         LOG(1, _T("Try free skinned border"));
-        if (WindowBorder)
+        if (WindowBorder.IsValid())
         {
             WindowBorder = 0L;
         }
@@ -4479,14 +4479,14 @@ void MainWndOnDestroy()
     try
     {
         LOG(1, _T("Try free toolbars"));
-        if (ToolbarControl)
+        if (ToolbarControl.IsValid())
         {
             ToolbarControl = 0L;
         }
     }
     catch(...) {LOG(1, _T("Error free toolbars"));}
 
-    if(SettingsMaster)
+    if(SettingsMaster.IsValid())
     {
         try
         {
@@ -4664,7 +4664,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 {
     StatusBar_Adjust(hWnd);
-    if (ToolbarControl)
+    if (ToolbarControl.IsValid())
     {
         ToolbarControl->Adjust(hWnd, FALSE, TRUE);
     }
@@ -4784,7 +4784,7 @@ void SetMenuAnalog()
     Providers_SetMenu(hMenu);
 
     TimeShiftOnSetMenu(hMenu);
-    if(pCalibration)
+    if(pCalibration.IsValid())
     {
         pCalibration->SetMenu(hMenu);
     }
@@ -5185,7 +5185,7 @@ void UpdateWindowState()
         }
         else
         {
-            if ((WindowBorder) && WindowBorder->Visible())
+            if (WindowBorder.IsValid() && WindowBorder->Visible())
             {
                 SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             }
@@ -5196,7 +5196,7 @@ void UpdateWindowState()
             SetMenu(hWnd, NULL);
         }
         StatusBar_ShowWindow(bDisplayStatusBar);
-        if (ToolbarControl)
+        if (ToolbarControl.IsValid())
         {
             ToolbarControl->Adjust(hWnd, FALSE, FALSE);
         }
@@ -5215,7 +5215,7 @@ void UpdateWindowState()
 
 HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
 {
-    if (!bIsFullScreen && (WindowBorder) && WindowBorder->Visible() && !bShowMenu)
+    if (!bIsFullScreen && WindowBorder.IsValid() && WindowBorder->Visible() && !bShowMenu)
     {
         RECT rcExtra;
         if (IsStatusBarVisible())
@@ -5263,7 +5263,7 @@ BOOL IsStatusBarVisible()
 
 BOOL IsToolBarVisible()
 {
-    return (ToolbarControl && ToolbarControl->Visible());
+    return (ToolbarControl.IsValid() && ToolbarControl->Visible());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -5689,20 +5689,20 @@ BOOL IsFullScreen_OnChange(long NewValue)
             KillTimer(hWnd, TIMER_STATUS);
             OutReso_Change(hWnd, hPSWnd, FALSE, TRUE, NULL, FALSE);
         }
-        if (WindowBorder)
+        if (WindowBorder.IsValid())
         {
             if (bIsFullScreen && WindowBorder->Visible())
             {
                 WindowBorder->Hide();
             }
-            else if (!bIsFullScreen && !szSkinName)
+            else if (!bIsFullScreen && !szSkinName.IsValid())
             {
                 WindowBorder->Show();
             }
         }
-        if (ToolbarControl)
+        if (ToolbarControl.IsValid())
         {
-            ToolbarControl->Set(hWnd, NULL, 0, 1);
+            ToolbarControl->Set(hWnd, _T(""), 0, 1);
         }
 
         Cursor_UpdateVisibility();
@@ -5713,9 +5713,9 @@ BOOL IsFullScreen_OnChange(long NewValue)
         // We must do two calls, the first one displaying the toolbar
         // in order to have the correct toolbar rectangle initialized,
         // and the second to hide the toolbar if in full scrren mode
-        if (ToolbarControl)
+        if (ToolbarControl.IsValid())
         {
-            ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0, 1);
+            ToolbarControl->Set(hWnd, _T(""), bIsFullScreen?1:0, 1);
         }
         if (IsToolBarVisible())
         {
@@ -5788,7 +5788,7 @@ BOOL DisplayStatusBar_OnChange(long NewValue)
         {
             KillTimer(hWnd, TIMER_STATUS);
         }
-        if (ToolbarControl)
+        if (ToolbarControl.IsValid())
         {
             ToolbarControl->Adjust(hWnd, TRUE, FALSE);
         }

@@ -67,7 +67,7 @@ CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
                                                             CardsFound,
                                                             SubSystemId
                                                                       );
-        if(pNewSource)
+        if(pNewSource.IsValid())
         {
             m_Sources.push_back(pNewSource);
             ++CardsFound;

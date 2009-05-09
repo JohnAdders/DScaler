@@ -247,10 +247,10 @@ void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, 
 SmartPtr<CSimpleSetting> GetSetting(long GetValueMsg, long SettingIndex)
 {
     SmartPtr<CSettingsHolder> Holder(SettingsMaster->FindMsgHolder(GetValueMsg));
-    if(Holder)
+    if(Holder.IsValid())
     {
         SmartPtr<CSimpleSetting> Setting(Holder->GetSetting(SettingIndex));
-        if(Setting)
+        if(Setting.IsValid())
         {
             return Setting;
         }

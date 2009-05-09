@@ -1489,7 +1489,7 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
 
 void MixerDev_UpdateSettings(CSource* pSource)
 {
-    if(MixerSettings)
+    if(MixerSettings.IsValid())
     {
         SettingsMaster->Unregister(MixerSettings);
         MixerSettings->WriteToIni(TRUE);

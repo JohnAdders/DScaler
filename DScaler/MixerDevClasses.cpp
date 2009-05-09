@@ -27,9 +27,11 @@
 
 #include "stdafx.h"
 #include "MixerDevClasses.h"
+#if _MSC_VER > 1200
 #include "Mmdeviceapi.h"
 #define __IKsJackDescription_INTERFACE_DEFINED__
 #include "Endpointvolume.h"
+#endif
 
 using namespace std;
 
@@ -247,7 +249,7 @@ IMixerLineSrc* CMixerLineDst::GetSourceLine(DWORD nIndex)
         return NULL;
     }
 
-    return m_pSourceLines[nIndex];
+    return m_pSourceLines[nIndex].GetRawPointer();
 }
 
 
@@ -347,7 +349,7 @@ IMixerLineDst* CMixer::GetDestinationLine(DWORD nIndex)
         return NULL;
     }
 
-    return m_pDestinationLines[nIndex];
+    return m_pDestinationLines[nIndex].GetRawPointer();
 }
 
 
@@ -368,6 +370,7 @@ void CMixer::RestoreState()
     }
 }
 
+#if _MSC_VER > 1200
 // get a name for the device
 // may not be very friendly, need to test
 tstring GetDeviceName(CComPtr<IMMDevice>& Device)
@@ -595,7 +598,7 @@ private:
 
     CVistaMixerLineDst m_DestinationLine;
 };
-
+#endif
 
 //----------------------------------------------------------------------
 //  CMixerFinder
@@ -603,18 +606,9 @@ private:
 
 CMixerList::CMixerList()
 {
+#if _MSC_VER > 1200
     CComPtr<IMMDeviceEnumerator> DeviceEnum;
-    if(TRUE || FAILED(DeviceEnum.CoCreateInstance(__uuidof(MMDeviceEnumerator))))
-    {
-        // do old school mixer based classed
-        long nMixerCount = mixerGetNumDevs();
-        for(long i(0); i < nMixerCount; ++i)
-        {
-            SmartPtr<IMixer> NewMixer = new CMixer(i);
-            m_Mixers.push_back(NewMixer);
-        }
-    }
-    else
+    if(FALSE && SUCCEEDED(DeviceEnum.CoCreateInstance(__uuidof(MMDeviceEnumerator))))
     {
         // do new Vista style approach
         CComPtr<IMMDeviceCollection> DeviceCollection;
@@ -642,6 +636,17 @@ CMixerList::CMixerList()
             Device.Release();
         }
     }
+    else
+#endif
+    {
+        // do old school mixer based classed
+        long nMixerCount = mixerGetNumDevs();
+        for(long i(0); i < nMixerCount; ++i)
+        {
+            SmartPtr<IMixer> NewMixer = new CMixer(i);
+            m_Mixers.push_back(NewMixer);
+        }
+    }
 }
 
 long CMixerList::GetMixerCount()
@@ -653,7 +658,7 @@ IMixer* CMixerList::GetMixer(long nMixerIndex)
 {
 	if(nMixerIndex >= 0 && nMixerIndex <= m_Mixers.size())
 	{
-		return m_Mixers[nMixerIndex];
+		return m_Mixers[nMixerIndex].GetRawPointer();
 	}
 	else
 	{

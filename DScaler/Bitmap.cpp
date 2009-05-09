@@ -61,7 +61,7 @@ CBitmapHolder::CBitmapHolder(int DrawMode):
 int CBitmapHolder::Width(int State)
 {
     if (m_States.size() <= State) { return 0; }
-    if(m_States[State])
+    if(m_States[State].IsValid())
     {
         return m_States[State]->m_BmpWidth;
     }
@@ -74,7 +74,7 @@ int CBitmapHolder::Width(int State)
 int CBitmapHolder::Height(int State)
 {
     if (m_States.size()<=State) { return 0; }
-    if(m_States[State])
+    if(m_States[State].IsValid())
     {
         return m_States[State]->m_BmpHeight;
     }
@@ -97,7 +97,7 @@ SmartHandle<HBITMAP> CBitmapHolder::GetBitmap(int State)
 {
     if ((State>=0) && (State < m_States.size()))
     {
-        if(m_States[State])
+        if(m_States[State].IsValid())
         {
             return m_States[State]->m_hBmp;
         }
@@ -660,9 +660,8 @@ int CBitmapsFromIniSection::Read(tstring sIniFile, tstring sSection, tstring sBi
                         hBmpMask = CBitmapHolder::BitmapCopyPieceRGB(hdestDC, hsrcDC, &rc);
                     }
 
-                    SmartPtr<CBitmapState>& BitmapState( (*it).second );
-                    BitmapState = new CBitmapState(hBmp, hBmpMask);
-                    BitmapState->m_ExtraInfo = szExtra;
+                    (*it).second = SmartPtr<CBitmapState>(new CBitmapState(hBmp, hBmpMask));
+                    (*it).second->m_ExtraInfo = szExtra;
                     Result = 0;
                 }
                 else

@@ -882,16 +882,16 @@ BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, 
     case WM_INITDIALOG:
         pThis = (CBT848Card*)lParam;
         SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType().c_str());
-        _stprintf_s(szVendorId, 9, _T("%04X"), pThis->GetVendorId());
+        _sntprintf(szVendorId, 9, _T("%04X"), pThis->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
-        _stprintf_s(szDeviceId, 9, _T("%04X"), pThis->GetDeviceId());
+        _sntprintf(szDeviceId, 9, _T("%04X"), pThis->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
         SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType().c_str());
         SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, _T("")); // FIXME pThis->GetAudioDecoderType());
         dwCardId = pThis->GetSubSystemId();
         if(dwCardId != 0 && dwCardId != 0xffffffff)
         {
-            _stprintf_s(szCardId, 9, _T("%8X"), dwCardId);
+            _sntprintf(szCardId, 9, _T("%8X"), dwCardId);
         }
         SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         return TRUE;
@@ -1153,7 +1153,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
         AddRegister(BT848_GPIO_DATA);
         AddRegister(BT848_GPIO_DATA_HIBYTE);
         AddRegister(BT848_TBLG);
-        if(pThis->m_SAA7118)
+        if(pThis->m_SAA7118.IsValid())
         {
             for(int i(0); i < 0xFF; ++i)
             {
@@ -1195,7 +1195,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
             }
             else
             {
-                if(pThis->m_SAA7118)
+                if(pThis->m_SAA7118.IsValid())
                 {
                     pThis->m_SAA7118->SetRegister((BYTE)(dwAddress - 0x1000), RegValue);
                 }
@@ -1215,7 +1215,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
                     }
                     else
                     {
-                        if(pThis->m_SAA7118)
+                        if(pThis->m_SAA7118.IsValid())
                         {
                             RegValue = pThis->m_SAA7118->GetRegister((BYTE)(dwAddress - 0x1000));
                         }

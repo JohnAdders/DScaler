@@ -255,7 +255,7 @@ public:
     SettingStringValue();
     ~SettingStringValue();
     operator LPCTSTR();
-    operator bool();
+    BOOL IsValid();
     long* GetPointer();
     void clear();
     void SetValue(const tstring& NewValue);

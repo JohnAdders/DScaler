@@ -181,7 +181,7 @@ private:
     BOOL ReadASCIIImpl(FILE*);
 
     //could be a map too..would be better for lookups
-    typedef std::vector<SmartPtr<CCountryChannels>> Countries;
+    typedef std::vector< SmartPtr<CCountryChannels> > Countries;
     Countries m_Countries;
 };
 

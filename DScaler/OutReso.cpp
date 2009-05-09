@@ -355,7 +355,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
                 || (videoFormat == VIDEOFORMAT_PAL_I) || (videoFormat == VIDEOFORMAT_PAL_M) || (videoFormat == VIDEOFORMAT_PAL_N)
                 || (videoFormat == VIDEOFORMAT_PAL_60) || (videoFormat == VIDEOFORMAT_PAL_N_COMBO))
             {
-                if(PStrip576i && !AreEqualInsensitive((LPCTSTR)PStrip576i, lActuaPstripTimingString))
+                if(PStrip576i.IsValid() && !AreEqualInsensitive((LPCTSTR)PStrip576i, lActuaPstripTimingString))
                 {
                     tstring AtomString(PStrip576i);
                     aPStripTimingATOM = GlobalAddAtom(AtomString.c_str());
@@ -365,7 +365,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
             // 480i_50Hz and 480i_60Hz
             else if((videoFormat == VIDEOFORMAT_NTSC_M) || (videoFormat == VIDEOFORMAT_NTSC_M_Japan) || (videoFormat == VIDEOFORMAT_NTSC_50))
             {
-                if(PStrip480i && !AreEqualInsensitive((LPCTSTR)PStrip480i, lActuaPstripTimingString))
+                if(PStrip480i.IsValid() && !AreEqualInsensitive((LPCTSTR)PStrip480i, lActuaPstripTimingString))
                 {
                     tstring AtomString(PStrip480i);
                     aPStripTimingATOM = GlobalAddAtom(AtomString.c_str());

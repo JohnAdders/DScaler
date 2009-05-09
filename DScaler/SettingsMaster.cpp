@@ -164,11 +164,11 @@ void CSettingsMaster::ParseSettingHolder(CSettingsHolder* Holder, BOOL IsLoad)
     {
         if (IsLoad)
         {
-            LoadOneGroupedSetting(Holder->GetSetting(n));
+            LoadOneGroupedSetting(Holder->GetSetting(n).GetRawPointer());
         }
         else
         {
-            WriteOneGroupedSetting(Holder->GetSetting(n));
+            WriteOneGroupedSetting(Holder->GetSetting(n).GetRawPointer());
         }
     }
 }
@@ -181,7 +181,7 @@ void CSettingsMaster::ParseAllSettings(BOOL IsLoad)
 {
     for (int i = 0; i < m_Holders.size(); i++)
     {
-        ParseSettingHolder(m_Holders[i], IsLoad);
+        ParseSettingHolder(m_Holders[i].GetRawPointer(), IsLoad);
     }
     ParseSettingHolder(Providers_GetCurrentSource(), IsLoad);
 }
@@ -376,12 +376,12 @@ CSettingGroup* CSettingsMaster::GetGroup(LPCTSTR szName, DWORD Flags, BOOL IsAct
     {
         if(m_SettingsGroups[i]->GetName() == szName)
         {
-            return m_SettingsGroups[i];
+            return m_SettingsGroups[i].GetRawPointer();
         }
     }
     SmartPtr<CSettingGroup> pNewGroup = new CSettingGroup(szName, Flags, IsActiveByDefault);
     m_SettingsGroups.push_back(pNewGroup);
-    return pNewGroup;
+    return pNewGroup.GetRawPointer();
 }
 
 SmartPtr<CSettingsHolder> CSettingsMaster::GetSettingsPage()
@@ -428,10 +428,10 @@ LONG CSettingsMaster::HandleSettingMsgs(HWND hWnd, UINT Message, UINT wParam, LO
     *bDone = FALSE;
 
     SmartPtr<CSettingsHolder> Holder(FindMsgHolder(Message));
-    if(Holder)
+    if(Holder.IsValid())
     {
         SmartPtr<CSimpleSetting> Setting = Holder->GetSetting(wParam);
-        if(Setting)
+        if(Setting.IsValid())
         {
             *bDone = TRUE;
             return Setting->GetValueAsMessage();
@@ -443,10 +443,10 @@ LONG CSettingsMaster::HandleSettingMsgs(HWND hWnd, UINT Message, UINT wParam, LO
     }
 
     Holder = FindMsgHolder(Message - 100);
-    if(Holder)
+    if(Holder.IsValid())
     {
         SmartPtr<CSimpleSetting> Setting = Holder->GetSetting(wParam);
-        if(Setting)
+        if(Setting.IsValid())
         {
             *bDone = TRUE;
             Setting->SetValueFromMessage(lParam);
@@ -455,10 +455,10 @@ LONG CSettingsMaster::HandleSettingMsgs(HWND hWnd, UINT Message, UINT wParam, LO
     }
 
     Holder = FindMsgHolder(Message - 200);
-    if(Holder)
+    if(Holder.IsValid())
     {
         SmartPtr<CSimpleSetting> Setting = Holder->GetSetting(wParam);
-        if(Setting)
+        if(Setting.IsValid())
         {
             *bDone = TRUE;
             Setting->ChangeValue((eCHANGEVALUE)lParam);

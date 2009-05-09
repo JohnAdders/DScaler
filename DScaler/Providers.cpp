@@ -135,7 +135,7 @@ int Providers_Load(HMENU hMenu)
             // used in mixer code
             CurrentSource = Sources.size()-1;
             // The first time, setup the audio mixer for the card
-            if (((CBT848Source*)(BT848Provider->GetSource(i)))->IsInitialSetup())
+            if (((CBT848Source*)(BT848Provider->GetSource(i).GetRawPointer()))->IsInitialSetup())
             {
                 Providers_MixerSetup();
             }
@@ -146,7 +146,7 @@ int Providers_Load(HMENU hMenu)
 #endif // WANT_BT8X8_SUPPORT
 
 #ifdef WANT_CX2388X_SUPPORT
-        CX2388xProvider = new CCX2388xProvider(HardwareDriver);
+        CX2388xProvider = new CCX2388xProvider(HardwareDriver.GetRawPointer());
 
         // if we have any of these cards warn the user about the driver issues
         // hopefully this will be enought to get a new release out
@@ -195,7 +195,7 @@ int Providers_Load(HMENU hMenu)
             // used in mixer code
             CurrentSource = Sources.size()-1;
             // The first time, setup the audio mixer for the card
-            if (((CCX2388xSource*)(CX2388xProvider->GetSource(i)))->IsInitialSetup())
+            if (((CCX2388xSource*)(CX2388xProvider->GetSource(i).GetRawPointer()))->IsInitialSetup())
             {
                 Providers_MixerSetup();
             }
@@ -226,7 +226,7 @@ int Providers_Load(HMENU hMenu)
             // used in mixer code
             CurrentSource = Sources.size()-1;
             // The first time, setup the audio mixer for the card
-            if (((CSAA7134Source*)(SAA7134Provider->GetSource(i)))->IsInitialSetup())
+            if (((CSAA7134Source*)(SAA7134Provider->GetSource(i).GetRawPointer()))->IsInitialSetup())
             {
                 Providers_MixerSetup();
             }
@@ -283,7 +283,7 @@ int Providers_Load(HMENU hMenu)
             // used in mixer code
             CurrentSource = Sources.size()-1;
             // The first time, setup the audio mixer for the card
-            if (((CDSSourceBase*)(DSProvider->GetSource(i)))->IsInitialSetup())
+            if (((CDSSourceBase*)(DSProvider->GetSource(i).GetRawPointer()))->IsInitialSetup())
             {
                 Providers_MixerSetup();
             }
@@ -378,7 +378,7 @@ CSource* Providers_GetCurrentSource()
 {
     if(CurrentSource >= 0 && static_cast<size_t>(CurrentSource) < Sources.size())
     {
-        return Sources[CurrentSource]->Object;
+        return Sources[CurrentSource]->Object.GetRawPointer();
     }
     else
     {
@@ -386,7 +386,7 @@ CSource* Providers_GetCurrentSource()
     }
 }
 
-long Providers_GetSourceIndex(CSource* Src)
+long Providers_GetSourceIndex(SmartPtr<CSource>& Src)
 {
     for (size_t i(0) ; i < Sources.size() ; i++)
     {
@@ -405,7 +405,7 @@ SmartPtr<CSource> Providers_GetStillsSource()
 
 CSource* Providers_GetSnapshotsSource()
 {
-    return StillProvider->GetSource(2);
+    return StillProvider->GetSource(2).GetRawPointer();
 }
 
 SmartPtr<CSource> Providers_GetPatternsSource()
@@ -420,7 +420,7 @@ SmartPtr<CSource> Providers_GetIntroSource()
 
 BOOL Providers_IsStillSource(CSource* source)
 {
-    if (StillProvider)
+    if (StillProvider.IsValid())
     {
         for (int i=0 ; i<StillProvider->GetNumberOfSources() ; i++)
         {
@@ -579,7 +579,7 @@ long Providers_GetNumber()
 
 CSource*  Providers_GetByIndex(long Index)
 {
-    return Sources[Index]->Object;
+    return Sources[Index]->Object.GetRawPointer();
 }
 
 
@@ -618,7 +618,7 @@ void Providers_ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 
 void Providers_NotifySourcePreChange()
 {
-    if (EventCollector)
+    if (EventCollector.IsValid())
     {
         EventCollector->RaiseEvent(NULL, EVENT_SOURCE_PRECHANGE, (long)Providers_GetCurrentSource(), (long)Providers_GetCurrentSource(), NULL);
     }
@@ -638,9 +638,9 @@ void Providers_NotifySourceChange(int OldSource)
 
     if(OldSource >= 0 && static_cast<size_t>(OldSource) < Sources.size())
     {
-        pOldSource = Sources[OldSource]->Object;
+        pOldSource = Sources[OldSource]->Object.GetRawPointer();
     }
-    if (EventCollector)
+    if (EventCollector.IsValid())
     {
         EventCollector->RaiseEvent(NULL, EVENT_SOURCE_CHANGE, (long)pOldSource, (long)Providers_GetCurrentSource(), NULL);
     }

@@ -474,7 +474,7 @@ void CSAA7134Source::SetupDMAMemory()
 
     for (nFrame = 0; nFrame < 2; nFrame++)
     {
-        nPages = CreatePageTable(m_DisplayDMAMem[nFrame],
+        nPages = CreatePageTable(m_DisplayDMAMem[nFrame].GetRawPointer(),
                                     kMAX_VIDLINES,
                                     m_DisplayPageTableLinear[nFrame]
                                 );
@@ -488,7 +488,7 @@ void CSAA7134Source::SetupDMAMemory()
         // It should now be safe to enable the channel
         m_pSAA7134Card->SetDMA(RegionID, TRUE);
 
-        nPages = CreatePageTable(m_VBIDMAMem[nFrame],
+        nPages = CreatePageTable(m_VBIDMAMem[nFrame].GetRawPointer(),
                                     kMAX_VBILINES,
                                     m_VBIPageTableLinear[nFrame]
                                 );

@@ -355,7 +355,7 @@ void CScheduledRecording::getChannels(std::vector<tstring> &channels)
 
     for(int i=0;i<count;i++)
     {
-        channel = MyChannels.GetChannel(i);
+        channel = MyChannels.GetChannel(i).GetRawPointer();
 
         if(!channel)
             continue;
@@ -617,7 +617,7 @@ void CScheduledRecording::showRecords(HWND hDlg)
     for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();iter++)
     {
         TCHAR chBuff[4];
-        _itot_s(iter->getDuration(),chBuff,4,10);
+        _itot(iter->getDuration(),chBuff,10);
 
         LVITEM ListItem;
         memset(&ListItem, 0, sizeof(LVITEM));

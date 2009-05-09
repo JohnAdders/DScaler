@@ -441,7 +441,7 @@ LRESULT CTreeSettingsGeneric::OnDeltaposSettingsSpin(HWND hDlg, NMHDR* pNMHDR)
 {
     NM_UPDOWN* pNMUpDown = (NM_UPDOWN*)pNMHDR;
 
-    CSimpleSetting* Slider = m_Settings->GetSetting(m_CurrentSetting);
+    CSimpleSetting* Slider = m_Settings->GetSetting(m_CurrentSetting).GetRawPointer();
 
     if(pNMUpDown->iDelta > 0)
     {

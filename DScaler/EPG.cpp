@@ -605,7 +605,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 for (int i=0; i<n ; i++)
                 {
                     TCHAR MsgTxt[128];
-                    _stprintf_s(MsgTxt, 128, _T("Do you want to import the database\ncorresponding to the provider %s ?"), m_NextviewProviders[i]->c_str());
+                    _sntprintf(MsgTxt, 128, _T("Do you want to import the database\ncorresponding to the provider %s ?"), m_NextviewProviders[i]->c_str());
                     if (MessageBox(hWnd, MsgTxt, _T("DScaler - NextviewEPG Provider"), MB_YESNO | MB_ICONQUESTION /*| MB_APPLMODAL*/) == IDYES)
                     {
                         Provider = m_NextviewProviders[i]->c_str();

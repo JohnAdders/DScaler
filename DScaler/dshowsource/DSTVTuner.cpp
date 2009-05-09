@@ -91,7 +91,7 @@ CDShowTVTuner::~CDShowTVTuner()
         if (m_CustomFrequencyTable >= 0)
         {
             TCHAR szKeyName[200];
-            _stprintf_s(szKeyName, 200, _T("Software\\Microsoft\\TV System Services\\TVAutoTune\\TS%d-1"),m_CustomFrequencyTable);
+            _sntprintf(szKeyName, 200, _T("Software\\Microsoft\\TV System Services\\TVAutoTune\\TS%d-1"),m_CustomFrequencyTable);
             RegDeleteKey(HKEY_LOCAL_MACHINE, szKeyName);
         }
     }
@@ -372,7 +372,7 @@ BOOL CDShowTVTuner::SetTunerFrequency(long dwFrequency)
 
             do
             {
-                _stprintf_s(szKeyName, 100, _T("Software\\Microsoft\\TV System Services\\TVAutoTune\\TS%d-1"),TunerSpace);
+                _sntprintf(szKeyName, 100, _T("Software\\Microsoft\\TV System Services\\TVAutoTune\\TS%d-1"),TunerSpace);
                 if (RegCreateKeyEx(HKEY_LOCAL_MACHINE,szKeyName, 0,NULL,REG_OPTION_VOLATILE,regsam,&secatt,&RegKey,&dwDisposition) != ERROR_SUCCESS)
                 {
                     if (m_CustomFrequencyTable == -2)
@@ -522,7 +522,7 @@ BOOL CDShowTVTuner::LoadFrequencyTable(int CountryCode, TunerInputType InputType
     TCHAR szRCDATA[10];
 
 
-    _stprintf_s(szRCDATA, 10, _T("#%d"),RT_RCDATA);
+    _sntprintf(szRCDATA, 10, _T("#%d"),RT_RCDATA);
     TRCCountryList *RcCountryList = (TRCCountryList*)GetRcData(_T("kstvtune.ax"),_T("#9999"),szRCDATA, hDSTunerModule);
 
     LOG(2,_T("DShowTVTuner: Load country table %d (%s) (%s)"),CountryCode, ((InputType==TunerInputCable)?_T("Cable"):_T("Broadcast")),((RcCountryList==NULL)?_T("Failed"):_T("Ok")));
@@ -535,11 +535,11 @@ BOOL CDShowTVTuner::LoadFrequencyTable(int CountryCode, TunerInputType InputType
             TCHAR lName[20];
             if (InputType == TunerInputCable)
             {
-                _stprintf_s(lName, 10, _T("#%d"),RcCountryList[Index].CableFreqTable);
+                _sntprintf(lName, 10, _T("#%d"),RcCountryList[Index].CableFreqTable);
             }
             else
             {
-                _stprintf_s(lName, 20, _T("#%d"),RcCountryList[Index].BroadcastFreqTable);
+                _sntprintf(lName, 20, _T("#%d"),RcCountryList[Index].BroadcastFreqTable);
             }
             FreqTable = (long*)GetRcData(_T("kstvtune.ax"), lName, szRCDATA, hDSTunerModule);
             LOG(2,_T("DShowTVTuner: Load freq table (%s)"),(FreqTable==NULL)?_T("Failed"):_T("Ok"));

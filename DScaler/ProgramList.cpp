@@ -305,7 +305,7 @@ void RefreshProgramList(HWND hDlg, int ProgToSelect)
 
     for(int i = 0; i < MyChannels.GetSize(); i++)
     {
-        CChannel* Channel = MyChannels.GetChannel(i);
+        CChannel* Channel = MyChannels.GetChannel(i).GetRawPointer();
         _stprintf(sbuf, _T("%s"), Channel->GetName());
         ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
     }
@@ -340,7 +340,7 @@ void RefreshChannelList(HWND hDlg, int iCountryCode)
     const CCountryChannels* channels = MyCountries.GetChannels(iCountryCode);
     for(int i = 0; i < channels->GetSize(); i++)
     {
-        CChannel* channel = channels->GetChannel(i);
+        CChannel* channel = channels->GetChannel(i).GetRawPointer();
         // Channel names not yet available so adding name
         // to combo a bit pointless, the class does support this for the
         // future though
@@ -588,7 +588,7 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 
     MyInUpdate = TRUE;
 
-    CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex);
+    CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex).GetRawPointer();
     UpdateDetails(hDlg, channel);
 
     // don't attempt to scan duplicate frequencies
@@ -672,7 +672,7 @@ void ScanChannelCustom(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 
     MyInUpdate = TRUE;
 
-    CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex);
+    CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex).GetRawPointer();
     UpdateDetails(hDlg, channel);
     DWORD ReturnedFreq = FindFrequency(channel->GetFrequency(), channel->GetFormat(), 0);
 
@@ -1479,7 +1479,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                     SettingsMaster->SaveGroupedSettings();
                 }
 
-                if (EventCollector)
+                if (EventCollector.IsValid())
                 {
                     EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_PRECHANGE, OldChannel, NewChannel);
                 }
@@ -1521,7 +1521,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
 
                 Audio_Unmute(PostSwitchMuteDelay);
 
-                if (EventCollector)
+                if (EventCollector.IsValid())
                 {
                     EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_CHANGE, OldChannel, NewChannel);
                 }

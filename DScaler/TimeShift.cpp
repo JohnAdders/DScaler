@@ -903,7 +903,7 @@ BOOL TimeShiftInit(HWND hWnd)
 /** TimeShift shutdown */
 void TimeShiftShutdown(void)
 {
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         timeShift = 0L;
     } else
@@ -914,7 +914,7 @@ BOOL TimeShiftPause(void)
 {
     BOOL result = FALSE;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -944,7 +944,7 @@ BOOL TimeShiftRecord(void)
     ULONGLONG freeSpace;
     DWORD     limit;
 
-    if (!timeShift)
+    if (!timeShift.IsValid())
        return FALSE;
 
     /* If less than 300 MB free disk space don't even start recoding */
@@ -1118,7 +1118,7 @@ BOOL TimeShiftStop(void)
 {
     BOOL result = FALSE;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1287,7 +1287,7 @@ BOOL TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo)
     BOOL result = FALSE;
     BOOL error  = FALSE;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1333,7 +1333,7 @@ BOOL TimeShiftIsRunning(void)
 {
     BOOL result = FALSE;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         if (timeShift->mode != MODE_STOPPED)
            result = TRUE;
@@ -1397,7 +1397,7 @@ BOOL TimeShiftGetWaveInDeviceIndex(int *index)
     BOOL       result = FALSE;
     WAVEINCAPS wic;
 
-    if (timeShift && index)
+    if (timeShift.IsValid() && index)
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1429,7 +1429,7 @@ BOOL TimeShiftSetWaveInDevice(const TCHAR* pszDevice)
 {
     BOOL result = FALSE;
 
-    if (timeShift && pszDevice)
+    if (timeShift.IsValid() && pszDevice)
     {
         EnterCriticalSection(&timeShift->lock);
         if (timeShift->mode==MODE_STOPPED)
@@ -1452,7 +1452,7 @@ BOOL TimeShiftGetWaveOutDeviceIndex(int *index)
     BOOL        result = FALSE;
     WAVEOUTCAPS woc;
 
-    if (timeShift && index)
+    if (timeShift.IsValid() && index)
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1484,7 +1484,7 @@ BOOL TimeShiftSetWaveOutDevice(const TCHAR* pszDevice)
 {
     BOOL result = FALSE;
 
-    if (timeShift && pszDevice)
+    if (timeShift.IsValid() && pszDevice)
     {
         EnterCriticalSection(&timeShift->lock);
         if (timeShift->mode==MODE_STOPPED)
@@ -1641,7 +1641,7 @@ BOOL TimeShiftSetFileSizeLimit(DWORD sizeLimit)
 {
     BOOL result = FALSE;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1662,19 +1662,19 @@ BOOL TimeShiftSetFileSizeLimit(DWORD sizeLimit)
 
 const TCHAR* TimeShiftGetSavingPath(void)
 {
-    return timeShift ? timeShift->savingPath : NULL;
+    return timeShift.IsValid() ? timeShift->savingPath : NULL;
 }
 
 DWORD TimeShiftGetFileSizeLimit(void)
 {
-    return timeShift ? timeShift->sizeLimit : 0;
+    return timeShift.IsValid() ? timeShift->sizeLimit : 0;
 }
 
 BOOL TimeShiftGetDimensions(int *w, int *h)
 {
     BOOL result = FALSE;
 
-    if (timeShift && w && h)
+    if (timeShift.IsValid() && w && h)
     {
         EnterCriticalSection(&timeShift->lock);
         *w = timeShift->bih.biWidth;
@@ -1691,7 +1691,7 @@ BOOL TimeShiftGetWaveInDevice(TCHAR* *ppszDevice)
 {
     BOOL result = FALSE;
 
-    if (timeShift && ppszDevice)
+    if (timeShift.IsValid() && ppszDevice)
     {
         *ppszDevice = (TCHAR* )&timeShift->waveInDevice;
         result = TRUE;
@@ -1704,7 +1704,7 @@ BOOL TimeShiftGetWaveOutDevice(TCHAR* *ppszDevice)
 {
     BOOL result = FALSE;
 
-    if (timeShift && ppszDevice)
+    if (timeShift.IsValid() && ppszDevice)
     {
         *ppszDevice = (TCHAR*)&timeShift->waveOutDevice;
         result = TRUE;
@@ -1717,7 +1717,7 @@ BOOL TimeShiftGetRecHeight(int *index)
 {
     BOOL result = FALSE;
 
-    if (timeShift && index)
+    if (timeShift.IsValid() && index)
     {
         *index = timeShift->recHeight;
         result = TRUE;
@@ -1730,7 +1730,7 @@ BOOL TimeShiftSetRecHeight(int index)
 {
     BOOL result = FALSE;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1750,7 +1750,7 @@ BOOL TimeShiftGetRecFormat(tsFormat_t *format)
 {
     BOOL result = FALSE;
 
-    if (timeShift && format)
+    if (timeShift.IsValid() && format)
     {
         *format = timeShift->format;
         result  = TRUE;
@@ -1763,7 +1763,7 @@ BOOL TimeShiftSetRecFormat(tsFormat_t format)
 {
     BOOL result = FALSE;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1783,7 +1783,7 @@ BOOL TimeShiftGetFourCC(FOURCC *fcc)
 {
     BOOL result = FALSE;
 
-    if (timeShift && fcc)
+    if (timeShift.IsValid() && fcc)
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1803,7 +1803,7 @@ BOOL TimeShiftSetFourCC(FOURCC fcc)
 {
     BOOL result = FALSE;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1861,7 +1861,7 @@ BOOL TimeShiftGetAudioCompressionDesc(LPTSTR dest, DWORD length)
 {
     BOOL result = FALSE;
 
-    if (timeShift && dest)
+    if (timeShift.IsValid() && dest)
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1886,7 +1886,7 @@ BOOL TimeShiftOnOptions(void)
 {
     BOOL result = FALSE;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         // No enter critical section here.  If we're stopped, there is no
         // need for one.  If we're recording, we'll show an error box and not
@@ -1955,7 +1955,7 @@ BOOL TimeShiftOnSetMenu(HMENU hMenu)
     BOOL result = FALSE;
     int  item   = IDM_TSSTOP;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         EnterCriticalSection(&timeShift->lock);
 
@@ -1991,7 +1991,7 @@ BOOL TimeShiftOnSetMenu(HMENU hMenu)
 
     CheckMenuRadioItem(hMenu, IDM_TSRECORD, IDM_TSNEXT, item, MF_BYCOMMAND);
 
-    if (timeShift)
+    if (timeShift.IsValid())
        LeaveCriticalSection(&timeShift->lock);
 
     return result;
@@ -2007,7 +2007,7 @@ BOOL TimeShiftReadFromINI(void)
     TCHAR        path[MAX_PATH + 1];
     BOOL         result = FALSE;
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         GetPrivateProfileString(_T("TimeShift"), _T("WaveInDevice"), _T(""),
                                 timeShift->waveInDevice, MAXPNAMELEN,
@@ -2054,7 +2054,7 @@ BOOL TimeShiftWriteToINI(void)
     BOOL         result = FALSE;
     TCHAR        temp[32];
 
-    if (timeShift)
+    if (timeShift.IsValid())
     {
         WritePrivateProfileString(_T("TimeShift"), _T("SavingPath"),
                                   timeShift->savingPath, szIniFile);

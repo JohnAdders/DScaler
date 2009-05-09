@@ -79,8 +79,7 @@ void CSource::NotifySquarePixelsCheck()
 
 BOOL CSource::HasTuner()
 {
-    ITuner* tuner = GetTuner();
-    if (NULL == tuner)
+    if (!GetTuner().IsValid())
     {
         return FALSE;
     }

@@ -1562,7 +1562,7 @@ void CCX2388xSource::ChangeTVSettingsBasedOnTuner()
     {
         // be a bit defensive here to avoid a possible
         // crash
-        if(m_pCard->GetTuner())
+        if(m_pCard->GetTuner().IsValid())
         {
             eVideoFormat videoFormat = m_pCard->GetTuner()->GetDefaultVideoFormat();
             m_VideoFormat->ChangeDefault(videoFormat);

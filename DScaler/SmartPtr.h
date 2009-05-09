@@ -93,7 +93,7 @@ public:
         }
     }
     
-    template <typename Y>
+/*    template <typename Y>
     explicit SmartPtr(Y* raw, Counter* c = 0) : rawPtr(0), counter(0)
     {
         if (raw)
@@ -103,6 +103,7 @@ public:
             else counter = new Counter;
         }
     }
+*/
     
     
     /*
@@ -112,7 +113,7 @@ public:
     template <class Y>
     explicit SmartPtr(const SmartPtr< Y >& otherPtr) : rawPtr(0), counter(0)
     {
-        acquire(otherPtr.counter);
+        acquire(otherPtr.GetCounter());
         rawPtr = dynamic_cast<X*>( otherPtr.GetRawPointer());
     }
 
@@ -141,7 +142,7 @@ SmartPtr& operator=(const SmartPtr< Y >& otherPtr)
     if ( this != (SmartPtr< X >*) &otherPtr )
     {
         release();
-        acquire(otherPtr.counter);
+        acquire(otherPtr.GetCounter());
         rawPtr = dynamic_cast<X*> (otherPtr.GetRawPointer());
     }
     return *this;
@@ -178,6 +179,7 @@ SmartPtr& operator=(X* raw)
     return *this;
 }
 
+/*
 template <typename Y>
 SmartPtr& operator=(Y* raw)
 {
@@ -189,6 +191,7 @@ SmartPtr& operator=(Y* raw)
     }
     return *this;
 }
+*/
 
 /*
     assignment to long to allow SmartPtr< X > = NULL,
@@ -226,7 +229,7 @@ SmartPtr& operator=(Y* raw)
 /*
     Dereference the pointer
 */
-    X& operator* () const
+    const X& operator* () const
     {
         return *GetRawPointer();
     }
@@ -237,11 +240,11 @@ SmartPtr& operator=(Y* raw)
 */
 
 
-    operator BOOL() const
+/*    operator BOOL() const
     {
         return IsValid();
     }
-
+*/
     
     /*
        implicit casts to base types of the
@@ -298,6 +301,12 @@ SmartPtr& operator=(Y* raw)
     unsigned GetCount() const
     {
         if (counter) return counter->count;
+        return 0;
+    }
+
+    Counter* GetCounter() const
+    {
+        if (counter) return counter;
         return 0;
     }
 

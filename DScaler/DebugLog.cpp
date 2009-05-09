@@ -57,7 +57,7 @@ void LOG(int DebugLevel, LPCWSTR Format, ...)
         return;
     }
 
-    if (debugLog == NULL && DebugLogFilename)
+    if (debugLog == NULL && DebugLogFilename.IsValid())
     {
         tstring FileName(DebugLogFilename);
         debugLog = _tfopen(FileName.c_str(), _T("w"));

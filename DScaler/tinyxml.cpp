@@ -21,7 +21,7 @@ must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source
 distribution.
 */
-
+#define _CRT_SECURE_NO_WARNINGS
 #include <ctype.h>
 
 #ifdef TIXML_USE_STL
@@ -941,8 +941,7 @@ bool TiXmlDocument::LoadFile( const char* _filename, TiXmlEncoding encoding )
     value = filename;
 
     // reading in binary mode so that tinyxml can normalize the EOL
-    FILE* file = 0;
-    fopen_s(&file, value.c_str (), "rb" );
+    FILE* file = fopen(value.c_str (), "rb");
 
     if ( file )
     {
@@ -1075,8 +1074,7 @@ bool TiXmlDocument::LoadFile( FILE* file, TiXmlEncoding encoding )
 bool TiXmlDocument::SaveFile( const char * filename ) const
 {
     // The old c stuff lives on...
-    FILE* fp = 0;
-    fopen_s(&fp, filename, "w" );
+    FILE* fp = fopen(filename, "w" );
     if ( fp )
     {
         bool result = SaveFile( fp );
@@ -1223,14 +1221,14 @@ void TiXmlAttribute::Print( FILE* cfile, int /*depth*/, TIXML_STRING* str ) cons
 
 int TiXmlAttribute::QueryIntValue( int* ival ) const
 {
-    if ( sscanf_s(value.c_str(), "%d", ival ) == 1 )
+    if ( sscanf(value.c_str(), "%d", ival ) == 1 )
         return TIXML_SUCCESS;
     return TIXML_WRONG_TYPE;
 }
 
 int TiXmlAttribute::QueryDoubleValue( double* dval ) const
 {
-    if ( sscanf_s( value.c_str(), "%lf", dval ) == 1 )
+    if ( sscanf( value.c_str(), "%lf", dval ) == 1 )
         return TIXML_SUCCESS;
     return TIXML_WRONG_TYPE;
 }

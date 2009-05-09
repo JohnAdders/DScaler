@@ -98,7 +98,7 @@ CSAA7134Provider::CSAA7134Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
                                                                 SubSystemId,
                                                                 SAA7134Chips[i].szName
                                                           );
-            if(pNewSource)
+            if(pNewSource.IsValid())
             {
                 m_SAA7134Sources.push_back(pNewSource);
             }
@@ -148,7 +148,7 @@ BOOL CSAA7134Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
     {
         for (int i(0); i < kMAX_PAGETABLES; i++)
         {
-            m_PageTableDMAMem[i] = new CContigMemory(pHardwareDriver, 4096);
+            m_PageTableDMAMem[i] = new CContigMemory(pHardwareDriver.GetRawPointer(), 4096);
         }
     }
     catch(...)
@@ -162,7 +162,7 @@ BOOL CSAA7134Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
         for (int i(0); i < kMAX_FRAMEBUFFERS; i++)
         {
             // 1024 width * 2 bytes per pixel * field height(288) * 2
-            m_DisplayDMAMem[i] = new CUserMemory(pHardwareDriver,
+            m_DisplayDMAMem[i] = new CUserMemory(pHardwareDriver.GetRawPointer(),
                 1024 * 2 * kMAX_VIDLINES  * 2);
         }
     }
@@ -176,7 +176,7 @@ BOOL CSAA7134Provider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
     {
         for (int i(0); i < kMAX_FRAMEBUFFERS; i++)
         {
-            m_VBIDMAMem[i] = new CUserMemory(pHardwareDriver, 2048 * kMAX_VBILINES * 2);
+            m_VBIDMAMem[i] = new CUserMemory(pHardwareDriver.GetRawPointer(), 2048 * kMAX_VBILINES * 2);
         }
     }
     catch(...)

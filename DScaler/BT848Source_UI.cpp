@@ -706,7 +706,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
             }
         }
 
-        pCard = pThis->GetBT848Card();
+        pCard = pThis->GetBT848Card().GetRawPointer();
         SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType().c_str());
         _stprintf(szVendorId,_T("%04X"), pCard->GetVendorId());
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
@@ -1198,7 +1198,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_HWINFO:
-            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CBT848Card::ChipSettingProc, (LPARAM)(CBT848Card*)m_pBT848Card);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CBT848Card::ChipSettingProc, (LPARAM)(CBT848Card*)m_pBT848Card.GetRawPointer());
             break;
 
         case IDM_AUDIOSETTINGS:

@@ -78,7 +78,7 @@ CEventObject::CEventObject()
 
 CEventObject::~CEventObject()
 {
-    if(EventCollector)
+    if(EventCollector.IsValid())
     {
         EventCollector->Unregister(this);
     }

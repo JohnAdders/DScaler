@@ -414,12 +414,9 @@ time_t parse_xmltv_date_v5( const TCHAR* date, unsigned int full_len )
 #ifndef WIN32
     long gmtoff = localtime( &now )->tm_gmtoff;
 #else
-    long gmtoff;
-    long tzseconds;
-    _get_timezone(&tzseconds);
-    long dstbias;
-    _get_dstbias(&dstbias);
-    gmtoff = dstbias - tzseconds;
+	long gmtoff;
+	struct tm * pTm = localtime( &now );      
+	gmtoff = 60*60 * pTm->tm_isdst - timezone; 
 #endif
 
     /*
@@ -522,11 +519,7 @@ time_t parse_xmltv_date_v6( const TCHAR* date, unsigned int len )
       t.tm_sec = 0;
 
       tval = mktime(&t);
-      long dstbias;
-      _get_dstbias(&dstbias);
-      long tzseconds;
-      _get_timezone(&tzseconds);
-      tval += dstbias - tzseconds;
+      tval += 60*60 * t.tm_isdst - timezone;
    }
    else
       tval = 0;

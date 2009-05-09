@@ -32,7 +32,7 @@ void Providers_Unload();
 BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 void Provider_HandleTimerMessages(int TimerId);
 CSource* Providers_GetCurrentSource();
-long Providers_GetSourceIndex(CSource* Src);
+long Providers_GetSourceIndex(SmartPtr<CSource>& Src);
 SmartPtr<CSource> Providers_GetStillsSource();
 CSource* Providers_GetSnapshotsSource();
 SmartPtr<CSource> Providers_GetPatternsSource();

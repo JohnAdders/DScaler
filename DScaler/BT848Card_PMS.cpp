@@ -73,7 +73,7 @@ void CBT848Card::InitPMSDeluxe()
 
     m_SAA7118 = new CSAA7118();
 
-    m_SAA7118->SetI2CBus(m_I2CBus);
+    m_SAA7118->SetI2CBus(m_I2CBus.GetRawPointer());
 
     #ifdef _DEBUG
     if(m_SAA7118->GetVersion() > 0)

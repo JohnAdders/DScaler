@@ -92,7 +92,7 @@ void CMT2032::Initialize()
 {
     int             xogc, xok = 0;
 
-    if (m_ExternalIFDemodulator)
+    if (m_ExternalIFDemodulator.IsValid())
     {
         m_ExternalIFDemodulator->Init(TRUE, m_DefaultVideoFormat);
     }
@@ -138,7 +138,7 @@ void CMT2032::Initialize()
     } while (xok != 1);
 
 
-    if (m_ExternalIFDemodulator)
+    if (m_ExternalIFDemodulator.IsValid())
     {
         m_ExternalIFDemodulator->Init(FALSE, m_DefaultVideoFormat);
     }
@@ -385,7 +385,7 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoForm
         return;
     }
 
-    if (m_ExternalIFDemodulator)
+    if (m_ExternalIFDemodulator.IsValid())
     {
         m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
     }
@@ -427,7 +427,7 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoForm
 
     m_Locked = (lock==6)?TRUE:FALSE;
 
-    if (m_ExternalIFDemodulator)
+    if (m_ExternalIFDemodulator.IsValid())
     {
         m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
     }
@@ -500,7 +500,7 @@ eTunerLocked CMT2032::IsLocked()
 eTunerAFCStatus CMT2032::GetAFCStatus(long &nFreqDeviation)
 {
     eTunerAFCStatus AFCStatus = TUNER_AFC_NOTSUPPORTED;
-    if (m_ExternalIFDemodulator)
+    if (m_ExternalIFDemodulator.IsValid())
     {
         AFCStatus = m_ExternalIFDemodulator->GetAFCStatus(nFreqDeviation);
     }

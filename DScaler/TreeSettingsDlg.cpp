@@ -60,7 +60,7 @@ CTreeSettingsDlg::CPageInfo::CPageInfo() :
 
 CTreeSettingsDlg::CPageInfo::~CPageInfo()
 {
-    if(m_hWnd && m_pPage)
+    if(m_hWnd && m_pPage.IsValid())
     {
         m_pPage->Destroy(m_hWnd);
         m_hWnd= NULL;
@@ -118,7 +118,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         GetFilterSettings(Holders, Names);
         for(i = 0; i < Holders.size(); i++)
         {
-            SmartPtr<CTreeSettingsGeneric> pPage = new CTreeSettingsGeneric(Names[i], Holders[i]);
+            CTreeSettingsGeneric* pPage = new CTreeSettingsGeneric(Names[i], Holders[i]);
             pPage->SetHelpID(Holders[i]->GetHelpID());
             dlg.AddPage(pPage, Root);
         }
@@ -135,7 +135,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         GetDeinterlaceSettings(Holders, Names);
         for(i = 0; i < Holders.size(); i++)
         {
-            SmartPtr<CTreeSettingsGeneric> pPage = new CTreeSettingsGeneric(Names[i], Holders[i]);
+            CTreeSettingsGeneric* pPage = new CTreeSettingsGeneric(Names[i], Holders[i]);
             pPage->SetHelpID(Holders[i]->GetHelpID());
             dlg.AddPage(pPage, Root);
         }
@@ -153,7 +153,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         if (Providers_GetCurrentSource())
         {
             Holder = Providers_GetCurrentSource()->GetSettingsPage();
-            if (Holder)
+            if (Holder.IsValid())
             {
                 tstring SettingsName(MakeString() << Providers_GetCurrentSource()->IDString() << _T(" Advanced"));
                 pPage = new CTreeSettingsGeneric(SettingsName, Holder);
@@ -462,7 +462,7 @@ BOOL CTreeSettingsDlg::ShowPage(HWND hDlg, int iPage)
     HWND hPageFrame = GetDlgItem(hDlg, IDC_TREESETTINGS_PAGEFRAME);
     _ASSERTE(hPageFrame!=NULL);
 
-    CTreeSettingsPage *pNewPage=m_pages[iPage].m_pPage;
+    CTreeSettingsPage *pNewPage=m_pages[iPage].m_pPage.GetRawPointer();
     //create the new page if nessesary
     if(m_pages[iPage].m_hWnd == NULL)
     {
@@ -483,7 +483,7 @@ BOOL CTreeSettingsDlg::ShowPage(HWND hDlg, int iPage)
     CTreeSettingsPage *pCurrentPage=NULL;
     if(m_iCurrentPage>=0 && m_iCurrentPage<m_pages.size())
     {
-        pCurrentPage=m_pages[m_iCurrentPage].m_pPage;
+        pCurrentPage=m_pages[m_iCurrentPage].m_pPage.GetRawPointer();
         if(pCurrentPage->OnKillActive(m_pages[m_iCurrentPage].m_hWnd))
         {
             ShowWindow(m_pages[m_iCurrentPage].m_hWnd, SW_HIDE);

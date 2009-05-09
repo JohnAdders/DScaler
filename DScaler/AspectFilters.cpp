@@ -175,14 +175,14 @@ void CAnalogueBlankingFilter::DebugDump()
 // This filter orbits the source image using independent X and Y timers.
 // It is assumed that bouncing is enabled if this filter is in the chain.
 // The bounce comes out of the m_Overscan (the m_Overscan filter performs a sanity check to ensure the m_Overscan is of appropriate size.
-COrbitAspectFilter::COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY, long OrbitSize)
+COrbitAspectFilter::COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY, long OrbitSize) :
+    m_pXOrbitBouncer(new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodX,OrbitSize,-OrbitSize/2.0)),
+    m_pYOrbitBouncer(new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodY,OrbitSize,-OrbitSize/2.0))
 {
     if (AspectSettings.BounceStartTime == 0)
     {
         time(&AspectSettings.BounceStartTime);
     }
-    m_pXOrbitBouncer = new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodX,OrbitSize,-OrbitSize/2.0);
-    m_pYOrbitBouncer = new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodY,OrbitSize,-OrbitSize/2.0);
 }
 
 void COrbitAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)
@@ -201,18 +201,18 @@ void COrbitAspectFilter::DebugDump()
     LOG(2,_T("m_pXOrbitBouncer = %lf, m_pYOrbitBouncer = %lf"),m_pXOrbitBouncer->position(), m_pYOrbitBouncer->position());
 }
 
-CBounceDestinationAspectFilter::CBounceDestinationAspectFilter(time_t period)
+CBounceDestinationAspectFilter::CBounceDestinationAspectFilter(time_t period) :
+    m_pBouncer(new CPeriodBouncer(
+        AspectSettings.BounceStartTime, period,
+        // BounceAmplitude ranges from 0 to 100, we want 0 to 2.
+        2.0 * (double)AspectSettings.BounceAmplitude / 100.0,
+        // BounceAmplitude ranges from 0 to 100, we want 0 to -1.
+        -1.0 * (double)AspectSettings.BounceAmplitude / 100.0))
 {
     if (AspectSettings.BounceStartTime == 0)
     {
         time(&AspectSettings.BounceStartTime);
     }
-    m_pBouncer = new CPeriodBouncer(
-        AspectSettings.BounceStartTime, period,
-        // BounceAmplitude ranges from 0 to 100, we want 0 to 2.
-        2.0 * (double)AspectSettings.BounceAmplitude / 100.0,
-        // BounceAmplitude ranges from 0 to 100, we want 0 to -1.
-        -1.0 * (double)AspectSettings.BounceAmplitude / 100.0);
 }
 
 void CBounceDestinationAspectFilter::adjustAspect(CAspectRectangles &ar, BOOL& RequestRerun)

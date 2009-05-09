@@ -191,7 +191,7 @@ SmartPtr<CChannel> CChannelList::GetChannelByFrequency(DWORD dwFreq)
 
 void CChannelList::AddChannel(SmartPtr<CChannel> pChannel)
 {
-    if (pChannel)
+    if (pChannel.IsValid())
     {
         m_Channels.push_back(pChannel);
         UpdateFields();
@@ -567,7 +567,7 @@ const CCountryChannels* CCountryList::GetChannels(int index)  const
 {
     _ASSERTE(index >= 0);
     _ASSERTE(index < m_Countries.size());
-    return m_Countries[index];
+    return m_Countries[index].GetRawPointer();
 }
 
 //That is an utility function that was in ProgramList.cpp
@@ -624,7 +624,7 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
         }
         if(eol_ptr != NULL)
         {
-            channelName.clear();
+            channelName = _T("");
             channelName = eol_ptr;
             *eol_ptr = '\0';
         }
@@ -634,7 +634,7 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
         }
         if(((Pos = _tcschr(line, '[')) != 0) && ((Pos1 = _tcsrchr(line, ']')) != 0) && Pos1 > Pos)
         {
-            if(NewCountry)
+            if(NewCountry.IsValid())
             {
                 m_Countries.push_back(NewCountry);
             }
@@ -701,7 +701,7 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
             }
         }
     }
-    if(NewCountry)
+    if(NewCountry.IsValid())
     {
         m_Countries.push_back(NewCountry);
     }

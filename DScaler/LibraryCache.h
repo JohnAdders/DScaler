@@ -25,13 +25,13 @@
 class LibraryCache
 {
 public:
+    ~LibraryCache();
     static HMODULE GetLibraryHandle(const TCHAR* LibaryName);
 private:
     typedef std::map<tstring, HMODULE> LibraryMap;
     static LibraryCache* getInstance();
     static void Unload(LibraryMap::value_type& MapValueToUnload);
     LibraryCache();
-    ~LibraryCache();
     HMODULE GetLibraryHandleInternal(const TCHAR* LibraryName);
     LibraryMap m_LibraryMap;
 };

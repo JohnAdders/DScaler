@@ -626,7 +626,7 @@ void CDSSourceBase::SetPos(int pos)
 
             int pos1 = (int)(RealPos / 10000000);
             TCHAR text[32];
-            _stprintf_s(text, 32, _T("Jump to time %d:%2.2d"), pos1 / 60, pos1 % 60);
+            _sntprintf(text, 32, _T("Jump to time %d:%2.2d"), pos1 / 60, pos1 % 60);
             OSD_ShowText(text, 0);
         }
     }
@@ -670,7 +670,7 @@ void CDSSourceBase::ChangePos(int delta_sec)
 
                 int pos1 = (int)(newpos / 10000000);
                 TCHAR text[32];
-                _stprintf_s(text, 32, _T("Jump to time %d:%2.2d"), pos1 / 60, pos1 % 60);
+                _sntprintf(text, 32, _T("Jump to time %d:%2.2d"), pos1 / 60, pos1 % 60);
                 OSD_ShowText(text, 0);
             }
         }

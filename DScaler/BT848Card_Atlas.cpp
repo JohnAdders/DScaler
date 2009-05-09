@@ -63,7 +63,7 @@ void CBT848Card::InitAtlas()
 {
     m_AD9882 = new CAD9882();
 
-    m_AD9882->SetI2CBus(m_I2CBus);
+    m_AD9882->SetI2CBus(m_I2CBus.GetRawPointer());
 
     // start with AD9882 disabled
     m_AD9882->Suspend();

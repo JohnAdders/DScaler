@@ -357,7 +357,7 @@ BOOL CWindowBorder::FindLocations()
     int i;
     for (i = 0; i < Buttons.size(); i++)
     {
-        if ((Buttons[i].Button) && (Buttons[i].Button->hWnd() != NULL))
+        if ((Buttons[i].Button.IsValid()) && (Buttons[i].Button->hWnd() != NULL))
         {
             rc.left = Buttons[i].Location.x;
             rc.top  = Buttons[i].Location.y;
@@ -519,7 +519,7 @@ void CWindowBorder::MergeBorderRegions(vector<RECT>& AllRegions, LPRECT lpRcExtr
     int Pos;
     for (Pos = WINDOWBORDER_TOPLEFTCORNER; Pos < WINDOWBORDER_LASTONE; Pos++)
     {
-      if (Bitmaps[Pos])
+      if (Bitmaps[Pos].IsValid())
       {
           RegionLists[Pos] = &(Bitmaps[Pos]->GetRegionList());
       }
@@ -756,7 +756,7 @@ void CWindowBorder::Paint(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPShift)
           if ( ((rcPaint.right-rcPaint.left)>0) &&
               ((rcPaint.bottom-rcPaint.top)>0) )
           {
-             if (Bitmaps[Pos])
+             if (Bitmaps[Pos].IsValid())
              {
                 POINT PBmp;
                 PBmp.x = rcPaint.left - Locations[Pos].left;
@@ -803,7 +803,7 @@ void CWindowBorder::UpdateButtonLocations()
     }
     for (int ButtonPos = 0; ButtonPos < Buttons.size(); ButtonPos++)
     {
-        if ((Buttons[ButtonPos].Button) && (Buttons[ButtonPos].Button->hWnd()!=NULL))
+        if ((Buttons[ButtonPos].Button.IsValid()) && (Buttons[ButtonPos].Button->hWnd()!=NULL))
         {
             if (IsBorderVisible)
             {
@@ -888,7 +888,7 @@ BOOL CWindowBorder::LoadSkin(const TCHAR* szSkinIniFile, const TCHAR* szSection,
     // Load them
     for (Pos = 0; Pos < WINDOWBORDER_LASTONE; Pos++)
     {
-        if (BitmapsFromIniSection.Get(szBorderNames[Pos]))
+        if (BitmapsFromIniSection.Get(szBorderNames[Pos]).IsValid())
         {
             SetBorderBitmap((eWindowBorderPosition)Pos,0,
                         BitmapsFromIniSection.Get(szBorderNames[Pos]), 2);

@@ -1849,7 +1849,7 @@ void CBT848Source::ChangeTVSettingsBasedOnTuner()
     {
         // be a bit defensive here to avoid a possible
         // crash
-        if(m_pBT848Card->GetTuner())
+        if(m_pBT848Card->GetTuner().IsValid())
         {
             eVideoFormat videoFormat = m_pBT848Card->GetTuner()->GetDefaultVideoFormat();
             m_VideoFormat->ChangeDefault(videoFormat);

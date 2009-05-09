@@ -145,9 +145,9 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
 
     // Detect and attach IF demodulator to the tuner
     //  or delete the demodulator if the chip doesn't exist.
-    if (pExternalIFDemodulator)
+    if (pExternalIFDemodulator.IsValid())
     {
-        if (pExternalIFDemodulator->SetDetectedI2CAddress(m_I2CBus))
+        if (pExternalIFDemodulator->SetDetectedI2CAddress(m_I2CBus.GetRawPointer()))
         {
             m_Tuner->AttachIFDem(pExternalIFDemodulator);
             pExternalIFDemodulator->Init(TRUE, videoFormat);
@@ -164,12 +164,12 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     BOOL bFoundTuner = FALSE;
 
     // Scan the I2C bus addresses 0xC0 - 0xCF for tuners.
-    BYTE test = IsTEA5767PresentAtC0(m_I2CBus) ? 0xC2 : 0xC0;
+    BYTE test = IsTEA5767PresentAtC0(m_I2CBus.GetRawPointer()) ? 0xC2 : 0xC0;
     for ( ; test < 0xCF; test += 0x02)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
-            m_Tuner->SetI2CBus(m_I2CBus, test>>1);
+            m_Tuner->SetI2CBus(m_I2CBus.GetRawPointer(), test>>1);
 
             // Initialize the tuner.
             if (m_Tuner->InitializeTuner())
@@ -185,7 +185,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
         }
     }
 
-    if (pExternalIFDemodulator)
+    if (pExternalIFDemodulator.IsValid())
     {
         //End initialization
         pExternalIFDemodulator->Init(FALSE, videoFormat);

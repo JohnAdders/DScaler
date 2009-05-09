@@ -1097,7 +1097,7 @@ BOOL CToolbarChild::SkinWindow(HWND hWndItem, tstring sID, tstring sIniEntry, eB
     }
     BitmapsFromIniSection.Read(sIniFile, sSection, _T("Bitmap"), _T("Mask"));
 
-    if ((hWndItem != NULL) && (BitmapsFromIniSection.Get(sIniEntry)))
+    if ((hWndItem != NULL) && (BitmapsFromIniSection.Get(sIniEntry).IsValid()))
     {
         CBitmapAsButton *Button = NULL;
         int i;

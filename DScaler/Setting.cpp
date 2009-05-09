@@ -1097,6 +1097,13 @@ void CSettingWrapper::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetV
     }
 }
 
+tstring FormatFloat(float Number, int Decimals)
+{
+	tostringstream oss;
+	oss << fixed << setprecision(Decimals) << Number;
+	return oss.str();
+}
+
 tstring CSettingWrapper::GetDisplayValue()
 {
     switch(m_Setting->Type)
@@ -1117,11 +1124,11 @@ tstring CSettingWrapper::GetDisplayValue()
         }
         else if(m_Setting->OSDDivider == 8)
         {
-            return MakeString() << fixed << setprecision(3) << (float)*(m_Setting->pValue) / (float)m_Setting->OSDDivider;
+            return FormatFloat((float)*(m_Setting->pValue) / (float)m_Setting->OSDDivider, 3);
         }
         else
         {
-            return MakeString() << fixed << setprecision((int)log10((double)m_Setting->OSDDivider)) << (float)*(m_Setting->pValue) / (float)m_Setting->OSDDivider;
+            return FormatFloat((float)*(m_Setting->pValue) / (float)m_Setting->OSDDivider, (int)log10((double)m_Setting->OSDDivider));
         }
         break;
     case CHARSTRING:
@@ -1300,7 +1307,7 @@ SettingStringValue::operator LPCTSTR()
     }
 }
 
-SettingStringValue::operator bool()
+BOOL SettingStringValue::IsValid()
 {
     return m_Value != 0 && m_Value[0] != 0;
 }

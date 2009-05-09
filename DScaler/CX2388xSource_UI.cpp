@@ -100,7 +100,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                 }
             }
 
-            pCard = pThis->GetCard();
+            pCard = pThis->GetCard().GetRawPointer();
             SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, _T("CX2388x"));
             _stprintf(szVendorId,_T("%04X"), pCard->GetVendorId());
             SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
@@ -330,7 +330,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_HWINFO:
-            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CCX2388xCard::ChipSettingProc, (LPARAM)(CCX2388xCard*)m_pCard);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CCX2388xCard::ChipSettingProc, (LPARAM)(CCX2388xCard*)m_pCard.GetRawPointer());
             break;
 
         case IDM_SOURCE_INPUT1:

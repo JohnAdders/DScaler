@@ -41,7 +41,7 @@ using namespace std;
 BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 {
     // clean up if we get called twice
-    if(m_Tuner)
+    if(m_Tuner.IsValid())
     {
         m_Tuner = 0L;
     }
@@ -96,7 +96,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     if (tunerId == TUNER_TDA8275)
     {
         // Have a TDA8290 object detected and created.
-        pExternalIFDemodulator = CTDA8290::CreateDetectedTDA8290(m_I2CBus);
+        pExternalIFDemodulator = CTDA8290::CreateDetectedTDA8290(m_I2CBus.GetRawPointer());
     }
 
     if (!pExternalIFDemodulator)
@@ -105,10 +105,10 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         if (m_CX2388xCards[m_CardType].bUseTDA9887)
         {
             // Have a TDA9887 object detected and created.
-            SmartPtr<CTDA9887Ex> pTDA9887 = CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus);
+            SmartPtr<CTDA9887Ex> pTDA9887 = CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus.GetRawPointer());
 
             // If a TDA9887 was found.
-            if (pTDA9887)
+            if (pTDA9887.IsValid())
             {
                 // Set card specific modes that were parsed from CX2388xCards.ini.
                 size_t count = m_CX2388xCards[m_CardType].tda9887Modes.size();
@@ -125,7 +125,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 
     eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
 
-    if (pExternalIFDemodulator)
+    if (pExternalIFDemodulator.IsValid())
     {
         // Attach the IF demodulator to the tuner.
         m_Tuner->AttachIFDem(pExternalIFDemodulator);
@@ -137,12 +137,12 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     BOOL bFoundTuner = FALSE;
 
     // Scan the I2C bus addresses 0xC0 - 0xCF for tuners.
-    BYTE test = IsTEA5767PresentAtC0(m_I2CBus) ? 0xC2 : 0xC0;
+    BYTE test = IsTEA5767PresentAtC0(m_I2CBus.GetRawPointer()) ? 0xC2 : 0xC0;
     for ( ; test < 0xCF; test += 0x02)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
-            m_Tuner->SetI2CBus(m_I2CBus, test>>1);
+            m_Tuner->SetI2CBus(m_I2CBus.GetRawPointer(), test>>1);
 
             // Initialize the tuner.
             if (m_Tuner->InitializeTuner())
@@ -158,7 +158,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         }
     }
 
-    if (pExternalIFDemodulator)
+    if (pExternalIFDemodulator.IsValid())
     {
         //End initialization
         pExternalIFDemodulator->Init(FALSE, videoFormat);

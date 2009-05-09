@@ -3928,9 +3928,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case UWM_DEINTERLACE_SETSTATUS:
-        if(wParam!=NULL)
+        if(lParam!=NULL)
         {
-            StatusBar_ShowText(STATUS_MODE,(LPCTSTR)wParam);
+            tstring Status(MBCSToTString((LPCSTR)lParam));
+            StatusBar_ShowText(STATUS_MODE, Status);
         }
         return 0;
         break;

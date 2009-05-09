@@ -172,12 +172,7 @@ BOOL bIsProgressiveMode = FALSE;
 ///This function is called from the output thread.
 void Deinterlace_SetStatus(LPCSTR StatusText)
 {
-    size_t len=strlen(StatusText);
-    if(len>0)
-    {
-        static tstring StringToShow(MBCSToTString(StatusText));
-        PostMessageToMainWindow(UWM_DEINTERLACE_SETSTATUS, (WPARAM)StringToShow.c_str(),0);
-    }
+    PostMessageToMainWindow(UWM_DEINTERLACE_SETSTATUS, 0, (LPARAM)StatusText);
 }
 
 void ResetDeinterlaceStats()

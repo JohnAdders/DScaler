@@ -1283,7 +1283,7 @@ static int ComboBox_GetCurSelItemData(HWND hControl)
 // return value 4.  'size' is the number of elements in 'source'.
 static long LongArrayUnique(const long* source, long size, long* dest)
 {
-    long resultCount;
+    long resultCount(0);
     int i, j;
 
     if (size > 0)

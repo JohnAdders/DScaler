@@ -38,21 +38,21 @@
 class CCX2388xProvider : public ISourceProvider
 {
 public:
-    CCX2388xProvider(CHardwareDriver* pHardwareDriver);
+    CCX2388xProvider(SmartPtr<CHardwareDriver> pHardwareDriver);
     virtual ~CCX2388xProvider();
     int GetNumberOfSources();
     SmartPtr<CSource> GetSource(int SourceIndex);
 private:
     ///  uses the subsystem id to determin the correct source to create
     SmartPtr<CCX2388xSource> CreateCorrectSource(
-                                        CHardwareDriver* pHardwareDriver,
+                                        SmartPtr<CHardwareDriver> pHardwareDriver,
                                         LPCTSTR szSection,
                                         WORD VendorID,
                                         WORD DeviceID,
                                         int DeviceIndex,
                                         DWORD SubSystemId);
     /// creates the system accesable memory to be used by all cards
-    BOOL MemoryInit(CHardwareDriver* pHardwareDriver);
+    BOOL MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver);
     void MemoryFree();
     std::vector< SmartPtr<CCX2388xSource> > m_Sources;
     /// Memory used for the RISC code

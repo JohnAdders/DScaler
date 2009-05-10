@@ -146,7 +146,7 @@ int Providers_Load(HMENU hMenu)
 #endif // WANT_BT8X8_SUPPORT
 
 #ifdef WANT_CX2388X_SUPPORT
-        CX2388xProvider = new CCX2388xProvider(HardwareDriver.GetRawPointer());
+        CX2388xProvider = new CCX2388xProvider(HardwareDriver);
 
         // if we have any of these cards warn the user about the driver issues
         // hopefully this will be enought to get a new release out

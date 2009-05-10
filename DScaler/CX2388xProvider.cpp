@@ -34,7 +34,7 @@
 #include "CX2388xProvider.h"
 #include "CX2388xSource.h"
 
-CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
+CCX2388xProvider::CCX2388xProvider(SmartPtr<CHardwareDriver> pHardwareDriver)
 {
     TCHAR szSection[12];
     BOOL IsMemoryInitialized = FALSE;
@@ -80,7 +80,7 @@ CCX2388xProvider::~CCX2388xProvider()
 }
 
 
-SmartPtr<CCX2388xSource> CCX2388xProvider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCTSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
+SmartPtr<CCX2388xSource> CCX2388xProvider::CreateCorrectSource(SmartPtr<CHardwareDriver> pHardwareDriver, LPCTSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
 {
     // \todo use the subsystem id to create the correct specilized version of the card
     SmartPtr<CCX2388xCard> pNewCard = new CCX2388xCard(pHardwareDriver);
@@ -112,7 +112,7 @@ SmartPtr<CSource> CCX2388xProvider::GetSource(int SourceIndex)
     }
 }
 
-BOOL CCX2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
+BOOL CCX2388xProvider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
 {
     try
     {

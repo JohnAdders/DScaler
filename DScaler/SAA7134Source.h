@@ -113,7 +113,7 @@ public:
 
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
-    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+    BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
     void HandleTimerMessages(int TimerId);
 
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
@@ -164,10 +164,10 @@ private:
 
     void InitializeUI();
 
-    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY AudioStandardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static BOOL APIENTRY AudioStandardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static BOOL APIENTRY OtherEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     void ChangeDefaultsForVideoInput(BOOL bDontSetValue);
     void ChangeDefaultsForVideoFormat(BOOL bDontSetValue);

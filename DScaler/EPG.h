@@ -94,7 +94,7 @@ public:
     int GetDisplayIndexes(int *IdxMin, int *IdxMax, int *IdxCur);
     int GetDisplayLineShift(int NbLines);
 
-    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+    BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
 
     void ShowOSD();
     void HideOSD();

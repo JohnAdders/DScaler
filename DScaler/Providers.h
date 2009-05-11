@@ -29,7 +29,7 @@ extern long InitSourceIdx;
 
 int Providers_Load(HMENU hMenu);
 void Providers_Unload();
-BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+BOOL Providers_HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
 void Provider_HandleTimerMessages(int TimerId);
 CSource* Providers_GetCurrentSource();
 long Providers_GetSourceIndex(SmartPtr<CSource>& Src);

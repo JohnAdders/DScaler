@@ -535,7 +535,7 @@ BOOL CEPG::GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, tstri
 }
 
 
-BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL CEPG::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     OPENFILENAME OpenFileInfo;
     TCHAR FilePath[MAX_PATH];

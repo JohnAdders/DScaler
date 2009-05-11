@@ -389,7 +389,7 @@ void CCX2388xCard::ReadCardProc(int report, const CParseTag*, unsigned char, con
     }
 }
 
-BOOL APIENTRY CCX2388xCard::ParseErrorProc(HWND hDlg, UINT message, UINT wParam, LPARAM lParam)
+BOOL APIENTRY CCX2388xCard::ParseErrorProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     TParseCardInfo* parseInfo = (TParseCardInfo*)lParam;
 

@@ -113,9 +113,9 @@ tstring VT_GetStationFromIDP8301();
 tstring VT_GetStationFromPDC();
 tstring VT_GetStation();
 
-BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 SETTING* VT_GetSetting(VT_SETTING Setting);
 void VT_UpdateMenu(HMENU hMenu);

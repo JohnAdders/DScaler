@@ -56,7 +56,7 @@ public:
     void Reset();
     void StopAndSeekToBeginning();
 
-    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+    BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
 
     void SetFormat(eVideoFormat NewFormat) {};
 

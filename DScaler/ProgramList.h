@@ -44,7 +44,7 @@ void Channels_Exit();
 BOOL Load_Program_List_ASCII();
 
 
-BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 void Channel_Change(int NewChannel, int DontStorePrevious=0);
 void Channel_ChangeToNumber(int NewChannelNumber, int DontStorePrevious=0);

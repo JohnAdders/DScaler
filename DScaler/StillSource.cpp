@@ -1029,7 +1029,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     Timing_IncrementUsedFields();
 }
 
-BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL CStillSource::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     CPlayListItem* Item;
     vector<CPlayListItem*>::iterator it;

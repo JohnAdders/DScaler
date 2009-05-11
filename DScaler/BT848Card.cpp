@@ -869,7 +869,7 @@ tstring CBT848Card::GetInputName(int nInput)
 }
 
 
-BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     CBT848Card* pThis = NULL;
     TCHAR szCardId[9] = _T("n/a     ");
@@ -1077,7 +1077,7 @@ void CBT848Card::ShowRegisterSettingsDialog(HINSTANCE hBT8x8ResourceInst)
 
 #define AddRegister(Reg) {long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), #Reg); ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, Reg);}
 
-BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static CBT848Card* pThis;
     static DWORD dwAddress;

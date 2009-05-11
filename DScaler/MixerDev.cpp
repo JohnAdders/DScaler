@@ -76,7 +76,7 @@ static void     Mixer_DoSettingsTransition(tSyncChangesCallback* pSyncfunc, void
 
 static long     Mixer_NameToIndex(const tstring& szName);
 
-BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 
 //  Utility prototypes
@@ -716,7 +716,7 @@ static int ComboBox_GetCurSelItemData(HWND hControl);
 static IMixer*  g_pDlgActiveMixer = NULL;
 
 
-BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i;
 
@@ -966,7 +966,7 @@ static void InitAndNameActiveInputs(HWND hDlg)
             lStyle |= SS_CENTERIMAGE;
         }
 
-        SetWindowLong(GetDlgItem(hDlg, IDC_MIXER_INPUT0NAME+i), GWL_STYLE, lStyle);
+        SetWindowLongPtr(GetDlgItem(hDlg, IDC_MIXER_INPUT0NAME+i), GWL_STYLE, lStyle);
     }
 
     // Hide the unused source lines

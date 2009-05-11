@@ -68,7 +68,7 @@ public:
     void UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, BYTE** lpBuffer, int* Pitch);
 
     // User commands handling
-    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+    BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
 
     void AckContentChange();
 

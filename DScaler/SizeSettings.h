@@ -23,6 +23,6 @@
 #ifndef __SIZESETTINGS_H___
 #define __SIZESETTINGS_H___
 
-BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 #endif

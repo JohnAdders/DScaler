@@ -113,7 +113,7 @@ void CSAA7134Source::InitializeUI()
 #endif
 }
 
-BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static CSAA7134Source* pThis;
     static long s_CardType;
@@ -267,7 +267,7 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     return (FALSE);
 }
 
-BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i;
     TCHAR buf[128];
@@ -381,7 +381,7 @@ BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wPa
 }
 
 
-BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static CSAA7134Source*      pThis;
     static BOOL                 bLinked = FALSE;
@@ -933,7 +933,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
 }
 
 
-BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static CSAA7134Source* pThis;
 
@@ -1191,7 +1191,7 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 }
 
 
-BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     if (LOWORD(wParam) >= SAA7134MENU_AUDIOSTANDARD_START &&
         LOWORD(wParam) < SAA7134MENU_AUDIOSTANDARD_START + AUDIOSTANDARD_LASTONE)

@@ -60,7 +60,7 @@ public:
 
     tstring GetStatus();
     void HandleTimerMessages(int TimerId);
-    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+    BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
 
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsInTunerMode();

@@ -494,7 +494,7 @@ void Providers_UpdateMenu(HMENU hMenu)
     RedrawMenuBar(hMenu);
 }
 
-BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL Providers_HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     if(LOWORD(wParam) >= IDM_SOURCE_FIRST && LOWORD(wParam) <= IDM_SOURCE_LAST)
     {

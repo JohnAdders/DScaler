@@ -854,7 +854,7 @@ void TidyUp(HWND hDlg)
 
 
 
-BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i;
     TCHAR sbuf[256];
@@ -1388,7 +1388,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         {
         case DL_BEGINDRAG:
             DragItemIndex = ListBox_GetCurSel(pDragInfo->hWnd);
-            SetWindowLong(hDlg, DWL_MSGRESULT, TRUE);
+            SetWindowLongPtr(hDlg, DWLP_MSGRESULT, TRUE);
             Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, FALSE);
             DrawInsert(hDlg, pDragInfo->hWnd, Item);
             break;
@@ -1427,7 +1427,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case DL_DRAGGING:
             Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, TRUE);
             DrawInsert(hDlg, pDragInfo->hWnd, Item);
-            SetWindowLong(hDlg, DWL_MSGRESULT, DL_MOVECURSOR);
+            SetWindowLongPtr(hDlg, DWL_MSGRESULT, DL_MOVECURSOR);
             break;
         }
         return (TRUE);

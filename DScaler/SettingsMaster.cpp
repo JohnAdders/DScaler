@@ -423,7 +423,7 @@ SmartPtr<CSettingsHolder> CSettingsMaster::FindMsgHolder(long Message)
     return 0L;
 }
 
-LONG CSettingsMaster::HandleSettingMsgs(HWND hWnd, UINT Message, UINT wParam, LONG lParam, BOOL* bDone)
+LONG CSettingsMaster::HandleSettingMsgs(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam, BOOL* bDone)
 {
     *bDone = FALSE;
 

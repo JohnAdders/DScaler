@@ -237,7 +237,7 @@ void VBI_DecodeLine_VPS(BYTE* VBI_Buffer)
 }
 
 
-BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     TCHAR buffer[50];
 

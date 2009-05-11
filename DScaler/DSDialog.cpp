@@ -31,10 +31,10 @@ BOOL CALLBACK CDSDialog::MasterModalDialogProc(HWND hDlg, UINT message, WPARAM w
 {
     if(message == WM_INITDIALOG)
     {
-        SetWindowLong(hDlg, DWL_USER, (LONG)(CDSDialog*)lParam);
+        SetWindowLongPtr(hDlg, DWLP_USER, (LONG)(CDSDialog*)lParam);
         SetWindowContextHelpId(hDlg, ((CDSDialog*)lParam)->m_HelpID);
     }
-    CDSDialog* myDialogObject = (CDSDialog*)GetWindowLong(hDlg, DWL_USER);
+    CDSDialog* myDialogObject = (CDSDialog*)GetWindowLong(hDlg, DWLP_USER);
     if(myDialogObject)
     {
         if(message != WM_HELP)

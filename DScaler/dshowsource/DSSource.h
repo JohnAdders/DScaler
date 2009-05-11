@@ -45,7 +45,7 @@ public:
     //from CSettingsHolder
     void CreateSettings(LPCTSTR IniSection);
 
-    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+    BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
     void HandleTimerMessages(int TimerId);
 
     tstring GetStatus();

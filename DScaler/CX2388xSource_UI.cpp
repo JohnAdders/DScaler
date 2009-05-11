@@ -48,7 +48,7 @@ extern const TCHAR* TunerNames[TUNER_LASTONE];
 
 long EnableCxCancelButton = 1;
 
-BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i;
     int nIndex;
@@ -317,7 +317,7 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
     EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_NICAM,    IsInTunerMode());
 }
 
-BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     switch(LOWORD(wParam))
     {

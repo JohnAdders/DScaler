@@ -55,8 +55,8 @@ SmartPtr<CSettingsHolder> DScaler_GetSettingsPage2();
 SmartPtr<CSettingsHolder> DScaler_GetSettingsPage3();
 SmartPtr<CSettingsHolder> DScaler_GetSettingsPage4();
 
-LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam);
-LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam);
+LONG APIENTRY MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 void MainWndOnCreate(HWND hWnd);
 void MainWndOnInitBT(HWND hWnd);

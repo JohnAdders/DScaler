@@ -135,7 +135,7 @@ protected:
     BOOL    m_SupportsACPI;
 
 private:
-    DWORD   m_MemoryAddress;
+    DWORD_PTR   m_MemoryAddress;
     DWORD   m_MemoryLength;
     DWORD   m_MemoryBase;
     SmartPtr<CHardwareDriver> m_pDriver;

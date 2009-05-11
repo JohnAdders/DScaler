@@ -72,7 +72,7 @@ public:
     void LoadOneGroupedSetting(CSimpleSetting* pSetting);
     void WriteOneGroupedSetting(CSimpleSetting* pSetting);
 
-    LONG HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone);
+    LONG HandleSettingMsgs(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, BOOL* bDone);
 
     SmartPtr<CSettingsHolder> FindMsgHolder(long Message);
 

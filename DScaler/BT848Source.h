@@ -46,7 +46,7 @@ public:
     void Stop();
     void Reset();
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
-    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+    BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
     SmartPtr<CBT848Card> GetBT848Card();
     tstring GetStatus();
     CSliderSetting* GetVolume();
@@ -123,9 +123,9 @@ private:
     void CreateRiscCode(BOOL bCaptureVBI);
     void CreateSPIRiscCode();
 
-    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY AudioStandardManualProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static BOOL APIENTRY AudioStandardManualProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);

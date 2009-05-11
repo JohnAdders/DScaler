@@ -147,7 +147,7 @@ BOOL Audio_IsMute()
 }
 
 
-VOID CALLBACK AudioUnmuteDelayTimerProc(HWND hwnd, UINT, UINT idTimer, DWORD)
+VOID CALLBACK AudioUnmuteDelayTimerProc(HWND hwnd, UINT, UINT_PTR idTimer, DWORD)
 {
     KillTimer(hwnd, idTimer);
     Audio_Unmute(0UL);

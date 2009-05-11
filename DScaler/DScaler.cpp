@@ -226,10 +226,10 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState);
 void SetWindowBorder(HWND hWnd, BOOL bShow);
 void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
 LPCTSTR GetSkinDirectory();
-LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
-LONG OnSize(HWND hWnd, UINT wParam, LONG lParam);
-LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam);
-LONG OnInput(HWND hWnd, UINT wParam, LONG lParam);
+LONG OnChar(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+LONG OnSize(HWND hWnd, WPARAM wParam, LPARAM lParam);
+LONG OnAppCommand(HWND hWnd, WPARAM wParam, LPARAM lParam);
+LONG OnInput(HWND hWnd, WPARAM wParam, LPARAM lParam);
 void OnHelp(LPHELPINFO HelpInfo);
 void SetTray(BOOL Way);
 int On_IconHandler(WPARAM wParam, LPARAM lParam);
@@ -702,7 +702,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
     return msg.wParam;
 }
 
-LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
+LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     try
     {
@@ -1189,7 +1189,7 @@ BOOL ProcessOSDMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-LRESULT CALLBACK KeyboardHookProc(int code, UINT wParam, UINT lParam)
+LRESULT CALLBACK KeyboardHookProc(int code, WPARAM wParam, UINT lParam)
 {
     if(code >= 0 && bKeyboardLock)
     {
@@ -1752,7 +1752,7 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
 //
 //
 ///**************************************************************************
-LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
+LONG APIENTRY MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i;
     BOOL bDone = FALSE;
@@ -4170,13 +4170,13 @@ void MainWndOnInitBT(HWND hWnd)
         if (bAlwaysOnTop == FALSE)
         {
             WStyle = WStyle ^ 8;
-            i = SetWindowLong(hWnd, GWL_EXSTYLE, WStyle);
+            i = SetWindowLongPtr(hWnd, GWL_EXSTYLE, WStyle);
             SetWindowPos(hWnd, HWND_NOTOPMOST, 10, 10, 20, 20, SWP_NOMOVE | SWP_NOCOPYBITS | SWP_NOSIZE | SWP_SHOWWINDOW);
         }
         else
         {
             WStyle = WStyle | 8;
-            i = SetWindowLong(hWnd, GWL_EXSTYLE, WStyle);
+            i = SetWindowLongPtr(hWnd, GWL_EXSTYLE, WStyle);
             SetWindowPos(hWnd, HWND_TOPMOST, 10, 10, 20, 20, SWP_NOMOVE | SWP_NOCOPYBITS | SWP_NOSIZE | SWP_SHOWWINDOW);
         }
 
@@ -4583,7 +4583,7 @@ void MainWndOnDestroy()
 
 }
 
-LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
+LONG OnChar(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     TCHAR Text[128];
     int i;
@@ -4662,7 +4662,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     return 0;
 }
 
-LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
+LONG OnSize(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     StatusBar_Adjust(hWnd);
     if (ToolbarControl.IsValid())
@@ -5165,7 +5165,7 @@ void UpdateWindowState()
     {
         RECT ScreenRect;
         UpdateWindowRegion(hWnd, FALSE);
-        SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+        SetWindowLongPtr(hWnd, GWL_STYLE, WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
         SetMenu(hWnd, NULL);
         StatusBar_ShowWindow(FALSE);
         GetActiveOutput()->GetMonitorRect(hWnd, &ScreenRect);
@@ -5181,18 +5181,18 @@ void UpdateWindowState()
     {
         if(bShowMenu == TRUE)
         {
-            SetWindowLong(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+            SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             SetMenu(hWnd, hMenu);
         }
         else
         {
             if (WindowBorder.IsValid() && WindowBorder->Visible())
             {
-                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+                SetWindowLongPtr(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             }
             else
             {
-                SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+                SetWindowLongPtr(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             }
             SetMenu(hWnd, NULL);
         }
@@ -5205,7 +5205,7 @@ void UpdateWindowState()
         {
            if (!bShowMenu)
            {
-               SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+               SetWindowLongPtr(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
            }
         }
         SetWindowPos(hWnd,bAlwaysOnTop?HWND_TOPMOST:HWND_NOTOPMOST,
@@ -5232,7 +5232,7 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
         {
             if (bUpdateWindowState)
             {
-                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+                SetWindowLongPtr(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             }
             LOG(2,_T("DScaler: Set window region (0x%08x)"),hRgn);
             if (hRgn != DScalerWindowRgn)
@@ -5334,7 +5334,7 @@ int Cursor_SetType(int type)
     SetCursor(hCur);
 
     // SetClassLong makes the change permanent.
-    SetClassLong(hWnd, GCL_HCURSOR, (LONG)hCur);
+    SetClassLongPtr(hWnd, GCLP_HCURSOR, (LONG_PTR)hCur);
 
     return TRUE;
 }

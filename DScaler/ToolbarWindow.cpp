@@ -116,7 +116,7 @@ CToolbarWindow::~CToolbarWindow()
     {
         if (vChildList[i].pChild != NULL)
         {
-            ::SetWindowLong(vChildList[i].pChild->GethWnd(), GWL_USERDATA, NULL);
+            ::SetWindowLongPtr(vChildList[i].pChild->GethWnd(), GWLP_USERDATA, NULL);
 
 
             //Doesn't work.
@@ -127,7 +127,7 @@ CToolbarWindow::~CToolbarWindow()
     vChildList.clear();
     if (hWndToolbar != NULL)
     {
-        ::SetWindowLong(hWndToolbar, GWL_USERDATA, NULL);
+        ::SetWindowLongPtr(hWndToolbar, GWLP_USERDATA, NULL);
         DestroyWindow(hWndToolbar);
         hWndToolbar = NULL;
     }
@@ -818,11 +818,11 @@ LRESULT CALLBACK CToolbarWindow::ToolbarProc(HWND hWnd, UINT message, WPARAM wPa
         }
         MDICREATESTRUCT * pMDIC = (MDICREATESTRUCT *)((LPCREATESTRUCT) lParam)->lpCreateParams;
         CToolbarWindow *pThis = (CToolbarWindow*) (pMDIC->lParam);
-        ::SetWindowLong(hWnd, GWL_USERDATA, (LONG)pThis);
+        ::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG)pThis);
         return TRUE;
     }
 
-    pThis = (CToolbarWindow*)::GetWindowLong(hWnd, GWL_USERDATA);
+    pThis = (CToolbarWindow*)::GetWindowLong(hWnd, GWLP_USERDATA);
 
     switch (message)
     {
@@ -897,7 +897,7 @@ CToolbarChild::~CToolbarChild()
     Buttons.clear();
     if (hWnd != NULL)
     {
-        ::SetWindowLong(hWnd, GWL_USERDATA, NULL);
+        ::SetWindowLongPtr(hWnd, GWLP_USERDATA, NULL);
         DestroyWindow(hWnd);
         hWnd = NULL;
     }
@@ -1346,11 +1346,11 @@ LRESULT CALLBACK CToolbarChild::StaticToolbarChildProc(HWND hWnd, UINT message, 
         }
         MDICREATESTRUCT * pMDIC = (MDICREATESTRUCT *)((LPCREATESTRUCT) lParam)->lpCreateParams;
         CToolbarChild *pThis = (CToolbarChild*) (pMDIC->lParam);
-        ::SetWindowLong(hWnd, GWL_USERDATA, (LONG)pThis);
+        ::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG)pThis);
         return TRUE;
     }
 
-    pThis = (CToolbarChild*)::GetWindowLong(hWnd, GWL_USERDATA);
+    pThis = (CToolbarChild*)::GetWindowLong(hWnd, GWLP_USERDATA);
 
     if (pThis != NULL)
     {
@@ -1363,10 +1363,10 @@ LRESULT CALLBACK CToolbarChild::StaticToolbarChildDialogProc(HWND hWnd, UINT mes
 {
     if (message == WM_INITDIALOG)
     {
-        ::SetWindowLong(hWnd, GWL_USERDATA, (LONG)lParam);
+        ::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG)lParam);
     }
 
-    CToolbarChild* ToolbarChild = (CToolbarChild*)::GetWindowLong(hWnd, GWL_USERDATA);
+    CToolbarChild* ToolbarChild = (CToolbarChild*)::GetWindowLong(hWnd, GWLP_USERDATA);
     if (ToolbarChild != NULL)
     {
         LRESULT Result = ToolbarChild->ToolbarChildProc(hWnd, message, wParam, lParam);

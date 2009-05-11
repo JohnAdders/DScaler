@@ -33,7 +33,7 @@
 #include "Setting.h"
 #include "Slider.h"
 
-BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static long THue;
     static long TBrightness;

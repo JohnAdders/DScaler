@@ -214,7 +214,7 @@ void OSD_ShowText(const tstring& Text, double dSize, BOOL bPersistent, BOOL bOve
     pOSDCommand->uFlags = 0;
     pOSDCommand->dSize = dSize;
 
-    ULONG nDataLength = Text.length() + 1;
+    size_t nDataLength = Text.length() + 1;
 
     LPTSTR pszText = (LPTSTR)malloc(nDataLength);
     memcpy(pszText, Text.c_str(), nDataLength);

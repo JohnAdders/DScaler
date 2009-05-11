@@ -63,7 +63,7 @@ public:
     */
     virtual void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming) = 0;
     /// Returns TRUE is we process the command
-    virtual BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam) = 0;
+    virtual BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam) = 0;
     /// Returns a tstring to be displayed in the UI
     virtual tstring GetStatus() = 0;
     /// Get the exact freqency of the input

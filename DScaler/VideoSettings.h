@@ -23,6 +23,6 @@
 #ifndef __VIDEOSETTINGS_H___
 #define __VIDEOSETTINGS_H___
 
-BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 #endif

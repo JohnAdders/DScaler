@@ -50,7 +50,7 @@ public:
     void Stop();
     void Reset();
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
-    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+    BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
     SmartPtr<CCX2388xCard> GetCard();
     tstring GetStatus();
     CSliderSetting* GetVolume() {return m_Volume;};
@@ -121,7 +121,7 @@ private:
 
     void CreateRiscCode(BOOL bCaptureVBI);
 
-    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);

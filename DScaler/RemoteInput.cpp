@@ -40,7 +40,7 @@ void RemoteRegister()
 #ifdef WM_APPCOMMAND
 // Cope with new media commands
 // MCE remote sends these for the basic keys
-LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam)
+LONG OnAppCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     LONG RetVal = TRUE;
 
@@ -82,7 +82,7 @@ LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam)
 #endif
 
 #ifdef WM_INPUT
-LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
+LONG OnInput(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     if(GET_RAWINPUT_CODE_WPARAM(wParam) == RIM_INPUT)
     {
@@ -168,7 +168,7 @@ LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
 #endif
 
 
-LONG Remote_HandleMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone)
+LONG Remote_HandleMsgs(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, BOOL* bDone)
 {
 #ifdef WM_INPUT
     if(message == WM_INPUT)

@@ -40,7 +40,7 @@
 #include "BuildNum.h"
 #include "..\API\DScalerVersion.h"
 
-BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 
     switch (message)
@@ -49,7 +49,7 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         {
             SetWindowText(GetDlgItem(hDlg, IDC_VERSION), GetProductNameAndVersionFull().c_str());
 
-            SetClassLong(GetDlgItem(hDlg, IDC_LINK), GCL_HCURSOR, (long) hCursorHand);
+            SetClassLongPtr(GetDlgItem(hDlg, IDC_LINK), GCLP_HCURSOR, (LONG_PTR) hCursorHand);
             return TRUE;
         }
         break;

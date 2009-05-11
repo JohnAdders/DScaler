@@ -289,7 +289,7 @@ BOOL CCredits::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     _ASSERTE(nRet != 0);
 
     SetProp(m_pDisplayFrame, _T("DSSubClass"), (HANDLE)this);
-    m_OldWndProc = (WNDPROC)SetWindowLongPtr (m_pDisplayFrame, GWLP_WNDPROC, (LONG_PTR)StaticWndProc);
+    m_OldWndProc = (WNDPROC)SetWindowLongPtr(m_pDisplayFrame, GWLP_WNDPROC, (LONG_PTR)StaticWndProc);
 
     return TRUE;  // return TRUE unless you set the focus to a control
                   // EXCEPTION: OCX Property Pages should return FALSE

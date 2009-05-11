@@ -52,7 +52,7 @@ public:
 
     UINT GetHelpID() { return m_HelpID;};
 
-    LONG HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled);
+    LONG HandleSettingsMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, BOOL* bHandled);
 
 protected:
     typedef std::vector< SmartPtr<CSimpleSetting> > SettingsArray;

@@ -104,7 +104,7 @@ public:
     void Stop();
     void Reset();
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
-    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+    BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
     tstring GetStatus();
     CSliderSetting* GetVolume() {return NULL;};
     CSliderSetting* GetBalance() {return NULL;};

@@ -35,7 +35,7 @@
 
 HWND SplashWnd = NULL;
 
-BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY SplashProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HBITMAP hSplashBm;
     static HBITMAP hOldBm;

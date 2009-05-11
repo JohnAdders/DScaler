@@ -105,7 +105,7 @@ BOOL                VTDoubleHeightSubtitlesFilter = FALSE;
 TCHAR               VTSearchString[41] = _T("");
 BOOL                VTHilightSearch = TRUE;
 
-UINT                VTFlashTimer = 0;
+UINT_PTR            VTFlashTimer = 0;
 
 BOOL                VTShowOSD = FALSE;
 TCHAR               VTOSDBuffer[4] = _T("");
@@ -2482,7 +2482,7 @@ tstring VT_GetStation()
 }
 
 
-BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
@@ -2514,7 +2514,7 @@ BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 }
 
 
-BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     DWORD dwPageCode;
     TCHAR buffer[8];
@@ -2561,7 +2561,7 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
 
 
-BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     TCHAR szBuffer[4];
     HWND hItem;

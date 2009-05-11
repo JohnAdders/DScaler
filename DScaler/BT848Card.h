@@ -261,7 +261,7 @@ public:
 
     BOOL IsMyAudioDecoder(SmartPtr<CAudioDecoder> pAudioDecoder);
 
-    static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     BOOL IsSPISource(int nInput);
     SmartPtr<CAD9882> GetAD9882() { return m_AD9882; }
@@ -317,7 +317,7 @@ private:
     void CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN);
     void CtrlSilkSDISwitch(BYTE SLV, BYTE IEN);
 
-    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     tstring m_AudioDecoderType;
     tstring m_TunerType;

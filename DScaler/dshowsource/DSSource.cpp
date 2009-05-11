@@ -496,7 +496,7 @@ int CDSCaptureSource::ChangeRes(int nResIndex)
     return resu;
 }
 
-BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     if(CDSSourceBase::HandleWindowsCommands(hWnd,wParam,lParam)==TRUE)
     {

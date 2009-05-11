@@ -286,7 +286,7 @@ void CDSSourceBase::UpdateDroppedFields()
     m_LastNumDroppedFrames=dropped;
 }
 
-BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     FILTER_STATE OldState;
 

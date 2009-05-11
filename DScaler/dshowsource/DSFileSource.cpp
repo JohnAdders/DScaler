@@ -52,7 +52,7 @@ void CDSFileSource::CreateSettings(LPCTSTR IniSection)
 
 }
 
-BOOL CDSFileSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL CDSFileSource::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     if(CDSSourceBase::HandleWindowsCommands(hWnd,wParam,lParam)==TRUE)
     {

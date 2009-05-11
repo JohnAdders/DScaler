@@ -120,7 +120,7 @@ SmartPtr<CSimpleSetting> CSettingsHolder::GetSetting(long SettingIndex)
     window messages.
     Only if the message offset specified at initialization is not 0.
 */
-LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled)
+LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, BOOL* bHandled)
 {
     LONG RetVal = 0;
 

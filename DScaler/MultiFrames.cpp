@@ -477,7 +477,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 }
 
 // User commands handling
-BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
     switch(LOWORD(wParam))
     {

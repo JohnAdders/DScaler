@@ -116,7 +116,7 @@ BOOL CCX2388xProvider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
 {
     try
     {
-        m_RiscDMAMem = new CContigMemory(pHardwareDriver, 83968);
+        m_RiscDMAMem = new CContigMemory(pHardwareDriver.GetRawPointer(), 83968);
     }
     catch(...)
     {
@@ -128,7 +128,7 @@ BOOL CCX2388xProvider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
     {
         for (int i(0); i < 5; i++)
         {
-            m_DisplayDMAMem[i] = new CUserMemory(pHardwareDriver, 1024 * 576 * 2);
+            m_DisplayDMAMem[i] = new CUserMemory(pHardwareDriver.GetRawPointer(), 1024 * 576 * 2);
         }
     }
     catch(...)
@@ -141,7 +141,7 @@ BOOL CCX2388xProvider::MemoryInit(SmartPtr<CHardwareDriver> pHardwareDriver)
     {
         for (int i(0); i < 5; i++)
         {
-            m_VBIDMAMem[i] = new CUserMemory(pHardwareDriver, 2048 * 19 * 2);
+            m_VBIDMAMem[i] = new CUserMemory(pHardwareDriver.GetRawPointer(), 2048 * 19 * 2);
         }
     }
     catch(...)

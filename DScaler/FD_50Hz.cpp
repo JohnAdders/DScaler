@@ -335,44 +335,44 @@ BOOL FilmModePALComb(TDeinterlaceInfo* pInfo)
 SETTING FD50Settings[FD50_SETTING_LASTONE] =
 {
     {
-        "Pulldown Threshold Low", SLIDER, 0, &PulldownThresholdLow,
+        "Pulldown Threshold Low", SLIDER, 0, (LONG_PTR*)&PulldownThresholdLow,
         40, 0, 100, 2, 1,
         NULL,
         "Pulldown", "PulldownThresholdLow", NULL,
     },
     {
-        "Pulldown Threshold High", SLIDER, 0, &PulldownThresholdHigh,
+        "Pulldown Threshold High", SLIDER, 0, (LONG_PTR*)&PulldownThresholdHigh,
         10, 0, 200, 2, 1,
         NULL,
         "Pulldown", "PulldownThresholdHigh", NULL,
     },
     {
-        "PAL Video Mode", ITEMFROMLIST, 0, &PALFilmFallbackIndex,
+        "PAL Video Mode", ITEMFROMLIST, 0, (LONG_PTR*)&PALFilmFallbackIndex,
         INDEX_VIDEO_2FRAME, 0, 99, 1, 1,
         DeinterlaceNames,
         "Pulldown", "PALFilmFallbackMode", NULL,
     },
     {
-        "PAL Pulldown Repeat Count In", SLIDER, 0, &PALPulldownRepeatCount,
+        "PAL Pulldown Repeat Count In", SLIDER, 0, (LONG_PTR*)&PALPulldownRepeatCount,
         3, 1, 10, 1, 1,
         NULL,
         "Pulldown", "PALPulldownRepeatCount", NULL,
     },
     {
-        "PAL Pulldown Repeat Count Out", SLIDER, 0, &PALPulldownRepeatCount2,
+        "PAL Pulldown Repeat Count Out", SLIDER, 0, (LONG_PTR*)&PALPulldownRepeatCount2,
         1, 1, 10, 1, 1,
         NULL,
         "Pulldown", "PALPulldownRepeatCount2", NULL,
     },
     {
-        "Max Calls to PAL Comb Method", SLIDER, 0, (long*)&MaxCallsToPALComb,
+        "Max Calls to PAL Comb Method", SLIDER, 0, (LONG_PTR*)&MaxCallsToPALComb,
         20, 0, 1000, 10, 1,
         NULL,
         "Pulldown", "MaxCallsToPALComb", NULL,
 
     },
     {
-        "PAL Bad Cadence Mode", ITEMFROMLIST, 0, (long*)&PALBadCadenceIndex,
+        "PAL Bad Cadence Mode", ITEMFROMLIST, 0, (LONG_PTR*)&PALBadCadenceIndex,
         INDEX_VIDEO_GREEDY, 0, 99, 1, 1,
         DeinterlaceNames,
         "Pulldown", "PALBadCadenceMode", NULL,

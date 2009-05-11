@@ -40,7 +40,7 @@ long GreedyMaxComb = 15;
 SETTING DI_GreedySettings[DI_GREEDY_SETTING_LASTONE] =
 {
     {
-        "Greedy Max Comb", SLIDER, 0, &GreedyMaxComb,
+        "Greedy Max Comb", SLIDER, 0, (LONG_PTR*)&GreedyMaxComb,
         15, 0, 255, 1, 1,
         NULL,
         "Deinterlace", "GreedyMaxComb", NULL,

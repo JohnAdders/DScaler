@@ -21,7 +21,7 @@ CTSCompressionDlg::CTSCompressionDlg(TS_OPTIONS* Options) :
 {
 }
 
-BOOL CTSCompressionDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CTSCompressionDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {

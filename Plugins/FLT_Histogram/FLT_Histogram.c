@@ -185,13 +185,13 @@ SETTING FLT_HistogramSettings[FLT_HISTOGRAM_SETTING_LASTONE] =
         "HistogramFilter", "DisplayMode", NULL,
     },
     {
-        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        "Fast Memory Access", ONOFF, 0, (LONG_PTR*)&gUsePrefetching,
         TRUE, 0, 1, 1, 1,
         NULL,
         "HistogramFilter", "UsePrefetching", NULL,
     },
     {
-        "Histogram Filter", ONOFF, 0, &(HistogramMethod.bActive),
+        "Histogram Filter", ONOFF, 0, (LONG_PTR*)&(HistogramMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "HistogramFilter", "UseHistogramFilter", NULL,

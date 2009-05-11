@@ -36,7 +36,7 @@ long SearchEffort = 1;
 SETTING DI_MoComp2Settings[DI_MOCOMP2_SETTING_LASTONE] =
 {
     {
-        "Search Effort", SLIDER, 0, &SearchEffort,
+        "Search Effort", SLIDER, 0, (LONG_PTR*)&SearchEffort,
         1, 0, 255, 1, 1,
         NULL,
         "Deinterlace", "MoComp2SE", NULL,

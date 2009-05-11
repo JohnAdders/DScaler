@@ -29,10 +29,10 @@
 #ifndef __DIALOGS_H___
 #define __DIALOGS_H___
 
-BOOL APIENTRY SplashProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-BOOL APIENTRY AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK SplashProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK VPSInfoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 void SetHorSliderInt(HWND hDlgItem, int m_YPos, int Value, int nMin, int nMax);
 int GetHorSliderInt(int MouseX, int nMin, int nMax);
 tstring GetProductNameAndVersion();

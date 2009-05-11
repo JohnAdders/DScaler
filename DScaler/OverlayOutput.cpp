@@ -1182,10 +1182,7 @@ void COverlayOutput::Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int Ext
             FromPtr += FromPitch;
             ToPtr += pInfo->OverlayPitch;
         }
-        _asm
-        {
-            emms
-        }
+        DO_EMMS;
 
         Overlay_Unlock_Back_Buffer(FALSE);
     }
@@ -1207,10 +1204,7 @@ void COverlayOutput::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
             FromPtr += FromPitch;
             ToPtr += pInfo->OverlayPitch;
         }
-        _asm
-        {
-            emms
-        }
+        DO_EMMS;
 
         Overlay_Unlock_Back_Buffer(FALSE);
     }
@@ -1502,19 +1496,19 @@ void COverlayOutput::InitOtherSettings()
     const SETTING LocalOtherSettings[OTHER_SETTING_LASTONE] =
     {
         {
-            "Back Buffers", SLIDER, 0, (long*)&BackBuffers,
+            "Back Buffers", SLIDER, 0, (LONG_PTR*)&BackBuffers,
             -1, -1, 2, 1, 1,
             NULL,
             "Overlay", "BackBuffers", Overlay_BackBuffers_OnChange,
         },
         {
-            "Overlay Colorkey", SLIDER, 0, (long*)&g_OverlayColor,
+            "Overlay Colorkey", SLIDER, 0, (LONG_PTR*)&g_OverlayColor,
             RGB(32,16,16), 0, RGB(255,255,255), 1, 1,
             NULL,
             "Overlay", "OverlayColor", Overlay_ColorKey_OnChange,
         },
         {
-            "Use Overlay Controls", ONOFF, 0, (long*)&bUseOverlayControls,
+            "Use Overlay Controls", ONOFF, 0, (LONG_PTR*)&bUseOverlayControls,
             FALSE, 0, 1, 1, 1,
             NULL,
             "Overlay", "UseOverlayControls", Overlay_UseControls_OnChange,
@@ -1525,43 +1519,43 @@ void COverlayOutput::InitOtherSettings()
         // so the curreent range allows for this and leaves a lage margin
         // of error
         {
-            "Overlay Brightness", SLIDER, 0, (long*)&OverlayBrightness,
+            "Overlay Brightness", SLIDER, 0, (LONG_PTR*)&OverlayBrightness,
             75, -1000, 1000, 5, 10,
             NULL,
             "Overlay", "OverlayBrightness", Overlay_Brightness_OnChange,
         },
         {
-            "Overlay Contrast", SLIDER, 0, (long*)&OverlayContrast,
+            "Overlay Contrast", SLIDER, 0, (LONG_PTR*)&OverlayContrast,
             100, 0, 200, 1, 1,
             NULL,
             "Overlay", "OverlayContrast", Overlay_Contrast_OnChange,
         },
         {
-            "Overlay Hue", SLIDER, 0, (long*)&OverlayHue,
+            "Overlay Hue", SLIDER, 0, (LONG_PTR*)&OverlayHue,
             0, -180, 180, 1, 1,
             NULL,
             "Overlay", "OverlayHue", Overlay_Hue_OnChange,
         },
         {
-            "Overlay Saturation", SLIDER, 0, (long*)&OverlaySaturation,
+            "Overlay Saturation", SLIDER, 0, (LONG_PTR*)&OverlaySaturation,
             100, 0, 200, 1, 1,
             NULL,
             "Overlay", "OverlaySaturation", Overlay_Saturation_OnChange,
         },
         {
-            "Overlay Gamma", SLIDER, 0, (long*)&OverlayGamma,
+            "Overlay Gamma", SLIDER, 0, (LONG_PTR*)&OverlayGamma,
             1, 1, 500, 1, 1,
             NULL,
             "Overlay", "OverlayGamma", Overlay_Gamma_OnChange,
         },
         {
-            "Overlay Sharpness", SLIDER, 0, (long*)&OverlaySharpness,
+            "Overlay Sharpness", SLIDER, 0, (LONG_PTR*)&OverlaySharpness,
             5, 0, 10, 1, 1,
             NULL,
             "Overlay", "OverlaySharpness", Overlay_Sharpness_OnChange,
         },
         {
-            "Allow Bob Mode", ONOFF, 0, (long*)&bAllowBobMode,
+            "Allow Bob Mode", ONOFF, 0, (LONG_PTR*)&bAllowBobMode,
             FALSE, 0, 1, 1, 1,
             NULL,
             "Overlay", "AllowBobMode", Overlay_AllowBobMode_OnChange,

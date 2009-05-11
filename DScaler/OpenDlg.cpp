@@ -36,7 +36,7 @@ COpenDlg::COpenDlg() :
 }
 
 
-BOOL COpenDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR COpenDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {

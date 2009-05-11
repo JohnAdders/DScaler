@@ -69,6 +69,7 @@ UINT CpuFeatureFlags = 0;
 
 void CPU_SetupFeatureFlag(void)
 {
+#ifndef _M_AMD64
    UINT signature = 0;
    char vendor[13]        = "UnknownVendr";  // Needs to be exactly 12 chars
 
@@ -238,4 +239,5 @@ $no_extended_features:
 $no_standard_features:
 $all_done:
    }
+#endif
 }

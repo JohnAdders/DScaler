@@ -162,7 +162,7 @@ BOOL UseStoredTable_OnChange(long NewValue)
 SETTING FLT_GammaSettings[FLT_GAMMA_SETTING_LASTONE] =
 {
     {
-        "Gamma", SLIDER, 0, &Gamma,
+        "Gamma", SLIDER, 0, (LONG_PTR*)&Gamma,
         1300, 0, 3000, 10, 1000,
         NULL,
         "GammaFilter", "Gamma", Gamma_OnChange,
@@ -174,19 +174,19 @@ SETTING FLT_GammaSettings[FLT_GAMMA_SETTING_LASTONE] =
         "GammaFilter", "bUseStoredTable", UseStoredTable_OnChange,
     },
     {
-        "Gamma Filter", ONOFF, 0, &(GammaMethod.bActive),
+        "Gamma Filter", ONOFF, 0, (LONG_PTR*)&(GammaMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "GammaFilter", "UseGammaFilter", NULL,
     },
     {
-        "Black Level", SLIDER, 0, &BlackLevel,
+        "Black Level", SLIDER, 0, (LONG_PTR*)&BlackLevel,
         0, 0, 255, 5, 1,
         NULL,
         "GammaFilter", "BlackLevel", BlackLevel_OnChange,
     },
     {
-        "White Level", SLIDER, 0, &WhiteLevel,
+        "White Level", SLIDER, 0, (LONG_PTR*)&WhiteLevel,
         255, 0, 255, 5, 1,
         NULL,
         "GammaFilter", "WhiteLevel", WhiteLevel_OnChange,

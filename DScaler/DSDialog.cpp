@@ -27,7 +27,7 @@
 using namespace std;
 
 
-BOOL CALLBACK CDSDialog::MasterModalDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CDSDialog::MasterModalDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if(message == WM_INITDIALOG)
     {

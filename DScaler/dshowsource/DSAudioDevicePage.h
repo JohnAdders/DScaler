@@ -43,7 +43,7 @@ public:
     virtual void OnOK(HWND hDlg);
 
 private:
-    virtual BOOL ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual INT_PTR ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
     BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
     void OnSelEndOkAudioDevice(HWND hDlg);

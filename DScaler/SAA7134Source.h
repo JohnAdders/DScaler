@@ -164,10 +164,10 @@ private:
 
     void InitializeUI();
 
-    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    static BOOL APIENTRY AudioStandardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    static BOOL APIENTRY OtherEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK RegisterEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK AudioStandardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK OtherEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     void ChangeDefaultsForVideoInput(BOOL bDontSetValue);
     void ChangeDefaultsForVideoFormat(BOOL bDontSetValue);

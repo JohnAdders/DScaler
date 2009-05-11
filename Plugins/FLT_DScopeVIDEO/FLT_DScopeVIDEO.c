@@ -516,10 +516,7 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
             pInfo->pMemcpy(pLineDestination, &LineBuffer[0], pInfo->LineLength);// copy line
         }
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     // draw Y grid-lines
     if (bGrid)               // check start position zero mj ************

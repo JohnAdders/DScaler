@@ -197,6 +197,7 @@ void SwitchToRatio(int nMode, int nRatio)
 // For speed's sake, the code is a little sloppy at the moment; it always
 // looks at a multiple of 4 pixels.  It never looks at *more* pixels than are
 // requested, though.
+#ifndef _M_AMD64
 static inline int GetNonBlackCount(BYTE* Line, int StartX, int EndX)
 {
     int qwordCount = (EndX - StartX) / 4;
@@ -289,7 +290,60 @@ BlackLoop:
 
     return counts;
 }
+#else
+static inline int GetNonBlackCount(BYTE* Line, int StartX, int EndX)
+{
+    int qwordCount = (EndX - StartX) / 4;
+    int threshold;
+    int counts(0);
+    int chromaMin, chromaMax;
+    BYTE* End(Line + EndX * 2);
 
+    if (qwordCount <= 0)
+    {
+        return 0;
+    }
+
+    // Black pixels are U=128 and V=128.  If U or V is significantly
+    // different from 128, it's a different color, e.g. green if
+    // they're both 0.  We compare each U and V Value to the chroma
+    // min and max computed here: if ((chroma - chromaMin) > chromaMax)...
+    chromaMax = AspectSettings.ChromaRange;
+    if (chromaMax > 255)
+        chromaMax = 255;
+    chromaMin = 128 - (chromaMax / 2);
+
+    threshold = AspectSettings.LuminanceThreshold;
+    if (threshold > 255)
+    {
+        threshold = 255;
+    }
+
+    // Start on a 16-byte boundary even if it means ignoring some extra
+    // pixels?  Try not doing it for now, but it could make memory access
+    // more efficient.
+
+    Line += StartX * 2;
+    while(Line < End)
+    {
+        BYTE Chroma(*Line++);
+        BYTE Luma(*Line++);
+        if(Chroma > chromaMin && Chroma < chromaMax && Luma < threshold)
+        {
+            ++counts;
+        }
+    }
+    //
+    // Log the offending pixels
+    if (counts > 0)
+    {
+        LOG(3, _T("Count %d min %d max %d lumthresh %d"), counts, chromaMin, chromaMax, threshold);
+    }
+
+
+    return counts;
+}
+#endif
 // direction is -1 to scan up from bottom of image, 1 to scan down from top.
 int FindEdgeOfImage(TDeinterlaceInfo* pInfo, int direction)
 {

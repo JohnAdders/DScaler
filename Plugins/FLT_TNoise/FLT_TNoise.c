@@ -99,31 +99,31 @@ BOOL ChromaThreshold_OnChange(long NewValue)
 SETTING FLT_TNoiseSettings[FLT_TNOISE_SETTING_LASTONE] =
 {
     {
-        "Temporal Luminance Threshold", SLIDER, 0, &TemporalLuminanceThreshold,
+        "Temporal Luminance Threshold", SLIDER, 0, (LONG_PTR*)&TemporalLuminanceThreshold,
         6, 0, 255, 1, 1,
         NULL,
         "NoiseFilter", "TemporalLuminanceThreshold", LuminanceThreshold_OnChange,
     },
     {
-        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        "Fast Memory Access", ONOFF, 0, (LONG_PTR*)&gUsePrefetching,
         TRUE, 0, 1, 1, 1,
         NULL,
         "NoiseFilter", "UsePrefetching", NULL,
     },
     {
-        "Temporal Chroma Threshold", SLIDER, 0, &TemporalChromaThreshold,
+        "Temporal Chroma Threshold", SLIDER, 0, (LONG_PTR*)&TemporalChromaThreshold,
         7, 0, 255, 1, 1,
         NULL,
         "NoiseFilter", "TemporalChromaThreshold", ChromaThreshold_OnChange,
     },
     {
-        "Lock Thresholds", ONOFF, 0, &LockThresholdsTogether,
+        "Lock Thresholds", ONOFF, 0, (LONG_PTR*)&LockThresholdsTogether,
         FALSE, 0, 1, 1, 1,
         NULL,
         "NoiseFilter", "LockThresholdsTogether", NULL,
     },
     {
-        "Noise Filter", ONOFF, 0, &TemporalNoiseMethod.bActive,
+        "Noise Filter", ONOFF, 0, (LONG_PTR*)&TemporalNoiseMethod.bActive,
         FALSE, 0, 1, 1, 1,
         NULL,
         "NoiseFilter", "UseTemporalNoiseFilter", NULL,

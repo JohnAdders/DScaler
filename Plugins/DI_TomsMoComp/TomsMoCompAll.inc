@@ -232,7 +232,7 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
             Search_Effort_Max_SB();
         }
     }
-    __asm emms;
+    DO_EMMS;
 
     return TRUE;
 }

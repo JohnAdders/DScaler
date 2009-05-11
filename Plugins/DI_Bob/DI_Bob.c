@@ -215,10 +215,7 @@ BOOL DeinterlaceBob(TDeinterlaceInfo* pInfo)
         }
     }
     // need to clear up MMX registers
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
     return TRUE;
 }
 

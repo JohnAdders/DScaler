@@ -25,6 +25,6 @@
 
 #include "Settings.h"
 
-BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK OverlaySettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 #endif

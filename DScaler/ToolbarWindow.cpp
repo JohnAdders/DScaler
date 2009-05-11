@@ -1319,7 +1319,7 @@ void CToolbarChild::DrawItem(DRAWITEMSTRUCT* pDrawItem, HICON hIcon, LPCTSTR szT
         int nMode = SetBkMode(pDrawItem->hDC, TRANSPARENT);
         if (pDrawItem->itemState & ODS_DISABLED)
         {
-            DrawState(pDrawItem->hDC, (HBRUSH)NULL, NULL, (long)szText, 0, X,Y,Size.cx,Size.cy,DST_TEXT|DSS_DISABLED);
+            DrawState(pDrawItem->hDC, (HBRUSH)NULL, NULL, (LPARAM)szText, 0, X,Y,Size.cx,Size.cy,DST_TEXT|DSS_DISABLED);
         }
         else
         {

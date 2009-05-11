@@ -1332,7 +1332,7 @@ void CCX2388xCard::ResetHardware()
     WriteDword( CX2388X_AGC_BACK_VBI, 0x00E00555 );
 }
 
-BOOL APIENTRY CCX2388xCard::ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CCX2388xCard::ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     CCX2388xCard* pThis = NULL;
     TCHAR szCardId[9] = _T("n/a     ");
@@ -1749,7 +1749,7 @@ void CCX2388xCard::ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst)
 
 #define AddRegister(Reg) {long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), #Reg); ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, Reg);}
 
-BOOL APIENTRY CCX2388xCard::RegisterEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CCX2388xCard::RegisterEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static CCX2388xCard* pThis;
     static DWORD dwAddress;

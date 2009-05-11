@@ -1604,49 +1604,49 @@ BOOL ProgSorting_OnChange(long NewValue)
 SETTING EPGSettings[EPG_SETTING_LASTONE] =
 {
     {
-        "Text Size", SLIDER, 0, (long*)&EPG_DefaultSizePerc,
+        "Text Size", SLIDER, 0, (LONG_PTR*)&EPG_DefaultSizePerc,
          5, 2, 7, 1, 1,
          NULL,
         "EPG", "DefaultSizePerc", NULL,
     },
     {
-        "Time frame duration (hours)", SLIDER, 0, (long*)&EPG_FrameDuration,
+        "Time frame duration (hours)", SLIDER, 0, (LONG_PTR*)&EPG_FrameDuration,
          1, 1, 12, 1, 1,
          NULL,
         "EPG", "TimeFrameDuration", NULL,
     },
     {
         "nxtvepg.exe file path", TCHARSTRING, 0, NextviewEPGExePath.GetPointer(),
-         (long)"", 0, 0, 0, 0,
+         (LONG_PTR)"", 0, 0, 0, 0,
          NULL,
         "EPG", "nxtvepg.exe", NULL,
     },
     {
-        "Keep only DScaler channels", YESNO, 0, (long*)&EPG_ChannelFiltering,
+        "Keep only DScaler channels", YESNO, 0, (LONG_PTR*)&EPG_ChannelFiltering,
          FALSE, 0, 1, 1, 1,
          NULL,
         "EPG", "ChannelFiltering", ChannelFiltering_OnChange,
     },
     {
-        "Max characters per line (programme description)", SLIDER, 0, (long*)&EPG_MaxCharsPerLine,
+        "Max characters per line (programme description)", SLIDER, 0, (LONG_PTR*)&EPG_MaxCharsPerLine,
          75, 20, 128, 1, 1,
          NULL,
         "EPG", "MaxCharsPerLine", NULL,
     },
     {
         "NextviewEPG default provider", TCHARSTRING, 0, NextviewEPGProvider.GetPointer(),
-         (long)"", 0, 0, 0, 0,
+         (LONG_PTR)"", 0, 0, 0, 0,
          NULL,
         "EPG", "NextviewProvider", NULL,
     },
     {
-        "Programmes sorting", ITEMFROMLIST, 0, (long*)&EPG_ProgSorting,
+        "Programmes sorting", ITEMFROMLIST, 0, (LONG_PTR*)&EPG_ProgSorting,
         0, 0, 1, 1, 1,
         EPG_ProgSortingLabels,
         "EPG", "Sorting", ProgSorting_OnChange,
     },
     {
-        "Use keyboard shortcuts as toggle buttons", YESNO, 0, (long*)&EPG_ToggleButtons,
+        "Use keyboard shortcuts as toggle buttons", YESNO, 0, (LONG_PTR*)&EPG_ToggleButtons,
          FALSE, 0, 1, 1, 1,
          NULL,
         "EPG", "ToggleButtons", NULL,

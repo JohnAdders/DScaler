@@ -275,7 +275,7 @@ typedef struct
         DWORD        strhOffset;   /**< Offset to the beginning of the stream header structure */
         HWAVEIN      hWaveIn;      /**< Handle to a waveIn device */
         BOOL         recording;    /**< Set to TRUE when audio is being recorded */
-        UINT_PTR     deviceID;     /**< The ID of the waveIn device to use */
+        UINT         deviceID;     /**< The ID of the waveIn device to use */
 
         /* These are protected by the audio lock */
         DWORD         streamLength; /**< The length of the audio stream */

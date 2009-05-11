@@ -101,10 +101,7 @@ LOOP_LABEL:
         }
         Pixels += pInfo->InputPitch;
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
     return 1000;
 }
 

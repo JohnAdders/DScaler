@@ -66,19 +66,19 @@ FILTER_METHOD SharpnessMethod;
 SETTING FLT_SharpnessSettings[FLT_SHARPNESS_SETTING_LASTONE] =
 {
     {
-        "Sharpness", SLIDER, 0, &Sharpness,
+        "Sharpness", SLIDER, 0, (LONG_PTR*)&Sharpness,
         128, 0, 255, 1, 1,
         NULL,
         "SharpnessFilter", "Sharpness", NULL,
     },
     {
-        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        "Fast Memory Access", ONOFF, 0, (LONG_PTR*)&gUsePrefetching,
         TRUE, 0, 1, 1, 1,
         NULL,
         "SharpnessFilter", "UsePrefetching", NULL,
     },
     {
-        "Sharpness Filter", ONOFF, 0, &(SharpnessMethod.bActive),
+        "Sharpness Filter", ONOFF, 0, (LONG_PTR*)&(SharpnessMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "SharpnessFilter", "UseSharpnessFilter", NULL,

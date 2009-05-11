@@ -63,10 +63,7 @@ LOOP_LABEL:
         }
         Pixels += pInfo->InputPitch;
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     return 1000;
 }
@@ -77,7 +74,7 @@ LOOP_LABEL:
 SETTING FLT_BlackWhiteSettings[FLT_BLACKWHITE_SETTING_LASTONE] =
 {
     {
-        "Black and White Filter", ONOFF, 0, &(BlackWhiteMethod.bActive),
+        "Black and White Filter", ONOFF, 0, (LONG_PTR*)&(BlackWhiteMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "BlackWhiteFilter", "UseBlackWhiteFilter", NULL,

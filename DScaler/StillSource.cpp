@@ -1418,10 +1418,7 @@ BOOL CStillSource::ReadNextFrameInFile()
             // RM sept 24 2006: Added missing emms instruction, maybe this was causing these problems?
             //
             m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_LinePitch * m_Height);
-            _asm
-            {
-                emms
-            }
+            DO_EMMS;
             return TRUE;
         }
         return FALSE;
@@ -1811,92 +1808,92 @@ BOOL PreviewNbRows_OnChange(long NewValue)
 SETTING StillSettings[STILL_SETTING_LASTONE] =
 {
     {
-        "Format of saving", ITEMFROMLIST, 0, (long*)&FormatSaving,
+        "Format of saving", ITEMFROMLIST, 0, (LONG_PTR*)&FormatSaving,
          STILL_TIFF_RGB, STILL_TIFF_RGB, STILL_FORMAT_LASTONE - 1, 1, 1,
          StillFormatNames,
         "Still", "FormatSaving", NULL,
     },
     {
-        "Slide Show Delay", SLIDER, 0, (long*)&SlideShowDelay,
+        "Slide Show Delay", SLIDER, 0, (LONG_PTR*)&SlideShowDelay,
          5, 1, 60, 1, 1,
          NULL,
         "Still", "SlideShowDelay", NULL,
     },
     {
-        "JPEG quality compression", SLIDER, 0, (long*)&JpegQuality,
+        "JPEG quality compression", SLIDER, 0, (LONG_PTR*)&JpegQuality,
          95, 0, 100, 1, 1,
          NULL,
         "Still", "JPEGQuality", NULL,
     },
     {
-        "Pattern height", SLIDER, 0, (long*)&PatternHeight,
+        "Pattern height", SLIDER, 0, (LONG_PTR*)&PatternHeight,
          576, 480, DSCALER_MAX_HEIGHT, 1, 1,
          NULL,
         "Pattern", "PatternHeight", Pattern_Height_OnChange,
     },
     {
-        "Pattern width", SLIDER, 0, (long*)&PatternWidth,
+        "Pattern width", SLIDER, 0, (LONG_PTR*)&PatternWidth,
          720, 240, DSCALER_MAX_WIDTH, 1, 1,
          NULL,
         "Pattern", "PatternWidth", Pattern_Width_OnChange,
     },
     {
-        "Delay between stills (1/10 seconds", SLIDER, 0, (long*)&DelayBetweenStills,
+        "Delay between stills (1/10 seconds", SLIDER, 0, (LONG_PTR*)&DelayBetweenStills,
          600, 1, 36000, 1, 1,
          NULL,
         "Still", "DelayBetweenStills", NULL,
     },
     {
-        "Save in the same file", ONOFF, 0, (long*)&SaveInSameFile,
+        "Save in the same file", ONOFF, 0, (LONG_PTR*)&SaveInSameFile,
          FALSE, 0, 1, 1, 1,
          NULL,
         "Still", "SaveInSameFile", NULL,
     },
     {
-        "Stills in memory", ONOFF, 0, (long*)&StillsInMemory,
+        "Stills in memory", ONOFF, 0, (LONG_PTR*)&StillsInMemory,
          FALSE, 0, 1, 1, 1,
          NULL,
         "Still", "StillsInMemory", NULL,
     },
     {
-        "Number of consecutive stills", SLIDER, 0, (long*)&NbConsecutiveStills,
+        "Number of consecutive stills", SLIDER, 0, (LONG_PTR*)&NbConsecutiveStills,
          20, 2, 60, 1, 1,
          NULL,
         "Still", "NbConsecutiveStills", NULL,
     },
     {
-        "Keep original ratio", ONOFF, 0, (long*)&KeepOriginalRatio,
+        "Keep original ratio", ONOFF, 0, (LONG_PTR*)&KeepOriginalRatio,
          FALSE, 0, 1, 1, 1,
          NULL,
         "Still", "KeepOriginalRatio", NULL,
     },
     {
-        "OSD when taking a still", ONOFF, 0, (long*)&OSDForStills,
+        "OSD when taking a still", ONOFF, 0, (LONG_PTR*)&OSDForStills,
          TRUE, 0, 1, 1, 1,
          NULL,
         "Still", "OSDForStills", NULL,
     },
     {
-        "Number of columns in preview mode", SLIDER, 0, (long*)&PreviewNbCols,
+        "Number of columns in preview mode", SLIDER, 0, (LONG_PTR*)&PreviewNbCols,
          4, 2, 10, 1, 1,
          NULL,
         "Still", "PreviewNbCols", PreviewNbCols_OnChange,
     },
     {
-        "Number of rows in preview mode", SLIDER, 0, (long*)&PreviewNbRows,
+        "Number of rows in preview mode", SLIDER, 0, (LONG_PTR*)&PreviewNbRows,
          4, 2, 10, 1, 1,
          NULL,
         "Still", "PreviewNbRows", PreviewNbRows_OnChange,
     },
     {
-        "Maximum memory usage for stills (Mo)", SLIDER, 0, (long*)&MaxMemForStills,
+        "Maximum memory usage for stills (Mo)", SLIDER, 0, (LONG_PTR*)&MaxMemForStills,
          64, 32, 256, 1, 1,
          NULL,
         "Still", "MaxMemForStills", NULL,
     },
     {
          "Saving path for stills", TCHARSTRING, 0, SavingPath.GetPointer(),
-         (long)"", 0, 0, 0, 0,
+         (LONG_PTR)"", 0, 0, 0, 0,
          NULL,
         "Still", "SavingPath", NULL,
     },

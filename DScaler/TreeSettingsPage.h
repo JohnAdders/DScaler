@@ -78,8 +78,8 @@ protected:
     int m_minHeight;
     BOOL m_bInitMinSize;
 private:
-    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    virtual BOOL ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual INT_PTR DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual INT_PTR ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

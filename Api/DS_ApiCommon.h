@@ -32,6 +32,10 @@
 #ifndef __DS_APICOMON_H__
 #define __DS_APICOMON_H__ 1
 
+#ifdef _M_AMD64
+#include "mmintrin.h"
+#endif
+
 // Symbolic constants for CpuFeatureFlags TRB 12/00
 #define FEATURE_CPUID           0x00000001
 #define FEATURE_STD_FEATURES    0x00000002
@@ -90,9 +94,9 @@ typedef struct
 {
     char* szDisplayName;
     SETTING_TYPE Type;
-    long LastSavedValue;
-    long* pValue;
-    long Default;
+    LONG_PTR LastSavedValue;
+    LONG_PTR* pValue;
+    LONG_PTR Default;
     long MinValue;
     long MaxValue;
     long StepValue;
@@ -207,5 +211,11 @@ typedef struct
     */
     long InputPitch;
 } TDeinterlaceInfo;
+
+#ifdef _M_AMD64
+#define DO_EMMS _mm_empty()
+#else
+#define DO_EMMS _asm emms
+#endif
 
 #endif

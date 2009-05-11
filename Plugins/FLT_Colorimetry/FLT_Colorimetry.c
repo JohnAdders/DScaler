@@ -127,7 +127,7 @@ LOOP_LABEL:
         }
         Pixels += pInfo->InputPitch;
     }
-    _asm emms;
+    DO_EMMS;
     return 1000;
 }
 
@@ -176,13 +176,13 @@ BOOL Colorimetry_OnChange(long NewValue)
 SETTING FLT_ColorimetrySettings[FLT_COLORIMETRY_SETTING_LASTONE] =
 {
     {
-        "Colorimetry Filter", ONOFF, 0, &(ColorimetryMethod.bActive),
+        "Colorimetry Filter", ONOFF, 0, (LONG_PTR*)&(ColorimetryMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "ColorimetryFilter", "UseColorimetryFilter", NULL,
     },
     {
-        "Colorimetry Type", ITEMFROMLIST, 0, (long*)&ColorimetryType,
+        "Colorimetry Type", ITEMFROMLIST, 0, (LONG_PTR*)&ColorimetryType,
         0, 0, COLORIMETRY_LASTONE - 1, 1, 1,
         ModeList,
         "ColorimetryFilter", "Colorimetry", Colorimetry_OnChange,

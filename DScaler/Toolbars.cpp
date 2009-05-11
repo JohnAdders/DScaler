@@ -109,7 +109,7 @@ HWND CToolbarChannels::CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceI
         {
             ::SetWindowLongPtr(hWndCombo, GWLP_USERDATA, (LONG)this);
 
-            m_oldComboProc = (WNDPROC)SetWindowLongPtr(hWndCombo, GWL_WNDPROC, (LONG)MyComboProcWrap);
+            m_oldComboProc = (WNDPROC)SetWindowLongPtr(hWndCombo, GWLP_WNDPROC, (LONG)MyComboProcWrap);
         }
     }
 
@@ -329,7 +329,7 @@ LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wPara
     case WM_DESTROY:
         if ((hDlg != NULL) && (m_oldComboProc!=NULL))
         {
-            SetWindowLongPtr(hDlg, GWL_WNDPROC, (LONG)m_oldComboProc);
+            SetWindowLongPtr(hDlg, GWLP_WNDPROC, (LONG)m_oldComboProc);
         }
         break;
     }

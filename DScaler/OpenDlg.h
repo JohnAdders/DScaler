@@ -39,7 +39,7 @@ public:
     const tstring& GetFileName() {return m_FileName;}
 
 private:
-    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual INT_PTR DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
     void OnBrowse(HWND hDlg);
     void OnOK(HWND hDlg);

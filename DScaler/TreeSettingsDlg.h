@@ -82,7 +82,7 @@ protected:
     void OnGetMinMaxInfo(HWND hDlg, MINMAXINFO FAR* lpMMI);
 
 private:
-    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual INT_PTR DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     ///internal class. used for storing information about one page
     class CPageInfo
     {

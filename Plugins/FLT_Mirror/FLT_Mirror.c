@@ -38,7 +38,7 @@ FILTER_METHOD MirrorMethod;
 SETTING FLT_MirrorSettings[FLT_MIRROR_SETTING_LASTONE] =
 {
     {
-        "Mirror Filter", ONOFF, 0, &(MirrorMethod.bActive),
+        "Mirror Filter", ONOFF, 0, (LONG_PTR*)&(MirrorMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "MirrorFilter", "UseMirrorFilter", NULL,

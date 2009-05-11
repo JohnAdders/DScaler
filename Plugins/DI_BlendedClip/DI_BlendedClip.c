@@ -536,10 +536,7 @@ DoNext8Bytes:
     }
 
     // need to clear up MMX registers
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     // We will keep moving averages of the Motion and Comb factors.  For extra precision the
     // values will be kept scaled up by 256.  See comments on rtn header about averages.
@@ -821,79 +818,79 @@ void __cdecl BlendedClipExit(void)
 SETTING DI_BlendedClipSettings[DI_BLENDEDCLIP_SETTING_LASTONE] =
 {
     {
-        "BlcMinimumClip", SLIDER, 0, &BlcMinimumClip,
+        "BlcMinimumClip", SLIDER, 0, (LONG_PTR*)&BlcMinimumClip,
         -15, -100, 100, 1, 1,
         NULL,
         "Deinterlace", "BlcMinimumClip", NULL,
     },
     {
-        "BlcPixelMotionSense", SLIDER, 0, &BlcPixelMotionSense,
+        "BlcPixelMotionSense", SLIDER, 0, (LONG_PTR*)&BlcPixelMotionSense,
         17, 0, 100, 1, 1,
         NULL,
         "Deinterlace", "BlcPixelMotionSense", NULL,
     },
     {
-        "BlcMotionAvgPeriod", SLIDER, 0, &BlcMotionAvgPeriod,
+        "BlcMotionAvgPeriod", SLIDER, 0, (LONG_PTR*)&BlcMotionAvgPeriod,
         20, -100, 100, 1, 1,
         NULL,
         "Deinterlace", "BlcMotionAvgPeriod", NULL,
     },
     {
-        "BlcRecentMotionSense", SLIDER, 0, &BlcRecentMotionSense,
+        "BlcRecentMotionSense", SLIDER, 0, (LONG_PTR*)&BlcRecentMotionSense,
         0, -100, 100, 1, 1,
         NULL,
         "Deinterlace", "BlcRecentMotionSense", NULL,
     },
     {
-        "BlcPixelCombSense", SLIDER, 0, &BlcPixelCombSense,
+        "BlcPixelCombSense", SLIDER, 0, (LONG_PTR*)&BlcPixelCombSense,
         27, 0, 200, 1, 1,
         NULL,
         "Deinterlace", "BlcPixelCombSense", NULL,
     },
     {
-        "BlcRecentCombSense", SLIDER, 0, &BlcRecentCombSense,
+        "BlcRecentCombSense", SLIDER, 0, (LONG_PTR*)&BlcRecentCombSense,
         0, 0, 200, 1, 1,
         NULL,
         "Deinterlace", "BlcRecentCombSense", NULL,
     },
     {
-        "BlcCombAvgPeriod", SLIDER, 0, &BlcCombAvgPeriod,
+        "BlcCombAvgPeriod", SLIDER, 0, (LONG_PTR*)&BlcCombAvgPeriod,
         20, 0, 200, 1, 1,
         NULL,
         "Deinterlace", "BlcCombAvgPeriod", NULL,
     },
     {
-        "BlcHighCombSkip", SLIDER, 0, &BlcHighCombSkip,
+        "BlcHighCombSkip", SLIDER, 0, (LONG_PTR*)&BlcHighCombSkip,
         10, 0, 200, 1, 1,
         NULL,
         "Deinterlace", "BlcHighCombSkip", NULL,
     },
     {
-        "BlcLowMotionSkip", SLIDER, 0, &BlcLowMotionSkip,
+        "BlcLowMotionSkip", SLIDER, 0, (LONG_PTR*)&BlcLowMotionSkip,
         0, 0, 200, 1, 1,
         NULL,
         "Deinterlace", "BlcLowMotionSkip", NULL,
     },
     {
-        "BlcVerticalSmoothing", SLIDER, 0, &BlcVerticalSmoothing,
+        "BlcVerticalSmoothing", SLIDER, 0, (LONG_PTR*)&BlcVerticalSmoothing,
         0, 0, 200, 1, 1,
         NULL,
         "Deinterlace", "BlcVerticalSmoothing", NULL,
     },
     {
-        "BlcUseInterpBob", ONOFF, 0, &BlcUseInterpBob,
+        "BlcUseInterpBob", ONOFF, 0, (LONG_PTR*)&BlcUseInterpBob,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Deinterlace", "BlcUseInterpBob", NULL,
     },
     {
-        "BlcBlendChroma", ONOFF, 0, &BlcBlendChroma,
+        "BlcBlendChroma", ONOFF, 0, (LONG_PTR*)&BlcBlendChroma,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Deinterlace", "BlcBlendChroma", NULL,
     },
     {
-        "BlcShowControls", ONOFF, 0, &BlcShowControls,
+        "BlcShowControls", ONOFF, 0, (LONG_PTR*)&BlcShowControls,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Deinterlace", "BlcShowControls", NULL,

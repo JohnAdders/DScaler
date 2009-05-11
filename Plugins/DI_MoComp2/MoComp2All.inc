@@ -91,7 +91,7 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
     // SearchEffort
 
     DoMoComp2_SimpleWeave();
-    __asm emms;
+    DO_EMMS;
 
     return TRUE;
 }

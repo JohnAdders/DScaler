@@ -58,7 +58,7 @@ long FilterInversion(TDeinterlaceInfo* pInfo)
 SETTING FLT_InversionSettings[FLT_INVERSION_SETTING_LASTONE] =
 {
     {
-        "Enable", ONOFF, 0, &(InversionMethod.bActive),
+        "Enable", ONOFF, 0, (LONG_PTR*)&(InversionMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "ColourInversion", "UseInversionFilter", NULL,

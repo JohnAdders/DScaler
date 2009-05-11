@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.h"
+#include <Wininet.h.>
 #include "Setting.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
@@ -1074,7 +1075,8 @@ tstring CSettingWrapper::GetValueAsString()
     }
     else if(m_Setting->Type == WCHARSTRING)
     {
-        return *m_Setting->pValue ? UnicodeToTString((const wchar_t*)(*m_Setting->pValue)) : _T("");
+        tstring ValueAsString(*m_Setting->pValue ? UnicodeToTString((const wchar_t*)(*m_Setting->pValue)) : _T(""));
+        return EncodeASCIISafeString(ValueAsString);
     }
     else
     {
@@ -1148,12 +1150,12 @@ void CSettingWrapper::SetValueFromString(const tstring& NewValue)
     if(m_Setting->Type == CHARSTRING)
     {
         string ShortValue(TStringToMBCS(NewValue));
-        SetValue(reinterpret_cast<long>(ShortValue.c_str()));
+        SetValue(reinterpret_cast<LONG_PTR>(ShortValue.c_str()));
     }
     else if(m_Setting->Type == WCHARSTRING)
     {
-        wstring LongValue(TStringToUnicode(NewValue));
-        SetValue(reinterpret_cast<long>(LongValue.c_str()));
+        wstring LongValue(TStringToUnicode(DecodeASCIISafeString(NewValue)));
+        SetValue(reinterpret_cast<LONG_PTR>(LongValue.c_str()));
     }
     else
     {
@@ -1161,9 +1163,9 @@ void CSettingWrapper::SetValueFromString(const tstring& NewValue)
     }
 }
 
-void CSettingWrapper::SetValue(long NewValue)
+void CSettingWrapper::SetValue(LONG_PTR NewValue)
 {
-    long OldValue(*m_Setting->pValue);
+    LONG_PTR OldValue(*m_Setting->pValue);
 
     if(m_Setting->Type == CHARSTRING)
     {
@@ -1313,9 +1315,9 @@ BOOL SettingStringValue::IsValid()
 }
 
 
-long* SettingStringValue::GetPointer()
+LONG_PTR* SettingStringValue::GetPointer()
 {
-    return (long*)&m_Value;
+    return (LONG_PTR*)&m_Value;
 }
 
 void SettingStringValue::SetValue(const tstring& NewValue)

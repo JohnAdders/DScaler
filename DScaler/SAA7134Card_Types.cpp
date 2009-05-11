@@ -496,7 +496,7 @@ void CSAA7134Card::ReadCardProc(int report, const CParseTag*, unsigned char, con
 }
 
 
-BOOL APIENTRY CSAA7134Card::ParseErrorProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CSAA7134Card::ParseErrorProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     TParseCardInfo* parseInfo = (TParseCardInfo*)lParam;
 

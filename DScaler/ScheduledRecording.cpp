@@ -81,7 +81,7 @@ CScheduleDlg::~CScheduleDlg()
 {
 }
 
-BOOL CScheduleDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CScheduleDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {

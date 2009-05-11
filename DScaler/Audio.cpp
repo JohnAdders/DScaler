@@ -34,7 +34,7 @@ DWORD dwTimerProcThreadId = 0;
 BYTE AudioMuteStatus = 0;
 BOOL bUserMute = FALSE;
 
-VOID CALLBACK AudioUnmuteDelayTimerProc(HWND hwnd, UINT, UINT idTimer, DWORD);
+VOID CALLBACK AudioUnmuteDelayTimerProc(HWND hwnd, UINT, UINT_PTR idTimer, DWORD);
 
 //  IMPORTANT: Audio_Mute() and Audio_Unmute() are for internal
 //  use only.  It should be placed in pairs.  For user prompted
@@ -190,7 +190,7 @@ BOOL UserMute_OnChange(long NewValue)
 SETTING AudioSettings[AUDIO_SETTING_LASTONE] =
 {
     {
-        "System in Mute", ONOFF, 0, (long*)&bUserMute,
+        "System in Mute", ONOFF, 0, (LONG_PTR*)&bUserMute,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Audio", "Mute", UserMute_OnChange,

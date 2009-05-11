@@ -916,7 +916,7 @@ void CSAA7134Card::I2CUnlock()
 }
 
 
-BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     CSAA7134Card* pThis = NULL;
     TCHAR szCardId[9] = _T("none");

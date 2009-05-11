@@ -44,7 +44,7 @@ public:
 // Implementation
 private:
     // Generated message map functions
-    BOOL ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    INT_PTR ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
     LRESULT OnSelchangeTreesettingsTab(HWND hDlg, NMHDR* pNMHDR);
     LRESULT OnSelchangingTreesettingsTab(HWND hDlg, NMHDR* pNMHDR);

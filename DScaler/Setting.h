@@ -110,7 +110,7 @@ public:
 private:
     virtual tstring GetValueAsString();
     virtual void SetValueFromString(const tstring& NewValue);
-    void SetValue(long NewValue);
+    void SetValue(LONG_PTR NewValue);
     virtual void ChangeValueInternal(eCHANGEVALUE TypeOfChange);
     SETTING* m_Setting;
 };
@@ -256,7 +256,7 @@ public:
     ~SettingStringValue();
     operator LPCTSTR();
     BOOL IsValid();
-    long* GetPointer();
+    LONG_PTR* GetPointer();
     void clear();
     void SetValue(const tstring& NewValue);
 private:
@@ -321,7 +321,7 @@ private:
     { \
     public: \
         C ## Name ## Setting(const Class* Parent, const tstring& DisplayName, TCHAR* Default, const tstring& Section, CSettingGroup* pGroup = NULL) : \
-             CStringSetting(DisplayName, (long)Default, Section, _T(#Name), pGroup), m_Parent((Class*)Parent) {;} \
+             CStringSetting(DisplayName, Default, Section, _T(#Name), pGroup), m_Parent((Class*)Parent) {;} \
         void OnChange(const tstring& NewValue, const tstring& OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \
         Class* m_Parent; \

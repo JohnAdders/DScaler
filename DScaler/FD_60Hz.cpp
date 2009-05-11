@@ -605,70 +605,70 @@ BOOL DidWeExpectWeave(TDeinterlaceInfo* pInfo)
 SETTING FD60Settings[FD60_SETTING_LASTONE] =
 {
     {
-        "NTSC Video Mode", ITEMFROMLIST, 0, (long*)&NTSCFilmFallbackIndex,
+        "NTSC Video Mode", ITEMFROMLIST, 0, (LONG_PTR*)&NTSCFilmFallbackIndex,
         INDEX_ADAPTIVE, 0, 99, 1, 1,
         DeinterlaceNames,
         "Pulldown", "NTSCFilmFallbackMode", NULL,
     },
     {
-        "NTSC Pulldown Repeat Count In", SLIDER, 0, (long*)&PulldownRepeatCount,
+        "NTSC Pulldown Repeat Count In", SLIDER, 0, (LONG_PTR*)&PulldownRepeatCount,
         4, 1, 10, 1, 1,
         NULL,
         "Pulldown", "PulldownRepeatCount", NULL,
     },
     {
-        "NTSC Pulldown Repeat Count Out", SLIDER, 0, (long*)&PulldownRepeatCount2,
+        "NTSC Pulldown Repeat Count Out", SLIDER, 0, (LONG_PTR*)&PulldownRepeatCount2,
         2, 1, 10, 1, 1,
         NULL,
         "Pulldown", "PulldownRepeatCount2", NULL,
     },
     {
-        "Threshold 3:2 Pulldown", SLIDER, 0, (long*)&Threshold32Pulldown,
+        "Threshold 3:2 Pulldown", SLIDER, 0, (LONG_PTR*)&Threshold32Pulldown,
         15, 1, 5000, 5, 1,
         NULL,
         "Pulldown", "Threshold32Pulldown", NULL,
     },
     {
-        "Threshold 3:2 Pulldown Mismatch", SLIDER, 0, (long*)&ThresholdPulldownMismatch,
+        "Threshold 3:2 Pulldown Mismatch", SLIDER, 0, (LONG_PTR*)&ThresholdPulldownMismatch,
         100, 1, 10000, 10, 1,
         NULL,
         "Pulldown", "ThresholdPulldownMismatch", NULL,
     },
     {
-        "Threshold 3:2 Pulldown Comb", SLIDER, 0, (long*)&ThresholdPulldownComb,
+        "Threshold 3:2 Pulldown Comb", SLIDER, 0, (LONG_PTR*)&ThresholdPulldownComb,
         300, 1, 5000, 10, 1,
         NULL,
         "Pulldown", "ThresholdPulldownComb", NULL,
     },
     {
-        "Bad Pulldown Filter", ONOFF, 0, (long*)&bFallbackToVideo,
+        "Bad Pulldown Filter", ONOFF, 0, (LONG_PTR*)&bFallbackToVideo,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Pulldown", "bFallbackToVideo", NULL,
     },
     {
-        "Pulldown Switch Interval", SLIDER, 0, (long*)&PulldownSwitchInterval,
+        "Pulldown Switch Interval", SLIDER, 0, (LONG_PTR*)&PulldownSwitchInterval,
         3000, 0, 10000, 10, 1,
         NULL,
         "Pulldown", "PulldownSwitchInterval", NULL,
 
     },
     {
-        "Pulldown Switch Max", SLIDER, 0, (long*)&PulldownSwitchMax,
+        "Pulldown Switch Max", SLIDER, 0, (LONG_PTR*)&PulldownSwitchMax,
         4, 0, 100, 10, 1,
         NULL,
         "Pulldown", "PulldownSwitchMax", NULL,
 
     },
     {
-        "Max Calls to Comb Method", SLIDER, 0, (long*)&MaxCallsToNTSCComb,
+        "Max Calls to Comb Method", SLIDER, 0, (LONG_PTR*)&MaxCallsToNTSCComb,
         20, 0, 1000, 10, 1,
         NULL,
         "Pulldown", "MaxCallsToComb", NULL,
 
     },
     {
-        "NTSC Bad Cadence Mode", ITEMFROMLIST, 0, (long*)&NTSCBadCadenceIndex,
+        "NTSC Bad Cadence Mode", ITEMFROMLIST, 0, (LONG_PTR*)&NTSCBadCadenceIndex,
         INDEX_VIDEO_GREEDY, 0, 99, 1, 1,
         DeinterlaceNames,
         "Pulldown", "NTSCBadCadenceMode", NULL,

@@ -36,8 +36,8 @@ public:
     void Destroy(HWND hDlg);
     void SetHelpID(int HelpID);
 private:
-    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) = 0;
-    static BOOL CALLBACK MasterModalDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual INT_PTR DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) = 0;
+    static INT_PTR CALLBACK MasterModalDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     LPCTSTR m_ResourceId;
     int m_HelpID;
 };

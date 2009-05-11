@@ -101,13 +101,13 @@ static DEINTERLACE_METHOD OldGameMethod;
 static SETTING DI_OldGameSettings[DI_OLDGAME_SETTING_LASTONE] =
 {
     {
-        "Maximum motion", SLIDER, 0, &gMaxComb,
+        "Maximum motion", SLIDER, 0, (LONG_PTR*)&gMaxComb,
         300, 1, 5000, 1, 1,
         NULL,
         "DI_OldGame", "maxComb", NULL,
     },
     {
-        "Composite mode", ONOFF, 0, &gDisableMotionChecking,
+        "Composite mode", ONOFF, 0, (LONG_PTR*)&gDisableMotionChecking,
         FALSE, 0, 1, 1, 1,
         NULL,
         "DI_OldGame", "CompositeMode", NULL,

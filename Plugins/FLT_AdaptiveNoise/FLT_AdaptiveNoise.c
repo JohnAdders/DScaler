@@ -225,37 +225,37 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
 #endif
 {
     {
-        "Stability", SLIDER, 0, &gStability,
+        "Stability", SLIDER, 0, (LONG_PTR*)&gStability,
         20, -100, 100, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AStability", NULL,
     },
     {
-        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        "Fast Memory Access", ONOFF, 0, (LONG_PTR*)&gUsePrefetching,
         TRUE, 0, 1, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "UsePrefetching", NULL,
     },
     {
-        "Noise Reduction", SLIDER, 0, &gNoiseReduction,
+        "Noise Reduction", SLIDER, 0, (LONG_PTR*)&gNoiseReduction,
         35, 0, 200, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AdaptiveNoiseReduction", NULL,
     },
     {
-        "Lock Dot", ONOFF, 0, &gShowLockDot,
+        "Lock Dot", ONOFF, 0, (LONG_PTR*)&gShowLockDot,
         FALSE, 0, 1, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "LockDot", NULL,
     },
     {
-        "Readout", ONOFF, 0, &gShowReadout,
+        "Readout", ONOFF, 0, (LONG_PTR*)&gShowReadout,
         FALSE, 0, 1, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "Readout", NULL,
     },
     {
-        "Adaptive Noise Filter", ONOFF, 0, &AdaptiveNoiseMethod.bActive,
+        "Adaptive Noise Filter", ONOFF, 0, (LONG_PTR*)&AdaptiveNoiseMethod.bActive,
         FALSE, 0, 1, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "ActivateANoiseFilter", NULL,
@@ -263,9 +263,9 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
     {
 #ifdef ADAPTIVE_NOISE_DEBUG
         // Okay, so they're not pink
-        "Pink Dots", ONOFF, 0, &gIndicator,
+        "Pink Dots", ONOFF, 0, (LONG_PTR*)&gIndicator,
 #else
-        "Pink Dots", NOT_PRESENT, 0, &gIndicator,
+        "Pink Dots", NOT_PRESENT, 0, (LONG_PTR*)&gIndicator,
 #endif // Hide histogram option (but keep it in the .ini file) for users
         FALSE, 0, 1, 1, 1,
         NULL,
@@ -273,41 +273,41 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
     },
         {
 #ifdef ADAPTIVE_NOISE_DEBUG
-        "Motion Memory (Percent)", SLIDER, 0, &gDecayCoeff,
+        "Motion Memory (Percent)", SLIDER, 0, (LONG_PTR*)&gDecayCoeff,
 #else
-        "Motion Memory (Percent)", NOT_PRESENT, 0, &gDecayCoeff,
+        "Motion Memory (Percent)", NOT_PRESENT, 0, (LONG_PTR*)&gDecayCoeff,
 #endif // Show motion memory slider when testing
         83, 0, 99, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "MotionSharing", NULL,
     },
     {
-        "Spatial Smoothing (Enable)", ONOFF, 0, &gDoSmoothing,
+        "Spatial Smoothing (Enable)", ONOFF, 0, (LONG_PTR*)&gDoSmoothing,
         FALSE, 0, 1, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AdaptiveDoSmoothing", NULL,
     },
     {
-        "Spatial Smoothing (Percent)", SLIDER, 0, &gSmoothing,
+        "Spatial Smoothing (Percent)", SLIDER, 0, (LONG_PTR*)&gSmoothing,
         100, 0, 400, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AdaptiveSmoothing", NULL,
     },
 #ifdef ADAPTIVE_NOISE_DEBUG
     {
-        "Use Testing Switch", ONOFF, 0, &gTestingFlag,
+        "Use Testing Switch", ONOFF, 0, (LONG_PTR*)&gTestingFlag,
         TRUE, 0, 1, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "ATestingIndicator", NULL,
     },
     {
-        "Testing Threshold", SLIDER, 0, &gTestingThreshold,
+        "Testing Threshold", SLIDER, 0, (LONG_PTR*)&gTestingThreshold,
         50, 0, 2000, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "ATestingThreshold", NULL,
     },
     {
-        "Second Testing Threshold", SLIDER, 0, &gSecondTestingThreshold,
+        "Second Testing Threshold", SLIDER, 0, (LONG_PTR*)&gSecondTestingThreshold,
         50, 0, 2000, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AsecondTestingThreshold", NULL,

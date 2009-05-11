@@ -42,19 +42,19 @@ long SimilarityThreshold = 25;
 SETTING DI_VideoWeaveSettings[DI_VIDEOWEAVE_SETTING_LASTONE] =
 {
     {
-        "Temporal Tolerance", SLIDER, 0, &TemporalTolerance,
+        "Temporal Tolerance", SLIDER, 0, (LONG_PTR*)&TemporalTolerance,
         300, 0, 5000, 10, 1,
         NULL,
         "Deinterlace", "TemporalTolerance", NULL,
     },
     {
-        "Spatial Tolerance", SLIDER, 0, &SpatialTolerance,
+        "Spatial Tolerance", SLIDER, 0, (LONG_PTR*)&SpatialTolerance,
         600, 0, 5000, 10, 1,
         NULL,
         "Deinterlace", "SpatialTolerance", NULL,
     },
     {
-        "Similarity Threshold", SLIDER, 0, &SimilarityThreshold,
+        "Similarity Threshold", SLIDER, 0, (LONG_PTR*)&SimilarityThreshold,
         25, 0, 255, 1, 1,
         NULL,
         "Deinterlace", "SimilarityThreshold", NULL,

@@ -535,10 +535,7 @@ void CD3D9Output::Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int Extern
             FromPtr += FromPitch;
             ToPtr += pInfo->OverlayPitch;
         }
-        _asm
-        {
-            emms
-        }
+        DO_EMMS;
 
         Overlay_Unlock_Back_Buffer(FALSE);
     }
@@ -560,10 +557,7 @@ void CD3D9Output::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
             FromPtr += FromPitch;
             ToPtr += pInfo->OverlayPitch;
         }
-        _asm
-        {
-            emms
-        }
+        DO_EMMS;
 
         Overlay_Unlock_Back_Buffer(FALSE);
     }

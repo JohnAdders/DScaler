@@ -36,10 +36,7 @@ BOOL DeinterlaceEvenOnly(TDeinterlaceInfo* pInfo)
             CurrentLine += pInfo->InputPitch;
         }
         // need to clear up MMX registers
-        _asm
-        {
-            emms
-        }
+        DO_EMMS;
         return TRUE;
     }
     else

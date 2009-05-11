@@ -48,7 +48,7 @@ extern const TCHAR* TunerNames[TUNER_LASTONE];
 
 long EnableCxCancelButton = 1;
 
-BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i;
     int nIndex;

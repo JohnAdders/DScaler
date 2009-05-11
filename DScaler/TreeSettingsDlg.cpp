@@ -269,7 +269,7 @@ int CTreeSettingsDlg::AddPages(CComPtr<ISpecifyPropertyPages> SpecifyPages, int 
     return 0;
 }
 
-BOOL CTreeSettingsDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CTreeSettingsDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {

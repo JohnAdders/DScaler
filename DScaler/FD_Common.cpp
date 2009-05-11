@@ -130,10 +130,7 @@ void PerformProgFilmDetectCalculations(TDeinterlaceInfo* pInfo)
         PreviousLine += Pitch;
     }
 
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     pInfo->FieldDiff = DiffFactor;
     LOG(2, _T("Frame %d FD = %d"), pInfo->CurrentFrame, pInfo->FieldDiff);
@@ -221,10 +218,7 @@ void CalcCombFactor(TDeinterlaceInfo* pInfo)
     }
 
     // Clear out MMX registers before we need to do floating point again
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
     LOG(2, _T("Frame %d %c CF = %d"), pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->CombFactor);
@@ -272,10 +266,7 @@ void CalcCombFactorChroma(TDeinterlaceInfo* pInfo)
     }
 
     // Clear out MMX registers before we need to do floating point again
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
     LOG(2, _T("Frame %d %c CF = %d"), pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->CombFactor);
@@ -323,10 +314,7 @@ void CalcDiffFactor(TDeinterlaceInfo* pInfo)
         PreviousLine += Pitch;
     }
 
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     pInfo->FieldDiff = DiffFactor;
     LOG(2, _T("Frame %d %c FD = %d"), pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff);
@@ -373,10 +361,7 @@ void CalcDiffFactorChroma(TDeinterlaceInfo* pInfo)
         PreviousLine += Pitch;
     }
 
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     pInfo->FieldDiff = DiffFactor;
     LOG(2, _T("Frame %d %c FD = %d"), pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff);
@@ -441,10 +426,7 @@ void DoBothCombAndDiff(TDeinterlaceInfo* pInfo)
             PreviousLine += Pitch;
         }
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
     pInfo->FieldDiff = DiffFactor;
@@ -510,10 +492,7 @@ void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo)
             PreviousLine += Pitch;
         }
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
     pInfo->FieldDiff = DiffFactor;
@@ -551,10 +530,7 @@ BOOL Weave(TDeinterlaceInfo* pInfo)
         lpOverlay += pInfo->OverlayPitch;
         CurrentOddLine += Pitch;
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
     return TRUE;
 }
 
@@ -587,10 +563,7 @@ BOOL WeaveDelay(TDeinterlaceInfo* pInfo, int Delay)
         lpOverlay += pInfo->OverlayPitch;
         CurrentOddLine += Pitch;
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
     return TRUE;
 }
 
@@ -699,10 +672,7 @@ BOOL Bob(TDeinterlaceInfo* pInfo)
         }
     }
     // need to clear up MMX registers
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
     return TRUE;
 }
 
@@ -712,42 +682,42 @@ BOOL Bob(TDeinterlaceInfo* pInfo)
 SETTING FD_CommonSettings[FD_COMMON_SETTING_LASTONE] =
 {
     {
-        "Bit Shift", SLIDER, 0, &BitShift,
+        "Bit Shift", SLIDER, 0, (LONG_PTR*)&BitShift,
         12, 0, 15, 1, 1,
         NULL,
         "Pulldown", "BitShift", NULL,
 
     },
     {
-        "Comb Edge Detect", SLIDER, 0, &CombEdgeDetect,
+        "Comb Edge Detect", SLIDER, 0, (LONG_PTR*)&CombEdgeDetect,
         625, 0, 10000, 5, 1,
         NULL,
         "Pulldown", "EdgeDetect", NULL,
 
     },
     {
-        "Comb Jaggie Threshold", SLIDER, 0, &CombJaggieThreshold,
+        "Comb Jaggie Threshold", SLIDER, 0, (LONG_PTR*)&CombJaggieThreshold,
         73, 0, 5000, 5, 1,
         NULL,
         "Pulldown", "JaggieThreshold", NULL,
 
     },
     {
-        "DiffThreshold", SLIDER, 0, &DiffThreshold,
+        "DiffThreshold", SLIDER, 0, (LONG_PTR*)&DiffThreshold,
         224, 0, 5000, 5, 1,
         NULL,
         "Pulldown", "DiffThreshold", NULL,
 
     },
     {
-        "Chroma Detect", ONOFF, 0, (long*)&UseChromaInDetect,
+        "Chroma Detect", ONOFF, 0, (LONG_PTR*)&UseChromaInDetect,
         0, 0, 1, 1, 1,
         NULL,
         "Pulldown", "UseChroma", NULL,
 
     },
     {
-        "Film Flip Delay", SLIDER, 0, &FilmFlipDelay,
+        "Film Flip Delay", SLIDER, 0, (LONG_PTR*)&FilmFlipDelay,
         0, 0, 3, 1, 1,
         NULL,
         "Pulldown", "FilmFlipDelay", NULL,

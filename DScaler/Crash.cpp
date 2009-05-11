@@ -48,6 +48,7 @@ unsigned long gBuildNum = 0;
 
 void CheckFPUStack(const TCHAR* file, const int line) throw()
 {
+#ifndef _M_AMD64
     static const TCHAR szFPUProblemCaption[]=_T("FPU/MMX internal problem");
     static const TCHAR szFPUProblemMessage[]=_T("The FPU stack wasn't empty!  Tagword = %04x\nFile: %s, line %d");
     static BOOL seenmsg=FALSE;
@@ -71,7 +72,7 @@ void CheckFPUStack(const TCHAR* file, const int line) throw()
         MessageBox(NULL, err, szFPUProblemCaption, MB_OK);
         seenmsg=TRUE;
     }
-
+#endif
 }
 
 #endif

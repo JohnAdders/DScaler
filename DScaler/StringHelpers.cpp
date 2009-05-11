@@ -72,3 +72,14 @@ tstring ReplaceCharWithString(const tstring& InString, char CharToReplace, const
     }
     return Result;
 }
+
+tstring EncodeASCIISafeString(const tstring& InString)
+{
+    return InString;
+}
+
+tstring DecodeASCIISafeString(const tstring& InString)
+{
+    return InString;
+}
+

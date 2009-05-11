@@ -56,7 +56,7 @@ CTreeSettingsGeneric::CTreeSettingsGeneric(const tstring& name,SmartPtr<CSetting
     m_SettingsCount = m_Settings->GetNumSettings();
 }
 
-BOOL CTreeSettingsGeneric::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CTreeSettingsGeneric::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {

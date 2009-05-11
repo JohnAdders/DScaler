@@ -38,7 +38,7 @@ private:
     tstring m_AudioFormat;
     tstring m_VideoFormat;
 
-    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual INT_PTR DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
     void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
 

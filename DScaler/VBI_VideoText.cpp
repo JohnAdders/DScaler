@@ -2482,7 +2482,7 @@ tstring VT_GetStation()
 }
 
 
-BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK VTSearchProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
@@ -2514,7 +2514,7 @@ BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 }
 
 
-BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK VTInfoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     DWORD dwPageCode;
     TCHAR buffer[8];
@@ -2561,7 +2561,7 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 
-BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK VTGotoProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     TCHAR szBuffer[4];
     HWND hItem;
@@ -2833,51 +2833,51 @@ BOOL ProcessVTCodepageSelection(HWND hWnd, WORD wMenuID)
 SETTING VTSettings[VT_SETTING_LASTONE] =
 {
     {
-        "Code Page", SLIDER, 0, (long*)&VTUserCodepage,
+        "Code Page", SLIDER, 0, (LONG_PTR*)&VTUserCodepage,
         VTCODEPAGE_ENGLISH, 0, VTCODEPAGE_LASTONE - 1, 1, 1,
         NULL,
         "VT", "CodePage", NULL,
     },
     {
-        "Language Region", ITEMFROMLIST, 0, (long*)&VTRegion,
+        "Language Region", ITEMFROMLIST, 0, (LONG_PTR*)&VTRegion,
         VTREGION_DEFAULT, 0, VTREGION_LASTONE - 1, 1, 1,
         VTRegionName,
         "VT", "LanguageRegion", VT_RegionOnChange,
     },
     {
-        "Show Page Subcode in OSD", ONOFF, 0, (long*)&VTShowSubcodeInOSD,
+        "Show Page Subcode in OSD", ONOFF, 0, (LONG_PTR*)&VTShowSubcodeInOSD,
         FALSE, 0, 1, 1, 1,
         NULL,
         "VT", "ShowPageSubcodeInOSD", VT_ShowSubcodeInOSDOnChange,
     },
     {
-        "Page Lines Caching Control", ITEMFROMLIST, 0, (long*)&VTCachingControl,
+        "Page Lines Caching Control", ITEMFROMLIST, 0, (LONG_PTR*)&VTCachingControl,
         1, 0, 2, 1, 1,
         VTCachingControlName,
         "VT", "PageLinesCachingControl", VT_CachingControlOnChange,
     },
     {
-        "High Granularity Caching", ONOFF, 0, (long*)&VTHighGranularityCaching,
+        "High Granularity Caching", ONOFF, 0, (LONG_PTR*)&VTHighGranularityCaching,
         FALSE, 0, 1, 1, 1,
         NULL,
         "VT", "HighGranularityCaching", VT_HighGranularityCachingOnChange,
     },
     {
-        "Substitute Errors with Spaces", ONOFF, 0, (long*)&VTSubstituteErrorsWithSpaces,
+        "Substitute Errors with Spaces", ONOFF, 0, (LONG_PTR*)&VTSubstituteErrorsWithSpaces,
         FALSE, 0, 1, 1, 1,
         NULL,
         "VT", "SubstituteErrorsWithSpaces", VT_SubstituteErrorsWithSpacesOnChange,
     },
     {
         "Filter: Upscroll Subtitle Duplication Remover", ONOFF, 0,
-        (long*)&VTUpscrollDuplicationFilter,
+        (LONG_PTR*)&VTUpscrollDuplicationFilter,
         FALSE, 0, 1, 1, 1,
         NULL,
         "VT", "UpscrollSubtitleDuplicationFilter", NULL,
     },
     {
         "Filter: Force Double Height Subtitles", ONOFF, 0,
-        (long*)&VTDoubleHeightSubtitlesFilter,
+        (LONG_PTR*)&VTDoubleHeightSubtitlesFilter,
         FALSE, 0, 1, 1, 1,
         NULL,
         "VT", "ForceDoubleHeightSubtitlesFilter", NULL,

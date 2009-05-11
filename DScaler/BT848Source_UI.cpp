@@ -46,7 +46,7 @@ long EnableCancelButton = 1;
 
 
 
-BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static int TAudioStandardManual;
     static long TAudioStandardMajorCarrier;
@@ -377,7 +377,7 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, WPA
     return (FALSE);
 }
 
-BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CBT848Source::AudioSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static int  TVolume;
     static int TBalance;
@@ -656,7 +656,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, WPARAM wPa
     return (FALSE);
 }
 
-BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CBT848Source::SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i;
     int nIndex;

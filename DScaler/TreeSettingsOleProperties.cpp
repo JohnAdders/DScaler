@@ -81,7 +81,7 @@ CTreeSettingsOleProperties::~CTreeSettingsOleProperties()
     m_pages.erase(m_pages.begin(),m_pages.end());
 }
 
-BOOL CTreeSettingsOleProperties::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CTreeSettingsOleProperties::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {

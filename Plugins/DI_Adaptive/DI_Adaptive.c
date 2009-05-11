@@ -216,43 +216,43 @@ void __cdecl AdaptiveStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, D
 SETTING DI_AdaptiveSettings[DI_ADAPTIVE_SETTING_LASTONE] =
 {
     {
-        "Low Motion Field Count", SLIDER, 0, &LowMotionFieldCount,
+        "Low Motion Field Count", SLIDER, 0, (LONG_PTR*)&LowMotionFieldCount,
         4, 1, 1000, 1, 1,
         NULL,
         "Pulldown", "LowMotionFieldCount", NULL,
     },
     {
-        "Static Image Field Count", SLIDER, 0, &StaticImageFieldCount,
+        "Static Image Field Count", SLIDER, 0, (LONG_PTR*)&StaticImageFieldCount,
         100, 1, 1000, 1, 1,
         NULL,
         "Pulldown", "StaticImageFieldCount", NULL,
     },
     {
-        "Static Image Mode", ITEMFROMLIST, 0, &StaticImageMode,
+        "Static Image Mode", ITEMFROMLIST, 0, (LONG_PTR*)&StaticImageMode,
         INDEX_WEAVE, 0, 99, 1, 1,
         ModeList,
         "Pulldown", "StaticImageMode", NULL,
     },
     {
-        "Low Motion Mode", ITEMFROMLIST, 0, &LowMotionMode,
+        "Low Motion Mode", ITEMFROMLIST, 0, (LONG_PTR*)&LowMotionMode,
         INDEX_VIDEO_TOMSMOCOMP, 0, 99, 1, 1,
         ModeList,
         "Pulldown", "LowMotionMode", NULL,
     },
     {
-        "High Motion Mode", ITEMFROMLIST, 0, &HighMotionMode,
+        "High Motion Mode", ITEMFROMLIST, 0, (LONG_PTR*)&HighMotionMode,
         INDEX_VIDEO_TOMSMOCOMP, 0, 99, 1, 1,
         ModeList,
         "Pulldown", "HighMotionMode", NULL,
     },
     {
-        "Adaptive Threshold 3:2 Pulldown", SLIDER, 0, &AdaptiveThres32Pulldown,
+        "Adaptive Threshold 3:2 Pulldown", SLIDER, 0, (LONG_PTR*)&AdaptiveThres32Pulldown,
         15, 1, 5000, 5, 1,
         NULL,
         "Pulldown", "AdaptiveThres32Pulldown", NULL,
     },
     {
-        "Adaptive Threshold 3:2 Pulldown Mismatch", SLIDER, 0, &AdaptiveThresPulldownMismatch,
+        "Adaptive Threshold 3:2 Pulldown Mismatch", SLIDER, 0, (LONG_PTR*)&AdaptiveThresPulldownMismatch,
         900, 1, 10000, 10, 1,
         NULL,
         "Pulldown", "AdaptiveThresPulldownMismatch", NULL,

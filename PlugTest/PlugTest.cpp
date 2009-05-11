@@ -25,6 +25,7 @@
 char szIniFile[MAX_PATH];
 void ReadFromIni(SETTING* pSetting, char* szIniFile);
 
+#ifndef _M_AMD64
 void memcpyMMX(void *Dest, void *Src, size_t nBytes)
 {
     __asm {
@@ -69,6 +70,12 @@ EndCopyLoop:
         emms
     }
 }
+#else
+void memcpyC(void *Dest, void *Src, size_t nBytes)
+{
+    memcpy(Dest, Src, nBytes);
+}
+#endif
 
 BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
 {
@@ -132,7 +139,11 @@ BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
     }
     pInfo->Overlay = (BYTE*)malloc(pInfo->OverlayPitch * pInfo->FrameHeight);
     pInfo->CpuFeatureFlags = CpuFeatureFlags;
+#ifdef _M_AMD64
+    pInfo->pMemcpy = memcpyC;
+#else
     pInfo->pMemcpy = memcpyMMX;
+#endif
     fclose(file);
     return TRUE;
 }
@@ -436,7 +447,7 @@ BOOL MakeTifFile(TDeinterlaceInfo* pInfo, char* TifFile, DEINTERLACE_METHOD* Dei
 
 void ReadFromIni(SETTING* pSetting, char* szIniFile)
 {
-    long nValue;
+    LONG_PTR nValue;
 
     if(pSetting->szIniSection != NULL)
     {

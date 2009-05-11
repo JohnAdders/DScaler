@@ -184,31 +184,31 @@ BOOL FlushAfterEachWrite_OnChange(long NewValue)
 SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
 {
     {
-        "Debug Log", ONOFF, 0, (long*)&DebugLogEnabled,
+        "Debug Log", ONOFF, 0, (LONG_PTR*)&DebugLogEnabled,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Files", "DebugLogEnabled", NULL,
     },
     {
-        "Debug Level", SLIDER, 0, (long*)&gDebugLogLevel,
+        "Debug Level", SLIDER, 0, (LONG_PTR*)&gDebugLogLevel,
         1, 0, 5, 1, 1,
         NULL,
         "Files", "DebugLevel", NULL,
     },
     {
-        "Flush After Each Write", ONOFF, 0, (long*)&FlushAfterEachWrite,
+        "Flush After Each Write", ONOFF, 0, (LONG_PTR*)&FlushAfterEachWrite,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Files", "FlushAfterEachWrite", FlushAfterEachWrite_OnChange,
     },
     {
         "Debug Log File", TCHARSTRING, 0, DebugLogFilename.GetPointer(),
-        (long)DEBUGLOGFILENAME, 0, 0, 0, 0,
+        (LONG_PTR)DEBUGLOGFILENAME, 0, 0, 0, 0,
         NULL,
         "Files", "DebugLogFilename", NULL,
     },
     {
-        "Put Time Stamp in Log", ONOFF, 0, (long*)&StampEnabled,
+        "Put Time Stamp in Log", ONOFF, 0, (LONG_PTR*)&StampEnabled,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Files", "StampEnabled", NULL,

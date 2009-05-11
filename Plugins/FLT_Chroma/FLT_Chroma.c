@@ -115,10 +115,7 @@ LOOP_LABEL_LPO:
         }
         Pixels += 8;
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 }
 
 void DoUpVertShift(TDeinterlaceInfo* pInfo, int MyVertShift)
@@ -188,10 +185,7 @@ LOOP_LABEL_UVS:
         }
         Pixels += Pitch;
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 }
 
 void DoDownVertShift(TDeinterlaceInfo* pInfo, int MyVertShift)
@@ -261,10 +255,7 @@ LOOP_LABEL_DVS:
             loop LOOP_LABEL_DVS
         }
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 }
 
 void DoLeftHorzShift(TDeinterlaceInfo* pInfo, int MyHorzShift)
@@ -412,10 +403,7 @@ LOOP_LABEL_LHS1:
         }
     }
 
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 }
 
 void DoRightHorzShift(TDeinterlaceInfo* pInfo, int MyHorzShift)
@@ -602,10 +590,7 @@ LOOP_LABEL_LPO:
         }
         Pixels += Pitch;
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 }
 
 void DoLeftHorzShiftUpVertShift(TDeinterlaceInfo* pInfo, int MyHorzShift, int MyVertShift)
@@ -817,25 +802,25 @@ long __cdecl FilterChroma(TDeinterlaceInfo* pInfo)
 SETTING FLT_ChromaSettings[FLT_CHROMA_SETTING_LASTONE] =
 {
     {
-        "Horizontal Shift", SLIDER, 0, &HorzShift,
+        "Horizontal Shift", SLIDER, 0, (LONG_PTR*)&HorzShift,
         0, -32, 32, 1, 1,
         NULL,
         "ChromaFilter", "HorzShift", NULL,
     },
     {
-        "Vertical Shift", SLIDER, 0, &VertShift,
+        "Vertical Shift", SLIDER, 0, (LONG_PTR*)&VertShift,
         0, -32, 32, 1, 1,
         NULL,
         "ChromaFilter", "VertShift", NULL,
     },
     {
-        "Vertical Low-Pass Filter", ONOFF, 0, &UseLowPassFilter,
+        "Vertical Low-Pass Filter", ONOFF, 0, (LONG_PTR*)&UseLowPassFilter,
         FALSE, 0, 1, 1, 1,
         NULL,
         "ChromaFilter", "UseLowPassFilter", NULL,
     },
     {
-        "Chroma Filter", ONOFF, 0, &(ChromaMethod.bActive),
+        "Chroma Filter", ONOFF, 0, (LONG_PTR*)&(ChromaMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "ChromaFilter", "UseChromaFilter", NULL,

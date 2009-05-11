@@ -727,14 +727,14 @@ MAINLOOP_LABEL:
 
     // need to clear up MMX registers
 
+#if defined( IS_3DNOW )
     _asm
     {
-#if defined ( IS_3DNOW )
         femms
-#else
-        emms
-#endif
     }
+#else
+    DO_EMMS;
+#endif
 
     return 1000;
 }

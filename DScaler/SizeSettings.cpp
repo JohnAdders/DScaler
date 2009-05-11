@@ -33,7 +33,7 @@
 #include "Setting.h"
 #include "Slider.h"
 
-BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK SizeSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static BOOL TAnalogueBlanking;
     static long TTopOverscan;

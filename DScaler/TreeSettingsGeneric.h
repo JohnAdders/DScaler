@@ -54,7 +54,7 @@ public:
     virtual void OnOK(HWND hDlg);
 
 private:
-    virtual BOOL CTreeSettingsGeneric::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual INT_PTR ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
     void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
     LRESULT OnNotify(HWND hwnd, int id, LPNMHDR nmhdr);

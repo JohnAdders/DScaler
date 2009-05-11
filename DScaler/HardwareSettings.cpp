@@ -117,7 +117,7 @@ static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int Usage,
     Providers_ChangeSettingsBasedOnHW(Setting_GetValue(WM_DSCALER_GETVALUE, PROCESSORSPEED), Setting_GetValue(WM_DSCALER_GETVALUE, TRADEOFF));
 }
 
-BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK HardwareSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     long EnableCancelButton;
 

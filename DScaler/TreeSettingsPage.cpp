@@ -52,7 +52,7 @@ CTreeSettingsPage::~CTreeSettingsPage()
 {
 }
 
-BOOL CTreeSettingsPage::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CTreeSettingsPage::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     //dont allow escape key to be processed by the page
     //the escape key will normaly close the dialog
@@ -101,7 +101,7 @@ BOOL CTreeSettingsPage::OnSetActive(HWND hDlg)
     return TRUE;
 }
 
-BOOL CTreeSettingsPage::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CTreeSettingsPage::ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     return FALSE;
 }

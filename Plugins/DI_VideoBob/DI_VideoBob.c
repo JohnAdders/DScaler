@@ -42,13 +42,13 @@ long JaggieThreshold = 73;
 SETTING DI_VideoBobSettings[DI_VIDEOBOB_SETTING_LASTONE] =
 {
     {
-        "Weave Edge Detect", SLIDER, 0, &EdgeDetect,
+        "Weave Edge Detect", SLIDER, 0, (LONG_PTR*)&EdgeDetect,
         625, 0, 10000, 5, 1,
         NULL,
         "Deinterlace", "EdgeDetect", NULL,
     },
     {
-        "Weave Jaggie Threshold", SLIDER, 0, &JaggieThreshold,
+        "Weave Jaggie Threshold", SLIDER, 0, (LONG_PTR*)&JaggieThreshold,
         73, 0, 5000, 5, 1,
         NULL,
         "Deinterlace", "JaggieThreshold", NULL,

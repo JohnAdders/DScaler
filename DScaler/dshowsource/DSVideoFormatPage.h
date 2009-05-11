@@ -44,7 +44,7 @@ public:
 
 // Implementation
 private:
-    BOOL ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    INT_PTR ChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     LRESULT OnNotify(HWND hwnd, int id, LPNMHDR nmhdr);
     void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
 

@@ -285,9 +285,6 @@ DoNext8Bytes:
 
     // clear out the MMX registers ready for doing floating point
     // again
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
     return TRUE;
 }

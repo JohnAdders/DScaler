@@ -539,43 +539,43 @@ BOOL MaskType_OnChange(long NewValue)
 SETTING FLT_LinearCorrSettings[FLT_LINEAR_CORR_SETTING_LASTONE] =
 {
     {
-        "Linear Correction Filter", ONOFF, 0, &(LinearCorrMethod.bActive),
+        "Linear Correction Filter", ONOFF, 0, (LONG_PTR*)&(LinearCorrMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "LinearCorrectionFilter", "UseLinearCorrFilter", NULL,
     },
     {
-        "Do Only Masking", ONOFF, 0, &DoOnlyMasking,
+        "Do Only Masking", ONOFF, 0, (LONG_PTR*)&DoOnlyMasking,
         FALSE, 0, 1, 1, 1,
         NULL,
         "LinearCorrectionFilter", "DoOnlyMasking", NULL,
     },
     {
-        "Mask Type", ITEMFROMLIST, 0, &MaskType,
+        "Mask Type", ITEMFROMLIST, 0, (LONG_PTR*)&MaskType,
         MASK_TRAPEZOID, MASK_TRAPEZOID, MASK_STRETCH, 1, 1,
         ModeList,
         "LinearCorrectionFilter", "MaskType", MaskType_OnChange,
     },
     {
-        "Mask Parameter 1", SLIDER, 0, &MaskParam1,
+        "Mask Parameter 1", SLIDER, 0, (LONG_PTR*)&MaskParam1,
         0, 0, 100, 1, 1,
         NULL,
         "LinearCorrectionFilter", "MaskParam1", MaskParam1_OnChange,
     },
     {
-        "Mask Parameter 2", SLIDER, 0, &MaskParam2,
+        "Mask Parameter 2", SLIDER, 0, (LONG_PTR*)&MaskParam2,
         0, 0, 100, 1, 1,
         NULL,
         "LinearCorrectionFilter", "MaskParam2", MaskParam2_OnChange,
     },
     {
-        "Mask Parameter 3", SLIDER, 0, &MaskParam3,
+        "Mask Parameter 3", SLIDER, 0, (LONG_PTR*)&MaskParam3,
         0, 0, 100, 1, 1,
         NULL,
         "LinearCorrectionFilter", "MaskParam3", MaskParam3_OnChange,
     },
     {
-        "Mask Parameter 4", SLIDER, 0, &MaskParam4,
+        "Mask Parameter 4", SLIDER, 0, (LONG_PTR*)&MaskParam4,
         0, 0, 100, 1, 1,
         NULL,
         "LinearCorrectionFilter", "MaskParam4", MaskParam4_OnChange,

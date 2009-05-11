@@ -854,7 +854,7 @@ void TidyUp(HWND hDlg)
 
 
 
-BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ProgramListProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i;
     TCHAR sbuf[256];
@@ -1427,7 +1427,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
         case DL_DRAGGING:
             Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, TRUE);
             DrawInsert(hDlg, pDragInfo->hWnd, Item);
-            SetWindowLongPtr(hDlg, DWL_MSGRESULT, DL_MOVECURSOR);
+            SetWindowLongPtr(hDlg, DWLP_MSGRESULT, DL_MOVECURSOR);
             break;
         }
         return (TRUE);
@@ -1446,7 +1446,7 @@ void Channels_Exit()
 static VOID CALLBACK TunerSwitchScreenUpdateDelayTimerProc(
     HWND hwnd,        // handle to window for timer messages
     UINT message,     // WM_TIMER message
-    UINT idTimer,     // timer identifier
+    UINT_PTR idTimer,     // timer identifier
     DWORD dwTime)
 {
     TunerSwitchScreenUpdateDelayTimer = 0;
@@ -1821,25 +1821,25 @@ BOOL CurrentProgram_OnChange(long NewValue)
 SETTING ChannelsSettings[CHANNELS_SETTING_LASTONE] =
 {
     {
-        "CountryCode", SLIDER, 0, (long*)&CountryCode,
+        "CountryCode", SLIDER, 0, (LONG_PTR*)&CountryCode,
         1, 0, 100, 1, 1,
         NULL,
         "Show", "CountryCode", NULL,
     },
     {
-        "Current Program", SLIDER, 0, (long*)&CurrentProgram,
+        "Current Program", SLIDER, 0, (LONG_PTR*)&CurrentProgram,
         0, 0, MAX_CHANNELS, 1, 1,
         NULL,
         "Show", "LastProgram", CurrentProgram_OnChange,
     },
     {
-        "Scan Mode", SLIDER, 0, (long*)&MyScanMode,
+        "Scan Mode", SLIDER, 0, (LONG_PTR*)&MyScanMode,
         0, 0, SCAN_MODE_LASTONE, 1, 1,
         NULL,
         "Show", "ScanMode", NULL,
     },
     {
-        "Use AFC While Scanning", ONOFF, 0, (long*)&MyIsUsingAFC,
+        "Use AFC While Scanning", ONOFF, 0, (LONG_PTR*)&MyIsUsingAFC,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Show", "ScanUsingAFC", NULL,
@@ -1861,13 +1861,13 @@ SETTING* Channels_GetSetting(CHANNELS_SETTING Setting)
 SETTING AntiPlopSettings[ANTIPLOP_SETTING_LASTONE] =
 {
     {
-        "Pre switch mute delay", SLIDER, 0, (long*)&PreSwitchMuteDelay,
+        "Pre switch mute delay", SLIDER, 0, (LONG_PTR*)&PreSwitchMuteDelay,
         100, 0, 1000, 1, 1,
         NULL,
         "Audio", "PreSwitchMuteDelay", NULL,
     },
     {
-        "Post switch mute delay", SLIDER, 0, (long*)&PostSwitchMuteDelay,
+        "Post switch mute delay", SLIDER, 0, (LONG_PTR*)&PostSwitchMuteDelay,
         600, 0, 1000, 1, 1,
         NULL,
         "Audio", "PostSwitchMuteDelay", NULL,

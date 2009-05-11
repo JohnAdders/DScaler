@@ -167,10 +167,7 @@ MAINLOOP_LABEL:
             pOldLines += pInfo->InputPitch;
         }
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
     return TRUE;
 }
 

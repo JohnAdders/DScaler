@@ -1562,25 +1562,25 @@ SmartPtr<CCalibration> pCalibration;
 SETTING CalibrSettings[CALIBR_SETTING_LASTONE] =
 {
     {
-        "Left player cropping", SLIDER, 0, (long*)&LeftCropping,
+        "Left player cropping", SLIDER, 0, (LONG_PTR*)&LeftCropping,
          8, 0, 50, 1, 1,
          NULL,
         "Calibration", "LeftPlayerCropping", NULL,
     },
     {
-        "Right player cropping", SLIDER, 0, (long*)&RightCropping,
+        "Right player cropping", SLIDER, 0, (LONG_PTR*)&RightCropping,
          16, 0, 50, 1, 1,
          NULL,
         "Calibration", "RightPlayerCropping", NULL,
     },
     {
-        "Show RGB delta in OSD", ONOFF, 0, (long*)&ShowRGBDelta,
+        "Show RGB delta in OSD", ONOFF, 0, (LONG_PTR*)&ShowRGBDelta,
          TRUE, 0, 1, 1, 1,
          NULL,
         "Calibration", "ShowRGBDelta", NULL,
     },
     {
-        "Show YUV delta in OSD", ONOFF, 0, (long*)&ShowYUVDelta,
+        "Show YUV delta in OSD", ONOFF, 0, (LONG_PTR*)&ShowYUVDelta,
          TRUE, 0, 1, 1, 1,
          NULL,
         "Calibration", "ShowYUVDelta", NULL,

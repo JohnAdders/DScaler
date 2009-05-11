@@ -756,10 +756,7 @@ MAINLOOP_LABEL:
     }
 
     // Some floating point operations follow
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
 
     AnalyzeHistogram( pInfo, DWordMaxNoise, &sCumBaseline, &sCumDifferencePeak, &sDoShowDot );

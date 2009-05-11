@@ -378,7 +378,7 @@ public:
     /**    Windows    messages
      */
     void HandleTimerMessages(int TimerId);
-    static BOOL    APIENTRY ChipSettingProc(HWND hDlg,    UINT message, WPARAM wParam, LONG    lParam);
+    static INT_PTR CALLBACK ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 
     /**    Card list parsing
@@ -390,7 +390,7 @@ public:
     static void    ReadCardInfoProc(int, const    HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
     static void    ReadCardAutoDetectIDProc(int, const    HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
     static void    ReadCardProc(int, const    HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
-    static BOOL    APIENTRY ParseErrorProc(HWND hDlg, UINT    message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR APIENTRY ParseErrorProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 
     /**    DEBUG

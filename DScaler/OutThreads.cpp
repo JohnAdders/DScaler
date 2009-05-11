@@ -129,9 +129,11 @@ void AssertOnOutThread()
     {
         if(GetCurrentThreadId()==OutThreadID)
         {
+#ifndef _M_AMD64
             //the reason for using int 3 insted of _ASSERTE() is that the _ASSERTE
             //macro shows a dialog which might create problems.
             _asm int 3;
+#endif
         }
     }
 }
@@ -407,7 +409,7 @@ void Reset_Capture()
 
 void SetOutputThreadProcessor()
 {
-    DWORD rc;
+    DWORD_PTR rc;
     int ProcessorMask;
 
     if(!g_hOutThread)
@@ -1116,10 +1118,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             DestLine += LinePitch;
                             CurrentLine += Info.OverlayPitch;
                         }
-                        _asm
-                        {
-                            emms
-                        }
+                        DO_EMMS;
                         GetActiveOutput()->Overlay_Unlock();
                     }
                     else
@@ -1232,43 +1231,43 @@ extern int TunerSwitchScreenUpdateDelay; //Used in programlist.cpp, but affects 
 SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
 {
     {
-        "Hurry When Late", ONOFF, 0, (long*)&bHurryWhenLate,
+        "Hurry When Late", ONOFF, 0, (LONG_PTR*)&bHurryWhenLate,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Threads", "bHurryWhenLate", NULL,
     },
     {
-        "Wait For Flip", ONOFF, 0, (long*)&WaitForFlip,
+        "Wait For Flip", ONOFF, 0, (LONG_PTR*)&WaitForFlip,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Threads", "WaitForFlip", NULL,
     },
     {
-        "Vertical Mirror", ONOFF, 0, (long*)&bDoVerticalFlipSetting,
+        "Vertical Mirror", ONOFF, 0, (LONG_PTR*)&bDoVerticalFlipSetting,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Threads", "DoVerticalFlip", NULL,
     },
     {
-        "Tuner Switch Update Delay", SLIDER, 0, (long*)&TunerSwitchScreenUpdateDelay,
+        "Tuner Switch Update Delay", SLIDER, 0, (LONG_PTR*)&TunerSwitchScreenUpdateDelay,
         120, 0, 1000, 1, 1,
         NULL,
         "Threads", "TunerSwitchScreenUpdateDelay", NULL,
     },
     {
-        "JudderTerminator", ONOFF, 0, (long*)&DoAccurateFlips,
+        "JudderTerminator", ONOFF, 0, (LONG_PTR*)&DoAccurateFlips,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Threads", "DoAccurateFlips", NULL,
     },
     {
-        "Autodetect Pulldown", ONOFF, 0, (long*)&bAutoDetectMode,
+        "Autodetect Pulldown", ONOFF, 0, (LONG_PTR*)&bAutoDetectMode,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Pulldown", "bAutoDetectMode", NULL,
     },
     {
-        "Do JudderTerminator On Video Modes", ONOFF, 0, (long*)&bJudderTerminatorOnVideo,
+        "Do JudderTerminator On Video Modes", ONOFF, 0, (LONG_PTR*)&bJudderTerminatorOnVideo,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Timing", "DoJudderTerminatorOnVideo", NULL,

@@ -56,6 +56,9 @@ __inline std::wstring UnicodeToUnicode(const std::wstring& InString) {return InS
     #define UnicodeToTString UnicodeToMBCS
 #endif
 
+tstring EncodeASCIISafeString(const tstring& InString);
+tstring DecodeASCIISafeString(const tstring& InString);
+
 class MakeString
 {
 public:

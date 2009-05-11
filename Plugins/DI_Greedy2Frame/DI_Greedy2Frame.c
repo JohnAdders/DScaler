@@ -41,13 +41,13 @@ long GreedyTwoFrameThreshold2 = 8;
 SETTING DI_Greedy2FrameSettings[DI_GREEDY2FRAME_SETTING_LASTONE] =
 {
     {
-        "Greedy 2 Frame Luma Threshold", SLIDER, 0, &GreedyTwoFrameThreshold,
+        "Greedy 2 Frame Luma Threshold", SLIDER, 0, (LONG_PTR*)&GreedyTwoFrameThreshold,
         4, 0, 128, 1, 1,
         NULL,
         "Deinterlace", "GreedyTwoFrameThreshold", NULL,
     },
     {
-        "Greedy 2 Frame Chroma Threshold", SLIDER, 0, &GreedyTwoFrameThreshold2,
+        "Greedy 2 Frame Chroma Threshold", SLIDER, 0, (LONG_PTR*)&GreedyTwoFrameThreshold2,
         8, 0, 128, 1, 1,
         NULL,
         "Deinterlace", "GreedyTwoFrameThreshold2", NULL,

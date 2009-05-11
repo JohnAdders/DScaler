@@ -60,12 +60,12 @@ private:
     BOOL         m_bProcessingBitmap;
     WNDPROC      m_OldWndProc;
 
-    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual INT_PTR DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
     void OnPaint(HWND hDlg);
     BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
     void OnTimer(HWND hDlg, UINT nIDEvent);
-    static BOOL CALLBACK StaticWndProc(HWND hStatic, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK StaticWndProc(HWND hStatic, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

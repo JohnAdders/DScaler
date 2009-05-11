@@ -123,9 +123,9 @@ private:
     void CreateRiscCode(BOOL bCaptureVBI);
     void CreateSPIRiscCode();
 
-    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    static BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    static BOOL APIENTRY AudioStandardManualProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK AudioSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK AudioStandardManualProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);

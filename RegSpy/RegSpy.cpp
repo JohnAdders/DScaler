@@ -589,8 +589,8 @@ typedef struct _REGDISPLAYINFO
     BOOL                bRedrawAll;
 } TREGDISPLAYINFO;
 
-BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam);
-LRESULT CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+INT_PTR APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam);
 
 
@@ -1033,7 +1033,7 @@ HFONT CreateRegDisplayFont()
 
 //  This proc handles the drawing of the register
 //  display box
-LRESULT CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static HDC      hOffscreenDC        = NULL;
     static HBITMAP  hOffscreenBitmap    = NULL;
@@ -1292,7 +1292,7 @@ LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 //  This is the main proc that handles all events in
 //  the main dialog.  Warning:  BIG function!
-BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
+INT_PTR APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static CHardwareDriver* pHardwareDriver;
     static CGenericCard*    pCard = NULL;
@@ -1359,7 +1359,6 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
         // Install a keyboard hook so we can easily monitor keypresses
         ghKeyboardHook = SetWindowsHookEx(WH_KEYBOARD, KeyboardHookProc,
             NULL, GetCurrentThreadId());
-
         // Initialize the register list mutex
         InitializeCriticalSection(&RegisterListMutex);
 
@@ -1369,7 +1368,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
         gRegDisplayInfo.pLogState           = &nLogState;
         gRegDisplayInfo.nScrollPos          = 0;
 
-        SetWindowLong(hRegDisplay, GWL_WNDPROC, (LONG)RegDisplayProc);
+        SetWindowLongPtr(hRegDisplay, GWLP_WNDPROC, (LONG)RegDisplayProc);
 
         if(pSourceList == NULL)
         {

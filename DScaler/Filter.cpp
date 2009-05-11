@@ -368,7 +368,7 @@ void RegisterSettings(SmartPtr<CSettingsHolder> Holder, FILTER_METHOD* Filter)
 
     for (i = 0; i < Filter->nSettings; i++ )
     {
-        if (Filter->pSettings[i].pValue == (long*)&Filter->bActive)
+        if (Filter->pSettings[i].pValue == (LONG_PTR*)&Filter->bActive)
         {
             Holder->AddSetting(Filter->pSettings + i, pOnOffGroup);
             iOnOffSetting = i;

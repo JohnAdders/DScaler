@@ -52,10 +52,7 @@ BOOL DeinterlaceWeave(TDeinterlaceInfo* pInfo)
         lpOverlay += pInfo->OverlayPitch;
         CurrentOddLine += Pitch;
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
     return TRUE;
 }
 

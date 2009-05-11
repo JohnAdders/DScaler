@@ -25,6 +25,6 @@
 
 #include "Settings.h"
 
-BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK HardwareSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 #endif

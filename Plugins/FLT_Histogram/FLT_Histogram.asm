@@ -203,14 +203,14 @@ LONG GatherHistogram_MMX( TDeinterlaceInfo* pInfo )
         Pixels += pInfo->InputPitch;
         UpPixels += pInfo->InputPitch;
     }
+#if defined( IS_3DNOW )
     _asm
     {
-#if defined( IS_3DNOW )
         femms
-#else
-        emms
-#endif
     }
+#else
+    DO_EMMS;
+#endif
 
     return 1000;
 }

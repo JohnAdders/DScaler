@@ -63,17 +63,17 @@ BOOL SettingsPerChannel_VideoFormatSpecific_Change(long NewValue)
 SETTING SettingsPerChannel_CommonSettings[SETTINGSPERCHANNEL_SETTING_LASTONE] =
 {
     {
-        "Settings per channel", ONOFF, 0, (long*)&bSpcChannelSpecific,
+        "Settings per channel", ONOFF, 0, (LONG_PTR*)&bSpcChannelSpecific,
         0, 0, 1, 1, 1, NULL,
         "SettingsPerChannel", "SettingsPerChannelEnabled", SettingsPerChannel_ChannelSpecific_Change,
     },
     {
-        "Save per input", ONOFF, 0, (long*)&bSpcVideoInputSpecific,
+        "Save per input", ONOFF, 0, (LONG_PTR*)&bSpcVideoInputSpecific,
         1, 0, 1, 1, 1, NULL,
         "SettingsPerChannel", "SettingsPerVideoInput", SettingsPerChannel_VideoInputSpecific_Change,
     },
     {
-        "Save per Format", ONOFF, 0, (long*)&bSpcVideoFormatSpecific,
+        "Save per Format", ONOFF, 0, (LONG_PTR*)&bSpcVideoFormatSpecific,
         1, 0, 1, 1, 1, NULL,
         "SettingsPerChannel", "SettingsPerVideoFormat", SettingsPerChannel_VideoFormatSpecific_Change,
     },

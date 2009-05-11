@@ -371,10 +371,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
         }
     }
 
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     return 1000;
 }

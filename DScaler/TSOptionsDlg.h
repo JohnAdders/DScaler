@@ -42,7 +42,7 @@ public:
 
 // Implementation
 private:
-    virtual BOOL DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    virtual INT_PTR DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     BOOL UpdateData(HWND hDlg, BOOL bSaveAndValidate);
     BOOL OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam);
     void OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);

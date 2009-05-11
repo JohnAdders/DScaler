@@ -209,7 +209,7 @@ BOOL CBitmapAsButton::RestoreBack(HWND hWnd)
     if ((pOriginalProc != NULL) && (hWnd != NULL) && (hWnd==hWndButton))
     {
         SetWindowRgn(hWnd, NULL, FALSE);
-        SetWindowLongPtr(hWnd, GWL_WNDPROC, (LONG)pOriginalProc);
+        SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG)pOriginalProc);
         pOriginalProc = NULL;
         if ((OriginalWidth>0) && (OriginalHeight>0))
         {

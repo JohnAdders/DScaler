@@ -121,7 +121,7 @@ private:
 
     void CreateRiscCode(BOOL bCaptureVBI);
 
-    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK SelectCardProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);

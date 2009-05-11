@@ -209,19 +209,19 @@ FILTER_METHOD GradualNoiseMethod;
 SETTING FLT_GradualNoiseSettings[FLT_GNOISE_SETTING_LASTONE] =
 {
     {
-        "Noise Reduction", SLIDER, 0, &gNoiseReduction,
+        "Noise Reduction", SLIDER, 0, (LONG_PTR*)&gNoiseReduction,
         35, 5, 100, 1, 1,
         NULL,
         "GradualNoiseFilter", "NoiseReduction", NULL,
     },
     {
-        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        "Fast Memory Access", ONOFF, 0, (LONG_PTR*)&gUsePrefetching,
         TRUE, 0, 1, 1, 1,
         NULL,
         "GradualNoiseFilter", "UsePrefetching", NULL,
     },
     {
-        "Gradual Noise Filter", ONOFF, 0, &GradualNoiseMethod.bActive,
+        "Gradual Noise Filter", ONOFF, 0, (LONG_PTR*)&GradualNoiseMethod.bActive,
         FALSE, 0, 1, 1, 1,
         NULL,
         "GradualNoiseFilter", "UseGradualNoiseFilter", NULL,

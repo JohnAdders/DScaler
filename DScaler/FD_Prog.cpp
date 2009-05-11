@@ -296,10 +296,7 @@ BOOL ProgMode(TDeinterlaceInfo* pInfo)
                 lpOverlay += pInfo->OverlayPitch;
                 CurrentLine += pInfo->InputPitch;
             }
-            _asm
-            {
-                emms
-            }
+            DO_EMMS;
             return TRUE;
         }
         else
@@ -351,19 +348,19 @@ BOOL ProgExpectChange(TDeinterlaceInfo* pInfo, eProgressivePulldownMode FilmMode
 SETTING FDProgSettings[FDPROG_SETTING_LASTONE] =
 {
     {
-        "Threshold Still", SLIDER, 0, &ThresholdStill,
+        "Threshold Still", SLIDER, 0, (LONG_PTR*)&ThresholdStill,
         30, 0, 10000, 10, 1,
         NULL,
         "ProgPulldown", "ThresholdStill", NULL,
     },
     {
-        "Threshold Motion", SLIDER, 0, &ThresholdMotion,
+        "Threshold Motion", SLIDER, 0, (LONG_PTR*)&ThresholdMotion,
         200, 0, 10000, 10, 1,
         NULL,
         "ProgPulldown", "ThresholdMotion", NULL,
     },
     {
-        "Repeat Count", SLIDER, 0, &RepeatCount,
+        "Repeat Count", SLIDER, 0, (LONG_PTR*)&RepeatCount,
         4, 0, 20, 1, 1,
         NULL,
         "ProgPulldown", "RepeatCount", NULL,

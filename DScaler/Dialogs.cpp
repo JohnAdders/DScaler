@@ -40,7 +40,7 @@
 #include "BuildNum.h"
 #include "..\API\DScalerVersion.h"
 
-BOOL APIENTRY AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 
     switch (message)

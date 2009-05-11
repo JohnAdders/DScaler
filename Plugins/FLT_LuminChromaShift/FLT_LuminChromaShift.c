@@ -121,13 +121,13 @@ BOOL LuminShiftVal_OnChange(long NewValue)
 SETTING FLT_LuminChromaShiftSettings[FLT_LUMINCHROMASHIFT_SETTING_LASTONE] =
 {
     {
-        "Y/C Shift Filter", ONOFF, 0, &(LuminChromaShiftMethod.bActive),
+        "Y/C Shift Filter", ONOFF, 0, (LONG_PTR*)&(LuminChromaShiftMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "LuminChromaShiftFilter", "UseLuminChromaShiftFilter", NULL,
     },
     {
-        "Luminance Horizontal Shift", SLIDER, 0, &LuminShiftVal,
+        "Luminance Horizontal Shift", SLIDER, 0, (LONG_PTR*)&LuminShiftVal,
         0, -ONE_PIXEL_SHIFT*5, ONE_PIXEL_SHIFT*5, 1, 1,
         NULL,
         "LuminChromaShiftFilter", "LuminHorizShift", LuminShiftVal_OnChange,

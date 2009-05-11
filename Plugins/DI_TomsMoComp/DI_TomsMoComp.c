@@ -51,7 +51,7 @@ BOOL UseStrangeBob = FALSE;
 SETTING DI_TOMSMOCOMPSETTINGS[DI_TOMSMOCOMP_SETTING_LASTONE] =
 {
     {
-        "Search Effort", SLIDER, 0, &SearchEffort,
+        "Search Effort", SLIDER, 0, (LONG_PTR*)&SearchEffort,
         5, 0, 255, 1, 1,
         NULL,
         "Deinterlace", "SearchEffort", NULL,

@@ -168,43 +168,43 @@ BOOL DoWSS_OnChange(long NewValue)
 SETTING VBISettings[VBI_SETTING_LASTONE] =
 {
     {
-        "Capture VBI", ONOFF, 0, (long*)&bCaptureVBI,
+        "Capture VBI", ONOFF, 0, (LONG_PTR*)&bCaptureVBI,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Show", "CaptureVBI", Capture_VBI_OnChange,
     },
     {
-        "CC Mode", SLIDER, 0, (long*)&CCMode,
+        "CC Mode", SLIDER, 0, (LONG_PTR*)&CCMode,
         CCMODE_OFF, CCMODE_OFF, CCMODE_TEXT4, 1, 1,
         NULL,
         "VBI", "CCMode", NULL,
     },
     {
-        "Teletext", ONOFF, 0, (long*)&DoTeletext,
+        "Teletext", ONOFF, 0, (LONG_PTR*)&DoTeletext,
         FALSE, 0, 1, 1, 1,
         NULL,
         "VBI", "DoTeletext", NULL,
     },
     {
-        "VPS", ONOFF, 0, (long*)&DoVPS,
+        "VPS", ONOFF, 0, (LONG_PTR*)&DoVPS,
         FALSE, 0, 1, 1, 1,
         NULL,
         "VBI", "DoVPS", NULL,
     },
     {
-        "WSS", ONOFF, 0, (long*)&DoWSS,
+        "WSS", ONOFF, 0, (LONG_PTR*)&DoWSS,
         FALSE, 0, 1, 1, 1,
         NULL,
         "VBI", "DoWSS", DoWSS_OnChange,
     },
     {
-        "Search Highlight", ONOFF, 0, (long*)&bSearchHighlight,
+        "Search Highlight", ONOFF, 0, (LONG_PTR*)&bSearchHighlight,
         TRUE, 0, 1, 1, 1,
         NULL,
         "VBI", "SearchHighLight", VT_HilightSearchOnChange,
     },
     {
-        "Use Original CC Method", ONOFF, 0, (long*)&bOldCCMethod,
+        "Use Original CC Method", ONOFF, 0, (LONG_PTR*)&bOldCCMethod,
         TRUE, 0, 1, 1, 1,
         NULL,
         "VBI", "UseOriginalCCMethod", NULL,

@@ -42,7 +42,7 @@ CTSOptionsDlg::CTSOptionsDlg() :
 {
 }
 
-BOOL CTSOptionsDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CTSOptionsDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {

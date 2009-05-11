@@ -215,7 +215,7 @@ public:
     void SetHDelay(int nInput, eVideoFormat TVFormat, long CurrentX, int HDelayAdj);
     void SetVDelay(int nInput, eVideoFormat TVFormat, long CurrentX, int VDelayAdj);
 
-    static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     // I2C stuff
     void SetSDA(BOOL value);
@@ -295,7 +295,7 @@ private:
     void AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
     void SetAudioRegisters(const TAudioRegList* pAudioList);
 
-    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK RegisterEditProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
     eCX2388xCardId  m_CardType;
@@ -356,7 +356,7 @@ public:
     static void ReadCardInfoProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
     static void ReadCardAutoDetectIDProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
     static void ReadCardProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
-    static BOOL    APIENTRY ParseErrorProc(HWND hDlg, UINT    message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK ParseErrorProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
     ///    Holds the list of all cards

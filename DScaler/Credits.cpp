@@ -205,7 +205,7 @@ CCredits::CCredits() : CDSDialog(MAKEINTRESOURCE(IDD_CREDITS))
 {
 }
 
-BOOL CCredits::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CCredits::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {
@@ -237,7 +237,7 @@ void CCredits::OnCommand(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
     }
 }
 
-BOOL CALLBACK CCredits::StaticWndProc(HWND hStatic, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CCredits::StaticWndProc(HWND hStatic, UINT message, WPARAM wParam, LPARAM lParam)
 {
     CCredits* myDialogObject = (CCredits*)GetProp(hStatic, _T("DSSubClass"));
     if(myDialogObject)
@@ -262,7 +262,7 @@ BOOL CALLBACK CCredits::StaticWndProc(HWND hStatic, UINT message, WPARAM wParam,
 //************************************************************************
 BOOL CCredits::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
-    UINT nRet;
+    UINT_PTR nRet;
 
     m_nCurrentFontHeight = NORMAL_TEXT_HEIGHT;
 

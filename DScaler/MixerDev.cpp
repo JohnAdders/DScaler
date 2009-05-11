@@ -76,7 +76,7 @@ static void     Mixer_DoSettingsTransition(tSyncChangesCallback* pSyncfunc, void
 
 static long     Mixer_NameToIndex(const tstring& szName);
 
-BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK MixerSetupProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 
 //  Utility prototypes
@@ -716,7 +716,7 @@ static int ComboBox_GetCurSelItemData(HWND hControl);
 static IMixer*  g_pDlgActiveMixer = NULL;
 
 
-BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK MixerSetupProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i;
 
@@ -1419,67 +1419,67 @@ static void LongArrayDivide(long* dividend, long *dividendSize,
 SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
 {
     {
-        "Use Mixer", ONOFF, 0, (long*)&g_bUseMixer,
+        "Use Mixer", ONOFF, 0, (LONG_PTR*)&g_bUseMixer,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Mixer", "UseMixer", NULL,
     },
     {
-        "DestIndex", SLIDER, 0, (long*)&g_nDestinationIndex,
+        "DestIndex", SLIDER, 0, (LONG_PTR*)&g_nDestinationIndex,
         0, 0, 255, 1, 1,
         NULL,
         "Mixer", "DestIndex", NULL,
     },
     {
-        "Input 1 Index", SLIDER, 0, (long*)&g_nSourceIndexes[0],
+        "Input 1 Index", SLIDER, 0, (LONG_PTR*)&g_nSourceIndexes[0],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input1Index", NULL,
     },
     {
-        "Input 2 Index", SLIDER, 0, (long*)&g_nSourceIndexes[1],
+        "Input 2 Index", SLIDER, 0, (LONG_PTR*)&g_nSourceIndexes[1],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input2Index", NULL,
     },
     {
-        "Input 3 Index", SLIDER, 0, (long*)&g_nSourceIndexes[2],
+        "Input 3 Index", SLIDER, 0, (LONG_PTR*)&g_nSourceIndexes[2],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input3Index", NULL,
     },
     {
-        "Input 4 Index", SLIDER, 0, (long*)&g_nSourceIndexes[3],
+        "Input 4 Index", SLIDER, 0, (LONG_PTR*)&g_nSourceIndexes[3],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input4Index", NULL,
     },
     {
-        "Reset Mixer on Exit", ONOFF, 0, (long*)&g_bResetOnExit,
+        "Reset Mixer on Exit", ONOFF, 0, (LONG_PTR*)&g_bResetOnExit,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Mixer", "ResetOnExit", NULL,
     },
     {
-        "Input 5 Index", SLIDER, 0, (long*)&g_nSourceIndexes[4],
+        "Input 5 Index", SLIDER, 0, (LONG_PTR*)&g_nSourceIndexes[4],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input5Index", NULL,
     },
     {
-        "Input 6 Index", SLIDER, 0, (long*)&g_nSourceIndexes[5],
+        "Input 6 Index", SLIDER, 0, (LONG_PTR*)&g_nSourceIndexes[5],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input6Index", NULL,
     },
     {
         "Mixer Name", TCHARSTRING, 0, g_pMixerName.GetPointer(),
-        (long)"", 0, 0, 0, 0,
+        (LONG_PTR)"", 0, 0, 0, 0,
         NULL,
         "Mixer", "MixerName", NULL,
     },
     {
-        "No Hardware Mute", ONOFF, 0, (long*)&g_bNoHardwareMute,
+        "No Hardware Mute", ONOFF, 0, (LONG_PTR*)&g_bNoHardwareMute,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Mixer", "NoHardwareMute", NULL,

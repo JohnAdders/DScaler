@@ -218,37 +218,37 @@ LPCSTR ModeList[] =
 static SETTING          FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
 {
     {   // Keep old name for .ini file for backward compatibility
-        "Maximum Color Variation", SLIDER, 0, &gInPhaseColorThreshold,
+        "Maximum Color Variation", SLIDER, 0, (LONG_PTR*)&gInPhaseColorThreshold,
         35, 0, 255, 1, 1,
         NULL,
         "TCombFilter", "InPhaseChromaThreshold", NULL,
     },
     {
-        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        "Fast Memory Access", ONOFF, 0, (LONG_PTR*)&gUsePrefetching,
         TRUE, 0, 1, 1, 1,
         NULL,
         "TCombFilter", "UsePrefetching", NULL,
     },
     {
-        "Recall of Past Shimmering (Percent)", SLIDER, 0, &gDecayCoefficient,
+        "Recall of Past Shimmering (Percent)", SLIDER, 0, (LONG_PTR*)&gDecayCoefficient,
         85, 0, 99, 1, 1,
         NULL,
         "TCombFilter", "ShimmerRecall", NULL,
     },
     {
-        "Shimmering to Activate (Percent)", SLIDER, 0, &gShimmerThreshold,
+        "Shimmering to Activate (Percent)", SLIDER, 0, (LONG_PTR*)&gShimmerThreshold,
         70, 0, 100, 1, 1,
         NULL,
         "TCombFilter", "ShimmerThreshold", NULL,
     },
     {
-        "Temporal Comb Filter", ONOFF, 0, &TemporalCombMethod.bActive,
+        "Temporal Comb Filter", ONOFF, 0, (LONG_PTR*)&TemporalCombMethod.bActive,
         FALSE, 0, 1, 1, 1,
         NULL,
         "TCombFilter", "UseCombFilter", NULL,
     },
     {
-        "High Quality", ONOFF, 0, &gDoFieldBuffering,
+        "High Quality", ONOFF, 0, (LONG_PTR*)&gDoFieldBuffering,
         FALSE, 0, 1, 1, 1,
         NULL,
         "TCombFilter", "SpeedForAccuracy", ChangeFieldBuffering,
@@ -555,10 +555,7 @@ LONG UpdateBuffers( TDeinterlaceInfo* pInfo )
             pInfo->LineLength
         );
     }
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     if (sHistoryWait > 100)
     {
@@ -711,10 +708,7 @@ removed from the assembly version for speed reasons.  It's also a bit easier to 
 
 
     // need to clear up MMX registers
-    _asm
-    {
-        emms
-    }
+    DO_EMMS;
 
     return 1000;
 }

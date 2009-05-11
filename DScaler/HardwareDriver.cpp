@@ -28,6 +28,7 @@
 #include <aclapi.h>
 #include "ErrorBox.h"
 #include "PathHelpers.h"
+#include "DynamicFunction.h"
 
 using namespace std;
 
@@ -515,20 +516,28 @@ BOOL CHardwareDriver::AdjustAccessRights()
         }
         else
         {
-            ea.grfAccessMode = SET_ACCESS;
-            ea.grfAccessPermissions = DRIVER_ACCESS_RIGHTS;
-            ea.grfInheritance = NO_INHERITANCE;
-            ea.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
-            ea.Trustee.pMultipleTrustee = NULL;
-            ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-            ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
-            ea.Trustee.ptstrName = (TCHAR* )pSIDEveryone;
-
-            dwError = SetEntriesInAcl(1, &ea, pacl, &pNewAcl);
-            if(dwError != ERROR_SUCCESS)
+            DynamicFunctionS4<DWORD, ULONG, PEXPLICIT_ACCESS, PACL, PACL*> fnSetEntriesInAcl(_T("Advapi32.dll"), ADD_API_LETTER("SetEntriesInAcl"));
+            if(fnSetEntriesInAcl)
             {
-                LOG(0,_T("SetEntriesInAcl failed. %d"), dwError);
-                bError = TRUE;
+                ea.grfAccessMode = SET_ACCESS;
+                ea.grfAccessPermissions = DRIVER_ACCESS_RIGHTS;
+                ea.grfInheritance = NO_INHERITANCE;
+                ea.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
+                ea.Trustee.pMultipleTrustee = NULL;
+                ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+                ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
+                ea.Trustee.ptstrName = (TCHAR* )pSIDEveryone;
+
+                dwError = fnSetEntriesInAcl(1, &ea, pacl, &pNewAcl);
+                if(dwError != ERROR_SUCCESS)
+                {
+                    LOG(0,_T("SetEntriesInAcl failed. %d"), dwError);
+                    bError = TRUE;
+                }
+            }
+            else
+            {
+                // ignore lack of this function on NT4??
             }
         }
         FreeSid(pSIDEveryone);

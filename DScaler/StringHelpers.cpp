@@ -22,6 +22,7 @@
 
 #include "stdafx.h"
 #include "DScalerUtils.h"
+#include "DebugLog.h"
 
 using namespace std;
 
@@ -75,11 +76,83 @@ tstring ReplaceCharWithString(const tstring& InString, char CharToReplace, const
 
 tstring EncodeASCIISafeString(const tstring& InString)
 {
-    return InString;
+    tostringstream oss;
+    tstring::const_iterator CurIt(InString.begin());
+    tstring::const_iterator LastIt(InString.end());
+
+    while(CurIt != LastIt)
+    {
+        TCHAR CurChar(*CurIt);
+
+        if(CurChar < 32 || CurChar > 127)
+        {
+            oss << '%' << (DWORD)CurChar << '%';
+        }
+        else if(CurChar == '%')
+        {
+            oss << _T("%%");
+        }
+        else
+        {
+            oss << CurChar;
+        }
+        ++CurIt;
+    }
+    return oss.str();
 }
 
 tstring DecodeASCIISafeString(const tstring& InString)
 {
-    return InString;
+    tostringstream oss;
+    tstring::const_iterator CurIt(InString.begin());
+    tstring::const_iterator LastIt(InString.end());
+    BOOL DoingPercent(FALSE);
+    tstring TempString;
+
+    while(CurIt != LastIt)
+    {
+        TCHAR CurChar(*CurIt);
+
+        if(CurChar == '%')
+        {
+            if(DoingPercent)
+            {
+                if(TempString.empty())
+                {
+                    oss << '%';
+                }
+                else
+                {
+                    oss << (TCHAR)FromString<DWORD>(TempString);
+                }
+                DoingPercent = FALSE;
+            }
+            else
+            {
+                DoingPercent = TRUE;
+                TempString = _T("");
+            }
+        }
+        else
+        {
+            if(DoingPercent)
+            {
+                TempString += CurChar;
+            }
+            else
+            {
+                oss << CurChar;
+            }
+        }
+        ++CurIt;
+    }
+    
+    if(DoingPercent)
+    {
+        LOG(1, "Invalid escaping in DecodeASCIISafeString");
+        return InString;
+    }
+
+    return oss.str();
 }
 

@@ -379,7 +379,7 @@ void CMixer::RestoreState()
     }
 }
 
-#if _MSC_VER > 1200
+#ifdef _DO_NEW_MIXER_CODE_
 // get a name for the device
 // may not be very friendly, need to test
 tstring GetDeviceName(CComPtr<IMMDevice>& Device)

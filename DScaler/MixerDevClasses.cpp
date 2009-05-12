@@ -27,11 +27,20 @@
 
 #include "stdafx.h"
 #include "MixerDevClasses.h"
+// only do new mixer code if we can
+// don't bother with t he warning if we are using VS6
 #if _MSC_VER > 1200
-#include "Mmdeviceapi.h"
-#define __IKsJackDescription_INTERFACE_DEFINED__
-#include "Endpointvolume.h"
+# include "ntverp.h"
+# if VER_PRODUCTMAJORVERSION > 5
+#  include "Mmdeviceapi.h"
+#  define __IKsJackDescription_INTERFACE_DEFINED__
+#  include "Endpointvolume.h"
+#  define _DO_NEW_MIXER_CODE_
+#else
+# pragma message ("To get vista mixer functionality you need a more up to date SDK")
+# endif
 #endif
+
 
 using namespace std;
 
@@ -606,7 +615,7 @@ private:
 
 CMixerList::CMixerList()
 {
-#if _MSC_VER > 1200
+#ifdef _DO_NEW_MIXER_CODE_
     CComPtr<IMMDeviceEnumerator> DeviceEnum;
     if(FALSE && SUCCEEDED(DeviceEnum.CoCreateInstance(__uuidof(MMDeviceEnumerator))))
     {

@@ -79,8 +79,6 @@ static long CurrentSource = 0;
 static long DefSourceIdx = -1;
 long InitSourceIdx = -1;
 
-extern TCHAR szIniFile[MAX_PATH];
-
 void Providers_MixerSetup()
 {
     MessageBox(GetMainWnd(),
@@ -152,7 +150,7 @@ int Providers_Load(HMENU hMenu)
         // hopefully this will be enought to get a new release out
         if(CX2388xProvider->GetNumberOfSources() > 0)
         {
-            int RegFlag = GetPrivateProfileInt(_T("CX2388x"), _T("UseDShow"), -1, szIniFile);
+            int RegFlag = GetPrivateProfileInt(_T("CX2388x"), _T("UseDShow"), -1, GetIniFileForSettings());
             if(RegFlag == -1)
             {
                 int Resp = MessageBox(GetMainWnd(), _T(" You have a CX2388x card.  There have been several reported instability ")
@@ -162,12 +160,12 @@ int Providers_Load(HMENU hMenu)
                 if(Resp == IDYES)
                 {
                     AllowCx2388xDShow = FALSE;
-                    WritePrivateProfileInt(_T("CX2388x"), _T("UseDShow"), 0, szIniFile);
+                    WritePrivateProfileInt(_T("CX2388x"), _T("UseDShow"), 0, GetIniFileForSettings());
                 }
                 else
                 {
                     AllowCx2388xDShow = TRUE;
-                    WritePrivateProfileInt(_T("CX2388x"), _T("UseDShow"), 1, szIniFile);
+                    WritePrivateProfileInt(_T("CX2388x"), _T("UseDShow"), 1, GetIniFileForSettings());
                 }
             }
             else

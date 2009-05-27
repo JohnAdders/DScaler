@@ -102,7 +102,7 @@ public:
     tsFormat_t       format;        /**< Recording format (color space) */
     int              recHeight;     /**< Recording height */
     FOURCC           fccHandler;    /**< Video compression codec FourCC */
-    TCHAR            savingPath[MAX_PATH + 1];  /**< Path to save files to */
+    tstring          savingPath;  /**< Path to save files to */
     DWORD            sizeLimit;     /**< Size limit of each file in MiB (0 = no limit) */
 
     struct

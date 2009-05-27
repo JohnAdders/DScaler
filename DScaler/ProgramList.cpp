@@ -112,7 +112,7 @@ static int InitialNbMenuItems = -1;
 //The implementation is now in Channels
 BOOL Load_Program_List_ASCII()
 {
-    return MyChannels.ReadFile(SZ_DEFAULT_PROGRAMS_FILENAME);
+    return MyChannels.ReadFile();
 }
 
 void Channel_SetCurrent()
@@ -1333,11 +1333,9 @@ INT_PTR CALLBACK ProgramListProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
             {
                 TidyUp(hDlg);
                 // try to write out programs
-                if (!MyChannels.WriteFile(SZ_DEFAULT_PROGRAMS_FILENAME))
+                if (!MyChannels.WriteFile())
                 {
-                    tstring dummy(MakeString() << _T("Unable to write to file \n\"") <<
-                                                SZ_DEFAULT_PROGRAMS_FILENAME <<
-                                                _T("\""));
+                    tstring dummy(MakeString() << _T("Unable to write to program file"));
                     ErrorBox(dummy);
                 }
                 SettingsMaster->SaveAllSettings(TRUE);
@@ -1352,7 +1350,7 @@ INT_PTR CALLBACK ProgramListProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
                 TidyUp(hDlg);
                 // revert to previously saved channel list
                 MyChannels.Clear();
-                MyChannels.ReadFile(SZ_DEFAULT_PROGRAMS_FILENAME);
+                MyChannels.ReadFile();
                 // revert to previous settings
                 MyScanMode = OldScanMode;
                 CountryCode = OldCountryCode;

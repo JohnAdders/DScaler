@@ -52,28 +52,27 @@
 #include "SettingsMaster.h"
 #include "TimeShift.h"
 #include "EPG.h"
+#include "PathHelpers.h"
 
 using namespace std;
 
-TCHAR szIniFile[MAX_PATH] = _T("DScaler.ini");
+tstring szIniFile = _T("DScaler.ini");
 
 void SetIniFileForSettings(LPTSTR Name)
 {
-    GetCurrentDirectory(MAX_PATH, szIniFile);
-    if (*Name == 0)         // add parm TRB 12/00
+    if (Name == 0 || *Name == 0)         // add parm TRB 12/00
     {
-        _tcscat(szIniFile, _T("\\DScaler.ini"));
+        szIniFile = GetUserFilePath() + _T("DScaler.ini");
     }
     else
     {
-        _tcscat(szIniFile, _T("\\"));
-        _tcscat(szIniFile, Name);
+        szIniFile = GetUserFilePath() + Name;
     }
 }
 
 LPCTSTR GetIniFileForSettings()
 {
-    return szIniFile;
+    return szIniFile.c_str();
 }
 
 // this function removes any comments, leading spaces and tabs, trailing spaces, tabs,

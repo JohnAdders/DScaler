@@ -3246,6 +3246,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             break;
 
+        case IDM_RECORDING_RECORDINGDIRECTORY:
+            ShellExecute(hWnd, _T("open"), TimeShiftGetSavingPath(), NULL, NULL, SW_SHOWNORMAL);
+            break;
+
+        case IDM_ACTIONS_SNAPSHOTDIRECTORY:
+            ShellExecute(hWnd, _T("open"), GetStillsPath().c_str(), NULL, NULL, SW_SHOWNORMAL);
+            break;
+
+        case IDM_SETTINGS_OPENSETTINGSDIRECTORY:
+            ShellExecute(hWnd, _T("open"), GetUserFilePath().c_str(), NULL, NULL, SW_SHOWNORMAL);
+            break;
+
         default:
             bDone = FALSE;
 
@@ -5002,7 +5014,7 @@ HMENU GetEPGDaySubmenu()
 
     GetMenuString(hMenu, 2, tstring, sizeof(tstring), MF_BYPOSITION);
     reduc = !_tcscmp(tstring, _T("&Channels")) ? 0 : 1;
-    HMENU hmenu = GetOrCreateSubSubSubMenu(8-reduc, 12, 15, _T("Day"));
+    HMENU hmenu = GetOrCreateSubSubSubMenu(8-reduc, 13, 15, _T("Day"));
     _ASSERTE(hmenu != NULL);
 
     return hmenu;

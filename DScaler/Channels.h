@@ -31,7 +31,6 @@
 
 //TODO->We should at least use a StringTable resource
 const LPCTSTR SZ_DEFAULT_CHANNELS_FILENAME  = _T("channel.txt"); //default channels per country file
-const LPCTSTR SZ_DEFAULT_PROGRAMS_FILENAME  = _T("program.txt"); //default user channels file
 
 class CChannel
 {
@@ -121,10 +120,11 @@ public:
     ~CUserChannels();
 
     //Read/Write using the legacy "program.txt" file format
-    BOOL WriteFile(LPCTSTR szFilename) const;
-    BOOL ReadFile(LPCTSTR szFilename);
+    BOOL WriteFile() const;
+    BOOL ReadFile();
 
 private :
+    tstring GetFileName() const;
     BOOL WriteASCIIImpl(FILE*) const;
     BOOL ReadASCIIImpl(FILE*);
 };

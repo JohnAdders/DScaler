@@ -234,6 +234,8 @@ BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* 
 
 tstring BuildDScalerContext();
 
+tstring GetStillsPath();
+
 SETTING* Still_GetSetting(STILL_SETTING Setting);
 
 #endif

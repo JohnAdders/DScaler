@@ -474,13 +474,6 @@ void CToolbarControl::Set(HWND hWnd, const tstring& SkinName, int ForceHide, int
         }
     }
 
-    //if (ToolbarSideBar==NULL)
-    //{
-        //ToolbarSideBar = new CToolbarWindow(hWnd, hDScalerInst, 0);
-        //ToolbarSideBar->LoadBorders(szIniFile,_T("SideBarChannels"),NULL);
-        //ToolbarSideBar->SetPosition(-2);
-    //}
-
     //Restore focus to main DScaler window
     if (Toolbar1!=NULL)
     {

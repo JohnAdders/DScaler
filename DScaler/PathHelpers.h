@@ -25,6 +25,16 @@
 
 // returns the path location of the DScaler exe
 tstring GetInstallationPath();
+
+// returns the path location for settings and program created files
+tstring GetUserFilePath();
+
+// returns the path location for users pictures
+tstring GetUserPicturePath();
+
+// returns the path location for users pictures
+tstring GetUserVideoPath();
+
 // returns the full path of the DScaler exe
 tstring GetMainExeName();
 
@@ -33,5 +43,11 @@ tstring GetExtension(const tstring& FileName);
 
 // strips the path from a file name
 tstring StripPath(const tstring& FileName);
+
+// gets just the the path from a file name
+tstring StripFile(const tstring& FileName);
+
+// gets just the the path from a file name
+tstring AddFileToPath(const tstring& Path, const tstring& FileName);
 
 #endif

@@ -346,7 +346,7 @@ void CScheduledRecording::initScheduledRecordingThreadProc()
 void CScheduledRecording::getChannels(std::vector<tstring> &channels)
 {
     CUserChannels MyChannels;
-    MyChannels.ReadFile(SZ_DEFAULT_PROGRAMS_FILENAME);
+    MyChannels.ReadFile();
 
     int count = MyChannels.GetSize();
 
@@ -711,7 +711,7 @@ void CScheduledRecording::startRecording(CSchedule recording_program, SYSTEMTIME
             {
                 CUserChannels MyChannels;
 
-                MyChannels.ReadFile(SZ_DEFAULT_PROGRAMS_FILENAME);
+                MyChannels.ReadFile();
                 int channel_number = MyChannels.GetChannel(++channel_index)->GetChannelNumber();
 
                 Channel_ChangeToNumber(channel_number);

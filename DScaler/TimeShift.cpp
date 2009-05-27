@@ -62,6 +62,7 @@
 #include "DScaler.h"      // hWnd global
 #include "TSOptionsDlg.h" // CTSOptionsDlg
 #include "TSCompressionDlg.h"
+#include "PathHelpers.h"
 #include "MixerDev.h"     // Mute and UnMute
 #include "Settings.h"     // Setting_Set/GetValue
 #include "Cpu.h"          // CpuFeatureFlags
@@ -1510,35 +1511,30 @@ BOOL TimeShiftVerifySavingPath(void)
 {
     BOOL  result;
     DWORD attr;
-    TCHAR *subString;
 
     result = TRUE;
 
     /* Check the file attributes first. Make sure the path exists. */
-    attr = GetFileAttributes(timeShift->savingPath);
+    attr = GetFileAttributes(timeShift->savingPath.c_str());
     if (attr != INVALID_FILE_ATTRIBUTES)
     {
         if (!(attr & FILE_ATTRIBUTE_DIRECTORY))
         {
             /* Might be a file. Try removing everything after the last back
                slash in the path. */
-            subString = _tcsrchr(timeShift->savingPath, '\\');
-            if (subString)
-            {
-                /* This should be safe. Even if this points to the last
-                   non-NULL character, there always needs to be one byte
-                   reserved for the NULL charater at the end of the tstring. */
-                subString[1] = '\0';
+            timeShift->savingPath = StripFile(timeShift->savingPath);
 
-                attr = GetFileAttributes(timeShift->savingPath);
-                if (attr==INVALID_FILE_ATTRIBUTES ||
-                    !(attr & FILE_ATTRIBUTE_DIRECTORY))
-                   result = FALSE;
-            } else
-              result = FALSE;
+            attr = GetFileAttributes(timeShift->savingPath.c_str());
+            if (attr==INVALID_FILE_ATTRIBUTES ||!(attr & FILE_ATTRIBUTE_DIRECTORY))
+            {
+                result = FALSE;
+            }
         }
-    } else
-      result = FALSE;
+    }
+    else
+    {
+        result = FALSE;
+    }
 
     return result;
 }
@@ -1553,7 +1549,6 @@ BOOL TimeShiftVerifySavingPath(void)
 
 BOOL TimeShiftSetSavingPath(TCHAR* path)
 {
-    DWORD size;
     BOOL  failed = TRUE;
     int   i;
 
@@ -1566,61 +1561,47 @@ BOOL TimeShiftSetSavingPath(TCHAR* path)
     {
         failed = FALSE;
 
-        if (!path)
-           failed = TRUE;
-
-        if (!failed)
+        if (path)
         {
             /* Get a copy of the new path */
-            if (_tcslen(path) < sizeof(timeShift->savingPath) - 1)
-            {
-                _tcscpy(timeShift->savingPath, path);
+            timeShift->savingPath = path;
 
-                /* Convert all forward slashes to back slashes */
-                for (i = _tcslen(timeShift->savingPath) - 1; i >= 0; i--)
-                {
-                    if (timeShift->savingPath[i]=='/')
-                       timeShift->savingPath[i] = '\\';
-                }
-            } else
+            /* Convert all forward slashes to back slashes */
+            for (i = timeShift->savingPath.length() - 1; i >= 0; i--)
             {
-                /* Can't use the path because it's longer than our buffer */
-                failed = TRUE;
+                if (timeShift->savingPath[i]=='/')
+                {
+                   timeShift->savingPath[i] = '\\';
+                }
             }
         }
+        else
+        {
+            failed = TRUE;
+        }
+
 
         if (!failed)
         {
             /* Check to see if this path is valid */
             if (!TimeShiftVerifySavingPath())
+            {
                failed = TRUE;
+            }
         }
 
         if (failed)
         {
             if (path)
-               LOG(1, _T("Bad path: %s. Using the default."), path);
-
-            /* Use the default path */
-            size = GetModuleFileName(NULL, timeShift->savingPath,
-                                     sizeof(timeShift->savingPath));
-            if (!size || size >= sizeof(timeShift->savingPath) ||
-                !TimeShiftVerifySavingPath())
-               _tcsncpy(timeShift->savingPath, TS_DEFAULT_PATH,
-                       sizeof(timeShift->savingPath));
-        }
-
-        /* Make sure the path ends with a back slash */
-        i = _tcslen(timeShift->savingPath) - 1;
-        if (timeShift->savingPath[i] != '\\')
-        {
-            if (i + 2 < sizeof(timeShift->savingPath))
             {
-                timeShift->savingPath[i + 1] = '\\';
-                timeShift->savingPath[i + 2] = '\0';
-            } else
-              _tcsncpy(timeShift->savingPath, TS_DEFAULT_PATH,
-                      sizeof(timeShift->savingPath));
+               LOG(1, _T("Bad path: %s. Using the default."), path);
+            }
+
+            timeShift->savingPath = GetUserVideoPath();
+            if (!TimeShiftVerifySavingPath())
+            {
+               timeShift->savingPath =  TS_DEFAULT_PATH;
+            }
         }
     }
 
@@ -1662,7 +1643,7 @@ BOOL TimeShiftSetFileSizeLimit(DWORD sizeLimit)
 
 const TCHAR* TimeShiftGetSavingPath(void)
 {
-    return timeShift.IsValid() ? timeShift->savingPath : NULL;
+    return timeShift.IsValid() ? timeShift->savingPath.c_str() : NULL;
 }
 
 DWORD TimeShiftGetFileSizeLimit(void)
@@ -2003,44 +1984,43 @@ BOOL TimeShiftOnSetMenu(HMENU hMenu)
 
 BOOL TimeShiftReadFromINI(void)
 {
-    extern TCHAR szIniFile[MAX_PATH];
-    TCHAR        path[MAX_PATH + 1];
     BOOL         result = FALSE;
 
     if (timeShift.IsValid())
     {
         GetPrivateProfileString(_T("TimeShift"), _T("WaveInDevice"), _T(""),
                                 timeShift->waveInDevice, MAXPNAMELEN,
-                                szIniFile);
+                                GetIniFileForSettings());
         GetPrivateProfileString(_T("TimeShift"), _T("WaveOutDevice"), _T(""),
                                 timeShift->waveOutDevice, MAXPNAMELEN,
-                                szIniFile);
+                                GetIniFileForSettings());
 
         timeShift->recHeight = GetPrivateProfileInt(_T("TimeShift"), _T("RecHeight"),
                                                     timeShift->recHeight,
-                                                    szIniFile);
+                                                    GetIniFileForSettings());
 
         timeShift->format = (tsFormat_t)GetPrivateProfileInt(_T("TimeShift"),
                                                              _T("RecFormat"),
                                                              timeShift->format,
-                                                             szIniFile);
+                                                             GetIniFileForSettings());
 
         /* Make sure the format is valid */
         timeShift->format = makeFormatValid(timeShift->format);
 
         GetPrivateProfileStruct(_T("TimeShift"), _T("VideoFCC"),
                                 &timeShift->fccHandler, sizeof(FOURCC),
-                                szIniFile);
+                                GetIniFileForSettings());
 
+        vector<TCHAR> Buffer(MAX_PATH + 1);
         GetPrivateProfileString(_T("TimeShift"), _T("SavingPath"),
-                                timeShift->savingPath, path, sizeof(path),
-                                szIniFile);
-        TimeShiftSetSavingPath(path);
+                                _T(""), &Buffer[0], MAX_PATH,
+                                GetIniFileForSettings());
+        TimeShiftSetSavingPath(&Buffer[0]);
 
         TimeShiftSetFileSizeLimit(GetPrivateProfileInt(_T("TimeShift"),
                                                        _T("AVIFileSizeLimit"),
                                                        timeShift->sizeLimit,
-                                                       szIniFile));
+                                                       GetIniFileForSettings()));
 
         result = TRUE;
     }
@@ -2050,33 +2030,32 @@ BOOL TimeShiftReadFromINI(void)
 
 BOOL TimeShiftWriteToINI(void)
 {
-    extern TCHAR szIniFile[MAX_PATH];
     BOOL         result = FALSE;
     TCHAR        temp[32];
 
     if (timeShift.IsValid())
     {
         WritePrivateProfileString(_T("TimeShift"), _T("SavingPath"),
-                                  timeShift->savingPath, szIniFile);
+                                  timeShift->savingPath.c_str(), GetIniFileForSettings());
 
         _sntprintf(temp, sizeof(temp), _T("%u"), timeShift->sizeLimit);
         WritePrivateProfileString(_T("TimeShift"), _T("AVIFileSizeLimit"), temp,
-                                  szIniFile);
+                                  GetIniFileForSettings());
 
         WritePrivateProfileString(_T("TimeShift"), _T("WaveInDevice"),
-                                  timeShift->waveInDevice, szIniFile);
+                                  timeShift->waveInDevice, GetIniFileForSettings());
         WritePrivateProfileString(_T("TimeShift"), _T("WaveOutDevice"),
-                                  timeShift->waveOutDevice, szIniFile);
+                                  timeShift->waveOutDevice, GetIniFileForSettings());
 
         _sntprintf(temp, sizeof(temp), _T("%u"), timeShift->recHeight);
-        WritePrivateProfileString(_T("TimeShift"), _T("RecHeight"), temp, szIniFile);
+        WritePrivateProfileString(_T("TimeShift"), _T("RecHeight"), temp, GetIniFileForSettings());
 
         _sntprintf(temp, sizeof(temp), _T("%u"), timeShift->format);
-        WritePrivateProfileString(_T("TimeShift"), _T("RecFormat"), temp, szIniFile);
+        WritePrivateProfileString(_T("TimeShift"), _T("RecFormat"), temp, GetIniFileForSettings());
 
         WritePrivateProfileStruct(_T("TimeShift"), _T("VideoFCC"),
                                   &timeShift->fccHandler, sizeof(FOURCC),
-                                  szIniFile);
+                                  GetIniFileForSettings());
 
         result = TRUE;
     }

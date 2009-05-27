@@ -821,7 +821,7 @@ void OSD_PostCommand(TOSDCommand* pOSDCommand)
     else
     {
         // Start the queue
-        PostMessage(GetMainWnd(), UWM_OSD, OSDM_DISPLAYUPDATE, 0);
+        PostMessageToMainWindow(UWM_OSD, OSDM_DISPLAYUPDATE, 0);
     }
 }
 

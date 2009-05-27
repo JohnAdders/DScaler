@@ -15,10 +15,6 @@
 ;//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;//  GNU General Public License for more details
 ;/////////////////////////////////////////////////////////////////////////////
-;// CVS Log
-;//
-;// $Log: not supported by cvs2svn $
-;/////////////////////////////////////////////////////////////////////////////
 ;
 ;  This is an InnoSetup script.
 ;  For more information about InnoSetup see http://www.innosetup.com
@@ -32,11 +28,11 @@ AppUpdatesURL=http://www.dscaler.org
 DefaultDirName={pf}\RegSpy
 DefaultGroupName=DScaler
 AllowNoIcons=yes
-AlwaysCreateUninstallIcon=yes
 LicenseFile=gpl.rtf
 AppMutex=RegSpy
 ;required for installing the driver on NT platforms
-AdminPrivilegesRequired=yes
+PrivilegesRequired=Admin
+DisableStartupPrompt=yes
 
 [Messages]
 BeveledLabel=RegSpy
@@ -48,10 +44,10 @@ Name: "main"; Description: "Main Files"; Types: full; Flags: fixed
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; MinVersion: 4,4
 
 [Files]
-Source: "..\Release\RegSpy.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite;
-Source: "..\Release\DScalerRes.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
-Source: "..\Release\DSDrv4.sys"; DestDir: "{app}"; CopyMode: alwaysoverwrite
-Source: "..\Release\DSDrv4.vxd"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\RegSpy.exe"; DestDir: "{app}"; Flags: ignoreversion;
+Source: "..\Release\DScalerRes.dll"; DestDir: "{app}"; Flags: ignoreversion;
+Source: "..\Release\DSDrv4.sys"; DestDir: "{app}"; Flags: ignoreversion;
+Source: "..\Release\DSDrv4.vxd"; DestDir: "{app}"; Flags: ignoreversion;
 
 [INI]
 Filename: "{app}\DScaler.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.dscaler.org"

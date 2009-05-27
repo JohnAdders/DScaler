@@ -1,8 +1,7 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by DScalerRes.rc
 //
-#define IDC_STATIC                      -1
 #define IDM_POPUP_FILTERS               1
 #define IDC_CLEAR                       3
 #define IDC_AUTODETECT                  3
@@ -93,8 +92,6 @@
 #define ID_SETTINGS_OUTPUTTYPE          269
 #define IDM_HWINFO                      270
 #define IDD_SCHEDULE                    271
-#define IDM_OUTPUTTYPE_OVERLAY          20075
-#define IDM_OUTPUTTYPE_DIRECT3D         20076
 #define IDM_RESET                       280
 #define IDD_OPEN                        300
 #define IDD_TOOLBAR_MEDIAPLAYER         301
@@ -1209,6 +1206,8 @@
 #define IDC_TIMERHELP                   8104
 #define IDC_ADVANCE                     8105
 #define IDC_ATLAS                       9000
+#define IDM_OUTPUTTYPE_OVERLAY          20075
+#define IDM_OUTPUTTYPE_DIRECT3D         20076
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1350,6 +1349,10 @@
 #define ID_RECORDING_SCHEDULE           33025
 #define ID_SCHEDULE                     33026
 #define IDM_SCHEDULE                    33027
+#define IDM_RECORDING_RECORDINGDIRECTORY 33028
+#define IDM_ACTIONS_SNAPSHOTDIRECTORY   33029
+#define IDM_SETTINGS_OPENSETTINGSDIRECTORY 33030
+#define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1365,12 +1368,12 @@
 #define IDM_HOLDER                      65535
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        281
-#define _APS_NEXT_COMMAND_VALUE         33028
+#define _APS_NEXT_COMMAND_VALUE         33031
 #define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif

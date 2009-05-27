@@ -555,34 +555,36 @@ int CStillSource::GetPlaylistPosition()
     return m_Position;
 }
 
-BOOL CStillSource::FindFileName(time_t TimeStamp, tstring& FileName)
+LPCTSTR GetPictureExtension()
 {
-    int n = 0;
-    struct tm *ctm=localtime(&TimeStamp);
-    tstring extension;
-    struct _stat st;
-
     switch ((eStillFormat)Setting_GetValue(WM_STILL_GETVALUE, FORMATSAVING))
     {
     case STILL_TIFF_RGB:
     case STILL_TIFF_YCbCr:
-        extension = _T(".tif");
+        return _T(".tif");
         break;
     case STILL_JPEG:
-        extension = _T(".jpg");
+        return _T(".jpg");
         break;
     default:
-        ErrorBox(_T("Format of saving not supported.\nPlease change format in advanced settings"));
-        return FALSE;
         break;
     }
+    ErrorBox(_T("Format of saving not supported.\nPlease change format in advanced settings"));
+    return _T("");
+}
+
+BOOL CStillSource::FindFileName(time_t TimeStamp, tstring& FileName)
+{
+    int n = 0;
+    struct tm *ctm=localtime(&TimeStamp);
+    struct _stat st;
 
     while (n < 100)
     {
         // name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
         // TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
         tostringstream oss;
-        oss << SavingPath << _T("\\TV");
+        oss << _T("TV");
         oss << setw(4) << setfill((TCHAR)'0') << (ctm->tm_year+1900);
         oss << setw(2) << setfill((TCHAR)'0') << (ctm->tm_mon+1);
         oss << setw(2) << setfill((TCHAR)'0') << ctm->tm_mday;
@@ -590,7 +592,7 @@ BOOL CStillSource::FindFileName(time_t TimeStamp, tstring& FileName)
         oss << setw(2) << setfill((TCHAR)'0') << ctm->tm_min;
         oss << setw(2) << setfill((TCHAR)'0') << ctm->tm_sec;
         oss << setw(2) << setfill((TCHAR)'0') << n++;
-        oss << extension;
+        oss << GetPictureExtension();
 
         FileName = oss.str();
 
@@ -608,9 +610,22 @@ BOOL CStillSource::FindFileName(time_t TimeStamp, tstring& FileName)
     return TRUE;
 }
 
+tstring GetStillsPath()
+{
+    if(SavingPath.IsValid())
+    {
+        return (LPCTSTR)SavingPath;
+    }
+    else
+    {
+        return GetUserPicturePath();
+    }
+}
+
+
 void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch)
 {
-    tstring FilePath;
+    tstring FileName;
     BYTE* pNewFrameBuffer = pFrameBuffer;
     int NewLinePitch = LinePitch;
     int NewFrameHeight = FrameHeight;
@@ -619,28 +634,12 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 
     if (Setting_GetValue(WM_STILL_GETVALUE, SAVEINSAMEFILE))
     {
-        tstring extension;
-        switch ((eStillFormat)Setting_GetValue(WM_STILL_GETVALUE, FORMATSAVING))
-        {
-        case STILL_TIFF_RGB:
-        case STILL_TIFF_YCbCr:
-            extension = _T("tif");
-            break;
-        case STILL_JPEG:
-            extension = _T("jpg");
-            break;
-        default:
-            ErrorBox(_T("Format of saving not supported.\nPlease change format in advanced settings"));
-            return;
-            break;
-        }
-        FilePath = SavingPath;
-        FilePath += _T("\\TV.");
-        FilePath += extension;
+        FileName = _T("TV");
+        FileName += GetPictureExtension();
     }
     else
     {
-        if (!FindFileName(time(0), FilePath))
+        if (!FindFileName(time(0), FileName))
         {
             return;
         }
@@ -648,7 +647,7 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 
     if (OSDForStills)
     {
-        OSD_ShowText(StripPath(FilePath), 0);
+        OSD_ShowText(FileName, 0);
     }
 
     m_SquarePixels = AspectSettings.SquarePixels;
@@ -686,7 +685,8 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
         }
     }
 
-   tstring Context = BuildDScalerContext();
+    tstring Context = BuildDScalerContext();
+    tstring FilePath(AddFileToPath(GetStillsPath(), FileName));
 
     switch ((eStillFormat)Setting_GetValue(WM_STILL_GETVALUE, FORMATSAVING))
     {

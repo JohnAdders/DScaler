@@ -516,7 +516,7 @@ BOOL CHardwareDriver::AdjustAccessRights()
         }
         else
         {
-            DynamicFunctionS4<DWORD, ULONG, PEXPLICIT_ACCESS, PACL, PACL*> fnSetEntriesInAcl(_T("Advapi32.dll"), ADD_API_LETTER("SetEntriesInAcl"));
+            DynamicFunctionS4<DWORD, ULONG, PEXPLICIT_ACCESS, PACL, PACL*> fnSetEntriesInAcl(_T("Advapi32.dll"), ADD_API_LETTER(SetEntriesInAcl));
             if(fnSetEntriesInAcl)
             {
                 ea.grfAccessMode = SET_ACCESS;

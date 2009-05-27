@@ -29,6 +29,7 @@
 #include "DebugLog.h"
 #include "TVFormats.h"
 #include "Channels.h"
+#include "PathHelpers.h"
 
 using namespace std;
 
@@ -289,16 +290,13 @@ CUserChannels::~CUserChannels()
 {
 }
 
-BOOL CUserChannels::WriteFile(LPCTSTR szFilename) const
+BOOL CUserChannels::WriteFile() const
 {
-    if (NULL == szFilename)
-    {
-        return FALSE;
-    }
-
+    tstring FileName(GetFileName());
     BOOL success = FALSE;
-    FILE* file = _tfopen(szFilename, _T("w"));
-    if (NULL != file) {
+    FILE* file = _tfopen(FileName.c_str(), _T("w"));
+    if (NULL != file)
+    {
         success = WriteASCIIImpl(file);
         success = (fclose(file) == 0) && success;
         file = NULL;
@@ -308,21 +306,23 @@ BOOL CUserChannels::WriteFile(LPCTSTR szFilename) const
 }
 
 
-BOOL CUserChannels::ReadFile(LPCTSTR szFilename)
+BOOL CUserChannels::ReadFile()
 {
-    if (NULL == szFilename)
-    {
-        return FALSE;
-    }
-
+    tstring FileName(GetFileName());
     BOOL success = FALSE;
-    FILE* file = _tfopen(szFilename, _T("r"));
-    if (NULL != file) {
+    FILE* file = _tfopen(FileName.c_str(), _T("r"));
+    if (NULL != file) 
+    {
         success = ReadASCIIImpl(file);
         success = (fclose(file) == 0) && success;
         file = NULL;
     }
     return success;
+}
+
+tstring CUserChannels::GetFileName() const
+{
+    return GetUserFilePath() + _T("program.txt");
 }
 
 BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)

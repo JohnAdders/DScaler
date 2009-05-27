@@ -91,7 +91,7 @@ void SETranslate(unsigned int u, EXCEPTION_POINTERS* pExp)
         HANDLE hDumpFile;
         MINIDUMP_EXCEPTION_INFORMATION ExpParam;
 
-        tstring FileName(GetInstallationPath() + _T("\\minidump.dmp"));
+        tstring FileName(GetUserFilePath() + _T("\\minidump.dmp"));
 
         hDumpFile = CreateFile(FileName.c_str(), GENERIC_READ|GENERIC_WRITE, 
                     FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);

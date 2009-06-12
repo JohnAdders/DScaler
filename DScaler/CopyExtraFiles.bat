@@ -1,7 +1,4 @@
 rem This batch file is run as a post-build step. 
-xcopy ..\ThirdParty\LibJpeg\*.dll ..\%1\ /Y /D
-xcopy ..\ThirdParty\LibTiff\*.dll ..\%1\ /Y /D
-xcopy ..\ThirdParty\zlib\*.dll ..\%1\ /Y /D
 rem It copies the extra files from the Release folder to the Debug folder.
 if "%1" == "Release" goto endbatch
 xcopy ..\release\DSDrv4*.sys ..\%1\ /Y /D

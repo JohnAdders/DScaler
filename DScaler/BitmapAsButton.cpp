@@ -159,13 +159,13 @@ BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, tstring sID, HWND hWndParent )
         }
     }
 
-    SetWindowLongPtr(hTakeOver, GWLP_USERDATA, (LONG)this);
+    SetWindowLongPtr(hTakeOver, GWLP_USERDATA, (LONG_PTR)this);
 
     this->sID = sID;
     this->hWndParent = hWndParent;
     this->hWndButton = hTakeOver;
 
-    void *pOrg = (void*)SetWindowLongPtr(hTakeOver, GWLP_WNDPROC, (LONG)StaticButtonProc);
+    void *pOrg = (void*)SetWindowLongPtr(hTakeOver, GWLP_WNDPROC, (LONG_PTR)StaticButtonProc);
     if (pOrg == NULL)
     {
         //Failed
@@ -209,7 +209,7 @@ BOOL CBitmapAsButton::RestoreBack(HWND hWnd)
     if ((pOriginalProc != NULL) && (hWnd != NULL) && (hWnd==hWndButton))
     {
         SetWindowRgn(hWnd, NULL, FALSE);
-        SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG)pOriginalProc);
+        SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)pOriginalProc);
         pOriginalProc = NULL;
         if ((OriginalWidth>0) && (OriginalHeight>0))
         {
@@ -653,7 +653,7 @@ LRESULT CALLBACK CBitmapAsButton::StaticButtonProc(HWND hWnd, UINT message, WPAR
         }
         MDICREATESTRUCT * pMDIC = (MDICREATESTRUCT *)((LPCREATESTRUCT) lParam)->lpCreateParams;
         CBitmapAsButton *pThis = (CBitmapAsButton*) (pMDIC->lParam);
-        ::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG)pThis);
+        ::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pThis);
         return TRUE;
     }
 

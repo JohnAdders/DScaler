@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 /nologo /subsystem:windows /pdb:none /machine:I386 /out:"../Release/RegSpy.exe"
+# ADD LINK32 Shell32.lib gdi32.lib shlwapi.lib Comdlg32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /out:"../Release/RegSpy.exe"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "RegSpy - Win32 Debug"
@@ -97,6 +97,10 @@ SOURCE=..\DScaler\BitVector.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\DScaler\BuildNum.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\DScaler\ErrorBox.cpp
 # End Source File
 # Begin Source File
@@ -106,6 +110,14 @@ SOURCE=..\RegLog\GenericCard.cpp
 # Begin Source File
 
 SOURCE=..\DScaler\HardwareDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\DScaler\LibraryCache.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\DScaler\PathHelpers.cpp
 # End Source File
 # Begin Source File
 

@@ -107,9 +107,9 @@ HWND CToolbarChannels::CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceI
 
         if (hWndCombo != NULL)
         {
-            ::SetWindowLongPtr(hWndCombo, GWLP_USERDATA, (LONG)this);
+            ::SetWindowLongPtr(hWndCombo, GWLP_USERDATA, (LONG_PTR)this);
 
-            m_oldComboProc = (WNDPROC)SetWindowLongPtr(hWndCombo, GWLP_WNDPROC, (LONG)MyComboProcWrap);
+            m_oldComboProc = (WNDPROC)SetWindowLongPtr(hWndCombo, GWLP_WNDPROC, (LONG_PTR)MyComboProcWrap);
         }
     }
 
@@ -135,7 +135,7 @@ LRESULT CToolbarChannels::MyComboProc(HWND hDlg, UINT message, WPARAM wParam, LP
 LRESULT CALLBACK CToolbarChannels::MyComboProcWrap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 
-    CToolbarChannels *pThis = (CToolbarChannels*)::GetWindowLong(hDlg, GWLP_USERDATA);
+    CToolbarChannels *pThis = (CToolbarChannels*)::GetWindowLongPtr(hDlg, GWLP_USERDATA);
     if (pThis != NULL)
     {
         return pThis->MyComboProc(hDlg,message,wParam,lParam);
@@ -329,7 +329,7 @@ LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wPara
     case WM_DESTROY:
         if ((hDlg != NULL) && (m_oldComboProc!=NULL))
         {
-            SetWindowLongPtr(hDlg, GWLP_WNDPROC, (LONG)m_oldComboProc);
+            SetWindowLongPtr(hDlg, GWLP_WNDPROC, (LONG_PTR)m_oldComboProc);
         }
         break;
     }

@@ -1368,7 +1368,7 @@ INT_PTR APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
         gRegDisplayInfo.pLogState           = &nLogState;
         gRegDisplayInfo.nScrollPos          = 0;
 
-        SetWindowLongPtr(hRegDisplay, GWLP_WNDPROC, (LONG)RegDisplayProc);
+        SetWindowLongPtr(hRegDisplay, GWLP_WNDPROC, (LONG_PTR)RegDisplayProc);
 
         if(pSourceList == NULL)
         {

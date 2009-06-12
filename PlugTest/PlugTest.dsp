@@ -91,6 +91,10 @@ SOURCE=..\DScaler\CPU.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\DScaler\LibraryCache.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\PlugTest.cpp
 # End Source File
 # Begin Source File

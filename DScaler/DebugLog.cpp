@@ -28,7 +28,7 @@
 
 using namespace std;
 
-#define DEBUGLOGFILENAME "DScaler.log"
+#define DEBUGLOGFILENAME _T("DScaler.log")
 
 static FILE* debugLog = NULL;
 SettingStringValue DebugLogFilename;

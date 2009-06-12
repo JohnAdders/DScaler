@@ -338,6 +338,15 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name DSRend
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name LibJpeg
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name LibTiff
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name zlib
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -558,6 +567,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "LibJpeg"=..\ThirdParty\LibJpeg\LibJpeg.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "LibTiff"=..\ThirdParty\LibTiff\LibTiff.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "PlugTest"=..\PlugTest\PlugTest.dsp - Package Owner=<4>
 
 Package=<5>
@@ -667,6 +700,18 @@ Package=<4>
 ###############################################################################
 
 Project: "SendMsg"=..\SendMsg\SendMsg.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "zlib"=..\ThirdParty\zlib\zlib.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

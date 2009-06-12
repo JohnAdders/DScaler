@@ -24,10 +24,11 @@
 #include "JpegHelper.h"
 #include "DebugLog.h"
 #define XMD_H
+#define NEED_FAR_POINTERS
 extern "C"
 {
-#include "..\ThirdParty\LibJpeg\jerror.h"
 #include "..\ThirdParty\LibJpeg\jpeglib.h"
+#include "..\ThirdParty\LibJpeg\jerror.h"
 }
 #include <setjmp.h>
 
@@ -125,7 +126,7 @@ init_source (j_decompress_ptr cinfo)
  * the front of the buffer rather than discarding it.
  */
 
-METHODDEF(Boolean)
+METHODDEF(boolean)
 fill_input_buffer (j_decompress_ptr cinfo)
 {
   my_src_ptr src = (my_src_ptr) cinfo->src;
@@ -291,7 +292,7 @@ init_destination (j_compress_ptr cinfo)
  * write it out when emptying the buffer externally.
  */
 
-METHODDEF(Boolean)
+METHODDEF(boolean)
 empty_output_buffer (j_compress_ptr cinfo)
 {
   my_dest_ptr dest = (my_dest_ptr) cinfo->dest;

@@ -25,12 +25,3 @@
 
 #include "stdafx.h"
 
-
-// provide limited support for higher versions of platform sdk
-// when running with VS6, the seem to allow linking with release build
-#if defined(_MSC_VER) && (_MSC_VER < 1400 )
-#  include "ntverp.h"
-#  if defined(VER_PRODUCTBUILD) && VER_PRODUCTBUILD >= 1636
-#    pragma comment(lib, "bufferoverflowU.lib")
-#  endif
-#endif

@@ -861,7 +861,6 @@ TIME_SHIFT::TIME_SHIFT(HWND hWndIn) :
     waveFormat.wBitsPerSample  = 16;
     waveFormat.nBlockAlign     = (waveFormat.nChannels * waveFormat.wBitsPerSample) / 8;
     waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
-    savingPath[0] = 0;
     sizeLimit = 0;
     InitializeCriticalSection(&lock);
 }

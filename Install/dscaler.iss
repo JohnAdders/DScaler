@@ -93,9 +93,6 @@ Source: "..\Release\Patterns\*.pat"; DestDir: "{app}\Patterns"; Flags: ignorever
 Source: "..\Release\Patterns\*.d3u"; DestDir: "{app}\Patterns"; Flags: ignoreversion; Components: main
 Source: "..\Release\Skins\*.bmp"; DestDir: "{app}\Skins"; Flags: ignoreversion recursesubdirs; Components: main
 Source: "..\Release\Skins\*.ini"; DestDir: "{app}\Skins"; Flags: ignoreversion recursesubdirs; Components: main
-Source: "..\ThirdParty\LibTiff\libtiff.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
-Source: "..\ThirdParty\LibJpeg\libjpeg.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
-Source: "..\ThirdParty\zlib\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 
 ; extra
 Source: "..\Release\DI_BlendedClip.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra

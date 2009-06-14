@@ -101,6 +101,7 @@ void Timing_CleanUp()
     if(hTimerEvent != NULL)
     {
         CloseHandle(hTimerEvent);
+		hTimerEvent = NULL;
     }
 
     // reset the timer resolution

@@ -43,8 +43,8 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_DScopeVIDEO_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /O2 /Op /I "..\..\Api" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_DScopeVIDEO_EXPORTS" /FD /c
-# SUBTRACT CPP /FA<none> /Fr
+# ADD CPP /nologo /MT /W3 /O2 /Op /I "..\..\Api" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_DScopeVIDEO_EXPORTS" /FD /c
+# SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /D "NDEBUG" /mktyplib203 /win32
 # SUBTRACT MTL /nologo
@@ -72,8 +72,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_DScopeVIDEO_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX- /Zi /Ox /Ot /Ow /Og /Op /I "..\..\Api" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_DScopeVIDEO_EXPORTS" /FR /FD /c
-# SUBTRACT CPP /Oi /Gf /FA<none>
+# ADD CPP /nologo /MTd /W3 /Gm /Zi /Ox /Ot /Ow /Og /Op /I "..\..\Api" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_DScopeVIDEO_EXPORTS" /FR /FD /c
+# SUBTRACT CPP /Oi /Gf
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /D "_DEBUG" /mktyplib203 /win32
 # SUBTRACT MTL /nologo

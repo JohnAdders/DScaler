@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_Chroma_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /Ox /Ot /Ow /Og /Op /Ob2 /I "..\..\Api" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_Chroma_EXPORTS" /FD /c
+# ADD CPP /nologo /MT /W3 /Ox /Ot /Ow /Og /Op /Ob2 /I "..\..\Api" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_Chroma_EXPORTS" /FD /c
 # SUBTRACT CPP /Os /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_Chroma_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /Zi /Ox /Ot /Ow /Og /Op /I "..\..\Api" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_Chroma_EXPORTS" /FD /c
+# ADD CPP /nologo /MTd /W3 /Gm /Zi /Ox /Ot /Ow /Og /Op /I "..\..\Api" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_Chroma_EXPORTS" /FD /c
 # SUBTRACT CPP /Oi
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32

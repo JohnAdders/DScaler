@@ -570,7 +570,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     return &GreedyHMethod;
 }
 
-BOOL WINAPI DllMain(HANDLE hInstance, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI NoCRTDllMain(HANDLE hInstance, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     hInst = hInstance;
     return TRUE;

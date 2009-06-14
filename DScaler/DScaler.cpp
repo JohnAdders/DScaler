@@ -3999,7 +3999,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     default:
         {
             LONG RetVal = Remote_HandleMsgs(hWnd, message, wParam, lParam, &bDone);
-            if(!bDone)
+            if(!bDone && SettingsMaster.IsValid())
             {
                 RetVal = SettingsMaster->HandleSettingMsgs(hWnd, message, wParam, lParam, &bDone);
             }
@@ -4592,6 +4592,12 @@ void MainWndOnDestroy()
         Timing_CleanUp();
     }
     catch(...) {LOG(1, _T("Error Timing_CleanUp()"));}
+
+    try
+    {
+        SettingsMaster = 0L;
+    }
+    catch(...) {LOG(1, _T("Delete settings master"));}
 
 }
 

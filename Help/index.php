@@ -6,6 +6,7 @@
     <frameset cols="200,*">
          <frame name="contents" target="main" src="HelpContents.htm" scrolling="no">
          <frame name="main" src="<?php
+                                       $helppage=$_GET["helppage"];
                                        if (isset($helppage)) 
                                        {
                                            echo $helppage;

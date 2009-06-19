@@ -469,7 +469,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
 
 BYTE* DumbAlignedMalloc(int siz)
 {
-    BYTE* x = (BYTE*)malloc(siz+16);
+    BYTE* x = (BYTE*)CoTaskMemAlloc(siz+16);
     BYTE** y = (BYTE**) (x+16);
     y = (BYTE**) (((unsigned int) y & 0xfffffff0) - 4);
     *y = x;
@@ -480,19 +480,15 @@ BYTE* DumbAlignedMalloc(int siz)
 BYTE* DumbAlignedFree(BYTE* x)
 {
     BYTE* y =  *(BYTE**)(x-4);
-    free(y);
+    CoTaskMemFree(y);
     return 0;
 }
 
 
-// Need malloc() and free(), so this is commented out
-
-/*
-BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI NoCRTDllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }
-*/
 
 
 // Update (roll) the field buffer array

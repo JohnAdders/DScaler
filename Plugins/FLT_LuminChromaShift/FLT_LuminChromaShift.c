@@ -77,7 +77,7 @@ long __cdecl LuminChromaShift(TDeinterlaceInfo* pInfo)
     {
         // Save the original line content in a buffer
         // This buffer is then used to update the current line
-        memcpy(WorkLine, Pixels, pInfo->LineLength);
+        pInfo->pMemcpy(WorkLine, Pixels, pInfo->LineLength);
 
         for (x = 0; x < pInfo->FrameWidth; ++x)
         {
@@ -162,7 +162,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
     return &LuminChromaShiftMethod;
 }
 
-BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI NoCRTDllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

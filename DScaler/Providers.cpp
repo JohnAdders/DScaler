@@ -154,7 +154,7 @@ int Providers_Load(HMENU hMenu)
             if(RegFlag == -1)
             {
                 int Resp = MessageBox(GetMainWnd(), _T(" You have a CX2388x card.  There have been several reported instability ")
-                    _T("problems with these cards if we allow the drivers to run.  Beacuse of this you can either run with ")
+                    _T("problems with these cards if we allow the drivers to run.  Because of this you can either run with ")
                     _T("DScaler's own drivers or with the DShow drivers but not both.  Do you want to use DScaler's own driver?"),
                     _T("CX2388x Question"), MB_YESNO | MB_ICONQUESTION);
                 if(Resp == IDYES)

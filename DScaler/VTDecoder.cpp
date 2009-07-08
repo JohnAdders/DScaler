@@ -1708,7 +1708,7 @@ tstring CVTDecoder::GetStatusDisplay()
 {
     vector<TCHAR> Buffer(sizeof(m_BroadcastServiceData.StatusDisplay) + 1);
     EnterCriticalSection(&m_ServiceDataStoreMutex);
-    CheckParity((BYTE*)&Buffer[0], sizeof(m_BroadcastServiceData.StatusDisplay), TRUE);
+    CheckParity((BYTE*)m_BroadcastServiceData.StatusDisplay, sizeof(m_BroadcastServiceData.StatusDisplay), TRUE);
     Buffer.assign((char*)m_BroadcastServiceData.StatusDisplay, (char*)m_BroadcastServiceData.StatusDisplay + sizeof(m_BroadcastServiceData.StatusDisplay));
     LeaveCriticalSection(&m_ServiceDataStoreMutex);
 

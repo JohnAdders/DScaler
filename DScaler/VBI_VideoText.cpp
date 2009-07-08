@@ -109,7 +109,7 @@ UINT_PTR            VTFlashTimer = 0;
 
 BOOL                VTShowOSD = FALSE;
 TCHAR               VTOSDBuffer[4] = _T("");
-TCHAR*               VTPageOSD = NULL;
+TCHAR*              VTPageOSD = NULL;
 TCHAR               VTPageInput[4] = _T("");
 
 // This variable controls the display duration for VT_ShowHeader();
@@ -1643,7 +1643,7 @@ BOOL VT_PerformFlofKey(HDC hDC, LPRECT lpRect, BYTE nFlofKey)
 
 void VT_SetPageOSD(TCHAR OSD[3])
 {
-    TCHAR szOSD[9];
+    char szOSD[9];
 
     if (OSD == NULL)
     {
@@ -1652,18 +1652,18 @@ void VT_SetPageOSD(TCHAR OSD[3])
         if (VTShowSubcodeInOSD != FALSE &&
             LOWORD(VTLoadedPageCode) == VTPageHex)
         {
-            _stprintf(szOSD, _T("%03X/%-4X"), VTPageHex, HIWORD(VTLoadedPageCode));
+            sprintf(szOSD, "%03X/%-4X", VTPageHex, HIWORD(VTLoadedPageCode));
         }
         else
         {
-            _stprintf(szOSD, _T("  P%03X \x07"), VTPageHex);
+            sprintf(szOSD, "  P%03X \x07", VTPageHex);
         }
     }
     else
     {
         BOOL bSpace = FALSE;
 
-        CopyMemory(VTOSDBuffer, OSD, 3);
+        CopyMemory(VTOSDBuffer, OSD, 3 * sizeof(TCHAR));
 
         for (BYTE i = 0; i < 3; i++)
         {
@@ -1676,7 +1676,7 @@ void VT_SetPageOSD(TCHAR OSD[3])
 
         VTPageOSD = VTOSDBuffer;
 
-        _stprintf(szOSD, _T("  P%c%c%c \x07"), VTPageOSD[0], VTPageOSD[1], VTPageOSD[2]);
+        sprintf(szOSD, "  P%c%c%c \x07", VTPageOSD[0], VTPageOSD[1], VTPageOSD[2]);
     }
 
     CopyMemory(VTVisiblePage.Frame[0], szOSD, 8);
@@ -1997,9 +1997,9 @@ void VT_ProcessHeaderUpdate(HDC hDC, LPRECT lpRect)
     }
     else
     {
-        TCHAR szOldClock[8];
+        char szOldClock[8];
 
-        CopyMemory(szOldClock, &VTVisiblePage.Frame[0][32], 8 * sizeof(TCHAR));
+        CopyMemory(szOldClock, &VTVisiblePage.Frame[0][32], 8);
         VTDecoder.GetDisplayHeader(&VTVisiblePage, TRUE);
 
         // Only redraw the clock if it changed

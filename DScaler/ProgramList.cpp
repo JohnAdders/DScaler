@@ -216,7 +216,7 @@ void SetFrequencyEditBox(HWND hDlg, long Frequency)
 }
 
 
-void UpdateDetails(HWND hDlg, SmartPtr<CChannel> pChannel)
+void UpdateDetails(HWND hDlg, const CChannel* pChannel)
 {
     static TCHAR sbuf[256];
     MyInUpdate = TRUE;
@@ -305,7 +305,7 @@ void RefreshProgramList(HWND hDlg, int ProgToSelect)
 
     for(int i = 0; i < MyChannels.GetSize(); i++)
     {
-        CChannel* Channel = MyChannels.GetChannel(i).GetRawPointer();
+        const CChannel* Channel = MyChannels.GetChannel(i);
         _stprintf(sbuf, _T("%s"), Channel->GetName());
         ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
     }
@@ -340,7 +340,7 @@ void RefreshChannelList(HWND hDlg, int iCountryCode)
     const CCountryChannels* channels = MyCountries.GetChannels(iCountryCode);
     for(int i = 0; i < channels->GetSize(); i++)
     {
-        CChannel* channel = channels->GetChannel(i).GetRawPointer();
+        const CChannel* channel = channels->GetChannel(i);
         // Channel names not yet available so adding name
         // to combo a bit pointless, the class does support this for the
         // future though
@@ -588,7 +588,7 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 
     MyInUpdate = TRUE;
 
-    CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex).GetRawPointer();
+    const CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex);
     UpdateDetails(hDlg, channel);
 
     // don't attempt to scan duplicate frequencies
@@ -672,7 +672,7 @@ void ScanChannelCustom(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 
     MyInUpdate = TRUE;
 
-    CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex).GetRawPointer();
+    const CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex);
     UpdateDetails(hDlg, channel);
     DWORD ReturnedFreq = FindFrequency(channel->GetFrequency(), channel->GetFormat(), 0);
 
@@ -893,7 +893,7 @@ INT_PTR CALLBACK ProgramListProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
             ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), _T("Same as Tuner"));
             for(i = 0; i < VIDEOFORMAT_LAST_TV; ++i)
             {
-                ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), VideoFormatNames[i]);
+                ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), MBCSToTString(VideoFormatNames[i]).c_str());
             }
             ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), _T("Tuner default"));
             ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), _T("FM Radio"));

@@ -74,11 +74,11 @@ public :
 
     DWORD GetHigherFrequency() const;
 
-    SmartPtr<CChannel> GetChannel(int iChannelIndex) const;
+    const CChannel* GetChannel(int iChannelIndex) const;
 
-    SmartPtr<CChannel> GetChannelByNumber(int iChannelNumber); //May return NULL
+    const CChannel* GetChannelByNumber(int iChannelNumber); //May return NULL
 
-    SmartPtr<CChannel> GetChannelByFrequency(DWORD dwFreq); //May return NULL
+    const CChannel* GetChannelByFrequency(DWORD dwFreq); //May return NULL
 
     //The given channel will be destroyed when list is cleared
     void AddChannel(SmartPtr<CChannel>);

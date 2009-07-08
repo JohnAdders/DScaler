@@ -351,11 +351,11 @@ void CScheduledRecording::getChannels(std::vector<tstring> &channels)
     int count = MyChannels.GetSize();
 
     tstring channel_name;
-    CChannel* channel;
+    const CChannel* channel;
 
     for(int i=0;i<count;i++)
     {
-        channel = MyChannels.GetChannel(i).GetRawPointer();
+        channel = MyChannels.GetChannel(i);
 
         if(!channel)
             continue;

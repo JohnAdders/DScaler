@@ -150,13 +150,13 @@ DWORD CChannelList::GetHigherFrequency()  const
     return m_MaxFrequency;
 }
 
-SmartPtr<CChannel> CChannelList::GetChannel(int index)  const
+const CChannel* CChannelList::GetChannel(int index)  const
 {
     return m_Channels[index];
 }
 
 
-SmartPtr<CChannel> CChannelList::GetChannelByNumber(int iChannelNumber)
+const CChannel* CChannelList::GetChannelByNumber(int iChannelNumber)
 {
     SmartPtr<CChannel> returned;
 
@@ -173,7 +173,7 @@ SmartPtr<CChannel> CChannelList::GetChannelByNumber(int iChannelNumber)
     return returned;
 }
 
-SmartPtr<CChannel> CChannelList::GetChannelByFrequency(DWORD dwFreq)
+const CChannel* CChannelList::GetChannelByFrequency(DWORD dwFreq)
 {
     SmartPtr<CChannel> returned;
 
@@ -239,8 +239,8 @@ void CChannelList::SwapChannels(int a, int b)
         return;
     }
 
-    SmartPtr<CChannel> channelA = GetChannel(a);
-    SmartPtr<CChannel> channelB = GetChannel(b);
+    SmartPtr<CChannel> channelA(m_Channels[a]);
+    SmartPtr<CChannel> channelB(m_Channels[b]);
 
     m_Channels[a] = channelB;
     m_Channels[b] = channelA;
@@ -684,13 +684,9 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
                             SmartPtr<CChannel> NewChannel;
                             if (channelName.length() < 2)
                             {
-                                channelName = MakeString() << _T("Channel ") << channelNumber;
-                                NewChannel = new CChannel(channelName.c_str(), freq, channelNumber, Format, FALSE);
+                                channelName = MakeString() << _T("; Channel ") << channelNumber;
                             }
-                            else 
-                            {
-                                NewChannel = new CChannel(channelName.c_str(), freq, channelNumber, Format, FALSE);
-                            }
+                            NewChannel = new CChannel(channelName.c_str() + 2, freq, channelNumber, Format, FALSE);
                             NewCountry->AddChannel(NewChannel);
                         }
                         channelCounter++;

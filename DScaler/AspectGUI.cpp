@@ -1031,7 +1031,7 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
     },
     {
         "Screen Aspect", SLIDER, 0, (LONG_PTR*)&AspectSettings.TargetAspect,
-        1333, 0, 3000, 1, 1000,
+        0, 0, 3000, 1, 1000,
         NULL,
         "Aspect", "TargetAspect", TargetAspect_OnChange,
     },

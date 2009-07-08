@@ -25,6 +25,7 @@
 #include "resource.h"
 #include "DebugLog.h"
 #include "SettingsMaster.h"
+#include "PathHelpers.h"
 
 using namespace std;
 
@@ -57,7 +58,12 @@ void LOG(int DebugLevel, LPCWSTR Format, ...)
         return;
     }
 
-    if (debugLog == NULL && DebugLogFilename.IsValid())
+	if(!DebugLogFilename.IsValid())
+	{
+		DebugLogFilename.SetValue(GetUserFilePath() + _T("Debug.log"));
+	}
+
+	if (debugLog == NULL)
     {
         tstring FileName(DebugLogFilename);
         debugLog = _tfopen(FileName.c_str(), _T("w"));
@@ -203,7 +209,7 @@ SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
     },
     {
         "Debug Log File", TCHARSTRING, 0, DebugLogFilename.GetPointer(),
-        (LONG_PTR)DEBUGLOGFILENAME, 0, 0, 0, 0,
+        (LONG_PTR)"", 0, 0, 0, 0,
         NULL,
         "Files", "DebugLogFilename", NULL,
     },

@@ -279,7 +279,7 @@ SmartPtr& operator=(Y* raw)
     X* GetRawPointer() const
     {
         if (rawPtr == 0) throw new NullPointerException;
-        return rawPtr;
+        return const_cast<X*>(rawPtr);
     }
 
     

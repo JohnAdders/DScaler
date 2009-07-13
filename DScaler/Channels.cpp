@@ -152,7 +152,7 @@ DWORD CChannelList::GetHigherFrequency()  const
 
 const CChannel* CChannelList::GetChannel(int index)  const
 {
-    return m_Channels[index];
+    return m_Channels[index].GetRawPointer();
 }
 
 
@@ -170,7 +170,7 @@ const CChannel* CChannelList::GetChannelByNumber(int iChannelNumber)
             break;
         }
     }
-    return returned;
+    return returned.GetRawPointer();
 }
 
 const CChannel* CChannelList::GetChannelByFrequency(DWORD dwFreq)
@@ -187,7 +187,7 @@ const CChannel* CChannelList::GetChannelByFrequency(DWORD dwFreq)
             break;
         }
     }
-    return returned;
+    return returned.GetRawPointer();
 }
 
 void CChannelList::AddChannel(SmartPtr<CChannel> pChannel)

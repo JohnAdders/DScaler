@@ -2,6 +2,7 @@
 // Microsoft Developer Studio generated include file.
 // Used by SAA7134Res.rc
 //
+#define IDC_STATIC                      -1
 #define IDC_LEFT_SLIDER                 1001
 #define IDC_LEFT_EDIT                   1002
 #define IDC_NICAM_SLIDER                1003

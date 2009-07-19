@@ -21,6 +21,7 @@
 // Microsoft Developer Studio generated include file.
 // Used by TDA9887Tester.rc
 //
+#define IDC_STATIC                      -1
 #define IDD_TDA9887TESTER_DIALOG        102
 #define IDR_MAINFRAME                   128
 #define IDC_STATIC_SOURCE_CARD_FRAME    1000

@@ -2,6 +2,7 @@
 // Microsoft Developer Studio generated include file.
 // Used by RegSpy.rc
 //
+#define IDC_STATIC                      -1
 #define IDS_APP_TITLE                   102
 #define IDI_REGSPY                      103
 #define IDC_REGSPY                      104

@@ -2,6 +2,7 @@
 // Microsoft Developer Studio generated include file.
 // Used by BT8x8Res.rc
 //
+#define IDC_STATIC                      -1
 #define IDD_DIALOG1                     101
 #define IDD_BT8x8REGISTER_EDIT        101
 #define IDC_REGISTER                    1001

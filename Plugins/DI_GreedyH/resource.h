@@ -2,6 +2,7 @@
 // Microsoft Developer Studio generated include file.
 // Used by DI_GreedyH.RC
 //
+#define IDC_STATIC                      -1
 #define IDC_DIAG                        3
 #define IDC_REFRESH                     4
 #define IDC_DEFAULT                     1774

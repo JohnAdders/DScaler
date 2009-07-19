@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by DScalerRes.rc
 //
+#define IDC_STATIC                      -1
 #define IDM_POPUP_FILTERS               1
 #define IDC_CLEAR                       3
 #define IDC_AUTODETECT                  3

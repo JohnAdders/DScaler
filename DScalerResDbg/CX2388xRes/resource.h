@@ -2,6 +2,7 @@
 // Microsoft Developer Studio generated include file.
 // Used by CX2388xRes.rc
 //
+#define IDC_STATIC                      -1
 #define IDD_DIALOG1                     101
 #define IDD_CX2388XREGISTER_EDIT        101
 #define IDC_REGISTER                    1001

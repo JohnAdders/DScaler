@@ -7,7 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+#include "winresrc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -34,7 +34,7 @@ END
 
 2 TEXTINCLUDE
 BEGIN
-    "#include ""afxres.h""\r\0"
+    "#include ""winresrc.h""\r\0"
 END
 
 3 TEXTINCLUDE
@@ -50,7 +50,6 @@ BEGIN
     "#pragma code_page(1252)\r\n"
     "#endif //_WIN32\r\n"
     "#include ""res\\Reflasher.rc2""  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen\r\n"
-    "#include ""afxres.rc""          // Standardkomponenten\r\n"
     "#endif\r\0"
 END
 
@@ -255,7 +254,6 @@ LANGUAGE 7, 1
 #pragma code_page(1252)
 #endif //_WIN32
 #include "res\Reflasher.rc2"  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen
-#include "afxres.rc"          // Standardkomponenten
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

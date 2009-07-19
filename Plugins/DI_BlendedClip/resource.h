@@ -2,6 +2,7 @@
 // Microsoft Developer Studio generated include file.
 // Used by DI_BlendedClip.RC
 //
+#define IDC_STATIC                      -1
 #define IDC_DEFAULT                     1774
 #define IDC_MIN_CLIP                    1790
 #define IDC_PIXEL_MOV                   1791

@@ -2,6 +2,7 @@
 // Microsoft Developer Studio generated include file.
 // Used by ParseCardIni.rc
 //
+#define IDC_STATIC                      -1
 #define IDD_PARSECARDINI_DIALOG         102
 #define IDR_MAINFRAME                   128
 #define IDB_TREE_IMAGE_LIST             129

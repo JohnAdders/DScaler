@@ -75,7 +75,8 @@ void UpdateAdaptiveMode(long Index)
                 {
                     ModeName = DeintMethods[i]->szName;
                 }
-                wsprintf(AdaptiveName, "Adaptive - %s", ModeName);
+                lstrcpy(AdaptiveName, "Adaptive - ");
+				lstrcat(AdaptiveName, ModeName);
                 pfnSetStatus(AdaptiveName);
             }
             CurrentIndex = Index;

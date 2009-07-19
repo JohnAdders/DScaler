@@ -86,7 +86,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib COMMODE.OBJ winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib"
+				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib COMMODE.OBJ winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib shlwapi.lib"
 				OutputFile="..\Release\DScaler.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -190,7 +190,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib COMMODE.OBJ winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib"
+				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib COMMODE.OBJ winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib shlwapi.lib"
 				OutputFile="..\Release\DScaler.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -291,7 +291,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib COMMODE.OBJ winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib"
+				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib COMMODE.OBJ winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib shlwapi.lib"
 				OutputFile="..\Debug\DScaler.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -398,7 +398,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib COMMODE.OBJ winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib"
+				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib COMMODE.OBJ winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib shlwapi.lib"
 				OutputFile="..\Debug\DScaler.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

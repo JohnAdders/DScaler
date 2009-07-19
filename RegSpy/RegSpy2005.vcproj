@@ -79,7 +79,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib"
+				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib shlwapi.lib"
 				OutputFile="..\Debug/RegSpy.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -173,7 +173,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib"
+				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib shlwapi.lib"
 				OutputFile="..\Debug/RegSpy.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -270,7 +270,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib"
+				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib shlwapi.lib"
 				OutputFile="../Release/RegSpy.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -365,7 +365,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib"
+				AdditionalDependencies="Shell32.lib Gdi32.lib comdlg32.lib shlwapi.lib"
 				OutputFile="../Release/RegSpy.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

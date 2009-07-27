@@ -1,60 +1,43 @@
-Last Update: 2007/03/04
+Compilation instructions for Visual Studio 2005 C++ Express
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Required Tools
-~~~~~~~~~~~~~~
-- Visual Studio C++ 2005 Express Edition
-- VS2005 Express SP1 update
-- Microsoft Platform SDK for Windows Server 2003 R2
-- Microsoft DirectX SDK (October 2006)
-- Windows Server 2003 Service Pack 1 (SP1) Driver Development Kit (DDK)
+1. Unpack the DScaler source code into any subdirectory
 
-Unpack the DScaler source code into any subdirectory.
+2. Install Sevice Pack 1 for visual studio
+   http://www.microsoft.com/downloads/details.aspx?FamilyId=7B0B0339-613A-46E6-AB4D-080D4D4A8C4E&displaylang=en
 
-In Visual Studio set up the build directories
-EXACTLY as ordered.  This is VERY IMPORTANT, or the project won't
-compile properly.  You will need to substitute the directories
-with the ones on your system if you have installed the sdk or ddk to 
-different directories.
+3. Install the windows SDK from
+   http://www.microsoft.com/downloads/details.aspx?FamilyID=e6e1c3df-a74f-4207-8586-711ebe331cdc&displaylang=en (Websetup)
+   http://www.microsoft.com/downloads/details.aspx?FamilyId=F26B1AA4-741A-433A-9BE5-FA919850BDBF&displaylang=en (iso)
+   This will install to a root of c:\program files\Microsoft SDKs\Windows\v6.1\ by default, this is the root we will use in the examples later
 
-Visual Studio->Tools->Options->Projects and Solutions->VC++ Directories->Include Files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Include
-C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Include\mfc
-C:\WINDDK\3790.1830\inc\ddk\wxp
-C:\WINDDK\3790.1830\inc\wxp
-C:\WINDDK\3790.1830\inc\atl30
-C:\WINDDK\3790.1830\inc\mfc42
-C:\Programme\Microsoft DirectX SDK (October 2006)\Include
-$(VCInstallDir)include
+4. Get MASM from
+   http://www.microsoft.com/downloads/details.aspx?FamilyID=7a1c9da0-0510-44a2-b042-7ef370530c64&displaylang=en
+   Run MASMsetup.exe
 
-Visual Studio->Tools->Options->Projects and Solutions->VC++ Directories->Library files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Lib
-C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Lib\Win95
-C:\WINDDK\3790.1830\lib\atl\i386
-C:\WINDDK\3790.1830\lib\wxp\i386
-C:\WINDDK\3790.1830\lib\mfc\i386
-C:\Program Files\Microsoft DirectX SDK (October 2006)\Lib\x86
-$(VSInstallDir)
-$(VCInstallDir)lib
-$(VSInstallDir)lib
+5. Get Nasm From:
+   http://www.nasm.us/pub/nasm/releasebuilds/2.06/win32/
+   Extract nasm.exe and put this file into a tools directory. I use c:\tools
+
+6. Get the Windows Server 2003 DDK from
+   http://www.microsoft.com/whdc/DevTools/ddk/default.mspx
+
+7. Patch up the ATL files
+   Some files need to be changed, see here:
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   http://www.codeproject.com/wtl/WTLExpress.asp
+   http://forums.microsoft.com/msdn/showpost.aspx?postid=66102&siteid=1
 
 
-Some files need to be changed, see here:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-http://www.codeproject.com/wtl/WTLExpress.asp
-http://forums.microsoft.com/msdn/showpost.aspx?postid=66102&siteid=1
+   Find this files
+   ~~~~~~~~~~~~~~~
+   afx.inl
+   afxmsg_.h
+   afxwin1.inl
+   atlwin.h
 
-
-Find this files
-~~~~~~~~~~~~~~~
-afx.inl
-afxmsg_.h
-afxwin1.inl
-atlwin.h
-
-and patch them
-~~~~~~~~~~~~~~
+   and patch them
+   ~~~~~~~~~~~~~~
 
 --- afx.inl.old	Fri Mar  3 22:20:28 2006
 +++ afx.inl	Tue Dec 12 23:54:02 2006
@@ -124,4 +107,32 @@ and patch them
                          {
 
 
-Open DScaler\DScaler2005.sln in Visual Studio. Go to Solution Explorer, right click on 'DScaler' in tree view, select 'Set as StartUp Project'. In Build->Configuration Manager->Active solution configuration select 'Release_Express' or 'Debug_Express'. Build with F7.
+
+8. In Visual Studio set up the build directories
+   EXACTLY as ordered.  This is VERY IMPORTANT, or the project won't
+   compile properly.  You will need to substitute the directories
+   with the ones on your system if you have installed the sdks to 
+   different directories
+
+   Visual Studio->Tools->Options->Directories->Executable Files for Win32
+      c:\program files\Microsoft SDKs\Windows\v6.1\bin
+      {the various MSVC directories}
+      C:\Tools
+
+   Visual Studio->Tools->Options->Directories->Include Files for Win32
+      c:\program files\Microsoft SDKs\Windows\v6.1\include
+      C:\WINDDK\3790.1830\inc\atl30
+      {the various MSVC directories}
+
+   Visual Studio->Tools->Options->Directories->Library Files for Win32
+      c:\program files\Microsoft SDKs\Windows\v6.1\Lib
+      C:\WINDDK\3790.1830\lib\atl\i386
+      {the various MSVC directories}
+
+9. Open DScaler\DScaler2005.sln in Visual Studio. Go to Solution Explorer, right click on 'DScaler' in tree view, select 'Set as StartUp Project'.
+   In Build->Configuration Manager->Active solution configuration select 'Release_Express' or 'Debug_Express'. Build with F7.
+
+
+
+
+

@@ -130,7 +130,7 @@ Compilation instructions for Visual Studio 2005 C++ Express
       {the various MSVC directories}
 
 9. Open DScaler\DScaler2005.sln in Visual Studio. Go to Solution Explorer, right click on 'DScaler' in tree view, select 'Set as StartUp Project'.
-   In Build->Configuration Manager->Active solution configuration select 'Release_Express' or 'Debug_Express'. Build with F7.
+   In Build->Configuration Manager->Active solution configuration select 'Release' or 'Debug'. Build with F7.
 
 
 

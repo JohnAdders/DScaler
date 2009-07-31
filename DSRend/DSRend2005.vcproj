@@ -75,7 +75,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="UnicoWS.lib odbc32.lib odbccp32.lib strmiids.lib version.lib"
-				OutputFile="..\DScaler\Release/DSRend.dll"
+				OutputFile="..\Release/DSRend.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreAllDefaultLibraries="false"
@@ -170,7 +170,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="UnicoWS.lib odbc32.lib odbccp32.lib strmiids.lib version.lib"
-				OutputFile="..\DScaler\Release/DSRend.dll"
+				OutputFile="..\Release/DSRend.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreAllDefaultLibraries="false"
@@ -264,7 +264,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Unicows.lib odbc32.lib odbccp32.lib strmiids.lib version.lib"
-				OutputFile="..\DScaler\Debug/DSRend.dll"
+				OutputFile="..\Debug/DSRend.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				IgnoreAllDefaultLibraries="false"
@@ -357,7 +357,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Unicows.lib odbc32.lib odbccp32.lib strmiids.lib version.lib"
-				OutputFile="..\DScaler\Debug/DSRend.dll"
+				OutputFile="..\Debug/DSRend.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				IgnoreAllDefaultLibraries="false"

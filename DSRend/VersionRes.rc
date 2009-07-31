@@ -1,6 +1,6 @@
 #ifndef _MAC
 
-#include "..\DScaler\API\DScalerVersion.h"
+#include "..\API\DScalerVersion.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // Version

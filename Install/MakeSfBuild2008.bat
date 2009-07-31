@@ -16,7 +16,7 @@ cd ..\DScaler
 cd Help
 "c:\Program Files\HTML Help Workshop\hhc.exe" DScaler.hhp
 cd ..\DScaler
-"%VS90COMNTOOLS%vsvars32.bat"
+call "%VS90COMNTOOLS%vsvars32.bat"
 vcbuild DScaler2008.sln "Release|Win32"
 rem cd ..\Driver\DSDrvNT
 rem cmd /c ..\..\Install\makeSfBuild2.bat 64

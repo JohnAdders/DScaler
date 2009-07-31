@@ -21,7 +21,7 @@
 // should be updated before each release
 #define DSCALERVERSION_MAJOR 4
 #define DSCALERVERSION_MINOR 1
-#define DSCALERVERSION_REVISION 17
+#define DSCALERVERSION_REVISION 18
 
 // need to have an extra macro for stingify otherwise we get the
 // name of the definition not the value

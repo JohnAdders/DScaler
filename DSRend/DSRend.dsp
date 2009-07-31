@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib strmiids.lib version.lib /nologo /subsystem:windows /dll /debug /machine:I386 /out:"..\DScaler\Debug/DSRend.dll" /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib strmiids.lib version.lib /nologo /subsystem:windows /dll /debug /machine:I386 /out:"..\Debug/DSRend.dll" /pdbtype:sept
 # Begin Custom Build - Performing registration
 OutDir=.\Debug
 TargetPath=\Source\deinterlace\DScaler\Debug\DSRend.dll
@@ -87,7 +87,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib strmiids.lib /nologo /subsystem:windows /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib strmiids.lib version.lib /nologo /subsystem:windows /dll /machine:I386 /out:"..\DScaler\Release/DSRend.dll"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib strmiids.lib version.lib /nologo /subsystem:windows /dll /machine:I386 /out:"..\Release/DSRend.dll"
 # Begin Custom Build - Performing registration
 OutDir=.\Release
 TargetPath=\Source\deinterlace\DScaler\Release\DSRend.dll
@@ -309,19 +309,19 @@ SOURCE=.\SettingsPage.rgs
 # End Group
 # End Target
 # End Project
-# Section DSRend : {03014021-60FF-0321-FF40-0103FF6825E3}
-# 	1:30:IDS_DOCSTRINGDSRendQualityPage:105
-# 	1:21:IDD_DSRENDQUALITYPAGE:107
-# 	1:26:IDS_TITLEDSRendQualityPage:103
-# 	1:29:IDS_HELPFILEDSRendQualityPage:104
-# 	1:21:IDR_DSRENDQUALITYPAGE:106
-# End Section
 # Section DSRend : {69562074-7573-6C61-2053-747564696F5C}
 # 	1:22:IDS_TITLECSettingsPage:108
 # 	1:17:IDR_CSETTINGSPAGE:111
 # 	1:25:IDS_HELPFILECSettingsPage:109
 # 	1:26:IDS_DOCSTRINGCSettingsPage:110
 # 	1:17:IDD_CSETTINGSPAGE:112
+# End Section
+# Section DSRend : {03014021-60FF-0321-FF40-0103FF6825E3}
+# 	1:30:IDS_DOCSTRINGDSRendQualityPage:105
+# 	1:21:IDD_DSRENDQUALITYPAGE:107
+# 	1:26:IDS_TITLEDSRendQualityPage:103
+# 	1:29:IDS_HELPFILEDSRendQualityPage:104
+# 	1:21:IDR_DSRENDQUALITYPAGE:106
 # End Section
 # Section DSRend : {00700000-0000-0000-0000-000077088800}
 # 	1:28:IDS_DOCSTRINGDSRendAboutPage:115

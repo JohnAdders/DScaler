@@ -21,22 +21,12 @@ rem cmd /c ..\..\Install\makeSfBuild2.bat 64
 rem cmd /c ..\..\Install\makeSfBuild2.bat AMD64
 cd ..\Release
 7z a -tzip pdb.zip *.pdb -r
-copy pdb.zip ..\..\DScaler%buildnum%pdb95.zip
+copy pdb.zip ..\..\DScaler%buildnum%pdb_95.zip
 cd ..\Install
 "c:\Program Files\Inno Setup 5\Compil32.exe" /cc DScaler.iss
 copy Output\Setup.exe ..\..\DScaler%buildnum%_95.exe
 cd ..\..
-del /f /q /s DSRend
-rd /s /q DSRend
 del /f /q /s DScaler  
 rd /s /q DScaler
-echo Break if there was a problem with the above build
-echo Otherwise pressing enter will send the files to the
-echo incoming directory on sourceforge ready to be released
+echo The files are now ready to be uploaded to sourceforge
 pause
-echo cd incoming > ftp.txt
-echo bin >> ftp.txt
-echo put DScaler%buildnum%_95.exe >> ftp.txt
-echo bye >> ftp.txt
-ftp -s:ftp.txt -A upload.sourceforge.net
-del ftp.txt

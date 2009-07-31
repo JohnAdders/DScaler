@@ -28,7 +28,7 @@
 #include "DShowFileSource.h"
 #include "exception.h"
 #include "PinEnum.h"
-#include "..\..\..\DSRend\DSRend.h"
+#include "..\..\DSRend\DSRend.h"
 #include "debuglog.h"
 
 using namespace std;

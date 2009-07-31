@@ -32,7 +32,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DI_VideoWeave", "..\Plugins
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DI_Weave", "..\Plugins\DI_Weave\DI_Weave2005.vcproj", "{E788362B-057B-4FC5-A719-0A50D6CD7640}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DSRend", "..\..\DSRend\DSRend2005.vcproj", "{67222DDF-A530-4584-8270-6DCC9F781BFD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DSRend", "..\DSRend\DSRend2005.vcproj", "{67222DDF-A530-4584-8270-6DCC9F781BFD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DScaler", "DScaler2005.vcproj", "{C2EF590F-4085-4786-9361-83FC93CAC63E}"
 	ProjectSection(ProjectDependencies) = postProject

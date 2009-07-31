@@ -35,7 +35,7 @@
 //if you get an error here, that means you have not checked out the DSRend filter
 //or compiled it atleast once.
 //it has to be checked out in the same directory as dscaler is checked out in.
-#include "..\..\..\DSRend\DSRend.h"
+#include "..\..\DSRend\DSRend.h"
 
 class CTreeSettingsPage;
 

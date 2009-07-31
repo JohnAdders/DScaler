@@ -31,7 +31,7 @@
 #include "DShowFileSource.h"
 #include "PinEnum.h"
 #include "DebugLog.h"
-#include "..\..\..\DSRend\DSRend_i.c"
+#include "..\..\DSRend\DSRend_i.c"
 #include <dvdmedia.h>
 #include "DevEnum.h"
 #include "DShowGenericAudioControls.h"

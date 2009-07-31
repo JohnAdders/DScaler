@@ -1,0 +1,27 @@
+How to do a DScaler Release
+===========================
+
+1) Update the version in the following files:
+       Help\DScaler_Readme.htm
+       Help\News.htm
+       Api\DScalerVersion.h
+
+2) Update the release notes in:
+
+3) Check these changes into svn
+
+4) Run the batch file MakeSfBuild.bat to build the Win98 version 
+   (note this loads up just the installer to sf)
+
+5) Run the batch file MakeSfBuild2008.bat to build the NT version
+   (note this loads up the installer and source to sf)
+
+6) Create the Release in sf
+
+7) Change the old forum release thread to non-sticky
+
+8) Create a new sticky thread on the forum with the changelog
+
+9) If it is a stable version update the website pages to point to new version
+
+10) Run website update script to pull in any changes from 9 and also the help file changes

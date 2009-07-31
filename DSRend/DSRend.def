@@ -1,0 +1,9 @@
+; DSRend.def : Declares the module parameters.
+
+LIBRARY      "DSRend.DLL"
+
+EXPORTS
+	DllCanUnloadNow     PRIVATE
+	DllGetClassObject   PRIVATE
+	DllRegisterServer   PRIVATE
+	DllUnregisterServer	PRIVATE

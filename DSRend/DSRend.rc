@@ -1,0 +1,209 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winresrc.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""winresrc.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE MOVEABLE PURE 
+BEGIN
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\dscaler.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""VersionRes.rc""\r\n"
+    "1 TYPELIB ""DSRend.tlb""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_DSRENDFILTER        REGISTRY DISCARDABLE    "DSRendFilter.rgs"
+IDR_DSRENDINPIN         REGISTRY DISCARDABLE    "DSRendInPin.rgs"
+IDR_DSRENDQUALITYPAGE   REGISTRY DISCARDABLE    "DSRendQualityPage.rgs"
+IDR_SETTINGSPAGE        REGISTRY DISCARDABLE    "SettingsPage.rgs"
+IDR_DSRENDABOUTPAGE     REGISTRY DISCARDABLE    "DSRendAboutPage.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DSRENDQUALITYPAGE DIALOG DISCARDABLE  0, 0, 246, 101
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Renderer statistics",IDC_STATIC,0,0,125,75
+    LTEXT           "Average frame rate:",IDC_STATIC,5,10,70,8
+    LTEXT           "",IDC_AVG_FRAME_RATE,85,10,35,10,SS_SUNKEN
+    LTEXT           "Average sync offset:",IDC_STATIC,5,20,70,10
+    LTEXT           "",IDC_AVG_SYNC_OFFSET,85,20,35,10,SS_SUNKEN
+    LTEXT           "StdDev sync offset:",IDC_STATIC,5,30,70,10
+    LTEXT           "",IDC_STDDEV_SYNC_OFFSET,85,30,35,10,SS_SUNKEN
+    LTEXT           "Frames drawn:",IDC_STATIC,5,40,70,10
+    LTEXT           "",IDC_FRAMES_DRAWN,85,40,35,10,SS_SUNKEN
+    LTEXT           "Frames dropped:",IDC_STATIC,5,50,70,10
+    LTEXT           "",IDC_FRAMES_DROPPED,85,50,35,10,SS_SUNKEN
+    LTEXT           "Jitter:",IDC_STATIC,5,60,70,10
+    LTEXT           "",IDC_JITTER,85,60,35,10,SS_SUNKEN
+    GROUPBOX        "Upstream filter statistics",IDC_UPSTREAM_GRP,130,0,115,
+                    75
+    LTEXT           "Frames dropped:",IDC_UPSTREAM_LBL1,135,10,55,8
+    LTEXT           "Frames delivered:",IDC_UPSTREAM_LBL2,135,20,55,8
+    LTEXT           "",IDC_UPSTREAM_DROPPED,205,10,35,10,SS_SUNKEN
+    LTEXT           "",IDC_UPSTREAM_NOTDROPPED,205,20,35,10,SS_SUNKEN
+    LTEXT           "Average frame size:",IDC_UPSTREAM_LBL3,135,30,65,8
+    LTEXT           "",IDC_UPSTREAM_AVGSIZE,205,30,35,10,SS_SUNKEN
+    PUSHBUTTON      "Reset frame counters to zero",IDC_RESET,5,80,65,20,
+                    BS_MULTILINE
+    PUSHBUTTON      "Restore frame counters",IDC_RESTORE,75,80,60,20,
+                    BS_MULTILINE
+END
+
+IDD_SETTINGSPAGE DIALOG DISCARDABLE  0, 0, 170, 106
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_SETTINGSPAGE_FIELDFORMAT,90,10,75,40,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Force YUY2 input",IDC_SETTINGSPAGE_FORCEYUY2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,25,72,10
+    LTEXT           "Force field/frame input",IDC_STATIC,5,10,72,8
+    GROUPBOX        "Status",IDC_STATIC,0,60,170,45
+    LTEXT           "Field format",IDC_STATIC,6,71,37,8
+    LTEXT           "",IDC_SETTINGSPAGE_FIELD,85,70,50,10,SS_SUNKEN
+    LTEXT           "Uses color coversion",IDC_STATIC,5,80,67,8
+    LTEXT           "",IDC_SETTINGSPAGE_COLORCNV,85,80,50,10,SS_SUNKEN
+    CONTROL         "Swap even and odd fields",IDC_SETTINGSPAGE_SWAPFIELDS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,35,98,10
+    CONTROL         "Vertical mirror",IDC_SETTINGSPAGE_VERTMIRROR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,45,55,10
+    LTEXT           "Size",IDC_STATIC,5,90,19,8
+    LTEXT           "",IDC_SETTINGSPAGE_SIZE,85,90,50,10,SS_SUNKEN
+    GROUPBOX        "Settings",IDC_STATIC,0,0,170,60
+END
+
+IDD_DSRENDABOUTPAGE DIALOG DISCARDABLE  0, 0, 181, 190
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "You shoud not see this",IDC_ABOUT_COMPILEDATE,45,70,125,
+                    8
+    LTEXT           "Compiled on",IDC_STATIC,5,70,40,8
+    LTEXT           "Version",IDC_STATIC,5,60,24,8
+    CTEXT           "DScaler renderer filter",IDC_ABOUT_LINE1,0,0,180,8
+    LTEXT           "You shoud not see this",IDC_ABOUT_VERSION,31,60,140,8
+    LTEXT           "Copyright © 2001-2002 Torbjörn Jansson",IDC_ABOUT_LINE2,
+                    0,10,180,8
+    GROUPBOX        "License Information",IDC_ABOUT_GRP2,0,90,180,100
+    LTEXT           "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.",
+                    IDC_STATIC,6,101,169,44
+    LTEXT           "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.",
+                    IDC_STATIC,5,145,170,40
+    GROUPBOX        "Version",IDC_ABOUT_GRP1,0,50,180,35
+    LTEXT           "This filer is used to transfer video data from DirectShow to DScaler.",
+                    IDC_ABOUT_LINE3,0,25,175,20
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_SETTINGSPAGE, DIALOG
+    BEGIN
+        RIGHTMARGIN, 85
+        BOTTOMMARGIN, 11
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROJNAME            "DSRend"
+    IDS_TITLEDSRendQualityPage "Statistics"
+    IDS_HELPFILEDSRendQualityPage "Help File Name"
+    IDS_DOCSTRINGDSRendQualityPage "Your Help String"
+    IDS_TITLESettingsPage   "Settings"
+    IDS_HELPFILESettingsPage "Help File Name"
+    IDS_DOCSTRINGSettingsPage "Your Help String"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TITLEDSRendAboutPage "About"
+    IDS_HELPFILEDSRendAboutPage "Help File Name"
+    IDS_DOCSTRINGDSRendAboutPage "Your Help String"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "VersionRes.rc"
+1 TYPELIB "DSRend.tlb"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,25 @@
+HKCR
+{
+	DSRend.DSRendFilter.1 = s 'DSRendFilter Class'
+	{
+		CLSID = s '{29383BF2-74DD-4F7F-A3D0-A00ABE5D966D}'
+	}
+	DSRend.DSRendFilter = s 'DSRendFilter Class'
+	{
+		CLSID = s '{29383BF2-74DD-4F7F-A3D0-A00ABE5D966D}'
+		CurVer = s 'DSRend.DSRendFilter.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {29383BF2-74DD-4F7F-A3D0-A00ABE5D966D} = s 'DSRendFilter Class'
+		{
+			ProgID = s 'DSRend.DSRendFilter.1'
+			VersionIndependentProgID = s 'DSRend.DSRendFilter'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{694D6921-E73C-40C0-9F75-5BC4FA646DF7}'
+		}
+	}
+}

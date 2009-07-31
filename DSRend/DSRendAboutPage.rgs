@@ -1,0 +1,23 @@
+HKCR
+{
+	DSRend.DSRendAboutPage.1 = s 'DSRendAboutPage Class'
+	{
+		CLSID = s '{495D7645-48CF-4B3F-AF26-61CC5F03B4DF}'
+	}
+	DSRend.DSRendAboutPage = s 'DSRendAboutPage Class'
+	{
+		CLSID = s '{495D7645-48CF-4B3F-AF26-61CC5F03B4DF}'
+		CurVer = s 'DSRend.DSRendAboutPage.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {495D7645-48CF-4B3F-AF26-61CC5F03B4DF} = s 'DSRendAboutPage Class'
+		{
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+		}
+	}
+}

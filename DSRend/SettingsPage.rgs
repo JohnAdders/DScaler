@@ -1,0 +1,22 @@
+HKCR
+{
+	DSRend.SettingsPage.1 = s 'SettingsPage Class'
+	{
+		CLSID = s '{8AC05775-495A-435A-A143-A1002657E584}'
+	}
+	DSRend.SettingsPage = s 'SettingsPage Class'
+	{
+		CLSID = s '{8AC05775-495A-435A-A143-A1002657E584}'
+		CurVer = s 'DSRend.CSettingsPage.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {8AC05775-495A-435A-A143-A1002657E584} = s 'SettingsPage Class'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+		}
+	}
+}

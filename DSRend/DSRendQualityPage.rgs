@@ -1,0 +1,22 @@
+HKCR
+{
+	DSRend.DSRendQualityPage.1 = s 'DSRendQualityPage Class'
+	{
+		CLSID = s '{02FA8EB3-9D40-4764-9D04-173BDB52D4A7}'
+	}
+	DSRend.DSRendQualityPage = s 'DSRendQualityPage Class'
+	{
+		CLSID = s '{02FA8EB3-9D40-4764-9D04-173BDB52D4A7}'
+		CurVer = s 'DSRend.DSRendQualityPage.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {02FA8EB3-9D40-4764-9D04-173BDB52D4A7} = s 'DSRendQualityPage Class'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+		}
+	}
+}

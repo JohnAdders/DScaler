@@ -158,7 +158,7 @@ const CChannel* CChannelList::GetChannel(int index)  const
 
 const CChannel* CChannelList::GetChannelByNumber(int iChannelNumber)
 {
-    SmartPtr<CChannel> returned;
+    const CChannel* returned = NULL;
 
     for(Channels::iterator it = m_Channels.begin();
         it != m_Channels.end();
@@ -166,16 +166,16 @@ const CChannel* CChannelList::GetChannelByNumber(int iChannelNumber)
     {
         if ((*it)->GetChannelNumber() == iChannelNumber)
         {
-            returned = (*it);
+            returned = it->GetRawPointer();
             break;
         }
     }
-    return returned.GetRawPointer();
+    return returned;
 }
 
 const CChannel* CChannelList::GetChannelByFrequency(DWORD dwFreq)
 {
-    SmartPtr<CChannel> returned;
+    const CChannel* returned = NULL;
 
     for(Channels::iterator it = m_Channels.begin();
         it != m_Channels.end();
@@ -183,11 +183,11 @@ const CChannel* CChannelList::GetChannelByFrequency(DWORD dwFreq)
     {
         if ((*it)->GetFrequency() == dwFreq)
         {
-            returned = (*it);
+            returned = it->GetRawPointer();
             break;
         }
     }
-    return returned.GetRawPointer();
+    return returned;
 }
 
 void CChannelList::AddChannel(SmartPtr<CChannel> pChannel)

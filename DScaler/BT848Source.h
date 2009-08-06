@@ -169,9 +169,9 @@ private:
      BOOL m_InitAudioControls;
      int m_KeepDetectingStereo;
 
-    CSliderSetting* m_CustomPixelWidth;
-    CYesNoSetting* m_ReversePolarity;
-    CSliderSetting* m_CardType;
+    SmartPtr<CSliderSetting> m_CustomPixelWidth;
+    SmartPtr<CYesNoSetting> m_ReversePolarity;
+    SmartPtr<CSliderSetting> m_CardType;
 
     BOOL         m_InitialSetup;
 

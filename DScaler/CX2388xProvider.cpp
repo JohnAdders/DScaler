@@ -83,7 +83,7 @@ CCX2388xProvider::~CCX2388xProvider()
 SmartPtr<CCX2388xSource> CCX2388xProvider::CreateCorrectSource(SmartPtr<CHardwareDriver> pHardwareDriver, LPCTSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
 {
     // \todo use the subsystem id to create the correct specilized version of the card
-    SmartPtr<CCX2388xCard> pNewCard = new CCX2388xCard(pHardwareDriver);
+    SmartPtr<CCX2388xCard> pNewCard(new CCX2388xCard(pHardwareDriver));
     SmartPtr<CCX2388xSource> pNewSource;
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
@@ -104,11 +104,11 @@ SmartPtr<CSource> CCX2388xProvider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_Sources.size())
     {
-        return m_Sources[SourceIndex];
+        return m_Sources[SourceIndex].DynamicCast<CSource>();
     }
     else
     {
-        return NULL;
+        return SmartPtr<CSource>();
     }
 }
 

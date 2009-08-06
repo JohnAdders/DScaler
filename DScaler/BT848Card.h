@@ -259,7 +259,7 @@ public:
 
     void SetPMSChannelGain(int ChannelNum, WORD Gain);
 
-    BOOL IsMyAudioDecoder(SmartPtr<CAudioDecoder> pAudioDecoder);
+    BOOL IsMyAudioDecoder(CAudioDecoder* pAudioDecoder);
 
     static INT_PTR CALLBACK ChipSettingProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -274,7 +274,7 @@ public:
     void Sleep();
     void I2CLock();
     void I2CUnlock();
-    SmartPtr<ITuner> GetTuner() const;
+    SmartPtr<ITuner> GetTuner();
 
     // GPIO stuff
     void SetGPOE(ULONG val);

@@ -225,7 +225,7 @@ public:
     void Sleep();
     void I2CLock();
     void I2CUnlock();
-    SmartPtr<ITuner> GetTuner() const;
+    SmartPtr<ITuner> GetTuner();
 
     // Audio
     void AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioStandard Standard, eCX2388xStereoType StereoType);

@@ -292,7 +292,7 @@ int Providers_Load(HMENU hMenu)
 #endif
 
     DefaultSource = Providers_GetIntroSource();
-    if (!DefaultSource || !DefaultSource->IsAccessAllowed())
+    if (!DefaultSource.IsValid() || !DefaultSource->IsAccessAllowed())
     {
         ErrorBox(_T("Can't load file DScaler.d3u or file defined in it"));
 

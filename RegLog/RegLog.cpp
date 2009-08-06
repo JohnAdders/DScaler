@@ -346,7 +346,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     // make sure the files go to whereever the exe is
     SetDirectoryToExe();
 
-    CHardwareDriver* pHardwareDriver = new CHardwareDriver();
+    SmartPtr<CHardwareDriver> pHardwareDriver(new CHardwareDriver());
     if(pHardwareDriver->LoadDriver() == TRUE)
     {
         for(int i(0); i < sizeof(Chips)/sizeof(TChip); ++i)
@@ -377,7 +377,6 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     {
         MessageBox(NULL, "Can't open driver", "RegLog", MB_OK);
     }
-    delete pHardwareDriver;
     return 0;
 }
 

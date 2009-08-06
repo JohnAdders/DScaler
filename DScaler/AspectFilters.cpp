@@ -660,7 +660,7 @@ CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
 {
     if (AspectSettings.bAnalogueBlanking)
     {
-        m_FilterChain.push_back(new CAnalogueBlankingFilter(SrcWidth, SrcHeight));
+        m_FilterChain.push_back(SmartPtr<CAspectFilter>(new CAnalogueBlankingFilter(SrcWidth, SrcHeight)));
     }
 
     if (AspectSettings.OrbitEnabled)
@@ -672,12 +672,12 @@ CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
         {
             m_Overscan = (AspectSettings.OrbitSize+1)/2;
         }
-        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialTopOverscan, AspectSettings.InitialBottomOverscan, AspectSettings.InitialLeftOverscan, AspectSettings.InitialRightOverscan));
-        m_FilterChain.push_back(new COrbitAspectFilter(AspectSettings.OrbitPeriodX, AspectSettings.OrbitPeriodY, AspectSettings.OrbitSize));
+        m_FilterChain.push_back(SmartPtr<CAspectFilter>(new COverscanAspectFilter(AspectSettings.InitialTopOverscan, AspectSettings.InitialBottomOverscan, AspectSettings.InitialLeftOverscan, AspectSettings.InitialRightOverscan)));
+        m_FilterChain.push_back(SmartPtr<CAspectFilter>(new COrbitAspectFilter(AspectSettings.OrbitPeriodX, AspectSettings.OrbitPeriodY, AspectSettings.OrbitSize)));
     }
     else
     {
-        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialTopOverscan, AspectSettings.InitialBottomOverscan, AspectSettings.InitialLeftOverscan, AspectSettings.InitialRightOverscan));
+        m_FilterChain.push_back(SmartPtr<CAspectFilter>(new COverscanAspectFilter(AspectSettings.InitialTopOverscan, AspectSettings.InitialBottomOverscan, AspectSettings.InitialLeftOverscan, AspectSettings.InitialRightOverscan)));
     }
     if (AspectSettings.AspectMode)
     {
@@ -716,11 +716,11 @@ CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
             PosFilter = new CPositionDestinationAspectFilter(m_XPos,m_YPos);
         }
 
-        PosFilter->SetChild(new CCropAspectFilter());
+        PosFilter->SetChild(SmartPtr<CAspectFilter>(new CCropAspectFilter()));
 
         if (!AspectSettings.AspectImageClipped || AspectSettings.SquarePixels)
         {
-            SmartPtr<CAspectFilter> UnCropFilter = new CUnCropAspectFilter();
+            SmartPtr<CAspectFilter> UnCropFilter(new CUnCropAspectFilter());
             UnCropFilter->SetChild(PosFilter);
             m_FilterChain.push_back(UnCropFilter);
         }
@@ -736,19 +736,19 @@ CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
     if (AspectSettings.ZoomFactorX != 100 || AspectSettings.ZoomFactorY != 100 ||
         AspectSettings.ZoomCenterX != 50 || AspectSettings.ZoomCenterY != 50)
     {
-        m_FilterChain.push_back(new CPanAndZoomAspectFilter(AspectSettings.ZoomCenterX,
-                                               AspectSettings.ZoomCenterY,
-                                               AspectSettings.ZoomFactorX,
-                                               AspectSettings.ZoomFactorY));
+        m_FilterChain.push_back(SmartPtr<CAspectFilter>(new CPanAndZoomAspectFilter(AspectSettings.ZoomCenterX,
+																				   AspectSettings.ZoomCenterY,
+																				   AspectSettings.ZoomFactorX,
+																				   AspectSettings.ZoomFactorY)));
     }
 
     // only put resize filter in if main window is not full screen
     if (AspectSettings.AutoResizeWindow && !bIsFullScreen)
     {
-        m_FilterChain.push_back(new CResizeWindowAspectFilter());
+        m_FilterChain.push_back(SmartPtr<CAspectFilter>(new CResizeWindowAspectFilter()));
     }
 
-    m_FilterChain.push_back(new CScreenSanityAspectFilter(SrcWidth, SrcHeight));
+    m_FilterChain.push_back(SmartPtr<CAspectFilter>(new CScreenSanityAspectFilter(SrcWidth, SrcHeight)));
 }
 
 // Applies all filters in a chain.  See above for return Value.

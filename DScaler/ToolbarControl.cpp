@@ -101,19 +101,19 @@ CToolbarControl::~CToolbarControl()
 void CToolbarControl::CreateSettings(LPCTSTR IniSection)
 {
     m_ShowToolbar1 = new CShowToolbar1Setting(this, _T("ShowToolbar1"), FALSE, IniSection);
-    m_Settings.push_back(m_ShowToolbar1);
+    m_Settings.push_back(m_ShowToolbar1.DynamicCast<CSimpleSetting>());
 
     m_Toolbar1Position = new CToolbar1PositionSetting(this, _T("Toolbar1Position"), 1, 0, 1, IniSection);
-    m_Settings.push_back(m_Toolbar1Position);
+    m_Settings.push_back(m_Toolbar1Position.DynamicCast<CSimpleSetting>());
 
     m_Toolbar1Volume = new CToolbar1VolumeSetting(this, _T("VolumeBar"), MAKELONG(2,1), 0x80000000L, 0x7F000000L, IniSection);
-    m_Settings.push_back(m_Toolbar1Volume);
+    m_Settings.push_back(m_Toolbar1Volume.DynamicCast<CSimpleSetting>());
 
     m_Toolbar1Channels = new CToolbar1ChannelsSetting(this, _T("ChannelBar"), MAKELONG(1,1), 0x80000000L, 0x7F000000L, IniSection);
-    m_Settings.push_back(m_Toolbar1Channels);
+    m_Settings.push_back(m_Toolbar1Channels.DynamicCast<CSimpleSetting>());
 
     m_Toolbar1MediaPlayer = new CToolbar1MediaPlayerSetting(this, _T("MediaPlayerBar"), MAKELONG(3,1), 0x80000000L, 0x7F000000L, IniSection);
-    m_Settings.push_back(m_Toolbar1MediaPlayer);
+    m_Settings.push_back(m_Toolbar1MediaPlayer.DynamicCast<CSimpleSetting>());
 
     ReadFromIni();
 }

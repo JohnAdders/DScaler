@@ -281,7 +281,7 @@ private:
     private: \
         Class* m_Parent; \
     }; \
-    C ## Name ## Setting* m_## Name;\
+    SmartPtr<C ## Name ## Setting> m_## Name;\
     public: \
     void Name ## OnChange(BOOL NewValue, BOOL OldValue);
 
@@ -296,7 +296,7 @@ private:
     private: \
         Class* m_Parent; \
     }; \
-    C ## Name ## Setting* m_## Name;\
+    SmartPtr<C ## Name ## Setting> m_## Name;\
     public: \
     void Name ## OnChange(long NewValue, long OldValue);
 
@@ -311,7 +311,7 @@ private:
     private: \
         Class* m_Parent; \
     }; \
-    C ## Name ## Setting* m_## Name;\
+    SmartPtr<C ## Name ## Setting> m_## Name;\
     public: \
     void Name ## OnChange(long NewValue, long OldValue);
 
@@ -326,7 +326,7 @@ private:
     private: \
         Class* m_Parent; \
     }; \
-    C ## Name ## Setting* m_## Name;\
+    SmartPtr<C ## Name ## Setting> m_## Name;\
     public: \
     void Name ## OnChange(const tstring& NewValue, const tstring& OldValue);
 

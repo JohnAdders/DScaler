@@ -71,9 +71,9 @@ public:
     void CreateSettings(LPCTSTR IniSection);
     void ChannelChange(int PreChange, int OldChannel, int NewChannel) {};
 
-    SmartPtr<ITuner> GetTuner() {return NULL;}
+    SmartPtr<ITuner> GetTuner() {return SmartPtr<ITuner>();}
 
-    SmartPtr<CSettingsHolder> GetSettingsPage() {return 0L;}
+    SmartPtr<CSettingsHolder> GetSettingsPage() {return SmartPtr<CSettingsHolder>();}
 
     void SetSourceAsCurrent();
 

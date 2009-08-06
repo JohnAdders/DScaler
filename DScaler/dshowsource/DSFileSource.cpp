@@ -62,9 +62,8 @@ BOOL CDSFileSource::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lPara
     if(LOWORD(wParam)==IDM_DSHOW_SETTINGS)
     {
         CTreeSettingsDlg dlg(_T("DirectShow Settings"));
-        CDSAudioDevicePage AudioDevice(_T("Audio output"),m_AudioDevice);
-
-        dlg.AddPage(&AudioDevice);
+        SmartPtr<CTreeSettingsPage> AudioDevice(new CDSAudioDevicePage(_T("Audio output"),m_AudioDevice));
+        dlg.AddPage(AudioDevice);
         dlg.DoModal(hWnd);
         return TRUE;
     }

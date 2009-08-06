@@ -115,7 +115,7 @@ CSAA7134Provider::~CSAA7134Provider()
 SmartPtr<CSAA7134Source> CSAA7134Provider::CreateCorrectSource(SmartPtr<CHardwareDriver> pHardwareDriver, LPCTSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, TCHAR* ChipName)
 {
     /// \todo use the subsystem id to create the correct specilized version of the card
-    SmartPtr<CSAA7134Card> pNewCard = new CSAA7134Card(pHardwareDriver);
+    SmartPtr<CSAA7134Card> pNewCard(new CSAA7134Card(pHardwareDriver));
     SmartPtr<CSAA7134Source> pNewSource;
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
@@ -134,11 +134,11 @@ SmartPtr<CSource> CSAA7134Provider::GetSource(int SourceIndex)
 {
     if (SourceIndex >= 0 && SourceIndex < (int)m_SAA7134Sources.size())
     {
-        return m_SAA7134Sources[SourceIndex];
+        return m_SAA7134Sources[SourceIndex].DynamicCast<CSource>();
     }
     else
     {
-        return NULL;
+        return SmartPtr<CSource>();
     }
 }
 

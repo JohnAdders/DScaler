@@ -691,7 +691,7 @@ ULONGLONG GetFreeDiskSpace(void)
     string strProcName;
     TCHAR lpszDrivePath[4] = _T("c:\\");
 
-    if (!timeShift)
+    if (!timeShift.IsValid())
        return totalbytes;
 
     lpszDrivePath[0] = timeShift->savingPath[0];
@@ -780,7 +780,7 @@ DWORD GetMaximumVolumeFileSize(const TCHAR* path)
     TCHAR  fileSystem[32];
     DWORD result   = 0;
 
-    if (!timeShift || !path)
+    if (!timeShift.IsValid() || !path)
        return result;
 
     volume[0] = path[0];
@@ -816,7 +816,7 @@ BOOL FindNextFileName(TCHAR* fileName, DWORD length)
 {
     int curFile = 0;
 
-    if (!timeShift)
+    if (!timeShift.IsValid())
        return FALSE;
 
     do
@@ -886,7 +886,7 @@ TIME_SHIFT::~TIME_SHIFT()
 BOOL TimeShiftInit(HWND hWnd)
 {
 
-    if (!timeShift)
+    if (!timeShift.IsValid())
     {
         timeShift = new TIME_SHIFT(hWnd);
         TimeShiftReadFromINI();
@@ -1160,7 +1160,7 @@ BOOL TimeShiftWriteVideo(TDeinterlaceInfo *pInfo)
     BYTE      *scanLine[2];
     BOOL      result = TRUE;
 
-    if (!timeShift || !timeShift->file || !pInfo->PictureHistory[0])
+    if (!timeShift.IsValid() || !timeShift->file || !pInfo->PictureHistory[0])
        return FALSE;
 
     if ((timeShift->recHeight==TS_HALFHEIGHTEVEN &&
@@ -1551,7 +1551,7 @@ BOOL TimeShiftSetSavingPath(TCHAR* path)
     BOOL  failed = TRUE;
     int   i;
 
-    if (!timeShift)
+    if (!timeShift.IsValid())
        return FALSE;
 
     EnterCriticalSection(&timeShift->lock);

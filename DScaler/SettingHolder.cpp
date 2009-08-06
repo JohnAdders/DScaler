@@ -65,7 +65,7 @@ void CSettingsHolder::AddSetting(SETTING* pSetting, CSettingGroup* pGroup)
 {
     if(pSetting != NULL)
     {
-        AddSetting(new CSettingWrapper(pSetting));
+        AddSetting(SmartPtr<CSimpleSetting>(new CSettingWrapper(pSetting)));
     }
 }
 
@@ -111,7 +111,7 @@ SmartPtr<CSimpleSetting> CSettingsHolder::GetSetting(long SettingIndex)
     }
     else
     {
-        return NULL;
+        return SmartPtr<CSimpleSetting>();
     }
 }
 

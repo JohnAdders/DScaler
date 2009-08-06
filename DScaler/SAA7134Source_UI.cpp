@@ -1620,21 +1620,21 @@ SmartPtr<CSettingsHolder> CSAA7134Source::GetSettingsPage()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder(0, IDH_SAA713X_ADV));
 
-    Holder->AddSetting(m_AutomaticVolumeLevel);
-    Holder->AddSetting(m_VBIUpscaleDivisor);
-    Holder->AddSetting(m_VBIDebugOverlay);
-    Holder->AddSetting(m_AutomaticGainControl);
-    Holder->AddSetting(m_AdaptiveCombFilter);
-    Holder->AddSetting(m_GainControlLevel);
-    Holder->AddSetting(m_GammaControl);
-    Holder->AddSetting(m_GammaLevel);
-    Holder->AddSetting(m_VideoMirror);
-    Holder->AddSetting(m_CustomPixelWidth);
-    Holder->AddSetting(m_HDelay);
-    Holder->AddSetting(m_VDelay);
-    Holder->AddSetting(m_ReversePolarity);
-    Holder->AddSetting(m_AudioLine1Voltage);
-    Holder->AddSetting(m_AudioLine2Voltage);
+    Holder->AddSetting(m_AutomaticVolumeLevel.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_VBIUpscaleDivisor.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_VBIDebugOverlay.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_AutomaticGainControl.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_AdaptiveCombFilter.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_GainControlLevel.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_GammaControl.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_GammaLevel.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_VideoMirror.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_CustomPixelWidth.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_HDelay.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_VDelay.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_ReversePolarity.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_AudioLine1Voltage.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_AudioLine2Voltage.DynamicCast<CSimpleSetting>());
 
     return Holder;
 }

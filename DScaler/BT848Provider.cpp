@@ -111,7 +111,7 @@ CBT848Provider::CBT848Provider(SmartPtr<CHardwareDriver> pHardwareDriver)
 SmartPtr<CBT848Source> CBT848Provider::CreateCorrectSource(SmartPtr<CHardwareDriver> pHardwareDriver, LPCTSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, TCHAR* ChipName)
 {
     /// \todo use the subsystem id to create the correct specilized version of the card
-    SmartPtr<CBT848Card> pNewCard = new CBT848Card(pHardwareDriver);
+    SmartPtr<CBT848Card> pNewCard(new CBT848Card(pHardwareDriver));
     SmartPtr<CBT848Source> pNewSource;
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
@@ -130,11 +130,11 @@ SmartPtr<CSource> CBT848Provider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_BT848Sources.size())
     {
-        return m_BT848Sources[SourceIndex];
+		return m_BT848Sources[SourceIndex].DynamicCast<CSource>();
     }
     else
     {
-        return NULL;
+        return SmartPtr<CSource>();
     }
 }
 

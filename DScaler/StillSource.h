@@ -124,7 +124,7 @@ public:
     CSliderSetting* GetHDelay() {return NULL;};
     CSliderSetting* GetVDelay() {return NULL;};
 
-    SmartPtr<CSettingsHolder> GetSettingsPage() {return NULL;};
+    SmartPtr<CSettingsHolder> GetSettingsPage() {return SmartPtr<CSettingsHolder>();};
 
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return FALSE;};
@@ -161,7 +161,7 @@ public:
     tstring GetInputName(eSourceInputType InputType, int Nr) { return NULL; };
     BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
 
-    SmartPtr<ITuner> GetTuner() {return NULL;}
+    SmartPtr<ITuner> GetTuner() {return SmartPtr<ITuner>();}
 
     void Pause() {return;};
     void UnPause() {return;};

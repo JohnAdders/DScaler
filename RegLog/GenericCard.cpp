@@ -22,7 +22,7 @@
 #include "GenericCard.h"
 
 
-CGenericCard::CGenericCard(CHardwareDriver* pDriver) :
+CGenericCard::CGenericCard(SmartPtr<CHardwareDriver> pDriver) :
     CPCICard(pDriver)
 {
 }

@@ -209,7 +209,7 @@ public:
 
     tstring    GetChipType();
     tstring    GetTunerType();
-    SmartPtr<ITuner>        GetTuner() const;
+    SmartPtr<ITuner> GetTuner();
 
     int         GetNumInputs();
     tstring GetInputName(int nVideoSource);

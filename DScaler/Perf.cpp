@@ -56,7 +56,7 @@ static const TCHAR* PerfNames[PERF_TYPE_LASTONE] =
 #endif
 };
 
-SmartPtr<CPerf> pPerf = NULL;
+SmartPtr<CPerf> pPerf;
 
 CPerfItem::CPerfItem(const TCHAR* Name)
 {

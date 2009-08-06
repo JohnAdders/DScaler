@@ -36,12 +36,12 @@ using namespace std;
 
 CSliderSetting* CBT848Source::GetVolume()
 {
-    return m_Volume;
+    return m_Volume.GetRawPointer();
 }
 
 CSliderSetting* CBT848Source::GetBalance()
 {
-    return m_Balance;
+    return m_Balance.GetRawPointer();
 }
 
 void CBT848Source::Mute()
@@ -483,18 +483,18 @@ CSliderSetting* CBT848Source::GetCurrentAudioSetting()
     switch(m_VideoSource->GetValue())
     {
     case 0:
-        return m_AudioSource1;
+        return m_AudioSource1.GetRawPointer();
     case 1:
-        return m_AudioSource2;
+        return m_AudioSource2.GetRawPointer();
     case 2:
-        return m_AudioSource3;
+        return m_AudioSource3.GetRawPointer();
     case 3:
-        return m_AudioSource4;
+        return m_AudioSource4.GetRawPointer();
     case 4:
-        return m_AudioSource5;
+        return m_AudioSource5.GetRawPointer();
     default:
     case 5:
-        return m_AudioSource6;
+        return m_AudioSource6.GetRawPointer();
     }
 }
 

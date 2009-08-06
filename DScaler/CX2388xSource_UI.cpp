@@ -625,42 +625,42 @@ SmartPtr<CSettingsHolder> CCX2388xSource::GetSettingsPage()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder);
 
-    Holder->AddSetting(m_HDelay);
-    Holder->AddSetting(m_VDelay);
-    Holder->AddSetting(m_AnalogueBlanking);
-    Holder->AddSetting(m_ConexantStopDriver);
+    Holder->AddSetting(m_HDelay.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_VDelay.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_AnalogueBlanking.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(m_ConexantStopDriver.DynamicCast<CSimpleSetting>());
 
     if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
-        Holder->AddSetting(m_EatLinesAtTop);
-        Holder->AddSetting(m_Sharpness);
+        Holder->AddSetting(m_EatLinesAtTop.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_Sharpness.DynamicCast<CSimpleSetting>());
     }
     else
     {
-        Holder->AddSetting(m_LumaAGC);
-        Holder->AddSetting(m_ChromaAGC);
-        Holder->AddSetting(m_FastSubcarrierLock);
-        Holder->AddSetting(m_WhiteCrush);
-        Holder->AddSetting(m_LowColorRemoval);
-        Holder->AddSetting(m_CombFilter);
-        Holder->AddSetting(m_FullLumaRange);
-        Holder->AddSetting(m_Remodulation);
-        Holder->AddSetting(m_Chroma2HComb);
-        Holder->AddSetting(m_ForceRemodExcessChroma);
-        Holder->AddSetting(m_IFXInterpolation);
-        Holder->AddSetting(m_CombRange);
-        Holder->AddSetting(m_SecondChromaDemod);
-        Holder->AddSetting(m_ThirdChromaDemod);
-        Holder->AddSetting(m_WhiteCrushUp);
-        Holder->AddSetting(m_WhiteCrushDown);
-        Holder->AddSetting(m_WhiteCrushMajorityPoint);
-        Holder->AddSetting(m_WhiteCrushPerFrame);
-        Holder->AddSetting(m_Volume);
-        Holder->AddSetting(m_Balance);
-        Holder->AddSetting(m_AudioStandard);
-        Holder->AddSetting(m_StereoType);
-        Holder->AddSetting(m_AutoMute);
-        Holder->AddSetting(m_VerticalSyncDetection);
+        Holder->AddSetting(m_LumaAGC.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_ChromaAGC.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_FastSubcarrierLock.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_WhiteCrush.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_LowColorRemoval.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_CombFilter.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_FullLumaRange.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_Remodulation.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_Chroma2HComb.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_ForceRemodExcessChroma.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_IFXInterpolation.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_CombRange.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_SecondChromaDemod.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_ThirdChromaDemod.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_WhiteCrushUp.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_WhiteCrushDown.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_WhiteCrushMajorityPoint.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_WhiteCrushPerFrame.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_Volume.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_Balance.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_AudioStandard.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_StereoType.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_AutoMute.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(m_VerticalSyncDetection.DynamicCast<CSimpleSetting>());
     }
 
     return Holder;

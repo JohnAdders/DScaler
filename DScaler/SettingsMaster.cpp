@@ -105,13 +105,13 @@ void CSettingsMaster::Initialize()
 
 void CSettingsMaster::AddSettings(long MessageIdRoot, GENERICGETSETTING GetSettingFunction)
 {
-    SmartPtr<CSettingsHolder> Holder = new CSettingsHolder(MessageIdRoot);
+    SmartPtr<CSettingsHolder> Holder(new CSettingsHolder(MessageIdRoot));
     int i(0);
 
     SETTING* NewSetting = GetSettingFunction(i);
     while(NewSetting != NULL)
     {
-        Holder->AddSetting(new CSettingWrapper(NewSetting));
+        Holder->AddSetting(SmartPtr<CSimpleSetting>(new CSettingWrapper(NewSetting)));
         ++i;
         NewSetting = GetSettingFunction(i);
     }
@@ -379,7 +379,7 @@ CSettingGroup* CSettingsMaster::GetGroup(LPCTSTR szName, DWORD Flags, BOOL IsAct
             return m_SettingsGroups[i].GetRawPointer();
         }
     }
-    SmartPtr<CSettingGroup> pNewGroup = new CSettingGroup(szName, Flags, IsActiveByDefault);
+    SmartPtr<CSettingGroup> pNewGroup(new CSettingGroup(szName, Flags, IsActiveByDefault));
     m_SettingsGroups.push_back(pNewGroup);
     return pNewGroup.GetRawPointer();
 }
@@ -420,7 +420,7 @@ SmartPtr<CSettingsHolder> CSettingsMaster::FindMsgHolder(long Message)
             return *it;
         }
     }
-    return 0L;
+    return SmartPtr<CSettingsHolder>();
 }
 
 LONG CSettingsMaster::HandleSettingMsgs(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam, BOOL* bDone)

@@ -200,10 +200,9 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     return bFoundTuner;
 }
 
-SmartPtr<ITuner> CBT848Card::GetTuner() const
+SmartPtr<ITuner> CBT848Card::GetTuner()
 {
-    SmartPtr<ITuner> retVal(m_Tuner);
-    return retVal;
+    return m_Tuner.DynamicCast<ITuner>();
 }
 
 #endif // WANT_BT8X8_SUPPORT

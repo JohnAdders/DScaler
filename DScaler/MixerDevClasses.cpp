@@ -230,7 +230,7 @@ CMixerLineDst::CMixerLineDst(HMIXER hMixer, DWORD nDstIndex)
 
     for (DWORD i = 0; i < m_mxl.cConnections; i++)
     {
-        SmartPtr<IMixerLineSrc> NewSource = new CMixerLineSrc(hMixer, nDstIndex, i);
+        SmartPtr<IMixerLineSrc> NewSource(new CMixerLineSrc(hMixer, nDstIndex, i));
         m_pSourceLines.push_back(NewSource);
     }
 }
@@ -318,7 +318,7 @@ CMixer::CMixer(DWORD nMixerIndex)
 
     for (DWORD i = 0; i < m_mxcaps.cDestinations; i++)
     {
-        SmartPtr<IMixerLineDst> NewDest = new CMixerLineDst(m_hMixer, i);
+        SmartPtr<IMixerLineDst> NewDest(new CMixerLineDst(m_hMixer, i));
         m_pDestinationLines.push_back(NewDest);
     }
 }
@@ -494,7 +494,7 @@ public:
                 throw logic_error("Couldn't get item in endpoint collection");
             }
 
-            SmartPtr<IMixerLineSrc> NewSource = new CVistaMixerLineSrc(Device);
+            SmartPtr<IMixerLineSrc> NewSource(new CVistaMixerLineSrc(Device));
             m_SourceLines.push_back(NewSource);
 
             // done with this copy of pointer
@@ -518,7 +518,7 @@ public:
     
     IMixerLineSrc* GetSourceLine(DWORD nIndex)
     {
-        return m_SourceLines[nIndex];
+        return m_SourceLines[nIndex].GetRawPointer();
     }
 
     void StoreState()
@@ -638,7 +638,7 @@ CMixerList::CMixerList()
                 throw logic_error("Couldn't get item in endpoint collection");
             }
 
-            SmartPtr<IMixer> NewMixer = new CVistaMixer(i, Device, DeviceEnum);
+            SmartPtr<IMixer> NewMixer(new CVistaMixer(i, Device, DeviceEnum));
             m_Mixers.push_back(NewMixer);
 
             // done with this copy of pointer
@@ -652,7 +652,7 @@ CMixerList::CMixerList()
         long nMixerCount = mixerGetNumDevs();
         for(long i(0); i < nMixerCount; ++i)
         {
-            SmartPtr<IMixer> NewMixer = new CMixer(i);
+            SmartPtr<IMixer> NewMixer(new CMixer(i));
             m_Mixers.push_back(NewMixer);
         }
     }

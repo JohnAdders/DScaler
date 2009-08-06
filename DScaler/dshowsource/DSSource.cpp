@@ -151,7 +151,7 @@ CSliderSetting* CDSCaptureSource::GetBrightness()
                 m_Brightness->SetMin(min);
 
                 m_Brightness->ChangeDefault(def, TRUE);
-                return m_Brightness;
+                return m_Brightness.GetRawPointer();
             }
             catch(CDShowException& e)
             {
@@ -215,7 +215,7 @@ CSliderSetting* CDSCaptureSource::GetContrast()
                 m_Contrast->SetMin(min);
 
                 m_Contrast->ChangeDefault(def, TRUE);
-                return m_Contrast;
+                return m_Contrast.GetRawPointer();
             }
             catch(CDShowException& e)
             {
@@ -278,7 +278,7 @@ CSliderSetting* CDSCaptureSource::GetHue()
                 m_Hue->SetMin(min);
 
                 m_Hue->ChangeDefault(def, TRUE);
-                return m_Hue;
+                return m_Hue.GetRawPointer();
             }
             catch(CDShowException& e)
             {
@@ -341,7 +341,7 @@ CSliderSetting* CDSCaptureSource::GetSaturation()
                 m_Saturation->SetMin(min);
 
                 m_Saturation->ChangeDefault(def, TRUE);
-                return m_Saturation;
+                return m_Saturation.GetRawPointer();
             }
             catch(CDShowException& e)
             {
@@ -383,40 +383,40 @@ void CDSCaptureSource::CreateSettings(LPCTSTR IniSection)
 
     //at this time we dont know what the min and max will be
     m_Brightness = new CBrightnessSetting(this, _T("Brightness"), 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Brightness);
+    m_Settings.push_back(m_Brightness.DynamicCast<CSimpleSetting>());
 
     m_Contrast = new CContrastSetting(this, _T("Contrast"), 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Contrast);
+    m_Settings.push_back(m_Contrast.DynamicCast<CSimpleSetting>());
 
     m_Hue = new CHueSetting(this, _T("Hue"), 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Hue);
+    m_Settings.push_back(m_Hue.DynamicCast<CSimpleSetting>());
 
     m_Saturation = new CSaturationSetting(this, _T("Saturation"), 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Saturation);
+    m_Settings.push_back(m_Saturation.DynamicCast<CSimpleSetting>());
 
     m_TopOverscan = new CTopOverscanSetting(this, _T("Overscan at Top"), 0, 0, 150, IniSection, pOverscanGroup);
-    m_Settings.push_back(m_TopOverscan);
+    m_Settings.push_back(m_TopOverscan.DynamicCast<CSimpleSetting>());
 
     m_BottomOverscan = new CBottomOverscanSetting(this, _T("Overscan at Bottom"), 0, 0, 150, IniSection, pOverscanGroup);
-    m_Settings.push_back(m_BottomOverscan);
+    m_Settings.push_back(m_BottomOverscan.DynamicCast<CSimpleSetting>());
 
     m_LeftOverscan = new CLeftOverscanSetting(this, _T("Overscan at Left"), 0, 0, 150, IniSection, pOverscanGroup);
-    m_Settings.push_back(m_LeftOverscan);
+    m_Settings.push_back(m_LeftOverscan.DynamicCast<CSimpleSetting>());
 
     m_RightOverscan = new CRightOverscanSetting(this, _T("Overscan at Right"), 0, 0, 150, IniSection, pOverscanGroup);
-    m_Settings.push_back(m_RightOverscan);
+    m_Settings.push_back(m_RightOverscan.DynamicCast<CSimpleSetting>());
 
     m_VideoInput = new CVideoInputSetting(this, _T("VideoInput"), 0, 0, LONG_MAX, IniSection);
-    m_Settings.push_back(m_VideoInput);
+    m_Settings.push_back(m_VideoInput.DynamicCast<CSimpleSetting>());
 
     m_AudioInput = new CAudioInputSetting(this, _T("AudioInput"), 0, 0, LONG_MAX, IniSection);
-    m_Settings.push_back(m_AudioInput);
+    m_Settings.push_back(m_AudioInput.DynamicCast<CSimpleSetting>());
 
     m_Resolution = new CResolutionSetting(this, _T("Resolution"), -1, -1, LONG_MAX, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Resolution);
+    m_Settings.push_back(m_Resolution.DynamicCast<CSimpleSetting>());
 
     m_ConnectAudio = new CConnectAudioSetting(this,_T("ConnectAudio"),TRUE,IniSection);
-    m_Settings.push_back(m_ConnectAudio);
+    m_Settings.push_back(m_ConnectAudio.DynamicCast<CSimpleSetting>());
 
     //restore m_VideoFmt from ini file
     int ResolutionDataIniSize=GetPrivateProfileInt(IniSection,_T("ResolutionSize"),-1,GetIniFileForSettings());
@@ -508,11 +508,11 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lP
         CTreeSettingsDlg dlg(_T("DirectShow Settings"));
 
         BOOL bConnectAudio=(m_ConnectAudio->GetValue()!=0);
-        CDSAudioDevicePage AudioDevice(_T("Audio output"), m_AudioDevice, &bConnectAudio);
-        CDSVideoFormatPage VidemFmt(_T("Resolution"), m_VideoFmt, m_Resolution);
+        SmartPtr<CTreeSettingsPage> AudioDevice(new CDSAudioDevicePage(_T("Audio output"), m_AudioDevice, &bConnectAudio));
+        SmartPtr<CTreeSettingsPage> VidemFmt(new CDSVideoFormatPage(_T("Resolution"), m_VideoFmt, m_Resolution.GetRawPointer()));
 
-        dlg.AddPage(&AudioDevice);
-        dlg.AddPage(&VidemFmt);
+        dlg.AddPage(AudioDevice);
+        dlg.AddPage(VidemFmt);
         dlg.DoModal(hWnd);
 
         m_ConnectAudio->SetValue(bConnectAudio);
@@ -1203,22 +1203,22 @@ tstring CDSCaptureSource::GetMenuLabel()
 
 CSliderSetting* CDSCaptureSource::GetTopOverscan()
 {
-    return m_TopOverscan;
+    return m_TopOverscan.GetRawPointer();
 }
 
 CSliderSetting* CDSCaptureSource::GetBottomOverscan()
 {
-    return m_BottomOverscan;
+    return m_BottomOverscan.GetRawPointer();
 }
 
 CSliderSetting* CDSCaptureSource::GetLeftOverscan()
 {
-    return m_LeftOverscan;
+    return m_LeftOverscan.GetRawPointer();
 }
 
 CSliderSetting* CDSCaptureSource::GetRightOverscan()
 {
-    return m_RightOverscan;
+    return m_RightOverscan.GetRawPointer();
 }
 
 void CDSCaptureSource::SetAspectRatioData()

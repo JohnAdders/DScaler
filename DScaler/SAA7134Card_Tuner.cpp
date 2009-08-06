@@ -103,13 +103,13 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         pExternalIFDemodulator = CTDA8290::CreateDetectedTDA8290(m_I2CBus.GetRawPointer());
     }
 
-    if (!pExternalIFDemodulator)
+    if (!pExternalIFDemodulator.IsValid())
     {
         // bUseTDA9887 is the setting in SAA713xCards.ini.
         if (m_SAA713xCards[m_CardType].bUseTDA9887)
         {
             // Have a TDA9887 object detected and created.
-            SmartPtr<CTDA9887Ex> pTDA9887Ex = CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus.GetRawPointer());
+            SmartPtr<CTDA9887Ex> pTDA9887Ex(CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus.GetRawPointer()));
 
             // If a TDA9887 was found.
             if (pTDA9887Ex.IsValid())
@@ -122,7 +122,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
                 }
 
                 // Found a valid external IF demodulator.
-                pExternalIFDemodulator = pTDA9887Ex;
+				pExternalIFDemodulator = pTDA9887Ex.DynamicCast<IExternalIFDemodulator>();
             }
         }
     }
@@ -177,10 +177,9 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 }
 
 
-SmartPtr<ITuner> CSAA7134Card::GetTuner() const
+SmartPtr<ITuner> CSAA7134Card::GetTuner()
 {
-    SmartPtr<ITuner> RetVal(m_Tuner);
-    return RetVal;
+    return m_Tuner.DynamicCast<ITuner>();
 }
 
 

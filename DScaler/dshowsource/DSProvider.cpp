@@ -51,7 +51,7 @@ CDSProvider::CDSProvider()
             while(devenum.getNext()==TRUE)
             {
                 tstring deviceName=devenum.getProperty(_T("FriendlyName"));
-                CDSCaptureSource *tmpsrc=new CDSCaptureSource(devenum.getDisplayName(),deviceName);
+                SmartPtr<CDSSourceBase> tmpsrc(new CDSCaptureSource(devenum.getDisplayName(),deviceName));
                 m_DSSources.push_back(tmpsrc);
                 m_SourceNames[m_DSSources.size()-1]=deviceName;
             }
@@ -62,7 +62,7 @@ CDSProvider::CDSProvider()
         }
 
         //add one file source
-        CDSFileSource *src=new CDSFileSource();
+        SmartPtr<CDSSourceBase> src(new CDSFileSource());
         m_DSSources.push_back(src);
         m_SourceNames[m_DSSources.size()-1]=_T("Media file");
     }
@@ -97,11 +97,11 @@ SmartPtr<CSource> CDSProvider::GetSource(int SourceIndex)
 
     if(SourceIndex>=0 && SourceIndex<m_DSSources.size())
     {
-        return m_DSSources[SourceIndex];
+        return m_DSSources[SourceIndex].DynamicCast<CSource>();
     }
     else
     {
-        return NULL;
+        return SmartPtr<CSource>();
     }
 }
 

@@ -24,7 +24,7 @@
 class CGenericCard : public CPCICard
 {
 public:
-    CGenericCard(CHardwareDriver* pDriver);
+    CGenericCard(SmartPtr<CHardwareDriver> pDriver);
     ~CGenericCard();
 
 protected:

@@ -151,7 +151,7 @@ void CSAA7134Source::SetSourceAsCurrent()
     else
     {
         // We read what is the video format saved for this video input
-        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
+        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat.GetRawPointer());
     }
 
     // tell the world if the format has changed
@@ -161,7 +161,7 @@ void CSAA7134Source::SetSourceAsCurrent()
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
         // We save the video format attached to this video input
-        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat);
+        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat.GetRawPointer());
     }
 
     // make sure the defaults are correct
@@ -194,157 +194,157 @@ void CSAA7134Source::CreateSettings(LPCTSTR IniSection)
     CSettingGroup* pAudioMiscGroup = SettingsMaster->GetGroup(_T("SAA7134 - Audio Miscellaneous"), SETTING_BY_AUDIOINPUT, TRUE);
 
     m_Brightness = new CBrightnessSetting(this, _T("Brightness"), SAA7134_DEFAULT_BRIGHTNESS, 0, 255, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Brightness);
+    m_Settings.push_back(m_Brightness.DynamicCast<CSimpleSetting>());
 
     m_Contrast = new CContrastSetting(this, _T("Contrast"), SAA7134_DEFAULT_CONTRAST, 0, 255, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Contrast);
+    m_Settings.push_back(m_Contrast.DynamicCast<CSimpleSetting>());
 
     m_Saturation = new CSaturationSetting(this, _T("Saturation"), SAA7134_DEFAULT_SATURATION, 0, 255, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Saturation);
+    m_Settings.push_back(m_Saturation.DynamicCast<CSimpleSetting>());
 
     m_Hue = new CHueSetting(this, _T("Hue"), SAA7134_DEFAULT_HUE, 0, 255, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Hue);
+    m_Settings.push_back(m_Hue.DynamicCast<CSimpleSetting>());
 
     m_TopOverscan = new CTopOverscanSetting(this, _T("Overscan at Top"), SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_TopOverscan);
+    m_Settings.push_back(m_TopOverscan.DynamicCast<CSimpleSetting>());
 
     m_PixelWidth = new CPixelWidthSetting(this, _T("Sharpness"), 720, 120, DSCALER_MAX_WIDTH, IniSection, pVideoGroup);
     m_PixelWidth->SetStepValue(2);
-    m_Settings.push_back(m_PixelWidth);
+    m_Settings.push_back(m_PixelWidth.DynamicCast<CSimpleSetting>());
 
     m_CustomPixelWidth = new CSliderSetting(_T("Custom Pixel Width"), 750, 120, DSCALER_MAX_WIDTH, IniSection, _T("CustomPixelWidth"), pVideoGroup);
     m_CustomPixelWidth->SetStepValue(2);
-    m_Settings.push_back(m_CustomPixelWidth);
+    m_Settings.push_back(m_CustomPixelWidth.DynamicCast<CSimpleSetting>());
 
     m_VideoSource = new CVideoSourceSetting(this, _T("Video Source"), 0, 0, 6, IniSection);
-    m_Settings.push_back(m_VideoSource);
+    m_Settings.push_back(m_VideoSource.DynamicCast<CSimpleSetting>());
 
     m_VideoFormat = new CVideoFormatSetting(this, _T("Video Format"), VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LAST_TV - 1, IniSection, pVideoFormatGroup);
-    m_Settings.push_back(m_VideoFormat);
+    m_Settings.push_back(m_VideoFormat.DynamicCast<CSimpleSetting>());
 
     m_ReversePolarity = new CYesNoSetting(_T("Reverse Polarity"), FALSE, IniSection, _T("ReversePolarity"));
-    m_Settings.push_back(m_ReversePolarity);
+    m_Settings.push_back(m_ReversePolarity.DynamicCast<CSimpleSetting>());
 
     m_CardType = new CSliderSetting(_T("Card Type"), SAA7134CARDID_UNKNOWN, SAA7134CARDID_UNKNOWN, m_pSAA7134Card->GetMaxCards() - 1, IniSection, _T("CardType"));
-    m_Settings.push_back(m_CardType);
+    m_Settings.push_back(m_CardType.DynamicCast<CSimpleSetting>());
 
     m_TunerType = new CTunerTypeSetting(this, _T("Tuner Type"), TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
-    m_Settings.push_back(m_TunerType);
+    m_Settings.push_back(m_TunerType.DynamicCast<CSimpleSetting>());
 
     m_HPLLMode = new CHPLLModeSetting(this, _T("HPLL Locking Mode"), HPLLMODE_FAST_TRACKING, HPLLMODE_TV, HPLLMODE_LASTONE - 1, IniSection, pVideoMiscGroup);
-    m_Settings.push_back(m_HPLLMode);
+    m_Settings.push_back(m_HPLLMode.DynamicCast<CSimpleSetting>());
 
     m_WhitePeak = new CWhitePeakSetting(this, _T("White Peak"), FALSE, IniSection, pVideoMiscGroup);
-    m_Settings.push_back(m_WhitePeak);
+    m_Settings.push_back(m_WhitePeak.DynamicCast<CSimpleSetting>());
 
     m_ColorPeak = new CColorPeakSetting(this, _T("Color Peak"), TRUE, IniSection, pVideoMiscGroup);
-    m_Settings.push_back(m_ColorPeak);
+    m_Settings.push_back(m_ColorPeak.DynamicCast<CSimpleSetting>());
 
     m_AdaptiveCombFilter = new CAdaptiveCombFilterSetting(this, _T("Adaptive Comb Filter"), COMBFILTER_FULL, COMBFILTER_FULL, IniSection, m_CombFilterSzList, pVideoGroup);
-    m_Settings.push_back(m_AdaptiveCombFilter);
+    m_Settings.push_back(m_AdaptiveCombFilter.DynamicCast<CSimpleSetting>());
 
     m_HDelay = new CHDelaySetting(this, _T("Horizontal Delay"), 0, 0, 20, IniSection, pVideoMiscGroup);
     m_HDelay->SetStepValue(2);
-    m_Settings.push_back(m_HDelay);
+    m_Settings.push_back(m_HDelay.DynamicCast<CSimpleSetting>());
 
     m_VDelay = new CVDelaySetting(this, _T("Vertical Delay"), 0, -60, 260, IniSection, pVideoMiscGroup);
     m_VDelay->SetStepValue(2);
-    m_Settings.push_back(m_VDelay);
+    m_Settings.push_back(m_VDelay.DynamicCast<CSimpleSetting>());
 
     m_AudioStandard = new CAudioStandardSetting(this, _T("Audio Standard"), AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_LASTONE-1, IniSection, pAudioStandardGroup);
-    m_Settings.push_back(m_AudioStandard);
+    m_Settings.push_back(m_AudioStandard.DynamicCast<CSimpleSetting>());
 
     m_AudioChannel = new CAudioChannelSetting(this, _T("Audio Channel"), AUDIOCHANNEL_STEREO, AUDIOCHANNEL_MONO, AUDIOCHANNEL_LANGUAGE2, IniSection, pAudioGroup);
-    m_Settings.push_back(m_AudioChannel);
+    m_Settings.push_back(m_AudioChannel.DynamicCast<CSimpleSetting>());
 
     m_AudioSampleRate = new CAudioSampleRateSetting(this, _T("Audio Sample Rate"), AUDIOSAMPLERATE_32000Hz, AUDIOSAMPLERATE_32000Hz, AUDIOSAMPLERATE_48000Hz, IniSection, pAudioGroup);
-    m_Settings.push_back(m_AudioSampleRate);
+    m_Settings.push_back(m_AudioSampleRate.DynamicCast<CSimpleSetting>());
 
     m_AutoStereoSelect = new CAutoStereoSelectSetting(this, _T("Auto Stereo Select"), TRUE, IniSection, pAudioGroup);
-    m_Settings.push_back(m_AutoStereoSelect);
+    m_Settings.push_back(m_AutoStereoSelect.DynamicCast<CSimpleSetting>());
 
     m_Volume = new CVolumeSetting(this, _T("Volume"), 0, 0, 1000, IniSection, pAudioMiscGroup);
     m_Volume->SetStepValue(20);
-    m_Settings.push_back(m_Volume);
+    m_Settings.push_back(m_Volume.DynamicCast<CSimpleSetting>());
 
     m_Bass = new CBassSetting(this, _T("Bass"), 0, -96, 127, IniSection, pAudioMiscGroup);
-    m_Settings.push_back(m_Bass);
+    m_Settings.push_back(m_Bass.DynamicCast<CSimpleSetting>());
 
     m_Treble = new CTrebleSetting(this, _T("Treble"), 0, -96, 127, IniSection, pAudioMiscGroup);
-    m_Settings.push_back(m_Treble);
+    m_Settings.push_back(m_Treble.DynamicCast<CSimpleSetting>());
 
     m_Balance = new CBalanceSetting(this, _T("Balance"), 0, -127, 127, IniSection, pAudioMiscGroup);
-    m_Settings.push_back(m_Balance);
+    m_Settings.push_back(m_Balance.DynamicCast<CSimpleSetting>());
 
     m_AudioSource = new CAudioSourceSetting(this, _T("Audio Source"), AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, IniSection, pAudioSourceGroup);
-    m_Settings.push_back(m_AudioSource);
+    m_Settings.push_back(m_AudioSource.DynamicCast<CSimpleSetting>());
 
     m_CustomAudioStandard = new CCustomAudioStandardSetting(this, _T("Use Custom Audio Standard"), FALSE, IniSection, pAudioCustomGroup);
-    m_Settings.push_back(m_CustomAudioStandard);
+    m_Settings.push_back(m_CustomAudioStandard.DynamicCast<CSimpleSetting>());
 
     m_AudioMajorCarrier = new CAudioMajorCarrierSetting(this, _T("Audio Major Carrier"), AUDIO_CARRIER_5_5, 0, AUDIO_CARRIER_10_7, IniSection, pAudioCustomGroup);
-    m_Settings.push_back(m_AudioMajorCarrier);
+    m_Settings.push_back(m_AudioMajorCarrier.DynamicCast<CSimpleSetting>());
 
     m_AudioMinorCarrier = new CAudioMinorCarrierSetting(this, _T("Audio Minor Carrier"), AUDIO_CARRIER_5_5, 0, AUDIO_CARRIER_10_7, IniSection, pAudioCustomGroup);
-    m_Settings.push_back(m_AudioMinorCarrier);
+    m_Settings.push_back(m_AudioMinorCarrier.DynamicCast<CSimpleSetting>());
 
     m_AudioMajorCarrierMode = new CAudioMajorCarrierModeSetting(this, _T("Audio Major Carrier Mode"), AUDIOCHANNELMODE_FM, AUDIOCHANNELMODE_NONE, AUDIOCHANNELMODE_EIAJ, IniSection, pAudioCustomGroup);
-    m_Settings.push_back(m_AudioMajorCarrierMode);
+    m_Settings.push_back(m_AudioMajorCarrierMode.DynamicCast<CSimpleSetting>());
 
     m_AudioMinorCarrierMode = new CAudioMinorCarrierModeSetting(this, _T("Audio Minor Carrier Mode"), AUDIOCHANNELMODE_FM, AUDIOCHANNELMODE_NONE, AUDIOCHANNELMODE_EIAJ, IniSection, pAudioCustomGroup);
-    m_Settings.push_back(m_AudioMinorCarrierMode);
+    m_Settings.push_back(m_AudioMinorCarrierMode.DynamicCast<CSimpleSetting>());
 
     m_AudioCh1FMDeemph = new CAudioCh1FMDeemphSetting(this, _T("Audio Channel 1 FM De-emphasis"), AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_ADAPTIVE, IniSection, pAudioCustomGroup);
-    m_Settings.push_back(m_AudioCh1FMDeemph);
+    m_Settings.push_back(m_AudioCh1FMDeemph.DynamicCast<CSimpleSetting>());
 
     m_AudioCh2FMDeemph = new CAudioCh2FMDeemphSetting(this, _T("Audio Channel 2 FM De-emphasis"), AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_ADAPTIVE, IniSection, pAudioCustomGroup);
-    m_Settings.push_back(m_AudioCh2FMDeemph);
+    m_Settings.push_back(m_AudioCh2FMDeemph.DynamicCast<CSimpleSetting>());
 
     // HELPTEXT: Automatic Volume Leveling control to avoid
     // digital clipping at analog audio output
     m_AutomaticVolumeLevel = new CAutomaticVolumeLevelSetting(this, _T("Automatic Volume Leveling"), AUTOMATICVOLUME_OFF, AUTOMATICVOLUME_LONGDECAY, IniSection, m_AutomaticVolumeSzList);
-    m_Settings.push_back(m_AutomaticVolumeLevel);
+    m_Settings.push_back(m_AutomaticVolumeLevel.DynamicCast<CSimpleSetting>());
 
     // HELPTEXT: Lower means better VBI reception/decoding but
     // how far it can be lowered depends on individual cards.
     m_VBIUpscaleDivisor = new CVBIUpscaleDivisorSetting(this, _T("VBI Upscale Divisor"), 0x200, 0x186, 0x200, IniSection);
-    m_Settings.push_back(m_VBIUpscaleDivisor);
+    m_Settings.push_back(m_VBIUpscaleDivisor.DynamicCast<CSimpleSetting>());
 
     m_VBIDebugOverlay = new CYesNoSetting(_T("VBI Debug Overlay"), FALSE, IniSection, _T("VBIDebugOverlay"));
-    m_Settings.push_back(m_VBIDebugOverlay);
+    m_Settings.push_back(m_VBIDebugOverlay.DynamicCast<CSimpleSetting>());
 
     m_AutomaticGainControl = new CAutomaticGainControlSetting(this, _T("Automatic Gain Control"), TRUE, IniSection, pGainControlGroup);
-    m_Settings.push_back(m_AutomaticGainControl);
+    m_Settings.push_back(m_AutomaticGainControl.DynamicCast<CSimpleSetting>());
 
     m_GainControlLevel = new CGainControlLevelSetting(this, _T("Gain Control Level"), 0x0100, 0x0000, 0x01FF, IniSection, pGainControlGroup);
-    m_Settings.push_back(m_GainControlLevel);
+    m_Settings.push_back(m_GainControlLevel.DynamicCast<CSimpleSetting>());
 
     m_GammaControl = new CGammaControlSetting(this, _T("Gamma Control"), TRUE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_GammaControl);
+    m_Settings.push_back(m_GammaControl.DynamicCast<CSimpleSetting>());
 
     m_GammaLevel = new CGammaLevelSetting(this, _T("Gamma Level"), 1300, 0x0000, 3000, IniSection, pVideoGroup);
-    m_Settings.push_back(m_GammaLevel);
+    m_Settings.push_back(m_GammaLevel.DynamicCast<CSimpleSetting>());
 
     m_VideoMirror = new CVideoMirrorSetting(this, _T("Mirroring"), FALSE, IniSection);
-    m_Settings.push_back(m_VideoMirror);
+    m_Settings.push_back(m_VideoMirror.DynamicCast<CSimpleSetting>());
 
     m_AudioLine1Voltage = new CAudioLine1VoltageSetting(this, _T("Audio Line 1 Input Signal"), AUDIOLINEVOLTAGE_2VRMS, AUDIOLINEVOLTAGE_2VRMS, IniSection, m_LineVoltageSzList);
-    m_Settings.push_back(m_AudioLine1Voltage);
+    m_Settings.push_back(m_AudioLine1Voltage.DynamicCast<CSimpleSetting>());
 
     m_AudioLine2Voltage = new CAudioLine2VoltageSetting(this, _T("Audio Line 2 Input Signal"), AUDIOLINEVOLTAGE_2VRMS, AUDIOLINEVOLTAGE_2VRMS, IniSection, m_LineVoltageSzList);
-    m_Settings.push_back(m_AudioLine2Voltage);
+    m_Settings.push_back(m_AudioLine2Voltage.DynamicCast<CSimpleSetting>());
 
     m_BottomOverscan = new CBottomOverscanSetting(this, _T("Overscan at Bottom"), SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_BottomOverscan);
+    m_Settings.push_back(m_BottomOverscan.DynamicCast<CSimpleSetting>());
 
     m_LeftOverscan = new CLeftOverscanSetting(this, _T("Overscan at Left"), SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_LeftOverscan);
+    m_Settings.push_back(m_LeftOverscan.DynamicCast<CSimpleSetting>());
 
     m_RightOverscan = new CRightOverscanSetting(this, _T("Overscan at Right"), SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_RightOverscan);
+    m_Settings.push_back(m_RightOverscan.DynamicCast<CSimpleSetting>());
 
     m_CardName = new CStringSetting(_T("Card Name"), _T(""), IniSection, _T("CardName"));
-    m_Settings.push_back(m_CardName);
+    m_Settings.push_back(m_CardName.DynamicCast<CSimpleSetting>());
 
 #ifdef _DEBUG
     if (SAA7134_SETTING_LASTONE != m_Settings.size())
@@ -1262,22 +1262,22 @@ SmartPtr<ITuner> CSAA7134Source::GetTuner()
 
 CSliderSetting* CSAA7134Source::GetBrightness()
 {
-    return m_Brightness;
+    return m_Brightness.GetRawPointer();
 }
 
 CSliderSetting* CSAA7134Source::GetContrast()
 {
-    return m_Contrast;
+    return m_Contrast.GetRawPointer();
 }
 
 CSliderSetting* CSAA7134Source::GetHue()
 {
-    return m_Hue;
+    return m_Hue.GetRawPointer();
 }
 
 CSliderSetting* CSAA7134Source::GetSaturation()
 {
-    return m_Saturation;
+    return m_Saturation.GetRawPointer();
 }
 
 CSliderSetting* CSAA7134Source::GetSaturationU()
@@ -1292,32 +1292,32 @@ CSliderSetting* CSAA7134Source::GetSaturationV()
 
 CSliderSetting* CSAA7134Source::GetTopOverscan()
 {
-    return m_TopOverscan;
+    return m_TopOverscan.GetRawPointer();
 }
 
 CSliderSetting* CSAA7134Source::GetBottomOverscan()
 {
-    return m_BottomOverscan;
+    return m_BottomOverscan.GetRawPointer();
 }
 
 CSliderSetting* CSAA7134Source::GetLeftOverscan()
 {
-    return m_LeftOverscan;
+    return m_LeftOverscan.GetRawPointer();
 }
 
 CSliderSetting* CSAA7134Source::GetRightOverscan()
 {
-    return m_RightOverscan;
+    return m_RightOverscan.GetRawPointer();
 }
 
 CSliderSetting* CSAA7134Source::GetHDelay()
 {
-    return m_HDelay;
+    return m_HDelay.GetRawPointer();
 }
 
 CSliderSetting* CSAA7134Source::GetVDelay()
 {
-    return m_VDelay;
+    return m_VDelay.GetRawPointer();
 }
 
 
@@ -1353,7 +1353,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
     else
     {
         // We read what is the video format saved for this video input
-        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
+        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat.GetRawPointer());
     }
 
     // tell the world if the format has changed
@@ -1363,7 +1363,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
         // We save the video format attached to this video input
-        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat);
+        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat.GetRawPointer());
     }
 
     // make sure the defaults are correct

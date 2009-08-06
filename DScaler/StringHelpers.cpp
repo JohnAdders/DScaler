@@ -123,7 +123,19 @@ tstring DecodeASCIISafeString(const tstring& InString)
                 }
                 else
                 {
-                    oss << (TCHAR)FromString<DWORD>(TempString);
+					DWORD CharValue(FromString<DWORD>(TempString));
+#ifdef _UNICODE	
+                    oss << (TCHAR)CharValue;
+#else
+					if(CharValue < 255)
+					{
+						oss << (TCHAR)CharValue;
+					}
+					else
+					{
+						oss << (TCHAR)'?';
+					}
+#endif
                 }
                 DoingPercent = FALSE;
             }

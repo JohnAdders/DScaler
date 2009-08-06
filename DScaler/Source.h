@@ -105,8 +105,8 @@ public:
     /// Get the tuner Id - this method may (and should) be overriden
     virtual eTunerId GetTunerId()
     {
-        SmartPtr<ITuner> tuner = GetTuner();
-        if (!tuner)
+        SmartPtr<ITuner> tuner(GetTuner());
+        if (!tuner.IsValid())
         {
             return TUNER_ABSENT;
         }

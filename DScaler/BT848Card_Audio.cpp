@@ -63,11 +63,11 @@ void CBT848Card::InitAudio(BOOL UsePin1)
     if ((GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
          || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9873))
     {
-        SmartPtr<CTDA9873AudioDecoder> TDADecoder = new CTDA9873AudioDecoder();
+        SmartPtr<CTDA9873AudioDecoder> TDADecoder(new CTDA9873AudioDecoder());
         TDADecoder->SetI2CBus(m_I2CBus.GetRawPointer());
         if(TDADecoder->Initialize())
         {
-            m_AudioDecoder = TDADecoder;
+            m_AudioDecoder = TDADecoder.DynamicCast<CAudioDecoder>();
 
             m_AudioControls = new CAudioControls();
 
@@ -75,11 +75,11 @@ void CBT848Card::InitAudio(BOOL UsePin1)
         }
     }
 
-    if (!m_AudioDecoder &&
+    if (!m_AudioDecoder.IsValid() &&
         (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
          || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0))
     {
-        SmartPtr<CMSP34x0AudioControls> MSPControls = new CMSP34x0AudioControls();
+        SmartPtr<CMSP34x0AudioControls> MSPControls(new CMSP34x0AudioControls());
 
         MSPControls->SetI2CBus(m_I2CBus.GetRawPointer());
         MSPControls->Reset();
@@ -91,14 +91,14 @@ void CBT848Card::InitAudio(BOOL UsePin1)
 
         if (0 != rev1 || 0 != rev2)
         {
-            m_AudioControls = MSPControls;
+            m_AudioControls = MSPControls.DynamicCast<CAudioControls>();
 
             // need to create two so that we can delete all objects properly
-            SmartPtr<CMSP34x0AudioDecoder> MSPDecoder = new CMSP34x0AudioDecoder();
+            SmartPtr<CMSP34x0AudioDecoder> MSPDecoder(new CMSP34x0AudioDecoder());
             MSPDecoder->SetUseInputPin1(UsePin1);
             MSPDecoder->SetI2CBus(m_I2CBus.GetRawPointer());
 
-            m_AudioDecoder =  MSPDecoder;
+            m_AudioDecoder =  MSPDecoder.DynamicCast<CAudioDecoder>();
 
             tostringstream oss;
             oss << _T("MSP34") << setw(2)<< setfill((TCHAR)'0') << ((rev2 >> 8) & 0xff);
@@ -108,12 +108,12 @@ void CBT848Card::InitAudio(BOOL UsePin1)
         }
     }
 
-    if(!m_AudioDecoder &&
+    if(!m_AudioDecoder.IsValid() &&
         (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
          || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9875))
     {
         // TDA9875 autodetect
-        SmartPtr<CTDA9875AudioControls> TDA9875Controls = new CTDA9875AudioControls();
+        SmartPtr<CTDA9875AudioControls> TDA9875Controls(new CTDA9875AudioControls());
 
         TDA9875Controls->SetI2CBus(m_I2CBus.GetRawPointer());
         TDA9875Controls->Reset();
@@ -124,13 +124,13 @@ void CBT848Card::InitAudio(BOOL UsePin1)
         int rev;
         if (TDA9875Controls->IsDevicePresent(dic, rev))
         {
-            m_AudioControls = TDA9875Controls;
+			m_AudioControls = TDA9875Controls.DynamicCast<CAudioControls>();
 
             SmartPtr<CTDA9875AudioDecoder> TDA9875Decoder(new CTDA9875AudioDecoder(TDA9875Controls.GetRawPointer()));
             TDA9875Decoder->SetUseInputPin1(UsePin1);
             TDA9875Decoder->SetI2CBus(m_I2CBus.GetRawPointer());
 
-            m_AudioDecoder = TDA9875Decoder; //TDA9875Decoder;
+            m_AudioDecoder = TDA9875Decoder.DynamicCast<CAudioDecoder>(); //TDA9875Decoder;
 
             tostringstream oss;
 
@@ -143,7 +143,7 @@ void CBT848Card::InitAudio(BOOL UsePin1)
         }
     }
 
-    if (!m_AudioDecoder&&
+    if (!m_AudioDecoder.IsValid() &&
         (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
         || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9874))
     {
@@ -158,7 +158,7 @@ void CBT848Card::InitAudio(BOOL UsePin1)
             SmartPtr<CTDA9874AudioDecoder> TDA9874Decoder(new CTDA9874AudioDecoder());
             TDA9874Decoder->SetI2CBus(m_I2CBus.GetRawPointer());
             TDA9874Decoder->Initialize();
-            m_AudioDecoder = TDA9874Decoder; //TDA9874Decoder;
+            m_AudioDecoder = TDA9874Decoder.DynamicCast<CAudioDecoder>(); //TDA9874Decoder;
             m_AudioControls = new CAudioControls();
 
             // need to switch unmute from PIC one time only
@@ -174,7 +174,7 @@ void CBT848Card::InitAudio(BOOL UsePin1)
         }
     }
 
-    if (!m_AudioDecoder)
+    if (!m_AudioDecoder.IsValid())
     {
         switch (GetCardSetup()->AudioDecoderType)
         {
@@ -500,7 +500,7 @@ BOOL CBT848Card::HasAudioAutoVolumeCorrection()
 
 BOOL CBT848Card::GetHasUseInputPin1()
 {
-    SmartPtr<CMSP34x0AudioDecoder> MSP34x0AudioDecoder(m_AudioDecoder);
+    SmartPtr<CMSP34x0AudioDecoder> MSP34x0AudioDecoder(m_AudioDecoder.DynamicCast<CMSP34x0AudioDecoder>());
     if(MSP34x0AudioDecoder.IsValid())
     {
         return TRUE;
@@ -510,7 +510,7 @@ BOOL CBT848Card::GetHasUseInputPin1()
 
 BOOL CBT848Card::GetUseInputPin1()
 {
-    SmartPtr<CMSP34x0AudioDecoder> MSP34x0AudioDecoder(m_AudioDecoder);
+    SmartPtr<CMSP34x0AudioDecoder> MSP34x0AudioDecoder(m_AudioDecoder.DynamicCast<CMSP34x0AudioDecoder>());
     if(MSP34x0AudioDecoder.IsValid())
     {
         return MSP34x0AudioDecoder->GetUseInputPin1();
@@ -520,8 +520,8 @@ BOOL CBT848Card::GetUseInputPin1()
 
 void CBT848Card::SetUseInputPin1(BOOL AValue)
 {
-    SmartPtr<CMSP34x0AudioDecoder> MSP34x0AudioDecoder(m_AudioDecoder);
-    SmartPtr<CTDA9875AudioDecoder> TDA9875AudioDecoder(m_AudioDecoder);
+    SmartPtr<CMSP34x0AudioDecoder> MSP34x0AudioDecoder(m_AudioDecoder.DynamicCast<CMSP34x0AudioDecoder>());
+    SmartPtr<CTDA9875AudioDecoder> TDA9875AudioDecoder(m_AudioDecoder.DynamicCast<CTDA9875AudioDecoder>());
     if(MSP34x0AudioDecoder.IsValid())
     {
         MSP34x0AudioDecoder->SetUseInputPin1(AValue);
@@ -533,7 +533,7 @@ void CBT848Card::SetUseInputPin1(BOOL AValue)
 
 }
 
-BOOL CBT848Card::IsMyAudioDecoder(SmartPtr<CAudioDecoder> pAudioDecoder)
+BOOL CBT848Card::IsMyAudioDecoder(CAudioDecoder* pAudioDecoder)
 {
     return (m_AudioDecoder == pAudioDecoder);
 }

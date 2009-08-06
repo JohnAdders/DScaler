@@ -53,8 +53,8 @@ public:
     BOOL HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lParam);
     SmartPtr<CCX2388xCard> GetCard();
     tstring GetStatus();
-    CSliderSetting* GetVolume() {return m_Volume;};
-    CSliderSetting* GetBalance() {return m_Balance;};
+    CSliderSetting* GetVolume() {return m_Volume.GetRawPointer();};
+    CSliderSetting* GetBalance() {return m_Balance.GetRawPointer();};
     void Mute();
     void UnMute();
     CSliderSetting* GetBrightness();
@@ -170,12 +170,12 @@ private:
     tstring  m_Section;
     tstring  m_IDString;
 
-    CSliderSetting* m_CardType;
-    CStringSetting* m_CardName;
-    CYesNoSetting*  m_bSavePerInput;
-    CYesNoSetting*  m_bSavePerFormat;
-    CYesNoSetting*  m_bSavePerChannel;
-    CSliderSetting* m_CustomPixelWidth;
+    SmartPtr<CSliderSetting> m_CardType;
+    SmartPtr<CStringSetting> m_CardName;
+    SmartPtr<CYesNoSetting>  m_bSavePerInput;
+    SmartPtr<CYesNoSetting>  m_bSavePerFormat;
+    SmartPtr<CYesNoSetting>  m_bSavePerChannel;
+    SmartPtr<CSliderSetting> m_CustomPixelWidth;
 
     BOOL         m_InitialSetup;
 

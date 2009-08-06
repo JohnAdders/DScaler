@@ -1294,7 +1294,7 @@ LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 //  the main dialog.  Warning:  BIG function!
 INT_PTR APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    static CHardwareDriver* pHardwareDriver;
+    static SmartPtr<CHardwareDriver> pHardwareDriver;
     static CGenericCard*    pCard = NULL;
     static TSource*         pSourceList;
     static TRegister*       pRegisterList = NULL;
@@ -1326,7 +1326,7 @@ INT_PTR APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
     {
     case WM_INITDIALOG:
         pSourceList     = (TSource*)        ((void**)lParam)[0];
-        pHardwareDriver = (CHardwareDriver*)((void**)lParam)[1];
+        pHardwareDriver = SmartPtr<CHardwareDriver>((CHardwareDriver*)((void**)lParam)[1]);
 
         ghMainDialog    = hDlg;
 
@@ -1935,7 +1935,6 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     CHardwareDriver* pHardwareDriver = new CHardwareDriver();
     if(pHardwareDriver->LoadDriver() == FALSE)
     {
-        delete pHardwareDriver;
         MessageBox(NULL, "Can't open driver", "RegSpy", MB_OK);
         return 1;
     }
@@ -1975,7 +1974,6 @@ int APIENTRY WinMain(HINSTANCE hInstance,
         free(Source);
     }
 
-    delete pHardwareDriver;
     return 0;
 }
 

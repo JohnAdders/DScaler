@@ -65,10 +65,10 @@ CDSSourceBase::~CDSSourceBase()
 void CDSSourceBase::CreateSettings(LPCTSTR IniSection)
 {
     m_Volume = new CVolumeSetting(this, _T("Volume"), 0, LONG_MIN, LONG_MAX, IniSection);
-    m_Settings.push_back(m_Volume);
+    m_Settings.push_back(m_Volume.DynamicCast<CSimpleSetting>());
 
     m_Balance = new CBalanceSetting(this, _T("Balance"), 0, LONG_MIN, LONG_MAX, IniSection);
-    m_Settings.push_back(m_Balance);
+    m_Settings.push_back(m_Balance.DynamicCast<CSimpleSetting>());
 
     m_AudioDevice = new CStringSetting(_T("Audio Device"), _T(""), IniSection, _T("AudioDevice"));
 }
@@ -389,8 +389,8 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lPara
     case IDM_DSHOW_FILTERS:
         {
             CTreeSettingsDlg dlg(_T("Filter properties"));
-            CTreeSettingsPage rootPage(_T("Filters"),IDD_TREESETTINGS_EMPTY);
-            int root=dlg.AddPage(&rootPage);
+            SmartPtr<CTreeSettingsPage> rootPage(new CTreeSettingsPage(_T("Filters"),IDD_TREESETTINGS_EMPTY));
+            int root=dlg.AddPage(rootPage);
 
             int filterIndex=0;
             CComPtr<ISpecifyPropertyPages> SpecifyPages;
@@ -506,7 +506,7 @@ CSliderSetting* CDSSourceBase::GetVolume()
         pControls->GetVolumeMinMax(min,max);
         m_Volume->SetMax(max);
         m_Volume->SetMin(min);
-        return m_Volume;
+        return m_Volume.GetRawPointer();
     }
     else
     {
@@ -535,7 +535,7 @@ CSliderSetting* CDSSourceBase::GetBalance()
         pControls->GetBalanceMinMax(min,max);
         m_Balance->SetMax(max);
         m_Balance->SetMin(min);
-        return m_Balance;
+        return m_Balance.GetRawPointer();
     }
     else
     {

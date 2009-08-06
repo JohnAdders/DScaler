@@ -69,7 +69,7 @@ public:
     /*
         Construct from a raw handle
     */
-    SmartHandle(X raw, Counter* c = 0) : rawHandle(0), counter(0)
+    explicit SmartHandle(X raw, Counter* c = 0) : rawHandle(0), counter(0)
     {
         if (raw)
         {
@@ -96,54 +96,70 @@ public:
         release();
     }
 
-/*
-    Assignment to another SmartHandle
-*/
+	/*
+		Assignment to another SmartHandle
+	*/
 
-SmartHandle& operator=(const SmartHandle< X >& otherPtr)
-{
-    if (this != &otherPtr)
-    {
-        release();
-        acquire(otherPtr.counter);
-        rawHandle = otherPtr.rawHandle;
-    }
-    return *this;
-}
+	SmartHandle& operator=(const SmartHandle< X >& otherPtr)
+	{
+		if (this != &otherPtr)
+		{
+			release();
+			acquire(otherPtr.counter);
+			rawHandle = otherPtr.rawHandle;
+		}
+		return *this;
+	}
 
-/*
-    Assignment to raw pointers is really dangerous business.
-    If the raw pointer is also being used elsewhere,
-    we might prematurely delete it, causing much pain.
-    Use sparingly/with caution.
-*/
+	/*
+		Assignment to raw pointers is really dangerous business.
+		If the raw pointer is also being used elsewhere,
+		we might prematurely delete it, causing much pain.
+		Use sparingly/with caution.
+	*/
 
-SmartHandle& operator=(X raw)
-{
+	SmartHandle& operator=(X raw)
+	{
 
-    if (raw)
-    {
-        release();
-        counter = new Counter;
-        rawHandle = raw;
-    }
-    return *this;
-}
+		release();
+		if (raw)
+		{
+			counter = new Counter;
+			rawHandle = raw;
+		}
+		return *this;
+	}
+
+	BOOL operator==(X rhs)
+	{
+		return rawHandle == rhs;
+	}
+
+	BOOL operator==(const SmartHandle< X >& rhs)
+	{
+		return rawHandle == rhs.rawHandle;
+	}
+
+	BOOL operator!=(X rhs)
+	{
+		return rawHandle != rhs;
+	}
+
+	BOOL operator!=(const SmartHandle< X >& rhs)
+	{
+		return rawHandle != rhs.rawHandle;
+	}
+
+	BOOL operator< (const SmartHandle< X >& rhs)
+	{
+		return rawHandle < rhs.rawHandle;
+	}
 
 
+	/*
+		Conversion/casting operators
+	*/
 
-
-/*
-    Conversion/casting operators
-*/
-
-
-    operator BOOL() const
-    {
-        return IsValid();
-    }
-
-    
     /*
        implicit casts to base types of the
        the pointer we're storing
@@ -155,10 +171,9 @@ SmartHandle& operator=(X raw)
     }
 
 
-/*
-    Provide access to the raw handle
-*/
-
+	/*
+		Provide access to the raw handle
+	*/
     X GetRawHandle() const
     {
         if (rawHandle == 0) throw new EmptyHandleException;
@@ -166,9 +181,9 @@ SmartHandle& operator=(X raw)
     }
 
     
-/*
-    Is there only one reference on the counter?
-*/
+	/*
+		Is there only one reference on the counter?
+	*/
     BOOL IsUnique() const
     {
         if (counter && counter->count == 1) return TRUE;
@@ -220,57 +235,6 @@ private:
 
     }
 };
-
-
-template <typename X>
-BOOL operator==(const SmartHandle< X >& lptr, const SmartHandle< X >& rptr)
-{
-    return lptr.GetRawHandle() == rptr.GetRawHandle();
-}
-
-template <typename X>
-BOOL operator==(const SmartHandle< X >& lptr, X raw)
-{
-    return lptr.GetRawHandle() == raw ;
-}
-
-template <typename X>
-BOOL operator!=(const SmartHandle< X >& lptr, const SmartHandle< X >& rptr)
-{
-    return ( !operator==(lptr, rptr) );
-}
-
-template <typename X>
-BOOL operator!=(const SmartHandle< X >& lptr, X raw)
-{
-    return ( !operator==(lptr, raw) );
-}
-
-template <typename X>
-BOOL operator!(const SmartHandle< X >& p)
-{
-    return (!p.IsValid());
-}
-
-
-/* less than comparisons for storage in containers */
-template <typename X>
-BOOL operator< (const SmartHandle< X >& lptr, const SmartHandle < X >& rptr)
-{
-    return lptr.GetRawHandle() < rptr.GetRawHandle();
-}
-
-template <typename X>
-BOOL operator< (const SmartHandle< X >& lptr, X raw)
-{
-    return lptr.GetRawHandle() < raw;
-}
-
-template <typename X>
-BOOL operator< (X raw, const SmartHandle< X >& rptr)
-{
-    return raw < rptr.GetRawHandle();
-}
 
 #endif
 

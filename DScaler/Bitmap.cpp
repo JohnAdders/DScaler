@@ -103,10 +103,10 @@ SmartHandle<HBITMAP> CBitmapHolder::GetBitmap(int State)
         }
         else
         {
-            return 0L;
+            return SmartHandle<HBITMAP>();
         }
     }
-    return 0L;
+    return SmartHandle<HBITMAP>();
 }
 
 void CBitmapHolder::Draw(HDC hDC, POINT *pBmpStart, LPRECT r, int State)
@@ -132,7 +132,7 @@ void CBitmapHolder::Draw(HDC hDC, POINT *pBmpStart, LPRECT r, int State)
         }
         r = &rc;
     }
-    BitmapDraw(hDC, m_States[State]->m_hBmp, NULL /*States[State].hBmpMask*/, pBmpStart, r, m_DrawMode);
+    BitmapDraw(hDC, m_States[State]->m_hBmp, SmartHandle<HBITMAP>(), pBmpStart, r, m_DrawMode);
 }
 
 
@@ -426,12 +426,12 @@ SmartHandle<HBITMAP> CBitmapHolder::BitmapCopyPieceRGB(HDC hdestDC, HDC hsrcDC, 
 // load *.bmp, *.jpg, *.gif, *.ico, *.emf, or *.wmf files
 SmartHandle<HBITMAP> CBitmapHolder::BitmapLoadFromFile(const TCHAR* szFile)
 {
-    HBITMAP ret = NULL;
+    SmartHandle<HBITMAP> ret;
 
     LPPICTURE gpPicture;
     // open file
     HANDLE hFile = CreateFile(szFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-    if (INVALID_HANDLE_VALUE == hFile) return NULL;
+    if (INVALID_HANDLE_VALUE == hFile) return ret;
 
     // get file size
     DWORD dwFileSize = GetFileSize(hFile, NULL);

@@ -542,7 +542,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
     ShowHWSetupBox =  DoWeNeedToShowHWSetupBox();
 
     // Event collector
-    if (!EventCollector)
+    if (!EventCollector.IsValid())
     {
         EventCollector = new CEventCollector();
     }
@@ -1585,7 +1585,7 @@ LPCTSTR GetSkinDirectory()
 
 void SetWindowBorder(HWND hWnd, BOOL bShow)
 {
-    if (!WindowBorder)
+    if (!WindowBorder.IsValid())
     {
         if (!szSkinName.IsValid())
         {
@@ -4199,7 +4199,7 @@ void MainWndOnInitBT(HWND hWnd)
         }
 
         AddSplashTextLine(_T("Load Toolbars"));
-        if (!ToolbarControl)
+        if (!ToolbarControl.IsValid())
         {
             ToolbarControl = new CToolbarControl(WM_TOOLBARS_GETVALUE);
             ToolbarControl->Set(hWnd, _T(""));

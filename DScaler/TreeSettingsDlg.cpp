@@ -118,9 +118,9 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         GetFilterSettings(Holders, Names);
         for(i = 0; i < Holders.size(); i++)
         {
-            CTreeSettingsGeneric* pPage = new CTreeSettingsGeneric(Names[i], Holders[i]);
+            SmartPtr<CTreeSettingsGeneric> pPage(new CTreeSettingsGeneric(Names[i], Holders[i]));
             pPage->SetHelpID(Holders[i]->GetHelpID());
-            dlg.AddPage(pPage, Root);
+            dlg.AddPage(pPage.DynamicCast<CTreeSettingsPage>(), Root);
         }
     }
 
@@ -135,9 +135,9 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         GetDeinterlaceSettings(Holders, Names);
         for(i = 0; i < Holders.size(); i++)
         {
-            CTreeSettingsGeneric* pPage = new CTreeSettingsGeneric(Names[i], Holders[i]);
+            SmartPtr<CTreeSettingsGeneric> pPage(new CTreeSettingsGeneric(Names[i], Holders[i]));
             pPage->SetHelpID(Holders[i]->GetHelpID());
-            dlg.AddPage(pPage, Root);
+            dlg.AddPage(pPage.DynamicCast<CTreeSettingsPage>(), Root);
         }
     }
 

@@ -91,13 +91,13 @@ CWindowBorder::~CWindowBorder()
 //Width of bitmap at border position 'Pos'
 int CWindowBorder::BmpWidth(int Pos)
 {
-    if (!Bitmaps[Pos]) return 0;
+    if (!Bitmaps[Pos].IsValid()) return 0;
     return Bitmaps[Pos]->Width();
 }
 
 int CWindowBorder::BmpHeight(int Pos)
 {
-    if (!Bitmaps[Pos]) return 0;
+    if (!Bitmaps[Pos].IsValid()) return 0;
     return Bitmaps[Pos]->Height();
 }
 
@@ -244,7 +244,7 @@ BOOL CWindowBorder::FindBorderSizes()
         if (Bitmaps.size() == 0) {
           for (int Pos = 0; Pos < WINDOWBORDER_LASTONE; Pos++)
           {
-              Bitmaps.push_back(NULL);
+              Bitmaps.push_back(SmartPtr<CBitmapHolder>());
           }
         }
 
@@ -711,9 +711,9 @@ BOOL CWindowBorder::SetBorderBitmap(eWindowBorderPosition Position, int State, S
 
     bBitmapsChanged = TRUE;
 
-    if (!Bitmaps[Position])
+    if (!Bitmaps[Position].IsValid())
     {
-        Bitmaps[Position] = new CBitmapHolder(DrawMode);
+        Bitmaps[Position] = SmartPtr<CBitmapHolder>(new CBitmapHolder(DrawMode));
     }
 
     Bitmaps[Position]->Add(BitmapState,State);
@@ -740,7 +740,7 @@ void CWindowBorder::Paint(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPShift)
     if (Bitmaps.size() == 0) {
         for (int Pos = 0; Pos < WINDOWBORDER_LASTONE; Pos++)
         {
-            Bitmaps.push_back(NULL);
+            Bitmaps.push_back(SmartPtr<CBitmapHolder>());
         }
     }
 
@@ -1032,7 +1032,7 @@ BOOL CWindowBorder::RegisterButton(tstring sID, eBitmapAsButtonType ButtonType, 
     {
        TButtonInfo bi;
        bi.sID = sID;
-       bi.Button = new CBitmapAsButton(ButtonType);
+       bi.Button = SmartPtr<CBitmapAsButton>(new CBitmapAsButton(ButtonType));
        bi.Button->Create(sID,hWnd,0,0,hResourceInst);
 
        bi.Location.x = 0;
@@ -1072,7 +1072,7 @@ BOOL CWindowBorder::SetButtonBitmap(tstring sID, int WhichBitmap, eWindowBorderP
         return FALSE; //unknown
     }
 
-    if ( (!Buttons[Position].Button) || (Buttons[Position].Button->hWnd() == NULL))
+    if ( (!Buttons[Position].Button.IsValid()) || (Buttons[Position].Button->hWnd() == NULL))
     {
         return FALSE;
     }

@@ -217,11 +217,11 @@ private:
 
     BOOL            m_bSelectCardCancelButton;
 
-    CSliderSetting* m_CustomPixelWidth;
-    CYesNoSetting*  m_ReversePolarity;
-    CYesNoSetting*  m_VBIDebugOverlay;
-    CSliderSetting* m_CardType;
-    CStringSetting* m_CardName;
+    SmartPtr<CSliderSetting> m_CustomPixelWidth;
+    SmartPtr<CYesNoSetting>  m_ReversePolarity;
+    SmartPtr<CYesNoSetting>  m_VBIDebugOverlay;
+	SmartPtr<CSliderSetting> m_CardType;
+    SmartPtr<CStringSetting> m_CardName;
 
     BOOL            m_InitialSetup;
 

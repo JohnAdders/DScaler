@@ -34,7 +34,7 @@ using namespace std;
 
 CStillProvider::CStillProvider()
 {
-    CStillSource* pStillSource;
+    SmartPtr<CStillSource> pStillSource;
 
     pStillSource = new CStillSource(_T("Still"));
     m_StillSources.push_back(pStillSource);
@@ -70,10 +70,10 @@ SmartPtr<CSource> CStillProvider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_StillSources.size())
     {
-        return m_StillSources[SourceIndex];
+		return m_StillSources[SourceIndex].DynamicCast<CSource>();
     }
     else
     {
-        return NULL;
+        return SmartPtr<CSource>();
     }
 }

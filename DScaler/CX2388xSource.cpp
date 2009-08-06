@@ -184,7 +184,7 @@ void CCX2388xSource::SetSourceAsCurrent()
     else
     {
         // We read what is the video format saved for this video input
-        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
+        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat.GetRawPointer());
     }
 
     // tell the world if the format has changed
@@ -194,7 +194,7 @@ void CCX2388xSource::SetSourceAsCurrent()
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
         // We save the video format attached to this video input
-        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat);
+        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat.GetRawPointer());
     }
 
     // make sure the defaults are correct
@@ -245,165 +245,165 @@ void CCX2388xSource::CreateSettings(LPCTSTR IniSection)
     CSettingGroup *pAudioGroup = SettingsMaster->GetGroup(_T("CX2388x - Audio"), SETTING_BY_CHANNEL, FALSE);
 
     m_Brightness = new CBrightnessSetting(this, _T("Brightness"), 128, 0, 255, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Brightness);
+    m_Settings.push_back(m_Brightness.DynamicCast<CSimpleSetting>());
 
     m_Contrast = new CContrastSetting(this, _T("Contrast"), 128, 0, 255, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Contrast);
+    m_Settings.push_back(m_Contrast.DynamicCast<CSimpleSetting>());
 
     m_Hue = new CHueSetting(this, _T("Hue"), 128, 0, 255, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Hue);
+    m_Settings.push_back(m_Hue.DynamicCast<CSimpleSetting>());
 
     m_Saturation = new CSaturationSetting(this, _T("Saturation"), 128, 0, 255, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Saturation);
+    m_Settings.push_back(m_Saturation.DynamicCast<CSimpleSetting>());
 
     m_SaturationU = new CSaturationUSetting(this, _T("Blue Saturation"), 128, 0, 255, IniSection, pVideoGroup);
-    m_Settings.push_back(m_SaturationU);
+    m_Settings.push_back(m_SaturationU.DynamicCast<CSimpleSetting>());
 
     m_SaturationV = new CSaturationVSetting(this, _T("Red Saturation"), 128, 0, 255, IniSection, pVideoGroup);
-    m_Settings.push_back(m_SaturationV);
+    m_Settings.push_back(m_SaturationV.DynamicCast<CSimpleSetting>());
 
     m_TopOverscan = new CTopOverscanSetting(this, _T("Overscan at Top"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_TopOverscan);
+    m_Settings.push_back(m_TopOverscan.DynamicCast<CSimpleSetting>());
 
     m_VideoSource = new CVideoSourceSetting(this, _T("Video Source"), 0, 0, 7, IniSection);
-    m_Settings.push_back(m_VideoSource);
+    m_Settings.push_back(m_VideoSource.DynamicCast<CSimpleSetting>());
 
     m_VideoFormat = new CVideoFormatSetting(this, _T("Video Format"), VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LAST_TV - 1, IniSection, pVideoFormatGroup);
-    m_Settings.push_back(m_VideoFormat);
+    m_Settings.push_back(m_VideoFormat.DynamicCast<CSimpleSetting>());
 
     m_CardType = new CSliderSetting(_T("Card Type"), CX2388xCARD_UNKNOWN, CX2388xCARD_UNKNOWN, m_pCard->GetMaxCards() - 1, IniSection, _T("CardType"));
-    m_Settings.push_back(m_CardType);
+    m_Settings.push_back(m_CardType.DynamicCast<CSimpleSetting>());
 
     m_TunerType = new CTunerTypeSetting(this, _T("Tuner Type"), TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
-    m_Settings.push_back(m_TunerType);
+    m_Settings.push_back(m_TunerType.DynamicCast<CSimpleSetting>());
 
     // save per input removed
-    m_Settings.push_back(new CEmptySetting);
+    m_Settings.push_back(SmartPtr<CSimpleSetting>(new CEmptySetting));
 
     // save per format removed
-    m_Settings.push_back(new CEmptySetting);
+    m_Settings.push_back(SmartPtr<CSimpleSetting>(new CEmptySetting));
 
     // save per channel removed
-    m_Settings.push_back(new CEmptySetting);
+    m_Settings.push_back(SmartPtr<CSimpleSetting>(new CEmptySetting));
 
     m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, _T("Is Video Progressive"), FALSE, IniSection, pH3DGroup);
-    m_Settings.push_back(m_IsVideoProgressive);
+    m_Settings.push_back(m_IsVideoProgressive.DynamicCast<CSimpleSetting>());
 
     m_FLIFilmDetect = new CFLIFilmDetectSetting(this, _T("FLI Film Detect"), TRUE, IniSection, pH3DGroup);
-    m_Settings.push_back(m_FLIFilmDetect);
+    m_Settings.push_back(m_FLIFilmDetect.DynamicCast<CSimpleSetting>());
 
     m_HDelay = new CHDelaySetting(this, _T("Horizontal Delay Adjustment"), 0, -12, 12, IniSection, pVideoGroup);
     m_HDelay->SetStepValue(2);
-    m_Settings.push_back(m_HDelay);
+    m_Settings.push_back(m_HDelay.DynamicCast<CSimpleSetting>());
 
     m_VDelay = new CVDelaySetting(this, _T("Vertical Delay Adjustment"), 0, -40, 40, IniSection, pVideoGroup);
     m_VDelay->SetStepValue(4);
-    m_Settings.push_back(m_VDelay);
+    m_Settings.push_back(m_VDelay.DynamicCast<CSimpleSetting>());
 
     m_EatLinesAtTop = new CEatLinesAtTopSetting(this, _T("Eat Lines At Top"), 12, 0, 100, IniSection, pH3DGroup);
-    m_Settings.push_back(m_EatLinesAtTop);
+    m_Settings.push_back(m_EatLinesAtTop.DynamicCast<CSimpleSetting>());
 
     m_Sharpness = new CSharpnessSetting(this, _T("Sharpness"), 0, -8, 7, IniSection, pH3DGroup);
-    m_Settings.push_back(m_Sharpness);
+    m_Settings.push_back(m_Sharpness.DynamicCast<CSimpleSetting>());
 
     m_LumaAGC = new CLumaAGCSetting(this, _T("Luma AGC"), FALSE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_LumaAGC);
+    m_Settings.push_back(m_LumaAGC.DynamicCast<CSimpleSetting>());
 
     m_ChromaAGC = new CChromaAGCSetting(this, _T("Chroma AGC"), FALSE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_ChromaAGC);
+    m_Settings.push_back(m_ChromaAGC.DynamicCast<CSimpleSetting>());
 
     m_FastSubcarrierLock = new CFastSubcarrierLockSetting(this, _T("Fast Subcarrier Lock"), FALSE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_FastSubcarrierLock);
+    m_Settings.push_back(m_FastSubcarrierLock.DynamicCast<CSimpleSetting>());
 
     m_WhiteCrush = new CWhiteCrushSetting(this, _T("White Crush"), TRUE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_WhiteCrush);
+    m_Settings.push_back(m_WhiteCrush.DynamicCast<CSimpleSetting>());
 
     m_LowColorRemoval = new CLowColorRemovalSetting(this, _T("Low Color Removal"), FALSE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_LowColorRemoval);
+    m_Settings.push_back(m_LowColorRemoval.DynamicCast<CSimpleSetting>());
 
     m_CombFilter = new CCombFilterSetting(this, _T("Comb Filter"), CCX2388xCard::COMBFILTER_DEFAULT, CCX2388xCard::COMBFILTER_FULL, IniSection, CombFilterSzList, pVideoGroup);
-    m_Settings.push_back(m_CombFilter);
+    m_Settings.push_back(m_CombFilter.DynamicCast<CSimpleSetting>());
 
     m_FullLumaRange = new CFullLumaRangeSetting(this, _T("Full Luma Range"), FALSE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_FullLumaRange);
+    m_Settings.push_back(m_FullLumaRange.DynamicCast<CSimpleSetting>());
 
     m_Remodulation = new CRemodulationSetting(this, _T("Remodulation"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
-    m_Settings.push_back(m_Remodulation);
+    m_Settings.push_back(m_Remodulation.DynamicCast<CSimpleSetting>());
 
     m_Chroma2HComb = new CChroma2HCombSetting(this, _T("Chroma 2H Comb"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
-    m_Settings.push_back(m_Chroma2HComb);
+    m_Settings.push_back(m_Chroma2HComb.DynamicCast<CSimpleSetting>());
 
     m_ForceRemodExcessChroma = new CForceRemodExcessChromaSetting(this, _T("Force Remodulation of Excess Chroma"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
-    m_Settings.push_back(m_ForceRemodExcessChroma);
+    m_Settings.push_back(m_ForceRemodExcessChroma.DynamicCast<CSimpleSetting>());
 
     m_IFXInterpolation = new CIFXInterpolationSetting(this, _T("IFX Interpolation"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
-    m_Settings.push_back(m_IFXInterpolation);
+    m_Settings.push_back(m_IFXInterpolation.DynamicCast<CSimpleSetting>());
 
     m_CombRange = new CCombRangeSetting(this, _T("Adaptative Comb Filter Threshold"), 0x01f, 0, 0x3ff, IniSection, pVideoGroup);
-    m_Settings.push_back(m_CombRange);
+    m_Settings.push_back(m_CombRange.DynamicCast<CSimpleSetting>());
 
     m_SecondChromaDemod = new CSecondChromaDemodSetting(this, _T("Second Chroma Demodulation"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
-    m_Settings.push_back(m_SecondChromaDemod);
+    m_Settings.push_back(m_SecondChromaDemod.DynamicCast<CSimpleSetting>());
 
     m_ThirdChromaDemod = new CThirdChromaDemodSetting(this, _T("Third Chroma Demodulation"), CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
-    m_Settings.push_back(m_ThirdChromaDemod);
+    m_Settings.push_back(m_ThirdChromaDemod.DynamicCast<CSimpleSetting>());
 
     m_PixelWidth = new CPixelWidthSetting(this, _T("Sharpness"), 720, 120, DSCALER_MAX_WIDTH, IniSection, pVideoGroup);
     m_PixelWidth->SetStepValue(2);
-    m_Settings.push_back(m_PixelWidth);
+    m_Settings.push_back(m_PixelWidth.DynamicCast<CSimpleSetting>());
 
     m_CustomPixelWidth = new CSliderSetting(_T("Custom Pixel Width"), 750, 120, DSCALER_MAX_WIDTH, IniSection, _T("CustomPixelWidth"), pVideoGroup);
     m_CustomPixelWidth->SetStepValue(2);
-    m_Settings.push_back(m_CustomPixelWidth);
+    m_Settings.push_back(m_CustomPixelWidth.DynamicCast<CSimpleSetting>());
 
     m_WhiteCrushUp = new CWhiteCrushUpSetting(this, _T("White Crush Up"), 15, 0, 63, IniSection, pVideoGroup);
-    m_Settings.push_back(m_WhiteCrushUp);
+    m_Settings.push_back(m_WhiteCrushUp.DynamicCast<CSimpleSetting>());
 
     m_WhiteCrushDown = new CWhiteCrushDownSetting(this, _T("White Crush Down"), 63, 0, 63, IniSection, pVideoGroup);
-    m_Settings.push_back(m_WhiteCrushDown);
+    m_Settings.push_back(m_WhiteCrushDown.DynamicCast<CSimpleSetting>());
 
     m_WhiteCrushMajorityPoint = new CWhiteCrushMajorityPointSetting(this, _T("White Crush Majority Point"), CCX2388xCard::MAJSEL_AUTOMATIC, CCX2388xCard::MAJSEL_AUTOMATIC, IniSection, WhiteCrushMajorityPointList, pVideoGroup);
-    m_Settings.push_back(m_WhiteCrushMajorityPoint);
+    m_Settings.push_back(m_WhiteCrushMajorityPoint.DynamicCast<CSimpleSetting>());
 
     m_WhiteCrushPerFrame = new CWhiteCrushPerFrameSetting(this, _T("White Crush Per Frame"), TRUE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_WhiteCrushPerFrame);
+    m_Settings.push_back(m_WhiteCrushPerFrame.DynamicCast<CSimpleSetting>());
 
     m_Volume = new CVolumeSetting(this, _T("Volume"), 900, 0, 1000, IniSection, pAudioGroup);
     m_Volume->SetStepValue(20);
-    m_Settings.push_back(m_Volume);
+    m_Settings.push_back(m_Volume.DynamicCast<CSimpleSetting>());
 
     m_Balance = new CBalanceSetting(this, _T("Balance"), 0, -127, 127, IniSection, pAudioGroup);
-    m_Settings.push_back(m_Balance);
+    m_Settings.push_back(m_Balance.DynamicCast<CSimpleSetting>());
 
     m_AudioStandard = new CAudioStandardSetting(this, _T("Audio Standard"), AUDIO_STANDARD_AUTO, AUDIO_STANDARD_FM, IniSection, AudioStandardList, pAudioGroup);
-    m_Settings.push_back(m_AudioStandard);
+    m_Settings.push_back(m_AudioStandard.DynamicCast<CSimpleSetting>());
 
     m_StereoType = new CStereoTypeSetting(this, _T("Stereo Type"), STEREOTYPE_AUTO, STEREOTYPE_ALT2, IniSection, StereoTypeList, pAudioGroup);
-    m_Settings.push_back(m_StereoType);
+    m_Settings.push_back(m_StereoType.DynamicCast<CSimpleSetting>());
 
     m_BottomOverscan = new CBottomOverscanSetting(this, _T("Overscan at Bottom"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_BottomOverscan);
+    m_Settings.push_back(m_BottomOverscan.DynamicCast<CSimpleSetting>());
 
     m_LeftOverscan = new CLeftOverscanSetting(this, _T("Overscan at Left"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_LeftOverscan);
+    m_Settings.push_back(m_LeftOverscan.DynamicCast<CSimpleSetting>());
 
     m_RightOverscan = new CRightOverscanSetting(this, _T("Overscan at Right"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_RightOverscan);
+    m_Settings.push_back(m_RightOverscan.DynamicCast<CSimpleSetting>());
 
     m_AnalogueBlanking = new CAnalogueBlankingSetting(this, _T("Analogue Blanking"), FALSE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_AnalogueBlanking);
+    m_Settings.push_back(m_AnalogueBlanking.DynamicCast<CSimpleSetting>());
 
     m_ConexantStopDriver = new CConexantStopDriverSetting(this, _T("Stop Conexant driver while DScaler is running"), FALSE, IniSection, pAudioGroup);
-    m_Settings.push_back(m_ConexantStopDriver);
+    m_Settings.push_back(m_ConexantStopDriver.DynamicCast<CSimpleSetting>());
 
     m_AutoMute = new CAutoMuteSetting(this, _T("Automute if no Tunersignal"), TRUE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_AutoMute);
+    m_Settings.push_back(m_AutoMute.DynamicCast<CSimpleSetting>());
 
     m_VerticalSyncDetection = new CVerticalSyncDetectionSetting(this, _T("Vertical Sync Detection"), TRUE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_VerticalSyncDetection);
+    m_Settings.push_back(m_VerticalSyncDetection.DynamicCast<CSimpleSetting>());
 
     m_CardName = new CStringSetting(_T("Card Name"), _T(""), IniSection, _T("CardName"));
-    m_Settings.push_back(m_CardName);
+    m_Settings.push_back(m_CardName.DynamicCast<CSimpleSetting>());
 
 #ifdef _DEBUG
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
@@ -845,22 +845,22 @@ void CCX2388xSource::SetFormat(eVideoFormat NewFormat)
 
 CSliderSetting* CCX2388xSource::GetBrightness()
 {
-    return m_Brightness;
+    return m_Brightness.GetRawPointer();
 }
 
 CSliderSetting* CCX2388xSource::GetContrast()
 {
-    return m_Contrast;
+    return m_Contrast.GetRawPointer();
 }
 
 CSliderSetting* CCX2388xSource::GetHue()
 {
-    return m_Hue;
+    return m_Hue.GetRawPointer();
 }
 
 CSliderSetting* CCX2388xSource::GetSaturation()
 {
-    return m_Saturation;
+    return m_Saturation.GetRawPointer();
 }
 
 CSliderSetting* CCX2388xSource::GetSaturationU()
@@ -871,7 +871,7 @@ CSliderSetting* CCX2388xSource::GetSaturationU()
     }
     else
     {
-        return m_SaturationU;
+        return m_SaturationU.GetRawPointer();
     }
 }
 
@@ -883,7 +883,7 @@ CSliderSetting* CCX2388xSource::GetSaturationV()
     }
     else
     {
-        return m_SaturationV;
+        return m_SaturationV.GetRawPointer();
     }
 }
 
@@ -891,7 +891,7 @@ CYesNoSetting* CCX2388xSource::GetAnalogueBlanking()
 {
     if(m_CurrentX == 720)
     {
-        return m_AnalogueBlanking;
+        return m_AnalogueBlanking.GetRawPointer();
     }
     else
     {
@@ -901,32 +901,32 @@ CYesNoSetting* CCX2388xSource::GetAnalogueBlanking()
 
 CSliderSetting* CCX2388xSource::GetTopOverscan()
 {
-    return m_TopOverscan;
+    return m_TopOverscan.GetRawPointer();
 }
 
 CSliderSetting* CCX2388xSource::GetBottomOverscan()
 {
-    return m_BottomOverscan;
+    return m_BottomOverscan.GetRawPointer();
 }
 
 CSliderSetting* CCX2388xSource::GetLeftOverscan()
 {
-    return m_LeftOverscan;
+    return m_LeftOverscan.GetRawPointer();
 }
 
 CSliderSetting* CCX2388xSource::GetRightOverscan()
 {
-    return m_RightOverscan;
+    return m_RightOverscan.GetRawPointer();
 }
 
 CSliderSetting* CCX2388xSource::GetHDelay()
 {
-    return m_HDelay;
+    return m_HDelay.GetRawPointer();
 }
 
 CSliderSetting* CCX2388xSource::GetVDelay()
 {
-    return m_VDelay;
+    return m_VDelay.GetRawPointer();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -1313,7 +1313,7 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
     else
     {
         // We read what is the video format saved for this video input
-        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat);
+        SettingsMaster->LoadOneGroupedSetting(m_VideoFormat.GetRawPointer());
     }
 
     // tell the world if the format has changed
@@ -1323,7 +1323,7 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
         // We save the video format attached to this video input
-        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat);
+        SettingsMaster->WriteOneGroupedSetting(m_VideoFormat.GetRawPointer());
     }
 
     // make sure the defaults are correct

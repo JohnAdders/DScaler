@@ -99,13 +99,13 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         pExternalIFDemodulator = CTDA8290::CreateDetectedTDA8290(m_I2CBus.GetRawPointer());
     }
 
-    if (!pExternalIFDemodulator)
+    if (!pExternalIFDemodulator.IsValid())
     {
         // bUseTDA9887 is the setting in CX2388xCards.ini.
         if (m_CX2388xCards[m_CardType].bUseTDA9887)
         {
             // Have a TDA9887 object detected and created.
-            SmartPtr<CTDA9887Ex> pTDA9887 = CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus.GetRawPointer());
+            SmartPtr<CTDA9887Ex> pTDA9887(CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus.GetRawPointer()));
 
             // If a TDA9887 was found.
             if (pTDA9887.IsValid())
@@ -118,7 +118,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
                 }
 
                 // Found a valid external IF demodulator.
-                pExternalIFDemodulator = pTDA9887;
+                pExternalIFDemodulator = pTDA9887.DynamicCast<IExternalIFDemodulator>();
             }
         }
     }
@@ -173,10 +173,9 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     return bFoundTuner;
 }
 
-SmartPtr<ITuner> CCX2388xCard::GetTuner() const
+SmartPtr<ITuner> CCX2388xCard::GetTuner()
 {
-    SmartPtr<ITuner> RetVal(m_Tuner);
-    return RetVal;
+    return m_Tuner.DynamicCast<ITuner>();
 }
 
 tstring CCX2388xCard::GetTunerType()

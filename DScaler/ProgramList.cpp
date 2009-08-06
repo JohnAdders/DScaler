@@ -299,15 +299,13 @@ void UpdateAutoScanDetails(HWND hDlg)
 
 void RefreshProgramList(HWND hDlg, int ProgToSelect)
 {
-    static TCHAR sbuf[256];
     MyInUpdate = TRUE;
     ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
 
     for(int i = 0; i < MyChannels.GetSize(); i++)
     {
         const CChannel* Channel = MyChannels.GetChannel(i);
-        _stprintf(sbuf, _T("%s"), Channel->GetName());
-        ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
+        ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), Channel->GetName());
     }
 
     int index =  ProgToSelect;
@@ -567,7 +565,7 @@ DWORD FindFrequency(DWORD Freq, int Format, DWORD dwAFCFrequencyDeviationThresho
 void AddScannedChannel(HWND hDlg, CChannel* pNewChannel)
 {
     _ASSERTE(NULL != pNewChannel);
-    MyChannels.AddChannel(pNewChannel);
+    MyChannels.AddChannel(SmartPtr<CChannel>(pNewChannel));
 
     // We are going to add current channel at the end
     // so set up CurrentProgram to be the last one
@@ -834,7 +832,7 @@ void ChangeChannelInfo(HWND hDlg, int iCurrentProgramIndex)
         Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf, 255);
         Edit_GetText(GetDlgItem(hDlg, IDC_EPGNAME), sbuf2, 255);
         BOOL Active = (Button_GetCheck(GetDlgItem(hDlg, IDC_ACTIVE)) == BST_CHECKED);
-        MyChannels.SetChannel(iCurrentProgramIndex, new CChannel(sbuf, sbuf2, Freq, Channel, (eVideoFormat)Format, Active));
+        MyChannels.SetChannel(iCurrentProgramIndex, SmartPtr<CChannel>(new CChannel(sbuf, sbuf2, Freq, Channel, (eVideoFormat)Format, Active)));
         ListBox_DeleteString(GetDlgItem(hDlg, IDC_PROGRAMLIST), iCurrentProgramIndex);
         ListBox_InsertString(GetDlgItem(hDlg, IDC_PROGRAMLIST), iCurrentProgramIndex, sbuf);
         ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), iCurrentProgramIndex);

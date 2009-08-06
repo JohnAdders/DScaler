@@ -212,7 +212,7 @@ void CChannelList::RemoveChannel(int index)
 
 void CChannelList::SetChannel(int index, SmartPtr<CChannel>pChannel)
 {
-    if ((index >= 0) && !pChannel)
+    if ((index >= 0) && pChannel.IsValid())
     {
         if (index >= GetSize())
         {
@@ -358,7 +358,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
         {
             if(Frequency != -1)
             {
-                AddChannel(new CChannel(Name.c_str(), EPGName.c_str(), Frequency, Channel, (eVideoFormat)Format, Active));
+                AddChannel(SmartPtr<CChannel>(new CChannel(Name.c_str(), EPGName.c_str(), Frequency, Channel, (eVideoFormat)Format, Active)));
             }
 
             // skip _T("Name:")
@@ -378,6 +378,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
                     --EndChar;
                 }
                 Name = StartChar;
+				Name = DecodeASCIISafeString(Name);
             }
             else
             {
@@ -408,6 +409,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
                     --EndChar;
                 }
                 EPGName = StartChar;
+				EPGName = DecodeASCIISafeString(EPGName);
             }
         }
         // cope with old style frequencies
@@ -442,7 +444,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
 
     if(Frequency != -1)
     {
-        AddChannel(new CChannel(Name.c_str(), EPGName.c_str(), Frequency, Channel, (eVideoFormat)Format, Active));
+        AddChannel(SmartPtr<CChannel>(new CChannel(Name.c_str(), EPGName.c_str(), Frequency, Channel, (eVideoFormat)Format, Active)));
     }
 
     return TRUE;
@@ -469,10 +471,9 @@ BOOL CUserChannels::WriteASCIIImpl(FILE* SettingFile)  const
 
     for(int i = 0; i < GetSize(); i++)
     {
-        _ftprintf(SettingFile, _T("Name: %s\n"), GetChannel(i)->GetName());
+        _ftprintf(SettingFile, _T("Name: %s\n"), EncodeASCIISafeString(GetChannel(i)->GetName()).c_str());
         if (_tcscmp(GetChannel(i)->GetName(), GetChannel(i)->GetEPGName()))
-            _ftprintf(SettingFile, _T("EPGName: %s\n"), GetChannel(i)->GetEPGName());
-        //_ftprintf(SettingFile, _T("Freq2: %ld\n"), MulDiv((*it)->GetFrequency(),16,1000000));
+            _ftprintf(SettingFile, _T("EPGName: %s\n"), EncodeASCIISafeString(GetChannel(i)->GetEPGName()).c_str());
         _ftprintf(SettingFile, _T("Freq: %ld\n"), GetChannel(i)->GetFrequency()/1000);
         _ftprintf(SettingFile, _T("Chan: %d\n"), GetChannel(i)->GetChannelNumber());
         _ftprintf(SettingFile, _T("Active: %d\n"), GetChannel(i)->IsActive());
@@ -648,7 +649,7 @@ BOOL CCountryList::ReadASCIIImpl(FILE* CountryFile)
         }
         else
         {
-            if (!NewCountry)
+            if (!NewCountry.IsValid())
             {
                 return FALSE;
             }

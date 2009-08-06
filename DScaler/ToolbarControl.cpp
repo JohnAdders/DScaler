@@ -553,7 +553,7 @@ void CToolbarControl::OnEvent(CEventObject *pEventObject, eEventType Event, long
 
             if ((Toolbar1 != NULL) && Toolbar1->Visible())
             {
-                CToolbarControl::Set(GetMainWnd(), NULL);
+                CToolbarControl::Set(GetMainWnd(), _T(""));
             }
         }
     }
@@ -694,10 +694,10 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
         }
         else
         {
-            CToolbarControl::Set(hWnd, NULL);
+            CToolbarControl::Set(hWnd, _T(""));
         }
         WorkoutOverlaySize(TRUE);
-        CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
+        CToolbarControl::Set(hWnd, _T(""), bIsFullScreen?1:0);
         break;
     case IDM_VIEW_MAINTOOLBAR_TOP:
         if (m_Toolbar1Position->GetValue() == 1)
@@ -716,18 +716,18 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
         {
             Toolbar1->Margins(MarginsBottom.l,MarginsBottom.t,MarginsBottom.r,MarginsBottom.b,MarginsBottom.child_lr,MarginsBottom.child_tb);
         }
-        CToolbarControl::Set(hWnd, NULL);
+        CToolbarControl::Set(hWnd, _T(""));
         WorkoutOverlaySize(TRUE);
-        CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
+        CToolbarControl::Set(hWnd, _T(""), bIsFullScreen?1:0);
         break;
     case IDM_VIEW_MAINTOOLBAR_CHANNELS:
         {
             int Visible = HIWORD(m_Toolbar1Channels->GetValue());
             Visible = (Visible&2) | ((Visible&1)?0:1);
             m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), Visible) );
-            CToolbarControl::Set(hWnd, NULL);
+            CToolbarControl::Set(hWnd, _T(""));
             WorkoutOverlaySize(TRUE);
-            CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
+            CToolbarControl::Set(hWnd, _T(""), bIsFullScreen?1:0);
         }
         break;
     case IDM_VIEW_MAINTOOLBAR_VOLUME:
@@ -735,9 +735,9 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
             int Visible = HIWORD(m_Toolbar1Volume->GetValue());
             Visible = (Visible&2) | ((Visible&1)?0:1);
             m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), Visible) );
-            CToolbarControl::Set(hWnd, NULL);
+            CToolbarControl::Set(hWnd, _T(""));
             WorkoutOverlaySize(TRUE);
-            CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
+            CToolbarControl::Set(hWnd, _T(""), bIsFullScreen?1:0);
         }
         break;
     case IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER:
@@ -745,9 +745,9 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
             int Visible = HIWORD(m_Toolbar1MediaPlayer->GetValue());
             Visible = (Visible&2) | ((Visible&1)?0:1);
             m_Toolbar1MediaPlayer->SetValue( MAKELONG(LOWORD(m_Toolbar1MediaPlayer->GetValue()), Visible) );
-            CToolbarControl::Set(hWnd, NULL);
+            CToolbarControl::Set(hWnd, _T(""));
             WorkoutOverlaySize(TRUE);
-            CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
+            CToolbarControl::Set(hWnd, _T(""), bIsFullScreen?1:0);
         }
         break;
     default:

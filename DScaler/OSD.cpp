@@ -114,7 +114,7 @@ typedef struct
 {
     BYTE            uCommand;
     BYTE            uFlags;
-    DWORD           dwParam;
+    LONG_PTR        dwParam;
     DOUBLE          dSize;
 } TOSDCommand;
 
@@ -214,12 +214,12 @@ void OSD_ShowText(const tstring& Text, double dSize, BOOL bPersistent, BOOL bOve
     pOSDCommand->uFlags = 0;
     pOSDCommand->dSize = dSize;
 
-    size_t nDataLength = Text.length() + 1;
+    size_t nDataLength = (Text.length() + 1) * sizeof(TCHAR);
 
-    LPTSTR pszText = (LPTSTR)malloc(nDataLength);
+    LPTSTR pszText = (LPTSTR)malloc(nDataLength );
     memcpy(pszText, Text.c_str(), nDataLength);
 
-    pOSDCommand->dwParam = (DWORD)pszText;
+    pOSDCommand->dwParam = (LONG_PTR)pszText;
 
     if (bPersistent != FALSE)
     {
@@ -322,7 +322,7 @@ void OSD_ShowInfosScreen(INT IdxScreen, DOUBLE dSize)
     pOSDCommand = (TOSDCommand*)malloc(sizeof(TOSDCommand));
 
     pOSDCommand->uCommand = OSDC_SHOW_SCREEN;
-    pOSDCommand->dwParam = (DWORD)IdxScreen;
+    pOSDCommand->dwParam = IdxScreen;
     pOSDCommand->dSize = dSize;
 
     OSD_PostCommand(pOSDCommand);
@@ -2326,7 +2326,7 @@ void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long 
     OSD_Text[OSD_nTextCount].TextXPos = TextXPos;
     OSD_Text[OSD_nTextCount].XPos = XPos;
     OSD_Text[OSD_nTextCount].YPos = YPos;
-    _tcsncpy(OSD_Text[OSD_nTextCount].szText, szText, sizeof(OSD_Text[OSD_nTextCount].szText));
+    _tcsncpy(OSD_Text[OSD_nTextCount].szText, szText, OSD_MAX_TEXT);
 
     OSD_nTextCount++;
 }
@@ -2670,7 +2670,7 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
     },
     {
         "Font Name", TCHARSTRING, 0, OSD_szFontName.GetPointer(),
-         (LONG_PTR)"Arial", 0, 0, 0, 0,
+         (LONG_PTR)_T("Arial"), 0, 0, 0, 0,
          NULL,
         "OSD", "FontName", NULL,
     },

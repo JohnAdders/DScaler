@@ -2531,7 +2531,7 @@ void OSD_SetMenu(HMENU hMenu)
     {
         if ((_tcslen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
-//            CheckMenuItemBool(hMenuOSD, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].active);
+            CheckMenuItemBool(hMenuOSD, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].active);
             EnableMenuItem(hMenuOSD, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].active ? MF_ENABLED : MF_GRAYED);
         }
     }

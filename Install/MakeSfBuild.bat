@@ -6,7 +6,7 @@ if "%buildnum%" == "" set /p buildnum= BuildNum to use?
 cd ..\..
 md DScalerBuild%buildnum%
 cd DScalerBuild%buildnum%
-TortoiseProc.exe /command:checkout /path:"./DScaler" /url:https://deinterlace.svn.sourceforge.net/svnroot/deinterlace/trunk/DScaler/ /closeonend:0
+TortoiseProc.exe /command:export /path:"." /url:https://deinterlace.svn.sourceforge.net/svnroot/deinterlace/trunk/DScaler/ /closeonend:1
 cd DScaler\Dscaler
 subwcrev .. BuildNum.tmpl BuildNum.cpp
 cd ..

@@ -347,22 +347,22 @@ void CMultiFrames::SelectFrame()
         {
             if (m_Mode == PREVIEW_CHANNELS)
             {
-                SendMessage(GetMainWnd(), WM_COMMAND, IDM_CHANNELMINUS, 0);
+                PostMessageToMainWindow(WM_COMMAND, IDM_CHANNELMINUS, 0);
             }
             else if (m_Mode == PREVIEW_STILLS)
             {
-                SendMessage(GetMainWnd(), WM_COMMAND, IDM_PLAYLIST_PREVIOUS_CIRC, 0);
+                PostMessageToMainWindow(WM_COMMAND, IDM_PLAYLIST_PREVIOUS_CIRC, 0);
             }
         }
         else
         {
             if (m_Mode == PREVIEW_CHANNELS)
             {
-                SendMessage(GetMainWnd(), WM_COMMAND, IDM_CHANNELPLUS, 0);
+                PostMessageToMainWindow(WM_COMMAND, IDM_CHANNELPLUS, 0);
             }
             else if (m_Mode == PREVIEW_STILLS)
             {
-                SendMessage(GetMainWnd(), WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
+                PostMessageToMainWindow(WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
             }
         }
     }

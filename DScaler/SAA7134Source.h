@@ -193,12 +193,12 @@ private:
     long            m_CurrentY;
     long            m_CurrentVBILines;
     BOOL            m_InSaturationUpdate;
-    tstring     m_ChannelSubSection;
-    tstring     m_ChipName;
+    tstring         m_ChannelSubSection;
+    tstring         m_ChipName;
     int             m_DeviceIndex;
 
-    tstring     m_Section;
-    tstring     m_IDString;
+    tstring         m_Section;
+    tstring         m_IDString;
 
     eAudioChannel   m_DetectedAudioChannel;
 

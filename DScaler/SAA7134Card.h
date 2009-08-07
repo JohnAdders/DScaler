@@ -454,7 +454,7 @@ private:
     static const HCParser::CParseTag k_parseCardList[];
 
     eSAA7134CardId      m_CardType;
-    tstring         m_TunerType;
+    tstring             m_TunerType;
 
     SmartPtr<CI2CBus>   m_I2CBus;
     SmartPtr<II2CTuner> m_Tuner;

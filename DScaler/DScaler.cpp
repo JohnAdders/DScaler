@@ -4295,6 +4295,7 @@ void MainWndOnInitBT(HWND hWnd)
         Sleep(2000);
         PostQuitMessage(0);
     }
+    LOG(1 , "End of MainWndOnInitBT");
 }
 
 //---------------------------------------------------------------------------
@@ -5699,7 +5700,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
             {
                 WindowBorder->Hide();
             }
-            else if (!bIsFullScreen && !szSkinName.IsValid())
+            else if (!bIsFullScreen && szSkinName.IsValid())
             {
                 WindowBorder->Show();
             }
@@ -6174,7 +6175,9 @@ HWND GetMainWnd()
     {
         LOG(1, _T("Window request from outside main thread"));
     }
-    return hWnd;
+
+
+	return hWnd;
 }
 
 void PostMessageToMainWindow(UINT Msg, WPARAM wParam, LPARAM lParam)

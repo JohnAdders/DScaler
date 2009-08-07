@@ -88,7 +88,7 @@ public:
     /*
         Construct from a raw pointer
     */
-	explicit SmartPtr(X* raw, Counter* c = 0) : rawPtr(0), counter(0)
+    explicit SmartPtr(X* raw, Counter* c = 0) : rawPtr(0), counter(0)
     {
         if (raw)
         {
@@ -107,100 +107,100 @@ public:
     }
 
 
-	SmartPtr& operator=(const SmartPtr< X >& otherPtr)
-	{
-		if (this != &otherPtr)
-		{
-			Clear();
-			acquire(otherPtr.counter);
-			rawPtr = otherPtr.rawPtr;
-		}
-		return *this;
-	}
+    SmartPtr& operator=(const SmartPtr< X >& otherPtr)
+    {
+        if (this != &otherPtr)
+        {
+            Clear();
+            acquire(otherPtr.counter);
+            rawPtr = otherPtr.rawPtr;
+        }
+        return *this;
+    }
 
-	BOOL operator< (const SmartPtr < X >& rhs)
-	{
-		return rawPtr < rhs.rawPtr;
-	}
+    BOOL operator< (const SmartPtr < X >& rhs)
+    {
+        return rawPtr < rhs.rawPtr;
+    }
 
-	BOOL operator==(const SmartPtr< X >& rhs)
-	{
-		return rawPtr == rhs.rawPtr;
-	}
+    BOOL operator==(const SmartPtr< X >& rhs)
+    {
+        return rawPtr == rhs.rawPtr;
+    }
 
-	BOOL operator==(X* rhs)
-	{
-		return rawPtr == rhs;
-	}
+    BOOL operator==(X* rhs)
+    {
+        return rawPtr == rhs;
+    }
 
-	BOOL operator!=(const SmartPtr< X >& rhs)
-	{
-		return rawPtr != rhs.rawPtr;
-	}
+    BOOL operator!=(const SmartPtr< X >& rhs)
+    {
+        return rawPtr != rhs.rawPtr;
+    }
 
-	BOOL operator!=(X* rhs)
-	{
-		return rawPtr != rhs;
-	}
+    BOOL operator!=(X* rhs)
+    {
+        return rawPtr != rhs;
+    }
 
-	/*
-		Assignment to raw pointers is really dangerous business.
-		If the raw pointer is also being used elsewhere,
-		we might prematurely delete it, causing much pain.
-		Use sparingly/with caution.
-	*/
-	SmartPtr& operator=(X* raw)
-	{
+    /*
+        Assignment to raw pointers is really dangerous business.
+        If the raw pointer is also being used elsewhere,
+        we might prematurely delete it, causing much pain.
+        Use sparingly/with caution.
+    */
+    SmartPtr& operator=(X* raw)
+    {
 
-		Clear();
-		if (raw)
-		{
-			counter = new Counter;
-			rawPtr = raw;
-		}
-		return *this;
-	}
+        Clear();
+        if (raw)
+        {
+            counter = new Counter;
+            rawPtr = raw;
+        }
+        return *this;
+    }
 
-	/*
-		Member Access
-	*/
+    /*
+        Member Access
+    */
     X* operator->() const
     {
         return GetRawPointer();
     }
 
 
-	/*
-		Dereference the pointer
-	*/
+    /*
+        Dereference the pointer
+    */
     const X& operator* () const
     {
         return *GetRawPointer();
     }
 
 
-	/*
-		Conversion/casting operators
-	*/
+    /*
+        Conversion/casting operators
+    */
     template <typename Y>
     SmartPtr<Y> DynamicCast()
     {
         //new SmartPtr must also take our counter or else the reference counts
         //will go out of sync
-		Y* newPtr = dynamic_cast<Y*>(rawPtr);
-		if(newPtr)
-		{
-			return SmartPtr<Y>(newPtr, counter);
-		}
-		else
-		{
-			return SmartPtr<Y>();
-		}
+        Y* newPtr = dynamic_cast<Y*>(rawPtr);
+        if(newPtr)
+        {
+            return SmartPtr<Y>(newPtr, counter);
+        }
+        else
+        {
+            return SmartPtr<Y>();
+        }
     }
 
-	/*
-		Provide access to the raw pointer
-	*/
+    /*
+        Provide access to the raw pointer
+    */
     X* GetRawPointer() const
     {
         if (rawPtr == 0) throw new NullPointerException;
@@ -208,9 +208,9 @@ public:
     }
 
     
-	/*
-		Is there only one reference on the counter?
-	*/
+    /*
+        Is there only one reference on the counter?
+    */
     BOOL IsUnique() const
     {
         if (counter && counter->count == 1) return TRUE;
@@ -235,7 +235,7 @@ public:
         return 0;
     }
 
-	// decrement the count, delete if it is 0
+    // decrement the count, delete if it is 0
     void Clear()
     {
         if (counter)

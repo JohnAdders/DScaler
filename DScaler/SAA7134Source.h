@@ -220,7 +220,7 @@ private:
     SmartPtr<CSliderSetting> m_CustomPixelWidth;
     SmartPtr<CYesNoSetting>  m_ReversePolarity;
     SmartPtr<CYesNoSetting>  m_VBIDebugOverlay;
-	SmartPtr<CSliderSetting> m_CardType;
+    SmartPtr<CSliderSetting> m_CardType;
     SmartPtr<CStringSetting> m_CardName;
 
     BOOL            m_InitialSetup;

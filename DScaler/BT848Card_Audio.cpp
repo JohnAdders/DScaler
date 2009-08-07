@@ -124,7 +124,7 @@ void CBT848Card::InitAudio(BOOL UsePin1)
         int rev;
         if (TDA9875Controls->IsDevicePresent(dic, rev))
         {
-			m_AudioControls = TDA9875Controls.DynamicCast<CAudioControls>();
+            m_AudioControls = TDA9875Controls.DynamicCast<CAudioControls>();
 
             SmartPtr<CTDA9875AudioDecoder> TDA9875Decoder(new CTDA9875AudioDecoder(TDA9875Controls.GetRawPointer()));
             TDA9875Decoder->SetUseInputPin1(UsePin1);

@@ -665,14 +665,14 @@ long CMixerList::GetMixerCount()
 
 IMixer* CMixerList::GetMixer(long nMixerIndex)
 {
-	if(nMixerIndex >= 0 && nMixerIndex <= m_Mixers.size())
-	{
-		return m_Mixers[nMixerIndex].GetRawPointer();
-	}
-	else
-	{
-		return NULL;
-	}
+    if(nMixerIndex >= 0 && nMixerIndex <= m_Mixers.size())
+    {
+        return m_Mixers[nMixerIndex].GetRawPointer();
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 long CMixerList::FindMixer(const tstring& MixerName)

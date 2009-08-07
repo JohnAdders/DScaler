@@ -337,7 +337,7 @@ void Start_Capture()
     if (g_nCaptureStatus++ == 0)
     {
         // make sure half height Modes are set correctly
-	    LOG(1 , "Before Overlay Clean");
+        LOG(1 , "Before Overlay Clean");
         GetActiveOutput()->Overlay_Clean();
 
         // moved this stuff out of the processing thared to avoid windo calls
@@ -355,21 +355,21 @@ void Start_Capture()
         }
         if (!pMultiFrames || !pMultiFrames->IsActive())
         {
-		    LOG(1 , "Before Aspect Ratio");
+            LOG(1 , "Before Aspect Ratio");
             Providers_GetCurrentSource()->SetAspectRatioData();
             WorkoutOverlaySize(TRUE);
         }
 
         if (Providers_GetCurrentSource())
         {
-		    LOG(1 , "Before Current Source Start");
+            LOG(1 , "Before Current Source Start");
             Providers_GetCurrentSource()->Start();
             PrepareDeinterlaceMode();
-		    LOG(1 , "Before Start_Thread");
+            LOG(1 , "Before Start_Thread");
             Start_Thread();
         }
 
-	    LOG(1 , "Before Unmute");
+        LOG(1 , "Before Unmute");
         Audio_Unmute();
     }
     LOG(1 , "End of Start Thread");

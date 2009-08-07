@@ -58,12 +58,12 @@ void LOG(int DebugLevel, LPCWSTR Format, ...)
         return;
     }
 
-	if(!DebugLogFilename.IsValid())
-	{
-		DebugLogFilename.SetValue(GetUserFilePath() + _T("Debug.log"));
-	}
+    if(!DebugLogFilename.IsValid())
+    {
+        DebugLogFilename.SetValue(GetUserFilePath() + _T("Debug.log"));
+    }
 
-	if (debugLog == NULL)
+    if (debugLog == NULL)
     {
         tstring FileName(DebugLogFilename);
         debugLog = _tfopen(FileName.c_str(), _T("w"));

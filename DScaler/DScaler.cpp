@@ -1562,8 +1562,8 @@ LPCTSTR GetSkinDirectory()
 {
     if(szSkinDirectory.length() == 0)
     {
-		szSkinDirectory = GetInstallationPath();
-		szSkinDirectory += _T("\\Skins\\");
+        szSkinDirectory = GetInstallationPath();
+        szSkinDirectory += _T("\\Skins\\");
     }
     return szSkinDirectory.c_str();
 }
@@ -6177,7 +6177,7 @@ HWND GetMainWnd()
     }
 
 
-	return hWnd;
+    return hWnd;
 }
 
 void PostMessageToMainWindow(UINT Msg, WPARAM wParam, LPARAM lParam)

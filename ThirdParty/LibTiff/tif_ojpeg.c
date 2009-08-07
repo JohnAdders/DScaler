@@ -42,8 +42,8 @@
    created by the Wang Imaging application for Microsoft Windows.
 */
 #if 0  /* Patch for JPEG Library WITHOUT lossless Huffman coding */
-*** jdhuff.c.orig	Mon Oct 20 17:51:10 1997
---- jdhuff.c	Sun Nov 11 17:33:58 2001
+*** jdhuff.c.orig    Mon Oct 20 17:51:10 1997
+--- jdhuff.c    Sun Nov 11 17:33:58 2001
 ***************
 *** 648,651 ****
 --- 648,683 ----
@@ -85,8 +85,8 @@
 + }
 #endif /* Patch for JPEG Library WITHOUT lossless Huffman coding */
 #if 0  /* Patch for JPEG Library WITH lossless Huffman coding */
-*** jdshuff.c.orig	Mon Mar 11 16:44:54 2002
---- jdshuff.c	Mon Mar 11 16:44:54 2002
+*** jdshuff.c.orig    Mon Mar 11 16:44:54 2002
+--- jdshuff.c    Mon Mar 11 16:44:54 2002
 ***************
 *** 357,360 ****
 --- 357,393 ----
@@ -216,8 +216,8 @@ typedef struct             /* This module's private, per-image state variable */
     unsigned char h_sampling,                          /* Luminance sampling factors */
            v_sampling,
            jpegcolormode;           /* Who performs RGB <-> YCbCr conversion? */
-			/* JPEGCOLORMODE_RAW <=> TIFF Library or its client */
-			/* JPEGCOLORMODE_RGB <=> JPEG Library               */
+            /* JPEGCOLORMODE_RAW <=> TIFF Library or its client */
+            /* JPEGCOLORMODE_RGB <=> JPEG Library               */
     /* These fields are added to support TIFFGetField */
     uint16 jpegproc;
     uint32 jpegifoffset;
@@ -333,8 +333,8 @@ TIFFojpeg_error_exit(register j_common_ptr cinfo)
     int code = cinfo->err->msg_code;
 
     if (((OJPEGState *)cinfo)->is_WANG) {
-	if (code == JERR_SOF_DUPLICATE || code == JERR_SOI_DUPLICATE)
-	    return;	    /* ignore it */
+    if (code == JERR_SOF_DUPLICATE || code == JERR_SOI_DUPLICATE)
+        return;        /* ignore it */
     }
 
     (*cinfo->err->format_message)(cinfo,buffer);
@@ -1899,20 +1899,20 @@ OJPEGVSetField(register TIFF *tif,ttag_t tag,va_list ap)
           if (   (v32 = (*sp->vsetparent)(tif,tag,ap))
               && td->td_photometric == PHOTOMETRIC_YCBCR
              )
-	  {
-		float *ref;
-		if (!TIFFGetField(tif, TIFFTAG_REFERENCEBLACKWHITE, &ref)) {
-			float refbw[6];
-			long top = 1L << td->td_bitspersample;
-			refbw[0] = 0;
-			refbw[1] = (float)(top-1L);
-			refbw[2] = (float)(top>>1);
-			refbw[3] = refbw[1];
-			refbw[4] = refbw[2];
-			refbw[5] = refbw[1];
-			TIFFSetField(tif, TIFFTAG_REFERENCEBLACKWHITE, refbw);
-		}
-	  }
+      {
+        float *ref;
+        if (!TIFFGetField(tif, TIFFTAG_REFERENCEBLACKWHITE, &ref)) {
+            float refbw[6];
+            long top = 1L << td->td_bitspersample;
+            refbw[0] = 0;
+            refbw[1] = (float)(top-1L);
+            refbw[2] = (float)(top>>1);
+            refbw[3] = refbw[1];
+            refbw[4] = refbw[2];
+            refbw[5] = refbw[1];
+            TIFFSetField(tif, TIFFTAG_REFERENCEBLACKWHITE, refbw);
+        }
+      }
           return v32;
 
      /* BEWARE OF KLUDGE:  According to Charles Auer <Bumble731@msn.com>, if our
@@ -1958,30 +1958,30 @@ OJPEGVSetField(register TIFF *tif,ttag_t tag,va_list ap)
                 break;
             case TIFFTAG_JPEGIFOFFSET:
                 sp->jpegifoffset=v32;
-		break;
+        break;
             case TIFFTAG_JPEGIFBYTECOUNT:
-		sp->jpegifbytecount=v32;
-		break;
+        sp->jpegifbytecount=v32;
+        break;
             case TIFFTAG_JPEGRESTARTINTERVAL:
-		sp->jpegrestartinterval=v32;
-		break;
+        sp->jpegrestartinterval=v32;
+        break;
             case TIFFTAG_JPEGLOSSLESSPREDICTORS:
-		sp->jpeglosslesspredictors_length=v32;
-		break;
+        sp->jpeglosslesspredictors_length=v32;
+        break;
             case TIFFTAG_JPEGPOINTTRANSFORM:
-		sp->jpegpointtransform_length=v32;
-		break;
+        sp->jpegpointtransform_length=v32;
+        break;
             case TIFFTAG_JPEGQTABLES:
-		sp->jpegqtables_length=v32;
-		break;
+        sp->jpegqtables_length=v32;
+        break;
             case TIFFTAG_JPEGACTABLES:
-		sp->jpegactables_length=v32;
-		break;
+        sp->jpegactables_length=v32;
+        break;
             case TIFFTAG_JPEGDCTABLES:
-		sp->jpegdctables_length=v32;
-		break;
+        sp->jpegdctables_length=v32;
+        break;
             default:
-		break;
+        break;
         }
     }
 
@@ -2070,12 +2070,12 @@ OJPEGVSetField(register TIFF *tif,ttag_t tag,va_list ap)
              {
                sp->cinfo.d.Ss = *va_arg(ap,uint16 *);
                sp->jpeglosslesspredictors = 
-		    _TIFFmalloc(sp->jpeglosslesspredictors_length
-				* sizeof(uint16));
+            _TIFFmalloc(sp->jpeglosslesspredictors_length
+                * sizeof(uint16));
                if(sp->jpeglosslesspredictors==NULL){return(0);}
                for(i2=0;i2<sp->jpeglosslesspredictors_length;i2++){
                 ((uint16*)sp->jpeglosslesspredictors)[i2] =
-			((uint16*)sp->cinfo.d.Ss)[i2];
+            ((uint16*)sp->cinfo.d.Ss)[i2];
                }
                sp->jpeglosslesspredictors_length*=sizeof(uint16);
                break;
@@ -2095,11 +2095,11 @@ OJPEGVSetField(register TIFF *tif,ttag_t tag,va_list ap)
              {
                sp->cinfo.d.Al = *va_arg(ap,uint16 *);
                sp->jpegpointtransform =
-		    _TIFFmalloc(sp->jpegpointtransform_length*sizeof(uint16));
+            _TIFFmalloc(sp->jpegpointtransform_length*sizeof(uint16));
                if(sp->jpegpointtransform==NULL){return(0);}
                for(i2=0;i2<sp->jpegpointtransform_length;i2++) {
                 ((uint16*)sp->jpegpointtransform)[i2] =
-			((uint16*)sp->cinfo.d.Al)[i2];
+            ((uint16*)sp->cinfo.d.Al)[i2];
                }
                sp->jpegpointtransform_length*=sizeof(uint16);
                break;
@@ -2126,7 +2126,7 @@ OJPEGVSetField(register TIFF *tif,ttag_t tag,va_list ap)
                 for(i2=0;i2<sp->jpegqtables_length;i2++){
                     TIFFSeekFile(tif, v[i2], SEEK_SET);
                     TIFFReadFile(tif, &(((unsigned char*)(sp->jpegqtables))[bufoff]),
-				 64);
+                 64);
                     bufoff+=64;
                 }
                 sp->jpegqtables_length=bufoff;
@@ -2181,15 +2181,15 @@ OJPEGVSetField(register TIFF *tif,ttag_t tag,va_list ap)
                     for(i2=0;i2<sp->jpegdctables_length;i2++){
                         TIFFSeekFile(tif, v[i2], SEEK_SET);
                         TIFFReadFile(tif,
-				     &(((unsigned char*)(sp->jpegdctables))[bufoff]),
-				     16);
+                     &(((unsigned char*)(sp->jpegdctables))[bufoff]),
+                     16);
                         code_count=0;
                         for(k2=0;k2<16;k2++){
                             code_count+=((unsigned char*)(sp->jpegdctables))[k2+bufoff];
                         }
                         TIFFReadFile(tif,
-				     &(((unsigned char*)(sp->jpegdctables))[bufoff+16]),
-				     code_count);
+                     &(((unsigned char*)(sp->jpegdctables))[bufoff+16]),
+                     code_count);
                         bufoff+=16;
                         bufoff+=code_count;
                     }
@@ -2332,21 +2332,21 @@ OJPEGVGetField(register TIFF *tif,ttag_t tag,va_list ap)
         return anything, even if we parsed them in an old-format "source" image.
      */
         case TIFFTAG_JPEGPROC              :
-		*va_arg(ap, uint16*)=sp->jpegproc;
-		return(1);
-		break;
+        *va_arg(ap, uint16*)=sp->jpegproc;
+        return(1);
+        break;
         case TIFFTAG_JPEGIFOFFSET          :
-		*va_arg(ap, uint32*)=sp->jpegifoffset;
-		return(1);
-		break;
+        *va_arg(ap, uint32*)=sp->jpegifoffset;
+        return(1);
+        break;
         case TIFFTAG_JPEGIFBYTECOUNT       :
-		*va_arg(ap, uint32*)=sp->jpegifbytecount;
-		return(1);
-		break;
+        *va_arg(ap, uint32*)=sp->jpegifbytecount;
+        return(1);
+        break;
         case TIFFTAG_JPEGRESTARTINTERVAL   :
-		*va_arg(ap, uint32*)=sp->jpegrestartinterval;
-		return(1);
-		break;
+        *va_arg(ap, uint32*)=sp->jpegrestartinterval;
+        return(1);
+        break;
         case TIFFTAG_JPEGLOSSLESSPREDICTORS:
                 *va_arg(ap, uint32*)=sp->jpeglosslesspredictors_length;
                 *va_arg(ap, void**)=sp->jpeglosslesspredictors;
@@ -2447,13 +2447,13 @@ OJPEGCleanUp(register TIFF *tif)
         CALLVJPEG(sp,jpeg_destroy(&sp->cinfo.comm)); /* Free JPEG Lib. vars. */
         if (sp->jpegtables) {_TIFFfree(sp->jpegtables);sp->jpegtables=0;}
         if (sp->jpeglosslesspredictors) {
-		_TIFFfree(sp->jpeglosslesspredictors);
-		sp->jpeglosslesspredictors = 0;
-	}
+        _TIFFfree(sp->jpeglosslesspredictors);
+        sp->jpeglosslesspredictors = 0;
+    }
         if (sp->jpegpointtransform) {
-		_TIFFfree(sp->jpegpointtransform);
-		sp->jpegpointtransform=0;
-	}
+        _TIFFfree(sp->jpegpointtransform);
+        sp->jpegpointtransform=0;
+    }
         if (sp->jpegqtables) {_TIFFfree(sp->jpegqtables);sp->jpegqtables=0;}
         if (sp->jpegactables) {_TIFFfree(sp->jpegactables);sp->jpegactables=0;}
         if (sp->jpegdctables) {_TIFFfree(sp->jpegdctables);sp->jpegdctables=0;}

@@ -109,7 +109,7 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
     TDSDrvParam paramIn;
     DWORD dwReturnedLength;
     DWORD status;
-	DWORD nPages;
+    DWORD nPages;
 
     m_AllocatedBlock = malloc(Bytes + 0xFFF);
     if(m_AllocatedBlock == NULL)
@@ -161,7 +161,7 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
         throw std::runtime_error("Memory mapping failed");
     }
 
-	m_pMemStruct->dwPages = nPages;
+    m_pMemStruct->dwPages = nPages;
 }
 
 CUserMemory::~CUserMemory()

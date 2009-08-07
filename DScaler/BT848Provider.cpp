@@ -130,7 +130,7 @@ SmartPtr<CSource> CBT848Provider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_BT848Sources.size())
     {
-		return m_BT848Sources[SourceIndex].DynamicCast<CSource>();
+        return m_BT848Sources[SourceIndex].DynamicCast<CSource>();
     }
     else
     {

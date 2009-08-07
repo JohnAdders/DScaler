@@ -378,7 +378,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
                     --EndChar;
                 }
                 Name = StartChar;
-				Name = DecodeASCIISafeString(Name);
+                Name = DecodeASCIISafeString(Name);
             }
             else
             {
@@ -409,7 +409,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
                     --EndChar;
                 }
                 EPGName = StartChar;
-				EPGName = DecodeASCIISafeString(EPGName);
+                EPGName = DecodeASCIISafeString(EPGName);
             }
         }
         // cope with old style frequencies

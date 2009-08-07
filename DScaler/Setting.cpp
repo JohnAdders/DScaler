@@ -1101,9 +1101,9 @@ void CSettingWrapper::ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetV
 
 tstring FormatFloat(float Number, int Decimals)
 {
-	tostringstream oss;
-	oss << fixed << setprecision(Decimals) << Number;
-	return oss.str();
+    tostringstream oss;
+    oss << fixed << setprecision(Decimals) << Number;
+    return oss.str();
 }
 
 tstring CSettingWrapper::GetDisplayValue()

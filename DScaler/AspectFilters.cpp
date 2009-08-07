@@ -737,9 +737,9 @@ CMasterFilterChain::CMasterFilterChain(int SrcWidth, int SrcHeight)
         AspectSettings.ZoomCenterX != 50 || AspectSettings.ZoomCenterY != 50)
     {
         m_FilterChain.push_back(SmartPtr<CAspectFilter>(new CPanAndZoomAspectFilter(AspectSettings.ZoomCenterX,
-																				   AspectSettings.ZoomCenterY,
-																				   AspectSettings.ZoomFactorX,
-																				   AspectSettings.ZoomFactorY)));
+                                                                                   AspectSettings.ZoomCenterY,
+                                                                                   AspectSettings.ZoomFactorX,
+                                                                                   AspectSettings.ZoomFactorY)));
     }
 
     // only put resize filter in if main window is not full screen

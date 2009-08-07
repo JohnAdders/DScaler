@@ -96,69 +96,69 @@ public:
         release();
     }
 
-	/*
-		Assignment to another SmartHandle
-	*/
+    /*
+        Assignment to another SmartHandle
+    */
 
-	SmartHandle& operator=(const SmartHandle< X >& otherPtr)
-	{
-		if (this != &otherPtr)
-		{
-			release();
-			acquire(otherPtr.counter);
-			rawHandle = otherPtr.rawHandle;
-		}
-		return *this;
-	}
+    SmartHandle& operator=(const SmartHandle< X >& otherPtr)
+    {
+        if (this != &otherPtr)
+        {
+            release();
+            acquire(otherPtr.counter);
+            rawHandle = otherPtr.rawHandle;
+        }
+        return *this;
+    }
 
-	/*
-		Assignment to raw pointers is really dangerous business.
-		If the raw pointer is also being used elsewhere,
-		we might prematurely delete it, causing much pain.
-		Use sparingly/with caution.
-	*/
+    /*
+        Assignment to raw pointers is really dangerous business.
+        If the raw pointer is also being used elsewhere,
+        we might prematurely delete it, causing much pain.
+        Use sparingly/with caution.
+    */
 
-	SmartHandle& operator=(X raw)
-	{
+    SmartHandle& operator=(X raw)
+    {
 
-		release();
-		if (raw)
-		{
-			counter = new Counter;
-			rawHandle = raw;
-		}
-		return *this;
-	}
+        release();
+        if (raw)
+        {
+            counter = new Counter;
+            rawHandle = raw;
+        }
+        return *this;
+    }
 
-	BOOL operator==(X rhs)
-	{
-		return rawHandle == rhs;
-	}
+    BOOL operator==(X rhs)
+    {
+        return rawHandle == rhs;
+    }
 
-	BOOL operator==(const SmartHandle< X >& rhs)
-	{
-		return rawHandle == rhs.rawHandle;
-	}
+    BOOL operator==(const SmartHandle< X >& rhs)
+    {
+        return rawHandle == rhs.rawHandle;
+    }
 
-	BOOL operator!=(X rhs)
-	{
-		return rawHandle != rhs;
-	}
+    BOOL operator!=(X rhs)
+    {
+        return rawHandle != rhs;
+    }
 
-	BOOL operator!=(const SmartHandle< X >& rhs)
-	{
-		return rawHandle != rhs.rawHandle;
-	}
+    BOOL operator!=(const SmartHandle< X >& rhs)
+    {
+        return rawHandle != rhs.rawHandle;
+    }
 
-	BOOL operator< (const SmartHandle< X >& rhs)
-	{
-		return rawHandle < rhs.rawHandle;
-	}
+    BOOL operator< (const SmartHandle< X >& rhs)
+    {
+        return rawHandle < rhs.rawHandle;
+    }
 
 
-	/*
-		Conversion/casting operators
-	*/
+    /*
+        Conversion/casting operators
+    */
 
     /*
        implicit casts to base types of the
@@ -171,9 +171,9 @@ public:
     }
 
 
-	/*
-		Provide access to the raw handle
-	*/
+    /*
+        Provide access to the raw handle
+    */
     X GetRawHandle() const
     {
         if (rawHandle == 0) throw new EmptyHandleException;
@@ -181,9 +181,9 @@ public:
     }
 
     
-	/*
-		Is there only one reference on the counter?
-	*/
+    /*
+        Is there only one reference on the counter?
+    */
     BOOL IsUnique() const
     {
         if (counter && counter->count == 1) return TRUE;

@@ -445,14 +445,14 @@ void CTSOptionsDlg::OnTSPathSelect(HWND hDlg)
             if (maxSize)
             {
                 tostringstream oss;
-				float SizeInGig(float(maxSize) / float(1 << 10));
-				oss << _T("The path you have selected is on a volume ");
-				oss << _T("that can't store files that are larger than ");
-				oss << _T("about ");
-				oss << fixed << setprecision(2) << SizeInGig;
-				oss<< _T(" GiB");
-				oss << _T(". Your recorded files will be ");
-				oss << _T("limited to this size even if the maximum size ");
+                float SizeInGig(float(maxSize) / float(1 << 10));
+                oss << _T("The path you have selected is on a volume ");
+                oss << _T("that can't store files that are larger than ");
+                oss << _T("about ");
+                oss << fixed << setprecision(2) << SizeInGig;
+                oss<< _T(" GiB");
+                oss << _T(". Your recorded files will be ");
+                oss << _T("limited to this size even if the maximum size ");
                 oss << _T("is set higher.");
                 MessageBox(hDlg, oss.str().c_str(), _T("Limited Volume"), MB_ICONWARNING | MB_OK);
             }
@@ -527,10 +527,10 @@ void CTSOptionsDlg::OnUpdateTSSize(HWND hDlg)
     }
 
     /* Update the size in GiB */
-	float SizeInGig(float(value) / float(1 << 10));
+    float SizeInGig(float(value) / float(1 << 10));
     tostringstream SizeText(_T("("));
-	SizeText << fixed << setprecision(2) << SizeInGig;
-	SizeText << _T(" GiB)");
+    SizeText << fixed << setprecision(2) << SizeInGig;
+    SizeText << _T(" GiB)");
     SetWindowText(GetDlgItem(hDlg, IDC_TS_SIZE_GIB), SizeText.str().c_str());
 }
 

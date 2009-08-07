@@ -195,7 +195,7 @@ int SMPeriods[SMPeriodCount] =
 HRGN DScalerWindowRgn = NULL;
 
 SettingStringValue szSkinName;
-TCHAR szSkinDirectory[MAX_PATH+1];
+tstring szSkinDirectory;
 vector<tstring> vSkinNameList;
 
 SmartPtr<CSettingsMaster> SettingsMaster;
@@ -1560,27 +1560,12 @@ LRESULT BorderButtonProc(tstring sID, void* pThis, HWND hWndParent, UINT MouseFl
 
 LPCTSTR GetSkinDirectory()
 {
-    if (szSkinDirectory[0] != 0)
+    if(szSkinDirectory.length() == 0)
     {
-        return szSkinDirectory;
+		szSkinDirectory = GetInstallationPath();
+		szSkinDirectory += _T("\\Skins\\");
     }
-
-    TCHAR szPath[MAX_PATH+1];
-    TCHAR* s = NULL;
-    int len = GetFullPathName(GetIniFileForSettings(), MAX_PATH, szPath, &s);
-    if ((len > 0) && (s!=NULL))
-    {
-        *s = 0;
-    }
-    else
-    {
-        GetCurrentDirectory(MAX_PATH, szPath);
-        _tcscat(szPath,_T("\\"));
-    }
-    _tcscpy(szSkinDirectory,szPath);
-    _tcscat(szSkinDirectory,_T("Skins\\"));
-
-    return szSkinDirectory;
+    return szSkinDirectory.c_str();
 }
 
 void SetWindowBorder(HWND hWnd, BOOL bShow)

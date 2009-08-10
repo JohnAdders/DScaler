@@ -411,7 +411,7 @@ void CListSetting::SetValue(long NewValue, BOOL SupressOnChange)
     {
         m_Value = m_Default;
     }
-    if(!SupressOnChange && IsOnChangeEnabled())
+    if(NewValue != OldValue && !SupressOnChange && IsOnChangeEnabled())
     {
         OnChange(m_Value, OldValue);
     }
@@ -552,7 +552,7 @@ void CSliderSetting::SetValue(long NewValue, BOOL SuppressOnChange)
         NewValue = m_Max;
     }
     m_Value = NewValue;
-    if (!SuppressOnChange && IsOnChangeEnabled())
+    if (NewValue != OldValue && !SuppressOnChange && IsOnChangeEnabled())
     {
         OnChange(NewValue, OldValue);
     }
@@ -714,7 +714,7 @@ void CYesNoSetting::SetValue(BOOL NewValue, BOOL SuppressOnChange)
 {
     BOOL OldValue = m_Value;
     m_Value = NewValue?TRUE:FALSE;
-    if (!SuppressOnChange && IsOnChangeEnabled())
+    if (NewValue != OldValue && !SuppressOnChange && IsOnChangeEnabled())
     {
         OnChange(NewValue, OldValue);
     }
@@ -873,7 +873,7 @@ void CStringSetting::SetValue(const TCHAR* NewValue, BOOL bSuppressOnChange)
     {
         m_Value = _T("");
     }
-    if (!bSuppressOnChange && IsOnChangeEnabled())
+    if (NewValue != OldValue && !bSuppressOnChange && IsOnChangeEnabled())
     {
         OnChange(m_Value, OldValue);
     }
@@ -1218,7 +1218,7 @@ void CSettingWrapper::SetValue(LONG_PTR NewValue)
             *m_Setting->pValue = NewValue;
         }
     }
-    if(IsOnChangeEnabled() && m_Setting->pfnOnChange != NULL)
+    if(NewValue != OldValue && IsOnChangeEnabled() && m_Setting->pfnOnChange != NULL)
     {
         m_Setting->pfnOnChange(NewValue);
     }

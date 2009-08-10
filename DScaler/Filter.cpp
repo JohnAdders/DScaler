@@ -207,8 +207,6 @@ int GetFilterOrder(FILTER_METHOD* Filter_Method)
 
 void SortFilterPlugins()
 {
-    FILTER_METHOD* temp;
-
     if(NumFilters < 2)
     {
         return;
@@ -220,9 +218,8 @@ void SortFilterPlugins()
         {
             if(GetFilterOrder(Filters[i]) > GetFilterOrder(Filters[i+1]))
             {
-                temp = Filters[i];
-                Filters[i] = Filters[i+1];
-                Filters[i+1] = temp;
+                std::swap(Filters[i], Filters[i+1]);
+                std::swap(FilterHolders[i], FilterHolders[i+1]);
             }
         }
     }

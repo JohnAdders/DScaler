@@ -583,12 +583,16 @@ void CScheduledRecording::loadFromXml()
 BOOL CScheduledRecording::processSchedules()
 {
     if(m_bSchedulesUpdate)
+    {
         loadFromXml();
+        // supress further checks of xml file for this session
+        m_bSchedulesUpdate = FALSE;
+    }
 
     if(!m_schedules.size())
+    {
         return FALSE;
-
-    m_bSchedulesUpdate = FALSE;
+    }
 
     SYSTEMTIME time_now;
     GetLocalTime(&time_now);

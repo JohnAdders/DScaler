@@ -73,7 +73,7 @@ void CCX2388xSource::AudioStandardOnChange(long NewValue, long OldValue)
                       );
 
     // needed, AUD_VOL_CTRL's default is 0x14 after writing to AUD_SOFT_RESET
-    m_Volume->SetValue(m_Volume->GetValue());
+    m_Volume->DoOnChangeEvent();
 
     StartUpdateAudioStatus();
 }
@@ -88,7 +88,7 @@ void CCX2388xSource::StereoTypeOnChange(long NewValue, long OldValue)
                         (eCX2388xStereoType)NewValue
                       );
 
-    m_Volume->SetValue(m_Volume->GetValue());
+    m_Volume->DoOnChangeEvent();
 
     StartUpdateAudioStatus();
 }

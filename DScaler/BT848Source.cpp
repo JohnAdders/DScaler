@@ -541,7 +541,7 @@ void CBT848Source::Start()
     // otherwise I get no sound on startup
     if(IsInTunerMode())
     {
-        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+        m_AudioStandardDetect->DoOnChangeEvent();
         m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
 
         SetTimer(GetMainWnd(), TIMER_MSP, TIMER_MSP_MS, NULL);
@@ -657,7 +657,7 @@ void CBT848Source::Reset()
         m_OddFields[i].IsFirstInSeries = FALSE;
     }
 
-    m_MSP34xxFlags->SetValue(m_MSP34xxFlags->GetValue());
+    m_MSP34xxFlags->DoOnChangeEvent();
 
     InitAudio();
 }
@@ -1927,7 +1927,7 @@ void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
 
     if (!PreChange && (m_AudioStandardDetect->GetValue()==3))
     {
-        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+        m_AudioStandardDetect->DoOnChangeEvent();
     }
     else if ((!PreChange) && m_AutoStereoSelect->GetValue())
     {

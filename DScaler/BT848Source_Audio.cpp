@@ -506,32 +506,32 @@ void CBT848Source::InitAudio()
     m_InitAudioControls = TRUE; //done in audiostandarddetectonchange
 
     m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
-    m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+    m_AudioStandardDetect->DoOnChangeEvent();
 }
 
 void CBT848Source::InitAudioControls()
 {
-    m_Balance->SetValue(m_Balance->GetValue());
+    m_Balance->DoOnChangeEvent();
 
-    m_UseEqualizer->SetValue(m_UseEqualizer->GetValue());
+    m_UseEqualizer->DoOnChangeEvent();
     if (!m_UseEqualizer->GetValue())
     {
-        m_Bass->SetValue(m_Bass->GetValue());
-        m_Treble->SetValue(m_Treble->GetValue());
+        m_Bass->DoOnChangeEvent();
+        m_Treble->DoOnChangeEvent();
     }
     else
     {
-        m_EqualizerBand1->SetValue(m_EqualizerBand1->GetValue());
-        m_EqualizerBand2->SetValue(m_EqualizerBand2->GetValue());
-        m_EqualizerBand3->SetValue(m_EqualizerBand3->GetValue());
-        m_EqualizerBand4->SetValue(m_EqualizerBand4->GetValue());
-        m_EqualizerBand5->SetValue(m_EqualizerBand5->GetValue());
+        m_EqualizerBand1->DoOnChangeEvent();
+        m_EqualizerBand2->DoOnChangeEvent();
+        m_EqualizerBand3->DoOnChangeEvent();
+        m_EqualizerBand4->DoOnChangeEvent();
+        m_EqualizerBand5->DoOnChangeEvent();
     }
 
-    m_AudioLoudness->SetValue(m_AudioLoudness->GetValue());
-    m_AudioSuperbass->SetValue(m_AudioSuperbass->GetValue());
-    m_AudioSpatialEffect->SetValue(m_AudioSpatialEffect->GetValue());
-    m_AudioAutoVolumeCorrection->SetValue(m_AudioAutoVolumeCorrection->GetValue());
+    m_AudioLoudness->DoOnChangeEvent();
+    m_AudioSuperbass->DoOnChangeEvent();
+    m_AudioSpatialEffect->DoOnChangeEvent();
+    m_AudioAutoVolumeCorrection->DoOnChangeEvent();
 }
 
 #endif // WANT_BT8X8_SUPPORT

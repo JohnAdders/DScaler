@@ -107,6 +107,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual tstring GetDisplayValue();
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
+    void DoOnChangeEvent();
 private:
     virtual tstring GetValueAsString();
     virtual void SetValueFromString(const tstring& NewValue);
@@ -134,6 +135,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual tstring GetDisplayValue();
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
+    void DoOnChangeEvent();
 private:
     virtual tstring GetValueAsString();
     virtual void SetValueFromString(const tstring& NewValue);
@@ -166,6 +168,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual tstring GetDisplayValue();
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
+    void DoOnChangeEvent();
 private:
     virtual tstring GetValueAsString();
     virtual void SetValueFromString(const tstring& NewValue);
@@ -198,6 +201,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
     virtual tstring GetDisplayValue();
+    void DoOnChangeEvent();
 private:
     virtual tstring GetValueAsString();
     virtual void SetValueFromString(const tstring& NewValue);
@@ -230,6 +234,7 @@ public:
     virtual void SetValueFromMessage(LPARAM LParam);
     virtual tstring GetDisplayValue();
     virtual void ChangeDefault(long NewDefaultAsMessageType, BOOL bDontSetValue = FALSE);
+    void DoOnChangeEvent();
 private:
     virtual tstring GetValueAsString();
     virtual void SetValueFromString(const tstring& NewValue);

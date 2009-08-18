@@ -417,6 +417,14 @@ void CListSetting::SetValue(long NewValue, BOOL SupressOnChange)
     }
 }
 
+void CListSetting::DoOnChangeEvent()
+{
+    if(IsOnChangeEnabled())
+    {
+        OnChange(m_Value, m_Value);
+    }
+}
+
 long CListSetting::GetNumItems()
 {
     return m_Max + 1;
@@ -555,6 +563,14 @@ void CSliderSetting::SetValue(long NewValue, BOOL SuppressOnChange)
     if (NewValue != OldValue && !SuppressOnChange && IsOnChangeEnabled())
     {
         OnChange(NewValue, OldValue);
+    }
+}
+
+void CSliderSetting::DoOnChangeEvent()
+{
+    if(IsOnChangeEnabled())
+    {
+        OnChange(m_Value, m_Value);
     }
 }
 
@@ -720,6 +736,14 @@ void CYesNoSetting::SetValue(BOOL NewValue, BOOL SuppressOnChange)
     }
 }
 
+void CYesNoSetting::DoOnChangeEvent()
+{
+    if(IsOnChangeEnabled())
+    {
+        OnChange(m_Value, m_Value);
+    }
+}
+
 BOOL CYesNoSetting::GetValue()
 {
     return m_Value;
@@ -876,6 +900,14 @@ void CStringSetting::SetValue(const TCHAR* NewValue, BOOL bSuppressOnChange)
     if (NewValue != OldValue && !bSuppressOnChange && IsOnChangeEnabled())
     {
         OnChange(m_Value, OldValue);
+    }
+}
+
+void CStringSetting::DoOnChangeEvent()
+{
+    if(IsOnChangeEnabled())
+    {
+        OnChange(m_Value, m_Value);
     }
 }
 

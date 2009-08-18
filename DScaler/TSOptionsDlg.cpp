@@ -362,8 +362,7 @@ BOOL CTSOptionsDlg::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     TimeShiftGetFourCC(&options.fcc);
 
     /**** File path and limit ****/
-    _tcsncpy(options.path, tsPath ? tsPath : TS_DEFAULT_PATH,
-            sizeof(options.path));
+    _tcsncpy(options.path, tsPath ? tsPath : TS_DEFAULT_PATH, MAX_PATH);
 
     options.sizeLimit = TimeShiftGetFileSizeLimit();
     m_lastSize        = options.sizeLimit;
@@ -418,7 +417,7 @@ void CTSOptionsDlg::OnTSPathSelect(HWND hDlg)
 
     /* Get the path that's currently being used and pass it to the callback
        function so it can select it after the dialog initializes */
-    _tcsncpy(path, TimeShiftGetSavingPath(), sizeof(path));
+    _tcsncpy(path, TimeShiftGetSavingPath(), MAX_PATH);
     if (!TimeShiftIsPathValid(path))
     {
         memset(path, 0, sizeof(path));
@@ -439,7 +438,7 @@ void CTSOptionsDlg::OnTSPathSelect(HWND hDlg)
         }
         else
         {
-            _tcsncpy(options.path, path, sizeof(options.path));
+            _tcsncpy(options.path, path, MAX_PATH);
 
             maxSize = GetMaximumVolumeFileSize(options.path);
             if (maxSize)

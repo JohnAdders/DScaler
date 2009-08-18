@@ -829,8 +829,8 @@ BOOL FindNextFileName(TCHAR* fileName, DWORD length)
             return FALSE;
         }
 
-        if (_sntprintf(fileName, length, _T("%sds%.3u.avi"),
-                      timeShift->savingPath, curFile++) >= length)
+        if (_sntprintf(fileName, length, _T("%s\\ds%.3u.avi"),
+                      timeShift->savingPath.c_str(), curFile++) >= length)
         {
             BUG();
             return FALSE;
@@ -1435,7 +1435,7 @@ BOOL TimeShiftSetWaveInDevice(const TCHAR* pszDevice)
         if (timeShift->mode==MODE_STOPPED)
         {
             _tcsncpy(timeShift->waveInDevice, pszDevice,
-                    sizeof(timeShift->waveInDevice));
+                    sizeof(timeShift->waveInDevice)/ sizeof(TCHAR));
             result = TRUE;
         }
 
@@ -1490,7 +1490,7 @@ BOOL TimeShiftSetWaveOutDevice(const TCHAR* pszDevice)
         if (timeShift->mode==MODE_STOPPED)
         {
             _tcsncpy(timeShift->waveOutDevice, pszDevice,
-                    sizeof(timeShift->waveOutDevice));
+                    sizeof(timeShift->waveOutDevice) /sizeof(TCHAR));
             result = TRUE;
         }
 

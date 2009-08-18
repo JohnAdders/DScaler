@@ -388,29 +388,9 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, WPARAM wParam, LPARAM lPara
         break;
     case IDM_DSHOW_FILTERS:
         {
+
             CTreeSettingsDlg dlg(_T("Filter properties"));
-            SmartPtr<CTreeSettingsPage> rootPage(new CTreeSettingsPage(_T("Filters"),IDD_TREESETTINGS_EMPTY));
-            int root=dlg.AddPage(rootPage);
-
-            int filterIndex=0;
-            CComPtr<ISpecifyPropertyPages> SpecifyPages;
-            CTreeSettingsPage *pPage=NULL;
-
-            while(m_pDSGraph->getFilterPropertyPage(filterIndex, SpecifyPages))
-            {
-                int filterRoot=dlg.AddPages(SpecifyPages, root);
-
-                int subIndex=0;
-                CComPtr<ISpecifyPropertyPages> SpecifyPages2;
-                while(m_pDSGraph->getFilterSubPage(filterIndex,subIndex, SpecifyPages2))
-                {
-                    dlg.AddPages(SpecifyPages2, filterRoot);
-                    subIndex++;
-                }
-
-                filterIndex++;
-            }
-            if(filterIndex!=0)
+            if(m_pDSGraph->AddFilterPagesToDialog(dlg))
             {
                 //show the dialog
                 dlg.DoModal(hWnd);

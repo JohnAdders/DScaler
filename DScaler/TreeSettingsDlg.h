@@ -57,7 +57,6 @@ public:
      * @return integer used when adding new pages as a child of this one
      */
     int AddPage(SmartPtr<CTreeSettingsPage> pPage,int parent=-1);
-    int AddPages(CComPtr<ISpecifyPropertyPages> SpecifyPages, int Parent = -1);
 
     BOOL ShowPage(HWND hDlg, int iPage);
 

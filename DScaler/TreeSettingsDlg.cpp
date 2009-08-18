@@ -264,11 +264,6 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
     dlg.DoModal(GetMainWnd());
 }
 
-int CTreeSettingsDlg::AddPages(CComPtr<ISpecifyPropertyPages> SpecifyPages, int Parent)
-{
-    return 0;
-}
-
 INT_PTR CTreeSettingsDlg::DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)

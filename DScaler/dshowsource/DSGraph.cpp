@@ -35,6 +35,7 @@
 #include <dvdmedia.h>
 #include "DevEnum.h"
 #include "DShowGenericAudioControls.h"
+#include "TreeSettingsOleProperties.h"
 
 using namespace std;
 
@@ -381,32 +382,67 @@ void CDShowGraph::BuildFilterList()
     }
 }
 
-BOOL CDShowGraph::getFilterPropertyPage(int index,CComPtr<ISpecifyPropertyPages>& pSpecifyPages)
+int CDShowGraph::AddFilterPagesToDialog(CTreeSettingsDlg& dlg)
 {
-    if(index>=0 && index<m_filters.size())
-    {
-        CComPtr<IBaseFilter> pFilter=m_filters[index].m_pFilter;
-        pFilter.QueryInterface(&pSpecifyPages);
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
-}
+    SmartPtr<CTreeSettingsPage> rootPage(new CTreeSettingsPage(_T("Filters"),IDD_TREESETTINGS_EMPTY));
+    int root=dlg.AddPage(rootPage);
+    int numPages(0);
 
-BOOL CDShowGraph::getFilterSubPage(int filterIndex,int subIndex,CComPtr<ISpecifyPropertyPages>& pSpecifyPages)
-{
-    if(filterIndex>=0 && filterIndex<m_filters.size())
+    for(int index(0); index < m_filters.size(); ++index)
     {
-        if(subIndex>=0 && subIndex<m_filters[filterIndex].m_SubPage.size())
+        CComQIPtr<ISpecifyPropertyPages> SpecifyPages(m_filters[index].m_pFilter);
+        int filterRoot(root);
+        if(SpecifyPages)
         {
-            CComPtr<IPin> pPin=m_filters[filterIndex].m_SubPage[subIndex];
-            pPin.QueryInterface(&pSpecifyPages);
-            return TRUE;
+		    FILTER_INFO info;
+		    HRESULT hr=m_filters[index].m_pFilter->QueryFilterInfo(&info);
+		    if(SUCCEEDED(hr))
+		    {
+				CAUUID pages;
+				hr = SpecifyPages->GetPages(&pages);
+				if(SUCCEEDED(hr) && pages.cElems>0)
+				{
+                    SmartPtr<CTreeSettingsPage> pPage(new CTreeSettingsOleProperties(UnicodeToTString(info.achName),1,(IUnknown**)&SpecifyPages.p,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_SYS_DEFAULT),SORT_DEFAULT)));
+                    filterRoot=dlg.AddPage(pPage, root);
+                    ++numPages;
+					CoTaskMemFree(pages.pElems);
+                }
+                // must release graph
+			    if(info.pGraph!=NULL)
+			    {
+				    info.pGraph->Release();
+				    info.pGraph=NULL;
+			    }
+            }
+        }
+        for(int subIndex(0); subIndex < m_filters[index].m_SubPage.size(); ++subIndex)
+        {
+            SpecifyPages = m_filters[index].m_SubPage[subIndex];
+            if(SpecifyPages)
+            {
+			    PIN_INFO pinInfo;
+    			HRESULT hr=m_filters[index].m_SubPage[subIndex]->QueryPinInfo(&pinInfo);
+                if(SUCCEEDED(hr))
+                {
+				    CAUUID pages;
+				    hr = SpecifyPages->GetPages(&pages);
+				    if(SUCCEEDED(hr) && pages.cElems>0)
+				    {
+                        SmartPtr<CTreeSettingsPage> pPage(new CTreeSettingsOleProperties(UnicodeToTString(pinInfo.achName),1,(IUnknown**)&SpecifyPages.p,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_SYS_DEFAULT),SORT_DEFAULT)));
+                        dlg.AddPage(pPage, filterRoot);
+                        ++numPages;
+    					CoTaskMemFree(pages.pElems);
+                    }
+                    // must release filter
+				    if(pinInfo.pFilter!=NULL)
+				    {
+					    pinInfo.pFilter->Release();
+				    }
+                }
+            }
         }
     }
-    return FALSE;
+    return numPages;
 }
 
 long CDShowGraph::getDroppedFrames()

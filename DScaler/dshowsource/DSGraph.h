@@ -31,6 +31,7 @@
 #include "DShowBaseSource.h"
 #include "DShowAudioControls.h"
 #include "DShowSeeking.h"
+#include "TreeSettingsDlg.h"
 
 //if you get an error here, that means you have not checked out the DSRend filter
 //or compiled it atleast once.
@@ -117,27 +118,8 @@ public:
     void pause();
     void stop();
     FILTER_STATE getState() {return m_GraphState;}
-
-    /**
-     * Creates a propertypage for a filter.
-     * This function creates a propertypage for the filter indicated by index.
-     * To get all pages call this function with index set to 0 and then
-     * increase it until the function returns FALSE.
-     * The caller is responsibel of deleting the returnd propertypage with
-     * delete.
-     *
-     * @param index filter index
-     * @param ppPage pointer to created propertypage
-     * @param bHasSubPages TRUE if specified filter has subpages
-     * @return TRUE if the propertypage was successfully created
-     */
-    BOOL getFilterPropertyPage(int index, CComPtr<ISpecifyPropertyPages>& pSpecifyPages);
-
-    /**
-     * This function works almost the same as getFilterPropertyPage() but returns the subpage.
-     * @return TRUE if successfull
-     */
-    BOOL getFilterSubPage(int filterIndex, int subIndex, CComPtr<ISpecifyPropertyPages>& pSpecifyPages);
+    
+    int AddFilterPagesToDialog(CTreeSettingsDlg& dlg);
 
     /**
      * Changes connection settings to dsrend filter.

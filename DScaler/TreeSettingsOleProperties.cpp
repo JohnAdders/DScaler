@@ -156,7 +156,12 @@ BOOL CTreeSettingsOleProperties::OnInitDialog(HWND hDlg, HWND hwndFocus, LPARAM 
         HRESULT hr=m_pages[i]->m_pPropertyPage->GetPageInfo(&pageInfo);
         if(SUCCEEDED(hr))
         {
-            TabCtrl_InsertItem(m_tabCtrl, i,UnicodeToTString(pageInfo.pszTitle).c_str());
+            tstring title(UnicodeToTString(pageInfo.pszTitle));
+            TC_ITEM TabItem;
+            memset(&TabItem, 0, sizeof(TabItem));
+            TabItem.mask = TCIF_TEXT;
+            TabItem.pszText = (LPTSTR)title.c_str();
+            TabCtrl_InsertItem(m_tabCtrl, i, &TabItem);
             hr=m_pages[i]->m_pPropertyPage->Activate(m_tabCtrl, &rect, FALSE);
             if(SUCCEEDED(hr))
             {

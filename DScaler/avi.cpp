@@ -60,7 +60,7 @@ void aviSetError(AVI_FILE *file, aviError_t type, TCHAR* message)
     {
         EnterCriticalSection(&file->error.lock);
         file->error.type = type;
-        _tcsncpy(file->error.message, message, sizeof(file->error.message));
+        _tcsncpy(file->error.message, message, sizeof(file->error.message)/ sizeof(TCHAR));
         LeaveCriticalSection(&file->error.lock);
     }
 }

@@ -122,7 +122,7 @@ BOOL IsSectionName(LPCTSTR lpString)
         return FALSE;
     }
 
-    _tcsncpy(localcopy, lpString, sizeof(localcopy));
+    _tcsncpy(localcopy, lpString, sizeof(localcopy)/sizeof(TCHAR));
 
     CleanUpLine(localcopy);
 
@@ -204,7 +204,7 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
                     _tremove(szTempFile);
                     return;
                 }
-                _tcsncpy(lastline, buf, sizeof(lastline));
+                _tcsncpy(lastline, buf, sizeof(lastline)/sizeof(TCHAR));
                 CleanUpLine(lastline);
             }
         }

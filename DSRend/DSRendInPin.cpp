@@ -478,7 +478,7 @@ HRESULT CDSRendInPin::NotifyAllocator(IMemAllocator *pAllocator,BOOL bReadOnly)
     {
         return E_POINTER;
     }
-    ATLASSERT(bReadOnly==FALSE);
+    //ATLASSERT(bReadOnly==FALSE);
 
     ALLOCATOR_PROPERTIES prop;
     if(FAILED(pAllocator->GetProperties(&prop)))
@@ -487,7 +487,7 @@ HRESULT CDSRendInPin::NotifyAllocator(IMemAllocator *pAllocator,BOOL bReadOnly)
     }
     
     //check that the allocator properties is acceptable
-    if(prop.cbAlign!=16)
+    if(prop.cbAlign!=16 && FALSE)
     {
         return VFW_E_BADALIGN;
     }
@@ -690,7 +690,7 @@ HRESULT CDSRendInPin::CheckMediaType(const AM_MEDIA_TYPE *pmt)
         }
         if((m_FieldFormat==DSREND_FIELD_FORMAT_FIELD && bFieldInput==false) || (m_FieldFormat==DSREND_FIELD_FORMAT_FRAME && bFieldInput==true))
         {
-            return E_FAIL;
+            return E_FAIL;  
         }
 
         //check that there is a size specified in the media type

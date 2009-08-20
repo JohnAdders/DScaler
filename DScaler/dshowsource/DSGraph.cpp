@@ -489,11 +489,16 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
     }
 
     //get IAMStreamConfig on the output pin
-    m_pStreamCfg=NULL;
-    hr=OutPin.QueryInterface(&m_pStreamCfg);
-    if(FAILED(hr))
+    if(m_pStreamCfg==NULL)
     {
-        throw CDShowException("Query interface for IAMStreamConfig failed",hr);
+        try
+        {
+            FindStreamConfig();
+        }
+        catch(CDShowException&)
+        {
+            return ERROR_FAILED_TO_CHANGE_BACK;
+        }
     }
 
     FILTER_STATE oldState=getState();
@@ -795,6 +800,18 @@ BOOL CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
 }
 void CDShowGraph::FindStreamConfig()
 {
+    if(m_pBuilder)
+    {
+        // use FindInterface if we can
+        m_pStreamCfg=NULL;
+        HRESULT hr = m_pBuilder->FindInterface(&LOOK_UPSTREAM_ONLY, NULL, m_renderer, IID_IAMStreamConfig, (void**)&m_pStreamCfg);
+        if(FAILED(hr))
+        {
+            throw CDShowException("Query interface for IAMStreamConfig failed",hr);
+        }
+        return;
+    }
+
     CDShowPinEnum rendPins(m_renderer,PINDIR_INPUT);
     CComPtr<IPin> inPin;
 

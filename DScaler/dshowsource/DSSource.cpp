@@ -1016,7 +1016,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
         return;
     }
 
-    HMENU menu = GetSubMenu(hMenu, 0);
+    HMENU menu = GetSubMenu(m_hMenu, 0);
 
     CDShowCaptureDevice *pCap=NULL;
     CDShowBaseCrossbar *pCrossbar=NULL;

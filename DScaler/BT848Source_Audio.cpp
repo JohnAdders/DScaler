@@ -419,7 +419,7 @@ void CBT848Source::HandleTimerMessages(int TimerId)
     if (TimerId == TIMER_MSP)
     {
         tstring Text;
-        tstring szAudioStandard(_T(".["));
+        tstring szAudioStandard;
 
         if (m_AutoStereoSelect->GetValue() && (m_AutoStereoDetectInterval->GetValue() > 0) && (m_KeepDetectingStereo > 0))
         {
@@ -435,6 +435,7 @@ void CBT848Source::HandleTimerMessages(int TimerId)
 
         if (m_AudioStandardInStatusBar->GetValue())
         {
+            szAudioStandard = _T(".[");
             if (m_DetectingAudioStandard)
             {
                 szAudioStandard += _T("Detecting...]");

@@ -592,13 +592,13 @@ BOOL CToolbarControl::AutomaticDisplay(POINT Pt)
         if (IsInBar && !Toolbar1->Visible())
         {
             // Show the toolbar
-            Set(GetMainWnd(), NULL, 0);
+            Set(GetMainWnd(), _T(""), 0);
             return TRUE;
         }
         else if (!IsInBar && Toolbar1->Visible())
         {
             // Hide the toolbar
-            Set(GetMainWnd(), NULL, 1);
+            Set(GetMainWnd(), _T(""), 1);
             return TRUE;
         }
     }

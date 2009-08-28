@@ -44,8 +44,6 @@ __inline std::wstring UnicodeToUnicode(const std::wstring& InString) {return InS
     #define TStringToUnicode UnicodeToUnicode
     #define MBCSToTString MBCSToUnicode
     #define UnicodeToTString UnicodeToUnicode
-    tstring EncodeASCIISafeString(const tstring& InString);
-    tstring DecodeASCIISafeString(const tstring& InString);
 #else
     typedef std::string tstring;
     typedef std::stringstream tstringstream;
@@ -57,6 +55,9 @@ __inline std::wstring UnicodeToUnicode(const std::wstring& InString) {return InS
     #define MBCSToTString MBCSToMBCS
     #define UnicodeToTString UnicodeToMBCS
 #endif
+
+tstring EncodeASCIISafeString(const tstring& InString);
+tstring DecodeASCIISafeString(const tstring& InString);
 
 
 class MakeString

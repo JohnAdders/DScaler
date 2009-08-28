@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="DScalerRes"
 	ProjectGUID="{20622BFB-4B71-4BE2-9F3A-8381ADD55F04}"
+	RootNamespace="DScalerRes"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -79,6 +80,7 @@
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				ImportLibrary=".\Debug/DScalerRes.lib"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -250,6 +252,7 @@
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				ImportLibrary=".\Release/DScalerRes.lib"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"

@@ -134,7 +134,7 @@ SmartPtr<CSource> CSAA7134Provider::GetSource(int SourceIndex)
 {
     if (SourceIndex >= 0 && SourceIndex < (int)m_SAA7134Sources.size())
     {
-        return m_SAA7134Sources[SourceIndex].DynamicCast<CSource>();
+        return DynamicPtrCast<CSource>(m_SAA7134Sources[SourceIndex]);
     }
     else
     {

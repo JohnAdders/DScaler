@@ -70,7 +70,7 @@ SmartPtr<CSource> CStillProvider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_StillSources.size())
     {
-        return m_StillSources[SourceIndex].DynamicCast<CSource>();
+        return DynamicPtrCast<CSource>(m_StillSources[SourceIndex]);
     }
     else
     {

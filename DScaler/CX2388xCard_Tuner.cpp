@@ -118,7 +118,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
                 }
 
                 // Found a valid external IF demodulator.
-                pExternalIFDemodulator = pTDA9887.DynamicCast<IExternalIFDemodulator>();
+                pExternalIFDemodulator = DynamicPtrCast<IExternalIFDemodulator>(pTDA9887);
             }
         }
     }
@@ -175,7 +175,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 
 SmartPtr<ITuner> CCX2388xCard::GetTuner()
 {
-    return m_Tuner.DynamicCast<ITuner>();
+    return DynamicPtrCast<ITuner>(m_Tuner);
 }
 
 tstring CCX2388xCard::GetTunerType()

@@ -182,7 +182,7 @@ public:
     /*
         Conversion/casting operators
     */
-    template <typename Y>
+/*    template <typename Y>
     SmartPtr<Y> DynamicCast()
     {
         //new SmartPtr must also take our counter or else the reference counts
@@ -197,7 +197,7 @@ public:
             return SmartPtr<Y>();
         }
     }
-
+*/
     /*
         Provide access to the raw pointer
     */
@@ -268,6 +268,25 @@ private:
     }
 
 };
+
+/*
+    Conversion/casting operators
+*/
+template <typename Y, typename X>
+SmartPtr<Y> DynamicPtrCast(SmartPtr<X> inPtr)
+{
+    //new SmartPtr must also take our counter or else the reference counts
+    //will go out of sync
+    Y* newPtr = dynamic_cast<Y*>(inPtr.GetRawPointer());
+    if(newPtr)
+    {
+        return SmartPtr<Y>(newPtr, inPtr.GetCounter());
+    }
+    else
+    {
+        return SmartPtr<Y>();
+    }
+}
 
 #endif
 

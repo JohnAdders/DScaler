@@ -120,7 +120,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         {
             SmartPtr<CTreeSettingsGeneric> pPage(new CTreeSettingsGeneric(Names[i], Holders[i]));
             pPage->SetHelpID(Holders[i]->GetHelpID());
-            dlg.AddPage(pPage.DynamicCast<CTreeSettingsPage>(), Root);
+            dlg.AddPage(DynamicPtrCast<CTreeSettingsPage>(pPage), Root);
         }
     }
 
@@ -137,7 +137,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         {
             SmartPtr<CTreeSettingsGeneric> pPage(new CTreeSettingsGeneric(Names[i], Holders[i]));
             pPage->SetHelpID(Holders[i]->GetHelpID());
-            dlg.AddPage(pPage.DynamicCast<CTreeSettingsPage>(), Root);
+            dlg.AddPage(DynamicPtrCast<CTreeSettingsPage>(pPage), Root);
         }
     }
 

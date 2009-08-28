@@ -97,7 +97,7 @@ SmartPtr<CSource> CDSProvider::GetSource(int SourceIndex)
 
     if(SourceIndex>=0 && SourceIndex<m_DSSources.size())
     {
-        return m_DSSources[SourceIndex].DynamicCast<CSource>();
+        return DynamicPtrCast<CSource>(m_DSSources[SourceIndex]);
     }
     else
     {

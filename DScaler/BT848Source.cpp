@@ -226,138 +226,138 @@ void CBT848Source::CreateSettings(LPCTSTR IniSection)
     CSettingGroup *pAdvancedTimingGroup = SettingsMaster->GetGroup(_T("BT848 - Advanced Timing"), SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT);
 
     m_Brightness = new CBrightnessSetting(this, _T("Brightness"), DEFAULT_BRIGHTNESS_NTSC, -128, 127, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Brightness.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_Brightness));
 
     m_Contrast = new CContrastSetting(this, _T("Contrast"), DEFAULT_CONTRAST_NTSC, 0, 511, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Contrast.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_Contrast));
 
     m_Hue = new CHueSetting(this, _T("Hue"), DEFAULT_HUE_NTSC, -128, 127, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Hue.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_Hue));
 
     m_Saturation = new CSaturationSetting(this, _T("Saturation"), (DEFAULT_SAT_V_NTSC + DEFAULT_SAT_U_NTSC) / 2, 0, 511, IniSection, pVideoGroup);
-    m_Settings.push_back(m_Saturation.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_Saturation));
 
     m_SaturationU = new CSaturationUSetting(this, _T("Blue Saturation"), DEFAULT_SAT_U_NTSC, 0, 511, IniSection, pVideoGroup);
-    m_Settings.push_back(m_SaturationU.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_SaturationU));
 
     m_SaturationV = new CSaturationVSetting(this, _T("Red Saturation"), DEFAULT_SAT_V_NTSC, 0, 511, IniSection, pVideoGroup);
-    m_Settings.push_back(m_SaturationV.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_SaturationV));
 
     m_TopOverscan = new CTopOverscanSetting(this, _T("Overscan at Top"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_TopOverscan.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_TopOverscan));
 
     m_BDelay = new CBDelaySetting(this, _T("Macrovision Timing"), 0, 0, 255, IniSection, pAdvancedTimingGroup);
-    m_Settings.push_back(m_BDelay.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BDelay));
 
     m_BtAgcDisable = new CBtAgcDisableSetting(this, _T("AGC Disable"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtAgcDisable.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtAgcDisable));
 
     m_BtCrush = new CBtCrushSetting(this, _T("Crush"), TRUE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtCrush.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtCrush));
 
     m_BtEvenChromaAGC = new CBtEvenChromaAGCSetting(this, _T("Even Chroma AGC"), TRUE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtEvenChromaAGC.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtEvenChromaAGC));
 
     m_BtOddChromaAGC = new CBtOddChromaAGCSetting(this, _T("Odd Chroma AGC"), TRUE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtOddChromaAGC.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtOddChromaAGC));
 
     m_BtEvenLumaPeak = new CBtEvenLumaPeakSetting(this, _T("Even Luma Peak"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtEvenLumaPeak.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtEvenLumaPeak));
 
     m_BtOddLumaPeak = new CBtOddLumaPeakSetting(this, _T("Odd Luma Peak"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtOddLumaPeak.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtOddLumaPeak));
 
     m_BtFullLumaRange = new CBtFullLumaRangeSetting(this, _T("Full Luma Range"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtFullLumaRange.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtFullLumaRange));
 
     m_BtEvenLumaDec = new CBtEvenLumaDecSetting(this, _T("Even Luma Dec"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtEvenLumaDec.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtEvenLumaDec));
 
     m_BtOddLumaDec = new CBtOddLumaDecSetting(this, _T("Odd Luma Dec"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtOddLumaDec.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtOddLumaDec));
 
     m_BtEvenComb = new CBtEvenCombSetting(this, _T("Even Comb"), TRUE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtEvenComb.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtEvenComb));
 
     m_BtOddComb = new CBtOddCombSetting(this, _T("Odd Comb"), TRUE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtOddComb.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtOddComb));
 
     m_BtColorBars = new CBtColorBarsSetting(this, _T("Color Bars"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtColorBars.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtColorBars));
 
     m_BtGammaCorrection = new CBtGammaCorrectionSetting(this, _T("Gamma Correction"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtGammaCorrection.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtGammaCorrection));
 
     m_BtCoring = new CBtCoringSetting(this, _T("Coring"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtCoring.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtCoring));
 
     m_BtHorFilter = new CBtHorFilterSetting(this, _T("Horizontal Filter"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtHorFilter.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtHorFilter));
 
     m_BtVertFilter = new CBtVertFilterSetting(this, _T("Vertical Filter"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtVertFilter.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtVertFilter));
 
     m_BtColorKill = new CBtColorKillSetting(this, _T("Color Kill"), FALSE, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtColorKill.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtColorKill));
 
     m_BtWhiteCrushUp = new CBtWhiteCrushUpSetting(this, _T("White Crush Upper"), 0xCF, 0, 255, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtWhiteCrushUp.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtWhiteCrushUp));
 
     m_BtWhiteCrushDown = new CBtWhiteCrushDownSetting(this, _T("White Crush Lower"), 0x7F, 0, 255, IniSection, pAdvancedGroup);
-    m_Settings.push_back(m_BtWhiteCrushDown.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BtWhiteCrushDown));
 
     m_PixelWidth = new CPixelWidthSetting(this, _T("Pixel Width"), 720, 120, DSCALER_MAX_WIDTH, IniSection, pVideoGroup);
     m_PixelWidth->SetStepValue(2);
-    m_Settings.push_back(m_PixelWidth.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_PixelWidth));
 
     m_CustomPixelWidth = new CSliderSetting(_T("Custom Pixel Width"), 750, 120, DSCALER_MAX_WIDTH, IniSection, _T("CustomPixelWidth"), pAdvancedGroup);
     m_CustomPixelWidth->SetStepValue(2);
-    m_Settings.push_back(m_CustomPixelWidth.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_CustomPixelWidth));
 
     m_VideoSource = new CVideoSourceSetting(this, _T("Video Source"), 0, 0, 12, IniSection);
-    m_Settings.push_back(m_VideoSource.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_VideoSource));
 
     m_VideoFormat = new CVideoFormatSetting(this, _T("Video Format"), VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LAST_TV - 1, IniSection, pVideoFormatGroup);
-    m_Settings.push_back(m_VideoFormat.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_VideoFormat));
 
     m_HDelay = new CHDelaySetting(this, _T("Horizontal Delay Adjust"), 0, -16, 16, IniSection, pAdvancedTimingGroup);
     m_HDelay->SetStepValue(2);
-    m_Settings.push_back(m_HDelay.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_HDelay));
 
     m_VDelay = new CVDelaySetting(this, _T("Vertical Delay Adjust"), 0, -40, 40, IniSection, pAdvancedTimingGroup);
     m_VDelay->SetStepValue(2);
-    m_Settings.push_back(m_VDelay.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_VDelay));
 
     m_ReversePolarity = new CYesNoSetting(_T("Reverse Polarity"), FALSE, IniSection, _T("ReversePolarity"), pAdvancedGroup);
-    m_Settings.push_back(m_ReversePolarity.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_ReversePolarity));
 
     m_CardType = new CSliderSetting(_T("Card Type"), TVCARD_UNKNOWN, TVCARD_UNKNOWN, TVCARD_LASTONE - 1, IniSection, _T("CardType"));
-    m_Settings.push_back(m_CardType.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_CardType));
 
     m_TunerType = new CTunerTypeSetting(this, _T("Tuner Type"), TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
-    m_Settings.push_back(m_TunerType.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_TunerType));
 
     m_AudioSource1 = new CAudioSource1Setting(this, _T("Audio Source 1"), AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
-    m_Settings.push_back(m_AudioSource1.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioSource1));
 
     m_AudioChannel = new CAudioChannelSetting(this, _T("Audio Channel"), SOUNDCHANNEL_STEREO, SOUNDCHANNEL_MONO, SOUNDCHANNEL_LANGUAGE2, IniSection, pAudioChannel);
-    m_Settings.push_back(m_AudioChannel.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioChannel));
 
     m_AutoStereoSelect = new CAutoStereoSelectSetting(this, _T("Auto Stereo Select"), FALSE, IniSection, pAudioChannel);
-    m_Settings.push_back(m_AutoStereoSelect.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AutoStereoSelect));
 
     m_Volume = new CVolumeSetting(this, _T("Volume"), 900, 0, 1000, IniSection, pAudioControl);
     m_Volume->SetStepValue(20);
-    m_Settings.push_back(m_Volume.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_Volume));
 
     m_Bass = new CBassSetting(this, _T("Bass"), 0, -96, 127, IniSection, pAudioControl);
-    m_Settings.push_back(m_Bass.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_Bass));
 
     m_Treble = new CTrebleSetting(this, _T("Treble"), 0, -96, 127, IniSection, pAudioControl);
-    m_Settings.push_back(m_Treble.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_Treble));
 
     m_Balance = new CBalanceSetting(this, _T("Balance"), 0, -127, 127, IniSection, pAudioControl);
-    m_Settings.push_back(m_Balance.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_Balance));
 
     // save per input removed
     m_Settings.push_back(SmartPtr<CSimpleSetting>(new CEmptySetting));
@@ -366,145 +366,145 @@ void CBT848Source::CreateSettings(LPCTSTR IniSection)
     m_Settings.push_back(SmartPtr<CSimpleSetting>(new CEmptySetting));
 
     m_AudioSource2 = new CAudioSource2Setting(this, _T("Audio Source 2"), AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
-    m_Settings.push_back(m_AudioSource2.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioSource2));
 
     m_AudioSource3 = new CAudioSource3Setting(this, _T("Audio Source 3"), AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
-    m_Settings.push_back(m_AudioSource3.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioSource3));
 
     m_AudioSource4 = new CAudioSource4Setting(this, _T("Audio Source 4"), AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
-    m_Settings.push_back(m_AudioSource4.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioSource4));
 
     m_AudioSource5 = new CAudioSource5Setting(this, _T("Audio Source 5"), AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
-    m_Settings.push_back(m_AudioSource5.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioSource5));
 
     m_AudioSource6 = new CAudioSource6Setting(this, _T("Audio Source 6"), AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
-    m_Settings.push_back(m_AudioSource6.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioSource6));
 
     m_UseInputPin1 = new CUseInputPin1Setting(this, _T("Use MSP Input Pin 1"), FALSE, IniSection, pAudioChannel);
-    m_Settings.push_back(m_UseInputPin1.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_UseInputPin1));
 
     m_UseEqualizer = new CUseEqualizerSetting(this, _T("Use equalizer"), FALSE, IniSection, pAudioEqualizerGroup);
-    m_Settings.push_back(m_UseEqualizer.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_UseEqualizer));
 
     m_EqualizerBand1 = new CEqualizerBand1Setting(this, _T("Equalizer band 1"), 0, -96, 96, IniSection, pAudioEqualizerGroup);
-    m_Settings.push_back(m_EqualizerBand1.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_EqualizerBand1));
 
     m_EqualizerBand2 = new CEqualizerBand2Setting(this, _T("Equalizer band 2"), 0, -96, 96, IniSection, pAudioEqualizerGroup);
-    m_Settings.push_back(m_EqualizerBand2.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_EqualizerBand2));
 
     m_EqualizerBand3 = new CEqualizerBand3Setting(this, _T("Equalizer band 3"), 0, -96, 96, IniSection, pAudioEqualizerGroup);
-    m_Settings.push_back(m_EqualizerBand3.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_EqualizerBand3));
 
     m_EqualizerBand4 = new CEqualizerBand4Setting(this, _T("Equalizer band 4"), 0, -96, 96, IniSection, pAudioEqualizerGroup);
-    m_Settings.push_back(m_EqualizerBand4.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_EqualizerBand4));
 
     m_EqualizerBand5 = new CEqualizerBand5Setting(this, _T("Equalizer band 5"), 0, -96, 96, IniSection, pAudioEqualizerGroup);
-    m_Settings.push_back(m_EqualizerBand5.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_EqualizerBand5));
 
     m_AudioLoudness = new CAudioLoudnessSetting(this, _T("Loudness"), 0, 0, 255, IniSection, pAudioControl);
-    m_Settings.push_back(m_AudioLoudness.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioLoudness));
 
     m_AudioSuperbass = new CAudioSuperbassSetting(this, _T("Super Bass"), FALSE, IniSection, pAudioControl);
-    m_Settings.push_back(m_AudioSuperbass.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioSuperbass));
 
     m_AudioSpatialEffect = new CAudioSpatialEffectSetting(this, _T("Spatial Effect"), 0, -128, 127, IniSection, pAudioControl);
-    m_Settings.push_back(m_AudioSpatialEffect.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioSpatialEffect));
 
     m_AudioAutoVolumeCorrection = new CAudioAutoVolumeCorrectionSetting(this, _T("Automatic Volume Correction"), 0, 0, 60*1000, IniSection, pAudioControl);
-    m_Settings.push_back(m_AudioAutoVolumeCorrection.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioAutoVolumeCorrection));
 
     m_AudioStandardDetect = new CAudioStandardDetectSetting(this, _T("Audio Standard Detect"), 0, 0, 4, IniSection, pAudioStandard);
-    m_Settings.push_back(m_AudioStandardDetect.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioStandardDetect));
 
     m_AudioStandardDetectInterval = new CAudioStandardDetectIntervalSetting(this, _T("Audio Standard Detect Interval (ms)"), 200, 0, 10000, IniSection, pAudioStandard);
-    m_Settings.push_back(m_AudioStandardDetectInterval.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioStandardDetectInterval));
 
     m_AudioStandardManual = new CAudioStandardManualSetting(this, _T("Audio Standard Manual"), 0, 0, 0x7ff-1, IniSection, pAudioStandard);
-    m_Settings.push_back(m_AudioStandardManual.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioStandardManual));
 
     m_AudioStandardMajorCarrier = new CAudioStandardMajorCarrierSetting(this, _T("Audio Standard Major carrier"), 0, 0, 0x7ffffffL, IniSection, pAudioStandard);
-    m_Settings.push_back(m_AudioStandardMajorCarrier.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioStandardMajorCarrier));
 
     m_AudioStandardMinorCarrier = new CAudioStandardMinorCarrierSetting(this, _T("Audio Standard Minor carrier"), 0, 0, 0x7ffffffL, IniSection, pAudioStandard);
-    m_Settings.push_back(m_AudioStandardMinorCarrier.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioStandardMinorCarrier));
 
     m_AudioStandardInStatusBar = new CAudioStandardInStatusBarSetting(this, _T("Audio Standard in Statusbar"), FALSE, IniSection, pAudioStandard);
-    m_Settings.push_back(m_AudioStandardInStatusBar.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AudioStandardInStatusBar));
 
     m_MSP34xxFlags = new CMSP34xxFlagsSetting(this, _T("MSP34xx Flags"), 0, 0, 0x7ffffffL, IniSection, pAudioOther);
-    m_Settings.push_back(m_MSP34xxFlags.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_MSP34xxFlags));
 
     m_AutoStereoDetectInterval = new CAutoStereoDetectIntervalSetting(this, _T("Auto Stereo Detect Interval"), 0, 0, 24*60*1000, IniSection, pAudioChannel);
-    m_Settings.push_back(m_AutoStereoDetectInterval.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AutoStereoDetectInterval));
 
     m_BottomOverscan = new CBottomOverscanSetting(this, _T("Overscan at Bottom"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_BottomOverscan.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_BottomOverscan));
 
     m_LeftOverscan = new CLeftOverscanSetting(this, _T("Overscan at Left"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_LeftOverscan.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_LeftOverscan));
 
     m_RightOverscan = new CRightOverscanSetting(this, _T("Overscan at Right"), DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_RightOverscan.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_RightOverscan));
 
     m_PMSGain1 = new CPMSGain1Setting(this, _T("Gain Channel 1"), 0x90, 0, 511, IniSection, pPMSGroup);
-    m_Settings.push_back(m_PMSGain1.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_PMSGain1));
 
     m_PMSGain2 = new CPMSGain2Setting(this, _T("Gain Channel 2"), 302, 0, 511, IniSection, pPMSGroup);
-    m_Settings.push_back(m_PMSGain2.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_PMSGain2));
 
     m_PMSGain3 = new CPMSGain3Setting(this, _T("Gain Channel 3"), 302, 0, 511, IniSection, pPMSGroup);
-    m_Settings.push_back(m_PMSGain3.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_PMSGain3));
 
     m_PMSGain4 = new CPMSGain4Setting(this, _T("Gain Channel 4"), 302, 0, 511, IniSection, pPMSGroup);
-    m_Settings.push_back(m_PMSGain4.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_PMSGain4));
 
     m_HorizOffset = new CHorizOffsetSetting(this, _T("Horizontal Offset"), 0, 0, 255, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_HorizOffset.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_HorizOffset));
 
     m_VertOffset = new CVertOffsetSetting(this, _T("Vertical Offset"), 0, 0, 63, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_VertOffset.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_VertOffset));
 
     m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, _T("Is Video Progressive"), FALSE, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_IsVideoProgressive.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_IsVideoProgressive));
 
     m_AD9882PLL = new CAD9882PLLSetting(this, _T("AD9882 PLL (Width)"), 800, 0, 4095, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882PLL.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882PLL));
 
     m_AD9882VCO = new CAD9882VCOSetting(this, _T("AD9882 VCO"), 1, 0, 3, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882VCO.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882VCO));
 
     m_AD9882Pump = new CAD9882PumpSetting(this, _T("AD9882 Pump"), 1, 0, 7, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882Pump.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882Pump));
 
     m_AD9882Phase = new CAD9882PhaseSetting(this, _T("AD9882 Phase"), 0, 0, 31, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882Phase.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882Phase));
 
     m_AD9882PreCoast = new CAD9882PreCoastSetting(this, _T("AD9882 Pre-Coast"), 0, 0, 255, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882PreCoast.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882PreCoast));
 
     m_AD9882PostCoast = new CAD9882PostCoastSetting(this, _T("AD9882 Post-Coast"), 0, 0, 255, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882PostCoast.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882PostCoast));
 
     m_AD9882HSync = new CAD9882HSyncSetting(this, _T("AD9882 Hsync PW (Pos)"), 32, 0, 255, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882HSync.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882HSync));
 
     m_AD9882SyncSep = new CAD9882SyncSepSetting(this, _T("AD9882 Sync Sep Thresh"), 32, 0, 255, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882SyncSep.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882SyncSep));
 
     m_AD9882SOGThresh = new CAD9882SOGThreshSetting(this, _T("AD9882 SOG Thresh"), 15, 0, 31, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882SOGThresh.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882SOGThresh));
 
     m_AD9882SOG = new CAD9882SOGSetting(this, _T("AD9882 Sync-On-Green"), FALSE, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882SOG.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882SOG));
 
     m_AD9882CoastSel = new CAD9882CoastSelSetting(this, _T("AD9882 Coast Enabled"), TRUE, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882CoastSel.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882CoastSel));
 
     m_AD9882CoastOvr = new CAD9882CoastOvrSetting(this, _T("AD9882 Coast Override"), FALSE, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882CoastOvr.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882CoastOvr));
 
     m_AD9882CoastPol = new CAD9882CoastPolSetting(this, _T("AD9882 Active High Coast Polarity"), TRUE, IniSection, pAtlasGroup);
-    m_Settings.push_back(m_AD9882CoastPol.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_AD9882CoastPol));
 
 #ifdef _DEBUG
     if (BT848_SETTING_LASTONE != m_Settings.size())
@@ -2044,57 +2044,57 @@ SmartPtr<CSettingsHolder> CBT848Source::GetSettingsPage()
 
     if(m_CardType->GetValue() != TVCARD_PMSDELUXE && m_CardType->GetValue() != TVCARD_SWEETSPOT)
     {
-        Holder->AddSetting(m_BtAgcDisable.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtCrush.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtEvenChromaAGC.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtOddChromaAGC.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtEvenLumaPeak.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtOddLumaPeak.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtFullLumaRange.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtEvenLumaDec.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtOddLumaDec.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtEvenComb.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtOddComb.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtGammaCorrection.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtCoring.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtHorFilter.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtVertFilter.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtColorKill.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtWhiteCrushUp.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_BtWhiteCrushDown.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtAgcDisable));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtCrush));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtEvenChromaAGC));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtOddChromaAGC));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtEvenLumaPeak));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtOddLumaPeak));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtFullLumaRange));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtEvenLumaDec));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtOddLumaDec));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtEvenComb));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtOddComb));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtGammaCorrection));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtCoring));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtHorFilter));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtVertFilter));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtColorKill));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtWhiteCrushUp));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtWhiteCrushDown));
     }
     else
     {
-        Holder->AddSetting(m_PMSGain1.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_PMSGain2.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_PMSGain3.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_PMSGain4.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_PMSGain1));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_PMSGain2));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_PMSGain3));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_PMSGain4));
     }
 
-    Holder->AddSetting(m_BDelay.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_BtFullLumaRange.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_CustomPixelWidth.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_HDelay.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_VDelay.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_ReversePolarity.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BDelay));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_BtFullLumaRange));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_CustomPixelWidth));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_HDelay));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_VDelay));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_ReversePolarity));
 
     if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
     {
-        Holder->AddSetting(m_HorizOffset.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_VertOffset.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882PLL.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882VCO.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882Pump.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882Phase.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882PreCoast.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882PostCoast.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882HSync.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882SyncSep.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882SOGThresh.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882SOG.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882CoastSel.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882CoastOvr.DynamicCast<CSimpleSetting>());
-        Holder->AddSetting(m_AD9882CoastPol.DynamicCast<CSimpleSetting>());
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_HorizOffset));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_VertOffset));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882PLL));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882VCO));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882Pump));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882Phase));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882PreCoast));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882PostCoast));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882HSync));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882SyncSep));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882SOGThresh));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882SOG));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882CoastSel));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882CoastOvr));
+        Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AD9882CoastPol));
     }
 
     return Holder;

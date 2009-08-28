@@ -104,7 +104,7 @@ SmartPtr<CSource> CCX2388xProvider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_Sources.size())
     {
-        return m_Sources[SourceIndex].DynamicCast<CSource>();
+        return DynamicPtrCast<CSource>(m_Sources[SourceIndex]);
     }
     else
     {

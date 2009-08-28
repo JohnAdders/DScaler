@@ -1620,21 +1620,21 @@ SmartPtr<CSettingsHolder> CSAA7134Source::GetSettingsPage()
 {
     SmartPtr<CSettingsHolder> Holder(new CSettingsHolder(0, IDH_SAA713X_ADV));
 
-    Holder->AddSetting(m_AutomaticVolumeLevel.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_VBIUpscaleDivisor.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_VBIDebugOverlay.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_AutomaticGainControl.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_AdaptiveCombFilter.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_GainControlLevel.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_GammaControl.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_GammaLevel.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_VideoMirror.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_CustomPixelWidth.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_HDelay.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_VDelay.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_ReversePolarity.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_AudioLine1Voltage.DynamicCast<CSimpleSetting>());
-    Holder->AddSetting(m_AudioLine2Voltage.DynamicCast<CSimpleSetting>());
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AutomaticVolumeLevel));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_VBIUpscaleDivisor));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_VBIDebugOverlay));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AutomaticGainControl));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AdaptiveCombFilter));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_GainControlLevel));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_GammaControl));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_GammaLevel));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_VideoMirror));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_CustomPixelWidth));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_HDelay));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_VDelay));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_ReversePolarity));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AudioLine1Voltage));
+    Holder->AddSetting(DynamicPtrCast<CSimpleSetting>(m_AudioLine2Voltage));
 
     return Holder;
 }

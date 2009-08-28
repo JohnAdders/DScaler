@@ -122,7 +122,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
                 }
 
                 // Found a valid external IF demodulator.
-                pExternalIFDemodulator = pTDA9887Ex.DynamicCast<IExternalIFDemodulator>();
+                pExternalIFDemodulator = DynamicPtrCast<IExternalIFDemodulator>(pTDA9887Ex);
             }
         }
     }
@@ -179,7 +179,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 
 SmartPtr<ITuner> CSAA7134Card::GetTuner()
 {
-    return m_Tuner.DynamicCast<ITuner>();
+    return DynamicPtrCast<ITuner>(m_Tuner);
 }
 
 

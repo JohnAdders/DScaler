@@ -65,10 +65,10 @@ CDSSourceBase::~CDSSourceBase()
 void CDSSourceBase::CreateSettings(LPCTSTR IniSection)
 {
     m_Volume = new CVolumeSetting(this, _T("Volume"), 0, LONG_MIN, LONG_MAX, IniSection);
-    m_Settings.push_back(m_Volume.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_Volume));
 
     m_Balance = new CBalanceSetting(this, _T("Balance"), 0, LONG_MIN, LONG_MAX, IniSection);
-    m_Settings.push_back(m_Balance.DynamicCast<CSimpleSetting>());
+    m_Settings.push_back(DynamicPtrCast<CSimpleSetting>(m_Balance));
 
     m_AudioDevice = new CStringSetting(_T("Audio Device"), _T(""), IniSection, _T("AudioDevice"));
 }

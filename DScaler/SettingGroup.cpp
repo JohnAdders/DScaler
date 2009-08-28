@@ -58,5 +58,5 @@ BOOL CSettingGroup::IsGroupActive()
 
 SmartPtr<CSimpleSetting> CSettingGroup::GetIsActiveSetting()
 {
-    return m_IsActive.DynamicCast<CSimpleSetting>();
+    return DynamicPtrCast<CSimpleSetting>(m_IsActive);
 }

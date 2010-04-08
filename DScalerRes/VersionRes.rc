@@ -27,7 +27,7 @@ BEGIN
             VALUE "FileDescription", "DScaler English (US) Resources\0"
             VALUE "FileVersion", VERSTRING_ZT
             VALUE "InternalName", "DScaler Resources\0"
-            VALUE "LegalCopyright", "Copyright © 2009\0"
+            VALUE "LegalCopyright", COPYRIGHT_ZT
             VALUE "LegalTrademarks", "This Program is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DScalerRes.dll\0"
             VALUE "PrivateBuild", "\0"

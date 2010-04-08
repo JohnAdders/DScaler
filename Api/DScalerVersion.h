@@ -21,7 +21,7 @@
 // should be updated before each release
 #define DSCALERVERSION_MAJOR 4
 #define DSCALERVERSION_MINOR 1
-#define DSCALERVERSION_REVISION 19
+#define DSCALERVERSION_REVISION 20
 
 // need to have an extra macro for stingify otherwise we get the
 // name of the definition not the value
@@ -32,6 +32,6 @@
 #define VERSTRING MAKEVERSTRING(DSCALERVERSION_MAJOR, DSCALERVERSION_MINOR, DSCALERVERSION_REVISION)
 #define VERSTRING_ZT MAKEVERSTRING_ZT(DSCALERVERSION_MAJOR, DSCALERVERSION_MINOR, DSCALERVERSION_REVISION)
 
-#define COPYRIGHT_ZT "Copyright © 2009\0"
+#define COPYRIGHT_ZT "Copyright © 2010\0"
 
 #endif

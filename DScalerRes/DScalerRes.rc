@@ -287,7 +287,7 @@ STYLE DS_SETFONT | DS_NOIDLEMSG | DS_SETFOREGROUND | DS_3DLOOK | DS_CENTER | WS_
 EXSTYLE WS_EX_NOPARENTNOTIFY | WS_EX_TOOLWINDOW
 FONT 8, "System", 0, 0, 0x1
 BEGIN
-    LISTBOX         IDC_LIST1,38,140,66,48,NOT LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_TABSTOP
+    LISTBOX         IDC_LIST1,38,140,66,48,NOT LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | NOT WS_BORDER
 END
 
 IDD_VIDEOSETTINGS DIALOGEX 0, 0, 358, 158
@@ -462,7 +462,7 @@ FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,105,127,58,13
     CTEXT           "DScaler Version 4.x",IDC_VERSION,0,3,277,9
-    CTEXT           "Copyright © 2000-2009 John Adcock",IDC_STATIC,0,27,277,10
+    CTEXT           "Copyright © 2000-2010 John Adcock",IDC_STATIC,0,27,277,10
     GROUPBOX        "License Information",IDC_STATIC,0,39,277,82
     CTEXT           "http://www.dscaler.org",IDC_LINK,0,15,277,9,SS_NOTIFY | SS_SUNKEN
     LTEXT           "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.",IDC_STATIC,3,51,273,26

@@ -74,6 +74,7 @@ INT_PTR CALLBACK SplashProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
         BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hMemDC, 0, 0, SRCCOPY);
         SelectObject(hMemDC, hOldBm);
         DeleteDC(hMemDC);
+        InvalidateRect(GetDlgItem(hDlg, IDC_LIST1), NULL, FALSE);
         EndPaint(hDlg, &wps);
         return TRUE;
         break;
@@ -94,6 +95,8 @@ INT_PTR CALLBACK SplashProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 void ShowSpashScreen()
 {
     SplashWnd = CreateDialog(hResourceInst, MAKEINTRESOURCE(IDD_SPLASHBOX), NULL, SplashProc);
+    ShowWindow(SplashWnd, SW_SHOW);
+    UpdateWindow(SplashWnd);
 }
 
 void HideSplashScreen()
@@ -111,10 +114,17 @@ void AddSplashTextLine(const TCHAR* szText)
     if(SplashWnd)
     {
         int nItem;
-        nItem = ListBox_AddString(GetDlgItem(SplashWnd, IDC_LIST1), szText);
-        ListBox_SetCurSel(GetDlgItem(SplashWnd, IDC_LIST1), nItem);
-        InvalidateRect(GetDlgItem(SplashWnd, IDC_LIST1), NULL, TRUE);
-        Sleep(20);
-    }
+        HWND listWnd(GetDlgItem(SplashWnd, IDC_LIST1));
+        nItem = ListBox_AddString(listWnd, szText);
+        ListBox_SetCurSel(listWnd, nItem);
+        // update the list box
+        UpdateWindow(listWnd);
+        // make sure we're on top
+        // otherwise we don't get painted
+        SetWindowPos(SplashWnd,HWND_TOPMOST,
+                    0,0,0,0,
+                    SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
+
+   }
     LOG(1, szText);
 }

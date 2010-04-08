@@ -23,7 +23,7 @@ cd ..\Release
 7z a -tzip pdb.zip *.pdb -r
 copy pdb.zip ..\..\DScaler%buildnum%pdb_95.zip
 cd ..\Install
-"c:\Program Files\Inno Setup 5\Compil32.exe" /cc DScaler.iss
+"c:\Program Files\Inno Setup 5\iscc.exe" DScaler.iss
 copy Output\Setup.exe ..\..\DScaler%buildnum%_95.exe
 cd ..\..
 del /f /q /s DScaler  

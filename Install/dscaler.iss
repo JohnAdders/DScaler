@@ -19,12 +19,15 @@
 ;  This is an InnoSetup script.
 ;  For more information about InnoSetup see http://www.innosetup.com
 
+#define MyAppVersion GetFileVersion("..\Release\DScaler.exe")
+
 [Setup]
-AppName=DScaler {%DSCALERVER|4 Test Version}
-AppVerName=DScaler {%DSCALERVER|4 Test Version}
+AppName=DScaler
+AppVerName=DScaler {#MyAppVersion}
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org
+AppVersion={#MyAppVersion}
 DefaultDirName={pf}\DScaler
 DefaultGroupName=DScaler
 AllowNoIcons=yes
@@ -34,11 +37,19 @@ AppMutex=DScaler
 ;required for installing the driver on NT platforms
 PrivilegesRequired=Admin
 DisableStartupPrompt=yes
+AppCopyright=Copyright (C) 2010 DScaler Team
+VersionInfoDescription=DScaler Setup
+VersionInfoProductVersion={#MyAppVersion}
+VersionInfoVersion={#MyAppVersion}
+SetupIconFile=..\DScaler\Res\DScaler.ico
+
 
 [Messages]
 BeveledLabel=DScaler
 WizardLicense=GPL License Agreement
-LicenseLabel3=Do you want to continue to install [name]? If you choose No, Setup will close.
+LicenseLabel3=Do you want to continue to install [name]?.
+LicenseAccepted=Yes, I would like to &continue
+LicenseNotAccepted=&No
 WizardInfoBefore=Warning
 InfoBeforeLabel=Please read the following important warning before continuing.
 InfoBeforeClickLabel=When you are ready and happy to continue with Setup, click Next.
@@ -176,3 +187,6 @@ begin
   MoveFileToUsersArea('program.txt');
   MoveFileToUsersArea('programs.xml');
 end;
+
+
+

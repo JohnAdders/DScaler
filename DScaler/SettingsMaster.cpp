@@ -406,7 +406,7 @@ void CSettingsMaster::SaveAllSettings(BOOL bOptimizeFileAccess)
     Providers_WriteToIni(bOptimizeFileAccess);
 
     // These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
-    WritePrivateProfileString(NULL, NULL, NULL, m_sIniFile.c_str());
+    WritePrivateProfileString(NULL, NULL, NULL, NULL);
 
     //BeautifyIniFile(m_sIniFile.c_str());
 }

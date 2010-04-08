@@ -105,7 +105,7 @@ public:
     BOOL Add(CToolbarChild *pChild, eToolbarRowAlign Align, int Order, int Row);
     void Remove(CToolbarChild *pChild);
     CToolbarWindow(HWND hWndParent, HINSTANCE hInst, int Child);
-    ~CToolbarWindow();
+    virtual ~CToolbarWindow();
 
     BOOL Visible() { return IsToolbarVisible; }
     void AdjustArea(RECT *ar, int Crop);
@@ -137,26 +137,10 @@ public:
 
 class CToolbarChild
 {
-protected:
-    HWND hWnd;
-    HINSTANCE hResourceInst;
-    CToolbarWindow *m_pToolbar;
-    std::vector<CBitmapAsButton*> Buttons;
-    CBitmapsFromIniSection BitmapsFromIniSection;
-
-    virtual LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) = 0;
-
-    int m_PosX;
-    int m_PosY;
-    int m_PosW;
-    int m_PosH;
-
-    HBRUSH m_BgBrush;
-    HPEN m_hPen3DShadow;
-    HPEN m_hPen3DLight;
-
-    int m_Visible;
 public:
+    CToolbarChild(CToolbarWindow *pToolbar);
+    virtual ~CToolbarChild();
+
     int Visible();
 
     BOOL Show();
@@ -176,9 +160,6 @@ public:
 
     virtual void UpdateWindow() {;};
 
-    CToolbarChild(CToolbarWindow *pToolbar);
-    ~CToolbarChild();
-
     virtual HWND Create(LPCTSTR szClassName, HINSTANCE hResourceInst);
     virtual HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
 
@@ -193,6 +174,26 @@ public:
     static LRESULT CALLBACK StaticToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK StaticToolbarChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     static LRESULT StaticToolbarChildButtonProc(tstring sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+protected:
+    HWND hWnd;
+    HINSTANCE hResourceInst;
+    CToolbarWindow *m_pToolbar;
+    std::vector<CBitmapAsButton*> Buttons;
+    CBitmapsFromIniSection BitmapsFromIniSection;
+
+    virtual LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) = 0;
+
+    int m_PosX;
+    int m_PosY;
+    int m_PosW;
+    int m_PosH;
+
+    HBRUSH m_BgBrush;
+    HPEN m_hPen3DShadow;
+    HPEN m_hPen3DLight;
+
+    int m_Visible;
 };
 
 #endif

@@ -22,7 +22,10 @@
 
 void LibraryCache::Unload(LibraryMap::value_type& MapValueToUnload)
 {
-    FreeLibrary(MapValueToUnload.second);
+    if(MapValueToUnload.second != NULL)
+    {
+        FreeLibrary(MapValueToUnload.second);
+    }
 }
 
 HMODULE LibraryCache::GetLibraryHandle(const TCHAR* LibaryName)

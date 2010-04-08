@@ -116,12 +116,7 @@ CToolbarWindow::~CToolbarWindow()
     {
         if (vChildList[i].pChild != NULL)
         {
-            ::SetWindowLongPtr(vChildList[i].pChild->GethWnd(), GWLP_USERDATA, NULL);
-
-
-            //Doesn't work.
-            //Is 'pure virtual function call', somehow fix this..
-            //delete vChildList[i].pChild;
+            delete vChildList[i].pChild;
         }
     }
     vChildList.clear();
@@ -887,6 +882,19 @@ CToolbarChild::~CToolbarChild()
 {
     int i;
 
+    if (m_BgBrush != NULL)
+    {
+        DeleteObject(m_BgBrush);
+    }
+    if (m_hPen3DShadow != NULL)
+    {
+        DeleteObject(m_hPen3DShadow);
+    }
+    if (m_hPen3DLight != NULL)
+    {
+        DeleteObject(m_hPen3DLight);
+    }
+
     for (i = 0; i < Buttons.size(); i++)
     {
         if (Buttons[i] != NULL)
@@ -1224,17 +1232,17 @@ void CToolbarChild::DrawItem(DRAWITEMSTRUCT* pDrawItem, HICON hIcon, LPCTSTR szT
         LPRECT lpRect = &pDrawItem->rcItem;
         if ((m_hPen3DShadow != NULL) && (m_hPen3DLight!=NULL))
         {
-            HPEN hPenOld = (HPEN)::SelectObject(pDrawItem->hDC, m_hPen3DShadow);
+            HPEN hPenOld = (HPEN)SelectObject(pDrawItem->hDC, m_hPen3DShadow);
 
             MoveToEx(pDrawItem->hDC, lpRect->left, lpRect->bottom-1, NULL);
             LineTo(pDrawItem->hDC, lpRect->left, lpRect->top);
             LineTo(pDrawItem->hDC, lpRect->right-1, lpRect->top);
 
-            ::SelectObject(pDrawItem->hDC, m_hPen3DLight);
+            SelectObject(pDrawItem->hDC, m_hPen3DLight);
             LineTo(pDrawItem->hDC, lpRect->right-1, lpRect->bottom-1);
             LineTo(pDrawItem->hDC, lpRect->left, lpRect->bottom-1);
 
-            ::SelectObject(pDrawItem->hDC, hPenOld);
+            SelectObject(pDrawItem->hDC, hPenOld);
         }
     }
     if (hIcon != NULL)
@@ -1247,7 +1255,7 @@ void CToolbarChild::DrawItem(DRAWITEMSTRUCT* pDrawItem, HICON hIcon, LPCTSTR szT
         if (GetIconInfo(hIcon, &IconInfo)) //try to align icon
         {
             BITMAP bm;
-            if (::GetObject (IconInfo.hbmColor, sizeof (bm), & bm))
+            if (GetObject (IconInfo.hbmColor, sizeof (bm), & bm))
             {
                 int BmWidth =  bm.bmWidth;
                 int BmHeight =  bm.bmHeight;
@@ -1271,6 +1279,8 @@ void CToolbarChild::DrawItem(DRAWITEMSTRUCT* pDrawItem, HICON hIcon, LPCTSTR szT
                 X += pDrawItem->rcItem.left;
                 Y += pDrawItem->rcItem.top;
             }
+            DeleteObject(IconInfo.hbmMask);
+            DeleteObject(IconInfo.hbmColor);
         }
 
         if (pDrawItem->itemState & ODS_SELECTED)

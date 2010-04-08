@@ -71,9 +71,6 @@ public:
     static HRGN CreateWindowRegion(RECT& rcBound, std::vector<RECT>& RegionList, POINT* pPosition = NULL);
     static BOOL BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, std::vector<RECT>& RegionList);
 
-    static SmartHandle<HBITMAP> BitmapLoadFromFile(const TCHAR* szFile);
-    //static void BitmapLoad_Free(HBITMAP hBm);
-
 protected:
     BOOL MakeRegionList();
 

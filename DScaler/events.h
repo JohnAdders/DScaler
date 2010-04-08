@@ -66,7 +66,7 @@ class CEventObject
 {
 public:
     CEventObject();
-    ~CEventObject();
+    virtual ~CEventObject();
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp) {;}
 };
 

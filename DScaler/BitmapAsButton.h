@@ -74,7 +74,40 @@ enum eBitmapAsButtonType
         ...
 */
 
-class CBitmapAsButton {
+class CBitmapAsButton 
+{
+public:
+    CBitmapAsButton(eBitmapAsButtonType ButtonType);
+    ~CBitmapAsButton();
+
+    HWND hWnd() { if (bFailed) return NULL; return hWndButton; }
+    int Width() { return ButtonWidth; }
+    int Height() { return ButtonHeight; }
+    tstring GetID() { return sID; }
+
+    void AddBitmap(int State, SmartPtr<CBitmapState> BitmapState);
+
+    HRGN SetRegion();
+
+    void SetProcessMessage(void *pThis, BUTTONPROC* pfnButtonProc)
+    {
+        this->pfnButtonProc_pThis = pThis;
+        this->pfnButtonProc = pfnButtonProc;
+    }
+
+    BOOL Create(tstring sID, HWND hWndParent, int x, int y, HINSTANCE hInst);
+    BOOL TakeOver(HWND hWnd, tstring sID, HWND hWndParent);
+    BOOL RestoreBack(HWND hWnd = NULL);
+
+protected:
+
+    void Draw(HDC hDC, LPRECT lpRect);
+    void SetWindowRegion();
+
+    LRESULT ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+    static LRESULT CALLBACK StaticButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
 protected:
     tstring sID;
 
@@ -108,36 +141,6 @@ protected:
     int SliderPos;
     int SliderRangeMin;
     int SliderRangeMax;
-protected:
-
-    void Draw(HDC hDC, LPRECT lpRect);
-    void SetWindowRegion();
-
-    LRESULT ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-
-    static LRESULT CALLBACK StaticButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-public:
-    CBitmapAsButton(eBitmapAsButtonType ButtonType);
-    ~CBitmapAsButton();
-
-    HWND hWnd() { if (bFailed) return NULL; return hWndButton; }
-    int Width() { return ButtonWidth; }
-    int Height() { return ButtonHeight; }
-    tstring GetID() { return sID; }
-
-    void AddBitmap(int State, SmartPtr<CBitmapState> BitmapState);
-
-    HRGN SetRegion();
-
-    void SetProcessMessage(void *pThis, BUTTONPROC* pfnButtonProc)
-    {
-        this->pfnButtonProc_pThis = pThis;
-        this->pfnButtonProc = pfnButtonProc;
-    }
-
-    BOOL Create(tstring sID, HWND hWndParent, int x, int y, HINSTANCE hInst);
-    BOOL TakeOver(HWND hWnd, tstring sID, HWND hWndParent);
-    BOOL RestoreBack(HWND hWnd = NULL);
 };
 
 

@@ -152,7 +152,7 @@ void CEventCollector::Unregister(EVENTCALLBACK *pfnCallback, void *pThis)
         {
             if (m_EventObjects[i].EventList != NULL)
             {
-                delete m_EventObjects[i].EventList;
+                delete [] m_EventObjects[i].EventList;
             }
         } else {
             NewList.push_back(m_EventObjects[i]);
@@ -183,7 +183,7 @@ void CEventCollector::Unregister(CEventObject *pObject)
         {
             if (m_EventObjects[i].EventList != NULL)
             {
-                delete m_EventObjects[i].EventList;
+                delete [] m_EventObjects[i].EventList;
             }
         } else {
             NewList.push_back(m_EventObjects[i]);
@@ -431,7 +431,7 @@ void CEventCollector::ProcessEvents()
             RaiseScheduledEvent(ei.pEventObject, ei.Event, ei.OldValue, ei.NewValue, ei.ComingUp);
             if (ei.ComingUp != NULL)
             {
-                delete[] ei.ComingUp;
+                delete [] ei.ComingUp;
             }
         }
         else

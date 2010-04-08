@@ -128,7 +128,7 @@ protected:
     static const TCHAR* szBorderNames[];
 public:
     CWindowBorder(HWND hWnd, HINSTANCE hInst, BOOL (*CustomGetClientRect)(HWND hWnd, LPRECT lpRect) = NULL);
-    ~CWindowBorder();
+    virtual ~CWindowBorder();
 
     void AdjustArea(RECT *ar, int Crop);
 

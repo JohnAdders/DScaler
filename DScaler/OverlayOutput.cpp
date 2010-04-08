@@ -88,7 +88,7 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
 //-----------------------------------------------------------------------------
 BOOL COverlayOutput::ListMonitors(HWND hWnd)
 {
-    static DynamicFunctionS3<HRESULT, LPDDENUMCALLBACKEX, LPVOID, DWORD> lpDDEnumEx(_T("ddraw.lib"), ADD_API_LETTER(DirectDrawEnumerateEx));
+    static DynamicFunctionS3<HRESULT, LPDDENUMCALLBACKEX, LPVOID, DWORD> lpDDEnumEx(_T("ddraw.dll"), ADD_API_LETTER(DirectDrawEnumerateEx));
     BOOL RetVal = TRUE;
 
     // Retrieve the function from the DirectDraw DLL

@@ -34,7 +34,7 @@ class CToolbarChannels : public CToolbarChild, public CEventObject
 {
 public:
     CToolbarChannels(CToolbarWindow *pToolbar);
-    ~CToolbarChannels();
+    virtual ~CToolbarChannels();
 
     HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
     void Reset();
@@ -62,7 +62,7 @@ class CToolbarVolume : public CToolbarChild, public CEventObject
 {
 public:
     CToolbarVolume(CToolbarWindow *pToolbar);
-    ~CToolbarVolume();
+    virtual ~CToolbarVolume();
 
     LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -138,7 +138,7 @@ private:
     HBITMAP hBmp;
 public:
     CToolbar1Bar(CToolbarWindow *pToolbar);
-    ~CToolbar1Bar();
+    virtual ~CToolbar1Bar();
     HWND Create(LPCTSTR lpClassName, HINSTANCE hResourceInst);
     LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     BOOL LoadSkin(const TCHAR* szSkinIniFile, const TCHAR* szSection, std::vector<int> *Results);

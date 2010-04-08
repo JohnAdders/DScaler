@@ -449,7 +449,7 @@ void CDSCaptureSource::CreateSettings(LPCTSTR IniSection)
             m_VideoFmt.push_back(fmt);
         }
 
-        delete pcData;
+        delete [] pcData;
     }
 
     ReadFromIni();

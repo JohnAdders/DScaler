@@ -34,6 +34,8 @@
 # if VER_PRODUCTMAJORVERSION > 5
 #  include "Mmdeviceapi.h"
 #  define __IKsJackDescription_INTERFACE_DEFINED__
+#  define __IKsJackDescription2_INTERFACE_DEFINED__
+#  define __IKsJackSinkInformation_INTERFACE_DEFINED__
 #  include "Endpointvolume.h"
 #  define _DO_NEW_MIXER_CODE_
 #else

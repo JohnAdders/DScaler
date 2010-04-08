@@ -177,8 +177,8 @@ BOOL CBitmapHolder::BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, vector<REC
     BITMAP bm;
     ::GetObject(hBmpMask, sizeof(bm), &bm);
 
-    HDC hDC =  ::CreateCompatibleDC(NULL);
-    SmartHandle<HBITMAP> h((HBITMAP)::SelectObject(hDC, hBmpMask));
+    HDC hDC =  CreateCompatibleDC(NULL);
+    HBITMAP hOld =(HBITMAP)SelectObject(hDC, hBmpMask);
 
     for (int y = 0; y < bm.bmHeight; y++)
     {
@@ -209,8 +209,8 @@ BOOL CBitmapHolder::BitmapToRegionList(SmartHandle<HBITMAP> hBmpMask, vector<REC
         // Go to next row (remember, the bitmap is inverted vertically)
     }
 
-    ::SelectObject(hDC, h);
-    ::DeleteDC(hDC);
+    SelectObject(hDC, hOld);
+    DeleteDC(hDC);
 
     return TRUE;
 }
@@ -226,23 +226,20 @@ HRGN CBitmapHolder::CreateWindowRegion(RECT& rcBound, vector<RECT>& RegionList, 
     if (NumRects == 0) return NULL;
 
     do {
-        Num = 2000; //win98 gets confused if number of rects gets large
-        if (NumRects < Num) { Num = NumRects; }
+        Num = min(2000, NumRects); //win98 gets confused if number of rects gets large
 
-        HANDLE hData = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(RGNDATAHEADER) + (sizeof(RECT) * Num));
-        RGNDATA *pData = (RGNDATA *)::GlobalLock(hData);
+        HLOCAL hData = LocalAlloc(LMEM_MOVEABLE, sizeof(RGNDATAHEADER) + (sizeof(RECT) * Num));
+        RGNDATA *pData = (RGNDATA *)LocalLock(hData);
         pData->rdh.dwSize = sizeof(RGNDATAHEADER);
         pData->rdh.iType = RDH_RECTANGLES;
         pData->rdh.nCount = Num;
         pData->rdh.nRgnSize = 0;
         pData->rdh.rcBound = rcBound;
-        //::SetRect(&pData->rdh.rcBound, MAXLONG, MAXLONG, 0, 0);
 
         RECT *prDest = (RECT *)&pData->Buffer;
         for (int i = 0; i < Num; i++)
         {
-            RECT prSource = RegionList[i];
-            *prDest = prSource;
+            *prDest = RegionList[i];
             if (pPosition != NULL)
             {
                 prDest->left += pPosition->x;
@@ -253,19 +250,20 @@ HRGN CBitmapHolder::CreateWindowRegion(RECT& rcBound, vector<RECT>& RegionList, 
             prDest++;
         }
 
-        HRGN h = ::ExtCreateRegion(NULL, sizeof(RGNDATAHEADER) + (sizeof(RECT) * Num), pData);
+        HRGN h = ExtCreateRegion(NULL, sizeof(RGNDATAHEADER) + (sizeof(RECT) * Num), pData);
 
         if (hRgn != NULL)
         {
-            ::CombineRgn(hRgn, hRgn, h, RGN_OR);
-            ::DeleteObject(h);
+            CombineRgn(hRgn, hRgn, h, RGN_OR);
+            DeleteObject(h);
         }
         else
         {
             hRgn = h;
         }
 
-        ::GlobalFree(hData);
+        LocalUnlock(hData);
+        LocalFree(hData);
 
         NumRects -= Num;
     } while (NumRects>0);
@@ -279,7 +277,7 @@ void CBitmapHolder::BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *b
     if(!hbmp) return;
     HDC memdc;
     memdc = ::CreateCompatibleDC(hDC);
-    ::SelectObject(memdc,hbmp);
+    HGDIOBJ oldBmp = SelectObject(memdc,hbmp);
     int startbmx = 0;
     int startbmy = 0;
     int startx;
@@ -288,7 +286,7 @@ void CBitmapHolder::BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *b
     int x,y,z;
 
     BITMAP bm;
-    ::GetObject (hbmp, sizeof (bm), & bm);
+    GetObject (hbmp, sizeof (bm), & bm);
     int bx = bm.bmWidth;
     int by = bm.bmHeight;
     int drawy = by;
@@ -302,16 +300,21 @@ void CBitmapHolder::BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *b
         drawy = by-startbmy;
     }
 
-    for (y = 0; y < h ; y += drawy){
+    for (y = 0; y < h ; y += drawy)
+    {
         if ((y+drawy)>h) drawy=h-y;
         startx=startbmx;
         z=bx-startx;
-        for (x = 0 ; x < w ; x += z){
-            if ((x+z)>w) {
+        for (x = 0 ; x < w ; x += z)
+        {
+            if ((x+z)>w) 
+            {
                 z=w-x;
                 BitBlt(hDC, r->left + x, r->top + y, z, drawy, memdc, startx, startbmy, SRCCOPY);
                 //LOG(2,_T("DrawBM: (%d,%d,%dx%d) (bm: %d,%d)"),r->left+x,r->top+y,z,by,startx,startbmy);
-            } else {
+            }
+            else
+            {
                 BitBlt(hDC, r->left + x, r->top + y, z, drawy, memdc, startx, startbmy, SRCCOPY);
                 //LOG(2,_T("DrawBM: (%d,%d,%dx%d) (bm: %d,%d)"),r->left+x,r->top+y,z,by,startx,startbmy);
             }
@@ -325,7 +328,8 @@ void CBitmapHolder::BitmapDrawTiled(HDC hDC, SmartHandle<HBITMAP> hbmp, POINT *b
 
         }
     }
-    ::DeleteDC(memdc);
+    SelectObject(memdc, oldBmp);
+    DeleteDC(memdc);
 }
 
 void CBitmapHolder::BitmapDraw(HDC hDC, SmartHandle<HBITMAP> hbmp, SmartHandle<HBITMAP> hmask, POINT * bmstart, LPRECT r, int DrawMode)
@@ -351,28 +355,32 @@ void CBitmapHolder::BitmapDraw(HDC hDC, SmartHandle<HBITMAP> hbmp, SmartHandle<H
     int cx=r->right  - r->left;
     int cy=r->bottom - r->top;
     HDC dcBmp, dcMask;
-    dcBmp = ::CreateCompatibleDC(hDC);
-    ::SelectObject(dcBmp, hbmp);
+    dcBmp = CreateCompatibleDC(hDC);
+    HGDIOBJ oldBmp = SelectObject(dcBmp, hbmp);
 
-    if (hmask!=NULL){
-        dcMask = ::CreateCompatibleDC(hDC);
-        ::SelectObject(dcMask, hmask);
+    if (hmask!=NULL)
+    {
+        dcMask = CreateCompatibleDC(hDC);
+        SelectObject(dcMask, hmask);
 
         HDC hdcMem;
-        hdcMem = ::CreateCompatibleDC(hDC);
+        hdcMem = CreateCompatibleDC(hDC);
         HBITMAP hBitmap;
 
-        hBitmap = ::CreateCompatibleBitmap(hDC,cx,cy);
-        ::SelectObject(hdcMem, hBitmap);
+        hBitmap = CreateCompatibleBitmap(hDC,cx,cy);
+        SelectObject(hdcMem, hBitmap);
 
         BitBlt(hdcMem,r->left,r->top,cx,cy,hDC,startbmx,startbmy,SRCCOPY);
-        if(!DrawMode){
+        if(!DrawMode)
+        {
             BitBlt(hdcMem,r->left,r->top,cx,cy,dcBmp,startbmx,startbmy,SRCINVERT);
             BitBlt(hdcMem,r->left,r->top,cx,cy,dcMask,startbmx,startbmy,SRCAND);
             BitBlt(hdcMem,r->left,r->top,cx,cy,dcBmp,startbmx,startbmy,SRCINVERT);
-        } else {
+        }
+        else 
+        {
             BITMAP bm;
-            ::GetObject (hbmp, sizeof (bm), & bm);
+            GetObject (hbmp, sizeof (bm), & bm);
             int bx = bm.bmWidth;
             int by = bm.bmHeight;
 
@@ -385,23 +393,31 @@ void CBitmapHolder::BitmapDraw(HDC hDC, SmartHandle<HBITMAP> hbmp, SmartHandle<H
 
         BitBlt(hDC, r->left,r->top,cx,cy,hdcMem,0,0,SRCCOPY);
 
-        ::DeleteDC(hdcMem);
-        ::DeleteObject(hBitmap);
+        DeleteDC(hdcMem);
+        DeleteObject(hBitmap);
 
-        ::DeleteDC(dcMask);
-    } else {
+        DeleteDC(dcMask);
+    }
+    else
+    {
         //LOG(2,_T("DrawBM: to (%d,%d,%dx%d) (bm %d,%d)"),r->left,r->top,cx,cy,startbmx,startbmy);
-        if(!DrawMode){
+        if(!DrawMode)
+        {
             BitBlt(hDC, r->left,r->top,cx,cy,dcBmp,startbmx,startbmy,SRCCOPY);
-        } else {
+        } 
+        else 
+        {
             BITMAP bm;
-            ::GetObject (hbmp, sizeof (bm), & bm);
+            GetObject (hbmp, sizeof (bm), & bm);
             int bx = bm.bmWidth;
             int by = bm.bmHeight;
             StretchBlt(hDC, r->left,r->top,cx,cy,dcBmp,startbmx,startbmy,bx,by,SRCCOPY);
         }
     }
-    ::DeleteDC(dcBmp);
+
+    SelectObject(dcBmp, oldBmp);
+
+    DeleteDC(dcBmp);
 }
 
 SmartHandle<HBITMAP> CBitmapHolder::BitmapCopyPieceRGB(HDC hdestDC, HDC hsrcDC, LPRECT lpRect)
@@ -413,79 +429,16 @@ SmartHandle<HBITMAP> CBitmapHolder::BitmapCopyPieceRGB(HDC hdestDC, HDC hsrcDC, 
         1, 32, BI_RGB, 0,0,0,0, 0};
     void *pvBits;
 
-    SmartHandle<HBITMAP> hNewBmp(::CreateDIBSection(hdestDC,(BITMAPINFO *)&bmi,DIB_RGB_COLORS,&pvBits,NULL,0));
+    SmartHandle<HBITMAP> hNewBmp(CreateDIBSection(hdestDC,(BITMAPINFO *)&bmi,DIB_RGB_COLORS,&pvBits,NULL,0));
 
-    ::SelectObject(hdestDC, hNewBmp);
-    ::BitBlt(hdestDC, 0,0, lpRect->right-lpRect->left, lpRect->bottom-lpRect->top, hsrcDC, lpRect->left, lpRect->top, SRCCOPY);
+    HGDIOBJ oldBmp = SelectObject(hdestDC, hNewBmp);
+
+    BitBlt(hdestDC, 0,0, lpRect->right-lpRect->left, lpRect->bottom-lpRect->top, hsrcDC, lpRect->left, lpRect->top, SRCCOPY);
+
+    SelectObject(hdestDC, oldBmp);
 
     return hNewBmp;
 }
-
-
-///\todo: Doesn't work? fix it
-// load *.bmp, *.jpg, *.gif, *.ico, *.emf, or *.wmf files
-SmartHandle<HBITMAP> CBitmapHolder::BitmapLoadFromFile(const TCHAR* szFile)
-{
-    SmartHandle<HBITMAP> ret;
-
-    LPPICTURE gpPicture;
-    // open file
-    HANDLE hFile = CreateFile(szFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-    if (INVALID_HANDLE_VALUE == hFile) return ret;
-
-    // get file size
-    DWORD dwFileSize = GetFileSize(hFile, NULL);
-    if (-1 != dwFileSize)
-    {
-        LPVOID pvData = NULL;
-        // alloc memory based on file size
-        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, dwFileSize);
-        if (NULL != hGlobal)
-        {
-
-            pvData = GlobalLock(hGlobal);
-            if (NULL != pvData)
-            {
-                DWORD dwBytesRead = 0;
-                // read file and store in global memory
-                BOOL bRead = ReadFile(hFile, pvData, dwFileSize, &dwBytesRead, NULL);
-                if (bRead != FALSE)
-                {
-                    LPSTREAM pstm = NULL;
-                    // create IStream* from global memory
-                    HRESULT hr = CreateStreamOnHGlobal(hGlobal, TRUE, &pstm);
-                    if (SUCCEEDED(hr) && pstm)
-                    {
-                        // Create IPicture from image file
-                        hr = ::OleLoadPicture(pstm, dwFileSize, FALSE, IID_IPicture, (LPVOID *)&gpPicture);
-                        if (SUCCEEDED(hr) && gpPicture)
-                        {
-                            pstm->Release();
-
-                            OLE_HANDLE m_picHandle;
-
-                            gpPicture->get_Handle(&m_picHandle);
-
-                            HDC hdc = CreateCompatibleDC(NULL);
-
-                            SelectObject(hdc, (HGDIOBJ) m_picHandle);
-
-                            ret = (HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP);
-
-                            DeleteDC(hdc);
-                        }
-                    }
-
-                }
-                GlobalUnlock(hGlobal);
-            }
-        }
-
-    }
-    CloseHandle(hFile);
-    return ret;
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Cache for bitmaps from disk /////////////////////////////////////////////////
@@ -494,11 +447,7 @@ SmartHandle<HBITMAP> CBitmapCache::Read(LPCTSTR szFileName)
 {
     if(m_CacheList.find(szFileName) == m_CacheList.end())
     {
-        SmartHandle<HBITMAP> hBmp = CBitmapHolder::BitmapLoadFromFile(szFileName);
-        if (!hBmp)
-        {
-           hBmp = (HBITMAP)::LoadImage(NULL,szFileName,IMAGE_BITMAP,0,0,LR_LOADFROMFILE|LR_DEFAULTSIZE);
-        }
+        SmartHandle<HBITMAP> hBmp((HBITMAP)LoadImage(NULL,szFileName,IMAGE_BITMAP,0,0,LR_LOADFROMFILE|LR_DEFAULTSIZE));
         m_CacheList[szFileName] = hBmp;
         return hBmp;
     }
@@ -596,11 +545,11 @@ int CBitmapsFromIniSection::Read(tstring sIniFile, tstring sSection, tstring sBi
         }
         BITMAP bm1;
         BITMAP bm2;
-        if(::GetObject (hMainBmp, sizeof (bm1), & bm1) == 0)
+        if(GetObject (hMainBmp.GetRawHandle(), sizeof (bm1), & bm1) == 0)
         {
             return -5;
         }
-        if(::GetObject (hMainBmpMask, sizeof (bm2), & bm2) == 0)
+        if(GetObject (hMainBmpMask.GetRawHandle(), sizeof (bm2), & bm2) == 0)
         {
             return -5;
         }
@@ -651,18 +600,20 @@ int CBitmapsFromIniSection::Read(tstring sIniFile, tstring sSection, tstring sBi
                     && (right>left) && (bottom>top))
                 {
                     RECT rc;
-                    ::SetRect(&rc,left,top,right,bottom);
-                    ::SelectObject(hsrcDC, hMainBmp);
+                    SetRect(&rc,left,top,right,bottom);
+                    HGDIOBJ oldBmp = SelectObject(hsrcDC, hMainBmp);
                     hBmp = CBitmapHolder::BitmapCopyPieceRGB(hdestDC, hsrcDC, &rc);
                     if (hMainBmpMask != NULL)
                     {
-                        ::SelectObject(hsrcDC, hMainBmpMask);
+                        SelectObject(hsrcDC, hMainBmpMask);
                         hBmpMask = CBitmapHolder::BitmapCopyPieceRGB(hdestDC, hsrcDC, &rc);
                     }
 
                     (*it).second = SmartPtr<CBitmapState>(new CBitmapState(hBmp, hBmpMask));
                     (*it).second->m_ExtraInfo = szExtra;
                     Result = 0;
+
+                    SelectObject(hsrcDC, oldBmp);
                 }
                 else
                 {
@@ -679,8 +630,8 @@ int CBitmapsFromIniSection::Read(tstring sIniFile, tstring sSection, tstring sBi
         }
     }
 
-    ::DeleteDC(hsrcDC);
-    ::DeleteDC(hdestDC);
+    DeleteDC(hsrcDC);
+    DeleteDC(hdestDC);
 
     return Result;
 }

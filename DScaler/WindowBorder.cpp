@@ -91,13 +91,13 @@ CWindowBorder::~CWindowBorder()
 //Width of bitmap at border position 'Pos'
 int CWindowBorder::BmpWidth(int Pos)
 {
-    if (!Bitmaps[Pos].IsValid()) return 0;
+    if (Bitmaps.size() < WINDOWBORDER_LASTONE || !Bitmaps[Pos].IsValid()) return 0;
     return Bitmaps[Pos]->Width();
 }
 
 int CWindowBorder::BmpHeight(int Pos)
 {
-    if (!Bitmaps[Pos].IsValid()) return 0;
+    if (Bitmaps.size() < WINDOWBORDER_LASTONE || !Bitmaps[Pos].IsValid()) return 0;
     return Bitmaps[Pos]->Height();
 }
 
@@ -240,13 +240,7 @@ BOOL CWindowBorder::FindBorderSizes()
     if (bBitmapsChanged)
     {
         bBitmapsChanged = FALSE;
-
-        if (Bitmaps.size() == 0) {
-          for (int Pos = 0; Pos < WINDOWBORDER_LASTONE; Pos++)
-          {
-              Bitmaps.push_back(SmartPtr<CBitmapHolder>());
-          }
-        }
+        Bitmaps.resize(WINDOWBORDER_LASTONE);
 
         #define ADJUSTWIDTH(Pos) \
           if ((Bitmaps[(Pos)].IsValid()) && (Bitmaps[(Pos)]->Width() > MaxWidth)) { MaxWidth = Bitmaps[(Pos)]->Width(); }
@@ -540,16 +534,16 @@ void CWindowBorder::MergeBorderRegions(vector<RECT>& AllRegions, LPRECT lpRcExtr
         }
     }
 
-    POINT *pRowList = NULL;
+    std::vector<POINT> pRowList;
     POINT *p;
-    int *pRowListSize = NULL;
+    std::vector<int> pRowListSize;
     //LPRECT lpRc;
 
     //Process top lines
     if (TopSize > 0)
     {
-         vector<POINT> pRowList(TopSize * (TotalWidth+2));
-         vector<int> pRowListSize(TopSize);
+         pRowList.resize(TopSize * (TotalWidth+2));
+         pRowListSize.resize(TopSize);
 
          int h;
          for (h = 0; h < TopSize; h++)
@@ -618,8 +612,10 @@ void CWindowBorder::MergeBorderRegions(vector<RECT>& AllRegions, LPRECT lpRcExtr
     //Process bottom lines
     if (BottomSize > 0)
     {
-        pRowList = new POINT[BottomSize * (TotalWidth+2)];
-        pRowListSize = new int[BottomSize];
+        pRowList.clear();
+        pRowListSize.clear();
+        pRowList.resize(BottomSize * (TotalWidth+2));
+        pRowListSize.resize(BottomSize);
         int h;
         for (h = 0; h < BottomSize; h++)
         {
@@ -737,11 +733,9 @@ void CWindowBorder::Paint(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPShift)
 
     //LOG(2,_T("Skin: 0x%08x: Update area (%d,%d,%d,%d) at (%d,%d)"),this->hWnd,lpRect->left,lpRect->top,lpRect->right,lpRect->bottom,(pPShift==NULL)?0:pPShift->x,(pPShift==NULL)?0:pPShift->y);
 
-    if (Bitmaps.size() == 0) {
-        for (int Pos = 0; Pos < WINDOWBORDER_LASTONE; Pos++)
-        {
-            Bitmaps.push_back(SmartPtr<CBitmapHolder>());
-        }
+    if (Bitmaps.size() == 0) 
+    {
+        Bitmaps.resize(WINDOWBORDER_LASTONE);
     }
 
     RECT rcPaint;
@@ -1007,6 +1001,7 @@ BOOL CWindowBorder::LoadSkin(const TCHAR* szSkinIniFile, const TCHAR* szSection,
 void CWindowBorder::ClearSkin()
 {
     Bitmaps.clear();
+
     bBitmapsChanged = TRUE;
 
     Buttons.clear();

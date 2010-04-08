@@ -80,17 +80,29 @@ CToolbarChannels::~CToolbarChannels()
 {
     if (m_hIconChannelUp != NULL)
     {
-        ::DestroyIcon(m_hIconChannelUp);
+        if(!DestroyIcon(m_hIconChannelUp))
+        {
+            DeleteObject(m_hIconChannelUp);
+        }
         m_hIconChannelUp = NULL;
     }
     if (m_hIconChannelDown != NULL)
     {
-        ::DestroyIcon(m_hIconChannelDown);
+        if(!DestroyIcon(m_hIconChannelDown))
+        {
+            DeleteObject(m_hIconChannelDown);
+        }
         m_hIconChannelDown = NULL;
     }
     if (m_hIconChannelPrevious != NULL)
     {
-        ::DestroyIcon(m_hIconChannelPrevious);
+        if(!DestroyIcon(m_hIconChannelPrevious))
+        {
+            if(!(DeleteObject(m_hIconChannelPrevious)))
+            {
+                MessageBox(NULL, _T("Help"), _T("Help"), MB_OK);
+            }
+        }
         m_hIconChannelPrevious = NULL;
     }
 }

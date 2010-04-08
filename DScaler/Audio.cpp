@@ -27,9 +27,10 @@
 #include "Status.h"
 #include "MixerDev.h"
 #include "Providers.h"
+#include "ProtectCode.h"
 #include "DebugLog.h"
 
-CRITICAL_SECTION AudioMuteCriticalSection;
+CCanLock AudioMuteLocker;
 DWORD dwTimerProcThreadId = 0;
 BYTE AudioMuteStatus = 0;
 BOOL bUserMute = FALSE;
@@ -43,11 +44,6 @@ VOID CALLBACK AudioUnmuteDelayTimerProc(HWND hwnd, UINT, UINT_PTR idTimer, DWORD
 
 void Initialize_Mute()
 {
-    // This critical section isn't needed but may
-    // be in future if Audio_Mute/Unmute are going
-    // to be used asynchronously.
-    InitializeCriticalSection(&AudioMuteCriticalSection);
-
     // Set the timer proc to only be called on this thread
     dwTimerProcThreadId = GetCurrentThreadId();
 
@@ -63,7 +59,7 @@ void Initialize_Mute()
 
 void Audio_Mute(DWORD PostMuteDelay)
 {
-    EnterCriticalSection(&AudioMuteCriticalSection);
+    CProtectCode inScope(&AudioMuteLocker);
 
     // Multi-state muting and the handling PostMuteDelay
     // and PreMuteDelay within these two simple
@@ -89,15 +85,13 @@ void Audio_Mute(DWORD PostMuteDelay)
         }
     }
 
-    LeaveCriticalSection(&AudioMuteCriticalSection);
-
     LOG(2, _T(" Mute Called Status on Exit %d"), AudioMuteStatus);
 }
 
 
 void Audio_Unmute(DWORD PreUnmuteDelay)
 {
-    EnterCriticalSection(&AudioMuteCriticalSection);
+    CProtectCode inScope(&AudioMuteLocker);
 
     if(AudioMuteStatus > 0)
     {
@@ -136,7 +130,6 @@ void Audio_Unmute(DWORD PreUnmuteDelay)
         }
     }
 
-    LeaveCriticalSection(&AudioMuteCriticalSection);
     LOG(2, _T(" UnMute Called Status on Exit %d"), AudioMuteStatus);
 }
 

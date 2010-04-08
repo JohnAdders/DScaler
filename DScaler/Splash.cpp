@@ -74,7 +74,6 @@ INT_PTR CALLBACK SplashProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
         BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hMemDC, 0, 0, SRCCOPY);
         SelectObject(hMemDC, hOldBm);
         DeleteDC(hMemDC);
-        DeleteDC(hdc);
         EndPaint(hDlg, &wps);
         return TRUE;
         break;

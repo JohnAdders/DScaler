@@ -61,7 +61,7 @@ INT_PTR CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
             EndDialog(hDlg, TRUE);
             break;
         case IDC_LINK:
-            ShellExecute(hDlg, _T("open"), _T("http://www.dscalerproject.net/"), NULL, NULL, SW_SHOWNORMAL);
+            ShellExecute(hDlg, _T("open"), _T("http://www.dscalerproject.org/"), NULL, NULL, SW_SHOWNORMAL);
             break;
         default:
             break;

@@ -405,7 +405,7 @@ BOOL MakeTifFile(TDeinterlaceInfo* pInfo, char* TifFile, DEINTERLACE_METHOD* Dei
     else
         NbLines = pInfo->FrameHeight;
 
-    FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "PlugTest", NbLines, pInfo);
+    FillTiffHeader(&head, description, "http://www.dscalerproject.org/", "PlugTest", NbLines, pInfo);
     fwrite(&head, sizeof(head), 1, file);
 
     for (i = 0; i < NbLines; i++)

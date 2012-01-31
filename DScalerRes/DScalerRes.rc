@@ -462,9 +462,9 @@ FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,105,127,58,13
     CTEXT           "DScaler Version 4.x",IDC_VERSION,0,3,277,9
-    CTEXT           "Copyright © 2000-2010 John Adcock",IDC_STATIC,0,27,277,10
+    CTEXT           "Copyright © 2000-2012 John Adcock",IDC_STATIC,0,27,277,10
     GROUPBOX        "License Information",IDC_STATIC,0,39,277,82
-    CTEXT           "http://www.dscalerproject.net",IDC_LINK,0,15,277,9,SS_NOTIFY | SS_SUNKEN
+    CTEXT           "http://www.dscalerproject.org",IDC_LINK,0,15,277,9,SS_NOTIFY | SS_SUNKEN
     LTEXT           "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.",IDC_STATIC,3,51,273,26
     LTEXT           "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.",IDC_STATIC,3,78,274,35
 END

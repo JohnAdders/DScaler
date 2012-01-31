@@ -3053,7 +3053,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case IDM_HELP_HOMEPAGE:
-            ShellExecute(hWnd, _T("open"), _T("http://www.dscalerproject.net/"), NULL, NULL, SW_SHOWNORMAL);
+            ShellExecute(hWnd, _T("open"), _T("http://www.dscalerproject.org/"), NULL, NULL, SW_SHOWNORMAL);
             break;
 
         case IDM_HELP_FAQ:

@@ -89,7 +89,7 @@ using namespace std;
 
 TCHAR* ArrCredits[] = {  _T("DScaler\n"),
                         _T(""),
-                        _T("Copyright © 2009\f"),
+                        _T("Copyright © 2012\f"),
                         _T("DScaler Team\f"),
                         _T("All Rights Reserved\f"),
                         _T(""),

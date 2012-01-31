@@ -24,9 +24,9 @@
 [Setup]
 AppName=DScaler
 AppVerName=DScaler {#MyAppVersion}
-AppPublisherURL=http://www.dscaler.org
-AppSupportURL=http://www.dscaler.org/phpBB/
-AppUpdatesURL=http://www.dscaler.org
+AppPublisherURL=http://www.dscalerproject.org
+AppSupportURL=http://www.dscalerproject.org/phpBB/
+AppUpdatesURL=http://www.dscalerproject.org
 AppVersion={#MyAppVersion}
 DefaultDirName={pf}\DScaler
 DefaultGroupName=DScaler
@@ -37,7 +37,7 @@ AppMutex=DScaler
 ;required for installing the driver on NT platforms
 PrivilegesRequired=Admin
 DisableStartupPrompt=yes
-AppCopyright=Copyright (C) 2010 DScaler Team
+AppCopyright=Copyright (C) 2012 DScaler Team
 VersionInfoDescription=DScaler Setup
 VersionInfoProductVersion={#MyAppVersion}
 VersionInfoVersion={#MyAppVersion}
@@ -95,6 +95,7 @@ Source: "..\Release\dscaler_intro.tif"; DestDir: "{app}"; Flags: ignoreversion; 
 Source: "..\Release\DSDrv4.sys"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DSDrv4ia64.sys"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DSDrv4amd64.sys"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DSDrv4nt4.sys"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DSDrv4.vxd"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\channel.txt"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DScaler.chm"; DestDir: "{app}"; Flags: ignoreversion; Components: main
@@ -187,6 +188,9 @@ begin
   MoveFileToUsersArea('program.txt');
   MoveFileToUsersArea('programs.xml');
 end;
+
+
+
 
 
 

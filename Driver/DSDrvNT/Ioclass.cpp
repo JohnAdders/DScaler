@@ -720,6 +720,7 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
     PMemoryNode   node;
     DWORD         dwIndex;
     PPageStruct   pPages = (PPageStruct)(pMemStruct + 1);
+    bool retryNextMode = false;
 
     // Initialize the MemStruct
     pMemStruct->dwFlags = dwFlags;
@@ -727,19 +728,6 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
     pMemStruct->dwPages = 0;
     pMemStruct->dwTotalSize = 0;
     pMemStruct->dwUser = pUserAddress;
-
-    // don't return memory above 4GB unless the app wants it.
-    // it seems the only way to ensure that is via MmAllocateContiguousMemory().
-    // FIXME: determine highest physical address and use for decision
-#ifdef _WIN64
-    if (!above4G)
-#else
-    if (!above4G && m_PAEEnabled)
-#endif
-    {
-        dwFlags |= ALLOC_MEMORY_CONTIG;
-        debugOut(dbTrace, "allocMemory set contig b/c of 4gb limit");
-    }
 
     //
     //  First alloc our own free memory descriptor
@@ -750,7 +738,7 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
     {
         node = &memoryList[ dwIndex ];
 
-        if ( ! node->pSystemAddress )
+        if (!node->pSystemAddress )
         {
             node->pSystemAddress = (PVOID)1; // mark as used
             break;
@@ -762,6 +750,57 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
         debugOut(dbTrace," ! no free memory descriptor available");
         return STATUS_INSUFFICIENT_RESOURCES;
     }
+
+    node->dwFlags = pMemStruct->dwFlags;
+
+#ifdef _WIN64
+    if (!above4G)
+#else
+    if (!above4G && m_PAEEnabled)
+#endif
+    {
+        retryNextMode = true;
+    }
+
+    if(dwFlags & ALLOC_MEMORY_CONTIG)
+    {
+        ntStatus = allocMemoryContig(ulLength, node, pMemStruct, above4G);
+    }
+    else if(dwFlags & ALLOC_MEMORY_IN_DRIVER_LESS4GB)
+    {
+        ntStatus = allocMemoryBelow4GB(ulLength, node, pMemStruct);
+        if(ntStatus != STATUS_SUCCESS && retryNextMode)
+        {
+            pMemStruct->dwFlags = pMemStruct->dwFlags = ALLOC_MEMORY_CONTIG;
+            ntStatus = allocMemoryContig(ulLength, node, pMemStruct, above4G);
+        }
+    }
+    else
+    {
+        ntStatus = allocMemoryUserSupplied(ulLength, node, pUserAddress, pMemStruct, above4G);
+        if(ntStatus != STATUS_SUCCESS && retryNextMode)
+        {
+            node->dwFlags = pMemStruct->dwFlags = ALLOC_MEMORY_IN_DRIVER_LESS4GB;
+            ntStatus = allocMemoryBelow4GB(ulLength, node, pMemStruct);
+            if(ntStatus != STATUS_SUCCESS)
+            {
+                node->dwFlags = pMemStruct->dwFlags = ALLOC_MEMORY_CONTIG;
+                ntStatus = allocMemoryContig(ulLength, node, pMemStruct, above4G);
+            }
+        }
+    }
+
+    if(ntStatus != STATUS_SUCCESS)
+    {
+        node->pSystemAddress = NULL;
+    }
+    return ntStatus;
+}
+
+NTSTATUS CIOAccessDevice::allocMemoryUserSupplied(ULONG ulLength, PMemoryNode node, PVOID pUserAddress, PMemStruct pMemStruct, bool above4G)
+{
+    NTSTATUS      ntStatus;
+    PPageStruct   pPages = (PPageStruct)(pMemStruct + 1);
 
     ntStatus = STATUS_SUCCESS;
 
@@ -780,18 +819,6 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
         highestAcceptableAddress.HighPart = -1;
     }
 
-    if (dwFlags & ALLOC_MEMORY_CONTIG)
-    {
-        debugOut(dbTrace, "allocating contigous memory");
-        node->pSystemAddress = MmAllocateContiguousMemory(ulLength, highestAcceptableAddress);
-        if (!node->pSystemAddress)
-        {
-            debugOut(dbTrace,"! cannot alloc ContiguousMemory");
-            return STATUS_INSUFFICIENT_RESOURCES;
-        }
-        pUserAddress = node->pSystemAddress;
-    }
-
     debugOut(dbTrace,"alloc %lu bytes of system memory 0x%IX", ulLength, pUserAddress);
 
     //
@@ -800,79 +827,187 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
     node->pMdl = IoAllocateMdl(pUserAddress, ulLength, FALSE, FALSE, NULL);
     if (!node->pMdl)
     {
-        if(dwFlags & ALLOC_MEMORY_CONTIG)
-        {
-            MmFreeContiguousMemory(node->pSystemAddress);
-        }
-        node->pSystemAddress = NULL;
         debugOut(dbError, " ! cannot alloc MDL");
         return  STATUS_INSUFFICIENT_RESOURCES;
     }
+
+    debugOut(dbTrace,"node->pMdl 0x%IX", node->pMdl);
+    //
+    // Map locked pages into process's user address space
+    //
+    __try 
+    {
+        MmProbeAndLockPages(node->pMdl, KernelMode, IoModifyAccess);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) 
+    {
+        debugOut(dbError, " ! ProbeAndLock failed: user=0x%IX", node->pUserAddress);
+        IoFreeMdl(node->pMdl);
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+    debugOut(dbTrace,"Locked");
+
+    // OK so we've got some memory and we can fill
+    // in the return structure
+
+    pMemStruct->dwTotalSize = ulLength;
+    pMemStruct->dwHandle = PtrToUlong(node);
+    node->pUserAddress = pUserAddress;
+
+    if ( above4G )
+        ntStatus = buildPageStruct64(pMemStruct, node);
+    else
+        ntStatus = buildPageStruct32(pMemStruct, node);
+
+    if (ntStatus != STATUS_SUCCESS)
+    {
+        debugOut(dbError, "allocMemory: something went wrong, aborting!");
+        freeMemory(node);
+    }
     else
     {
-        debugOut(dbTrace,"node->pMdl 0x%IX", node->pMdl);
-        //
-        // Map locked pages into process's user address space
-        //
-        if (dwFlags & ALLOC_MEMORY_CONTIG)
-           MmBuildMdlForNonPagedPool(node->pMdl);
-        else
-        {
-            __try {
-                MmProbeAndLockPages(node->pMdl, KernelMode, IoModifyAccess);
-            } __except (EXCEPTION_EXECUTE_HANDLER) {
-                debugOut(dbError, " ! ProbeAndLock failed: user=0x%IX", node->pUserAddress);
-                IoFreeMdl(node->pMdl);
-                node->pSystemAddress = NULL;
-                return STATUS_INSUFFICIENT_RESOURCES;
-            }
-            debugOut(dbTrace,"Locked");
-        }
-
-        // OK so we've got some memory and we can fill
-        // in the return structure
-
-        // need to store this so we know to deallocate
-        // any contig memory
-        node->dwFlags = dwFlags;
-
-        pMemStruct->dwTotalSize = ulLength;
-        pMemStruct->dwHandle = PtrToUlong(node);
-        if(dwFlags & ALLOC_MEMORY_CONTIG)
-        {
-            __try {
-                node->pUserAddress = MmMapLockedPages(node->pMdl, UserMode);
-            } __except (EXCEPTION_EXECUTE_HANDLER) {
-                MmFreeContiguousMemory(node->pSystemAddress);
-                IoFreeMdl(node->pMdl);
-                debugOut(dbError, "MmMapLockedPages caused an exception (user=0x%IX)", node->pUserAddress);
-                node->pSystemAddress = NULL;
-                return STATUS_INSUFFICIENT_RESOURCES;
-            }
-        }
-        else
-        {
-            node->pUserAddress = pUserAddress;
-        }
-
-        if ( above4G )
-            ntStatus = buildPageStruct64(pMemStruct, node);
-        else
-            ntStatus = buildPageStruct32(pMemStruct, node);
-
-        if (ntStatus != STATUS_SUCCESS)
-        {
-            debugOut(dbError, "allocMemory: something went wrong, aborting!");
-            freeMemory(node);
-        }
-        else
-        {
-            debugOut(dbTrace,"node->dwUserAddress 0x%IX", node->pUserAddress);
-            debugOut(dbTrace,"Pages %d", (node->pMdl->Size - sizeof(MDL))/4);
-        }
+        debugOut(dbTrace,"node->dwUserAddress 0x%IX", node->pUserAddress);
+        debugOut(dbTrace,"Pages %d", (node->pMdl->Size - sizeof(MDL))/4);
     }
     return ntStatus;
 }
+
+NTSTATUS CIOAccessDevice::allocMemoryBelow4GB(ULONG ulLength, PMemoryNode node, PMemStruct pMemStruct)
+{
+    NTSTATUS      ntStatus;
+
+    ntStatus = STATUS_SUCCESS;
+
+    PHYSICAL_ADDRESS highestAcceptableAddress;
+    PHYSICAL_ADDRESS zero;
+
+    // clamp to 4GB
+    highestAcceptableAddress.LowPart  = -1;
+    highestAcceptableAddress.HighPart = 0;
+
+    zero.LowPart = 0;
+    zero.HighPart = 0;
+
+    debugOut(dbTrace,"alloc %lu bytes of system memory", ulLength);
+
+    //
+    // build the MDL to desribe the memory pages
+    //
+    node->pMdl = MmAllocatePagesForMdl(zero, highestAcceptableAddress, zero, ulLength);
+    if (!node->pMdl)
+    {
+        debugOut(dbError, " ! cannot alloc pages for MDL");
+        return  STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    debugOut(dbTrace,"node->pMdl 0x%IX", node->pMdl);
+    node->pUserAddress = MmMapLockedPagesSpecifyCache(node->pMdl, UserMode, MmCached, NULL /* no base address */,
+                                            FALSE /* no bug check on failure */, NormalPagePriority);
+
+
+    debugOut(dbTrace,"Alloc Results 0x%IX  0x%IX", node->pUserAddress, GetPhysAddr(node->pUserAddress).QuadPart);
+    // build the MDL to desribe the memory pages
+    // OK so we've got some memory and we can fill
+    // in the return structure
+//        freeMemory(node);
+//        return STATUS_INSUFFICIENT_RESOURCES;
+
+    pMemStruct->dwTotalSize = ulLength;
+    pMemStruct->dwHandle = PtrToUlong(node);
+
+    ntStatus = buildPageStruct32(pMemStruct, node);
+
+    if (ntStatus != STATUS_SUCCESS)
+    {
+        debugOut(dbError, "allocMemory: something went wrong, aborting!");
+        freeMemory(node);
+    }
+    else
+    {
+        debugOut(dbTrace,"node->dwUserAddress 0x%IX", node->pUserAddress);
+        debugOut(dbTrace,"Pages %d", (node->pMdl->Size - sizeof(MDL))/4);
+    }
+    return ntStatus;
+}
+
+NTSTATUS CIOAccessDevice::allocMemoryContig(ULONG ulLength, PMemoryNode node, PMemStruct pMemStruct, bool above4G)
+{
+    NTSTATUS      ntStatus;
+
+    ntStatus = STATUS_SUCCESS;
+
+    PHYSICAL_ADDRESS highestAcceptableAddress;
+
+    if (!above4G)
+    {
+        // clamp to 4GB
+        highestAcceptableAddress.LowPart  = -1;
+        highestAcceptableAddress.HighPart = 0;
+    }
+    else
+    {
+        // app doesn't care, use all we can get
+        highestAcceptableAddress.LowPart  = -1;
+        highestAcceptableAddress.HighPart = -1;
+    }
+
+    debugOut(dbTrace, "allocating contigous memory");
+    node->pSystemAddress = MmAllocateContiguousMemory(ulLength, highestAcceptableAddress);
+    if (!node->pSystemAddress)
+    {
+        debugOut(dbTrace,"! cannot alloc ContiguousMemory");
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    debugOut(dbTrace,"alloc %lu bytes of system memory", ulLength);
+
+    //
+    // build the MDL to desribe the memory pages
+    //
+    node->pMdl = IoAllocateMdl(node->pSystemAddress, ulLength, FALSE, FALSE, NULL);
+    if (!node->pMdl)
+    {
+        MmFreeContiguousMemory(node->pSystemAddress);
+        debugOut(dbError, " ! cannot alloc MDL");
+        return  STATUS_INSUFFICIENT_RESOURCES;
+    }
+    debugOut(dbTrace,"node->pMdl 0x%IX", node->pMdl);
+    //
+    // Map locked pages into process's user address space
+    //
+    MmBuildMdlForNonPagedPool(node->pMdl);
+
+    // OK so we've got some memory and we can fill
+    // in the return structure
+    pMemStruct->dwTotalSize = ulLength;
+    pMemStruct->dwHandle = PtrToUlong(node);
+    __try {
+        node->pUserAddress = MmMapLockedPages(node->pMdl, UserMode);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        MmFreeContiguousMemory(node->pSystemAddress);
+        IoFreeMdl(node->pMdl);
+        debugOut(dbError, "MmMapLockedPages caused an exception (user=0x%IX)", node->pUserAddress);
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    if ( above4G )
+        ntStatus = buildPageStruct64(pMemStruct, node);
+    else
+        ntStatus = buildPageStruct32(pMemStruct, node);
+
+    if (ntStatus != STATUS_SUCCESS)
+    {
+        debugOut(dbError, "allocMemory: something went wrong, aborting!");
+        freeMemory(node);
+    }
+    else
+    {
+        debugOut(dbTrace,"node->dwUserAddress 0x%IX", node->pUserAddress);
+        debugOut(dbTrace,"Pages %d", (node->pMdl->Size - sizeof(MDL))/4);
+    }
+    return ntStatus;
+}
+
 
 //---------------------------------------------------------------------------
 //
@@ -880,11 +1015,11 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
 NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode node)
 {
     PPageStruct pPages = (PPageStruct)(pMemStruct + 1);
+    pMemStruct->dwUser = node->pUserAddress;
 
     if (node->dwFlags & ALLOC_MEMORY_CONTIG)
     {
         pMemStruct->dwPages = 1;
-        pMemStruct->dwUser = node->pUserAddress;
         ULONGLONG phys = GetPhysAddr(node->pUserAddress).QuadPart;
         if (phys > 0xFFFFFFFFU)
         {
@@ -1007,7 +1142,7 @@ CIOAccessDevice::freeMemory(PMemStruct pMemStruct)
 void CIOAccessDevice::freeMemory(PMemoryNode node)
 {
     debugOut(dbTrace,"free node");
-    if(node->dwFlags & ALLOC_MEMORY_CONTIG)
+    if(node->dwFlags & ALLOC_MEMORY_CONTIG || node->dwFlags & ALLOC_MEMORY_IN_DRIVER_LESS4GB)
     {
         MmUnmapLockedPages(node->pUserAddress, node->pMdl);
     }
@@ -1022,6 +1157,7 @@ void CIOAccessDevice::freeMemory(PMemoryNode node)
     {
         MmFreeContiguousMemory(node->pSystemAddress);
     }
+
     memset(node, 0, sizeof(MemoryNode));
 }
 

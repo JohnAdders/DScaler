@@ -82,6 +82,9 @@ protected:
     MappingNode mappingList[MAX_FREE_MAPPING_NODES];
 
 protected:
+    NTSTATUS allocMemoryUserSupplied(ULONG ulLength, PMemoryNode node, PVOID ulUserAddress, PMemStruct pMemStruct, bool above4G);
+    NTSTATUS allocMemoryBelow4GB(ULONG ulLength, PMemoryNode node, PMemStruct pMemStruct);
+    NTSTATUS allocMemoryContig(ULONG ulLength, PMemoryNode node, PMemStruct pMemStruct, bool above4G);
     NTSTATUS pciGetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot);
     NTSTATUS pciSetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot);
     NTSTATUS pciGetDeviceConfigOffset(BYTE *pPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot);

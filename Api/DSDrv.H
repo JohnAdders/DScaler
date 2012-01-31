@@ -58,6 +58,9 @@ typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
 
 // allocate a continous block of memory
 #define ALLOC_MEMORY_CONTIG 1
+// allocates a block of memory inside the driver
+// requesting it under 4Gb boundary
+#define ALLOC_MEMORY_IN_DRIVER_LESS4GB 2
 
 typedef struct
 {

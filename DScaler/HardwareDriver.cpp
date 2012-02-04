@@ -62,7 +62,7 @@ CHardwareDriver::CHardwareDriver()
     // use old driver if we're not at least xp
     else if(!m_bWindows95 && ov.dwMajorVersion < 5)
     {
-        _tcscat(m_NTDriverName, "nt4");
+        _tcscat(m_NTDriverName, _T("nt4"));
     }
 }
 

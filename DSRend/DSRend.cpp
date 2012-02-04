@@ -114,8 +114,9 @@ STDAPI DllRegisterServer(void)
     if(FAILED(hr))
         return hr;
     
-    //register filter as a directshow filter
-    hr=pMapper->RegisterFilter(CLSID_DSRendFilter,g_wszName,NULL,&CLSID_LegacyAmFilterCategory,NULL,&regFilter2);
+    // no need to register as a filter
+    // register filter as a directshow filter
+    //hr=pMapper->RegisterFilter(CLSID_DSRendFilter,g_wszName,NULL,&CLSID_LegacyAmFilterCategory,NULL,&regFilter2);
     return hr;
 }
 
@@ -133,4 +134,35 @@ STDAPI DllUnregisterServer(void)
         return hr;
 
     return _Module.UnregisterServer(TRUE);
+}
+
+// DllInstall - Adds/Removes entries to the system registry per user
+//              per machine.	
+STDAPI DllInstall(BOOL bInstall, LPCWSTR pszCmdLine)
+{
+    HRESULT hr = E_FAIL;
+    static const wchar_t szUserSwitch[] = _T("user");
+
+    if (pszCmdLine != NULL)
+    {
+    	if (_wcsnicmp(pszCmdLine, szUserSwitch, _countof(szUserSwitch)) == 0)
+    	{
+    		AtlSetPerUserRegistration(true);
+    	}
+    }
+
+    if (bInstall)
+    {	
+    	hr = DllRegisterServer();
+    	if (FAILED(hr))
+    	{	
+    		DllUnregisterServer();
+    	}
+    }
+    else
+    {
+    	hr = DllUnregisterServer();
+    }
+
+    return hr;
 }

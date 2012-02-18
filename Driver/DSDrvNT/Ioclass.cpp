@@ -768,8 +768,10 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
     }
     else if(dwFlags & ALLOC_MEMORY_IN_DRIVER_LESS4GB)
     {
+#ifndef NT4_BUILD
         ntStatus = allocMemoryBelow4GB(ulLength, node, pMemStruct);
         if(ntStatus != STATUS_SUCCESS && retryNextMode)
+#endif
         {
             pMemStruct->dwFlags = pMemStruct->dwFlags = ALLOC_MEMORY_CONTIG;
             ntStatus = allocMemoryContig(ulLength, node, pMemStruct, above4G);
@@ -780,8 +782,10 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
         ntStatus = allocMemoryUserSupplied(ulLength, node, pUserAddress, pMemStruct, above4G);
         if(ntStatus != STATUS_SUCCESS && retryNextMode)
         {
+#ifndef NT4_BUILD
             node->dwFlags = pMemStruct->dwFlags = ALLOC_MEMORY_IN_DRIVER_LESS4GB;
             ntStatus = allocMemoryBelow4GB(ulLength, node, pMemStruct);
+#endif
             if(ntStatus != STATUS_SUCCESS)
             {
                 node->dwFlags = pMemStruct->dwFlags = ALLOC_MEMORY_CONTIG;
@@ -878,6 +882,7 @@ NTSTATUS CIOAccessDevice::allocMemoryBelow4GB(ULONG ulLength, PMemoryNode node, 
 
     ntStatus = STATUS_SUCCESS;
 
+#ifndef NT4_BUILD
     PHYSICAL_ADDRESS highestAcceptableAddress;
     PHYSICAL_ADDRESS zero;
 
@@ -927,6 +932,7 @@ NTSTATUS CIOAccessDevice::allocMemoryBelow4GB(ULONG ulLength, PMemoryNode node, 
         debugOut(dbTrace,"node->dwUserAddress 0x%IX", node->pUserAddress);
         debugOut(dbTrace,"Pages %d", (node->pMdl->Size - sizeof(MDL))/4);
     }
+#endif
     return ntStatus;
 }
 

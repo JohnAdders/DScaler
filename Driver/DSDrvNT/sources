@@ -5,7 +5,12 @@ TARGETNAME=..\..\..\..\Release\DSDrv4AMD64
 !elseif "$(_BUILDARCH)" == "IA64"
 TARGETNAME=..\..\..\..\Release\DSDrv4IA64
 !else
+!if "$(TARGET)" == "NT4"
+C_DEFINES=$(C_DEFINES) -DNT4_BUILD
+TARGETNAME=..\..\..\..\Release\DSDrv4nt4
+!else
 TARGETNAME=..\..\..\..\Release\DSDrv4
+!endif
 !endif
 
 INCLUDES=..\..\Api

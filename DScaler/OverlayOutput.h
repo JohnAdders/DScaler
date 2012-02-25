@@ -25,8 +25,8 @@ typedef struct
     HMONITOR hMon;
     LPDIRECTDRAW lpDD;
 } TMonitor;
-#define MAX_MONITORS    4
-static TMonitor Monitors[MAX_MONITORS];
+#define MAX_DSCALER_MONITORS    16
+static TMonitor Monitors[MAX_DSCALER_MONITORS];
 static int NbMonitors=0;
 static HMONITOR hCurrentMon=0;
 

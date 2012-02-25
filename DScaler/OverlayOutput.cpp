@@ -47,7 +47,7 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
     MONITORINFO MonInfo;
     LPDIRECTDRAW lpDD;
 
-    if (NbMonitors == MAX_MONITORS)
+    if (NbMonitors == MAX_DSCALER_MONITORS)
         return DDENUMRET_CANCEL;
 
     // DirectDrawEnumerateEx returns hMonitor = NULL on single monitor configuration
@@ -58,7 +58,7 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
     {
         hMonitor = OverlayOutputInstance.m_lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
     }
-    LOG(2, _T("Monitor %d %s %s"), hMonitor, pszDesc, pszDriverName);
+    LOG(0, _T("Monitor %d %s %s"), hMonitor, pszDesc, pszDriverName);
 
     // and therefore test if we found again the same monitor !
     for (int i = 0; i < NbMonitors; i++)
@@ -91,13 +91,17 @@ BOOL COverlayOutput::ListMonitors(HWND hWnd)
     static DynamicFunctionS3<HRESULT, LPDDENUMCALLBACKEX, LPVOID, DWORD> lpDDEnumEx(_T("ddraw.dll"), ADD_API_LETTER(DirectDrawEnumerateEx));
     BOOL RetVal = TRUE;
 
+    NbMonitors = 0;
+
     // Retrieve the function from the DirectDraw DLL
     if (lpDDEnumEx)
     {
         // If the function is there, call it to enumerate all display
         // devices attached to the desktop
-        if(lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES) != DD_OK)
+        HRESULT hr = lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES);
+        if(hr != DD_OK)
         {
+            LOG(0, _T("DDEnumEx failed %08x"), hr);
             RetVal = FALSE;
         }
     }
@@ -117,7 +121,7 @@ LPDIRECTDRAW COverlayOutput::GetCurrentDD(HWND hWnd)
         if (FAILED(m_lpDirectDrawCreate(NULL, &lpDD, NULL)))
         {
             ErrorBox(_T("DirectDrawCreate failed"));
-            return (FALSE);
+            return NULL;
         }
         return lpDD;
     }
@@ -132,7 +136,16 @@ LPDIRECTDRAW COverlayOutput::GetCurrentDD(HWND hWnd)
             return Monitors[i].lpDD;
         }
     }
-    return NULL;
+
+    LOG(0, _T("Couldn't find correct monitor"));
+
+    // fall back to standard DD create
+    if (FAILED(m_lpDirectDrawCreate(NULL, &lpDD, NULL)))
+    {
+        ErrorBox(_T("DirectDrawCreate failed"));
+        return NULL;
+    }
+    return lpDD;
 }
 
 //-----------------------------------------------------------------------------

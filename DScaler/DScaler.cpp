@@ -6158,6 +6158,7 @@ SmartPtr<CSettingsHolder> DScaler_GetSettingsPage2()
     Holder->AddSettings(&DScalerSettings[SCREENSAVEROFF], 1);
     Holder->AddSettings(&DScalerSettings[SINGLEKEYTELETEXTTOGGLE], 1);
     Holder->AddSettings(&DScalerSettings[MINIMIZEHANDLING], 1);
+    Holder->AddSettings(&DScalerSettings[HANDLEMEDIAKEYS], 1);
     return Holder;
 }
 

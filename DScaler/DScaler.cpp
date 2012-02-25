@@ -148,6 +148,7 @@ BOOL bVTAutoCodePage = FALSE;
 BOOL bVTAntiAlias = FALSE;
 BOOL bMinimized = FALSE;
 BOOL bReverseChannelScroll = FALSE;
+BOOL bHandleMediaKeys = TRUE;
 
 BOOL bMinToTray = FALSE;
 BOOL bIconOn = FALSE;
@@ -3983,7 +3984,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     default:
         {
-            LONG RetVal = Remote_HandleMsgs(hWnd, message, wParam, lParam, &bDone);
+            LONG RetVal;
+            if(bHandleMediaKeys)
+            {
+                RetVal = Remote_HandleMsgs(hWnd, message, wParam, lParam, &bDone);
+            }
             if(!bDone && SettingsMaster.IsValid())
             {
                 RetVal = SettingsMaster->HandleSettingMsgs(hWnd, message, wParam, lParam, &bDone);
@@ -6102,7 +6107,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         OutputMethodNames,
         "MainWindow", "OutputMethod", NULL,
     },
-
+    {
+        "Process Media Keys", ONOFF, 0, (LONG_PTR*)&bHandleMediaKeys,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "HandleMediaKeys", NULL,
+    },
 };
 
 SETTING* DScaler_GetSetting(DSCALER_SETTING Setting)

@@ -40,6 +40,28 @@ void RemoteRegister()
 
 
 #ifdef WM_APPCOMMAND
+// Cope with media commands relating to volume that we always grab
+LONG OnAppCommandVolume(HWND hWnd, WPARAM wParam, LPARAM lParam)
+{
+    LONG RetVal = TRUE;
+
+    switch(GET_APPCOMMAND_LPARAM(lParam))
+    {
+    case APPCOMMAND_VOLUME_DOWN:
+        PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEMINUS, 0);
+        break;
+    case APPCOMMAND_VOLUME_UP:
+        PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEPLUS, 0);
+        break;
+    case APPCOMMAND_VOLUME_MUTE:
+        PostMessage(hWnd, WM_COMMAND, IDM_MUTE, 0);
+        break;
+    default:
+        RetVal = FALSE;
+        break;
+    }
+    return RetVal;
+}
 // Cope with new media commands
 // MCE remote sends these for the basic keys
 LONG OnAppCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
@@ -65,15 +87,6 @@ LONG OnAppCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
         break;
     case APPCOMMAND_MEDIA_PLAY_PAUSE:
         PostMessage(hWnd, WM_COMMAND, IDM_CAPTURE_PAUSE, 0);
-        break;
-    case APPCOMMAND_VOLUME_DOWN:
-        PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEMINUS, 0);
-        break;
-    case APPCOMMAND_VOLUME_UP:
-        PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEPLUS, 0);
-        break;
-    case APPCOMMAND_VOLUME_MUTE:
-        PostMessage(hWnd, WM_COMMAND, IDM_MUTE, 0);
         break;
     default:
         RetVal = FALSE;
@@ -183,10 +196,21 @@ LONG Remote_HandleMsgs(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, BO
     }
 #endif
 #ifdef WM_APPCOMMAND
-    if(message == WM_APPCOMMAND && bHandleMediaKeys)
+    if(message == WM_APPCOMMAND)
     {
         *bDone = TRUE;
-        return OnAppCommand(hWnd, wParam, lParam);
+        if(OnAppCommandVolume(hWnd, wParam, lParam))
+        {
+            return TRUE;
+        }
+        if(bHandleMediaKeys)
+        {
+            return OnAppCommand(hWnd, wParam, lParam);
+        }
+        else
+        {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
     }
 #endif
     return 0;

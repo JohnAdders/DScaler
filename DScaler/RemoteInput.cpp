@@ -12,6 +12,8 @@
 #ifdef WM_INPUT
 DynamicFunctionS3<BOOL, PCRAWINPUTDEVICE, UINT, UINT> lpRegisterRawInputDevices(_T("user32.dll"), "RegisterRawInputDevices");
 DynamicFunctionS5<UINT, HRAWINPUT, UINT, LPVOID ,PUINT, UINT> lpGetRawInputData(_T("user32.dll"), "GetRawInputData");
+DynamicFunctionS3<LRESULT, PRAWINPUT* ,INT ,UINT> lpDefRawInputProc(_T("user32,dll"), "DefRawInputProc");
+extern BOOL bHandleMediaKeys;
 #endif
 
 
@@ -98,7 +100,7 @@ LONG OnInput(HWND hWnd, WPARAM wParam, LPARAM lParam)
             {
                 RAWINPUT* raw = (RAWINPUT*)lpb;
 
-                if (raw->header.dwType == RIM_TYPEHID)
+                if (raw->header.dwType == RIM_TYPEHID && bHandleMediaKeys)
                 {
                     if(raw->data.hid.dwSizeHid == 2 && raw->data.hid.dwCount == 1)
                     {
@@ -144,6 +146,10 @@ LONG OnInput(HWND hWnd, WPARAM wParam, LPARAM lParam)
                         }
                     }
                 }
+                if(!bHandled)
+                {
+                    lpDefRawInputProc(&raw, 1, sizeof(RAWINPUTHEADER));
+                }
             }
 
             delete[] lpb;
@@ -155,7 +161,6 @@ LONG OnInput(HWND hWnd, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            DefWindowProc(hWnd, WM_INPUT, wParam, lParam);
             return TRUE;
         }
     }
@@ -178,7 +183,7 @@ LONG Remote_HandleMsgs(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, BO
     }
 #endif
 #ifdef WM_APPCOMMAND
-    if(message == WM_APPCOMMAND)
+    if(message == WM_APPCOMMAND && bHandleMediaKeys)
     {
         *bDone = TRUE;
         return OnAppCommand(hWnd, wParam, lParam);

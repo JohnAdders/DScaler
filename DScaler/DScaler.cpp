@@ -3984,11 +3984,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     default:
         {
-            LONG RetVal;
-            if(bHandleMediaKeys)
-            {
-                RetVal = Remote_HandleMsgs(hWnd, message, wParam, lParam, &bDone);
-            }
+            LONG RetVal = Remote_HandleMsgs(hWnd, message, wParam, lParam, &bDone);
             if(!bDone && SettingsMaster.IsValid())
             {
                 RetVal = SettingsMaster->HandleSettingMsgs(hWnd, message, wParam, lParam, &bDone);
